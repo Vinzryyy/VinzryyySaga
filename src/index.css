@@ -1,7 +1,64 @@
+/* Google Fonts - Must be first */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&family=Poppins:wght@300;400;500;600;700&display=swap");
+
 @import "tailwindcss";
 
-/* Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&family=Poppins:wght@300;400;500;600;700&display=swap");
+/* ==========================================================================
+   RETRO GALLERY COLOR PALETTE
+   Muted vintage tones - darker, more subdued film photography aesthetic
+   ========================================================================== */
+
+:root {
+  /* Primary Retro Palette - Muted Film Tones */
+  --retro-cream: #E8E0D0;
+  --retro-cream-dark: #D4C8B8;
+  --retro-sepia: #A68A64;
+  --retro-brown: #6B5A46;
+  --retro-brown-dark: #3D342B;
+  
+  /* Accent Colors - Muted Vintage Gold & Burgundy */
+  --retro-gold: #9A7B4F;
+  --retro-gold-light: #B8956A;
+  --retro-burgundy: #6B3A3A;
+  --retro-burgundy-light: #8B4A4A;
+  
+  /* Text Colors - Darker */
+  --retro-text-primary: #2A2420;
+  --retro-text-secondary: #4A4238;
+  --retro-text-light: #6B6358;
+  --retro-text-muted: #8B8378;
+  
+  /* Background Colors - Muted */
+  --retro-bg-primary: #E8E0D0;
+  --retro-bg-secondary: #D4C8B8;
+  --retro-bg-tertiary: #C4B8A8;
+  --retro-bg-dark: #2A2420;
+  
+  /* Borders & Shadows - Subtle */
+  --retro-border: #B8A898;
+  --retro-border-dark: #9A8A78;
+  --retro-shadow: rgba(42, 36, 32, 0.15);
+  --retro-shadow-dark: rgba(42, 36, 32, 0.25);
+  
+  /* Legacy Support (maps old pastel to retro) */
+  --color-pastel-pink: var(--retro-burgundy-light);
+  --color-pastel-rose: var(--retro-burgundy);
+  --color-pastel-peach: var(--retro-sepia);
+  --color-pastel-tan: var(--retro-brown);
+  --color-pastel-cream: var(--retro-cream-dark);
+  --color-bg-primary: var(--retro-bg-primary);
+  --color-bg-secondary: var(--retro-bg-secondary);
+  --color-bg-tertiary: var(--retro-bg-tertiary);
+  --color-text-primary: var(--retro-text-primary);
+  --color-text-secondary: var(--retro-text-secondary);
+  --color-text-light: var(--retro-text-light);
+  --color-accent: var(--retro-gold);
+  --color-accent-hover: var(--retro-gold-light);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
 
 html {
   scroll-behavior: smooth;
@@ -9,4 +66,600 @@ html {
 
 body {
   font-family: "Poppins", sans-serif;
+  background-color: var(--retro-bg-primary) !important;
+  background-image: linear-gradient(180deg, var(--retro-bg-primary) 0%, var(--retro-bg-secondary) 100%) !important;
+  min-height: 100vh;
+  color: var(--retro-text-primary);
+}
+
+/* Font utilities */
+.font-header {
+  font-family: "Playfair Display", serif;
+}
+
+/* Retro Film Grain Overlay Effect */
+.retro-grain {
+  position: relative;
+}
+
+.retro-grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Custom Animations
+   ========================================================================== */
+
+/* Fade Up Animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out forwards;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Slide In Left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out forwards;
+}
+
+/* Slide In Right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out forwards;
+}
+
+/* Scale In */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+/* Progress Bar Animation (for hero slider) */
+@keyframes progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Pulse Animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shimmer Loading Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ==========================================================================
+   Scrollbar Styling
+   ========================================================================== */
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937; /* gray-800 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563; /* gray-600 */
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280; /* gray-500 */
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+/* Hide Scrollbar (for horizontal scroll containers) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   Selection Styling
+   ========================================================================== */
+
+::selection {
+  background-color: rgba(147, 51, 234, 0.3); /* purple-600 with opacity */
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Focus Styles
+   ========================================================================== */
+
+/* Remove default focus outline and add custom */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid #9333ea; /* purple-600 */
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Image Optimization
+   ========================================================================== */
+
+/* Smooth image loading */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Lazy load transition */
+img[loading="lazy"] {
+  transition: opacity 0.3s ease;
+}
+
+/* ==========================================================================
+   Glass Morphism Utilities
+   ========================================================================== */
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   Gradient Utilities - Retro Gallery Theme
+   ========================================================================== */
+
+.gradient-retro {
+  background: linear-gradient(135deg, var(--retro-cream) 0%, var(--retro-sepia) 50%, var(--retro-gold) 100%);
+}
+
+.gradient-retro-warm {
+  background: linear-gradient(135deg, var(--retro-burgundy) 0%, var(--retro-sepia) 100%);
+}
+
+.gradient-retro-sunset {
+  background: linear-gradient(135deg, var(--retro-burgundy-light) 0%, var(--retro-gold) 50%, var(--retro-cream-dark) 100%);
+}
+
+.gradient-retro-sepia {
+  background: linear-gradient(135deg, var(--retro-sepia) 0%, var(--retro-brown) 100%);
+}
+
+.gradient-pastel {
+  background: linear-gradient(135deg, var(--retro-burgundy-light) 0%, var(--retro-sepia) 50%, var(--retro-cream-dark) 100%);
+}
+
+.gradient-pastel-rose {
+  background: linear-gradient(135deg, var(--retro-burgundy-light) 0%, var(--retro-burgundy) 100%);
+}
+
+.gradient-pastel-sunset {
+  background: linear-gradient(135deg, var(--retro-burgundy-light) 0%, var(--retro-sepia) 50%, var(--retro-brown) 100%);
+}
+
+.gradient-pastel-soft {
+  background: linear-gradient(135deg, var(--retro-bg-secondary) 0%, var(--retro-bg-tertiary) 100%);
+}
+
+.gradient-purple {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, var(--retro-gold) 0%, var(--retro-gold-light) 100%);
+}
+
+.gradient-ocean {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+}
+
+.gradient-sunset {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+}
+
+/* Text Gradient */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-retro {
+  background-image: linear-gradient(135deg, var(--retro-gold) 0%, var(--retro-sepia) 100%);
+}
+
+.text-gradient-pastel {
+  background-image: linear-gradient(135deg, var(--retro-burgundy) 0%, var(--retro-brown) 100%);
+}
+
+.text-gradient-purple {
+  background-image: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+}
+
+/* ==========================================================================
+   Line Clamp Utilities
+   ========================================================================== */
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Responsive Container
+   ========================================================================== */
+
+.container-custom {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  nav, footer, button {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Retro Theme Component Classes
+   ========================================================================== */
+
+/* Soft shadow for retro theme */
+.shadow-retro {
+  box-shadow: 0 4px 20px var(--retro-shadow);
+}
+
+.shadow-retro-lg {
+  box-shadow: 0 10px 40px var(--retro-shadow-dark);
+}
+
+.shadow-pastel {
+  box-shadow: 0 4px 20px var(--retro-shadow);
+}
+
+.shadow-pastel-lg {
+  box-shadow: 0 10px 40px var(--retro-shadow-dark);
+}
+
+/* Glass effect with retro tint */
+.glass-retro {
+  background: rgba(253, 246, 227, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--retro-border);
+}
+
+.glass-pastel {
+  background: rgba(253, 246, 227, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--retro-border);
+}
+
+/* Soft border radius */
+.rounded-retro {
+  border-radius: 1rem;
+}
+
+.rounded-retro-lg {
+  border-radius: 1.5rem;
+}
+
+.rounded-pastel {
+  border-radius: 1rem;
+}
+
+.rounded-pastel-lg {
+  border-radius: 1.5rem;
+}
+
+/* Text utilities */
+.text-retro-cream {
+  color: var(--retro-cream);
+}
+
+.text-retro-sepia {
+  color: var(--retro-sepia);
+}
+
+.text-retro-gold {
+  color: var(--retro-gold);
+}
+
+.text-retro-burgundy {
+  color: var(--retro-burgundy);
+}
+
+.text-pastel-pink {
+  color: var(--retro-burgundy-light);
+}
+
+.text-pastel-rose {
+  color: var(--retro-burgundy);
+}
+
+.text-pastel-peach {
+  color: var(--retro-sepia);
+}
+
+.text-pastel-tan {
+  color: var(--retro-brown);
+}
+
+.text-pastel-cream {
+  color: var(--retro-cream-dark);
+}
+
+/* Background utilities */
+.bg-retro-cream {
+  background-color: var(--retro-cream);
+}
+
+.bg-retro-sepia {
+  background-color: var(--retro-sepia);
+}
+
+.bg-retro-gold {
+  background-color: var(--retro-gold);
+}
+
+.bg-retro-burgundy {
+  background-color: var(--retro-burgundy);
+}
+
+.bg-pastel-pink {
+  background-color: var(--retro-burgundy-light);
+}
+
+.bg-pastel-rose {
+  background-color: var(--retro-burgundy);
+}
+
+.bg-pastel-peach {
+  background-color: var(--retro-sepia);
+}
+
+.bg-pastel-tan {
+  background-color: var(--retro-brown);
+}
+
+.bg-pastel-cream {
+  background-color: var(--retro-cream-dark);
+}
+
+/* Hover effects */
+.hover-lift-retro {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift-retro:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px var(--retro-shadow-dark);
+}
+
+.hover-lift-pastel {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift-pastel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px var(--retro-shadow-dark);
+}
+
+/* Soft focus ring */
+.focus-retro:focus-visible {
+  outline: 2px solid var(--retro-gold);
+  outline-offset: 2px;
+}
+
+.focus-pastel:focus-visible {
+  outline: 2px solid var(--retro-burgundy);
+  outline-offset: 2px;
+}
+
+/* Vintage Border Styles */
+.border-retro {
+  border: 1px solid var(--retro-border);
+}
+
+.border-retro-dark {
+  border: 1px solid var(--retro-border-dark);
+}
+
+/* Sepia Filter for Images */
+.filter-sepia {
+  filter: sepia(0.3);
+}
+
+.filter-sepia-strong {
+  filter: sepia(0.6);
+}
+
+/* Vintage Frame */
+.vintage-frame {
+  border: 8px solid var(--retro-cream-dark);
+  box-shadow: 
+    0 4px 20px var(--retro-shadow-dark),
+    inset 0 0 0 2px var(--retro-border);
 }

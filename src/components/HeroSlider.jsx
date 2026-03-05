@@ -65,8 +65,8 @@ function HeroSlider() {
               `}
             />
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+            {/* Overlay - Warm Pastel */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--color-text-primary)]/70 via-[color:var(--color-text-primary)]/20 to-transparent" />
           </div>
         );
       })}
@@ -80,6 +80,7 @@ function HeroSlider() {
               font-header text-3xl font-extrabold text-white
               sm:text-4xl md:text-6xl
               animate-[fadeUp_0.8s_ease-out]
+              drop-shadow-lg
             "
           >
             {slides[current].title}
@@ -88,9 +89,10 @@ function HeroSlider() {
           <p
             key={slides[current].meta}
             className="
-              mt-2 text-sm tracking-wide text-white/80
+              mt-2 text-sm tracking-wide text-white/90
               md:text-base
               animate-[fadeUp_1s_ease-out]
+              drop-shadow-md
             "
           >
             {slides[current].meta}
@@ -98,17 +100,17 @@ function HeroSlider() {
         </div>
       </div>
 
-      {/* Progress Indicators */}
+      {/* Progress Indicators - Retro Gold */}
       <div className="absolute bottom-6 right-5 z-10 flex gap-3 md:bottom-10 md:right-16">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrent(index)}
-            className="relative h-1.5 w-10 overflow-hidden rounded-full bg-white/30"
+            className="relative h-1.5 w-10 overflow-hidden rounded-full bg-white/40 backdrop-blur-sm"
             aria-label={`Go to slide ${index + 1}`}
           >
             {index === current && (
-              <span className="absolute inset-0 bg-white animate-[progress_5.5s_linear]" />
+              <span className="absolute inset-0 bg-[color:var(--retro-gold)] animate-[progress_5.5s_linear]" />
             )}
           </button>
         ))}

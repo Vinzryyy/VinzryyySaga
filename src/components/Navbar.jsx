@@ -4,7 +4,15 @@ function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const navItems = ["home", "2024", "2025", "2026"];
+  const navItems = [
+    { label: "Home", hash: "home" },
+    { label: "Gallery", hash: "gallery" },
+    { label: "2024", hash: "2024" },
+    { label: "2025", hash: "2025" },
+    { label: "2026", hash: "2026" },
+    { label: "About", hash: "about" },
+    { label: "Contact", hash: "contact" },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -12,48 +20,60 @@ function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const handleNavClick = (hash) => {
+    window.location.hash = hash;
+    setOpen(false);
+  };
+
   return (
     <nav className="fixed top-0 z-50 w-full">
-      {/* Gradient glass background */}
+      {/* Gradient glass background - Warm Pastel */}
       <div
         className={`
           pointer-events-none absolute inset-0
           bg-gradient-to-b
-          from-black/60
-          via-black/30
+          from-white/80
+          via-white/50
           to-transparent
-          backdrop-blur-sm
+          backdrop-blur-md
           transition-opacity duration-300
-          ${scrolled ? "opacity-100" : "opacity-90"}
+          ${scrolled ? "opacity-100 shadow-sm" : "opacity-90"}
         `}
       />
 
       {/* Navbar content */}
       <div className="relative mx-auto flex max-w-[1200px] items-center px-4 py-4 md:py-5">
-        
+
         {/* Logo */}
-        <img
-          src="/logo.png"
-          alt="logo"
-          className="w-[90px] md:w-[120px]"
-        />
+        <a
+          href="#home"
+          onClick={(e) => { e.preventDefault(); handleNavClick("home"); }}
+          className="flex items-center gap-2"
+        >
+          <img
+            src="/logo.png"
+            alt="VinzryyySaga"
+            className="w-[90px] md:w-[120px]"
+          />
+        </a>
 
         <div className="flex-1" />
 
         {/* Desktop Menu */}
-        <ul className="hidden items-center gap-10 md:flex">
+        <ul className="hidden items-center gap-8 md:flex">
           {navItems.map((item) => (
-            <li key={item}>
+            <li key={item.hash}>
               <a
-                href={`#${item}`}
+                href={`#${item.hash}`}
+                onClick={(e) => { e.preventDefault(); handleNavClick(item.hash); }}
                 className="
-                  font-semibold tracking-wide
-                  text-white/90
-                  hover:text-white
+                  font-medium tracking-wide
+                  text-[color:var(--color-text-primary)]
+                  hover:text-[color:var(--color-accent)]
                   transition-colors
                 "
               >
-                {item === "home" ? "Home" : item}
+                {item.label}
               </a>
             </li>
           ))}
@@ -61,7 +81,7 @@ function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="ml-2 text-3xl text-white md:hidden"
+          className="text-2xl text-[color:var(--color-text-primary)] md:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -73,21 +93,22 @@ function Navbar() {
       <ul
         className={`
           fixed left-0 top-[68px] z-40 w-full
-          bg-black/80 backdrop-blur-md
-          flex flex-col items-center gap-8 py-10
-          text-lg font-semibold text-white
+          bg-white/95 backdrop-blur-md
+          flex flex-col items-center gap-6 py-8
+          text-lg font-medium text-[color:var(--color-text-primary)]
           transition-transform duration-500 md:hidden
           ${open ? "translate-y-0" : "-translate-y-[120%]"}
         `}
         onClick={() => setOpen(false)}
       >
         {navItems.map((item) => (
-          <li key={item}>
+          <li key={item.hash}>
             <a
-              href={`#${item}`}
-              className="hover:opacity-80 transition-opacity"
+              href={`#${item.hash}`}
+              onClick={(e) => { e.preventDefault(); handleNavClick(item.hash); }}
+              className="hover:text-[color:var(--color-accent)] transition-colors"
             >
-              {item === "home" ? "Home" : item}
+              {item.label}
             </a>
           </li>
         ))}
