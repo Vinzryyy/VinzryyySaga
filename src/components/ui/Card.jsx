@@ -33,8 +33,8 @@ export const Card = forwardRef(({
       ref={ref}
       className={`
         group relative overflow-hidden rounded-lg
-        bg-white dark:bg-gray-800
-        shadow-md hover:shadow-xl
+        bg-[color:var(--retro-bg-primary)]
+        shadow-retro hover:shadow-retro-lg
         transition-all duration-300
         ${hoverEffect ? "hover:-translate-y-1" : ""}
         ${onClick ? "cursor-pointer" : ""}
@@ -56,7 +56,7 @@ export const Card = forwardRef(({
           />
           
           {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-bg-dark)]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       )}
 
@@ -64,19 +64,19 @@ export const Card = forwardRef(({
       {(title || subtitle || description || children) && (
         <div className="p-5">
           {subtitle && (
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+            <p className="text-sm font-medium text-[color:var(--retro-text-secondary)] mb-1">
               {subtitle}
             </p>
           )}
 
           {title && (
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-1">
+            <h3 className="text-lg font-semibold text-[color:var(--retro-text-primary)] mb-2 line-clamp-1">
               {title}
             </h3>
           )}
 
           {description && (
-            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+            <p className="text-sm text-[color:var(--retro-text-muted)] line-clamp-2">
               {description}
             </p>
           )}
@@ -88,7 +88,7 @@ export const Card = forwardRef(({
   );
 });
 
-Card.displayName = "Card";
+PhotoCard.displayName = "PhotoCard";
 
 /**
  * PhotoCard Component
@@ -119,7 +119,7 @@ export const PhotoCard = forwardRef(({
     >
       {/* Category badge */}
       {photo.category && (
-        <span className="inline-block mt-3 px-2 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full capitalize">
+        <span className="inline-block mt-3 px-2 py-1 text-xs font-medium bg-[color:var(--retro-bg-tertiary)] text-[color:var(--retro-text-secondary)] rounded-full capitalize">
           {photo.category}
         </span>
       )}

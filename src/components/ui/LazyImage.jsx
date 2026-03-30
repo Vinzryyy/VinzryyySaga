@@ -40,11 +40,11 @@ export const LazyImage = forwardRef(({
           ref.current = node;
         }
       }}
-      className={`relative overflow-hidden bg-gray-200 dark:bg-gray-800 ${className}`}
+      className={`relative overflow-hidden bg-[color:var(--retro-bg-tertiary)] ${className}`}
       style={{ backgroundColor: placeholderColor }}
     >
       {/* Placeholder skeleton */}
-      <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700" />
+      <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-[color:var(--retro-bg-tertiary)] via-[color:var(--retro-bg-secondary)] to-[color:var(--retro-bg-tertiary)]" />
 
       {/* Actual image */}
       {isVisible && src && (
@@ -96,11 +96,11 @@ export const OptimizedImage = forwardRef(({
   return (
     <div
       ref={observerRef}
-      className={`relative overflow-hidden bg-gray-200 dark:bg-gray-800 ${className}`}
+      className={`relative overflow-hidden bg-[color:var(--retro-bg-tertiary)] ${className}`}
       style={{ backgroundColor: placeholderColor }}
     >
       {/* Placeholder */}
-      <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700" />
+      <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-[color:var(--retro-bg-tertiary)] via-[color:var(--retro-bg-secondary)] to-[color:var(--retro-bg-tertiary)]" />
 
       {/* Actual image */}
       {isVisible && src && (

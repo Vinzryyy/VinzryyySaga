@@ -19,9 +19,9 @@ const LoadingSpinner = ({
   };
 
   const variantClasses = {
-    default: 'border-purple-500 border-t-transparent',
+    default: 'border-[color:var(--retro-gold)] border-t-transparent',
     white: 'border-white border-t-gray-300',
-    gray: 'border-gray-500 border-t-gray-300',
+    gray: 'border-[color:var(--retro-text-muted)] border-t-[color:var(--retro-border)]',
   };
 
   const spinner = (
@@ -35,14 +35,14 @@ const LoadingSpinner = ({
         `}
       />
       {text && (
-        <p className="text-gray-400 text-sm animate-pulse">{text}</p>
+        <p className="text-[color:var(--retro-text-muted)] text-sm animate-pulse">{text}</p>
       )}
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-[color:var(--retro-bg-dark)]/90 backdrop-blur-sm flex items-center justify-center z-50">
         {spinner}
       </div>
     );

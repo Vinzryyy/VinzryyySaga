@@ -5,42 +5,42 @@
 
 /* ==========================================================================
    RETRO GALLERY COLOR PALETTE
-   Muted vintage tones - darker, more subdued film photography aesthetic
+   Muted vintage tones - warmer, film photography aesthetic
    ========================================================================== */
 
 :root {
-  /* Primary Retro Palette - Muted Film Tones */
-  --retro-cream: #E8E0D0;
-  --retro-cream-dark: #D4C8B8;
-  --retro-sepia: #A68A64;
-  --retro-brown: #6B5A46;
-  --retro-brown-dark: #3D342B;
+  /* Primary Retro Palette - Warm Earthy Tones */
+  --retro-cream: #FDF6E3;
+  --retro-cream-dark: #F5E6C8;
+  --retro-sepia: #D4A574;
+  --retro-brown: #8B6F4E;
+  --retro-brown-dark: #5C4A3A;
   
   /* Accent Colors - Muted Vintage Gold & Burgundy */
-  --retro-gold: #9A7B4F;
-  --retro-gold-light: #B8956A;
-  --retro-burgundy: #6B3A3A;
-  --retro-burgundy-light: #8B4A4A;
+  --retro-gold: #C9A961;
+  --retro-gold-light: #E5C575;
+  --retro-burgundy: #8B4040;
+  --retro-burgundy-light: #A95050;
   
-  /* Text Colors - Darker */
-  --retro-text-primary: #2A2420;
-  --retro-text-secondary: #4A4238;
-  --retro-text-light: #6B6358;
-  --retro-text-muted: #8B8378;
+  /* Text Colors - Darker Brown-ish */
+  --retro-text-primary: #3D342B;
+  --retro-text-secondary: #5C5046;
+  --retro-text-light: #8B7D6B;
+  --retro-text-muted: #A89F91;
   
-  /* Background Colors - Muted */
-  --retro-bg-primary: #E8E0D0;
-  --retro-bg-secondary: #D4C8B8;
-  --retro-bg-tertiary: #C4B8A8;
-  --retro-bg-dark: #2A2420;
+  /* Background Colors - Cream & Sepia */
+  --retro-bg-primary: #FDF6E3;
+  --retro-bg-secondary: #F5E6C8;
+  --retro-bg-tertiary: #EBD9A8;
+  --retro-bg-dark: #3D342B;
   
   /* Borders & Shadows - Subtle */
-  --retro-border: #B8A898;
-  --retro-border-dark: #9A8A78;
-  --retro-shadow: rgba(42, 36, 32, 0.15);
-  --retro-shadow-dark: rgba(42, 36, 32, 0.25);
+  --retro-border: #D4A574;
+  --retro-border-dark: #8B6F4E;
+  --retro-shadow: rgba(61, 52, 43, 0.15);
+  --retro-shadow-dark: rgba(61, 52, 43, 0.25);
   
-  /* Legacy Support (maps old pastel to retro) */
+  /* Legacy Support (maps to new palette) */
   --color-pastel-pink: var(--retro-burgundy-light);
   --color-pastel-rose: var(--retro-burgundy);
   --color-pastel-peach: var(--retro-sepia);
@@ -52,8 +52,12 @@
   --color-text-primary: var(--retro-text-primary);
   --color-text-secondary: var(--retro-text-secondary);
   --color-text-light: var(--retro-text-light);
-  --color-accent: var(--retro-gold);
-  --color-accent-hover: var(--retro-gold-light);
+  --color-accent: var(--retro-burgundy);
+  --color-accent-hover: var(--retro-burgundy-light);
+  
+  /* Mapping for components that were using purple */
+  --retro-purple: var(--retro-burgundy);
+  --retro-deep-purple: var(--retro-brown-dark);
 }
 
 /* ==========================================================================
@@ -187,10 +191,10 @@ body {
 /* Pulse Animation */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    box-shadow: 0 0 20px rgba(201, 169, 97, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 40px rgba(201, 169, 97, 0.6);
   }
 }
 
@@ -244,22 +248,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1f2937; /* gray-800 */
+  background: var(--retro-bg-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4b5563; /* gray-600 */
+  background: var(--retro-brown);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280; /* gray-500 */
+  background: var(--retro-sepia);
 }
 
 /* Firefox Scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #4b5563 #1f2937;
+  scrollbar-color: var(--retro-brown) var(--retro-bg-dark);
 }
 
 /* Hide Scrollbar (for horizontal scroll containers) */
@@ -277,8 +281,8 @@ body {
    ========================================================================== */
 
 ::selection {
-  background-color: rgba(147, 51, 234, 0.3); /* purple-600 with opacity */
-  color: #ffffff;
+  background-color: rgba(201, 169, 97, 0.3);
+  color: var(--retro-text-primary);
 }
 
 /* ==========================================================================
@@ -291,7 +295,7 @@ body {
 }
 
 *:focus-visible {
-  outline: 2px solid #9333ea; /* purple-600 */
+  outline: 2px solid var(--retro-gold);
   outline-offset: 2px;
 }
 
@@ -302,7 +306,6 @@ body {
 /* Smooth image loading */
 img {
   image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
 }
 
 /* Lazy load transition */
@@ -315,17 +318,17 @@ img[loading="lazy"] {
    ========================================================================== */
 
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(253, 246, 227, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(253, 246, 227, 0.1);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(61, 52, 43, 0.3);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(61, 52, 43, 0.2);
 }
 
 /* ==========================================================================
@@ -365,19 +368,11 @@ img[loading="lazy"] {
 }
 
 .gradient-purple {
-  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, var(--retro-burgundy) 0%, var(--retro-burgundy-light) 100%);
 }
 
 .gradient-gold {
   background: linear-gradient(135deg, var(--retro-gold) 0%, var(--retro-gold-light) 100%);
-}
-
-.gradient-ocean {
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-}
-
-.gradient-sunset {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
 }
 
 /* Text Gradient */
@@ -393,10 +388,6 @@ img[loading="lazy"] {
 
 .text-gradient-pastel {
   background-image: linear-gradient(135deg, var(--retro-burgundy) 0%, var(--retro-brown) 100%);
-}
-
-.text-gradient-purple {
-  background-image: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
 }
 
 /* ==========================================================================

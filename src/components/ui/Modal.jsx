@@ -81,7 +81,7 @@ export const Modal = forwardRef(({
     >
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fadeIn"
+        className="absolute inset-0 bg-[color:var(--retro-bg-dark)]/80 backdrop-blur-sm animate-fadeIn"
         aria-hidden="true"
       />
 
@@ -90,8 +90,8 @@ export const Modal = forwardRef(({
         id="modal-content"
         className={`
           relative z-10 w-full ${sizes[size] || sizes.md}
-          bg-white dark:bg-gray-900
-          rounded-lg shadow-2xl
+          bg-[color:var(--retro-bg-primary)]
+          rounded-lg shadow-retro-lg border border-[color:var(--retro-border)]
           animate-slideUp
           ${className}
         `}
@@ -99,11 +99,11 @@ export const Modal = forwardRef(({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-[color:var(--retro-border)] px-6 py-4">
             {title && (
               <h2
                 id="modal-title"
-                className="text-xl font-semibold text-gray-900 dark:text-white"
+                className="text-xl font-semibold text-[color:var(--retro-text-primary)]"
               >
                 {sanitizedTitle}
               </h2>
@@ -112,7 +112,7 @@ export const Modal = forwardRef(({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors"
+                className="rounded-full p-2 text-[color:var(--retro-text-secondary)] hover:bg-[color:var(--retro-bg-tertiary)] hover:text-[color:var(--retro-text-primary)] transition-colors"
                 aria-label="Close modal"
               >
                 <i className="ri-close-line text-xl" />
