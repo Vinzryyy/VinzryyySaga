@@ -11,7 +11,6 @@ export const useLightbox = (images = []) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const imageRefs = useRef([]);
   const closeTimeoutRef = useRef(null);
 
   // Open lightbox at specific index

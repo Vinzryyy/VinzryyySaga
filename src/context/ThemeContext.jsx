@@ -11,7 +11,6 @@ const STORAGE_KEY = 'photography-gallery-theme';
 
 export const ThemeProvider = ({ children }) => {
   // Always use light theme - no dark mode
-  const [theme] = useState('light');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Persist theme to localStorage (always light)

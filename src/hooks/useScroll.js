@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { throttle } from "../utils/security";
 
 /**
@@ -22,8 +22,8 @@ export const useScroll = (options = {}) => {
   const [isAtTop, setIsAtTop] = useState(true);
   const [isAtBottom, setIsAtBottom] = useState(false);
 
-  const handleScroll = useCallback(
-    throttle(() => {
+  const handleScroll = useMemo(() => {
+    return throttle(() => {
       const currentY = window.scrollY;
       const currentX = window.scrollX;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -38,9 +38,8 @@ export const useScroll = (options = {}) => {
         setScrollDirection(currentY > lastScrollY ? "down" : "up");
         setLastScrollY(currentY);
       }
-    }, throttleMs),
-    [threshold, trackDirection, lastScrollY, throttleMs]
-  );
+    }, throttleMs);
+  }, [threshold, trackDirection, lastScrollY, throttleMs]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
