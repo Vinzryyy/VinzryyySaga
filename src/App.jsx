@@ -21,18 +21,19 @@ import Footer from './components/layout/Footer';
 const HomePage = lazy(() => import('./pages/Home'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
-const ContactPage = lazy(() => import('./pages/Contact'));
 
 // Page route mapping
 const routes = {
   '': HomePage,
   'home': HomePage,
   'gallery': GalleryPage,
-  '2024': GalleryPage,
-  '2025': GalleryPage,
-  '2026': GalleryPage,
   'about': AboutPage,
-  'contact': ContactPage,
+};
+
+const resolveRoute = (hash) => {
+  if (routes[hash]) return hash;
+  if (/^\d{4}$/.test(hash)) return 'gallery';
+  return '';
 };
 
 // Loading fallback component
@@ -46,14 +47,14 @@ function App() {
   const [currentPage, setCurrentPage] = useState(() => {
     // Get initial route from hash
     const hash = window.location.hash.replace('#', '').toLowerCase();
-    return routes[hash] ? hash : '';
+    return resolveRoute(hash);
   });
 
   // Handle hash changes
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      setCurrentPage(routes[hash] ? hash : '');
+      setCurrentPage(resolveRoute(hash));
       
       // Scroll to top on page change
       window.scrollTo({ top: 0, behavior: 'smooth' });
