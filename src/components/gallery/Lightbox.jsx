@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Lightbox Component
  * Full-screen image viewer with navigation and details
  * 
@@ -16,8 +16,11 @@ import { useGallery } from '../../context';
 import { useImageLoader } from '../../hooks/useImageLoader';
 
 const Lightbox = ({ isOpen, onClose, initialImage }) => {
-  const { images, selectedImage, clearSelectedImage } = useGallery();
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  const { images } = useGallery();
+  const initialIndex = initialImage
+    ? Math.max(images.findIndex((img) => img.id === initialImage.id), 0)
+    : -1;
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [showDetails, setShowDetails] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
@@ -26,17 +29,6 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
   
   const containerRef = useRef(null);
   const imageRef = useRef(null);
-
-  // Find current image index
-  useEffect(() => {
-    if (initialImage) {
-      const index = images.findIndex((img) => img.id === initialImage.id);
-      setCurrentIndex(index >= 0 ? index : 0);
-    } else if (selectedImage) {
-      const index = images.findIndex((img) => img.id === selectedImage.id);
-      setCurrentIndex(index >= 0 ? index : 0);
-    }
-  }, [initialImage, selectedImage, images]);
 
   const currentImage = currentIndex >= 0 ? images[currentIndex] : null;
 
@@ -49,9 +41,8 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
   const handleClose = useCallback(() => {
     setZoom(1);
     setOffset({ x: 0, y: 0 });
-    clearSelectedImage();
     onClose();
-  }, [onClose, clearSelectedImage]);
+  }, [onClose]);
 
   // Navigation
   const goToPrevious = useCallback(() => {
@@ -150,7 +141,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[color:var(--retro-bg-dark)]/95 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Image lightbox"
@@ -162,7 +153,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
       {/* Close Button */}
       <button
         onClick={handleClose}
-        className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-all"
+        className="absolute top-4 right-4 z-10 p-2 text-white/70 hover:text-white bg-[color:var(--retro-bg-dark)]/50 hover:bg-[color:var(--retro-bg-dark)]/70 rounded-full transition-all"
         aria-label="Close lightbox"
       >
         <i className="ri-close-line text-3xl" />
@@ -171,16 +162,16 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
       {/* Toggle Details Button */}
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="absolute top-4 left-4 z-10 p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-all"
+        className="absolute top-4 left-4 z-10 p-2 text-white/70 hover:text-white bg-[color:var(--retro-bg-dark)]/50 hover:bg-[color:var(--retro-bg-dark)]/70 rounded-full transition-all"
         aria-label={showDetails ? 'Hide details' : 'Show details'}
       >
-        <i className={showDetails ? 'ri-information-line' : 'ri-information-off-line'} text-2xl />
+        <i className={`${showDetails ? 'ri-information-line' : 'ri-information-off-line'} text-2xl`} />
       </button>
 
       {/* Navigation - Previous */}
       <button
         onClick={goToPrevious}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-all"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 text-white/70 hover:text-white bg-[color:var(--retro-bg-dark)]/50 hover:bg-[color:var(--retro-bg-dark)]/70 rounded-full transition-all"
         aria-label="Previous image"
       >
         <i className="ri-arrow-left-s-line text-3xl" />
@@ -189,7 +180,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
       {/* Navigation - Next */}
       <button
         onClick={goToNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-all"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 text-white/70 hover:text-white bg-[color:var(--retro-bg-dark)]/50 hover:bg-[color:var(--retro-bg-dark)]/70 rounded-full transition-all"
         aria-label="Next image"
       >
         <i className="ri-arrow-right-s-line text-3xl" />
@@ -200,18 +191,18 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
         {/* Loading State */}
         {!isLoaded && !error && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-16 h-16 border-4 border-[color:var(--retro-gold)] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
         {/* Error State */}
         {error && (
           <div className="text-center">
-            <i className="ri-image-off-line text-5xl text-gray-500 mb-4" />
-            <p className="text-gray-400 mb-4">Failed to load image</p>
+            <i className="ri-image-off-line text-5xl text-[color:var(--retro-text-muted)] mb-4" />
+            <p className="text-[color:var(--retro-text-light)] mb-4">Failed to load image</p>
             <button
               onClick={retry}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-[color:var(--retro-gold)] hover:bg-[color:var(--retro-gold-light)] text-[color:var(--retro-bg-dark)] rounded-lg transition-colors font-medium"
             >
               Retry
             </button>
@@ -222,7 +213,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
         <img
           ref={imageRef}
           src={currentImage.url}
-          alt={currentImage.title}
+          alt={currentImage.alt || currentImage.title}
           className={`
             max-w-full max-h-full object-contain
             transition-opacity duration-300
@@ -239,20 +230,20 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
       <div
         className={`
           absolute bottom-0 left-0 right-0
-          bg-gradient-to-t from-black/90 via-black/70 to-transparent
+          bg-gradient-to-t from-[color:var(--retro-bg-dark)]/95 via-[color:var(--retro-bg-dark)]/80 to-transparent
           p-6 md:p-8
           transform transition-transform duration-300
           ${showDetails ? 'translate-y-0' : 'translate-y-full'}
         `}
       >
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-header font-bold text-white mb-2">
+          <h2 className="text-2xl md:text-3xl font-header font-bold text-[color:var(--retro-cream)] mb-2">
             {currentImage.title}
           </h2>
           
-          <p className="text-gray-300 mb-4">{currentImage.description}</p>
+          <p className="text-[color:var(--retro-text-light)] mb-4">{currentImage.description}</p>
 
-          <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+          <div className="flex flex-wrap gap-4 text-sm text-[color:var(--retro-text-muted)]">
             <span className="flex items-center gap-1">
               <i className="ri-map-pin-line" />
               {currentImage.location}
@@ -275,7 +266,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
             </span>
             {currentImage.dimensions && (
               <span>
-                {currentImage.dimensions.width} × {currentImage.dimensions.height}
+                {currentImage.dimensions.width} x {currentImage.dimensions.height}
               </span>
             )}
           </div>
@@ -283,7 +274,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
       </div>
 
       {/* Image Counter */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full text-sm text-white/70">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-[color:var(--retro-bg-dark)]/50 backdrop-blur-sm rounded-full text-sm text-white/70">
         {currentIndex + 1} / {images.length}
       </div>
 
@@ -291,7 +282,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
       <div className="absolute bottom-4 right-4 flex items-center gap-2">
         <button
           onClick={() => setZoom((prev) => Math.max(prev - 0.25, 1))}
-          className="p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-all"
+          className="p-2 text-white/70 hover:text-white bg-[color:var(--retro-bg-dark)]/50 hover:bg-[color:var(--retro-bg-dark)]/70 rounded-full transition-all"
           aria-label="Zoom out"
         >
           <i className="ri-subtract-line" />
@@ -301,7 +292,7 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
         </span>
         <button
           onClick={() => setZoom((prev) => Math.min(prev + 0.25, 3))}
-          className="p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-all"
+          className="p-2 text-white/70 hover:text-white bg-[color:var(--retro-bg-dark)]/50 hover:bg-[color:var(--retro-bg-dark)]/70 rounded-full transition-all"
           aria-label="Zoom in"
         >
           <i className="ri-add-line" />
@@ -312,3 +303,4 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
 };
 
 export default Lightbox;
+

@@ -1,162 +1,139 @@
 /**
- * FilterBar Component
- * Category and year filters for gallery
- * 
- * Features:
- * - Category filter with icons
- * - Year filter dropdown
- * - Search functionality
- * - Active state indicators
- * - Clear all filters
+ * FilterBar Component - Era-Based Editorial Version
  */
 
 import React, { memo } from 'react';
 import { useGallery } from '../../context';
-import { useSecurity } from '../../hooks/useSecurity';
 
 const FilterBar = memo(function FilterBar() {
   const {
-    categories,
-    years,
+    eras,
     filters,
-    setCategoryFilter,
-    setYearFilter,
-    setSearchQuery,
+    ui,
+    setEraFilter,
+    setViewMode,
+    setDensity,
     clearFilters,
     hasFilters,
+    activeFilterCount,
     filteredCount,
     totalImages,
   } = useGallery();
 
-  const { createDebouncedHandler } = useSecurity();
+  const viewModes = [
+    { id: 'grid', label: 'Grid', icon: 'ri-layout-grid-line' },
+    { id: 'timeline', label: 'Timeline', icon: 'ri-menu-line' },
+    { id: 'moodboard', label: 'Moodboard', icon: 'ri-dashboard-line' },
+  ];
 
-  // Debounced search handler
-  const handleSearchChange = createDebouncedHandler((value) => {
-    setSearchQuery(value);
-  }, 300);
+  const densityModes = [
+    { id: 'compact', label: 'Compact' },
+    { id: 'comfortable', label: 'Comfortable' },
+    { id: 'editorial', label: 'Editorial' },
+  ];
 
   return (
-    <div className="sticky top-20 z-40 bg-[color:var(--retro-bg-primary)]/95 backdrop-blur-md border-b border-[color:var(--retro-border)] py-4">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          {/* Category Filters */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
-            {categories.map((category) => (
+    <div className="sticky top-20 z-[90] py-6 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col gap-4 bg-white/40 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] p-4 shadow-retro">
+          
+          {/* Era Selection - Editorial Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full pb-2 scrollbar-hide no-scrollbar">
+            <button
+              onClick={() => setEraFilter('all')}
+              className={`
+                flex items-center gap-2 px-8 py-3 rounded-full
+                text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap
+                transition-all duration-500
+                ${
+                  filters.era === 'all'
+                    ? 'bg-[color:var(--retro-burgundy)] text-white shadow-lg shadow-[color:var(--retro-burgundy)]/20'
+                    : 'text-[color:var(--retro-text-secondary)] hover:bg-white/50'
+                }
+              `}
+            >
+              <i className="ri-history-line text-xs" />
+              <span>Full Archive</span>
+            </button>
+
+            <div className="h-6 w-[1px] bg-[color:var(--retro-burgundy)]/20 mx-2 hidden lg:block" />
+
+            {eras.map((era) => (
               <button
-                key={category.id}
-                onClick={() => setCategoryFilter(category.id)}
+                key={era.id}
+                onClick={() => setEraFilter(era.id)}
                 className={`
-                  flex items-center gap-2 px-4 py-2 rounded-full
-                  text-sm font-medium whitespace-nowrap
-                  transition-all duration-200
+                  flex items-center gap-2 px-8 py-3 rounded-full
+                  text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap
+                  transition-all duration-500
                   ${
-                    filters.category === category.id
-                      ? 'bg-[color:var(--retro-gold)] text-[color:var(--retro-bg-dark)] shadow-lg shadow-[color:var(--retro-gold)]/30'
-                      : 'bg-[color:var(--retro-bg-secondary)]/50 text-[color:var(--retro-text-secondary)] hover:bg-[color:var(--retro-bg-tertiary)] hover:text-[color:var(--retro-text-primary)]'
+                    filters.era === era.id
+                      ? 'bg-[color:var(--retro-burgundy)] text-white shadow-lg shadow-[color:var(--retro-burgundy)]/20'
+                      : 'text-[color:var(--retro-text-secondary)] hover:bg-white/50'
                   }
                 `}
-                aria-pressed={filters.category === category.id}
               >
-                <i className={category.icon} />
-                <span className="hidden sm:inline">{category.label}</span>
+                <span>{era.label}</span>
               </button>
             ))}
           </div>
 
-          {/* Right Side - Year, Search, Count */}
-          <div className="flex items-center gap-4">
-            {/* Year Filter */}
-            <div className="relative">
-              <select
-                value={filters.year}
-                onChange={(e) => setYearFilter(e.target.value)}
-                className="
-                  appearance-none bg-white/50 text-[color:var(--color-text-primary)]
-                  pl-4 pr-10 py-2 rounded-lg
-                  text-sm font-medium
-                  border border-[color:var(--color-bg-tertiary)]
-                  focus:outline-none focus:ring-2 focus:ring-[color:var(--color-accent)]
-                  cursor-pointer
-                "
-                aria-label="Filter by year"
-              >
-                <option value="all">All Years</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-              <i className="ri-arrow-down-s-line absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-light)] pointer-events-none" />
+          {/* Smart Controls */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="flex items-center gap-2 rounded-full border border-white/40 bg-[color:var(--retro-brown-dark)]/5 p-1 overflow-x-auto">
+              {viewModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setViewMode(mode.id)}
+                  className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all ${
+                    ui.viewMode === mode.id
+                      ? 'bg-[color:var(--retro-burgundy)] text-white'
+                      : 'text-[color:var(--retro-text-secondary)] hover:bg-white/60'
+                  }`}
+                >
+                  <i className={`${mode.icon} mr-1`} />
+                  {mode.label}
+                </button>
+              ))}
             </div>
 
-            {/* Search Input */}
-            <div className="relative hidden md:block">
-              <input
-                type="search"
-                placeholder="Search photos..."
-                defaultValue={filters.searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="
-                  w-48 lg:w-64 bg-white/50 text-[color:var(--color-text-primary)]
-                  pl-10 pr-4 py-2 rounded-lg
-                  text-sm
-                  border border-[color:var(--color-bg-tertiary)]
-                  focus:outline-none focus:ring-2 focus:ring-[color:var(--color-accent)]
-                  placeholder-[color:var(--color-text-light)]
-                "
-                aria-label="Search photos"
-              />
-              <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-light)]" />
+            <div className="flex items-center gap-2 rounded-full border border-white/40 bg-[color:var(--retro-brown-dark)]/5 p-1 overflow-x-auto">
+              {densityModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setDensity(mode.id)}
+                  className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.12em] whitespace-nowrap transition-all ${
+                    ui.density === mode.id
+                      ? 'bg-white text-[color:var(--retro-burgundy)]'
+                      : 'text-[color:var(--retro-text-secondary)] hover:bg-white/60'
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
             </div>
 
-            {/* Results Count */}
-            <div className="hidden lg:flex items-center gap-2 text-sm text-[color:var(--color-text-secondary)]">
-              <span className="text-[color:var(--color-text-primary)] font-medium">{filteredCount}</span>
-              <span>/</span>
-              <span>{totalImages}</span>
-              <span>photos</span>
+            <div className="flex items-center justify-between rounded-full border border-white/40 bg-[color:var(--retro-brown-dark)]/5 px-5 py-2">
+              <span className="text-[10px] font-black tracking-[0.2em] text-[color:var(--retro-burgundy)]">
+                {filteredCount} / {totalImages} MOMENTS
+              </span>
+              <div className="flex items-center gap-2">
+                {hasFilters && (
+                  <span className="text-[9px] font-black tracking-[0.15em] uppercase text-[color:var(--retro-burgundy)]/70">
+                    {activeFilterCount} Active
+                  </span>
+                )}
+                {hasFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="w-9 h-9 flex items-center justify-center bg-white/70 hover:bg-red-50 text-red-500 rounded-full border border-red-100 transition-all hover:scale-105"
+                    title="Reset Eras"
+                  >
+                    <i className="ri-restart-line text-base" />
+                  </button>
+                )}
+              </div>
             </div>
-
-            {/* Clear Filters */}
-            {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="
-                  flex items-center gap-1 px-3 py-2
-                  text-sm text-[color:var(--color-text-secondary)] hover:text-[color:var(--color-text-primary)]
-                  bg-white/50 hover:bg-[color:var(--color-bg-tertiary)]
-                  rounded-lg
-                  transition-colors
-                "
-                aria-label="Clear all filters"
-              >
-                <i className="ri-close-circle-line" />
-                <span className="hidden sm:inline">Clear</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Search - Visible only on small screens */}
-        <div className="mt-4 md:hidden">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search photos..."
-              defaultValue={filters.searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="
-                w-full bg-white/50 text-[color:var(--color-text-primary)]
-                pl-10 pr-4 py-2 rounded-lg
-                text-sm
-                border border-[color:var(--color-bg-tertiary)]
-                focus:outline-none focus:ring-2 focus:ring-[color:var(--color-accent)]
-                placeholder-[color:var(--color-text-light)]
-              "
-              aria-label="Search photos"
-            />
-            <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-light)]" />
           </div>
         </div>
       </div>
