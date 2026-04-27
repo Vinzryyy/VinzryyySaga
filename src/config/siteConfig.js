@@ -89,7 +89,7 @@ export const SITE_CONFIG = {
     lead:
       'Helisma Putri akan merayakan ulang tahun ke-26 pada 15 Juni 2026. Armeniaca menghitung mundur menjelang harinya — momen kecil sebelum stage besar.',
     age: 26,
-    backgroundImage: '/archive/img-070.jpg',
+    backgroundImage: '/archive/img-127.jpg',
     completedTitle: 'Selamat Ulang Tahun',
     completedAccent: 'Ceu Eli!',
     completedLead:
