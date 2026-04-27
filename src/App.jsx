@@ -24,6 +24,7 @@ const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
 const CountdownPage = lazy(() => import('./pages/Countdown'));
+const WishesPage = lazy(() => import('./pages/Wishes'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 // Page route mapping
@@ -34,6 +35,7 @@ const routes = {
   'about': AboutPage,
   'profile': ProfilePage,
   'countdown': CountdownPage,
+  'wishes': WishesPage,
   'notfound': NotFoundPage,
 };
 

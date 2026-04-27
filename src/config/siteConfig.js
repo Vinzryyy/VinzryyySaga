@@ -75,6 +75,7 @@ export const SITE_CONFIG = {
         ],
       },
       { label: 'Countdown', hash: 'countdown', icon: 'ri-cake-2-line' },
+      { label: 'Wishes', hash: 'wishes', icon: 'ri-mail-send-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
   },
@@ -94,6 +95,57 @@ export const SITE_CONFIG = {
     completedAccent: 'Ceu Eli!',
     completedLead:
       '15 Juni 2026 sudah tiba. Terima kasih sudah menemani perjalanan Eli dari panggung ke panggung — Armeniaca tetap berjaga, satu frame demi satu frame.',
+  },
+
+  // Birthday Wishes Wall — fans submit ucapan menjelang 15 Juni 2026.
+  // endpoint kosong = form akan tampil dengan "demo mode" notice. Set ke
+  // Formspree (https://formspree.io/), Web3Forms, atau backend lain yang
+  // menerima POST application/x-www-form-urlencoded untuk aktifkan.
+  wishes: {
+    eyebrow: 'Birthday Wishes',
+    title: 'Ucapkan untuk',
+    titleAccent: 'Ceu Eli.',
+    lead:
+      'Tinggalkan pesan ulang tahun untuk Eli menjelang 15 Juni 2026. Pesan akan dimoderasi Armeniaca lalu masuk ke dinding ini — jadi catatan kolektif penggemar.',
+    formCta: 'Kirim Ucapan',
+    successMessage:
+      'Pesanmu sudah masuk! Armeniaca akan moderasi dan tampilkan di wall dalam waktu dekat.',
+    pendingMessage:
+      'Pesan akan dikurasi sebelum tampil — biasanya dalam 24 jam. Pastikan nama & handle benar ya.',
+    demoMessage:
+      'Form dalam mode demo — endpoint backend belum dikonfigurasi. Pesan tidak akan terkirim sampai owner men-set endpoint.',
+    charLimit: 240,
+    endpoint: '', // contoh: 'https://formspree.io/f/xxxxxxxx'
+    seeds: [
+      {
+        name: 'Armeniaca',
+        handle: '@armeniaca15',
+        message:
+          'Selamat ulang tahun, Ceu Eli. Tetap jadi sinar senja yang menghangatkan panggung — kami akan terus mengabadikan setiap momennya.',
+        date: '2026-04-15',
+      },
+      {
+        name: 'Helismiley OFC',
+        handle: '@helismiley_ofc',
+        message:
+          'Happy birthday Eli! 26 tahun yang penuh perjuangan dan dedikasi. Helismiley selalu di belakangmu — kapanpun, dimanapun.',
+        date: '2026-04-20',
+      },
+      {
+        name: 'Roni',
+        handle: '@helismikepo',
+        message:
+          'Dari yang dulu cuma nonton lewat layar TV, sekarang udah bisa lihat langsung di teater. Terima kasih udah selalu jadi alasan untuk datang. Selamat 26, Ceu!',
+        date: '2026-04-22',
+      },
+      {
+        name: 'Bunga',
+        handle: '@bungaforeli',
+        message:
+          'Ulang tahun pertama bareng Team Dream! Semoga Fight 2026 jadi babak terbaik buat Eli. We bloom in spring with you 🌸',
+        date: '2026-04-25',
+      },
+    ],
   },
 
   // Hero Slider Content
