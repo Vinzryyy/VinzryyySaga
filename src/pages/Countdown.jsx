@@ -182,9 +182,10 @@ const CountdownPage = () => {
       id="countdown"
       className="bg-[color:var(--retro-bg-primary)] overflow-x-hidden"
     >
-      {/* Hero band — full-width portrait with overlay. min-h scales for mobile
-          (small phones cap at 60vh so the image doesn't dominate the fold). */}
-      <header className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-end overflow-hidden">
+      {/* Hero band — full-width portrait with overlay. svh (small viewport
+          height) avoids the iOS Safari vh-jump when the URL bar shows/hides;
+          falls back to vh for older browsers. */}
+      <header className="relative min-h-[60vh] min-h-[60svh] sm:min-h-[70svh] md:min-h-[80svh] flex items-end overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <img
             ref={heroBgRef}
@@ -210,7 +211,7 @@ const CountdownPage = () => {
             </span>
             <h1
               ref={heroTitleRef}
-              className="font-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]"
+              className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)] break-words"
             >
               {isComplete ? config.completedTitle : config.title}
               <br />
