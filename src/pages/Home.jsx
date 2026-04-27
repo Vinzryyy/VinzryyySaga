@@ -458,14 +458,18 @@ const HomePage = () => {
                 style={staggerStyle(Math.min(index, 7))}
                 aria-label={`Frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
               >
-                <img
-                  src={image.thumbnail || image.url}
-                  alt={image.alt || image.title || 'Eli JKT48'}
-                  loading="lazy"
-                  className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${
-                    isFeature ? 'scale-105 group-hover:scale-115' : ''
-                  }`}
-                />
+                <picture>
+                  {image.avifSrcSet && <source srcSet={image.avifSrcSet} type="image/avif" />}
+                  {image.webpSrcSet && <source srcSet={image.webpSrcSet} type="image/webp" />}
+                  <img
+                    src={image.thumbnail || image.url}
+                    alt={image.alt || image.title || 'Eli JKT48'}
+                    loading="lazy"
+                    className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${
+                      isFeature ? 'scale-105 group-hover:scale-115' : ''
+                    }`}
+                  />
+                </picture>
 
                 {/* Persistent corner number — contact-sheet vibe on every tile */}
                 <div className="absolute top-2 left-2 z-20 px-2 py-0.5 rounded-sm bg-[color:var(--retro-brown-dark)]/55 backdrop-blur-sm text-[color:var(--retro-cream)] text-[9px] font-black tracking-[0.3em]">
@@ -583,12 +587,16 @@ const HomePage = () => {
                     aria-hidden={i >= marqueeFrames.length}
                     tabIndex={i >= marqueeFrames.length ? -1 : 0}
                   >
-                    <img
-                      src={image.thumbnail || image.url}
-                      alt={image.alt || image.title || 'Eli JKT48'}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
-                    />
+                    <picture>
+                      {image.avifSrcSet && <source srcSet={image.avifSrcSet} type="image/avif" />}
+                      {image.webpSrcSet && <source srcSet={image.webpSrcSet} type="image/webp" />}
+                      <img
+                        src={image.thumbnail || image.url}
+                        alt={image.alt || image.title || 'Eli JKT48'}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
+                      />
+                    </picture>
                     <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover/tile:bg-[color:var(--retro-brown-dark)]/30 transition-colors" />
                   </a>
                 ))}
