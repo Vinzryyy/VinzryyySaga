@@ -19,12 +19,12 @@ const HomePage = () => {
 
   const profileFacts = useMemo(
     () => [
-      { label: 'Nama Lengkap', value: eli.fullName, icon: 'ri-user-star-line' },
-      { label: 'Tanggal Lahir', value: `${eli.birthdate} - ${eli.birthplace}`, icon: 'ri-calendar-2-line' },
-      { label: 'Generasi', value: eli.generation, icon: 'ri-shining-line' },
-      { label: 'Team', value: eli.team, icon: 'ri-team-line' },
-      { label: 'Bergabung', value: eli.joined, icon: 'ri-flag-line' },
-      { label: 'Asal', value: eli.origin, icon: 'ri-map-pin-2-line' },
+      { label: 'Nama Lengkap', value: eli.fullName },
+      { label: 'Tanggal Lahir', value: `${eli.birthdate} - ${eli.birthplace}` },
+      { label: 'Generasi', value: eli.generation },
+      { label: 'Team', value: eli.team },
+      { label: 'Bergabung', value: eli.joined },
+      { label: 'Asal', value: eli.origin },
     ],
     [eli]
   );
@@ -124,42 +124,62 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* DATA ELI — profile facts strip */}
-      <Section id="data" padding="lg" background="gradient">
-        <SectionHeading eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
-          {profileFacts.map((fact) => (
-            <div
-              key={fact.label}
-              className="group relative p-6 rounded-2xl bg-[color:var(--retro-bg-primary)]/70 backdrop-blur border border-[color:var(--retro-border)] hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-1 transition-all"
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
-                  <i className={`${fact.icon} text-xl`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mb-1">
-                    {fact.label}
-                  </p>
-                  <p className="text-sm font-bold text-[color:var(--retro-text-primary)] leading-snug">
-                    {fact.value}
-                  </p>
-                </div>
-              </div>
+      {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
+      <Section id="data" padding="xl">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+          {/* Portrait close-up */}
+          <div className="lg:col-span-5 relative">
+            <div className="relative aspect-[3/4] rounded-sm overflow-hidden">
+              <img
+                src={eli.portrait}
+                alt={about.portraitAlt}
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                loading="lazy"
+              />
             </div>
-          ))}
-        </div>
+            {/* Issue plate — magazine credit */}
+            <div className="mt-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
+              <span>Plate 01</span>
+              <span>{eli.stageName} — JKT48</span>
+              <span>{new Date().getFullYear()}</span>
+            </div>
+          </div>
 
-        <blockquote className="mt-12 max-w-3xl mx-auto text-center">
-          <i className="ri-double-quotes-l text-3xl text-[color:var(--retro-gold)] mb-3 inline-block" />
-          <p className="font-header text-xl md:text-2xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
-            "{eli.catchphrase}"
-          </p>
-          <footer className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-            — Catchphrase {eli.nickname}
-          </footer>
-        </blockquote>
+          {/* Editorial fact list */}
+          <div className="lg:col-span-7">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
+              {data.eyebrow}
+            </p>
+            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
+              {data.title}
+            </h2>
+
+            <dl className="divide-y divide-[color:var(--retro-brown-dark)]/15 border-y border-[color:var(--retro-brown-dark)]/15">
+              {profileFacts.map((fact) => (
+                <div
+                  key={fact.label}
+                  className="grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group"
+                >
+                  <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] pt-1.5">
+                    {fact.label}
+                  </dt>
+                  <dd className="font-header text-lg md:text-xl text-[color:var(--retro-text-primary)] group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <blockquote className="mt-10 pl-6 border-l-2 border-[color:var(--retro-gold)]">
+              <p className="font-header text-lg md:text-xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
+                "{eli.catchphrase}"
+              </p>
+              <footer className="mt-3 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                Catchphrase — {eli.nickname}
+              </footer>
+            </blockquote>
+          </div>
+        </div>
       </Section>
 
       {/* ABOUT ELI — text-left, portrait-right */}
