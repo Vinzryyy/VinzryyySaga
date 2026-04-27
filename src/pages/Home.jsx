@@ -4,7 +4,7 @@
  * Flow: Hero -> Data Eli -> About Eli -> Gallery Eli -> Storyline (X archive) -> Helismiley
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
@@ -101,6 +101,57 @@ const HomePage = () => {
   const dataPortraitOffset = useParallax(-0.08);
   const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.1, 40);
 
+  // GSAP SplitText hero entrance — lazy-loaded so the ~30KB GSAP core only
+  // ships when the user lands on the home page, and only when the hero is
+  // visible (no work for reduced-motion or background tab cases).
+  const heroTitleRef = useRef(null);
+  const splitTextFiredRef = useRef(false);
+  useEffect(() => {
+    if (!heroVisible || !heroTitleRef.current || splitTextFiredRef.current) return undefined;
+    splitTextFiredRef.current = true;
+
+    if (
+      typeof window === 'undefined' ||
+      !window.matchMedia ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return undefined;
+    }
+
+    let split;
+    let tween;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [{ gsap }, { SplitText }] = await Promise.all([
+          import('gsap'),
+          import('gsap/SplitText'),
+        ]);
+        if (cancelled || !heroTitleRef.current) return;
+        gsap.registerPlugin(SplitText);
+
+        split = new SplitText(heroTitleRef.current, { type: 'chars,words' });
+        tween = gsap.from(split.chars, {
+          y: 70,
+          opacity: 0,
+          rotateX: -60,
+          duration: 0.9,
+          ease: 'back.out(1.6)',
+          stagger: { amount: 0.7, from: 'start' },
+          transformOrigin: '50% 50% -20',
+        });
+      } catch {
+        // GSAP failed to load — h1 stays visible via the existing markup
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (tween) tween.kill();
+      if (split) split.revert();
+    };
+  }, [heroVisible]);
+
   // Rotating hero backdrop — falls back to a single legacy `background` field
   // if no array is configured.
   const heroSlides = useMemo(() => {
@@ -191,10 +242,9 @@ const HomePage = () => {
             </span>
 
             <h1
-              style={{ transitionDelay: '250ms' }}
-              className={`font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)] transition-all duration-1000 ease-out ${
-                heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-              }`}
+              ref={heroTitleRef}
+              className="font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]"
+              style={{ perspective: '600px' }}
             >
               {hero.title}
               <br />
