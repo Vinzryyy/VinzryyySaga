@@ -139,10 +139,11 @@ export const SITE_CONFIG = {
       backgrounds: [
         '/archive/img-310.jpg',
         '/archive/img-305.jpg',
-        '/archive/img-258.jpg',
         '/archive/img-211.jpg',
+        '/archive/img-119.jpg',
         '/archive/img-087.jpg',
         '/archive/img-083.jpg',
+        '/archive/img-335.jpg',
       ],
       backgroundIntervalMs: 10000,
       primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
