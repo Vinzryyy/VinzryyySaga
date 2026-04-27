@@ -453,19 +453,29 @@ const DiscographySection = () => {
           </article>
         ))}
 
-        {placeholders.map((entry) => (
-          <div
-            key={entry.title}
-            className="rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 p-5 md:p-6 text-center"
-          >
-            <i className="ri-add-line text-2xl text-[color:var(--retro-burgundy)]/40 mb-2 inline-block" />
-            <p className="font-bold text-[color:var(--retro-text-primary)]">{entry.title}</p>
-            <p className="text-sm text-[color:var(--color-text-muted)] mt-1">{entry.note}</p>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mt-2">
-              {entry.year}
-            </p>
+        {/* Curation status callout — replaces the bare placeholder cards with
+            an honest "data sedang dikurasi" panel that doesn't pretend to be
+            content while still being clear about what's missing. */}
+        {placeholders.length > 0 && (
+          <div className="mt-6 rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-burgundy)]/[0.02] p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center gap-5">
+              <div className="w-14 h-14 rounded-2xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center flex-shrink-0">
+                <i className="ri-book-open-line text-2xl" />
+              </div>
+              <div className="flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-1">
+                  Data Sedang Dikurasi
+                </p>
+                <p className="font-bold text-[color:var(--retro-text-primary)] mb-1">
+                  Single JKT48 lainnya yang melibatkan Eli akan ditambah secara bertahap.
+                </p>
+                <p className="text-sm text-[color:var(--color-text-secondary)]">
+                  {placeholders.map((p) => p.year).join(' · ')} — entri akan dilengkapi setelah posisi per single terverifikasi.
+                </p>
+              </div>
+            </div>
           </div>
-        ))}
+        )}
       </div>
     </>
   );
@@ -486,8 +496,59 @@ const TheaterSection = () => {
         kicker={`${ELI_THEATER.length} setlists tracked`}
       />
 
+      {/* Feature card — debut setlist gets a full-width spotlight */}
+      {(() => {
+        const feature = ELI_THEATER[0];
+        const debut = formatDate(feature.debutDate);
+        return (
+          <article className="relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-6 md:mb-8">
+            <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+            <div className="relative grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="px-3 py-1 rounded-full bg-[color:var(--retro-gold-light)]/20 text-[color:var(--retro-gold-light)] text-[9px] font-black uppercase tracking-[0.4em]">
+                    Stage Debut
+                  </span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                    {feature.team}
+                  </span>
+                </div>
+                <h3 className="font-header text-3xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
+                  {feature.setlist}
+                </h3>
+                {feature.note && (
+                  <p className="text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
+                    {feature.note}
+                  </p>
+                )}
+              </div>
+              <aside className="space-y-3">
+                {debut && (
+                  <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                      Tanggal Debut
+                    </p>
+                    <p className="font-header text-xl font-black leading-tight">{debut}</p>
+                  </div>
+                )}
+                <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                    Status
+                  </p>
+                  <p className="font-header text-xl font-black leading-tight">Setlist Pertama</p>
+                  <p className="text-xs text-[color:var(--retro-cream)]/60 mt-1">
+                    Titik nol panggung Eli di JKT48.
+                  </p>
+                </div>
+              </aside>
+            </div>
+          </article>
+        );
+      })()}
+
+      {/* Remaining setlists in a 2-col grid */}
       <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-        {ELI_THEATER.map((entry) => {
+        {ELI_THEATER.slice(1).map((entry) => {
           const debut = formatDate(entry.debutDate);
           return (
             <article
@@ -538,38 +599,62 @@ const TheaterSection = () => {
   );
 };
 
-const TriviaSection = () => (
-  <>
-    <SectionOpener
-      id="trivia"
-      title="Yang Sering Ditanyakan."
-      lead="Data ringan tentang Eli yang sering muncul di kolom komentar — dari makanan favorit, hewan peliharaan, sampai keluarga roleplay Cangcorang."
-      kicker={`${ELI_TRIVIA.length + ELI_FUN_FACTS.length} facts`}
-    />
+const TriviaSection = () => {
+  const eli = SITE_CONFIG.eli;
+  const profile = SITE_CONFIG.profile;
+  const featurePhoto = profile.heroCollage[1] || eli.portrait;
+  return (
+    <>
+      <SectionOpener
+        id="trivia"
+        title="Yang Sering Ditanyakan."
+        lead="Data ringan tentang Eli yang sering muncul di kolom komentar — dari makanan favorit, hewan peliharaan, sampai keluarga roleplay Cangcorang."
+        kicker={`${ELI_TRIVIA.length + ELI_FUN_FACTS.length} facts`}
+      />
 
-    <div className="mb-10">
-      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
-        Identitas
-      </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {ELI_TRIVIA.map((fact) => (
-          <TriviaCard key={fact.label} fact={fact} />
-        ))}
+      <div className="space-y-4">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          Identitas
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr">
+          {/* Feature catchphrase tile — 2x2 on lg, full-width on smaller */}
+          <div className="col-span-2 row-span-2 relative aspect-square lg:aspect-auto rounded-2xl overflow-hidden bg-[color:var(--retro-brown-dark)] group">
+            <img
+              src={featurePhoto}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/40 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-6 text-[color:var(--retro-cream)]">
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">
+                Catchphrase Eli
+              </p>
+              <i className="ri-double-quotes-l text-2xl text-[color:var(--retro-gold-light)] mb-1" />
+              <p className="font-header text-sm md:text-base italic leading-snug">
+                {eli.catchphrase}
+              </p>
+            </div>
+          </div>
+          {ELI_TRIVIA.map((fact) => (
+            <TriviaCard key={fact.label} fact={fact} />
+          ))}
+        </div>
       </div>
-    </div>
 
-    <div>
-      <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
-        Yang Disukai
-      </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {ELI_FUN_FACTS.map((fact) => (
-          <TriviaCard key={fact.label} fact={fact} accent />
-        ))}
+      <div className="space-y-4 mt-10">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          Yang Disukai
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {ELI_FUN_FACTS.map((fact) => (
+            <TriviaCard key={fact.label} fact={fact} accent />
+          ))}
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 const TriviaCard = ({ fact, accent = false }) => (
   <div
