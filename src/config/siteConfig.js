@@ -198,7 +198,7 @@ export const SITE_CONFIG = {
     joined: '29 September 2018',
     origin: 'Bandung',
     catchphrase:
-      'Bagai sinar senja yang hangat, dengan energiku yang ceria, aku akan menghangatkan suasana. Halo halo, aku Ceu Eli!',
+      'Bagai Lembayung Senja, Dengan Energi Kehangatan ku aku akan menghangatkan suasana.',
     portrait: '/archive/img-364.jpg',
   },
 

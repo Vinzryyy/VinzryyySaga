@@ -56,6 +56,15 @@ export const ELI_TIMELINE = [
     badge: 'Senbatsu',
   },
   {
+    id: 'new-formation-2021',
+    date: '2021-03-13',
+    period: '13 Maret 2021',
+    title: 'JKT48 New Formation — Era Baru',
+    body:
+      'Eli dipindahkan ke formasi baru JKT48 dalam reshuffle 13 Maret 2021. Awal era baru sebelum sistem tiga tim di JKT48 Fight 2026.',
+    badge: 'Reshuffle',
+  },
+  {
     id: 'three-team-announce',
     date: '2025-12-20',
     period: '20 Desember 2025',
