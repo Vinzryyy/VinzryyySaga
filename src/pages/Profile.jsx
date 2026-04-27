@@ -4,7 +4,7 @@
  * sections share one page so the navbar stays compact.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -757,69 +757,179 @@ const TheaterSection = () => {
         );
       })()}
 
-      {/* Remaining setlists — 2-col grid, each card lists every unit + note */}
-      <div ref={gridRef} className="grid md:grid-cols-2 gap-4 md:gap-6">
-        {ELI_THEATER.filter((entry) => !entry.isDebut).map((entry, idx) => {
-          const debut = formatDate(entry.debutDate);
-          return (
-            <article
-              key={entry.code}
-              style={staggerStyle(idx)}
-              className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 ${staggerClass(gridVisible)}`}
-            >
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                    {entry.code}
-                  </span>
-                  <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5">
-                    {entry.team}
-                  </span>
-                </div>
-                {debut && (
-                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] text-right">
-                    Debut · {debut}
-                  </span>
-                )}
-              </div>
-              <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
-                {entry.setlist}
-              </h3>
-              {entry.note && (
-                <p className="mt-2 text-sm text-[color:var(--color-text-secondary)] leading-snug">
-                  {entry.note}
-                </p>
-              )}
-              {entry.units.length > 0 && (
-                <div className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-3">
-                    Unit Songs Eli
-                  </p>
-                  <ul className="space-y-2">
-                    {entry.units.map((unit) => (
-                      <li
-                        key={unit.song}
-                        className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
-                      >
-                        <span className="flex items-center gap-2 font-bold text-[color:var(--retro-text-primary)]">
-                          <i className="ri-music-fill text-[color:var(--retro-burgundy)]" />
-                          {unit.song}
-                        </span>
-                        {unit.note && (
-                          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
-                            {unit.note}
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </article>
-          );
-        })}
+      <RemainingTheaters
+        formatDate={formatDate}
+        gridRef={gridRef}
+        gridVisible={gridVisible}
+      />
+    </>
+  );
+};
+
+// Renders the non-debut setlists. On lg+ with motion OK, GSAP ScrollTrigger
+// pins the section and translates the card track horizontally as the user
+// scrolls down. On smaller screens / reduced motion / GSAP load failure, falls
+// back to the original 2-col grid.
+const RemainingTheaters = ({ formatDate, gridRef, gridVisible }) => {
+  const remaining = ELI_THEATER.filter((entry) => !entry.isDebut);
+
+  const initialPin =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(min-width: 1024px)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const [pinActive, setPinActive] = useState(initialPin);
+  const pinSectionRef = useRef(null);
+  const pinTrackRef = useRef(null);
+
+  useEffect(() => {
+    if (!pinActive || !pinSectionRef.current || !pinTrackRef.current) return undefined;
+
+    let st;
+    let tween;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
+        if (cancelled || !pinSectionRef.current || !pinTrackRef.current) return;
+        gsap.registerPlugin(ScrollTrigger);
+
+        const distance = () =>
+          Math.max(0, pinTrackRef.current.scrollWidth - window.innerWidth + 96);
+
+        tween = gsap.to(pinTrackRef.current, {
+          x: () => -distance(),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: pinSectionRef.current,
+            start: 'top top+=80',
+            end: () => `+=${distance()}`,
+            scrub: 1,
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+        st = tween.scrollTrigger;
+      } catch {
+        if (!cancelled) setPinActive(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (st) st.kill();
+      if (tween) tween.kill();
+    };
+  }, [pinActive]);
+
+  return (
+    <>
+      {/* lg+ horizontal pinned scroll — only mounted when pinActive */}
+      {pinActive && (
+        <div ref={pinSectionRef} className="hidden lg:block relative overflow-hidden -mx-4 md:-mx-6 lg:-mx-8">
+          <div className="flex items-baseline justify-between mb-6 px-4 md:px-6 lg:px-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              Setlist Lainnya
+            </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+              Scroll ke bawah · cards bergeser horizontal
+            </p>
+          </div>
+          <div ref={pinTrackRef} className="flex gap-6 will-change-transform pl-4 md:pl-6 lg:pl-8 pr-24">
+            {remaining.map((entry) => (
+              <TheaterCard
+                key={`pin-${entry.code}`}
+                entry={entry}
+                formatDate={formatDate}
+                pinned
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Grid fallback — smaller screens always, lg also when pin is off */}
+      <div
+        ref={gridRef}
+        className={`grid md:grid-cols-2 gap-4 md:gap-6 ${pinActive ? 'lg:hidden' : ''}`}
+      >
+        {remaining.map((entry, idx) => (
+          <div
+            key={entry.code}
+            style={staggerStyle(idx)}
+            className={staggerClass(gridVisible)}
+          >
+            <TheaterCard entry={entry} formatDate={formatDate} />
+          </div>
+        ))}
       </div>
     </>
+  );
+};
+
+const TheaterCard = ({ entry, formatDate, pinned = false }) => {
+  const debut = formatDate(entry.debutDate);
+  return (
+    <article
+      className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors ${
+        pinned ? 'flex-shrink-0 w-[420px] xl:w-[460px]' : ''
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+            {entry.code}
+          </span>
+          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5">
+            {entry.team}
+          </span>
+        </div>
+        {debut && (
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] text-right">
+            Debut · {debut}
+          </span>
+        )}
+      </div>
+      <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
+        {entry.setlist}
+      </h3>
+      {entry.note && (
+        <p className="mt-2 text-sm text-[color:var(--color-text-secondary)] leading-snug">
+          {entry.note}
+        </p>
+      )}
+      {entry.units.length > 0 && (
+        <div className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-3">
+            Unit Songs Eli
+          </p>
+          <ul className="space-y-2">
+            {entry.units.map((unit) => (
+              <li
+                key={unit.song}
+                className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
+              >
+                <span className="flex items-center gap-2 font-bold text-[color:var(--retro-text-primary)]">
+                  <i className="ri-music-fill text-[color:var(--retro-burgundy)]" />
+                  {unit.song}
+                </span>
+                {unit.note && (
+                  <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+                    {unit.note}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </article>
   );
 };
 
