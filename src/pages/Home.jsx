@@ -1,191 +1,294 @@
 /**
  * HomePage Component
- * Landing page with hero, featured gallery, and call-to-action
+ * Mirrors the section flow of corsyava.id, adapted to Armeniaca / Eli JKT48.
+ * Flow: Hero -> Data Eli -> About Eli -> Gallery Eli -> Storyline (X archive) -> Helismiley
  */
 
 import React, { useMemo } from 'react';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
-import PageHeader from '../components/layout/PageHeader';
 import GalleryGrid from '../components/gallery/GalleryGrid';
 import XInsights from '../components/gallery/XInsights';
-import Button from '../components/ui/Button';
+import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const HomePage = () => {
   const { featuredImages, images, eras } = useGallery();
+  const { hero, data, about, gallery, storyline, community } = SITE_CONFIG.home;
+  const eli = SITE_CONFIG.eli;
 
-  const stats = useMemo(() => {
-    if (!images || images.length === 0) {
-      return [];
-    }
+  const profileFacts = useMemo(
+    () => [
+      { label: 'Nama Lengkap', value: eli.fullName, icon: 'ri-user-star-line' },
+      { label: 'Tanggal Lahir', value: `${eli.birthdate} - ${eli.birthplace}`, icon: 'ri-calendar-2-line' },
+      { label: 'Generasi', value: eli.generation, icon: 'ri-shining-line' },
+      { label: 'Team', value: eli.team, icon: 'ri-team-line' },
+      { label: 'Bergabung', value: eli.joined, icon: 'ri-flag-line' },
+      { label: 'Asal', value: eli.origin, icon: 'ri-map-pin-2-line' },
+    ],
+    [eli]
+  );
 
+  const archiveStats = useMemo(() => {
+    if (!images || images.length === 0) return [];
     const sorted = [...images].sort((a, b) => a.date.localeCompare(b.date));
-    const first = new Date(sorted[0].date);
-    const dateFormat = (date) =>
-      new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
     const monthFormat = (date) =>
-      new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
-
-    const monthCounts = new Map();
-    for (const item of images) {
-      const d = new Date(item.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      const current = monthCounts.get(key) || { label: monthFormat(d), count: 0 };
-      current.count += 1;
-      monthCounts.set(key, current);
-    }
-    const peakMonth = [...monthCounts.values()].reduce(
-      (best, current) => (current.count > best.count ? current : best),
-      { label: '-', count: 0 }
-    );
-
+      new Intl.DateTimeFormat('id-ID', { month: 'short', year: 'numeric' }).format(date);
     return [
-      { number: images.length.toLocaleString('en-US'), label: 'Archive Frames', icon: 'ri-camera-lens-line' },
-      { number: eras.length.toString(), label: 'Archive Years', icon: 'ri-history-line' },
-      { number: dateFormat(first), label: 'First Captured', icon: 'ri-calendar-line' },
-      { number: peakMonth.label, label: 'Peak Activity', icon: 'ri-line-chart-line' },
+      { number: images.length.toLocaleString('id-ID'), label: 'Frame Diarsipkan' },
+      { number: eras.length.toString(), label: 'Era Tercatat' },
+      { number: monthFormat(new Date(sorted[0].date)), label: 'Frame Pertama' },
+      { number: monthFormat(new Date(sorted[sorted.length - 1].date)), label: 'Frame Terbaru' },
     ];
   }, [images, eras.length]);
 
-  const { elementRef, isVisible } = useScrollReveal({
+  const { elementRef: heroRef, isVisible: heroVisible } = useScrollReveal({
     threshold: 0.1,
     triggerOnce: true,
   });
 
   return (
     <main>
-      {/* Featured Gallery Section */}
-      <Section id="gallery" padding="xl" className="relative overflow-hidden">
-        {/* Background Decorative Text */}
-        <div className="absolute -top-10 -left-10 text-[15rem] font-bold text-[color:var(--retro-gold)]/5 pointer-events-none select-none">
-          ELI
+      {/* HERO — text-based welcome (corsyava-style) */}
+      <section
+        id="home"
+        className="relative pt-40 pb-24 md:pt-52 md:pb-32 overflow-hidden bg-[color:var(--retro-bg-primary)]"
+      >
+        {/* Background flourish */}
+        <div className="pointer-events-none absolute inset-0 select-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[18rem] md:text-[26rem] font-black text-[color:var(--retro-burgundy)]/[0.05] tracking-tighter leading-none">
+            ELI
+          </div>
+          <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-gold)]/10 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 w-[420px] h-[420px] rounded-full bg-[color:var(--retro-burgundy)]/10 blur-3xl" />
         </div>
 
-        <PageHeader
-          title="The Mermaid Archive"
-          subtitle="A curated journey through the most iconic moments of Helisma Putri"
-          className="relative z-10"
-        />
-
-        {/* Stats - Refined to look like 'Milestones' */}
         <div
-          ref={elementRef}
+          ref={heroRef}
           className={`
-            grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20
-            transform transition-all duration-1000 delay-200
-            ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}
+            relative z-10 max-w-4xl mx-auto px-6 text-center
+            transform transition-all duration-1000
+            ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
           `}
         >
-          {stats.map((stat, index) => (
-            <div
-              key={stat.label}
-              className="group relative p-8 bg-[color:var(--retro-bg-primary)]/60 rounded-3xl backdrop-blur-xl border border-[color:var(--retro-border)] shadow-retro transition-all duration-500 hover:bg-[color:var(--retro-gold)]/10 hover:-translate-y-2"
-              style={{ transitionDelay: `${index * 100}ms` }}
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[10px] font-black uppercase tracking-[0.35em] mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-burgundy)]" />
+            {hero.eyebrow}
+          </span>
+
+          <h1 className="font-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tighter text-[color:var(--retro-text-primary)]">
+            {hero.title}
+            <br />
+            <span className="text-[color:var(--retro-burgundy)]">{hero.subtitle}.</span>
+          </h1>
+
+          <p className="mt-8 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl mx-auto">
+            {hero.lead}
+          </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href={`#${hero.primaryCta.hash}`}
+              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
             >
-              <div className="absolute -top-4 -right-4 w-12 h-12 bg-[color:var(--retro-bg-primary)] rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-[color:var(--retro-gold)] group-hover:text-[color:var(--retro-bg-dark)] transition-colors duration-300">
-                <i className={`${stat.icon} text-xl`} />
-              </div>
-              <div className="text-4xl font-black text-[color:var(--color-text-primary)] mb-1 tracking-tighter">
-                {stat.number}
-              </div>
-              <div className="text-xs uppercase tracking-widest font-bold text-[color:var(--color-text-muted)] group-hover:text-[color:var(--retro-gold)] transition-colors">
-                {stat.label}
+              {hero.primaryCta.label}
+              <i className={`${hero.primaryCta.icon} group-hover:translate-x-1 transition-transform`} />
+            </a>
+            <a
+              href={`#${hero.secondaryCta.hash}`}
+              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-transparent border-2 border-[color:var(--retro-brown-dark)]/20 text-[color:var(--retro-text-primary)] font-bold text-sm uppercase tracking-widest hover:border-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)] transition-all"
+            >
+              <i className={hero.secondaryCta.icon} />
+              {hero.secondaryCta.label}
+            </a>
+          </div>
+
+          <div className="mt-16 flex items-center justify-center gap-3 text-[color:var(--color-text-muted)]">
+            <div className="w-10 h-px bg-[color:var(--retro-gold)]/40" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em]">{eli.nickname}</span>
+            <div className="w-10 h-px bg-[color:var(--retro-gold)]/40" />
+          </div>
+        </div>
+      </section>
+
+      {/* DATA ELI — profile facts strip */}
+      <Section id="data" padding="lg" background="gradient">
+        <SectionHeading eyebrow={data.eyebrow} title={data.title} subtitle={data.subtitle} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
+          {profileFacts.map((fact) => (
+            <div
+              key={fact.label}
+              className="group relative p-6 rounded-2xl bg-[color:var(--retro-bg-primary)]/70 backdrop-blur border border-[color:var(--retro-border)] hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-1 transition-all"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
+                  <i className={`${fact.icon} text-xl`} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mb-1">
+                    {fact.label}
+                  </p>
+                  <p className="text-sm font-bold text-[color:var(--retro-text-primary)] leading-snug">
+                    {fact.value}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Gallery Grid */}
-        <div className="relative z-10">
-          <GalleryGrid
-            imagesOverride={featuredImages}
-          />
-        </div>
-
-        {/* View All CTA - More Stylized */}
-        <div className="text-center mt-20">
-          <a href="#gallery" className="group relative inline-flex items-center gap-4 px-10 py-5 bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] rounded-full font-bold overflow-hidden transition-all hover:pr-14 hover:shadow-2xl hover:shadow-[color:var(--retro-burgundy)]/40">
-            <span className="relative z-10">Explore Full Archive</span>
-            <i className="ri-arrow-right-line relative z-10 group-hover:translate-x-2 transition-transform" />
-            <div className="absolute inset-0 bg-black/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-          </a>
-        </div>
+        <blockquote className="mt-12 max-w-3xl mx-auto text-center">
+          <i className="ri-double-quotes-l text-3xl text-[color:var(--retro-gold)] mb-3 inline-block" />
+          <p className="font-header text-xl md:text-2xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
+            "{eli.catchphrase}"
+          </p>
+          <footer className="mt-4 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            — Catchphrase {eli.nickname}
+          </footer>
+        </blockquote>
       </Section>
 
-      <Section id="storyline" padding="lg" background="gradient">
-        <XInsights />
-      </Section>
+      {/* ABOUT ELI — text-left, portrait-right */}
+      <Section id="about-preview" padding="xl">
+        <SectionHeading eyebrow={about.eyebrow} title={about.title} />
 
-      {/* Behind the Frames - More Magazine Style */}
-      <Section id="about-preview" background="gradient" padding="xl" className="overflow-hidden">
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
-          {/* Image Composition */}
-          <div className="relative group">
-            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl transition-transform duration-700 group-hover:scale-[0.98]">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center mt-12">
+          {/* Portrait */}
+          <div className="relative group order-2 lg:order-1">
+            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
               <img
-                src="/archive/img-000.jpg"
-                alt="Eli JKT48 Recent Moment"
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 filter-sepia"
+                src={about.portrait}
+                alt={about.portraitAlt}
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
             </div>
-            
-            {/* Floating Card */}
-            <div className="absolute -bottom-10 -right-10 p-8 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-[color:var(--retro-border)] max-w-[280px] hidden md:block animate-float">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-full bg-[color:var(--retro-gold)]/20 flex items-center justify-center">
-                  <i className="ri-double-quotes-l text-2xl text-[color:var(--retro-gold)]" />
-                </div>
-                <div className="font-bold text-sm text-[color:var(--retro-text-primary)]">Artist Note</div>
-              </div>
-              <p className="text-sm italic text-[color:var(--retro-text-secondary)] leading-relaxed">
-                "Every stage is a story. My mission is to ensure Eli's light never fades from the frame."
-              </p>
+            <div className="absolute -bottom-6 -left-6 px-5 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
+              JKT48 Team KIII
             </div>
           </div>
 
-          {/* Content */}
-          <div className="lg:pl-10">
-            <div className="inline-block px-4 py-1 bg-[color:var(--retro-gold)]/10 text-[color:var(--retro-gold)] rounded-full text-xs font-bold uppercase tracking-widest mb-6">
-              Curated Documentation
-            </div>
-            <h2 className="font-header text-5xl md:text-7xl font-black text-[color:var(--color-text-primary)] mb-8 leading-[0.9] tracking-tighter">
-              Behind the <br/><span className="text-[color:var(--retro-burgundy)]">Frames.</span>
-            </h2>
-            <p className="text-[color:var(--color-text-secondary)] text-xl leading-relaxed mb-10">
-              Capturing the journey of Eli JKT48 is a labor of love. Every photograph 
-              is a piece of history, documenting the growth and the shine of our 
-              lovely mermaid. 
-            </p>
-            
-            <div className="space-y-6 mb-12">
-              {[
-                { title: 'High Fidelity', desc: 'Sourcing only the highest resolution media for clarity.' },
-                { title: 'Emotional Context', desc: 'Preserving the raw energy of theater performances.' },
-                { title: 'Fan Archive', desc: 'A dedicated home for the Eli JKT48 community.' }
-              ].map(item => (
-                <div key={item.title} className="flex gap-4">
-                  <div className="mt-1 w-5 h-5 rounded-full border-2 border-[color:var(--retro-gold)] flex-shrink-0" />
-                  <div>
-                    <h4 className="font-bold text-[color:var(--color-text-primary)]">{item.title}</h4>
-                    <p className="text-sm text-[color:var(--color-text-muted)]">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <a href="#about">
-              <Button variant="pastel" size="xl" className="rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)]">
-                Learn About Armeniaca
-              </Button>
+          {/* Text */}
+          <div className="order-1 lg:order-2">
+            {about.paragraphs.map((p, i) => (
+              <p
+                key={i}
+                className="text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed mb-5"
+              >
+                {p}
+              </p>
+            ))}
+            <a
+              href={`#${about.ctaHash}`}
+              className="group inline-flex items-center gap-3 mt-4 px-7 py-3.5 rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest transition-colors"
+            >
+              {about.ctaLabel}
+              <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
         </div>
       </Section>
 
+      {/* GALLERY ELI — 8-thumbnail grid + CTA */}
+      <Section id="gallery-preview" padding="xl" background="gradient">
+        <SectionHeading eyebrow={gallery.eyebrow} title={gallery.title} subtitle={gallery.subtitle} />
+
+        {archiveStats.length > 0 && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12 mt-10">
+            {archiveStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="p-5 rounded-2xl bg-[color:var(--retro-bg-primary)]/70 border border-[color:var(--retro-border)] text-center"
+              >
+                <div className="text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] tracking-tight mb-1">
+                  {stat.number}
+                </div>
+                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-4">
+          <GalleryGrid imagesOverride={(featuredImages || []).slice(0, 8)} />
+        </div>
+
+        <div className="text-center mt-12">
+          <a
+            href={`#${gallery.ctaHash}`}
+            className="group inline-flex items-center gap-3 px-9 py-4 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          >
+            {gallery.ctaLabel}
+            <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+          </a>
+        </div>
+      </Section>
+
+      {/* STORYLINE — substitutes corsyava's "JKT48 TV" with the X archive chronicle */}
+      <Section id="storyline" padding="lg">
+        <SectionHeading eyebrow={storyline.eyebrow} title={storyline.title} subtitle={storyline.subtitle} />
+        <div className="mt-10">
+          <XInsights />
+        </div>
+      </Section>
+
+      {/* COMMUNITY — Helismiley callout */}
+      <Section id="community" padding="lg" background="gradient">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+            {community.eyebrow}
+          </p>
+          <h2 className="font-header text-3xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] mb-6">
+            {community.title}
+          </h2>
+          <p className="text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed mb-10">
+            {community.body}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {community.links.map((link) => (
+              <a
+                key={link.label}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)] text-xs font-bold uppercase tracking-widest transition-all"
+              >
+                <i className={`${link.icon} text-base`} />
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </Section>
     </main>
   );
 };
+
+const SectionHeading = ({ eyebrow, title, subtitle }) => (
+  <div className="text-center max-w-2xl mx-auto">
+    {eyebrow && (
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+        {eyebrow}
+      </p>
+    )}
+    <h2 className="font-header text-3xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[1.05]">
+      {title}
+    </h2>
+    {subtitle && (
+      <p className="mt-4 text-base text-[color:var(--color-text-secondary)] leading-relaxed">
+        {subtitle}
+      </p>
+    )}
+    <div className="mt-6 flex items-center justify-center gap-3">
+      <div className="w-10 h-px bg-gradient-to-r from-transparent to-[color:var(--retro-gold)]" />
+      <div className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
+      <div className="w-10 h-px bg-gradient-to-l from-transparent to-[color:var(--retro-gold)]" />
+    </div>
+  </div>
+);
 
 export default HomePage;

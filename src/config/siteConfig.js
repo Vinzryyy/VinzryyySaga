@@ -24,7 +24,9 @@ export const SITE_CONFIG = {
   // Social Links
   social: {
     instagram: '',
-    twitter: '',
+    twitter: 'https://x.com/armeniaca15',
+    eliTwitter: 'https://x.com/H_EliJKT48',
+    fanbase: 'https://x.com/helismiley_ofc',
   },
 
   // Navigation
@@ -106,6 +108,76 @@ export const SITE_CONFIG = {
         highlight: 'Latest point in source export',
       },
     ],
+  },
+
+  // Eli Profile Facts (sourced from JKT48 Wiki / generasia)
+  eli: {
+    fullName: 'Helisma Mauludzunia Putri Kurnia',
+    stageName: 'Eli',
+    nickname: 'Ceu Eli',
+    birthplace: 'Bandung, Jawa Barat',
+    birthdate: '15 Juni 2000',
+    generation: 'Generasi 7 JKT48',
+    team: 'Team KIII',
+    joined: '29 September 2018',
+    origin: 'Mojang Sunda',
+    catchphrase:
+      'Bagai sinar senja yang hangat, dengan energiku yang ceria, aku akan menghangatkan suasana. Halo halo, aku Ceu Eli!',
+    portrait: '/archive/img-000.jpg',
+  },
+
+  // Home Page (corsyava-style flow)
+  home: {
+    hero: {
+      eyebrow: 'Arsip Penggemar Resmi',
+      title: 'Selamat Datang di Armeniaca',
+      subtitle: 'Arsip Visual Helisma Putri — Eli JKT48',
+      lead:
+        'Sebuah dedikasi visual untuk Ceu Eli, sang “lovely mermaid” dari Team KIII. Armeniaca merawat setiap senyum, setiap panggung, dan setiap momen yang membuat Eli bersinar.',
+      primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
+      secondaryCta: { label: 'Mengenal Armeniaca', hash: 'about', icon: 'ri-information-line' },
+    },
+    data: {
+      eyebrow: 'Data Eli',
+      title: 'Profil Singkat',
+      subtitle: 'Fakta dasar tentang Helisma Putri — Eli JKT48.',
+    },
+    about: {
+      eyebrow: 'About Eli',
+      title: 'Sang Mermaid dari Bandung',
+      paragraphs: [
+        'Helisma Mauludzunia Putri Kurnia, akrab disapa Eli, lahir di Bandung pada 15 Juni 2000. Ia bergabung dengan JKT48 sebagai member generasi ke-7 pada 29 September 2018, dan kini berdiri sebagai bagian dari Team KIII.',
+        'Dengan energi mojang Sunda yang hangat dan ceria, Eli menjadi salah satu wajah penting Team KIII. Armeniaca berdiri sebagai catatan visual perjalanannya — dari panggung teater, event, hingga momen-momen kecil yang sering luput dari sorotan.',
+      ],
+      ctaLabel: 'Selengkapnya',
+      ctaHash: 'about',
+      portrait: '/archive/img-000.jpg',
+      portraitAlt: 'Helisma Putri (Eli JKT48)',
+    },
+    gallery: {
+      eyebrow: 'Gallery Eli',
+      title: 'Frame Pilihan',
+      subtitle: 'Delapan momen pilihan dari arsip Armeniaca.',
+      ctaLabel: 'Lihat Semua Arsip',
+      ctaHash: 'gallery',
+    },
+    storyline: {
+      eyebrow: 'Eli di Arsip X',
+      title: 'Kronik @armeniaca15',
+      subtitle:
+        'Linimasa visual yang dirangkum dari arsip resmi @armeniaca15 — setiap bulan adalah satu bab kecil dari perjalanan Eli.',
+    },
+    community: {
+      eyebrow: 'About Helismiley',
+      title: 'Komunitas Penggemar Eli',
+      body:
+        'Helismiley adalah fanbase resmi Helisma Putri. Armeniaca adalah arsip independen yang berdampingan dengan komunitas, fokus pada dokumentasi visual jangka panjang.',
+      links: [
+        { label: 'Helismiley (X)', url: 'https://x.com/helismiley_ofc', icon: 'ri-twitter-x-line' },
+        { label: 'Helismiley (Instagram)', url: 'https://www.instagram.com/helismiley_ofc/', icon: 'ri-instagram-line' },
+        { label: 'Eli JKT48 (X)', url: 'https://x.com/H_EliJKT48', icon: 'ri-twitter-x-line' },
+      ],
+    },
   },
 
   // About Page Content
