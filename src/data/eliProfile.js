@@ -98,27 +98,106 @@ export const ELI_DISCOGRAPHY = [
   { title: 'Single JKT48 lainnya', type: 'Reference', year: '2022 - 2026', position: 'Berbagai posisi', note: 'Daftar lengkap akan diperbarui.', placeholder: true },
 ];
 
+// Theater setlists Eli has performed in. Unit songs include optional notes
+// (Under = substitute role, Shonichi Support = first-day support, Swap =
+// swapped position, Since = entered the unit on a specific date,
+// Graduation Stage = special context for a member's send-off).
 export const ELI_THEATER = [
   {
-    setlist: 'Show Theater no Megami',
+    code: 'T1 Revival',
+    setlist: 'Te wo Tsunaginagara',
     team: 'Team T',
     debutDate: '2018-12-16',
-    note: 'Setlist debut panggung pertama bersama Team T.',
-    units: [],
+    note: 'Setlist debut panggung Eli, revival klasik bersama Team T.',
+    isDebut: true,
+    units: [
+      { song: 'Wimbledon e Tsureteitte', note: 'Under + Shonichi Support' },
+      { song: 'Innocence', note: 'Since 23 Februari 2019' },
+    ],
   },
   {
-    setlist: 'Te wo Tsunaginagara',
-    team: 'Team KIII',
-    debutDate: null,
-    note: 'Setlist reguler Team KIII di periode pertengahan karier Eli.',
-    units: ['Innocence', 'Wimbledon e Tsureteitte'],
-  },
-  {
+    code: 'ACA1',
     setlist: 'Pajama Drive',
+    team: 'Academy',
+    debutDate: null,
+    note: 'Setlist klasik AKB48 yang dibawakan ulang oleh kelas Academy.',
+    units: [
+      { song: 'Junjou Shugi' },
+      { song: 'Temodemo no Namida' },
+      { song: 'Kagami no Naka no Jean Da Arc' },
+    ],
+  },
+  {
+    code: 'KIII4',
+    setlist: 'Saka Agari',
     team: 'Team KIII',
     debutDate: null,
-    note: 'Setlist klasik AKB48 yang dibawakan ulang oleh Team KIII.',
-    units: ['Junjou Shugi', 'Temodemo no Namida'],
+    note: 'Setlist Team KIII tahap awal era reguler Eli.',
+    units: [
+      { song: 'Ai no Iro', note: 'Swap' },
+    ],
+  },
+  {
+    code: 'Produce Stage',
+    setlist: 'Romansa Sang Gadis',
+    team: 'Special',
+    debutDate: null,
+    note: 'Stage produksi khusus.',
+    units: [
+      { song: 'Himawari', note: "Yona's Graduation Stage" },
+    ],
+  },
+  {
+    code: 'KIII5',
+    setlist: 'Ramune no Nomikata',
+    team: 'Team KIII',
+    debutDate: null,
+    note: 'Setlist Team KIII edisi berikutnya.',
+    units: [
+      { song: 'Usotsuki na Dachou' },
+    ],
+  },
+  {
+    code: 'JKT1',
+    setlist: 'Renai Kinshi Jourei',
+    team: 'JKT All Teams',
+    debutDate: null,
+    note: 'Setlist original JKT48 perdana yang melibatkan semua tim.',
+    units: [
+      { song: 'Manatsu no Christmas Rose' },
+    ],
+  },
+  {
+    code: 'JKT2',
+    setlist: 'Seishun Girls',
+    team: 'JKT All Teams',
+    debutDate: null,
+    note: 'Setlist original JKT48 kedua.',
+    units: [
+      { song: 'Blue Rose' },
+      { song: 'Fushidara na Natsu' },
+    ],
+  },
+  {
+    code: 'JKT3',
+    setlist: 'Seifuku no Me',
+    team: 'JKT All Teams',
+    debutDate: null,
+    note: 'Setlist original JKT48 ketiga.',
+    units: [
+      { song: 'Onna no Ko no Dairokkan' },
+      { song: 'Kareha no Station', note: 'Swap' },
+    ],
+  },
+  {
+    code: 'JKT4',
+    setlist: 'Ramune no Nomikata',
+    team: 'JKT All Teams',
+    debutDate: null,
+    note: 'Setlist original JKT48 keempat — meminjam judul Ramune no Nomikata.',
+    units: [
+      { song: 'Nice to meet you!' },
+    ],
   },
 ];
 

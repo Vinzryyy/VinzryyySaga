@@ -496,21 +496,21 @@ const TheaterSection = () => {
         kicker={`${ELI_THEATER.length} setlists tracked`}
       />
 
-      {/* Feature card — debut setlist gets a full-width spotlight */}
+      {/* Debut feature card — first setlist marked isDebut gets a full-width spotlight */}
       {(() => {
-        const feature = ELI_THEATER[0];
+        const feature = ELI_THEATER.find((entry) => entry.isDebut) || ELI_THEATER[0];
         const debut = formatDate(feature.debutDate);
         return (
           <article className="relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-6 md:mb-8">
             <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
             <div className="relative grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className="px-3 py-1 rounded-full bg-[color:var(--retro-gold-light)]/20 text-[color:var(--retro-gold-light)] text-[9px] font-black uppercase tracking-[0.4em]">
                     Stage Debut
                   </span>
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
-                    {feature.team}
+                    {feature.team} · {feature.code}
                   </span>
                 </div>
                 <h3 className="font-header text-3xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
@@ -520,6 +520,31 @@ const TheaterSection = () => {
                   <p className="text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
                     {feature.note}
                   </p>
+                )}
+                {feature.units.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-[color:var(--retro-cream)]/10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-3">
+                      Unit Songs Eli
+                    </p>
+                    <ul className="space-y-2">
+                      {feature.units.map((unit) => (
+                        <li
+                          key={unit.song}
+                          className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
+                        >
+                          <span className="flex items-center gap-2 font-bold">
+                            <i className="ri-music-fill text-[color:var(--retro-gold-light)]" />
+                            {unit.song}
+                          </span>
+                          {unit.note && (
+                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/50">
+                              {unit.note}
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
               <aside className="space-y-3">
@@ -540,36 +565,49 @@ const TheaterSection = () => {
                     Titik nol panggung Eli di JKT48.
                   </p>
                 </div>
+                <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                    Total Setlist
+                  </p>
+                  <p className="font-header text-xl font-black leading-tight">
+                    {ELI_THEATER.length} <span className="text-sm text-[color:var(--retro-cream)]/60 font-bold">stages</span>
+                  </p>
+                </div>
               </aside>
             </div>
           </article>
         );
       })()}
 
-      {/* Remaining setlists in a 2-col grid */}
+      {/* Remaining setlists — 2-col grid, each card lists every unit + note */}
       <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-        {ELI_THEATER.slice(1).map((entry) => {
+        {ELI_THEATER.filter((entry) => !entry.isDebut).map((entry) => {
           const debut = formatDate(entry.debutDate);
           return (
             <article
-              key={entry.setlist}
+              key={entry.code}
               className="group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors"
             >
-              <div className="flex items-start justify-between gap-3 mb-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                  {entry.team}
-                </span>
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                    {entry.code}
+                  </span>
+                  <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5">
+                    {entry.team}
+                  </span>
+                </div>
                 {debut && (
-                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] text-right">
                     Debut · {debut}
                   </span>
                 )}
               </div>
-              <h3 className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
+              <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
                 {entry.setlist}
               </h3>
               {entry.note && (
-                <p className="mt-2 text-sm text-[color:var(--color-text-secondary)]">
+                <p className="mt-2 text-sm text-[color:var(--color-text-secondary)] leading-snug">
                   {entry.note}
                 </p>
               )}
@@ -581,11 +619,18 @@ const TheaterSection = () => {
                   <ul className="space-y-2">
                     {entry.units.map((unit) => (
                       <li
-                        key={unit}
-                        className="flex items-center gap-2 text-sm font-bold text-[color:var(--retro-text-primary)]"
+                        key={unit.song}
+                        className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
                       >
-                        <i className="ri-music-fill text-[color:var(--retro-burgundy)]" />
-                        {unit}
+                        <span className="flex items-center gap-2 font-bold text-[color:var(--retro-text-primary)]">
+                          <i className="ri-music-fill text-[color:var(--retro-burgundy)]" />
+                          {unit.song}
+                        </span>
+                        {unit.note && (
+                          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+                            {unit.note}
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>
