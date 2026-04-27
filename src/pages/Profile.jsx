@@ -803,8 +803,14 @@ const TheaterSection = () => {
               <span className="px-3 py-1 rounded-full bg-[color:var(--retro-gold-light)]/20 text-[color:var(--retro-gold-light)] text-[9px] font-black uppercase tracking-[0.4em]">
                 {isDebutFeature ? 'Stage Debut' : 'Setlist'}
               </span>
+              {feature.status === 'active' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-[0.4em]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  Sedang Aktif
+                </span>
+              )}
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
-                {feature.team} · {feature.code}
+                {feature.team}
               </span>
               {!isDebutFeature && (
                 <button
@@ -865,12 +871,18 @@ const TheaterSection = () => {
                 Status
               </p>
               <p className="font-header text-xl font-black leading-tight">
-                {isDebutFeature ? 'Setlist Pertama' : 'Setlist Aktif'}
+                {isDebutFeature
+                  ? 'Setlist Pertama'
+                  : feature.status === 'active'
+                  ? 'Sedang Aktif'
+                  : 'Setlist Berakhir'}
               </p>
               <p className="text-xs text-[color:var(--retro-cream)]/60 mt-1">
                 {isDebutFeature
                   ? 'Titik nol panggung Eli di JKT48.'
-                  : 'Klik kembali kartu yang sama untuk kembali ke Stage Debut.'}
+                  : feature.status === 'active'
+                  ? 'Setlist yang sedang dibawakan Eli saat ini.'
+                  : 'Setlist sudah selesai berjalan.'}
               </p>
             </div>
             <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
@@ -899,13 +911,13 @@ const TheaterSection = () => {
 // Renders the non-debut setlists as a responsive grid. Click a card to
 // swap its detail into the spotlight at the top of TheaterSection.
 const RemainingTheaters = ({ formatDate, gridRef, gridVisible, activeCode, onSelect }) => {
-  const remaining = ELI_THEATER.filter((entry) => !entry.isDebut);
+  const remaining = ELI_THEATER;
 
   return (
     <>
       <div className="flex items-baseline justify-between mb-6">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-          Setlist Lainnya
+          Daftar Setlist
         </p>
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
           Klik kartu · tampil di spotlight
@@ -965,15 +977,16 @@ const TheaterCard = ({ entry, formatDate, isActive = false, onSelect }) => {
           On Spotlight
         </span>
       )}
+      {entry.status === 'active' && (
+        <span className="absolute -top-2 right-6 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-[0.3em] shadow-md shadow-emerald-500/30">
+          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+          Aktif
+        </span>
+      )}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex flex-col">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-            {entry.code}
-          </span>
-          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5">
-            {entry.team}
-          </span>
-        </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+          {entry.team}
+        </span>
         {debut && (
           <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] text-right">
             Debut · {debut}
