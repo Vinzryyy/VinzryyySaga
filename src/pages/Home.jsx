@@ -7,7 +7,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
-import XInsights from '../components/gallery/XInsights';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
@@ -448,11 +447,6 @@ const HomePage = () => {
             <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </a>
         </div>
-      </Section>
-
-      {/* STORYLINE — XInsights carries its own internal heading; no outer SectionHeading */}
-      <Section id="storyline" padding="lg">
-        <XInsights />
       </Section>
 
       {/* COMMUNITY — Helismiley as a 2-col platform card (header left, link list right) */}

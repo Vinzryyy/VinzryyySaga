@@ -114,42 +114,6 @@ export const SITE_CONFIG = {
     { number: '43', label: 'Latest Updates', icon: 'ri-refresh-line' },
   ],
 
-  // Storyline (derived from local @armeniaca15 archive export)
-  storyline: {
-    sourceLabel: '@armeniaca15',
-    period: 'October 16, 2023 - March 1, 2024',
-    chapters: [
-      {
-        id: 'origin',
-        period: 'Oct 2023',
-        title: 'Origin: The Archive Begins',
-        summary: 'The account establishes a consistent visual identity and starts documenting Eli moments as a focused archive project.',
-        highlight: '15 captured moments',
-      },
-      {
-        id: 'consistency',
-        period: 'Nov - Dec 2023',
-        title: 'Consistency: Weekly Rhythm',
-        summary: 'Posting stabilizes into a regular cadence, building continuity and making the archive feel dependable for followers.',
-        highlight: '15 captured moments',
-      },
-      {
-        id: 'momentum',
-        period: 'Jan - Feb 2024',
-        title: 'Momentum: Broader Coverage',
-        summary: 'Coverage broadens with denser posting windows, showing stronger momentum and tighter documentation across events.',
-        highlight: '13 captured moments',
-      },
-      {
-        id: 'new-chapter',
-        period: 'Mar 1, 2024',
-        title: 'New Chapter: Transition Point',
-        summary: 'The latest frame in this export marks a natural transition point for the next era of the archive timeline.',
-        highlight: 'Latest point in source export',
-      },
-    ],
-  },
-
   // Eli Profile Facts (sourced from JKT48 Wiki / generasia)
   eli: {
     fullName: 'Helisma Mauludzunia Putri Kurnia',
@@ -211,12 +175,6 @@ export const SITE_CONFIG = {
       subtitle: 'Delapan momen pilihan dari arsip Armeniaca.',
       ctaLabel: 'Lihat Semua Arsip',
       ctaHash: 'gallery',
-    },
-    storyline: {
-      eyebrow: 'Eli di Arsip X',
-      title: 'Kronik @armeniaca15',
-      subtitle:
-        'Linimasa visual yang dirangkum dari arsip resmi @armeniaca15 — setiap bulan adalah satu bab kecil dari perjalanan Eli.',
     },
     community: {
       eyebrow: 'About Helismiley',
