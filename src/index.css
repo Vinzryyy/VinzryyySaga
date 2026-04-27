@@ -275,12 +275,38 @@ body {
   will-change: transform, opacity;
 }
 
+/* Infinite Marquee — horizontal scroll loop. Track contains the content
+   list duplicated twice (50% width per copy); animating to translateX(-50%)
+   exposes the second copy at the moment the first copy fully exits, so the
+   loop is seamless. The wrapper's hover state pauses the animation. */
+@keyframes marqueeScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marqueeScroll var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.marquee-wrapper:hover .marquee-track,
+.marquee-wrapper:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-ken-burns,
   .animate-hero-slide-in {
     animation: none;
     transform: scale(1);
     opacity: 1;
+  }
+  .marquee-track {
+    animation: none;
   }
 }
 

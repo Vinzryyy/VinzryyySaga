@@ -24,7 +24,7 @@ const staggerClass = (visible) =>
   }`;
 
 const HomePage = () => {
-  const { featuredImages } = useGallery();
+  const { featuredImages, images } = useGallery();
   const { hero, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
 
@@ -44,6 +44,17 @@ const HomePage = () => {
     () => (featuredImages || []).slice(0, 8),
     [featuredImages]
   );
+
+  // Marquee strip — pulls 14 frames distinct from the bento where possible
+  // (skip first 8), falls back to the full image pool if featuredImages is
+  // shallow. Duplicated in JSX for the seamless 50%-translate loop.
+  const marqueeFrames = useMemo(() => {
+    const featured = featuredImages || [];
+    const rest = featured.slice(8, 22);
+    if (rest.length >= 8) return rest;
+    const pool = images && images.length > 0 ? images : featured;
+    return pool.slice(0, Math.min(pool.length, 14));
+  }, [featuredImages, images]);
 
   const featuredMeta = useMemo(() => {
     if (featuredEight.length === 0) return null;
@@ -443,6 +454,51 @@ const HomePage = () => {
             </span>
           </a>
         </div>
+
+        {/* Infinite marquee — CSS-only horizontal scroll of additional frames,
+            pauses on hover/focus. Duplicated track gives a seamless loop at
+            translateX(-50%). Edge fades hint that there's more off-screen. */}
+        {marqueeFrames.length > 0 && (
+          <div className="mt-12 md:mt-16">
+            <div className="flex items-baseline justify-between mb-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                Lebih banyak dari arsip
+              </p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
+                Hover untuk pause
+              </p>
+            </div>
+            <div
+              className="marquee-wrapper relative overflow-hidden"
+              style={{ '--marquee-duration': `${Math.max(30, marqueeFrames.length * 3)}s` }}
+            >
+              {/* Edge fade overlays */}
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-[color:var(--retro-bg-secondary)] to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-[color:var(--retro-bg-secondary)] to-transparent" />
+
+              <div className="marquee-track flex gap-3 md:gap-4 w-max">
+                {[...marqueeFrames, ...marqueeFrames].map((image, i) => (
+                  <a
+                    key={`${image.id}-${i}`}
+                    href={`#${gallery.ctaHash}`}
+                    aria-label={image.title || 'Eli JKT48'}
+                    className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10"
+                    aria-hidden={i >= marqueeFrames.length}
+                    tabIndex={i >= marqueeFrames.length ? -1 : 0}
+                  >
+                    <img
+                      src={image.thumbnail || image.url}
+                      alt={image.alt || image.title || 'Eli JKT48'}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover/tile:bg-[color:var(--retro-brown-dark)]/30 transition-colors" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* CTA button — visible only when bento CTA tile is hidden (sm/md) */}
         <div className="text-center mt-10 lg:hidden">
