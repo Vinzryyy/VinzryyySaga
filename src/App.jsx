@@ -16,6 +16,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
+import { ELI_PROFILE_SECTIONS } from './data/eliProfile';
 
 // Lazy load pages for code splitting
 const HomePage = lazy(() => import('./pages/Home'));
@@ -32,9 +33,14 @@ const routes = {
   'profile': ProfilePage,
 };
 
+// Sub-anchors on the Profile page — clicking them must keep the user on
+// /#profile, not fall through to the empty/home route.
+const PROFILE_ANCHORS = new Set(ELI_PROFILE_SECTIONS.map((s) => s.id));
+
 const resolveRoute = (hash) => {
   if (routes[hash]) return hash;
   if (/^\d{4}$/.test(hash)) return 'gallery';
+  if (PROFILE_ANCHORS.has(hash)) return 'profile';
   return '';
 };
 
