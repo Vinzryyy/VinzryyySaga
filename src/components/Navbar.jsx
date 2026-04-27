@@ -141,24 +141,43 @@ function Navbar() {
             ref={dropdownRef}
             className={`relative flex items-center justify-between gap-4 px-5 py-2.5 rounded-full border transition-all duration-500 ${palette.pill}`}
           >
-            {/* Logo */}
+            {/* Logo — CSS mask renders the white wordmark in any color so it
+                adapts to the scrolled (cream bg) vs transparent (dark hero)
+                navbar states. The PNG provides the shape; backgroundColor
+                provides the tint. */}
             <a
               href="#home"
               onClick={(event) => {
                 event.preventDefault();
                 navigateTo("home");
               }}
-              className="group flex items-center gap-2 flex-shrink-0"
+              aria-label="Armeniaca — Home"
+              className="group flex items-center gap-3 flex-shrink-0"
             >
-              <div className="flex flex-col leading-none">
-                <span className={`font-header text-xl font-black tracking-tighter ${palette.text}`}>
-                  {SITE_CONFIG.branding.fullName}
-                  <span className="text-[color:var(--retro-burgundy)]">.</span>
-                </span>
-                <span className={`text-[8px] font-black uppercase tracking-[0.4em] mt-0.5 opacity-60 ${palette.text}`}>
-                  {SITE_CONFIG.branding.tagline}
-                </span>
-              </div>
+              <div
+                role="img"
+                aria-label="Armeniaca wordmark"
+                className="h-8 md:h-10 transition-colors duration-500"
+                style={{
+                  aspectRatio: "2481 / 943",
+                  maskImage: "url(/logo-armeniaca.png)",
+                  WebkitMaskImage: "url(/logo-armeniaca.png)",
+                  maskSize: "contain",
+                  WebkitMaskSize: "contain",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskPosition: "center",
+                  WebkitMaskPosition: "center",
+                  backgroundColor: scrolled
+                    ? "var(--retro-text-primary)"
+                    : "white",
+                }}
+              />
+              <span
+                className={`hidden md:inline-block text-[8px] font-black uppercase tracking-[0.4em] opacity-60 ${palette.text}`}
+              >
+                {SITE_CONFIG.branding.tagline}
+              </span>
             </a>
 
             {/* Desktop menu */}
