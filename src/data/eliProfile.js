@@ -93,9 +93,45 @@ export const ELI_DISCOGRAPHY = [
     note: 'Senbatsu pertama Eli.',
     highlight: true,
   },
-  // Single-single setelahnya menyusul; ditampilkan sebagai placeholder untuk
-  // dilengkapi dengan posisi spesifik per single.
+  // Single JKT48 lainnya yang melibatkan Eli akan ditambah seiring data
+  // posisi per single terverifikasi.
   { title: 'Single JKT48 lainnya', type: 'Reference', year: '2022 - 2026', position: 'Berbagai posisi', note: 'Daftar lengkap akan diperbarui.', placeholder: true },
+];
+
+// Album appearances — JKT48 album tracks Eli was part of. Pulled from
+// fan-curated participation list (JOY KICK! TEARS, THIS IS JKT48 NEW ERA,
+// Mahagita Vol. 2). Year column left blank when not yet verified.
+export const ELI_ALBUMS = [
+  {
+    title: 'JOY KICK! TEARS',
+    year: null,
+    cover: null,
+    tracks: [
+      { song: 'Teacher Teacher' },
+    ],
+  },
+  {
+    title: 'THIS IS JKT48 NEW ERA',
+    year: null,
+    cover: null,
+    tracks: [
+      { song: '109 (Marukyu)' },
+      { song: 'Fushidara na Natsu' },
+    ],
+  },
+  {
+    title: 'Mahagita Vol. 2',
+    year: null,
+    cover: null,
+    tracks: [
+      { song: 'Bokura no Eureka' },
+      { song: 'NEW SHIP' },
+      { song: 'Sakura no Ki ni Narou' },
+      { song: 'Green Flash' },
+      { song: 'Yume wo Shinaseru Wake ni Ikanai' },
+      { song: 'Jiwaru DAYS' },
+    ],
+  },
 ];
 
 // Theater setlists Eli has performed in. Unit songs include optional notes

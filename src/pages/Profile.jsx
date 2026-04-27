@@ -11,6 +11,7 @@ import {
   ELI_PROFILE_SECTIONS,
   ELI_TIMELINE,
   ELI_DISCOGRAPHY,
+  ELI_ALBUMS,
   ELI_THEATER,
   ELI_FIGHT_2026,
   ELI_TRIVIA,
@@ -398,16 +399,25 @@ const FightSection = () => {
 const DiscographySection = () => {
   const confirmed = ELI_DISCOGRAPHY.filter((entry) => !entry.placeholder);
   const placeholders = ELI_DISCOGRAPHY.filter((entry) => entry.placeholder);
+  const totalAlbumTracks = ELI_ALBUMS.reduce((sum, album) => sum + album.tracks.length, 0);
   return (
     <>
       <SectionOpener
         id="discography"
-        title="Single, Posisi, & Momen Senbatsu."
-        lead="Daftar single JKT48 yang melibatkan Eli, lengkap dengan posisinya. Masih dalam tahap kurasi — entri akan terus ditambah seiring data terverifikasi."
-        kicker={`${confirmed.length} confirmed · ${placeholders.length} placeholder`}
+        title="Single, Album, & Momen Senbatsu."
+        lead="Single JKT48 yang melibatkan Eli plus track-nya di album JKT48. Single masih dalam kurasi; album sudah lengkap berdasarkan participation list."
+        kicker={`${confirmed.length} single · ${ELI_ALBUMS.length} album · ${totalAlbumTracks} track`}
       />
 
-      <div className="space-y-4">
+      {/* SINGLES */}
+      <div className="space-y-4 mb-12">
+        <div className="flex items-baseline gap-3 mb-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            Singles
+          </p>
+          <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+        </div>
+
         {confirmed.map((entry) => (
           <article
             key={`${entry.title}-${entry.year}`}
@@ -453,9 +463,6 @@ const DiscographySection = () => {
           </article>
         ))}
 
-        {/* Curation status callout — replaces the bare placeholder cards with
-            an honest "data sedang dikurasi" panel that doesn't pretend to be
-            content while still being clear about what's missing. */}
         {placeholders.length > 0 && (
           <div className="mt-6 rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-burgundy)]/[0.02] p-6 md:p-8">
             <div className="flex flex-col md:flex-row md:items-center gap-5">
@@ -464,7 +471,7 @@ const DiscographySection = () => {
               </div>
               <div className="flex-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-1">
-                  Data Sedang Dikurasi
+                  Data Single Sedang Dikurasi
                 </p>
                 <p className="font-bold text-[color:var(--retro-text-primary)] mb-1">
                   Single JKT48 lainnya yang melibatkan Eli akan ditambah secara bertahap.
@@ -476,6 +483,58 @@ const DiscographySection = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* ALBUMS */}
+      <div>
+        <div className="flex items-baseline gap-3 mb-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            Album Participations
+          </p>
+          <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+            {totalAlbumTracks} tracks
+          </span>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+          {ELI_ALBUMS.map((album) => (
+            <article
+              key={album.title}
+              className="group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors flex flex-col"
+            >
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <span className="px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em]">
+                  Album
+                </span>
+                {album.year && (
+                  <span className="font-header text-xl font-black text-[color:var(--retro-burgundy)]">
+                    {album.year}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight mb-1">
+                {album.title}
+              </h3>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-4">
+                {album.tracks.length} track{album.tracks.length === 1 ? '' : 's'} dengan Eli
+              </p>
+              <ul className="space-y-2 mt-auto pt-4 border-t border-[color:var(--retro-brown-dark)]/10">
+                {album.tracks.map((track, idx) => (
+                  <li
+                    key={track.song}
+                    className="flex items-baseline gap-3 text-sm font-bold text-[color:var(--retro-text-primary)] leading-snug"
+                  >
+                    <span className="flex-shrink-0 text-[10px] font-black text-[color:var(--retro-burgundy)]/60 tracking-widest pt-0.5">
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <span>{track.song}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
       </div>
     </>
   );
