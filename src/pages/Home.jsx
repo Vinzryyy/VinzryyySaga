@@ -49,65 +49,78 @@ const HomePage = () => {
 
   return (
     <main>
-      {/* HERO — text-based welcome (corsyava-style) */}
+      {/* HERO — full-bleed Eli portrait with Ken Burns reveal */}
       <section
         id="home"
-        className="relative pt-40 pb-24 md:pt-52 md:pb-32 overflow-hidden bg-[color:var(--retro-bg-primary)]"
+        className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-[color:var(--retro-brown-dark)]"
       >
-        {/* Background flourish */}
-        <div className="pointer-events-none absolute inset-0 select-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[18rem] md:text-[26rem] font-black text-[color:var(--retro-burgundy)]/[0.05] tracking-tighter leading-none">
-            ELI
-          </div>
-          <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-gold)]/10 blur-3xl" />
-          <div className="absolute -bottom-32 -left-32 w-[420px] h-[420px] rounded-full bg-[color:var(--retro-burgundy)]/10 blur-3xl" />
+        {/* Ken Burns Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src={eli.portrait}
+            alt={about.portraitAlt}
+            className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+          />
+          {/* Tonal grade — warms to the cream palette while keeping text legible */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/60 to-[color:var(--retro-brown-dark)]/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--retro-brown-dark)]/80 via-transparent to-transparent" />
         </div>
 
+        {/* Vertical side caption */}
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 hidden lg:block">
+          <div className="rotate-90 origin-right text-[10px] font-black tracking-[0.5em] text-[color:var(--retro-cream)]/40 uppercase whitespace-nowrap">
+            Armeniaca | Mermaid Archive | {new Date().getFullYear()}
+          </div>
+        </div>
+
+        {/* Content */}
         <div
           ref={heroRef}
           className={`
-            relative z-10 max-w-4xl mx-auto px-6 text-center
+            relative z-10 h-full flex items-end pb-20 md:pb-28 px-6 md:px-16 lg:px-24
             transform transition-all duration-1000
             ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
           `}
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[10px] font-black uppercase tracking-[0.35em] mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-burgundy)]" />
-            {hero.eyebrow}
-          </span>
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] mb-8 border border-[color:var(--retro-cream)]/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
+              {hero.eyebrow}
+            </span>
 
-          <h1 className="font-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tighter text-[color:var(--retro-text-primary)]">
-            {hero.title}
-            <br />
-            <span className="text-[color:var(--retro-burgundy)]">{hero.subtitle}.</span>
-          </h1>
+            <h1 className="font-header text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]">
+              {hero.title}
+              <br />
+              <span className="text-[color:var(--retro-gold-light)]">{hero.subtitle}.</span>
+            </h1>
 
-          <p className="mt-8 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl mx-auto">
-            {hero.lead}
-          </p>
+            <p className="mt-8 text-base md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
+              {hero.lead}
+            </p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href={`#${hero.primaryCta.hash}`}
-              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
-            >
-              {hero.primaryCta.label}
-              <i className={`${hero.primaryCta.icon} group-hover:translate-x-1 transition-transform`} />
-            </a>
-            <a
-              href={`#${hero.secondaryCta.hash}`}
-              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-transparent border-2 border-[color:var(--retro-brown-dark)]/20 text-[color:var(--retro-text-primary)] font-bold text-sm uppercase tracking-widest hover:border-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)] transition-all"
-            >
-              <i className={hero.secondaryCta.icon} />
-              {hero.secondaryCta.label}
-            </a>
+            <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+              <a
+                href={`#${hero.primaryCta.hash}`}
+                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all"
+              >
+                {hero.primaryCta.label}
+                <i className={`${hero.primaryCta.icon} group-hover:translate-x-1 transition-transform`} />
+              </a>
+              <a
+                href={`#${hero.secondaryCta.hash}`}
+                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-transparent border-2 border-[color:var(--retro-cream)]/30 text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest hover:bg-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-cream)] transition-all"
+              >
+                <i className={hero.secondaryCta.icon} />
+                {hero.secondaryCta.label}
+              </a>
+            </div>
           </div>
+        </div>
 
-          <div className="mt-16 flex items-center justify-center gap-3 text-[color:var(--color-text-muted)]">
-            <div className="w-10 h-px bg-[color:var(--retro-gold)]/40" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em]">{eli.nickname}</span>
-            <div className="w-10 h-px bg-[color:var(--retro-gold)]/40" />
-          </div>
+        {/* Scroll cue */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-[color:var(--retro-cream)]/50">
+          <span className="text-[9px] font-black uppercase tracking-[0.4em]">Scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-[color:var(--retro-cream)]/50 to-transparent" />
         </div>
       </section>
 
