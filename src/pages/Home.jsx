@@ -11,6 +11,17 @@ import XInsights from '../components/gallery/XInsights';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
+// Stagger reveal helpers — same pattern as Profile page so list/grid items
+// cascade in once their container hits the viewport.
+const STAGGER_STEP_MS = 60;
+const staggerStyle = (index, baseDelay = 0) => ({
+  transitionDelay: `${baseDelay + index * STAGGER_STEP_MS}ms`,
+});
+const staggerClass = (visible) =>
+  `transition-all duration-700 ease-out ${
+    visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+  }`;
+
 const HomePage = () => {
   const { featuredImages } = useGallery();
   const { hero, data, about, gallery, community } = SITE_CONFIG.home;
@@ -57,6 +68,18 @@ const HomePage = () => {
   const { elementRef: heroRef, isVisible: heroVisible } = useScrollReveal({
     threshold: 0.1,
     triggerOnce: true,
+  });
+  const { elementRef: factsRef, isVisible: factsVisible } = useScrollReveal({
+    threshold: 0.1,
+    rootMargin: '-40px',
+  });
+  const { elementRef: bentoRef, isVisible: bentoVisible } = useScrollReveal({
+    threshold: 0.05,
+    rootMargin: '-40px',
+  });
+  const { elementRef: communityRef, isVisible: communityVisible } = useScrollReveal({
+    threshold: 0.1,
+    rootMargin: '-40px',
   });
 
   // Rotating hero backdrop — falls back to a single legacy `background` field
@@ -211,11 +234,12 @@ const HomePage = () => {
               {data.title}
             </h2>
 
-            <dl className="divide-y divide-[color:var(--retro-brown-dark)]/15 border-y border-[color:var(--retro-brown-dark)]/15">
-              {profileFacts.map((fact) => (
+            <dl ref={factsRef} className="divide-y divide-[color:var(--retro-brown-dark)]/15 border-y border-[color:var(--retro-brown-dark)]/15">
+              {profileFacts.map((fact, idx) => (
                 <div
                   key={fact.label}
-                  className="grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group"
+                  style={staggerStyle(idx)}
+                  className={`grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group ${staggerClass(factsVisible)}`}
                 >
                   <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] pt-1.5">
                     {fact.label}
@@ -319,7 +343,7 @@ const HomePage = () => {
         {/* Bento mosaic — uniform on small screens, asymmetric on lg+. Item 0 spans
             2x2 as a feature tile; the last cell of the lg grid is a CTA card so the
             "view all" action lives inside the rhythm instead of floating below. */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:auto-rows-fr">
+        <div ref={bentoRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:auto-rows-fr">
           {featuredEight.map((image, index) => {
             const dateLabel = formatFrameDate(image.date);
             return (
@@ -329,9 +353,9 @@ const HomePage = () => {
                 className={`
                   group relative overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10
                   ${index === 0 ? 'lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto' : 'aspect-square'}
-                  transform transition-all duration-700 ease-out hover:-translate-y-0.5
+                  ${staggerClass(bentoVisible)}
                 `}
-                style={{ transitionDelay: `${Math.min(index, 7) * 60}ms` }}
+                style={staggerStyle(Math.min(index, 7))}
                 aria-label={`Frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
               >
                 <img
@@ -420,17 +444,18 @@ const HomePage = () => {
               </p>
             </div>
 
-            <div className="lg:col-span-2 flex flex-col gap-3">
+            <div ref={communityRef} className="lg:col-span-2 flex flex-col gap-3">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/50 mb-1">
                 Tautan Komunitas
               </p>
-              {community.links.map((link) => (
+              {community.links.map((link, idx) => (
                 <a
                   key={link.label}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-[color:var(--retro-cream)]/5 hover:bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-gold-light)]/40 transition-all"
+                  style={staggerStyle(idx, 100)}
+                  className={`group flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-[color:var(--retro-cream)]/5 hover:bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-gold-light)]/40 ${staggerClass(communityVisible)}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-[color:var(--retro-cream)]/10 flex items-center justify-center group-hover:bg-[color:var(--retro-gold-light)] group-hover:text-[color:var(--retro-brown-dark)] transition-colors">
