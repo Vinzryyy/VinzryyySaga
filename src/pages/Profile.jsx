@@ -1037,8 +1037,10 @@ const TheaterCard = ({ entry, formatDate, isActive = false, onSelect }) => {
 
 const TriviaSection = () => {
   const eli = SITE_CONFIG.eli;
-  const profile = SITE_CONFIG.profile;
-  const featurePhoto = profile.heroCollage[1] || eli.portrait;
+  // Catchphrase tile portrait — face is upper-left in the source frame, so
+  // object-position is biased to keep it visible above the gradient overlay
+  // both in the square (mobile) and 2:1 (lg) crops.
+  const featurePhoto = '/archive/img-019.jpg';
   const { elementRef: idRef, isVisible: idVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   const { elementRef: funRef, isVisible: funVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (
@@ -1062,9 +1064,9 @@ const TriviaSection = () => {
           >
             <img
               src={featurePhoto}
-              alt=""
+              alt={eli.stageName || 'Eli'}
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover object-[35%_25%] transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/40 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-6 text-[color:var(--retro-cream)]">
