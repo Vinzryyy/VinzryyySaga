@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useCountUp } from '../hooks/useCountUp';
 import {
   ELI_PROFILE_SECTIONS,
   ELI_TIMELINE,
@@ -29,6 +30,28 @@ const staggerClass = (visible) =>
   `transition-all duration-700 ease-out ${
     visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
   }`;
+
+// Splits a stat value like "350+", "6+ Tahun", "Dream" into a number to
+// animate plus the surrounding text. Pure-text values are passed through
+// without animation.
+const parseStatValue = (raw) => {
+  const match = String(raw).match(/^(\D*)(\d+)(.*)$/);
+  if (!match) return { number: null, prefix: '', suffix: String(raw) };
+  return { number: parseInt(match[2], 10), prefix: match[1], suffix: match[3] };
+};
+
+const AnimatedStat = ({ value, start, duration = 1400 }) => {
+  const { number, prefix, suffix } = parseStatValue(value);
+  const animated = useCountUp(number ?? 0, { start: start && number !== null, duration });
+  if (number === null) return <>{value}</>;
+  return (
+    <>
+      {prefix}
+      {animated.toLocaleString('id-ID')}
+      {suffix}
+    </>
+  );
+};
 
 const ProfilePage = () => {
   const eli = SITE_CONFIG.eli;
@@ -55,6 +78,10 @@ const ProfilePage = () => {
   }, []);
 
   const profile = SITE_CONFIG.profile;
+  const { elementRef: statsRef, isVisible: statsVisible } = useScrollReveal({
+    threshold: 0.2,
+    rootMargin: '0px',
+  });
 
   return (
     <main className="bg-[color:var(--retro-bg-primary)]">
@@ -82,12 +109,16 @@ const ProfilePage = () => {
               {profile.lead.replace('Eli', eli.stageName)}
             </p>
 
-            {/* Stat strip */}
-            <dl className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
-              {profile.quickStats.map((stat) => (
-                <div key={stat.label} className="border-l-2 border-[color:var(--retro-burgundy)] pl-3">
-                  <dd className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight">
-                    {stat.value}
+            {/* Stat strip — numeric values count up when the strip enters view */}
+            <dl ref={statsRef} className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
+              {profile.quickStats.map((stat, idx) => (
+                <div
+                  key={stat.label}
+                  style={staggerStyle(idx)}
+                  className={`border-l-2 border-[color:var(--retro-burgundy)] pl-3 ${staggerClass(statsVisible)}`}
+                >
+                  <dd className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight tabular-nums">
+                    <AnimatedStat value={stat.value} start={statsVisible} />
                   </dd>
                   <dt className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)] mt-1">
                     {stat.label}
