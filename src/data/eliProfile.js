@@ -59,10 +59,10 @@ export const ELI_TIMELINE = [
     id: 'new-formation-2021',
     date: '2021-03-13',
     period: '13 Maret 2021',
-    title: 'JKT48 New Formation — Era Baru',
+    title: 'JKT48 New Era — Formasi Tunggal',
     body:
-      'Eli dipindahkan ke formasi baru JKT48 dalam reshuffle 13 Maret 2021. Awal era baru sebelum sistem tiga tim di JKT48 Fight 2026.',
-    badge: 'Reshuffle',
+      'JKT48 mengumumkan New Formation: tiga tim (Team J, Team KIII, Team T) digabung menjadi satu tim tunggal bernama JKT48 New Era. Eli ikut transisi ke formasi baru ini, mengakhiri eranya di Team KIII.',
+    badge: 'New Formation',
   },
   {
     id: 'three-team-announce',
