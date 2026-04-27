@@ -291,18 +291,18 @@ const HomePage = () => {
       <Section id="about-preview" padding="xl">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Portrait — parallax wrapper preserves the hover-scale on the img.
-              object-top + scaled-down aspect keeps Eli's head in frame even
-              when the 4:5 container crops a 2:3 source image. */}
+              Aspect-[3/4] keeps the source ratio close on mobile; lighter
+              wrapper scale (1.04) keeps parallax headroom without over-zoom. */}
           <div className="relative group order-2 lg:order-1">
             <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
               <div
-                style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.06)` }}
+                style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.04)` }}
                 className="absolute inset-0 will-change-transform"
               >
                 <img
                   src={about.portrait}
                   alt={about.portraitAlt}
-                  className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>
