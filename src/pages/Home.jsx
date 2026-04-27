@@ -24,6 +24,17 @@ const staggerClass = (visible) =>
     visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
   }`;
 
+// Fisher-Yates on a copy. Used so the archive marquee shows a fresh
+// random slice on every page mount instead of the same fixed sequence.
+const shuffleArray = (arr) => {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
   const { hero, data, about, gallery, community } = SITE_CONFIG.home;
@@ -47,15 +58,18 @@ const HomePage = () => {
     [featuredImages]
   );
 
-  // Marquee strip — pulls 14 frames distinct from the bento where possible
-  // (skip first 8), falls back to the full image pool if featuredImages is
-  // shallow. Duplicated in JSX for the seamless 50%-translate loop.
+  // Marquee strip — random 14-frame slice from the broader archive pool,
+  // excluding the bento's first 8 featured frames so they don't duplicate.
+  // Reshuffles per mount, so each refresh surfaces different photos.
+  // Duplicated in JSX for the seamless 50%-translate loop.
   const marqueeFrames = useMemo(() => {
     const featured = featuredImages || [];
-    const rest = featured.slice(8, 22);
-    if (rest.length >= 8) return rest;
     const pool = images && images.length > 0 ? images : featured;
-    return pool.slice(0, Math.min(pool.length, 14));
+    if (pool.length === 0) return [];
+    const bentoIds = new Set(featured.slice(0, 8).map((f) => f.id));
+    const candidates =
+      pool.length > 8 ? pool.filter((img) => !bentoIds.has(img.id)) : pool;
+    return shuffleArray(candidates).slice(0, Math.min(candidates.length, 14));
   }, [featuredImages, images]);
 
   const featuredMeta = useMemo(() => {
