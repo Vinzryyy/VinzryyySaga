@@ -23,6 +23,7 @@ const HomePage = lazy(() => import('./pages/Home'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
+const CountdownPage = lazy(() => import('./pages/Countdown'));
 
 // Page route mapping
 const routes = {
@@ -31,6 +32,7 @@ const routes = {
   'gallery': GalleryPage,
   'about': AboutPage,
   'profile': ProfilePage,
+  'countdown': CountdownPage,
 };
 
 // Sub-anchors on the Profile page — clicking them must keep the user on

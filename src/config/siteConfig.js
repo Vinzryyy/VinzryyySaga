@@ -74,8 +74,26 @@ export const SITE_CONFIG = {
           // Era pills are appended dynamically from the gallery data
         ],
       },
+      { label: 'Countdown', hash: 'countdown', icon: 'ri-cake-2-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
+  },
+
+  // Birthday Countdown
+  countdown: {
+    targetIso: '2026-06-15T00:00:00+07:00',
+    targetLabel: '15 Juni 2026 · 00:00 WIB',
+    eyebrow: 'Countdown',
+    title: 'Menghitung Hari',
+    titleAccent: 'untuk Ceu Eli.',
+    lead:
+      'Helisma Putri akan merayakan ulang tahun ke-26 pada 15 Juni 2026. Armeniaca menghitung mundur menjelang harinya — momen kecil sebelum stage besar.',
+    age: 26,
+    backgroundImage: '/archive/img-070.jpg',
+    completedTitle: 'Selamat Ulang Tahun',
+    completedAccent: 'Ceu Eli!',
+    completedLead:
+      '15 Juni 2026 sudah tiba. Terima kasih sudah menemani perjalanan Eli dari panggung ke panggung — Armeniaca tetap berjaga, satu frame demi satu frame.',
   },
 
   // Hero Slider Content
