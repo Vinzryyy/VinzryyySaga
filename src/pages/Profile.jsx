@@ -10,6 +10,8 @@ import { SITE_CONFIG } from '../config/siteConfig';
 import {
   ELI_PROFILE_SECTIONS,
   ELI_TIMELINE,
+  ELI_DISCOGRAPHY,
+  ELI_THEATER,
   ELI_TRIVIA,
   ELI_FUN_FACTS,
 } from '../data/eliProfile';
@@ -103,6 +105,10 @@ const SectionRouter = ({ id, section }) => {
   switch (id) {
     case 'timeline':
       return <TimelineSection />;
+    case 'discography':
+      return <DiscographySection />;
+    case 'theater':
+      return <TheaterSection />;
     case 'trivia':
       return <TriviaSection />;
     default:
@@ -162,6 +168,147 @@ const TimelineSection = () => {
           </li>
         ))}
       </ol>
+    </>
+  );
+};
+
+const DiscographySection = () => {
+  const confirmed = ELI_DISCOGRAPHY.filter((entry) => !entry.placeholder);
+  const placeholders = ELI_DISCOGRAPHY.filter((entry) => entry.placeholder);
+  return (
+    <>
+      <SectionHeader
+        eyebrow="Diskografi"
+        title="Single, Posisi, & Momen Senbatsu."
+        lead="Daftar single JKT48 yang melibatkan Eli, lengkap dengan posisinya. Masih dalam tahap kurasi — entri akan terus ditambah seiring data terverifikasi."
+      />
+
+      <div className="space-y-4">
+        {confirmed.map((entry) => (
+          <article
+            key={`${entry.title}-${entry.year}`}
+            className={`relative rounded-2xl border p-5 md:p-6 ${
+              entry.highlight
+                ? 'bg-[color:var(--retro-burgundy)]/5 border-[color:var(--retro-burgundy)]/30'
+                : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15'
+            }`}
+          >
+            {entry.highlight && (
+              <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
+                First Senbatsu
+              </span>
+            )}
+            <div className="grid md:grid-cols-[120px_1fr_auto] gap-4 md:gap-6 items-center">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+                  {entry.type}
+                </p>
+                <p className="font-header text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight">
+                  {entry.year}
+                </p>
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight">
+                  {entry.title}
+                </h3>
+                {entry.note && (
+                  <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">
+                    {entry.note}
+                  </p>
+                )}
+              </div>
+              <div className="md:text-right">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
+                  Posisi
+                </p>
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-xs font-bold uppercase tracking-widest">
+                  {entry.position}
+                </span>
+              </div>
+            </div>
+          </article>
+        ))}
+
+        {placeholders.map((entry) => (
+          <div
+            key={entry.title}
+            className="rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 p-5 md:p-6 text-center"
+          >
+            <i className="ri-add-line text-2xl text-[color:var(--retro-burgundy)]/40 mb-2 inline-block" />
+            <p className="font-bold text-[color:var(--retro-text-primary)]">{entry.title}</p>
+            <p className="text-sm text-[color:var(--color-text-muted)] mt-1">{entry.note}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mt-2">
+              {entry.year}
+            </p>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+const TheaterSection = () => {
+  const formatDate = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+  };
+  return (
+    <>
+      <SectionHeader
+        eyebrow="Theater Setlist Tracker"
+        title="Panggung yang Pernah Dinaiki."
+        lead="Setlist teater JKT48 yang pernah dibawakan Eli sepanjang kariernya, beserta unit songs dan tim yang membawakannya."
+      />
+
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        {ELI_THEATER.map((entry) => {
+          const debut = formatDate(entry.debutDate);
+          return (
+            <article
+              key={entry.setlist}
+              className="group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                  {entry.team}
+                </span>
+                {debut && (
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+                    Debut · {debut}
+                  </span>
+                )}
+              </div>
+              <h3 className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
+                {entry.setlist}
+              </h3>
+              {entry.note && (
+                <p className="mt-2 text-sm text-[color:var(--color-text-secondary)]">
+                  {entry.note}
+                </p>
+              )}
+              {entry.units.length > 0 && (
+                <div className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-3">
+                    Unit Songs Eli
+                  </p>
+                  <ul className="space-y-2">
+                    {entry.units.map((unit) => (
+                      <li
+                        key={unit}
+                        className="flex items-center gap-2 text-sm font-bold text-[color:var(--retro-text-primary)]"
+                      >
+                        <i className="ri-music-fill text-[color:var(--retro-burgundy)]" />
+                        {unit}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
     </>
   );
 };
