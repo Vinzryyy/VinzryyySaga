@@ -300,11 +300,6 @@ export const ELI_FUN_FACTS = [
     value: 'Antusias K-Pop & NCTzen',
   },
   {
-    icon: 'ri-football-line',
-    label: 'Klub Bola',
-    value: 'Persib & Liverpool',
-  },
-  {
     icon: 'ri-bear-smile-line',
     label: 'Hewan Peliharaan',
     value: 'Kucing',
