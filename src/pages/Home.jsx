@@ -33,6 +33,27 @@ const HomePage = () => {
     [featuredImages]
   );
 
+  const featuredMeta = useMemo(() => {
+    if (featuredEight.length === 0) return null;
+    const years = featuredEight
+      .map((img) => Number(img.year))
+      .filter((y) => Number.isFinite(y));
+    if (years.length === 0) return null;
+    const minY = Math.min(...years);
+    const maxY = Math.max(...years);
+    return {
+      count: featuredEight.length,
+      span: minY === maxY ? `${minY}` : `${minY}–${maxY}`,
+    };
+  }, [featuredEight]);
+
+  const formatFrameDate = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    return new Intl.DateTimeFormat('id-ID', { month: 'short', year: 'numeric' }).format(d);
+  };
+
   const { elementRef: heroRef, isVisible: heroVisible } = useScrollReveal({
     threshold: 0.1,
     triggerOnce: true,
@@ -221,7 +242,7 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* GALLERY ELI — section-marker header (left-aligned, with index marker) */}
+      {/* GALLERY ELI — bento mosaic with feature tile + integrated CTA cell */}
       <Section id="gallery-preview" padding="xl" background="gradient">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-[color:var(--retro-brown-dark)]/15 pb-6 mb-12">
           <div>
@@ -235,37 +256,95 @@ const HomePage = () => {
               {gallery.title}
             </h2>
           </div>
-          <p className="md:max-w-sm md:text-right text-sm text-[color:var(--color-text-secondary)] leading-relaxed">
-            {gallery.subtitle}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {featuredEight.map((image, index) => (
-            <a
-              key={image.id}
-              href={`#${gallery.ctaHash}`}
-              className="group relative aspect-square overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10"
-              aria-label={`Frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
-            >
-              <img
-                src={image.thumbnail || image.url}
-                alt={image.alt || image.title || 'Eli JKT48'}
-                loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover:bg-[color:var(--retro-brown-dark)]/40 transition-colors" />
-              <div className="absolute top-2 left-2 text-[9px] font-black tracking-[0.3em] text-[color:var(--retro-cream)] opacity-0 group-hover:opacity-100 transition-opacity">
-                0{index + 1}
+          <div className="flex flex-col md:items-end gap-3 md:max-w-sm">
+            {featuredMeta && (
+              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                <span className="px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10">
+                  {featuredMeta.count} Frames
+                </span>
+                <span className="text-[color:var(--color-text-muted)]">·</span>
+                <span>Curated {featuredMeta.span}</span>
               </div>
-            </a>
-          ))}
+            )}
+            <p className="text-sm text-[color:var(--color-text-secondary)] leading-relaxed md:text-right">
+              {gallery.subtitle}
+            </p>
+          </div>
         </div>
 
-        <div className="text-center mt-12">
+        {/* Bento mosaic — uniform on small screens, asymmetric on lg+. Item 0 spans
+            2x2 as a feature tile; the last cell of the lg grid is a CTA card so the
+            "view all" action lives inside the rhythm instead of floating below. */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:auto-rows-fr">
+          {featuredEight.map((image, index) => {
+            const dateLabel = formatFrameDate(image.date);
+            return (
+              <a
+                key={image.id}
+                href={`#${gallery.ctaHash}`}
+                className={`
+                  group relative overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10
+                  ${index === 0 ? 'lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto' : 'aspect-square'}
+                  transform transition-all duration-700 ease-out hover:-translate-y-0.5
+                `}
+                style={{ transitionDelay: `${Math.min(index, 7) * 60}ms` }}
+                aria-label={`Frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
+              >
+                <img
+                  src={image.thumbnail || image.url}
+                  alt={image.alt || image.title || 'Eli JKT48'}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                />
+                {/* Bottom gradient + caption */}
+                <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/85 via-[color:var(--retro-brown-dark)]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-end justify-between gap-2 text-[color:var(--retro-cream)]">
+                    <div className="min-w-0">
+                      {dateLabel && (
+                        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]">
+                          {dateLabel}
+                        </p>
+                      )}
+                      {image.location && (
+                        <p className="text-xs font-bold truncate mt-0.5">{image.location}</p>
+                      )}
+                    </div>
+                    <span className="text-[9px] font-black tracking-[0.3em] flex-shrink-0">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+                </div>
+                {/* Persistent index for first/feature tile */}
+                {index === 0 && (
+                  <div className="absolute top-3 left-3 text-[9px] font-black tracking-[0.3em] text-[color:var(--retro-cream)] bg-[color:var(--retro-brown-dark)]/40 backdrop-blur-sm px-2 py-1 rounded-full">
+                    Feature
+                  </div>
+                )}
+              </a>
+            );
+          })}
+
+          {/* CTA tile — fills the empty 12th cell on lg, hidden on smaller grids
+              (CTA button below covers them) */}
           <a
             href={`#${gallery.ctaHash}`}
-            className="group inline-flex items-center gap-3 px-9 py-4 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            className="group hidden lg:flex aspect-square relative overflow-hidden rounded-sm bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] flex-col items-center justify-center text-center p-6 hover:bg-[color:var(--retro-brown-dark)] transition-colors"
+          >
+            <i className="ri-arrow-right-up-line text-3xl mb-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+              {gallery.ctaLabel}
+            </span>
+            <span className="mt-2 text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+              Full Archive
+            </span>
+          </a>
+        </div>
+
+        {/* CTA button — visible only when bento CTA tile is hidden (sm/md) */}
+        <div className="text-center mt-10 lg:hidden">
+          <a
+            href={`#${gallery.ctaHash}`}
+            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >
             {gallery.ctaLabel}
             <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
