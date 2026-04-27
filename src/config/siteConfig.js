@@ -119,9 +119,9 @@ export const SITE_CONFIG = {
     birthplace: 'Bandung, Jawa Barat',
     birthdate: '15 Juni 2000',
     generation: 'Generasi 7 JKT48',
-    team: 'Team KIII',
+    team: 'Team Dream',
     joined: '29 September 2018',
-    origin: 'Mojang Sunda',
+    origin: 'Bandung',
     catchphrase:
       'Bagai sinar senja yang hangat, dengan energiku yang ceria, aku akan menghangatkan suasana. Halo halo, aku Ceu Eli!',
     portrait: '/archive/img-000.jpg',
@@ -134,7 +134,7 @@ export const SITE_CONFIG = {
       title: 'Selamat Datang di Armeniaca',
       subtitle: 'Arsip Visual Helisma Putri — Eli JKT48',
       lead:
-        'Sebuah dedikasi visual untuk Ceu Eli, sang “lovely mermaid” dari Team KIII. Armeniaca merawat setiap senyum, setiap panggung, dan setiap momen yang membuat Eli bersinar.',
+        'Sebuah dedikasi visual untuk Ceu Eli, sang “lovely mermaid” dari Team Dream. Armeniaca merawat setiap senyum, setiap panggung, dan setiap momen yang membuat Eli bersinar.',
       background: '/archive/img-206.jpg',
       primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
       secondaryCta: { label: 'Mengenal Armeniaca', hash: 'about', icon: 'ri-information-line' },
@@ -148,8 +148,8 @@ export const SITE_CONFIG = {
       eyebrow: 'About Eli',
       title: 'Sang Mermaid dari Bandung',
       paragraphs: [
-        'Helisma Mauludzunia Putri Kurnia, akrab disapa Eli, lahir di Bandung pada 15 Juni 2000. Ia bergabung dengan JKT48 sebagai member generasi ke-7 pada 29 September 2018, dan kini berdiri sebagai bagian dari Team KIII.',
-        'Dengan energi mojang Sunda yang hangat dan ceria, Eli menjadi salah satu wajah penting Team KIII. Armeniaca berdiri sebagai catatan visual perjalanannya — dari panggung teater, event, hingga momen-momen kecil yang sering luput dari sorotan.',
+        'Helisma Mauludzunia Putri Kurnia, akrab disapa Eli, lahir di Bandung pada 15 Juni 2000. Ia bergabung dengan JKT48 sebagai member generasi ke-7 pada 29 September 2018, dan kini berdiri sebagai bagian dari Team Dream.',
+        'Dengan energinya yang hangat dan ceria, Eli menjadi salah satu wajah penting Team Dream. Armeniaca berdiri sebagai catatan visual perjalanannya — dari panggung teater, event, hingga momen-momen kecil yang sering luput dari sorotan.',
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',

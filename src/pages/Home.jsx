@@ -189,7 +189,7 @@ const HomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
             </div>
             <div className="absolute -bottom-6 -left-6 px-5 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
-              JKT48 Team KIII
+              JKT48 Team Dream
             </div>
           </div>
 
