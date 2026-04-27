@@ -10,6 +10,7 @@ import Section from '../components/layout/Section';
 import XInsights from '../components/gallery/XInsights';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useParallax } from '../hooks/useParallax';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -81,6 +82,11 @@ const HomePage = () => {
     threshold: 0.1,
     rootMargin: '-40px',
   });
+  // Subtle parallax for the two on-page portraits — Data Eli (lighter rate)
+  // and About Eli (slightly stronger). Hero rotation already has its own
+  // animation so we leave that alone.
+  const dataPortraitOffset = useParallax(-0.08);
+  const aboutPortraitOffset = useParallax(-0.12);
 
   // Rotating hero backdrop — falls back to a single legacy `background` field
   // if no array is configured.
@@ -153,32 +159,50 @@ const HomePage = () => {
         </div>
 
         {/* Content — bottom-anchored on tall viewports, but pt-36 + tighter sizing
-            keeps the title clear of the fixed navbar even on short browser windows */}
+            keeps the title clear of the fixed navbar even on short browser windows.
+            Each child has its own delay so the entrance reads as a sequence
+            (eyebrow → headline → lead → CTAs) instead of one block. */}
         <div
           ref={heroRef}
-          className={`
-            relative z-10 h-full flex items-end pt-36 md:pt-40 pb-16 md:pb-24 px-6 md:px-16 lg:px-24
-            transform transition-all duration-1000
-            ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
-          `}
+          className="relative z-10 h-full flex items-end pt-36 md:pt-40 pb-16 md:pb-24 px-6 md:px-16 lg:px-24"
         >
           <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] md:text-[10px] font-black uppercase tracking-[0.35em] mb-4 md:mb-6 border border-[color:var(--retro-cream)]/20">
+            <span
+              style={{ transitionDelay: '100ms' }}
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] md:text-[10px] font-black uppercase tracking-[0.35em] mb-4 md:mb-6 border border-[color:var(--retro-cream)]/20 transition-all duration-700 ease-out ${
+                heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+              }`}
+            >
               <span className="w-1 h-1 rounded-full bg-[color:var(--retro-gold)]" />
               {hero.eyebrow}
             </span>
 
-            <h1 className="font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]">
+            <h1
+              style={{ transitionDelay: '250ms' }}
+              className={`font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)] transition-all duration-1000 ease-out ${
+                heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+              }`}
+            >
               {hero.title}
               <br />
               <span className="text-[color:var(--retro-gold-light)]">{hero.subtitle}.</span>
             </h1>
 
-            <p className="mt-4 md:mt-6 text-xs sm:text-sm md:text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl line-clamp-3 md:line-clamp-none">
+            <p
+              style={{ transitionDelay: '450ms' }}
+              className={`mt-4 md:mt-6 text-xs sm:text-sm md:text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl line-clamp-3 md:line-clamp-none transition-all duration-1000 ease-out ${
+                heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            >
               {hero.lead}
             </p>
 
-            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-start gap-3">
+            <div
+              style={{ transitionDelay: '650ms' }}
+              className={`mt-6 md:mt-8 flex flex-col sm:flex-row items-start gap-3 transition-all duration-1000 ease-out ${
+                heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              }`}
+            >
               <a
                 href={`#${hero.primaryCta.hash}`}
                 className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-xs md:text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all"
@@ -213,7 +237,8 @@ const HomePage = () => {
               <img
                 src={eli.portrait}
                 alt={about.portraitAlt}
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
+                style={{ transform: `translate3d(0, ${dataPortraitOffset}px, 0) scale(1.06)` }}
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-1000 will-change-transform"
                 loading="lazy"
               />
             </div>
@@ -266,15 +291,20 @@ const HomePage = () => {
       {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
       <Section id="about-preview" padding="xl">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Portrait */}
+          {/* Portrait — parallax wrapper preserves the hover-scale on the img */}
           <div className="relative group order-2 lg:order-1">
             <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
-              <img
-                src={about.portrait}
-                alt={about.portraitAlt}
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                loading="lazy"
-              />
+              <div
+                style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.08)` }}
+                className="absolute inset-0 will-change-transform"
+              >
+                <img
+                  src={about.portrait}
+                  alt={about.portraitAlt}
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
             </div>
             <div className="absolute -bottom-6 -left-6 px-5 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
