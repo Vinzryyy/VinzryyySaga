@@ -33,6 +33,7 @@ export const SITE_CONFIG = {
   navigation: {
     main: [
       { label: 'Home', hash: 'home' },
+      { label: 'Profil Singkat', hash: 'data' },
       { label: 'Archive', hash: 'gallery' },
       { label: 'About', hash: 'about' },
     ],

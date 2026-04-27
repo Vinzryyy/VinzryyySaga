@@ -50,19 +50,35 @@ function App() {
     return resolveRoute(hash);
   });
 
-  // Handle hash changes
+  // Handle hash changes — route on page hashes, scroll to anchor on in-page hashes
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      setCurrentPage(resolveRoute(hash));
-      
-      // Scroll to top on page change
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const nextPage = resolveRoute(hash);
+      const pageChanged = nextPage !== currentPage;
+
+      setCurrentPage(nextPage);
+
+      if (pageChanged) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // Same page — try to scroll to a section with this id (defer one frame so any
+      // newly-mounted sections from the route swap are in the DOM)
+      requestAnimationFrame(() => {
+        const target = hash ? document.getElementById(hash) : null;
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [currentPage]);
 
   // Get current page component
   const CurrentPage = routes[currentPage] || HomePage;
