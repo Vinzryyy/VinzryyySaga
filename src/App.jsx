@@ -50,8 +50,19 @@ function App() {
     return resolveRoute(hash);
   });
 
-  // Handle hash changes — route on page hashes, scroll to anchor on in-page hashes
+  // Handle hash changes — route on page hashes, scroll to anchor on in-page hashes.
+  // After a page swap the target section is lazy-mounted, so we poll a few frames
+  // for the element to appear before falling back to scroll-to-top.
   useEffect(() => {
+    const scrollToHash = (hash) => {
+      const target = hash ? document.getElementById(hash) : null;
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return true;
+      }
+      return false;
+    };
+
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       const nextPage = resolveRoute(hash);
@@ -59,21 +70,24 @@ function App() {
 
       setCurrentPage(nextPage);
 
-      if (pageChanged) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (!pageChanged) {
+        requestAnimationFrame(() => {
+          if (!scrollToHash(hash)) window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
         return;
       }
 
-      // Same page — try to scroll to a section with this id (defer one frame so any
-      // newly-mounted sections from the route swap are in the DOM)
-      requestAnimationFrame(() => {
-        const target = hash ? document.getElementById(hash) : null;
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Page changed — wait up to ~20 frames for the lazy-loaded section to mount
+      let attempts = 0;
+      const tryScroll = () => {
+        if (scrollToHash(hash)) return;
+        if (++attempts < 20) {
+          requestAnimationFrame(tryScroll);
         } else {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      });
+      };
+      requestAnimationFrame(tryScroll);
     };
 
     window.addEventListener('hashchange', handleHashChange);

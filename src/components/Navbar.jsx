@@ -14,7 +14,18 @@ function Navbar() {
   }, []);
 
   const handleNavClick = (hash) => {
-    window.location.hash = hash;
+    const current = window.location.hash.replace("#", "").toLowerCase();
+    if (current === hash) {
+      // Same hash — assignment won't fire hashchange, so scroll manually
+      const target = document.getElementById(hash);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      window.location.hash = hash;
+    }
     setOpen(false);
   };
 
