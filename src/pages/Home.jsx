@@ -387,19 +387,22 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Bento mosaic — uniform on small screens, asymmetric on lg+. Item 0 spans
-            2x2 as a feature tile; the last cell of the lg grid is a CTA card so the
-            "view all" action lives inside the rhythm instead of floating below. */}
+        {/* Bento mosaic — every tile gets a contact-sheet style number tag and
+            ring-on-hover. Feature tile (item 0) carries an always-on caption
+            with date + location so it reads like a magazine cover spread. */}
         <div ref={bentoRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:auto-rows-fr">
           {featuredEight.map((image, index) => {
             const dateLabel = formatFrameDate(image.date);
+            const isFeature = index === 0;
+            const numberLabel = String(index + 1).padStart(2, '0');
             return (
               <a
                 key={image.id}
                 href={`#${gallery.ctaHash}`}
                 className={`
                   group relative overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10
-                  ${index === 0 ? 'lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto' : 'aspect-square'}
+                  ring-0 ring-[color:var(--retro-burgundy)]/0 hover:ring-2 hover:ring-[color:var(--retro-burgundy)]/60 hover:ring-offset-2 hover:ring-offset-[color:var(--retro-bg-secondary)]
+                  ${isFeature ? 'lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto' : 'aspect-square'}
                   ${staggerClass(bentoVisible)}
                 `}
                 style={staggerStyle(Math.min(index, 7))}
@@ -409,12 +412,40 @@ const HomePage = () => {
                   src={image.thumbnail || image.url}
                   alt={image.alt || image.title || 'Eli JKT48'}
                   loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${
+                    isFeature ? 'scale-105 group-hover:scale-115' : ''
+                  }`}
                 />
-                {/* Bottom gradient + caption */}
-                <div className="absolute inset-x-0 bottom-0 p-3 md:p-4 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/85 via-[color:var(--retro-brown-dark)]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-end justify-between gap-2 text-[color:var(--retro-cream)]">
-                    <div className="min-w-0">
+
+                {/* Persistent corner number — contact-sheet vibe on every tile */}
+                <div className="absolute top-2 left-2 z-20 px-2 py-0.5 rounded-sm bg-[color:var(--retro-brown-dark)]/55 backdrop-blur-sm text-[color:var(--retro-cream)] text-[9px] font-black tracking-[0.3em]">
+                  {isFeature ? `★ ${numberLabel}` : numberLabel}
+                </div>
+
+                {/* Feature tile: always-on bottom caption (date + location)
+                    so the focal frame reads like a magazine cover. */}
+                {isFeature && (
+                  <div className="absolute inset-x-0 bottom-0 p-4 md:p-6 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/95 via-[color:var(--retro-brown-dark)]/55 to-transparent z-10">
+                    <div className="text-[color:var(--retro-cream)]">
+                      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-2">
+                        Featured Frame
+                      </p>
+                      <p className="font-header text-xl md:text-2xl font-black leading-tight tracking-tight">
+                        {image.title || 'Eli JKT48'}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/70">
+                        {dateLabel && <span>{dateLabel}</span>}
+                        {dateLabel && image.location && <span className="text-[color:var(--retro-cream)]/30">·</span>}
+                        {image.location && <span>{image.location}</span>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hover caption for non-feature tiles */}
+                {!isFeature && (
+                  <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/85 via-[color:var(--retro-brown-dark)]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="text-[color:var(--retro-cream)]">
                       {dateLabel && (
                         <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]">
                           {dateLabel}
@@ -424,34 +455,50 @@ const HomePage = () => {
                         <p className="text-xs font-bold truncate mt-0.5">{image.location}</p>
                       )}
                     </div>
-                    <span className="text-[9px] font-black tracking-[0.3em] flex-shrink-0">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-                </div>
-                {/* Persistent index for first/feature tile */}
-                {index === 0 && (
-                  <div className="absolute top-3 left-3 text-[9px] font-black tracking-[0.3em] text-[color:var(--retro-cream)] bg-[color:var(--retro-brown-dark)]/40 backdrop-blur-sm px-2 py-1 rounded-full">
-                    Feature
                   </div>
                 )}
               </a>
             );
           })}
 
-          {/* CTA tile — fills the empty 12th cell on lg, hidden on smaller grids
-              (CTA button below covers them) */}
+          {/* CTA tile — redesigned with watermark logo + rich gradient.
+              Sits in the 12th cell on lg as the natural "next step". */}
           <a
             href={`#${gallery.ctaHash}`}
-            className="group hidden lg:flex aspect-square relative overflow-hidden rounded-sm bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] flex-col items-center justify-center text-center p-6 hover:bg-[color:var(--retro-brown-dark)] transition-colors"
+            className="group hidden lg:flex aspect-square relative overflow-hidden rounded-sm bg-gradient-to-br from-[color:var(--retro-burgundy)] via-[color:var(--retro-burgundy)] to-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] flex-col justify-between p-5 transition-all hover:shadow-2xl hover:shadow-[color:var(--retro-burgundy)]/40"
           >
-            <i className="ri-arrow-right-up-line text-3xl mb-3 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-              {gallery.ctaLabel}
-            </span>
-            <span className="mt-2 text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
-              Full Archive
-            </span>
+            {/* Watermark logo bottom-right */}
+            <div
+              aria-hidden="true"
+              className="absolute -right-6 -bottom-6 w-2/3 h-2/3 opacity-15 pointer-events-none"
+              style={{
+                maskImage: 'url(/logo-armeniaca.png)',
+                WebkitMaskImage: 'url(/logo-armeniaca.png)',
+                maskSize: 'contain',
+                WebkitMaskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                WebkitMaskRepeat: 'no-repeat',
+                maskPosition: 'center',
+                WebkitMaskPosition: 'center',
+                backgroundColor: 'var(--retro-cream)',
+              }}
+            />
+
+            <div className="relative">
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-1">
+                09 / Next Step
+              </p>
+              <p className="font-header text-xl font-black leading-tight">Full Archive</p>
+            </div>
+
+            <div className="relative flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                {gallery.ctaLabel}
+              </span>
+              <span className="w-9 h-9 rounded-full bg-[color:var(--retro-cream)]/15 group-hover:bg-[color:var(--retro-cream)] group-hover:text-[color:var(--retro-burgundy)] flex items-center justify-center transition-colors">
+                <i className="ri-arrow-right-up-line text-base group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </span>
+            </div>
           </a>
         </div>
 
