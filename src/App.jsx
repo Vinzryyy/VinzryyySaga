@@ -12,6 +12,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { GalleryProvider } from './context';
 import { ThemeProvider } from './context';
+import { LightboxProvider } from './context/LightboxContext';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import Navbar from './components/Navbar';
@@ -120,18 +121,20 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <GalleryProvider>
-          <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
-            {/* Navigation */}
-            <Navbar />
-            
-            {/* Main Content */}
-            <Suspense fallback={<PageLoader />}>
-              <CurrentPage />
-            </Suspense>
-            
-            {/* Footer */}
-            <Footer />
-          </div>
+          <LightboxProvider>
+            <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
+              {/* Navigation */}
+              <Navbar />
+
+              {/* Main Content */}
+              <Suspense fallback={<PageLoader />}>
+                <CurrentPage />
+              </Suspense>
+
+              {/* Footer */}
+              <Footer />
+            </div>
+          </LightboxProvider>
         </GalleryProvider>
       </ThemeProvider>
     </ErrorBoundary>

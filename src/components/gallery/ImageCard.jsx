@@ -5,6 +5,8 @@
 
 import React, { memo } from 'react';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
+import { useLightbox } from '../../context/LightboxContext';
+import { useGallery } from '../../context';
 
 const ImageCard = memo(function ImageCard({
   image,
@@ -12,6 +14,9 @@ const ImageCard = memo(function ImageCard({
   density = 'comfortable',
   viewMode = 'grid',
 }) {
+  const { open } = useLightbox();
+  const { filteredImages } = useGallery();
+  const handleClick = () => open(filteredImages, index);
   const {
     url,
     thumbnail,
@@ -60,8 +65,11 @@ const ImageCard = memo(function ImageCard({
       style={{ transitionDelay: animationDelay }}
       role="listitem"
     >
-      <div
-        className="block relative overflow-hidden w-full"
+      <button
+        type="button"
+        onClick={handleClick}
+        aria-label={`Buka frame: ${alt || title || 'Eli JKT48'}`}
+        className="block relative overflow-hidden w-full cursor-zoom-in text-left"
         style={{ paddingBottom }}
       >
         {/* Image — picture element negotiates AVIF -> WebP -> JPG. Sources
@@ -82,7 +90,7 @@ const ImageCard = memo(function ImageCard({
             className="absolute inset-0 w-full h-full object-cover"
           />
         </picture>
-      </div>
+      </button>
     </article>
   );
 });

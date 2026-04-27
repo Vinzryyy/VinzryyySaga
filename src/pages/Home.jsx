@@ -11,6 +11,7 @@ import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
 import { useElementParallax } from '../hooks/useElementParallax';
+import { useLightbox } from '../context/LightboxContext';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -27,6 +28,7 @@ const HomePage = () => {
   const { featuredImages, images } = useGallery();
   const { hero, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
+  const { open: openLightbox } = useLightbox();
 
   const profileFacts = useMemo(
     () => [
@@ -446,17 +448,18 @@ const HomePage = () => {
             const isFeature = index === 0;
             const numberLabel = String(index + 1).padStart(2, '0');
             return (
-              <a
+              <button
+                type="button"
                 key={image.id}
-                href={`#${gallery.ctaHash}`}
+                onClick={() => openLightbox(featuredEight, index)}
                 className={`
-                  group relative overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10
+                  group relative overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10 cursor-zoom-in text-left
                   ring-0 ring-[color:var(--retro-burgundy)]/0 hover:ring-2 hover:ring-[color:var(--retro-burgundy)]/60 hover:ring-offset-2 hover:ring-offset-[color:var(--retro-bg-secondary)]
                   ${isFeature ? 'lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto' : 'aspect-square'}
                   ${staggerClass(bentoVisible)}
                 `}
                 style={staggerStyle(Math.min(index, 7))}
-                aria-label={`Frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
+                aria-label={`Buka frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
               >
                 <picture>
                   {image.avifSrcSet && <source srcSet={image.avifSrcSet} type="image/avif" />}
@@ -511,7 +514,7 @@ const HomePage = () => {
                     </div>
                   </div>
                 )}
-              </a>
+              </button>
             );
           })}
 
@@ -579,11 +582,12 @@ const HomePage = () => {
 
               <div className="marquee-track flex gap-3 md:gap-4 w-max">
                 {[...marqueeFrames, ...marqueeFrames].map((image, i) => (
-                  <a
+                  <button
+                    type="button"
                     key={`${image.id}-${i}`}
-                    href={`#${gallery.ctaHash}`}
-                    aria-label={image.title || 'Eli JKT48'}
-                    className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10"
+                    onClick={() => openLightbox(marqueeFrames, i % marqueeFrames.length)}
+                    aria-label={`Buka frame: ${image.title || 'Eli JKT48'}`}
+                    className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10 cursor-zoom-in"
                     aria-hidden={i >= marqueeFrames.length}
                     tabIndex={i >= marqueeFrames.length ? -1 : 0}
                   >
@@ -598,7 +602,7 @@ const HomePage = () => {
                       />
                     </picture>
                     <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover/tile:bg-[color:var(--retro-brown-dark)]/30 transition-colors" />
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
