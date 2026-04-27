@@ -48,7 +48,7 @@ export const ELI_TIMELINE = [
   },
   {
     id: 'first-senbatsu',
-    date: '2022-01-01',
+    date: '2020-01-01',
     period: 'Single “Rapsodi”',
     title: 'Senbatsu Pertama',
     body:
@@ -88,14 +88,14 @@ export const ELI_DISCOGRAPHY = [
   {
     title: 'Rapsodi',
     type: 'Single',
-    year: '2022',
+    year: '2020',
     position: 'Senbatsu',
     note: 'Senbatsu pertama Eli.',
     highlight: true,
   },
   // Single JKT48 lainnya yang melibatkan Eli akan ditambah seiring data
   // posisi per single terverifikasi.
-  { title: 'Single JKT48 lainnya', type: 'Reference', year: '2022 - 2026', position: 'Berbagai posisi', note: 'Daftar lengkap akan diperbarui.', placeholder: true },
+  { title: 'Single JKT48 lainnya', type: 'Reference', year: '2020 - 2026', position: 'Berbagai posisi', note: 'Daftar lengkap akan diperbarui.', placeholder: true },
 ];
 
 // Album appearances — JKT48 album tracks Eli was part of. Pulled from
