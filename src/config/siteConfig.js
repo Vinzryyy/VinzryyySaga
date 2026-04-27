@@ -35,6 +35,7 @@ export const SITE_CONFIG = {
       { label: 'Home', hash: 'home' },
       { label: 'Profil Singkat', hash: 'data' },
       { label: 'About Eli', hash: 'about-preview' },
+      { label: 'Profil Lengkap', hash: 'profile' },
       { label: 'Archive', hash: 'gallery' },
       { label: 'About', hash: 'about' },
     ],

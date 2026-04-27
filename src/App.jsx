@@ -21,6 +21,7 @@ import Footer from './components/layout/Footer';
 const HomePage = lazy(() => import('./pages/Home'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
+const ProfilePage = lazy(() => import('./pages/Profile'));
 
 // Page route mapping
 const routes = {
@@ -28,6 +29,7 @@ const routes = {
   'home': HomePage,
   'gallery': GalleryPage,
   'about': AboutPage,
+  'profile': ProfilePage,
 };
 
 const resolveRoute = (hash) => {
