@@ -799,18 +799,30 @@ const RemainingTheaters = ({ formatDate, gridRef, gridVisible }) => {
         if (cancelled || !pinSectionRef.current || !pinTrackRef.current) return;
         gsap.registerPlugin(ScrollTrigger);
 
+        // distance uses the pin section's actual visible width (clientWidth)
+        // not window.innerWidth — the section is constrained by max-w-7xl + padding,
+        // so innerWidth would over-report the visible window and leave the last
+        // cards unreachable.
         const distance = () =>
-          Math.max(0, pinTrackRef.current.scrollWidth - window.innerWidth + 96);
+          Math.max(
+            0,
+            pinTrackRef.current.scrollWidth - pinSectionRef.current.clientWidth
+          );
 
         tween = gsap.to(pinTrackRef.current, {
           x: () => -distance(),
           ease: 'none',
           scrollTrigger: {
             trigger: pinSectionRef.current,
-            start: 'top top+=80',
+            // start below the sticky TOC (sub-nav sits at ~140px when visible)
+            start: 'top top+=140',
             end: () => `+=${distance()}`,
-            scrub: 1,
+            scrub: 0.6,
             pin: true,
+            // pinType: 'transform' is required when an ancestor has a CSS transform
+            // (Section's inner reveal wrapper does), otherwise position:fixed pin
+            // breaks and the cards just sit there while page scrolls past.
+            pinType: 'transform',
             anticipatePin: 1,
             invalidateOnRefresh: true,
           },
@@ -841,7 +853,7 @@ const RemainingTheaters = ({ formatDate, gridRef, gridVisible }) => {
               Scroll ke bawah · cards bergeser horizontal
             </p>
           </div>
-          <div ref={pinTrackRef} className="flex gap-6 will-change-transform pl-4 md:pl-6 lg:pl-8 pr-24">
+          <div ref={pinTrackRef} className="flex gap-6 will-change-transform pl-4 md:pl-6 lg:pl-8 pr-8">
             {remaining.map((entry) => (
               <TheaterCard
                 key={`pin-${entry.code}`}
@@ -878,7 +890,7 @@ const TheaterCard = ({ entry, formatDate, pinned = false }) => {
   return (
     <article
       className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors ${
-        pinned ? 'flex-shrink-0 w-[420px] xl:w-[460px]' : ''
+        pinned ? 'flex-shrink-0 w-[340px] xl:w-[380px]' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
