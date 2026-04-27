@@ -190,57 +190,91 @@ const SectionRouter = ({ id, section }) => {
   }
 };
 
-const SectionHeader = ({ eyebrow, title, lead }) => (
-  <header className="max-w-3xl mb-12">
-    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-      {eyebrow}
-    </p>
-    <h2 className="font-header text-3xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
-      {title}
-    </h2>
-    {lead && (
-      <p className="mt-4 text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-        {lead}
-      </p>
-    )}
-  </header>
-);
+const SectionOpener = ({ id, title, lead, kicker }) => {
+  const idx = ELI_PROFILE_SECTIONS.findIndex((s) => s.id === id);
+  const eyebrow = ELI_PROFILE_SECTIONS[idx]?.label || '';
+  return (
+    <header className="mb-12 md:mb-16">
+      <div className="flex items-baseline gap-4 mb-5">
+        <span className="font-header text-5xl md:text-7xl font-black text-[color:var(--retro-burgundy)]/15 tracking-tighter leading-none select-none">
+          {String(idx + 1).padStart(2, '0')}
+        </span>
+        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+          {eyebrow}
+        </span>
+        {kicker && (
+          <span className="ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-block">
+            {kicker}
+          </span>
+        )}
+      </div>
+      <h2 className="font-header text-4xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl">
+        {title}
+      </h2>
+      {lead && (
+        <p className="mt-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+          {lead}
+        </p>
+      )}
+      <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent" />
+    </header>
+  );
+};
 
 const TimelineSection = () => {
   const formatYear = (iso) => new Date(iso).getFullYear();
   return (
     <>
-      <SectionHeader
-        eyebrow="Career Timeline"
+      <SectionOpener
+        id="timeline"
         title="Dari Gen 7 ke Team Dream."
         lead="Linimasa milestone Eli sejak audisi 2018 hingga penempatan di Team Dream dalam format kompetisi JKT48 Fight 2026."
+        kicker={`${ELI_TIMELINE.length} milestones`}
       />
 
-      <ol className="relative border-l-2 border-[color:var(--retro-burgundy)]/20 ml-3 md:ml-6 space-y-10">
-        {ELI_TIMELINE.map((event) => (
-          <li key={event.id} className="relative pl-8 md:pl-12">
-            <span className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-[color:var(--retro-burgundy)] ring-4 ring-[color:var(--retro-bg-primary)]" />
-            <div className="flex flex-wrap items-baseline gap-3 mb-2">
-              <span className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-burgundy)]">
-                {formatYear(event.date)}
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
-                {event.period}
-              </span>
-              {event.badge && (
-                <span className="ml-auto px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.25em]">
-                  {event.badge}
-                </span>
-              )}
-            </div>
-            <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight mb-2">
-              {event.title}
-            </h3>
-            <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
-              {event.body}
-            </p>
-          </li>
-        ))}
+      <ol className="space-y-8 md:space-y-0">
+        {ELI_TIMELINE.map((event, idx) => {
+          const isLast = idx === ELI_TIMELINE.length - 1;
+          return (
+            <li
+              key={event.id}
+              className="grid grid-cols-[80px_1fr] md:grid-cols-[200px_24px_1fr] gap-4 md:gap-0 relative pb-8 md:pb-12"
+            >
+              {/* Year column */}
+              <div className="md:pr-8 md:text-right md:pt-1">
+                <p className="font-header text-3xl md:text-5xl lg:text-6xl font-black text-[color:var(--retro-burgundy)] leading-none tracking-tighter">
+                  {formatYear(event.date)}
+                </p>
+                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-2">
+                  {event.period}
+                </p>
+              </div>
+
+              {/* Center rail (desktop only) */}
+              <div className="hidden md:flex justify-center relative">
+                <span className="absolute top-3 w-3 h-3 rounded-full bg-[color:var(--retro-burgundy)] ring-4 ring-[color:var(--retro-bg-primary)] z-10" />
+                {!isLast && (
+                  <span className="absolute top-3 bottom-[-3rem] w-px bg-[color:var(--retro-burgundy)]/20" />
+                )}
+              </div>
+
+              {/* Content card */}
+              <div className="md:pl-8">
+                {event.badge && (
+                  <span className="inline-block px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em] mb-3">
+                    {event.badge}
+                  </span>
+                )}
+                <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight mb-2">
+                  {event.title}
+                </h3>
+                <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-xl">
+                  {event.body}
+                </p>
+              </div>
+            </li>
+          );
+        })}
       </ol>
     </>
   );
@@ -250,10 +284,11 @@ const FightSection = () => {
   const { tagline, anniversary, effective, format, team, rivals } = ELI_FIGHT_2026;
   return (
     <>
-      <SectionHeader
-        eyebrow="JKT48 Fight 2026"
+      <SectionOpener
+        id="fight"
         title={`Team Dream — “${tagline}”`}
         lead={format}
+        kicker={`${team.members.length} member · effective ${effective}`}
       />
 
       {/* Hero card — team summary */}
@@ -365,10 +400,11 @@ const DiscographySection = () => {
   const placeholders = ELI_DISCOGRAPHY.filter((entry) => entry.placeholder);
   return (
     <>
-      <SectionHeader
-        eyebrow="Diskografi"
+      <SectionOpener
+        id="discography"
         title="Single, Posisi, & Momen Senbatsu."
         lead="Daftar single JKT48 yang melibatkan Eli, lengkap dengan posisinya. Masih dalam tahap kurasi — entri akan terus ditambah seiring data terverifikasi."
+        kicker={`${confirmed.length} confirmed · ${placeholders.length} placeholder`}
       />
 
       <div className="space-y-4">
@@ -443,10 +479,11 @@ const TheaterSection = () => {
   };
   return (
     <>
-      <SectionHeader
-        eyebrow="Theater Setlist Tracker"
+      <SectionOpener
+        id="theater"
         title="Panggung yang Pernah Dinaiki."
         lead="Setlist teater JKT48 yang pernah dibawakan Eli sepanjang kariernya, beserta unit songs dan tim yang membawakannya."
+        kicker={`${ELI_THEATER.length} setlists tracked`}
       />
 
       <div className="grid md:grid-cols-2 gap-4 md:gap-6">
@@ -503,10 +540,11 @@ const TheaterSection = () => {
 
 const TriviaSection = () => (
   <>
-    <SectionHeader
-      eyebrow="Trivia & Fun Facts"
+    <SectionOpener
+      id="trivia"
       title="Yang Sering Ditanyakan."
       lead="Data ringan tentang Eli yang sering muncul di kolom komentar — dari makanan favorit, hewan peliharaan, sampai keluarga roleplay Cangcorang."
+      kicker={`${ELI_TRIVIA.length + ELI_FUN_FACTS.length} facts`}
     />
 
     <div className="mb-10">
