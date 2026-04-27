@@ -64,28 +64,29 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Content */}
+        {/* Content — pt clearance reserves space under the fixed navbar so content
+            never crashes into it on short viewports */}
         <div
           ref={heroRef}
           className={`
-            relative z-10 h-full flex items-end pb-20 md:pb-28 px-6 md:px-16 lg:px-24
+            relative z-10 h-full flex items-end pt-28 md:pt-32 pb-20 md:pb-28 px-6 md:px-16 lg:px-24
             transform transition-all duration-1000
             ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
           `}
         >
           <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] mb-8 border border-[color:var(--retro-cream)]/20">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] mb-6 md:mb-8 border border-[color:var(--retro-cream)]/20">
               <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
               {hero.eyebrow}
             </span>
 
-            <h1 className="font-header text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]">
+            <h1 className="font-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]">
               {hero.title}
               <br />
               <span className="text-[color:var(--retro-gold-light)]">{hero.subtitle}.</span>
             </h1>
 
-            <p className="mt-8 text-base md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
+            <p className="mt-6 md:mt-8 text-sm md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
               {hero.lead}
             </p>
 
