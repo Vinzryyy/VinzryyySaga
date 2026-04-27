@@ -123,7 +123,7 @@ const SOUSENKYO_RAPSODI = [
 
 // Undergirls JKT48 Sousenkyo 2026 — rank 13–24 (Senbatsu mengisi 1–12).
 // Eli (Helisma Putri) di rank 22 dengan 28.925 suara, turun 7 peringkat
-// dari Sousenkyo Rapsodi (rank 15).
+// dari Sousenkyo #KuSangatSuka.
 const SOUSENKYO_2026_UNDERGIRLS = [
   { rank: 13, name: 'Indah Cahya', group: 'JKT48', votes: 45716, status: 'NEW', position: 'Undergirls Center' },
   { rank: 14, name: 'Febriola Sinambela', group: 'JKT48', votes: 45028, status: 'NEW' },
@@ -155,7 +155,7 @@ export const ELI_DISCOGRAPHY = [
     type: 'Single',
     year: '2026',
     position: 'Undergirls',
-    note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo Rapsodi.',
+    note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo #KuSangatSuka.',
     rosterLabel: 'Undergirls Roster',
     members: SOUSENKYO_2026_UNDERGIRLS,
   },
