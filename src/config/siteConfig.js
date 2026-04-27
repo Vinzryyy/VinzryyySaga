@@ -136,7 +136,15 @@ export const SITE_CONFIG = {
       subtitle: 'Arsip Visual Helisma Putri — Eli JKT48',
       lead:
         'Sebuah dedikasi visual untuk Ceu Eli, sang “lovely mermaid” dari Team Dream. Armeniaca merawat setiap senyum, setiap panggung, dan setiap momen yang membuat Eli bersinar.',
-      background: '/archive/img-206.jpg',
+      backgrounds: [
+        '/archive/img-310.jpg',
+        '/archive/img-305.jpg',
+        '/archive/img-258.jpg',
+        '/archive/img-211.jpg',
+        '/archive/img-087.jpg',
+        '/archive/img-083.jpg',
+      ],
+      backgroundIntervalMs: 10000,
       primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
       secondaryCta: { label: 'Mengenal Armeniaca', hash: 'about', icon: 'ri-information-line' },
     },

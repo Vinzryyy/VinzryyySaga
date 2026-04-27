@@ -253,10 +253,34 @@ body {
   will-change: transform;
 }
 
+/* Hero Slide-In — crossfade + slow zoom in one animation, used per slide
+   in the rotating hero so the new image blends in while gently zooming. */
+@keyframes heroSlideIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-hero-slide-in {
+  animation: heroSlideIn 12s ease-out forwards;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-ken-burns {
+  .animate-ken-burns,
+  .animate-hero-slide-in {
     animation: none;
     transform: scale(1);
+    opacity: 1;
   }
 }
 

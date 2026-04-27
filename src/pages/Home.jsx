@@ -4,7 +4,7 @@
  * Flow: Hero -> Data Eli -> About Eli -> Gallery Eli -> Storyline (X archive) -> Helismiley
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
 import XInsights from '../components/gallery/XInsights';
@@ -59,6 +59,39 @@ const HomePage = () => {
     triggerOnce: true,
   });
 
+  // Rotating hero backdrop — falls back to a single legacy `background` field
+  // if no array is configured.
+  const heroSlides = useMemo(() => {
+    if (Array.isArray(hero.backgrounds) && hero.backgrounds.length > 0) {
+      return hero.backgrounds;
+    }
+    if (hero.background) return [hero.background];
+    return [eli.portrait];
+  }, [hero.backgrounds, hero.background, eli.portrait]);
+
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  useEffect(() => {
+    if (heroSlides.length <= 1) return undefined;
+    const interval = hero.backgroundIntervalMs ?? 10000;
+    const id = window.setInterval(() => {
+      setSlideIndex((current) => (current + 1) % heroSlides.length);
+    }, interval);
+    return () => window.clearInterval(id);
+  }, [heroSlides.length, hero.backgroundIntervalMs]);
+
+  // Preload the next slide so the crossfade starts from a cached image.
+  useEffect(() => {
+    if (heroSlides.length <= 1) return;
+    const next = heroSlides[(slideIndex + 1) % heroSlides.length];
+    const img = new Image();
+    img.src = next;
+  }, [slideIndex, heroSlides]);
+
+  const previousSlide =
+    heroSlides[(slideIndex - 1 + heroSlides.length) % heroSlides.length];
+  const currentSlide = heroSlides[slideIndex];
+
   return (
     <main>
       {/* HERO — full-bleed Eli portrait with Ken Burns reveal */}
@@ -66,12 +99,23 @@ const HomePage = () => {
         id="home"
         className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-[color:var(--retro-brown-dark)]"
       >
-        {/* Ken Burns Background */}
+        {/* Rotating Ken Burns Background — previous slide stays as a static
+            underlay while the new slide fades in + zooms over the top */}
         <div className="absolute inset-0 overflow-hidden">
+          {heroSlides.length > 1 && (
+            <img
+              key={`underlay-${previousSlide}`}
+              src={previousSlide}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
           <img
-            src={hero.background || eli.portrait}
+            key={`overlay-${slideIndex}`}
+            src={currentSlide}
             alt={about.portraitAlt}
-            className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
+            className="absolute inset-0 w-full h-full object-cover animate-hero-slide-in"
           />
           {/* Tonal grade — warms to the cream palette while keeping text legible */}
           <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/60 to-[color:var(--retro-brown-dark)]/30" />
