@@ -10,6 +10,7 @@ import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
+import { useElementParallax } from '../hooks/useElementParallax';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -81,11 +82,13 @@ const HomePage = () => {
     threshold: 0.1,
     rootMargin: '-40px',
   });
-  // Subtle parallax for the two on-page portraits — Data Eli (lighter rate)
-  // and About Eli (slightly stronger). Hero rotation already has its own
-  // animation so we leave that alone.
+  // Subtle parallax for the two on-page portraits. Data Eli sits high on
+  // the page so simple scrollY-driven parallax stays in range. About Eli is
+  // farther down, so it uses element-relative parallax (centered around the
+  // section's viewport position) — otherwise the cumulative scrollY would
+  // shift the image off-frame before the user even sees it.
   const dataPortraitOffset = useParallax(-0.08);
-  const aboutPortraitOffset = useParallax(-0.12);
+  const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.1, 40);
 
   // Rotating hero backdrop — falls back to a single legacy `background` field
   // if no array is configured.
@@ -290,13 +293,15 @@ const HomePage = () => {
       {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
       <Section id="about-preview" padding="xl">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Portrait — parallax wrapper preserves the hover-scale on the img.
-              Aspect-[3/4] keeps the source ratio close on mobile; lighter
-              wrapper scale (1.04) keeps parallax headroom without over-zoom. */}
-          <div className="relative group order-2 lg:order-1">
+          {/* Portrait — element-relative parallax centered on the section's
+              viewport position so the image doesn't drift off-frame before
+              user even sees it. Inner wrapper holds the transform; outer
+              ref measures the section position. Scale 1.15 gives the +/-40px
+              parallax range enough headroom without revealing empty edges. */}
+          <div ref={aboutPortraitRef} className="relative group order-2 lg:order-1">
             <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
               <div
-                style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.04)` }}
+                style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.15)` }}
                 className="absolute inset-0 will-change-transform"
               >
                 <img
