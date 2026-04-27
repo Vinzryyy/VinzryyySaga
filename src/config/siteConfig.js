@@ -166,7 +166,7 @@ export const SITE_CONFIG = {
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
-      portrait: '/archive/img-142.jpg',
+      portrait: '/archive/img-070.jpg',
       portraitAlt: 'Helisma Putri (Eli JKT48)',
     },
     gallery: {
