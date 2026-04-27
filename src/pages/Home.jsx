@@ -13,7 +13,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const HomePage = () => {
   const { featuredImages } = useGallery();
-  const { hero, data, about, gallery, storyline, community } = SITE_CONFIG.home;
+  const { hero, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
 
   const profileFacts = useMemo(
@@ -173,11 +173,9 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* ABOUT ELI — text-left, portrait-right */}
+      {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
       <Section id="about-preview" padding="xl">
-        <SectionHeading eyebrow={about.eyebrow} title={about.title} />
-
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center mt-12">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Portrait */}
           <div className="relative group order-2 lg:order-1">
             <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
@@ -194,8 +192,15 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Text */}
+          {/* Text + inline header */}
           <div className="order-1 lg:order-2">
+            <div className="flex items-center gap-3 mb-4 text-[color:var(--retro-burgundy)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">{about.eyebrow}</span>
+              <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
+            </div>
+            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-text-primary)] mb-8">
+              {about.title}
+            </h2>
             {about.paragraphs.map((p, i) => (
               <p
                 key={i}
@@ -215,11 +220,26 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* GALLERY ELI — clean 4x2 square mosaic */}
+      {/* GALLERY ELI — section-marker header (left-aligned, with index marker) */}
       <Section id="gallery-preview" padding="xl" background="gradient">
-        <SectionHeading eyebrow={gallery.eyebrow} title={gallery.title} subtitle={gallery.subtitle} />
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-[color:var(--retro-brown-dark)]/15 pb-6 mb-12">
+          <div>
+            <div className="flex items-baseline gap-3">
+              <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">03</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                /  {gallery.eyebrow}
+              </span>
+            </div>
+            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mt-3">
+              {gallery.title}
+            </h2>
+          </div>
+          <p className="md:max-w-sm md:text-right text-sm text-[color:var(--color-text-secondary)] leading-relaxed">
+            {gallery.subtitle}
+          </p>
+        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {featuredEight.map((image, index) => (
             <a
               key={image.id}
@@ -252,67 +272,57 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* STORYLINE — substitutes corsyava's "JKT48 TV" with the X archive chronicle */}
+      {/* STORYLINE — XInsights carries its own internal heading; no outer SectionHeading */}
       <Section id="storyline" padding="lg">
-        <SectionHeading eyebrow={storyline.eyebrow} title={storyline.title} subtitle={storyline.subtitle} />
-        <div className="mt-10">
-          <XInsights />
-        </div>
+        <XInsights />
       </Section>
 
-      {/* COMMUNITY — Helismiley callout */}
-      <Section id="community" padding="lg" background="gradient">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-            {community.eyebrow}
-          </p>
-          <h2 className="font-header text-3xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] mb-6">
-            {community.title}
-          </h2>
-          <p className="text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed mb-10">
-            {community.body}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {community.links.map((link) => (
-              <a
-                key={link.label}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)] text-xs font-bold uppercase tracking-widest transition-all"
-              >
-                <i className={`${link.icon} text-base`} />
-                {link.label}
-              </a>
-            ))}
+      {/* COMMUNITY — Helismiley as a 2-col platform card (header left, link list right) */}
+      <Section id="community" padding="lg">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]">
+          <div className="absolute -top-24 -right-24 w-[360px] h-[360px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
+
+          <div className="relative grid lg:grid-cols-5 gap-10 lg:gap-12 p-8 md:p-12 lg:p-16">
+            <div className="lg:col-span-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-4">
+                {community.eyebrow}
+              </p>
+              <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter">
+                {community.title}
+              </h2>
+              <p className="mt-6 text-base md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
+                {community.body}
+              </p>
+            </div>
+
+            <div className="lg:col-span-2 flex flex-col gap-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/50 mb-1">
+                Tautan Komunitas
+              </p>
+              {community.links.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-[color:var(--retro-cream)]/5 hover:bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-gold-light)]/40 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-[color:var(--retro-cream)]/10 flex items-center justify-center group-hover:bg-[color:var(--retro-gold-light)] group-hover:text-[color:var(--retro-brown-dark)] transition-colors">
+                      <i className={`${link.icon} text-base`} />
+                    </div>
+                    <span className="text-sm font-bold uppercase tracking-widest">{link.label}</span>
+                  </div>
+                  <i className="ri-arrow-right-up-line text-lg text-[color:var(--retro-cream)]/40 group-hover:text-[color:var(--retro-gold-light)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </Section>
     </main>
   );
 };
-
-const SectionHeading = ({ eyebrow, title, subtitle }) => (
-  <div className="text-center max-w-2xl mx-auto">
-    {eyebrow && (
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-        {eyebrow}
-      </p>
-    )}
-    <h2 className="font-header text-3xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[1.05]">
-      {title}
-    </h2>
-    {subtitle && (
-      <p className="mt-4 text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-        {subtitle}
-      </p>
-    )}
-    <div className="mt-6 flex items-center justify-center gap-3">
-      <div className="w-10 h-px bg-gradient-to-r from-transparent to-[color:var(--retro-gold)]" />
-      <div className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
-      <div className="w-10 h-px bg-gradient-to-l from-transparent to-[color:var(--retro-gold)]" />
-    </div>
-  </div>
-);
 
 export default HomePage;
