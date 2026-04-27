@@ -75,7 +75,9 @@ export const SITE_CONFIG = {
         ],
       },
       { label: 'Countdown', hash: 'countdown', icon: 'ri-cake-2-line' },
-      { label: 'Wishes', hash: 'wishes', icon: 'ri-mail-send-line' },
+      // Wishes feature di-disable sementara — un-comment baris di bawah
+      // (dan baris route di src/App.jsx) untuk re-enable.
+      // { label: 'Wishes', hash: 'wishes', icon: 'ri-mail-send-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
   },
