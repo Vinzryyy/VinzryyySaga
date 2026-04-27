@@ -48,7 +48,7 @@ const HomePage = () => {
         {/* Ken Burns Background */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src={eli.portrait}
+            src={hero.background || eli.portrait}
             alt={about.portraitAlt}
             className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
           />
