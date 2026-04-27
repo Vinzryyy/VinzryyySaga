@@ -255,8 +255,29 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
   const eyebrow = ELI_PROFILE_SECTIONS[idx]?.label || '';
   const { elementRef, isVisible } = useScrollReveal({ threshold: 0.2, rootMargin: '-50px' });
   return (
-    <header ref={elementRef} className="mb-12 md:mb-16 overflow-hidden">
-      <div className="flex items-baseline gap-4 mb-5">
+    <header ref={elementRef} className="relative mb-12 md:mb-16 overflow-hidden">
+      {/* Decorative wordmark watermark — fills the empty right side of the
+          opener on lg+ where title/lead are constrained to max-w-3xl/2xl.
+          Mask-image lets us tint the white asset to faded burgundy. */}
+      <div
+        aria-hidden="true"
+        className={`absolute right-0 top-0 bottom-0 w-2/5 hidden lg:block pointer-events-none transition-opacity duration-1000 ${
+          isVisible ? 'opacity-[0.07]' : 'opacity-0'
+        }`}
+        style={{
+          maskImage: 'url(/logo-armeniaca.png)',
+          WebkitMaskImage: 'url(/logo-armeniaca.png)',
+          maskSize: 'contain',
+          WebkitMaskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          WebkitMaskRepeat: 'no-repeat',
+          maskPosition: 'right center',
+          WebkitMaskPosition: 'right center',
+          backgroundColor: 'var(--retro-burgundy)',
+        }}
+      />
+
+      <div className="relative flex items-baseline gap-4 mb-5">
         <span
           className={`font-header text-5xl md:text-7xl font-black text-[color:var(--retro-burgundy)]/15 tracking-tighter leading-none select-none transition-all duration-1000 ease-out origin-left ${
             isVisible ? 'opacity-100 scale-100 translate-x-0' : 'opacity-0 scale-50 -translate-x-6'
@@ -285,7 +306,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
       </div>
       <h2
         style={{ transitionDelay: '160ms' }}
-        className={`font-header text-4xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl transition-all duration-1000 ease-out ${
+        className={`relative font-header text-4xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl transition-all duration-1000 ease-out ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         }`}
       >
@@ -294,7 +315,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
       {lead && (
         <p
           style={{ transitionDelay: '260ms' }}
-          className={`mt-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
+          className={`relative mt-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}
         >
@@ -302,7 +323,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
         </p>
       )}
       <div
-        className={`mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent transition-all duration-[1200ms] ease-out origin-left ${
+        className={`relative mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent transition-all duration-[1200ms] ease-out origin-left ${
           isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
         }`}
         style={{ transitionDelay: '400ms' }}
