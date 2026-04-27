@@ -8,7 +8,7 @@ export const SITE_CONFIG = {
   // Branding
   branding: {
     name: 'Armeniaca',
-    tagline: 'One Call Fight',
+    tagline: '#BloomInSpring',
     fullName: 'ARMENIACA',
     description: 'A dedicated fan gallery preserving the most beautiful moments of Helisma Putri (Eli JKT48)',
   },
