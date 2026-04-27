@@ -64,43 +64,43 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Content — pt clearance reserves space under the fixed navbar so content
-            never crashes into it on short viewports */}
+        {/* Content — bottom-anchored on tall viewports, but pt-36 + tighter sizing
+            keeps the title clear of the fixed navbar even on short browser windows */}
         <div
           ref={heroRef}
           className={`
-            relative z-10 h-full flex items-end pt-28 md:pt-32 pb-20 md:pb-28 px-6 md:px-16 lg:px-24
+            relative z-10 h-full flex items-end pt-36 md:pt-40 pb-16 md:pb-24 px-6 md:px-16 lg:px-24
             transform transition-all duration-1000
             ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
           `}
         >
           <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] mb-6 md:mb-8 border border-[color:var(--retro-cream)]/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] md:text-[10px] font-black uppercase tracking-[0.35em] mb-4 md:mb-6 border border-[color:var(--retro-cream)]/20">
+              <span className="w-1 h-1 rounded-full bg-[color:var(--retro-gold)]" />
               {hero.eyebrow}
             </span>
 
-            <h1 className="font-header text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]">
+            <h1 className="font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)]">
               {hero.title}
               <br />
               <span className="text-[color:var(--retro-gold-light)]">{hero.subtitle}.</span>
             </h1>
 
-            <p className="mt-6 md:mt-8 text-sm md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
+            <p className="mt-4 md:mt-6 text-xs sm:text-sm md:text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl line-clamp-3 md:line-clamp-none">
               {hero.lead}
             </p>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
+            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-start gap-3">
               <a
                 href={`#${hero.primaryCta.hash}`}
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all"
+                className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-xs md:text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all"
               >
                 {hero.primaryCta.label}
                 <i className={`${hero.primaryCta.icon} group-hover:translate-x-1 transition-transform`} />
               </a>
               <a
                 href={`#${hero.secondaryCta.hash}`}
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full bg-transparent border-2 border-[color:var(--retro-cream)]/30 text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest hover:bg-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-cream)] transition-all"
+                className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-transparent border-2 border-[color:var(--retro-cream)]/30 text-[color:var(--retro-cream)] font-bold text-xs md:text-sm uppercase tracking-widest hover:bg-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-cream)] transition-all"
               >
                 <i className={hero.secondaryCta.icon} />
                 {hero.secondaryCta.label}
