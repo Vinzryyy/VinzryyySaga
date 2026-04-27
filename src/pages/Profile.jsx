@@ -9,6 +9,7 @@ import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
+import { useParallax } from '../hooks/useParallax';
 import {
   ELI_PROFILE_SECTIONS,
   ELI_TIMELINE,
@@ -82,6 +83,11 @@ const ProfilePage = () => {
     threshold: 0.2,
     rootMargin: '0px',
   });
+  // Three different parallax rates so the portraits visually decouple as the
+  // user scrolls — front frame moves fastest, back frames trail behind.
+  const collageOffsetA = useParallax(-0.12);
+  const collageOffsetB = useParallax(-0.22);
+  const collageOffsetC = useParallax(-0.08);
 
   return (
     <main className="bg-[color:var(--retro-bg-primary)]">
@@ -128,20 +134,30 @@ const ProfilePage = () => {
             </dl>
           </div>
 
-          {/* Portrait collage — three frames stacked + offset for depth */}
+          {/* Portrait collage — three frames with independent parallax so they
+              shift at different rates as the user scrolls (front fastest). */}
           <div className="lg:col-span-5 relative h-[420px] sm:h-[520px] lg:h-[600px] hidden md:block">
             {profile.heroCollage[0] && (
-              <div className="absolute top-0 right-12 w-[55%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl rotate-[-3deg] z-10">
+              <div
+                style={{ transform: `translate3d(0, ${collageOffsetA}px, 0) rotate(-3deg)` }}
+                className="absolute top-0 right-12 w-[55%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl z-10 will-change-transform"
+              >
                 <img src={profile.heroCollage[0]} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
             {profile.heroCollage[1] && (
-              <div className="absolute top-32 left-0 w-[50%] aspect-[3/4] rounded-sm overflow-hidden shadow-2xl rotate-[2deg] z-20">
+              <div
+                style={{ transform: `translate3d(0, ${collageOffsetB}px, 0) rotate(2deg)` }}
+                className="absolute top-32 left-0 w-[50%] aspect-[3/4] rounded-sm overflow-hidden shadow-2xl z-20 will-change-transform"
+              >
                 <img src={profile.heroCollage[1]} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
             {profile.heroCollage[2] && (
-              <div className="absolute bottom-0 right-0 w-[45%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl rotate-[-1deg] z-10">
+              <div
+                style={{ transform: `translate3d(0, ${collageOffsetC}px, 0) rotate(-1deg)` }}
+                className="absolute bottom-0 right-0 w-[45%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl z-10 will-change-transform"
+              >
                 <img src={profile.heroCollage[2]} alt="" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
@@ -237,30 +253,60 @@ const SectionRouter = ({ id, section }) => {
 const SectionOpener = ({ id, title, lead, kicker }) => {
   const idx = ELI_PROFILE_SECTIONS.findIndex((s) => s.id === id);
   const eyebrow = ELI_PROFILE_SECTIONS[idx]?.label || '';
+  const { elementRef, isVisible } = useScrollReveal({ threshold: 0.2, rootMargin: '-50px' });
   return (
-    <header className="mb-12 md:mb-16">
+    <header ref={elementRef} className="mb-12 md:mb-16 overflow-hidden">
       <div className="flex items-baseline gap-4 mb-5">
-        <span className="font-header text-5xl md:text-7xl font-black text-[color:var(--retro-burgundy)]/15 tracking-tighter leading-none select-none">
+        <span
+          className={`font-header text-5xl md:text-7xl font-black text-[color:var(--retro-burgundy)]/15 tracking-tighter leading-none select-none transition-all duration-1000 ease-out origin-left ${
+            isVisible ? 'opacity-100 scale-100 translate-x-0' : 'opacity-0 scale-50 -translate-x-6'
+          }`}
+        >
           {String(idx + 1).padStart(2, '0')}
         </span>
-        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+        <span
+          style={{ transitionDelay: '120ms' }}
+          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] transition-all duration-700 ease-out ${
+            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
+          }`}
+        >
           {eyebrow}
         </span>
         {kicker && (
-          <span className="ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-block">
+          <span
+            style={{ transitionDelay: '300ms' }}
+            className={`ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-block transition-all duration-700 ease-out ${
+              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-3'
+            }`}
+          >
             {kicker}
           </span>
         )}
       </div>
-      <h2 className="font-header text-4xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl">
+      <h2
+        style={{ transitionDelay: '160ms' }}
+        className={`font-header text-4xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl transition-all duration-1000 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+        }`}
+      >
         {title}
       </h2>
       {lead && (
-        <p className="mt-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+        <p
+          style={{ transitionDelay: '260ms' }}
+          className={`mt-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}
+        >
           {lead}
         </p>
       )}
-      <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent" />
+      <div
+        className={`mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent transition-all duration-[1200ms] ease-out origin-left ${
+          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+        }`}
+        style={{ transitionDelay: '400ms' }}
+      />
     </header>
   );
 };
