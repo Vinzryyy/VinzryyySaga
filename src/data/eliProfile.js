@@ -100,9 +100,9 @@ export const ELI_TIMELINE = [
 // "Senbatsu Center" / "Undergirls Center".
 
 // Senbatsu hasil Pemilihan Member Single Original JKT48 untuk single
-// "#KuSangatSuka (Sukinanda)" — 16 member. Eli (Helisma Putri)
-// menempati posisi 15 dengan 15.842 suara.
-const SOUSENKYO_KUSANGATSUKA = [
+// "Rapsodi" (2020) — 16 member. Eli (Helisma Putri) menempati posisi
+// 15 dengan 15.842 suara, menjadikannya Senbatsu pertama Eli.
+const SOUSENKYO_RAPSODI = [
   { rank: 1, name: 'Shani Indira Natio', group: 'Team KIII', votes: 72707, status: '▲1', position: 'Senbatsu Center' },
   { rank: 2, name: 'Feni Fitriyanti', group: 'Team J', votes: 44434, status: '▲2' },
   { rank: 3, name: 'Riska Amelia Putri', group: 'Team J', votes: 31367, status: 'NEW' },
@@ -123,7 +123,7 @@ const SOUSENKYO_KUSANGATSUKA = [
 
 // Undergirls JKT48 Sousenkyo 2026 — rank 13–24 (Senbatsu mengisi 1–12).
 // Eli (Helisma Putri) di rank 22 dengan 28.925 suara, turun 7 peringkat
-// dari Sousenkyo #KuSangatSuka (rank 15).
+// dari Sousenkyo Rapsodi (rank 15).
 const SOUSENKYO_2026_UNDERGIRLS = [
   { rank: 13, name: 'Indah Cahya', group: 'JKT48', votes: 45716, status: 'NEW', position: 'Undergirls Center' },
   { rank: 14, name: 'Febriola Sinambela', group: 'JKT48', votes: 45028, status: 'NEW' },
@@ -145,24 +145,17 @@ export const ELI_DISCOGRAPHY = [
     type: 'Single',
     year: '2020',
     position: 'Senbatsu',
-    note: 'Senbatsu pertama Eli.',
+    note: 'Senbatsu pertama Eli — hasil Pemilihan Member Single Original JKT48, posisi 15 dengan 15.842 suara.',
     highlight: true,
-  },
-  {
-    title: '#KuSangatSuka (Sukinanda)',
-    type: 'Single',
-    year: '2024',
-    position: 'Senbatsu',
-    note: 'Posisi Senbatsu Eli di rank 15 dengan 15.842 suara, hasil Pemilihan Member Single Original JKT48.',
     rosterLabel: 'Senbatsu Roster',
-    members: SOUSENKYO_KUSANGATSUKA,
+    members: SOUSENKYO_RAPSODI,
   },
   {
     title: 'Bibir yang Telah Dicuri (Nusumareta Kuchibiru)',
     type: 'Single',
     year: '2026',
     position: 'Undergirls',
-    note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo #KuSangatSuka (Sukinanda).',
+    note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo Rapsodi.',
     rosterLabel: 'Undergirls Roster',
     members: SOUSENKYO_2026_UNDERGIRLS,
   },
