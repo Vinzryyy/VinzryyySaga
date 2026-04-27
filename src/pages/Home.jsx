@@ -7,13 +7,12 @@
 import React, { useMemo } from 'react';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
-import GalleryGrid from '../components/gallery/GalleryGrid';
 import XInsights from '../components/gallery/XInsights';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const HomePage = () => {
-  const { featuredImages, images, eras } = useGallery();
+  const { featuredImages } = useGallery();
   const { hero, data, about, gallery, storyline, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
 
@@ -29,18 +28,10 @@ const HomePage = () => {
     [eli]
   );
 
-  const archiveStats = useMemo(() => {
-    if (!images || images.length === 0) return [];
-    const sorted = [...images].sort((a, b) => a.date.localeCompare(b.date));
-    const monthFormat = (date) =>
-      new Intl.DateTimeFormat('id-ID', { month: 'short', year: 'numeric' }).format(date);
-    return [
-      { number: images.length.toLocaleString('id-ID'), label: 'Frame Diarsipkan' },
-      { number: eras.length.toString(), label: 'Era Tercatat' },
-      { number: monthFormat(new Date(sorted[0].date)), label: 'Frame Pertama' },
-      { number: monthFormat(new Date(sorted[sorted.length - 1].date)), label: 'Frame Terbaru' },
-    ];
-  }, [images, eras.length]);
+  const featuredEight = useMemo(
+    () => (featuredImages || []).slice(0, 8),
+    [featuredImages]
+  );
 
   const { elementRef: heroRef, isVisible: heroVisible } = useScrollReveal({
     threshold: 0.1,
@@ -224,30 +215,30 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* GALLERY ELI — 8-thumbnail grid + CTA */}
+      {/* GALLERY ELI — clean 4x2 square mosaic */}
       <Section id="gallery-preview" padding="xl" background="gradient">
         <SectionHeading eyebrow={gallery.eyebrow} title={gallery.title} subtitle={gallery.subtitle} />
 
-        {archiveStats.length > 0 && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12 mt-10">
-            {archiveStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="p-5 rounded-2xl bg-[color:var(--retro-bg-primary)]/70 border border-[color:var(--retro-border)] text-center"
-              >
-                <div className="text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] tracking-tight mb-1">
-                  {stat.number}
-                </div>
-                <div className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
-                  {stat.label}
-                </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-12">
+          {featuredEight.map((image, index) => (
+            <a
+              key={image.id}
+              href={`#${gallery.ctaHash}`}
+              className="group relative aspect-square overflow-hidden rounded-sm bg-[color:var(--retro-brown-dark)]/10"
+              aria-label={`Frame ${index + 1}: ${image.title || 'Eli JKT48'}`}
+            >
+              <img
+                src={image.thumbnail || image.url}
+                alt={image.alt || image.title || 'Eli JKT48'}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover:bg-[color:var(--retro-brown-dark)]/40 transition-colors" />
+              <div className="absolute top-2 left-2 text-[9px] font-black tracking-[0.3em] text-[color:var(--retro-cream)] opacity-0 group-hover:opacity-100 transition-opacity">
+                0{index + 1}
               </div>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-4">
-          <GalleryGrid imagesOverride={(featuredImages || []).slice(0, 8)} />
+            </a>
+          ))}
         </div>
 
         <div className="text-center mt-12">
