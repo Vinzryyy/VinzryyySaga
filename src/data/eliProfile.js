@@ -176,8 +176,13 @@ export const ELI_FUN_FACTS = [
   },
   {
     icon: 'ri-music-2-line',
-    label: 'K-Pop Favorit',
-    value: 'BTS',
+    label: 'K-Pop Bias',
+    value: 'Jaehyun NCT',
+  },
+  {
+    icon: 'ri-heart-3-line',
+    label: 'Fandom',
+    value: 'Antusias K-Pop & NCTzen',
   },
   {
     icon: 'ri-football-line',
