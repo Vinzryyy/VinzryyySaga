@@ -25,7 +25,7 @@ export const ELI_TIMELINE = [
     period: 'Desember 2018',
     title: 'Debut Teater bersama Team T',
     body:
-      'Debut panggung pertama di setlist “Show Theater no Megami” bersama Team T, bareng Angelina Christy dan Aurel Mayori.',
+      'Naik panggung pertama bersama Team T (T1 Revival — “Te wo Tsunaginagara”) bareng Angelina Christy dan Aurel Mayori. Detail unit songs tersedia di section Theater.',
     badge: 'Team T',
   },
   {
