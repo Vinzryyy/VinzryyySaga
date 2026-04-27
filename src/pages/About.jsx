@@ -22,8 +22,8 @@ const AboutPage = () => {
       {/* Hero Section */}
       <Section id="about" padding="xl" background="gradient">
         <PageHeader
-          title={`About ${SITE_CONFIG.branding.name}`}
-          subtitle={SITE_CONFIG.site.description}
+          title={about.pageTitle}
+          subtitle={about.pageSubtitle}
         />
       </Section>
 

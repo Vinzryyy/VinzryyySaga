@@ -15,10 +15,11 @@ export const SITE_CONFIG = {
 
   // Site Metadata
   site: {
-    title: 'Armeniaca - The Mermaid Archive',
-    description: 'Capturing the light and spirit of our lovely mermaid, Eli JKT48. A curated journey through Helisma Putri\'s iconic moments.',
+    title: 'Armeniaca — Arsip Visual Eli JKT48',
+    description:
+      'Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026.',
     url: 'https://vinzryyysaga.com',
-    keywords: ['Eli JKT48', 'Helisma Putri', 'JKT48', 'fan gallery', 'photography', 'Armeniaca'],
+    keywords: ['Eli JKT48', 'Helisma Putri', 'JKT48', 'Team Dream', 'JKT48 Fight 2026', 'fan archive', 'Armeniaca'],
   },
 
   // Social Links
@@ -254,23 +255,28 @@ export const SITE_CONFIG = {
 
   // About Page Content
   about: {
+    pageEyebrow: 'Tentang Proyek',
+    pageTitle: 'Tentang Armeniaca',
+    pageSubtitle:
+      'Arsip visual independen yang merawat perjalanan Eli JKT48 — dari panggung pertama Generasi 7 hingga era Team Dream di JKT48 Fight 2026.',
     bio: {
-      title: 'Dedicated to Eli JKT48',
+      title: 'Catatan dari Armeniaca',
       paragraphs: [
-        'My name is Armeniaca, and this gallery is a tribute to my favorite JKT48 member, Helisma Putri, famously known as Eli. To me, Eli is more than just an idol; she is a "lovely mermaid" who radiates grace, talent, and kindness.',
-        'Through this platform, I aim to preserve the most beautiful moments of Eli\'s journey with JKT48. Every photo, whether it\'s from a theater performance, an event, or a rare candid shot, is carefully curated to showcase her multifaceted charm.',
-        'I specialize in documenting idol activities, focusing on the raw emotions and the vibrant energy that Eli brings to the stage. This project is "Made for JKT48 Eli," and it serves as a digital archive for fans who share the same admiration for her.',
-        'My work is driven by the belief that every stage performance is a fleeting moment of art. By capturing these instances, I hope to keep the spirit of Eli\'s dedication alive in the hearts of the community.',
+        'Armeniaca adalah arsip visual independen yang berdedikasi untuk Helisma Putri — member JKT48 yang akrab disapa Eli atau Ceu Eli. Nama "Armeniaca" sendiri diambil dari Prunus armeniaca, pohon aprikot, sebagai akar dari palet hangat yang menjadi identitas visual arsip ini.',
+        'Proyek ini berdiri sejak Eli aktif di JKT48 dan terus mengikuti perjalanannya: dari debut bersama Team T pada Desember 2018, transfer ke Team KIII pada Juli 2019, hingga sekarang bergabung di Team Dream dalam format kompetisi JKT48 Fight 2026.',
+        'Setiap frame yang masuk arsip dikurasi manual — bukan sekadar repost. Tujuannya bukan kuantitas, melainkan kontinuitas: menjaga cerita panjang Eli dalam satu tempat yang stabil dan rapi.',
+        'Sumber utama arsip ini adalah akun @armeniaca15 di X, dilengkapi dokumentasi personal dari berbagai panggung, event, dan momen yang sering luput dari sorotan. Armeniaca berdiri berdampingan dengan fanbase resmi Helismiley — bukan menggantikan, tetapi melengkapi.',
       ],
       quickStats: [
-        { value: 'Eli', label: 'Main Focus' },
-        { value: 'JKT48', label: 'Community' },
-        { value: '15.06', label: 'Birthday' },
+        { value: '350+', label: 'Frame Diarsipkan' },
+        { value: 'Gen 7', label: 'Generasi Eli' },
+        { value: 'Team Dream', label: 'Team Saat Ini' },
       ],
-      signature: 'Armeniaca',
+      signature: 'Armeniaca · @armeniaca15',
     },
     philosophy: {
-      quote: 'Photography is the art of frozen time... the ability to store emotion and feelings within a frame. Every picture tells a story, and I\'m here to help tell yours.',
+      quote:
+        'Setiap panggung Eli adalah momen yang sekejap. Tugas Armeniaca adalah memastikan cahaya itu tetap terjaga di dalam frame, bahkan setelah lampu studio dimatikan.',
       author: 'Armeniaca',
     },
   },
@@ -286,9 +292,10 @@ export const SITE_CONFIG = {
 
   // Footer
   footer: {
-    description: 'Capturing the light and spirit of our lovely mermaid, Eli JKT48. A dedicated fan gallery preserving the most beautiful moments of her journey.',
-    creditPrefix: 'Made with',
-    creditSuffix: 'for Eli JKT48',
+    description:
+      'Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli — dari Generasi 7 hingga era Team Dream JKT48 Fight 2026.',
+    creditPrefix: 'Dibuat dengan',
+    creditSuffix: 'untuk Eli JKT48',
   },
 };
 
