@@ -12,6 +12,7 @@ import {
   ELI_TIMELINE,
   ELI_DISCOGRAPHY,
   ELI_THEATER,
+  ELI_FIGHT_2026,
   ELI_TRIVIA,
   ELI_FUN_FACTS,
 } from '../data/eliProfile';
@@ -105,6 +106,8 @@ const SectionRouter = ({ id, section }) => {
   switch (id) {
     case 'timeline':
       return <TimelineSection />;
+    case 'fight':
+      return <FightSection />;
     case 'discography':
       return <DiscographySection />;
     case 'theater':
@@ -168,6 +171,120 @@ const TimelineSection = () => {
           </li>
         ))}
       </ol>
+    </>
+  );
+};
+
+const FightSection = () => {
+  const { tagline, anniversary, effective, format, team, rivals } = ELI_FIGHT_2026;
+  return (
+    <>
+      <SectionHeader
+        eyebrow="JKT48 Fight 2026"
+        title={`Team Dream — “${tagline}”`}
+        lead={format}
+      />
+
+      {/* Hero card — team summary */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-10">
+        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
+
+        <div className="relative grid lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="lg:col-span-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">
+              Format Tahun 2026
+            </p>
+            <h3 className="font-header text-4xl md:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
+              {team.name}.
+            </h3>
+            <p className="text-base md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-2xl">
+              Eli ditempatkan di {team.name} bersama {team.members.length - 1} member lain. Tim ini diumumkan saat {anniversary} dan resmi berlaku per {effective}.
+            </p>
+          </div>
+
+          <aside className="space-y-4">
+            <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                Captain
+              </p>
+              <p className="font-header text-2xl font-black leading-tight mb-1">{team.captain}</p>
+              <p className="text-xs text-[color:var(--retro-cream)]/60 leading-relaxed">{team.captainNote}</p>
+            </div>
+            <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                Total Member
+              </p>
+              <p className="font-header text-2xl font-black leading-tight">
+                {team.members.length} <span className="text-sm text-[color:var(--retro-cream)]/60 font-bold">members</span>
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      {/* Roster */}
+      <div className="mb-10">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
+          Roster Team Dream
+        </h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {team.members.map((member, idx) => {
+            const isCaptain = member === team.captain;
+            const isEli = member === 'Eli';
+            return (
+              <div
+                key={member}
+                className={`relative p-4 rounded-xl border text-center transition-all ${
+                  isEli
+                    ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-lg shadow-[color:var(--retro-burgundy)]/30'
+                    : isCaptain
+                    ? 'bg-[color:var(--retro-gold-light)]/15 border-[color:var(--retro-gold)]/40 text-[color:var(--retro-text-primary)]'
+                    : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)]/40'
+                }`}
+              >
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">
+                  {String(idx + 1).padStart(2, '0')}
+                </p>
+                <p className="font-bold text-sm leading-tight">{member}</p>
+                {isCaptain && (
+                  <span className="mt-2 inline-block text-[8px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                    Captain
+                  </span>
+                )}
+                {isEli && (
+                  <span className="mt-2 inline-block text-[8px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/80">
+                    Eli — focus
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Rival teams */}
+      <div>
+        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
+          Tim Rival
+        </h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {rivals.map((rival) => (
+            <div
+              key={rival.name}
+              className="p-5 rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)]"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-2">
+                Rival
+              </p>
+              <p className="font-header text-2xl font-black text-[color:var(--retro-text-primary)] tracking-tight mb-1">
+                {rival.name}
+              </p>
+              <p className="text-sm text-[color:var(--color-text-secondary)]">{rival.note}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </>
   );
 };
