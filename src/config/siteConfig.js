@@ -34,6 +34,7 @@ export const SITE_CONFIG = {
     main: [
       { label: 'Home', hash: 'home' },
       { label: 'Profil Singkat', hash: 'data' },
+      { label: 'About Eli', hash: 'about-preview' },
       { label: 'Archive', hash: 'gallery' },
       { label: 'About', hash: 'about' },
     ],
@@ -148,8 +149,9 @@ export const SITE_CONFIG = {
       eyebrow: 'About Eli',
       title: 'Sang Mermaid dari Bandung',
       paragraphs: [
-        'Helisma Mauludzunia Putri Kurnia, akrab disapa Eli, lahir di Bandung pada 15 Juni 2000. Ia bergabung dengan JKT48 sebagai member generasi ke-7 pada 29 September 2018, dan kini berdiri sebagai bagian dari Team Dream.',
-        'Dengan energinya yang hangat dan ceria, Eli menjadi salah satu wajah penting Team Dream. Armeniaca berdiri sebagai catatan visual perjalanannya — dari panggung teater, event, hingga momen-momen kecil yang sering luput dari sorotan.',
+        'Helisma Putri Kurnia, atau yang akrab dikenal sebagai Eli JKT48, kini menempati posisi strategis sebagai anggota Team Dream dalam format kompetisi JKT48 Fight yang berlangsung di tahun 2026 ini.',
+        'Sebagai salah satu member senior dari generasi ketujuh, mahasiswi Sastra Korea ini tidak hanya mengandalkan kemampuan vokal dan visualnya yang matang, tetapi juga membawa kepemimpinan yang kuat bagi rekan-rekan setimnya.',
+        'Kehadirannya di Team Dream memperkuat dinamika grup dalam menghadapi tantangan baru di era ini, sekaligus membuktikan dedikasinya yang tak goyah dalam menjaga standar performa tinggi di tengah persaingan antar tim yang semakin kompetitif.',
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
