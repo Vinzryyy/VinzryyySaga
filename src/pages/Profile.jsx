@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 import {
   ELI_PROFILE_SECTIONS,
   ELI_TIMELINE,
@@ -17,6 +18,17 @@ import {
   ELI_TRIVIA,
   ELI_FUN_FACTS,
 } from '../data/eliProfile';
+
+// Stagger reveal helpers — wire useScrollReveal on a list container, then
+// compose these on each child so they cascade in once the container hits view.
+const STAGGER_STEP_MS = 60;
+const staggerStyle = (index, baseDelay = 0) => ({
+  transitionDelay: `${baseDelay + index * STAGGER_STEP_MS}ms`,
+});
+const staggerClass = (visible) =>
+  `transition-all duration-700 ease-out ${
+    visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+  }`;
 
 const ProfilePage = () => {
   const eli = SITE_CONFIG.eli;
@@ -224,6 +236,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
 
 const TimelineSection = () => {
   const formatYear = (iso) => new Date(iso).getFullYear();
+  const { elementRef, isVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-50px' });
   return (
     <>
       <SectionOpener
@@ -233,13 +246,14 @@ const TimelineSection = () => {
         kicker={`${ELI_TIMELINE.length} milestones`}
       />
 
-      <ol className="space-y-8 md:space-y-0">
+      <ol ref={elementRef} className="space-y-8 md:space-y-0">
         {ELI_TIMELINE.map((event, idx) => {
           const isLast = idx === ELI_TIMELINE.length - 1;
           return (
             <li
               key={event.id}
-              className="grid grid-cols-[80px_1fr] md:grid-cols-[200px_24px_1fr] gap-4 md:gap-0 relative pb-8 md:pb-12"
+              style={staggerStyle(idx)}
+              className={`grid grid-cols-[80px_1fr] md:grid-cols-[200px_24px_1fr] gap-4 md:gap-0 relative pb-8 md:pb-12 ${staggerClass(isVisible)}`}
             >
               {/* Year column */}
               <div className="md:pr-8 md:text-right md:pt-1">
@@ -283,6 +297,7 @@ const TimelineSection = () => {
 
 const FightSection = () => {
   const { tagline, anniversary, effective, format, team, rivals } = ELI_FIGHT_2026;
+  const { elementRef: rosterRef, isVisible: rosterVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (
     <>
       <SectionOpener
@@ -335,20 +350,21 @@ const FightSection = () => {
         <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
           Roster Team Dream
         </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div ref={rosterRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {team.members.map((member, idx) => {
             const isCaptain = member === team.captain;
             const isEli = member === 'Eli';
             return (
               <div
                 key={member}
-                className={`relative p-4 rounded-xl border text-center transition-all ${
+                style={staggerStyle(idx, 0)}
+                className={`relative p-4 rounded-xl border text-center ${
                   isEli
                     ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-lg shadow-[color:var(--retro-burgundy)]/30'
                     : isCaptain
                     ? 'bg-[color:var(--retro-gold-light)]/15 border-[color:var(--retro-gold)]/40 text-[color:var(--retro-text-primary)]'
                     : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)]/40'
-                }`}
+                } ${staggerClass(rosterVisible)}`}
               >
                 <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">
                   {String(idx + 1).padStart(2, '0')}
@@ -400,6 +416,8 @@ const DiscographySection = () => {
   const confirmed = ELI_DISCOGRAPHY.filter((entry) => !entry.placeholder);
   const placeholders = ELI_DISCOGRAPHY.filter((entry) => entry.placeholder);
   const totalAlbumTracks = ELI_ALBUMS.reduce((sum, album) => sum + album.tracks.length, 0);
+  const { elementRef: singlesRef, isVisible: singlesVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
+  const { elementRef: albumsRef, isVisible: albumsVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (
     <>
       <SectionOpener
@@ -410,7 +428,7 @@ const DiscographySection = () => {
       />
 
       {/* SINGLES */}
-      <div className="space-y-4 mb-12">
+      <div ref={singlesRef} className="space-y-4 mb-12">
         <div className="flex items-baseline gap-3 mb-4">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
             Singles
@@ -418,14 +436,15 @@ const DiscographySection = () => {
           <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
         </div>
 
-        {confirmed.map((entry) => (
+        {confirmed.map((entry, idx) => (
           <article
             key={`${entry.title}-${entry.year}`}
+            style={staggerStyle(idx)}
             className={`relative rounded-2xl border p-5 md:p-6 ${
               entry.highlight
                 ? 'bg-[color:var(--retro-burgundy)]/5 border-[color:var(--retro-burgundy)]/30'
                 : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15'
-            }`}
+            } ${staggerClass(singlesVisible)}`}
           >
             {entry.highlight && (
               <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
@@ -486,7 +505,7 @@ const DiscographySection = () => {
       </div>
 
       {/* ALBUMS */}
-      <div>
+      <div ref={albumsRef}>
         <div className="flex items-baseline gap-3 mb-5">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
             Album Participations
@@ -498,10 +517,11 @@ const DiscographySection = () => {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
-          {ELI_ALBUMS.map((album) => (
+          {ELI_ALBUMS.map((album, idx) => (
             <article
               key={album.title}
-              className="group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors flex flex-col"
+              style={staggerStyle(idx, 100)}
+              className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 flex flex-col ${staggerClass(albumsVisible)}`}
             >
               <div className="flex items-start justify-between gap-3 mb-4">
                 <span className="px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em]">
@@ -546,6 +566,7 @@ const TheaterSection = () => {
     const d = new Date(iso);
     return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
   };
+  const { elementRef: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (
     <>
       <SectionOpener
@@ -639,13 +660,14 @@ const TheaterSection = () => {
       })()}
 
       {/* Remaining setlists — 2-col grid, each card lists every unit + note */}
-      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-        {ELI_THEATER.filter((entry) => !entry.isDebut).map((entry) => {
+      <div ref={gridRef} className="grid md:grid-cols-2 gap-4 md:gap-6">
+        {ELI_THEATER.filter((entry) => !entry.isDebut).map((entry, idx) => {
           const debut = formatDate(entry.debutDate);
           return (
             <article
               key={entry.code}
-              className="group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors"
+              style={staggerStyle(idx)}
+              className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 ${staggerClass(gridVisible)}`}
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex flex-col">
@@ -707,6 +729,8 @@ const TriviaSection = () => {
   const eli = SITE_CONFIG.eli;
   const profile = SITE_CONFIG.profile;
   const featurePhoto = profile.heroCollage[1] || eli.portrait;
+  const { elementRef: idRef, isVisible: idVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
+  const { elementRef: funRef, isVisible: funVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (
     <>
       <SectionOpener
@@ -720,9 +744,12 @@ const TriviaSection = () => {
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
           Identitas
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr">
+        <div ref={idRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr">
           {/* Feature catchphrase tile — 2x2 on lg, full-width on smaller */}
-          <div className="col-span-2 row-span-2 relative aspect-square lg:aspect-auto rounded-2xl overflow-hidden bg-[color:var(--retro-brown-dark)] group">
+          <div
+            style={staggerStyle(0)}
+            className={`col-span-2 row-span-2 relative aspect-square lg:aspect-auto rounded-2xl overflow-hidden bg-[color:var(--retro-brown-dark)] group ${staggerClass(idVisible)}`}
+          >
             <img
               src={featurePhoto}
               alt=""
@@ -740,8 +767,14 @@ const TriviaSection = () => {
               </p>
             </div>
           </div>
-          {ELI_TRIVIA.map((fact) => (
-            <TriviaCard key={fact.label} fact={fact} />
+          {ELI_TRIVIA.map((fact, idx) => (
+            <div
+              key={fact.label}
+              style={staggerStyle(idx + 1, 80)}
+              className={staggerClass(idVisible)}
+            >
+              <TriviaCard fact={fact} />
+            </div>
           ))}
         </div>
       </div>
@@ -750,9 +783,15 @@ const TriviaSection = () => {
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
           Yang Disukai
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {ELI_FUN_FACTS.map((fact) => (
-            <TriviaCard key={fact.label} fact={fact} accent />
+        <div ref={funRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {ELI_FUN_FACTS.map((fact, idx) => (
+            <div
+              key={fact.label}
+              style={staggerStyle(idx)}
+              className={staggerClass(funVisible)}
+            >
+              <TriviaCard fact={fact} accent />
+            </div>
           ))}
         </div>
       </div>
