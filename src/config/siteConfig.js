@@ -29,15 +29,51 @@ export const SITE_CONFIG = {
     fanbase: 'https://x.com/helismiley_ofc',
   },
 
-  // Navigation
+  // Navigation — items with `children` render as dropdowns. The top-level
+  // `hash` (when present alongside children) becomes the dropdown's primary
+  // landing target and the parent label remains clickable.
   navigation: {
     main: [
-      { label: 'Home', hash: 'home' },
-      { label: 'Profil Singkat', hash: 'data' },
-      { label: 'About Eli', hash: 'about-preview' },
-      { label: 'Profil Lengkap', hash: 'profile' },
-      { label: 'Archive', hash: 'gallery' },
-      { label: 'About', hash: 'about' },
+      { label: 'Home', hash: 'home', icon: 'ri-home-4-line' },
+      {
+        label: 'Profil',
+        icon: 'ri-user-3-line',
+        children: [
+          {
+            label: 'Profil Singkat',
+            hash: 'data',
+            description: 'Biodata cepat di home',
+            icon: 'ri-id-card-line',
+          },
+          {
+            label: 'About Eli',
+            hash: 'about-preview',
+            description: 'Cerita Sang Mermaid',
+            icon: 'ri-quill-pen-line',
+          },
+          {
+            label: 'Profil Lengkap',
+            hash: 'profile',
+            description: 'Timeline, diskografi, fight',
+            icon: 'ri-route-line',
+          },
+        ],
+      },
+      {
+        label: 'Archive',
+        hash: 'gallery',
+        icon: 'ri-gallery-line',
+        children: [
+          {
+            label: 'Semua Arsip',
+            hash: 'gallery',
+            description: 'Lihat seluruh frame',
+            icon: 'ri-stack-line',
+          },
+          // Era pills are appended dynamically from the gallery data
+        ],
+      },
+      { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
   },
 
