@@ -24,6 +24,7 @@ const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
 const CountdownPage = lazy(() => import('./pages/Countdown'));
+const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 // Page route mapping
 const routes = {
@@ -33,17 +34,21 @@ const routes = {
   'about': AboutPage,
   'profile': ProfilePage,
   'countdown': CountdownPage,
+  'notfound': NotFoundPage,
 };
 
 // Sub-anchors on the Profile page — clicking them must keep the user on
 // /#profile, not fall through to the empty/home route.
 const PROFILE_ANCHORS = new Set(ELI_PROFILE_SECTIONS.map((s) => s.id));
+// Sub-anchors on the Home page so they aren't routed to 404.
+const HOME_ANCHORS = new Set(['data', 'about-preview', 'gallery-preview', 'community']);
 
 const resolveRoute = (hash) => {
   if (routes[hash]) return hash;
   if (/^\d{4}$/.test(hash)) return 'gallery';
   if (PROFILE_ANCHORS.has(hash)) return 'profile';
-  return '';
+  if (HOME_ANCHORS.has(hash)) return 'home';
+  return 'notfound';
 };
 
 // Loading fallback component
