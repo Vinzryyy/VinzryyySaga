@@ -4,7 +4,7 @@
  * sections share one page so the navbar stays compact.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -516,6 +516,10 @@ const DiscographySection = () => {
   const totalAlbumTracks = ELI_ALBUMS.reduce((sum, album) => sum + album.tracks.length, 0);
   const { elementRef: singlesRef, isVisible: singlesVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   const { elementRef: albumsRef, isVisible: albumsVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
+  // Only one roster open at a time. null = all closed.
+  const [openSingleKey, setOpenSingleKey] = useState(null);
+  const toggleSingle = (key) =>
+    setOpenSingleKey((prev) => (prev === key ? null : key));
   return (
     <>
       <SectionOpener
@@ -534,51 +538,84 @@ const DiscographySection = () => {
           <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
         </div>
 
-        {confirmed.map((entry, idx) => (
-          <article
-            key={`${entry.title}-${entry.year}`}
-            style={staggerStyle(idx)}
-            className={`relative rounded-2xl border p-5 md:p-6 ${
-              entry.highlight
-                ? 'bg-[color:var(--retro-burgundy)]/5 border-[color:var(--retro-burgundy)]/30'
-                : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15'
-            } ${staggerClass(singlesVisible)}`}
-          >
-            {entry.highlight && (
-              <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
-                First Senbatsu
-              </span>
-            )}
-            <div className="grid md:grid-cols-[120px_1fr_auto] gap-4 md:gap-6 items-center">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
-                  {entry.type}
-                </p>
-                <p className="font-header text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight">
-                  {entry.year}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight">
-                  {entry.title}
-                </h3>
-                {entry.note && (
-                  <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">
-                    {entry.note}
-                  </p>
-                )}
-              </div>
-              <div className="md:text-right">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
-                  Posisi
-                </p>
-                <span className="inline-flex items-center px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-xs font-bold uppercase tracking-widest">
-                  {entry.position}
+        {confirmed.map((entry, idx) => {
+          const key = `${entry.title}-${entry.year}`;
+          const hasRoster = Boolean(entry.members);
+          const isOpen = openSingleKey === key;
+          return (
+            <article
+              key={key}
+              style={staggerStyle(idx)}
+              className={`relative rounded-2xl border p-5 md:p-6 ${
+                entry.highlight
+                  ? 'bg-[color:var(--retro-burgundy)]/5 border-[color:var(--retro-burgundy)]/30'
+                  : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15'
+              } ${staggerClass(singlesVisible)}`}
+            >
+              {entry.highlight && (
+                <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
+                  First Senbatsu
                 </span>
+              )}
+              <div className="grid md:grid-cols-[120px_1fr_auto] gap-4 md:gap-6 items-center">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+                    {entry.type}
+                  </p>
+                  <p className="font-header text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight">
+                    {entry.year}
+                  </p>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight">
+                    {entry.title}
+                  </h3>
+                  {entry.note && (
+                    <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">
+                      {entry.note}
+                    </p>
+                  )}
+                </div>
+                <div className="md:text-right">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
+                    Posisi
+                  </p>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-xs font-bold uppercase tracking-widest">
+                    {entry.position}
+                  </span>
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+              {hasRoster && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => toggleSingle(key)}
+                    aria-expanded={isOpen}
+                    aria-controls={`roster-${key}`}
+                    className="mt-4 w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[color:var(--retro-burgundy)]/[0.06] hover:bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/20 transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-burgundy)]/60"
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                      {isOpen ? `Tutup ${entry.rosterLabel}` : `Lihat ${entry.rosterLabel}`}
+                      <span className="ml-2 text-[color:var(--color-text-muted)]">
+                        · {entry.members.length} member
+                      </span>
+                    </span>
+                    <i
+                      className={`ri-arrow-down-s-line text-xl text-[color:var(--retro-burgundy)] transition-transform ${
+                        isOpen ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div id={`roster-${key}`}>
+                      <MemberRoster members={entry.members} label={entry.rosterLabel} />
+                    </div>
+                  )}
+                </>
+              )}
+            </article>
+          );
+        })}
 
         {placeholders.length > 0 && (
           <div className="mt-6 rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-burgundy)]/[0.02] p-6 md:p-8">
@@ -658,6 +695,71 @@ const DiscographySection = () => {
   );
 };
 
+const MemberRoster = ({ members, label = 'Roster' }) => {
+  const eli = members.find((m) => m.isEli);
+  const fmt = (n) => n.toLocaleString('id-ID');
+  return (
+    <div className="mt-5 pt-5 border-t border-[color:var(--retro-brown-dark)]/10">
+      <div className="flex items-baseline justify-between gap-3 mb-4">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          {label} ({members.length} member)
+        </p>
+        {eli && (
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)]">
+            Eli #{eli.rank} · {fmt(eli.votes)} votes · {eli.status}
+          </p>
+        )}
+      </div>
+      <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        {members.map((m) => (
+          <li
+            key={m.name}
+            className={`flex items-center gap-3 p-2.5 rounded-lg border ${
+              m.isEli
+                ? 'bg-[color:var(--retro-burgundy)] border-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md shadow-[color:var(--retro-burgundy)]/20'
+                : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/10'
+            }`}
+          >
+            <span
+              className={`flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-black tabular-nums ${
+                m.isEli
+                  ? 'bg-[color:var(--retro-cream)]/20 text-[color:var(--retro-cream)]'
+                  : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
+              }`}
+            >
+              {String(m.rank).padStart(2, '0')}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className={`text-xs font-bold leading-tight truncate ${m.isEli ? '' : 'text-[color:var(--retro-text-primary)]'}`}>
+                {m.name}
+              </p>
+              <p className={`text-[9px] font-black uppercase tracking-[0.25em] mt-0.5 ${
+                m.isEli ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--color-text-muted)]'
+              }`}>
+                {m.group} · {fmt(m.votes)}
+                {m.position ? ` · ${m.position}` : ''}
+              </p>
+            </div>
+            <span
+              className={`flex-shrink-0 text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded ${
+                m.status === 'NEW'
+                  ? m.isEli
+                    ? 'bg-[color:var(--retro-cream)]/15 text-[color:var(--retro-cream)]'
+                    : 'bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]'
+                  : m.isEli
+                    ? 'bg-[color:var(--retro-cream)]/15 text-[color:var(--retro-cream)]'
+                    : 'bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--color-text-muted)]'
+              }`}
+            >
+              {m.status}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
 const TheaterSection = () => {
   const formatDate = (iso) => {
     if (!iso) return null;
@@ -665,6 +767,21 @@ const TheaterSection = () => {
     return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
   };
   const { elementRef: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
+
+  // Spotlight defaults to the debut entry. Clicking a card in "Setlist Lainnya"
+  // sets activeCode to swap that entry into the spotlight; clicking the same
+  // card again toggles activeCode back to null and the debut returns.
+  const debutEntry = ELI_THEATER.find((entry) => entry.isDebut) || ELI_THEATER[0];
+  const [activeCode, setActiveCode] = useState(null);
+  const feature =
+    (activeCode && ELI_THEATER.find((e) => e.code === activeCode)) || debutEntry;
+  const isDebutFeature = feature.code === debutEntry.code;
+  const handleSelectCard = (code) => {
+    setActiveCode((prev) => (prev === code ? null : code));
+  };
+
+  const debut = formatDate(feature.debutDate);
+
   return (
     <>
       <SectionOpener
@@ -674,202 +791,129 @@ const TheaterSection = () => {
         kicker={`${ELI_THEATER.length} setlists tracked`}
       />
 
-      {/* Debut feature card — first setlist marked isDebut gets a full-width spotlight */}
-      {(() => {
-        const feature = ELI_THEATER.find((entry) => entry.isDebut) || ELI_THEATER[0];
-        const debut = formatDate(feature.debutDate);
-        return (
-          <article className="relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-6 md:mb-8">
-            <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
-            <div className="relative grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <span className="px-3 py-1 rounded-full bg-[color:var(--retro-gold-light)]/20 text-[color:var(--retro-gold-light)] text-[9px] font-black uppercase tracking-[0.4em]">
-                    Stage Debut
-                  </span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
-                    {feature.team} · {feature.code}
-                  </span>
-                </div>
-                <h3 className="font-header text-3xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
-                  {feature.setlist}
-                </h3>
-                {feature.note && (
-                  <p className="text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
-                    {feature.note}
-                  </p>
-                )}
-                {feature.units.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-[color:var(--retro-cream)]/10">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-3">
-                      Unit Songs Eli
-                    </p>
-                    <ul className="space-y-2">
-                      {feature.units.map((unit) => (
-                        <li
-                          key={unit.song}
-                          className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
-                        >
-                          <span className="flex items-center gap-2 font-bold">
-                            <i className="ri-music-fill text-[color:var(--retro-gold-light)]" />
-                            {unit.song}
-                          </span>
-                          {unit.note && (
-                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/50">
-                              {unit.note}
-                            </span>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-              <aside className="space-y-3">
-                {debut && (
-                  <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                      Tanggal Debut
-                    </p>
-                    <p className="font-header text-xl font-black leading-tight">{debut}</p>
-                  </div>
-                )}
-                <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                    Status
-                  </p>
-                  <p className="font-header text-xl font-black leading-tight">Setlist Pertama</p>
-                  <p className="text-xs text-[color:var(--retro-cream)]/60 mt-1">
-                    Titik nol panggung Eli di JKT48.
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                    Total Setlist
-                  </p>
-                  <p className="font-header text-xl font-black leading-tight">
-                    {ELI_THEATER.length} <span className="text-sm text-[color:var(--retro-cream)]/60 font-bold">stages</span>
-                  </p>
-                </div>
-              </aside>
+      {/* Spotlight — defaults to Stage Debut, swapped by clicking another card */}
+      <article
+        key={feature.code}
+        className="relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-6 md:mb-8 transition-opacity duration-300"
+      >
+        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+        <div className="relative grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span className="px-3 py-1 rounded-full bg-[color:var(--retro-gold-light)]/20 text-[color:var(--retro-gold-light)] text-[9px] font-black uppercase tracking-[0.4em]">
+                {isDebutFeature ? 'Stage Debut' : 'Setlist'}
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                {feature.team} · {feature.code}
+              </span>
+              {!isDebutFeature && (
+                <button
+                  type="button"
+                  onClick={() => setActiveCode(null)}
+                  className="ml-auto inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 hover:text-[color:var(--retro-cream)] transition-colors"
+                >
+                  <i className="ri-arrow-go-back-line" />
+                  Kembali ke Stage Debut
+                </button>
+              )}
             </div>
-          </article>
-        );
-      })()}
+            <h3 className="font-header text-3xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
+              {feature.setlist}
+            </h3>
+            {feature.note && (
+              <p className="text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
+                {feature.note}
+              </p>
+            )}
+            {feature.units.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-[color:var(--retro-cream)]/10">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-3">
+                  Unit Songs Eli
+                </p>
+                <ul className="space-y-2">
+                  {feature.units.map((unit) => (
+                    <li
+                      key={unit.song}
+                      className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
+                    >
+                      <span className="flex items-center gap-2 font-bold">
+                        <i className="ri-music-fill text-[color:var(--retro-gold-light)]" />
+                        {unit.song}
+                      </span>
+                      {unit.note && (
+                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/50">
+                          {unit.note}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          <aside className="space-y-3">
+            {debut && (
+              <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                  Tanggal Debut
+                </p>
+                <p className="font-header text-xl font-black leading-tight">{debut}</p>
+              </div>
+            )}
+            <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                Status
+              </p>
+              <p className="font-header text-xl font-black leading-tight">
+                {isDebutFeature ? 'Setlist Pertama' : 'Setlist Aktif'}
+              </p>
+              <p className="text-xs text-[color:var(--retro-cream)]/60 mt-1">
+                {isDebutFeature
+                  ? 'Titik nol panggung Eli di JKT48.'
+                  : 'Klik kembali kartu yang sama untuk kembali ke Stage Debut.'}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
+                Total Setlist
+              </p>
+              <p className="font-header text-xl font-black leading-tight">
+                {ELI_THEATER.length} <span className="text-sm text-[color:var(--retro-cream)]/60 font-bold">stages</span>
+              </p>
+            </div>
+          </aside>
+        </div>
+      </article>
 
       <RemainingTheaters
         formatDate={formatDate}
         gridRef={gridRef}
         gridVisible={gridVisible}
+        activeCode={activeCode}
+        onSelect={handleSelectCard}
       />
     </>
   );
 };
 
-// Renders the non-debut setlists. On lg+ with motion OK, GSAP ScrollTrigger
-// pins the section and translates the card track horizontally as the user
-// scrolls down. On smaller screens / reduced motion / GSAP load failure, falls
-// back to the original 2-col grid.
-const RemainingTheaters = ({ formatDate, gridRef, gridVisible }) => {
+// Renders the non-debut setlists as a responsive grid. Click a card to
+// swap its detail into the spotlight at the top of TheaterSection.
+const RemainingTheaters = ({ formatDate, gridRef, gridVisible, activeCode, onSelect }) => {
   const remaining = ELI_THEATER.filter((entry) => !entry.isDebut);
-
-  const initialPin =
-    typeof window !== 'undefined' &&
-    window.matchMedia &&
-    window.matchMedia('(min-width: 1024px)').matches &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  const [pinActive, setPinActive] = useState(initialPin);
-  const pinSectionRef = useRef(null);
-  const pinTrackRef = useRef(null);
-
-  useEffect(() => {
-    if (!pinActive || !pinSectionRef.current || !pinTrackRef.current) return undefined;
-
-    let st;
-    let tween;
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
-          import('gsap'),
-          import('gsap/ScrollTrigger'),
-        ]);
-        if (cancelled || !pinSectionRef.current || !pinTrackRef.current) return;
-        gsap.registerPlugin(ScrollTrigger);
-
-        // distance uses the pin section's actual visible width (clientWidth)
-        // not window.innerWidth — the section is constrained by max-w-7xl + padding,
-        // so innerWidth would over-report the visible window and leave the last
-        // cards unreachable.
-        const distance = () =>
-          Math.max(
-            0,
-            pinTrackRef.current.scrollWidth - pinSectionRef.current.clientWidth
-          );
-
-        tween = gsap.to(pinTrackRef.current, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: pinSectionRef.current,
-            // start below the sticky TOC (sub-nav sits at ~140px when visible)
-            start: 'top top+=140',
-            end: () => `+=${distance()}`,
-            scrub: 0.6,
-            pin: true,
-            // pinType: 'transform' is required when an ancestor has a CSS transform
-            // (Section's inner reveal wrapper does), otherwise position:fixed pin
-            // breaks and the cards just sit there while page scrolls past.
-            pinType: 'transform',
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-        st = tween.scrollTrigger;
-      } catch {
-        if (!cancelled) setPinActive(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-      if (st) st.kill();
-      if (tween) tween.kill();
-    };
-  }, [pinActive]);
 
   return (
     <>
-      {/* lg+ horizontal pinned scroll — only mounted when pinActive */}
-      {pinActive && (
-        <div ref={pinSectionRef} className="hidden lg:block relative overflow-hidden -mx-4 md:-mx-6 lg:-mx-8">
-          <div className="flex items-baseline justify-between mb-6 px-4 md:px-6 lg:px-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-              Setlist Lainnya
-            </p>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-              Scroll ke bawah · cards bergeser horizontal
-            </p>
-          </div>
-          <div ref={pinTrackRef} className="flex gap-6 will-change-transform pl-4 md:pl-6 lg:pl-8 pr-8">
-            {remaining.map((entry) => (
-              <TheaterCard
-                key={`pin-${entry.code}`}
-                entry={entry}
-                formatDate={formatDate}
-                pinned
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Grid fallback — smaller screens always, lg also when pin is off */}
+      <div className="flex items-baseline justify-between mb-6">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          Setlist Lainnya
+        </p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+          Klik kartu · tampil di spotlight
+        </p>
+      </div>
       <div
         ref={gridRef}
-        className={`grid md:grid-cols-2 gap-4 md:gap-6 ${pinActive ? 'lg:hidden' : ''}`}
+        className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
       >
         {remaining.map((entry, idx) => (
           <div
@@ -877,7 +921,12 @@ const RemainingTheaters = ({ formatDate, gridRef, gridVisible }) => {
             style={staggerStyle(idx)}
             className={staggerClass(gridVisible)}
           >
-            <TheaterCard entry={entry} formatDate={formatDate} />
+            <TheaterCard
+              entry={entry}
+              formatDate={formatDate}
+              isActive={activeCode === entry.code}
+              onSelect={onSelect}
+            />
           </div>
         ))}
       </div>
@@ -885,14 +934,37 @@ const RemainingTheaters = ({ formatDate, gridRef, gridVisible }) => {
   );
 };
 
-const TheaterCard = ({ entry, formatDate, pinned = false }) => {
+const TheaterCard = ({ entry, formatDate, isActive = false, onSelect }) => {
   const debut = formatDate(entry.debutDate);
+  const interactive = typeof onSelect === 'function';
+  const handleClick = () => {
+    if (!interactive) return;
+    onSelect(entry.code);
+  };
   return (
     <article
-      className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 transition-colors ${
-        pinned ? 'flex-shrink-0 w-[340px] xl:w-[380px]' : ''
-      }`}
+      role={interactive ? 'button' : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onClick={handleClick}
+      onKeyDown={(e) => {
+        if (!interactive) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      aria-pressed={interactive ? isActive : undefined}
+      className={`group relative rounded-2xl border p-6 transition-all h-full ${
+        isActive
+          ? 'bg-[color:var(--retro-burgundy)]/10 border-[color:var(--retro-burgundy)] shadow-md shadow-[color:var(--retro-burgundy)]/15'
+          : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40'
+      } ${interactive ? 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-burgundy)]/60' : ''}`}
     >
+      {isActive && (
+        <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
+          On Spotlight
+        </span>
+      )}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex flex-col">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
@@ -940,6 +1012,11 @@ const TheaterCard = ({ entry, formatDate, pinned = false }) => {
             ))}
           </ul>
         </div>
+      )}
+      {interactive && (
+        <p className="mt-4 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70">
+          {isActive ? 'Klik lagi · kembali ke Stage Debut' : 'Klik · tampilkan di spotlight'}
+        </p>
       )}
     </article>
   );

@@ -93,14 +93,71 @@ export const ELI_TIMELINE = [
   },
 ];
 
+// Roster member shape (shared by Rapsodi Senbatsu + 2026 Undergirls):
+//   rank, name, group, votes, status, position?, isEli?
+// `status` shows rank movement (▲N up, ▼N down, NEW = first time in
+// that bracket); `position` is reserved for designations like
+// "Senbatsu Center" / "Undergirls Center".
+
+// Senbatsu hasil Pemilihan Member Single Original JKT48 untuk single
+// "Rapsodi" (2020) — 16 member. Eli (Helisma Putri) menempati posisi
+// 15 dengan 15.842 suara, menjadikannya Senbatsu pertama Eli.
+const SOUSENKYO_RAPSODI = [
+  { rank: 1, name: 'Shani Indira Natio', group: 'Team KIII', votes: 72707, status: '▲1', position: 'Senbatsu Center' },
+  { rank: 2, name: 'Feni Fitriyanti', group: 'Team J', votes: 44434, status: '▲2' },
+  { rank: 3, name: 'Riska Amelia Putri', group: 'Team J', votes: 31367, status: 'NEW' },
+  { rank: 4, name: 'Nurhayati', group: 'Team KIII', votes: 28440, status: '▲1' },
+  { rank: 5, name: 'Nadila Cindi Wantari', group: 'Team J', votes: 24798, status: '▲18' },
+  { rank: 6, name: 'Gabryela Marcelina', group: 'Team T', votes: 23404, status: '▲10' },
+  { rank: 7, name: 'Cindy Hapsari Maharani Pujiantoro Putri', group: 'Team J', votes: 22525, status: '▲20' },
+  { rank: 8, name: 'Beby Chaesara Anadila', group: 'Team KIII', votes: 21792, status: '▲3' },
+  { rank: 9, name: 'Tan Zhi Hui Celine', group: 'Team T', votes: 21350, status: '▲13' },
+  { rank: 10, name: 'Shania Gracia', group: 'Team KIII', votes: 20601, status: '▼2' },
+  { rank: 11, name: 'Melati Putri Rahel Sesilia', group: 'Team T', votes: 19342, status: '▲9' },
+  { rank: 12, name: 'Jinan Safa Safira', group: 'Team T', votes: 18064, status: '▲2' },
+  { rank: 13, name: 'Angelina Christy', group: 'Team KIII', votes: 17477, status: 'NEW' },
+  { rank: 14, name: 'Diani Amalia Ramadhani', group: 'Team J', votes: 15951, status: 'NEW' },
+  { rank: 15, name: 'Helisma Putri', group: 'Team KIII', votes: 15842, status: 'NEW', isEli: true },
+  { rank: 16, name: 'Viona Fadrin', group: 'Academy Class A', votes: 14566, status: 'NEW' },
+];
+
+// Undergirls JKT48 Sousenkyo 2026 — rank 13–24 (Senbatsu mengisi 1–12).
+// Eli (Helisma Putri) di rank 22 dengan 28.925 suara, turun 7 peringkat
+// dari Sousenkyo Rapsodi (rank 15).
+const SOUSENKYO_2026_UNDERGIRLS = [
+  { rank: 13, name: 'Indah Cahya', group: 'JKT48', votes: 45716, status: 'NEW', position: 'Undergirls Center' },
+  { rank: 14, name: 'Febriola Sinambela', group: 'JKT48', votes: 45028, status: 'NEW' },
+  { rank: 15, name: 'Aurhel Alana', group: 'Trainee', votes: 42213, status: 'NEW' },
+  { rank: 16, name: 'Indira Seruni', group: 'JKT48', votes: 39086, status: 'NEW' },
+  { rank: 17, name: 'Grace Octaviani', group: 'JKT48', votes: 38029, status: 'NEW' },
+  { rank: 18, name: 'Catherina Vallencia', group: 'Trainee', votes: 37957, status: 'NEW' },
+  { rank: 19, name: 'Kathrina Irene', group: 'JKT48', votes: 34359, status: 'NEW' },
+  { rank: 20, name: 'Cathleen Nixie', group: 'JKT48', votes: 34080, status: 'NEW' },
+  { rank: 21, name: 'Greesella Adhalia', group: 'JKT48', votes: 33241, status: 'NEW' },
+  { rank: 22, name: 'Helisma Putri', group: 'JKT48', votes: 28925, status: '▼7', isEli: true },
+  { rank: 23, name: 'Gabriela Abigail', group: 'JKT48', votes: 28172, status: 'NEW' },
+  { rank: 24, name: 'Adeline Wijaya', group: 'Trainee', votes: 26947, status: 'NEW' },
+];
+
 export const ELI_DISCOGRAPHY = [
   {
     title: 'Rapsodi',
     type: 'Single',
     year: '2020',
     position: 'Senbatsu',
-    note: 'Senbatsu pertama Eli.',
+    note: 'Senbatsu pertama Eli — hasil Pemilihan Member Single Original JKT48, posisi 15 dengan 15.842 suara.',
     highlight: true,
+    rosterLabel: 'Senbatsu Roster',
+    members: SOUSENKYO_RAPSODI,
+  },
+  {
+    title: 'Bibir yang Telah Dicuri (Nusumareta Kuchibiru)',
+    type: 'Single',
+    year: '2026',
+    position: 'Undergirls',
+    note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo Rapsodi.',
+    rosterLabel: 'Undergirls Roster',
+    members: SOUSENKYO_2026_UNDERGIRLS,
   },
   // Single JKT48 lainnya yang melibatkan Eli akan ditambah seiring data
   // posisi per single terverifikasi.
