@@ -125,7 +125,7 @@ export const SITE_CONFIG = {
     origin: 'Bandung',
     catchphrase:
       'Bagai sinar senja yang hangat, dengan energiku yang ceria, aku akan menghangatkan suasana. Halo halo, aku Ceu Eli!',
-    portrait: '/archive/img-000.jpg',
+    portrait: '/archive/img-364.jpg',
   },
 
   // Home Page (corsyava-style flow)
@@ -155,7 +155,7 @@ export const SITE_CONFIG = {
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
-      portrait: '/archive/img-000.jpg',
+      portrait: '/archive/img-142.jpg',
       portraitAlt: 'Helisma Putri (Eli JKT48)',
     },
     gallery: {
