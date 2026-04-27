@@ -41,46 +41,117 @@ const ProfilePage = () => {
     return () => observer.disconnect();
   }, []);
 
+  const profile = SITE_CONFIG.profile;
+
   return (
     <main className="bg-[color:var(--retro-bg-primary)]">
-      {/* Page header */}
-      <header className="relative pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-16 lg:px-24 border-b border-[color:var(--retro-brown-dark)]/15">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-            Profil Lengkap
-          </p>
-          <h1 className="font-header text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
-            Arsip Eli, <br className="md:hidden" />
-            <span className="text-[color:var(--retro-burgundy)]">Bab demi Bab.</span>
-          </h1>
-          <p className="mt-6 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
-            Riwayat karier {eli.stageName}, partisipasi single, setlist teater, posisinya di JKT48 Fight 2026, sampai trivia ringan — semua dirangkum dalam satu tempat.
-          </p>
+      {/* Editorial hero — title block left, layered portrait collage right */}
+      <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
+        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/8 blur-3xl pointer-events-none" />
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
+          <div className="lg:col-span-7">
+            {/* Magazine issue plate */}
+            <div className="flex items-center gap-3 mb-6 text-[color:var(--retro-burgundy)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]">{profile.issue}</span>
+              <span className="w-10 h-px bg-[color:var(--retro-burgundy)]/30" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">{profile.edition}</span>
+            </div>
+
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+              {profile.eyebrow}
+            </p>
+            <h1 className="font-header text-5xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.9]">
+              {profile.title}
+              <br />
+              <span className="text-[color:var(--retro-burgundy)]">{profile.titleAccent}</span>
+            </h1>
+            <p className="mt-8 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+              {profile.lead.replace('Eli', eli.stageName)}
+            </p>
+
+            {/* Stat strip */}
+            <dl className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
+              {profile.quickStats.map((stat) => (
+                <div key={stat.label} className="border-l-2 border-[color:var(--retro-burgundy)] pl-3">
+                  <dd className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight">
+                    {stat.value}
+                  </dd>
+                  <dt className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)] mt-1">
+                    {stat.label}
+                  </dt>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          {/* Portrait collage — three frames stacked + offset for depth */}
+          <div className="lg:col-span-5 relative h-[420px] sm:h-[520px] lg:h-[600px] hidden md:block">
+            {profile.heroCollage[0] && (
+              <div className="absolute top-0 right-12 w-[55%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl rotate-[-3deg] z-10">
+                <img src={profile.heroCollage[0]} alt="" loading="lazy" className="w-full h-full object-cover" />
+              </div>
+            )}
+            {profile.heroCollage[1] && (
+              <div className="absolute top-32 left-0 w-[50%] aspect-[3/4] rounded-sm overflow-hidden shadow-2xl rotate-[2deg] z-20">
+                <img src={profile.heroCollage[1]} alt="" loading="lazy" className="w-full h-full object-cover" />
+              </div>
+            )}
+            {profile.heroCollage[2] && (
+              <div className="absolute bottom-0 right-0 w-[45%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl rotate-[-1deg] z-10">
+                <img src={profile.heroCollage[2]} alt="" loading="lazy" className="w-full h-full object-cover" />
+              </div>
+            )}
+            {/* Decorative tag */}
+            <div className="absolute bottom-2 left-4 z-30 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.4em] shadow-lg">
+              Helisma · 2018 — 2026
+            </div>
+          </div>
+
+          {/* Mobile portrait — single image strip */}
+          {profile.heroCollage[0] && (
+            <div className="md:hidden relative aspect-[16/10] -mx-6 overflow-hidden">
+              <img src={profile.heroCollage[0]} alt="" loading="lazy" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 to-transparent" />
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Sticky sub-navigation */}
-      <nav className="sticky top-20 z-30 bg-[color:var(--retro-bg-primary)]/85 backdrop-blur-md border-b border-[color:var(--retro-brown-dark)]/10">
-        <div className="max-w-5xl mx-auto px-6 md:px-16 lg:px-24 overflow-x-auto">
+      {/* Sticky sub-navigation — TOC with section numbers */}
+      <nav className="sticky top-20 z-30 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 lg:px-20 overflow-x-auto">
           <ul className="flex items-center gap-1 py-3 min-w-max">
-            {ELI_PROFILE_SECTIONS.map((section) => (
-              <li key={section.id}>
-                <a
-                  href={`#${section.id}`}
-                  className={`
-                    inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.25em] transition-all
-                    ${
-                      activeSection === section.id
-                        ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md'
-                        : 'text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/5'
-                    }
-                  `}
-                >
-                  <i className={`${section.icon} text-base`} />
-                  {section.label}
-                </a>
-              </li>
-            ))}
+            <li className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] pr-3 hidden md:block">
+              Table of Contents
+            </li>
+            {ELI_PROFILE_SECTIONS.map((section, idx) => {
+              const isActive = activeSection === section.id;
+              return (
+                <li key={section.id}>
+                  <a
+                    href={`#${section.id}`}
+                    className={`
+                      inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.22em] transition-all
+                      ${
+                        isActive
+                          ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md'
+                          : 'text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/5'
+                      }
+                    `}
+                  >
+                    <span
+                      className={`text-[9px] font-black ${
+                        isActive ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--retro-burgundy)]/60'
+                      }`}
+                    >
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <i className={`${section.icon} text-base`} />
+                    <span>{section.label}</span>
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>

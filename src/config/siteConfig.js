@@ -230,6 +230,28 @@ export const SITE_CONFIG = {
     },
   },
 
+  // Profil Lengkap (multi-section profile page)
+  profile: {
+    issue: 'Issue No. 01',
+    edition: 'JKT48 Fight 2026 Edition',
+    eyebrow: 'Profil Lengkap',
+    title: 'Arsip Eli,',
+    titleAccent: 'Bab demi Bab.',
+    lead:
+      'Riwayat karier Eli, partisipasi single, setlist teater, posisinya di JKT48 Fight 2026, sampai trivia ringan — semua dirangkum dalam satu tempat.',
+    heroCollage: [
+      '/archive/img-310.jpg',
+      '/archive/img-142.jpg',
+      '/archive/img-211.jpg',
+    ],
+    quickStats: [
+      { label: 'Generasi', value: '7' },
+      { label: 'Karier Aktif', value: '6+ Tahun' },
+      { label: 'Team', value: 'Dream' },
+      { label: 'Frame Arsip', value: '350+' },
+    ],
+  },
+
   // About Page Content
   about: {
     bio: {
