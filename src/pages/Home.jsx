@@ -199,51 +199,75 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
           shows a number/divider/frame-count strip, the highlight title +
           subtitle, then a horizontal swipe strip of all the frames at
           full quality (snap-mandatory so each photo lands centered).
-          No hover/tap interaction needed — everything in normal flow. */}
-      <div className="lg:hidden space-y-12 md:space-y-16">
+          Per-card scroll-reveal stagger: header -> title -> each frame
+          in turn, so the card feels like it composes itself as it
+          enters the viewport. */}
+      <div className="lg:hidden space-y-14 md:space-y-20">
         <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] text-center">
           {title}
         </p>
         {highlights.map((h, hIdx) => (
-          <article key={h.title}>
-            <div className="flex items-baseline gap-3 mb-3">
-              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 tabular-nums">
-                {String(hIdx + 1).padStart(2, '0')}
-              </span>
-              <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/15" />
-              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
-                {h.frames.length} frame · swipe →
-              </span>
-            </div>
-            <div className="mb-5">
-              <h3 className="font-header text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[1.02]">
-                {h.title}
-              </h3>
-              {h.subtitle && (
-                <p className="mt-2 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
-                  {h.subtitle}
-                </p>
-              )}
-            </div>
-            <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 sm:-mx-6 md:-mx-12 px-4 sm:px-6 md:px-12">
-              {h.frames.map((frame, fIdx) => (
-                <div
-                  key={fIdx}
-                  className="flex-shrink-0 w-[220px] sm:w-[260px] md:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden shadow-md shadow-[color:var(--retro-brown-dark)]/15 snap-start bg-[color:var(--retro-brown-dark)]/10"
-                >
-                  <img
-                    src={frame}
-                    alt=""
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </article>
+          <HighlightMobileCard key={h.title} highlight={h} index={hIdx} />
         ))}
       </div>
     </div>
+  );
+};
+
+// Mobile/tablet card — its own scroll-reveal so each card animates in
+// individually as the user scrolls instead of all at once.
+const HighlightMobileCard = ({ highlight, index }) => {
+  const { elementRef, isVisible } = useScrollReveal({
+    threshold: 0.15,
+    triggerOnce: true,
+    rootMargin: '-40px',
+  });
+  const h = highlight;
+
+  return (
+    <article ref={elementRef}>
+      <div
+        style={staggerStyle(0)}
+        className={`flex items-baseline gap-3 mb-3 ${staggerClass(isVisible)}`}
+      >
+        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 tabular-nums">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/15" />
+        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          {h.frames.length} frame · swipe →
+        </span>
+      </div>
+      <div
+        style={staggerStyle(1, 60)}
+        className={`mb-5 ${staggerClass(isVisible)}`}
+      >
+        <h3 className="font-header text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[1.02]">
+          {h.title}
+        </h3>
+        {h.subtitle && (
+          <p className="mt-2 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+            {h.subtitle}
+          </p>
+        )}
+      </div>
+      <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 sm:-mx-6 md:-mx-12 px-4 sm:px-6 md:px-12">
+        {h.frames.map((frame, fIdx) => (
+          <div
+            key={fIdx}
+            style={staggerStyle(fIdx + 2, 100)}
+            className={`flex-shrink-0 w-[220px] sm:w-[260px] md:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden shadow-md shadow-[color:var(--retro-brown-dark)]/15 snap-start bg-[color:var(--retro-brown-dark)]/10 ${staggerClass(isVisible)}`}
+          >
+            <img
+              src={frame}
+              alt=""
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+    </article>
   );
 };
 
