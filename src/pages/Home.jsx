@@ -448,14 +448,16 @@ const HomePage = () => {
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-          {/* Portrait close-up */}
+          {/* Portrait close-up — object-top biases the crop so Eli's face
+              (upper-15% of the source frame) stays in view as the parallax
+              + scale(1.06) move things around. */}
           <div className="lg:col-span-5 relative">
             <div className="relative aspect-[3/4] rounded-sm overflow-hidden">
               <img
                 src={eli.portrait}
                 alt={about.portraitAlt}
                 style={{ transform: `translate3d(0, ${dataPortraitOffset}px, 0) scale(1.06)` }}
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-1000 will-change-transform"
+                className="w-full h-full object-cover object-top grayscale hover:grayscale-0 transition-[filter] duration-1000 will-change-transform"
                 loading="lazy"
               />
             </div>
