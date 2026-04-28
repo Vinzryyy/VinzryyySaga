@@ -264,7 +264,7 @@ export const ELI_THEATER = [
     setlist: 'Renai Kinshi Jourei',
     team: 'JKT All Teams',
     debutDate: null,
-    note: 'Setlist original JKT48 perdana yang melibatkan semua tim.',
+    note: 'Setlist adaptasi pertama yang melibatkan semua tim JKT48.',
     units: [
       { song: 'Manatsu no Christmas Rose' },
     ],
@@ -274,7 +274,7 @@ export const ELI_THEATER = [
     setlist: 'Seishun Girls',
     team: 'JKT All Teams',
     debutDate: null,
-    note: 'Setlist original JKT48 kedua.',
+    note: 'Setlist adaptasi kedua, melibatkan semua tim JKT48.',
     units: [
       { song: 'Blue Rose' },
       { song: 'Fushidara na Natsu' },
@@ -285,7 +285,7 @@ export const ELI_THEATER = [
     setlist: 'Seifuku no Me',
     team: 'JKT All Teams',
     debutDate: null,
-    note: 'Setlist original JKT48 ketiga.',
+    note: 'Setlist adaptasi ketiga, melibatkan semua tim JKT48.',
     units: [
       { song: 'Onna no Ko no Dairokkan' },
       { song: 'Kareha no Station', note: 'Swap' },
@@ -296,7 +296,7 @@ export const ELI_THEATER = [
     setlist: 'Ramune no Nomikata',
     team: 'JKT All Teams',
     debutDate: null,
-    note: 'Setlist original JKT48 keempat — meminjam judul Ramune no Nomikata.',
+    note: 'Setlist adaptasi keempat — meminjam judul Ramune no Nomikata.',
     status: 'active',
     units: [
       { song: 'Nice to meet you!' },
@@ -318,7 +318,8 @@ export const ELI_THEATER = [
     setlist: 'Te wo Tsunaginagara',
     team: 'Team Dream',
     debutDate: null,
-    note: 'Revival "Te wo Tsunaginagara" yang dibawakan Team Dream — kembali membawakan setlist klasik di era JKT48 Fight 2026.',
+    note: 'Revival "Te wo Tsunaginagara" yang dibawakan Team Dream.',
+    status: 'active',
     units: [
       { song: 'Ame No Pianist', note: 'Unit Song' },
       { song: 'Innocent' },
