@@ -68,9 +68,9 @@ export const ELI_TIMELINE = [
     id: 'three-team-announce',
     date: '2025-12-20',
     period: '20 Desember 2025',
-    title: 'Pengumuman Sistem 3 Tim',
+    title: 'Pengumuman Sistem 3 Tim & Tagline Fight',
     body:
-      'Manajemen JKT48 mengumumkan sistem tiga tim baru: Team Love, Team Dream, Team Passion. Susunan member baru disampaikan ke publik.',
+      'Di ICE BSD, JKT48 mengumumkan rencana kembalinya sistem tim dengan tiga formasi baru: Team Passion, Team Dream, dan Team Love. Pengumuman ini sekaligus memperkenalkan tagline baru "JKT48 Fight".',
     badge: 'Reshuffle',
   },
   {
