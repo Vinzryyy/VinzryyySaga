@@ -287,22 +287,12 @@ export const SITE_CONFIG = {
   about: {
     hero: {
       eyebrow: 'Tentang Proyek',
-      kicker: 'Independent Visual Archive · Sejak 2018',
       title: 'Tentang',
       titleAccent: 'Armeniaca.',
       lead:
-        'Arsip visual independen yang merawat perjalanan Eli JKT48 — dari panggung pertama Generasi 7 hingga era Team Dream di JKT48 Fight 2026.',
-      paragraphs: [
-        'Armeniaca adalah arsip visual independen yang berdedikasi untuk Helisma Putri — member JKT48 yang akrab disapa Eli atau Ceu Eli. Setiap frame di sini bukan repost otomatis: dipilih, dilabeli, dan disusun manual agar cerita panjangnya tetap utuh di satu tempat.',
-        'Proyek ini berdiri seiring Eli aktif di JKT48 dan terus mengikuti perjalanannya: debut bersama Team T (Desember 2018), transfer ke Team KIII (Juli 2019), transisi ke JKT48 New Era (Maret 2021), hingga bergabung di Team Dream pada format JKT48 Fight 2026.',
-      ],
+        'Arsip visual independen untuk Helisma Putri (Eli JKT48).',
       portrait: '/archive/img-070.jpg',
       portraitAlt: 'Helisma Putri (Eli JKT48)',
-      stats: [
-        { label: 'Frame Diarsipkan', value: '350+' },
-        { label: 'Sejak', value: '2018' },
-        { label: 'Sumber Utama', value: '@armeniaca15' },
-      ],
     },
     etymology: {
       eyebrow: 'Tema & Simbolisme',
@@ -359,74 +349,11 @@ export const SITE_CONFIG = {
         { name: 'Brown Dark', cssVar: 'var(--retro-brown-dark)', hex: '#5C4A3A' },
       ],
     },
-    pillars: {
-      eyebrow: 'Cara Kerja',
-      title: 'Tiga Pilar Armeniaca.',
-      lead:
-        'Sederhana, tapi konsisten. Ketiga prinsip ini yang membuat arsip ini berdiri sebagai dokumentasi, bukan timeline.',
-      items: [
-        {
-          icon: 'ri-magic-line',
-          title: 'Kurasi Manual',
-          body: 'Setiap frame dipilih dan dilabeli secara manual — bukan crawler atau auto-repost. Konteks (era, panggung, tanggal) ikut masuk supaya nanti gampang dilacak.',
-        },
-        {
-          icon: 'ri-history-line',
-          title: 'Kontinuitas Cerita',
-          body: 'Tujuan Armeniaca bukan kuantitas, melainkan menjaga cerita panjang Eli tetap utuh di satu tempat yang stabil — dari panggung pertama sampai era yang sedang berjalan.',
-        },
-        {
-          icon: 'ri-team-line',
-          title: 'Berdampingan, Bukan Pengganti',
-          body: 'Helismiley adalah fanbase resmi. Armeniaca berdiri berdampingan, fokus pada dokumentasi visual jangka panjang — saling melengkapi, bukan berebut.',
-        },
-      ],
-    },
-    sources: {
-      eyebrow: 'Sumber & Atribusi',
-      title: 'Dari mana foto-fotonya?',
-      lead:
-        'Mayoritas frame berasal dari satu sumber primer, dilengkapi dokumentasi pribadi dan kontribusi komunitas dengan kredit.',
-      items: [
-        {
-          icon: 'ri-twitter-x-line',
-          platform: '@armeniaca15 di X',
-          description:
-            'Sumber utama. Dokumentasi rutin dari panggung, event, dan momen Eli yang dipublikasikan publik di akun X Armeniaca.',
-          url: 'https://x.com/armeniaca15',
-        },
-        {
-          icon: 'ri-camera-3-line',
-          platform: 'Dokumentasi Pribadi',
-          description:
-            'Frame yang diambil langsung saat menghadiri theater, handshake, atau event resmi JKT48.',
-        },
-        {
-          icon: 'ri-group-line',
-          platform: 'Courtesy Komunitas',
-          description:
-            'Beberapa frame berasal dari penggemar lain yang berbagi dokumentasinya, ditampilkan dengan kredit.',
-        },
-      ],
-      note:
-        'Semua frame digunakan untuk kepentingan dokumentasi penggemar non-komersial. Hak cipta tetap pada fotografer asli — jika ada keberatan terhadap frame tertentu, hubungi @armeniaca15 dan frame akan ditarik.',
-    },
     philosophy: {
       eyebrow: 'Filosofi',
       quote:
         'Setiap panggung Eli adalah momen yang sekejap. Tugas Armeniaca adalah memastikan cahaya itu tetap terjaga di dalam frame, bahkan setelah lampu studio dimatikan.',
       author: 'Armeniaca',
-    },
-    cta: {
-      eyebrow: 'Mulai Jelajah',
-      title: 'Lanjut ke arsip.',
-      lead:
-        'Sudah cukup membaca? Buka frame-frame yang sudah dikurasi, atau telusuri profil lengkap Eli.',
-      items: [
-        { label: 'Buka Arsip Lengkap', to: '/gallery', icon: 'ri-gallery-line', primary: true },
-        { label: 'Profil Eli', to: '/profile', icon: 'ri-user-3-line' },
-        { label: '@armeniaca15 di X', to: 'https://x.com/armeniaca15', icon: 'ri-twitter-x-line', external: true },
-      ],
     },
   },
 
