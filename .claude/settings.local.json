@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:vinzryyysaga.com)",
+      "WebFetch(domain:corsyava.id)",
+      "WebFetch(domain:cathleenexus-web.vercel.app)",
+      "WebSearch",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "WebFetch(domain:akb48.fandom.com)",
+      "WebFetch(domain:jkt48.fandom.com)",
+      "WebFetch(domain:english.shukanbunshun.com)",
+      "WebFetch(domain:dofflzla.blogspot.com)",
+      "WebFetch(domain:www.tonboriday.com)",
+      "Bash(grep *)",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s http://localhost:5176/ -o D:/VinzryyySaga/.dev-html.tmp)",
+      "Bash(curl -s http://localhost:5176/)",
+      "Bash(npm install *)",
+      "Bash(awk '{sum+=$1} END {print sum\"K\"}')",
+      "Bash(awk '{sum+=$1} END {print sum/1024\"M\"}')",
+      "Bash(npx vite *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:5173/)",
+      "Bash(curl -s http://127.0.0.1:5173/src/pages/Profile.jsx)",
+      "Bash(xargs wc *)",
+      "Bash(python -c \"import sys, json; d=json.load\\(open\\('D:/VinzryyySaga/armeniaca-gallery-1773150817430.json','r',encoding='utf-8'\\)\\); years=sorted\\(set\\([img.get\\('year'\\) or img.get\\('era'\\) for img in d.get\\('images', d\\) if \\(img.get\\('year'\\) or img.get\\('era'\\)\\)]\\)\\) if isinstance\\(d, list\\) or 'images' in d else []; print\\('Years/eras:', years[:30]\\)\")",
+      "Bash(python *)",
+      "Bash(node -e \"const d=require\\('D:/VinzryyySaga/src/data/galleryData.js'.replace\\(/\\\\\\\\\\\\\\\\/g,'/'\\)\\); /* skip */\")",
+      "Bash(node --input-type=module -e \"import { getAvailableEras } from 'D:/VinzryyySaga/src/data/galleryData.js'; console.log\\(getAvailableEras\\(\\).map\\(e=>e.id\\)\\);\")",
+      "Bash(node *)",
+      "Bash(git commit *)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)"
+    ]
+  }
+}
