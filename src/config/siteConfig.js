@@ -290,7 +290,13 @@ export const SITE_CONFIG = {
       title: 'Tentang',
       titleAccent: 'Armeniaca.',
       lead:
-        'Arsip visual independen untuk Helisma Putri (Eli JKT48).',
+        'Arsip visual independen untuk Helisma Putri (Eli JKT48) — mendokumentasikan dari Generasi 7 hingga Team Dream.',
+      // Era-range chips rendered next to the lead. Update the right-hand
+      // value when Eli moves to a new team so the scope stays current.
+      scope: {
+        from: { label: 'Generasi 7', sub: '2018 · Debut' },
+        to: { label: 'Team Dream', sub: '2026 · Fight' },
+      },
       // Base path; the page derives .avif / .webp / .jpg <picture>
       // sources from this stem so modern browsers get AVIF (smaller),
       // Safari/old browsers fall back to JPG.

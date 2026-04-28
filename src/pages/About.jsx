@@ -82,6 +82,31 @@ const Hero = ({ hero }) => {
           <p className="mt-6 text-lg md:text-xl text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
             {hero.lead}
           </p>
+
+          {hero.scope && (
+            <div className="mt-8 flex items-center gap-3 md:gap-4 flex-wrap">
+              <div className="px-4 py-2.5 rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)]">
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
+                  {hero.scope.from.sub}
+                </p>
+                <p className="font-header text-base md:text-lg font-black text-[color:var(--retro-burgundy)] leading-tight tracking-tight">
+                  {hero.scope.from.label}
+                </p>
+              </div>
+              <i
+                aria-hidden="true"
+                className="ri-arrow-right-line text-2xl text-[color:var(--retro-burgundy)]/40"
+              />
+              <div className="px-4 py-2.5 rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md shadow-[color:var(--retro-burgundy)]/25">
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-1">
+                  {hero.scope.to.sub}
+                </p>
+                <p className="font-header text-base md:text-lg font-black leading-tight tracking-tight">
+                  {hero.scope.to.label}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-2 relative">
