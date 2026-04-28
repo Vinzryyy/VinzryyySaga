@@ -244,9 +244,45 @@ export const SITE_CONFIG = {
     gallery: {
       eyebrow: 'Gallery Eli',
       title: 'Frame Pilihan',
-      subtitle: 'Delapan momen pilihan dari arsip Armeniaca.',
+      subtitle: 'Momen-momen pilihan dari arsip Armeniaca.',
       ctaLabel: 'Lihat Semua Arsip',
       ctaHash: 'gallery',
+      // Hover-reveal highlight reel — each entry shows 3 frames floating
+      // around the hovered title with mouse parallax. Edit the array to
+      // add/remove memorable moments; first 3 image paths render as the
+      // floating frames. Frame paths can be .jpg / .webp / .avif (the
+      // page derives all three formats from the stem).
+      highlightsEyebrow: 'Memorable',
+      highlightsTitle: 'Hover untuk lihat momennya.',
+      highlights: [
+        {
+          title: 'Stage Debut',
+          subtitle: 'Team T · Te wo Tsunaginagara · 16 Desember 2018',
+          frames: [
+            '/archive/img-019.jpg',
+            '/archive/img-070.jpg',
+            '/archive/img-157.jpg',
+          ],
+        },
+        {
+          title: 'Sousenkyo 2026',
+          subtitle: 'Bibir yang Telah Dicuri · Undergirls #22',
+          frames: [
+            '/archive/img-211.jpg',
+            '/archive/img-087.jpg',
+            '/archive/img-335.jpg',
+          ],
+        },
+        {
+          title: 'JKT48 Fight 2026',
+          subtitle: 'Team Dream · 1 April 2026',
+          frames: [
+            '/archive/img-127.jpg',
+            '/archive/img-305.jpg',
+            '/archive/img-119.jpg',
+          ],
+        },
+      ],
     },
     community: {
       eyebrow: 'About Helismiley',

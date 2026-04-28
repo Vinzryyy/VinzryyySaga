@@ -38,6 +38,148 @@ const shuffleArray = (arr) => {
   return copy;
 };
 
+// Hover-reveal highlight reel — each title in the list reveals 3
+// floating frames behind it that respond to mouse-parallax. Other
+// titles dim while one is active. Renders nothing on touch devices'
+// initial state (the floating frames appear on hover; on touch, just
+// the list reads as a clean editorial index of memorable moments).
+const HighlightReel = ({ highlights, eyebrow, title }) => {
+  const [hovered, setHovered] = React.useState(null);
+  const [mouse, setMouse] = React.useState({ x: 0, y: 0 });
+  const containerRef = React.useRef(null);
+
+  if (!highlights || highlights.length === 0) return null;
+
+  const handleMouseMove = (e) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setMouse({
+      x: e.clientX - rect.left - rect.width / 2,
+      y: e.clientY - rect.top - rect.height / 2,
+    });
+  };
+
+  // Three preset positions per highlight cluster — left-top, right-top,
+  // left-bottom. Each gets its own parallax factor and rotation so the
+  // group feels physical rather than rigid.
+  const POSITIONS = [
+    { left: '4%', top: '12%', factor: 0.04, rotate: -5 },
+    { right: '6%', top: '8%', factor: 0.07, rotate: 6 },
+    { left: '10%', bottom: '8%', factor: 0.05, rotate: 3 },
+  ];
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setHovered(null)}
+      className="relative mb-12 md:mb-16"
+    >
+      <div className="flex items-baseline justify-between gap-3 mb-8">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+          {eyebrow}
+        </p>
+        <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          {highlights.length} momen
+        </p>
+      </div>
+
+      <div className="relative min-h-[440px] md:min-h-[560px] lg:min-h-[640px]">
+        {/* Floating frames — one absolute layer per highlight, only the
+            active one is opaque. pointer-events-none so they don't trap
+            the mouse and break hover state on the title list. */}
+        {highlights.map((h, hIdx) => {
+          const isActive = hovered === hIdx;
+          return (
+            <div
+              key={`frames-${h.title}`}
+              aria-hidden="true"
+              className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
+                isActive ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {h.frames.slice(0, 3).map((frame, fIdx) => {
+                const pos = POSITIONS[fIdx] || POSITIONS[0];
+                const stem = frame.replace(/\.(jpe?g|png|webp|avif)$/i, '');
+                return (
+                  <div
+                    key={fIdx}
+                    className="absolute w-[150px] sm:w-[180px] md:w-[220px] lg:w-[260px] aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
+                    style={{
+                      ...pos,
+                      transform: isActive
+                        ? `translate3d(${mouse.x * pos.factor}px, ${mouse.y * pos.factor}px, 0) rotate(${pos.rotate}deg)`
+                        : `translate3d(0, 24px, 0) rotate(${pos.rotate}deg)`,
+                      transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+                    }}
+                  >
+                    <picture>
+                      <source srcSet={`${stem}.avif`} type="image/avif" />
+                      <source srcSet={`${stem}.webp`} type="image/webp" />
+                      <img
+                        src={`${stem}.jpg`}
+                        alt=""
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                    </picture>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+
+        {/* Title list — relative + z-10 so it sits above the floating
+            frames and stays the click/hover target. */}
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[440px] md:min-h-[560px] lg:min-h-[640px] py-8 md:py-12">
+          <p className="text-xs md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-6">
+            {title}
+          </p>
+          <ol className="flex flex-col items-center gap-1 md:gap-2">
+            {highlights.map((h, hIdx) => {
+              const isActive = hovered === hIdx;
+              const isOther = hovered !== null && hovered !== hIdx;
+              return (
+                <li
+                  key={h.title}
+                  onMouseEnter={() => setHovered(hIdx)}
+                  className={`group cursor-pointer transition-opacity duration-300 text-center ${
+                    isOther ? 'opacity-25' : 'opacity-100'
+                  }`}
+                >
+                  <h3
+                    className={`font-header text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.05] transition-colors duration-300 ${
+                      isActive
+                        ? 'text-[color:var(--retro-burgundy)] italic'
+                        : 'text-[color:var(--retro-text-primary)] group-hover:text-[color:var(--retro-burgundy)]'
+                    }`}
+                  >
+                    {h.title}
+                  </h3>
+                  {h.subtitle && (
+                    <p
+                      className={`mt-1 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] transition-colors duration-300 ${
+                        isActive
+                          ? 'text-[color:var(--retro-burgundy)]/70'
+                          : 'text-[color:var(--color-text-muted)]'
+                      }`}
+                    >
+                      {h.subtitle}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
   const { hero, data, about, gallery, community } = SITE_CONFIG.home;
@@ -459,6 +601,16 @@ const HomePage = () => {
             </p>
           </div>
         </div>
+
+        {/* Memorable highlight reel — hover-reveal with mouse parallax.
+            Curated list lives in SITE_CONFIG.home.gallery.highlights. */}
+        {gallery.highlights && gallery.highlights.length > 0 && (
+          <HighlightReel
+            highlights={gallery.highlights}
+            eyebrow={gallery.highlightsEyebrow}
+            title={gallery.highlightsTitle}
+          />
+        )}
 
         {/* Bento mosaic — every tile gets a contact-sheet style number tag and
             ring-on-hover. Feature tile (item 0) carries an always-on caption
