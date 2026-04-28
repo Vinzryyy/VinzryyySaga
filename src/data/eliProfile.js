@@ -266,6 +266,7 @@ export const ELI_THEATER = [
     debutDate: null,
     note: 'Setlist adaptasi pertama yang melibatkan semua tim JKT48.',
     units: [
+      { song: 'Renai Kinshi Jourei', note: 'Unit Song' },
       { song: 'Manatsu no Christmas Rose' },
     ],
   },
@@ -418,7 +419,7 @@ export const ELI_FUN_FACTS = [
   },
   {
     icon: 'ri-group-line',
-    label: 'Cangcorang Family',
+    label: 'Close Friend',
     value: 'Keluarga roleplay bareng Gita & Muthe',
   },
 ];
