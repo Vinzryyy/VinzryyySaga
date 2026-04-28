@@ -258,20 +258,13 @@ export const SITE_CONFIG = {
         {
           title: 'Stage Debut',
           subtitle: 'Team T · Te wo Tsunaginagara · 16 Desember 2018',
-          frames: [
-            '/archive/img-019.jpg',
-            '/archive/img-070.jpg',
-            '/archive/img-157.jpg',
-          ],
+          // Frames cleared — fill with real frame paths when curated.
+          frames: [],
         },
         {
           title: 'Sousenkyo 2026',
           subtitle: 'Bibir yang Telah Dicuri · Undergirls #22',
-          frames: [
-            '/archive/img-211.jpg',
-            '/archive/img-087.jpg',
-            '/archive/img-335.jpg',
-          ],
+          frames: [],
         },
         {
           title: 'JKT48 Fight 2026',
