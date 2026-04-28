@@ -305,12 +305,52 @@ export const SITE_CONFIG = {
       ],
     },
     etymology: {
-      eyebrow: 'Etimologi',
-      title: 'Kenapa Armeniaca?',
+      eyebrow: 'Tema & Simbolisme',
+      title: 'Setelah musim dingin, yang mekar.',
       paragraphs: [
-        'Nama "Armeniaca" diambil dari Prunus armeniaca — nama Latin untuk pohon aprikot. Aprikot dipilih karena nuansa hangatnya: krem pucat, sepia, kuning emas matang, sampai burgundy gelap di kulit terluar.',
-        'Palet itu yang jadi identitas visual arsip — warna-warna ini tidak hanya jadi tema desain, tapi juga cara melihat: dokumentasi yang tenang, hangat, tidak tergesa, dan bertahan lama seperti foto film yang menua dengan baik.',
+        'Nama "Armeniaca" diambil dari Prunus armeniaca — nama Latin untuk pohon aprikot. Bunga aprikot mekar di akhir musim dingin atau awal musim semi: putih hingga merah muda pucat, harum, muncul pada cabang yang masih gundul setelah musim dingin lewat.',
+        'Tema Armeniaca berakar di momen itu — yang dingin akan lewat, yang baru akan mekar. Setiap simbol di logo membawa cerita kecilnya sendiri: dari bunga yang mekar, kupu-kupu yang siap terbang, sampai bintang yang menandai mimpi.',
       ],
+      logo: {
+        src: '/logo-armeniaca.png',
+        alt: 'Wordmark Armeniaca dengan motif bunga aprikot, kupu-kupu, kepingan salju, dan bintang.',
+      },
+      motifsTitle: 'Setiap simbol punya arti.',
+      motifs: [
+        {
+          name: 'Bunga aprikot mekar',
+          meaning: 'Eli yang sudah dewasa.',
+        },
+        {
+          name: 'Buah aprikot terbagi dua',
+          meaning: 'Armeniaca yang sedang berkembang.',
+        },
+        {
+          name: 'Daun arme yang lama',
+          meaning: 'Akar yang sudah lama menemani — proyek yang tumbuh perlahan dan stabil.',
+        },
+        {
+          name: 'Pita',
+          meaning: 'Eli yang feminin dan cantik.',
+        },
+        {
+          name: 'Kumbang',
+          meaning: 'Eli pencinta hewan.',
+        },
+        {
+          name: 'Kupu-kupu',
+          meaning: 'Eli akan terbang jauh seperti kupu-kupu.',
+        },
+        {
+          name: 'Kepingan salju (es)',
+          meaning: 'Setelah musim dingin akan ada musim semi.',
+        },
+        {
+          name: 'Bintang',
+          meaning: 'Dreams — mimpi yang terus dijaga.',
+        },
+      ],
+      paletteTitle: 'Palette',
       swatches: [
         { name: 'Cream', cssVar: 'var(--retro-cream)', hex: '#FDF6E3' },
         { name: 'Sepia', cssVar: 'var(--retro-sepia)', hex: '#D4A574' },

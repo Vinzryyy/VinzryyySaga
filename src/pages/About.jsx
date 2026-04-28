@@ -137,52 +137,120 @@ const Hero = ({ hero }) => {
 };
 
 const EtymologySection = ({ etymology }) => {
-  const { elementRef, isVisible } = useScrollReveal({ threshold: 0.15, triggerOnce: true });
+  const { elementRef, isVisible } = useScrollReveal({ threshold: 0.1, triggerOnce: true });
   return (
     <section className="px-6 md:px-12 lg:px-20 py-16 md:py-24">
       <div ref={elementRef} className="max-w-7xl mx-auto">
         <SectionEyebrow eyebrow={etymology.eyebrow} />
-        <div className="grid lg:grid-cols-5 gap-10 lg:gap-16 items-start">
-          <div className={`lg:col-span-3 ${staggerClass(isVisible)}`}>
-            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-6">
-              {etymology.title}
-            </h2>
-            <div className="space-y-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed">
-              {etymology.paragraphs.map((p, idx) => (
-                <p key={idx} style={staggerStyle(idx + 1, 100)} className={staggerClass(isVisible)}>
-                  {p}
+
+        {/* Theme story — title + paragraphs centered for editorial weight */}
+        <div className="max-w-3xl mb-12 md:mb-16">
+          <h2 className={`font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-6 ${staggerClass(isVisible)}`}>
+            {etymology.title}
+          </h2>
+          <div className="space-y-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed">
+            {etymology.paragraphs.map((p, idx) => (
+              <p key={idx} style={staggerStyle(idx + 1, 100)} className={staggerClass(isVisible)}>
+                {p}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        {/* Wordmark on a darker tile so the white-line logo reads. The
+            mask trick lets the same PNG render in burgundy here while
+            staying white in the navbar — single asset, two contexts. */}
+        <div
+          style={staggerStyle(3, 100)}
+          className={`relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-brown-dark)] mb-12 md:mb-16 ${staggerClass(isVisible)}`}
+        >
+          <div className="absolute -top-20 -right-20 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-[260px] h-[260px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
+          <div className="relative px-8 md:px-16 py-12 md:py-20 flex items-center justify-center">
+            <div
+              role="img"
+              aria-label={etymology.logo.alt}
+              className="w-full max-w-2xl h-auto"
+              style={{
+                aspectRatio: '2481 / 943',
+                maskImage: `url(${etymology.logo.src})`,
+                WebkitMaskImage: `url(${etymology.logo.src})`,
+                maskSize: 'contain',
+                WebkitMaskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                WebkitMaskRepeat: 'no-repeat',
+                maskPosition: 'center',
+                WebkitMaskPosition: 'center',
+                backgroundColor: 'var(--retro-cream)',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Motif legend — numbered grid, decoded one symbol at a time */}
+        <div className="mb-12 md:mb-16">
+          <p
+            style={staggerStyle(4, 100)}
+            className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 ${staggerClass(isVisible)}`}
+          >
+            Legend
+          </p>
+          <h3
+            style={staggerStyle(5, 100)}
+            className={`font-header text-2xl md:text-4xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-tight mb-8 ${staggerClass(isVisible)}`}
+          >
+            {etymology.motifsTitle}
+          </h3>
+          <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {etymology.motifs.map((motif, idx) => (
+              <li
+                key={motif.name}
+                style={staggerStyle(idx + 6, 80)}
+                className={`group p-4 md:p-5 rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-bg-primary)] hover:border-[color:var(--retro-burgundy)]/40 transition-colors ${staggerClass(isVisible)}`}
+              >
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/70 mb-2 tabular-nums">
+                  {String(idx + 1).padStart(2, '0')}
                 </p>
-              ))}
-            </div>
-          </div>
-          <div className="lg:col-span-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-4">
-              Palette
-            </p>
-            <ol className="space-y-2">
-              {etymology.swatches.map((swatch, idx) => (
-                <li
-                  key={swatch.name}
-                  style={staggerStyle(idx, 200)}
-                  className={`flex items-center gap-4 p-3 rounded-xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-bg-primary)] ${staggerClass(isVisible)}`}
-                >
-                  <span
-                    className="flex-shrink-0 w-12 h-12 rounded-lg border border-[color:var(--retro-brown-dark)]/15"
-                    style={{ backgroundColor: swatch.cssVar }}
-                    aria-hidden="true"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-[color:var(--retro-text-primary)] text-sm">
-                      {swatch.name}
-                    </p>
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5 tabular-nums">
-                      {swatch.hex}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
+                <h4 className="font-header text-base md:text-lg font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-1">
+                  {motif.name}
+                </h4>
+                <p className="text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-snug">
+                  {motif.meaning}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Palette */}
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+            {etymology.paletteTitle}
+          </p>
+          <h3 className="font-header text-2xl md:text-3xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-tight mb-6">
+            Warna-warna aprikot.
+          </h3>
+          <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {etymology.swatches.map((swatch, idx) => (
+              <li
+                key={swatch.name}
+                style={staggerStyle(idx + 14, 60)}
+                className={`p-3 rounded-xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-bg-primary)] ${staggerClass(isVisible)}`}
+              >
+                <span
+                  className="block w-full aspect-square rounded-lg border border-[color:var(--retro-brown-dark)]/15 mb-3"
+                  style={{ backgroundColor: swatch.cssVar }}
+                  aria-hidden="true"
+                />
+                <p className="font-bold text-[color:var(--retro-text-primary)] text-sm leading-tight">
+                  {swatch.name}
+                </p>
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5 tabular-nums">
+                  {swatch.hex}
+                </p>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>
