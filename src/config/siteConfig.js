@@ -18,7 +18,7 @@ export const SITE_CONFIG = {
     title: 'Armeniaca — Arsip Visual Eli JKT48',
     description:
       'Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026.',
-    url: 'https://vinzryyysaga.com',
+    url: 'https://armeniaca.online',
     keywords: ['Eli JKT48', 'Helisma Putri', 'JKT48', 'Team Dream', 'JKT48 Fight 2026', 'fan archive', 'Armeniaca'],
   },
 
