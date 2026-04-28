@@ -51,15 +51,26 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
   const [active, setActive] = React.useState(null);
   const [mouse, setMouse] = React.useState({ x: 0, y: 0 });
   const [hasHover, setHasHover] = React.useState(true);
+  // isNarrow drives the mobile frame layout — frames hug top/bottom
+  // corners so they don't crash into the centered title text. Switches
+  // back to the desktop floating layout at sm (640px) and up.
+  const [isNarrow, setIsNarrow] = React.useState(false);
   const containerRef = React.useRef(null);
 
   React.useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const mql = window.matchMedia('(hover: hover)');
-    setHasHover(mql.matches);
-    const onChange = (e) => setHasHover(e.matches);
-    mql.addEventListener?.('change', onChange);
-    return () => mql.removeEventListener?.('change', onChange);
+    const hoverMql = window.matchMedia('(hover: hover)');
+    const narrowMql = window.matchMedia('(max-width: 639px)');
+    setHasHover(hoverMql.matches);
+    setIsNarrow(narrowMql.matches);
+    const onHover = (e) => setHasHover(e.matches);
+    const onNarrow = (e) => setIsNarrow(e.matches);
+    hoverMql.addEventListener?.('change', onHover);
+    narrowMql.addEventListener?.('change', onNarrow);
+    return () => {
+      hoverMql.removeEventListener?.('change', onHover);
+      narrowMql.removeEventListener?.('change', onNarrow);
+    };
   }, []);
 
   if (!highlights || highlights.length === 0) return null;
@@ -78,14 +89,25 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
   const handleLeave = () => { if (hasHover) setActive(null); };
   const handleClick = (idx) => setActive((prev) => (prev === idx ? null : idx));
 
-  // Three preset positions per highlight cluster — left-top, right-top,
-  // left-bottom. Each has its own parallax factor and rotation so the
-  // group feels physical rather than rigid.
-  const POSITIONS = [
-    { left: '2%', top: '8%', factor: 0.04, rotate: -5 },
-    { right: '2%', top: '5%', factor: 0.07, rotate: 6 },
-    { left: '6%', bottom: '8%', factor: 0.05, rotate: 3 },
+  // Two layouts:
+  // - Desktop / tablet: three frames floating at edges (left-top,
+  //   right-top, left-bottom) with mouse-parallax. Frames sit off to
+  //   the sides of the centered title.
+  // - Mobile (<640px): frames hug the top/bottom edges of the
+  //   container so the middle vertical band is clear for the title.
+  //   Two frames flank the top corners, one centers along the bottom.
+  //   Parallax disabled (factor 0) since touch input would jitter.
+  const POSITIONS_DESKTOP = [
+    { left: '2%', top: '8%', tx: 0, factor: 0.04, rotate: -5 },
+    { right: '2%', top: '5%', tx: 0, factor: 0.07, rotate: 6 },
+    { left: '6%', bottom: '8%', tx: 0, factor: 0.05, rotate: 3 },
   ];
+  const POSITIONS_MOBILE = [
+    { left: '0%', top: '0%', tx: 0, factor: 0, rotate: -3 },
+    { right: '0%', top: '0%', tx: 0, factor: 0, rotate: 3 },
+    { left: '50%', bottom: '0%', tx: -50, factor: 0, rotate: 0 },
+  ];
+  const POSITIONS = isNarrow ? POSITIONS_MOBILE : POSITIONS_DESKTOP;
 
   return (
     <div
@@ -104,7 +126,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
         </p>
       </div>
 
-      <div className="relative min-h-[520px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px]">
+      <div className="relative min-h-[620px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px]">
         {/* Floating frames — one absolute layer per highlight, only the
             active one is opaque. pointer-events-none so they don't trap
             taps/hovers on the title list underneath. */}
@@ -119,16 +141,16 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
               }`}
             >
               {h.frames.slice(0, 3).map((frame, fIdx) => {
-                const pos = POSITIONS[fIdx] || POSITIONS[0];
+                const { tx, factor, rotate, ...posStyle } = POSITIONS[fIdx] || POSITIONS[0];
                 return (
                   <div
                     key={fIdx}
-                    className="absolute w-[120px] sm:w-[160px] md:w-[180px] lg:w-[220px] xl:w-[260px] aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
+                    className="absolute w-[110px] sm:w-[160px] md:w-[180px] lg:w-[220px] xl:w-[260px] aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
                     style={{
-                      ...pos,
+                      ...posStyle,
                       transform: isActive
-                        ? `translate3d(${mouse.x * pos.factor}px, ${mouse.y * pos.factor}px, 0) rotate(${pos.rotate}deg)`
-                        : `translate3d(0, 24px, 0) rotate(${pos.rotate}deg)`,
+                        ? `translate(calc(${tx}% + ${mouse.x * factor}px), ${mouse.y * factor}px) rotate(${rotate}deg)`
+                        : `translate(${tx}%, 24px) rotate(${rotate}deg)`,
                       transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
                     }}
                   >
@@ -147,7 +169,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
         {/* Title list — relative + z-10 so it sits above the floating
             frames and stays the click/hover target. */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-[520px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px] py-8 md:py-12">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[620px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px] py-8 md:py-12">
           <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4 md:mb-6">
             {title}
           </p>
