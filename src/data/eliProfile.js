@@ -421,8 +421,8 @@ export const ELI_FUN_FACTS = [
   },
   {
     icon: 'ri-group-line',
-    label: 'Close Friend',
-    value: 'Keluarga roleplay bareng Gita & Muthe',
+    label: 'Cangcorang Family',
+    value: 'Teman dekat bareng Gita & Muthe',
   },
 ];
 
