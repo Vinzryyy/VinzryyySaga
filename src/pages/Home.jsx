@@ -104,7 +104,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
         </p>
       </div>
 
-      <div className="relative min-h-[460px] sm:min-h-[540px] md:min-h-[600px] lg:min-h-[640px]">
+      <div className="relative min-h-[520px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px]">
         {/* Floating frames — one absolute layer per highlight, only the
             active one is opaque. pointer-events-none so they don't trap
             taps/hovers on the title list underneath. */}
@@ -123,7 +123,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
                 return (
                   <div
                     key={fIdx}
-                    className="absolute w-[88px] sm:w-[130px] md:w-[180px] lg:w-[220px] xl:w-[260px] aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
+                    className="absolute w-[120px] sm:w-[160px] md:w-[180px] lg:w-[220px] xl:w-[260px] aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
                     style={{
                       ...pos,
                       transform: isActive
@@ -147,7 +147,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
         {/* Title list — relative + z-10 so it sits above the floating
             frames and stays the click/hover target. */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-[460px] sm:min-h-[540px] md:min-h-[600px] lg:min-h-[640px] py-8 md:py-12">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[520px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px] py-8 md:py-12">
           <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4 md:mb-6">
             {title}
           </p>
@@ -174,7 +174,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
                   }`}
                 >
                   <h3
-                    className={`font-header text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tighter leading-[1.05] transition-colors duration-300 ${
+                    className={`font-header text-3xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tighter leading-[1.05] transition-colors duration-300 ${
                       isActive
                         ? 'text-[color:var(--retro-burgundy)] italic'
                         : 'text-[color:var(--retro-text-primary)] group-hover:text-[color:var(--retro-burgundy)]'
@@ -184,7 +184,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
                   </h3>
                   {h.subtitle && (
                     <p
-                      className={`mt-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-[0.3em] transition-colors duration-300 ${
+                      className={`mt-1.5 text-[10px] sm:text-xs md:text-xs font-black uppercase tracking-[0.3em] transition-colors duration-300 ${
                         isActive
                           ? 'text-[color:var(--retro-burgundy)]/70'
                           : 'text-[color:var(--color-text-muted)]'
