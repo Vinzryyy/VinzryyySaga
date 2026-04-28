@@ -21,6 +21,7 @@ import {
   ELI_FIGHT_2026,
   ELI_TRIVIA,
   ELI_FUN_FACTS,
+  ELI_TAGLINES,
 } from '../data/eliProfile';
 
 // Stagger reveal helpers — wire useScrollReveal on a list container, then
@@ -667,7 +668,7 @@ const DiscographySection = () => {
             >
               <div className="flex items-start justify-between gap-3 mb-4">
                 <span className="px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em]">
-                  Album
+                  Album Participation
                 </span>
                 {album.year && (
                   <span className="font-header text-xl font-black text-[color:var(--retro-burgundy)]">
@@ -1097,6 +1098,35 @@ const TriviaSection = () => {
           ))}
         </div>
       </div>
+
+      {ELI_TAGLINES.length > 0 && (
+        <div className="space-y-4 mt-10">
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              Tagline per Tahun
+            </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+              {ELI_TAGLINES.length} tag
+            </p>
+          </div>
+          <ol className="flex flex-wrap gap-3">
+            {ELI_TAGLINES.map((item, idx) => (
+              <li
+                key={item.year}
+                style={staggerStyle(idx)}
+                className="px-5 py-3 rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-bg-primary)] hover:border-[color:var(--retro-burgundy)]/40 transition-colors"
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5 tabular-nums">
+                  {item.year}
+                </p>
+                <p className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight leading-tight">
+                  {item.tag}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       <div className="space-y-4 mt-10">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">

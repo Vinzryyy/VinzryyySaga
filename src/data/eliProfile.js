@@ -313,6 +313,24 @@ export const ELI_THEATER = [
       { song: 'Kinjirareta Futari', note: 'Unit Song' },
     ],
   },
+  {
+    code: 'Dream2',
+    setlist: 'Te wo Tsunaginagara',
+    team: 'Team Dream',
+    debutDate: null,
+    note: 'Revival "Te wo Tsunaginagara" yang dibawakan Team Dream — kembali membawakan setlist klasik di era JKT48 Fight 2026.',
+    units: [
+      { song: 'Ame No Pianist', note: 'Unit Song' },
+      { song: 'Innocent' },
+    ],
+  },
+];
+
+// Tagline / hashtag yang dipakai Eli per tahun di sosial media —
+// catatan personal yang berubah seiring fase karier.
+export const ELI_TAGLINES = [
+  { year: '2019', tag: '#Survive' },
+  { year: '2024', tag: '#Semangka' },
 ];
 
 export const ELI_FIGHT_2026 = {
