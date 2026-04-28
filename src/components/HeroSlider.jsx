@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { SITE_CONFIG } from "../config/siteConfig";
 
 function HeroSlider() {
@@ -85,12 +86,12 @@ function HeroSlider() {
           </p>
           
           <div className="mt-12 flex items-center gap-8 animate-[fadeUp_1.2s_ease-out]">
-            <a href="#gallery" className="group flex items-center gap-3 text-white font-bold text-sm tracking-widest uppercase hover:text-[color:var(--retro-burgundy)] transition-colors">
+            <Link to="/gallery" className="group flex items-center gap-3 text-white font-bold text-sm tracking-widest uppercase hover:text-[color:var(--retro-burgundy)] transition-colors">
               Enter Gallery
               <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[color:var(--retro-burgundy)] transition-colors">
                 <i className="ri-arrow-right-down-line" />
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

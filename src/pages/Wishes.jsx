@@ -10,6 +10,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
@@ -114,13 +115,13 @@ const WishesPage = () => {
           <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy)]">
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">{wishes.eyebrow}</span>
             <span className="w-10 h-px bg-[color:var(--retro-burgundy)]/30" />
-            <a
-              href="#countdown"
+            <Link
+              to="/countdown"
               className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] transition-colors inline-flex items-center gap-2"
             >
               <i className="ri-cake-2-line text-base" />
               Cek countdown 15 Juni 2026
-            </a>
+            </Link>
           </div>
 
           <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-4xl">

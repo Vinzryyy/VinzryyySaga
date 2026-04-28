@@ -1,11 +1,14 @@
 ﻿const MONITORING_ENDPOINT = import.meta.env.VITE_MONITORING_ENDPOINT;
 
+const currentPath = () =>
+  `${window.location.pathname}${window.location.search}${window.location.hash}` || '/';
+
 const postEvent = (eventType, payload = {}) => {
   if (!MONITORING_ENDPOINT) return;
 
   const body = JSON.stringify({
     eventType,
-    path: window.location.hash || '#home',
+    path: currentPath(),
     timestamp: new Date().toISOString(),
     payload,
   });
@@ -42,11 +45,19 @@ export const initMonitoring = () => {
     });
   });
 
-  window.addEventListener('hashchange', () => {
-    postEvent('page_view', { hash: window.location.hash || '#home' });
-  });
+  // Path-based router uses pushState — patch it so monitoring sees SPA
+  // navigations the same as initial load. (popstate covers back/forward.)
+  const emitView = () => postEvent('page_view', { path: currentPath() });
+  const originalPushState = window.history.pushState;
+  window.history.pushState = function patchedPushState(...args) {
+    const result = originalPushState.apply(this, args);
+    emitView();
+    return result;
+  };
+  window.addEventListener('popstate', emitView);
+  window.addEventListener('hashchange', emitView);
 
-  postEvent('page_view', { hash: window.location.hash || '#home' });
+  emitView();
 };
 
 export default initMonitoring;

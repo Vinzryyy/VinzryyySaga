@@ -1,0 +1,12 @@
+# Netlify build + SPA fallback. The catch-all rewrite below ensures
+# direct navigation to client-side routes like /profile or /gallery
+# returns index.html (HTTP 200) instead of a 404.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

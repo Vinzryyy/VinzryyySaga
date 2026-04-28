@@ -8,6 +8,7 @@ import Section from '../components/layout/Section';
 import PageHeader from '../components/layout/PageHeader';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { SITE_CONFIG } from '../config/siteConfig';
+import Seo from '../components/Seo';
 
 const AboutPage = () => {
   const { elementRef, isVisible } = useScrollReveal({
@@ -19,6 +20,11 @@ const AboutPage = () => {
 
   return (
     <main className="min-h-screen">
+      <Seo
+        title="About"
+        description="Tentang Armeniaca — arsip visual independen yang merawat dokumentasi Helisma Putri (Eli JKT48). Filosofi proyek dan akar nama yang diambil dari Prunus armeniaca."
+        path="/about"
+      />
       {/* Hero Section */}
       <Section id="about" padding="xl" background="gradient">
         <PageHeader

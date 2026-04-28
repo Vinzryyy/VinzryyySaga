@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../../config/siteConfig';
 import { useGallery } from '../../context';
 
@@ -17,10 +18,10 @@ const Footer = () => {
   ].filter((item) => Boolean(item.url));
 
   const quickLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Archive', href: '#gallery' },
-    ...eras.map((era) => ({ name: era.label, href: `#${era.id}` })),
-    { name: 'About', href: '#about' },
+    { name: 'Home', to: '/' },
+    { name: 'Archive', to: '/gallery' },
+    ...eras.map((era) => ({ name: era.label, to: `/gallery/${era.id}` })),
+    { name: 'About', to: '/about' },
   ];
 
   return (
@@ -70,15 +71,15 @@ const Footer = () => {
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.to}
                     className="
                       text-[color:var(--color-text-secondary)] hover:text-[color:var(--color-accent)]
                       text-sm transition-colors
                     "
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

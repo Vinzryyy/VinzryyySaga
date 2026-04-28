@@ -1,20 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SITE_CONFIG } from "../config/siteConfig";
 import { useGallery } from "../context";
-
-const getHash = () =>
-  typeof window === "undefined"
-    ? ""
-    : window.location.hash.replace("#", "").toLowerCase() || "home";
+import { hashToHref, hrefToActiveId } from "../utils/routes";
 
 function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [activeHash, setActiveHash] = useState(() => getHash());
   const [openDropdown, setOpenDropdown] = useState(null);
   const dropdownRef = useRef(null);
   const { eras } = useGallery();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const activeHash = useMemo(
+    () => hrefToActiveId(location.pathname, location.hash),
+    [location.pathname, location.hash]
+  );
 
   // Inject era items as children of the Archive dropdown
   const navItems = useMemo(() => {
@@ -50,13 +52,6 @@ function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Active hash sync
-  useEffect(() => {
-    const sync = () => setActiveHash(getHash());
-    window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
-  }, []);
-
   // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (!open) return undefined;
@@ -87,17 +82,19 @@ function Navbar() {
   }, [openDropdown]);
 
   const navigateTo = (hash) => {
-    const target = hash || "home";
-    const current = window.location.hash.replace("#", "").toLowerCase();
-    if (current === target) {
-      const el = document.getElementById(target);
+    const href = hashToHref(hash);
+    const currentHref = `${location.pathname}${location.hash}`;
+    if (href === currentHref) {
+      // Same target — re-scroll to the element (or top) instead of a no-op nav.
+      const id = (location.hash || "").replace("#", "");
+      const el = id ? document.getElementById(id) : null;
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       } else {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } else {
-      window.location.hash = target;
+      navigate(href);
     }
     setOpen(false);
     setOpenDropdown(null);
@@ -146,7 +143,7 @@ function Navbar() {
                 navbar states. The PNG provides the shape; backgroundColor
                 provides the tint. */}
             <a
-              href="#home"
+              href="/"
               onClick={(event) => {
                 event.preventDefault();
                 navigateTo("home");

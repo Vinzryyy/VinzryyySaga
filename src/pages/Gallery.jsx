@@ -5,13 +5,15 @@
  * doesn't feel like a different site.
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { useGallery } from '../context';
 import GalleryGrid from '../components/gallery/GalleryGrid';
 import FilterBar from '../components/gallery/FilterBar';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
+import Seo from '../components/Seo';
 
 const AnimatedCount = ({ value, start, duration = 1200 }) => {
   const animated = useCountUp(value, { start, duration });
@@ -19,7 +21,21 @@ const AnimatedCount = ({ value, start, duration = 1200 }) => {
 };
 
 const GalleryPage = () => {
-  const { images, eras } = useGallery();
+  const { images, eras, setEraFilter } = useGallery();
+  const { year } = useParams();
+
+  // Sync the era filter to whatever year is in the URL. `/gallery` (no
+  // year) clears to "all"; `/gallery/2025` sets it to that era. Drives
+  // FilterBar pills + GalleryGrid through context.
+  useEffect(() => {
+    if (!setEraFilter) return;
+    const validIds = new Set(eras.map((e) => String(e.id)));
+    if (year && validIds.has(year)) {
+      setEraFilter(year);
+    } else {
+      setEraFilter('all');
+    }
+  }, [year, eras, setEraFilter]);
 
   const stats = useMemo(() => {
     if (!images || images.length === 0) return null;
@@ -39,8 +55,15 @@ const GalleryPage = () => {
     rootMargin: '0px',
   });
 
+  const seoTitle = year ? `Arsip ${year}` : 'Arsip Lengkap';
+  const seoDescription = year
+    ? `Frame-frame Eli JKT48 dari arsip tahun ${year}. Dokumentasi visual Helisma Putri di sepanjang tahun ${year}.`
+    : 'Arsip visual lengkap Eli JKT48 — frame demi frame dari Generasi 7 hingga era Team Dream. Filter berdasarkan tahun untuk menjelajah era spesifik.';
+  const seoPath = year ? `/gallery/${year}` : '/gallery';
+
   return (
     <main className="bg-[color:var(--retro-bg-primary)] min-h-screen">
+      <Seo title={seoTitle} description={seoDescription} path={seoPath} />
       {/* Editorial header — Issue plate + oversized title + lead + stat strip */}
       <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
         {/* Watermark wordmark on the right (lg+) */}

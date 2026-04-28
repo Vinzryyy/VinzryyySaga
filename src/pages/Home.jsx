@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
@@ -12,6 +13,8 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
 import { useElementParallax } from '../hooks/useElementParallax';
 import { useLightbox } from '../context/LightboxContext';
+import { hashToHref } from '../utils/routes';
+import Seo from '../components/Seo';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -203,6 +206,10 @@ const HomePage = () => {
 
   return (
     <main>
+      <Seo
+        path="/"
+        description="Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026."
+      />
       {/* HERO — full-bleed Eli portrait with Ken Burns reveal */}
       <section
         id="home"
@@ -282,20 +289,20 @@ const HomePage = () => {
                 heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
             >
-              <a
-                href={`#${hero.primaryCta.hash}`}
+              <Link
+                to={hashToHref(hero.primaryCta.hash)}
                 className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-xs md:text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all"
               >
                 {hero.primaryCta.label}
                 <i className={`${hero.primaryCta.icon} group-hover:translate-x-1 transition-transform`} />
-              </a>
-              <a
-                href={`#${hero.secondaryCta.hash}`}
+              </Link>
+              <Link
+                to={hashToHref(hero.secondaryCta.hash)}
                 className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-transparent border-2 border-[color:var(--retro-cream)]/30 text-[color:var(--retro-cream)] font-bold text-xs md:text-sm uppercase tracking-widest hover:bg-[color:var(--retro-cream)]/10 hover:border-[color:var(--retro-cream)] transition-all"
               >
                 <i className={hero.secondaryCta.icon} />
                 {hero.secondaryCta.label}
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -412,13 +419,13 @@ const HomePage = () => {
                 {p}
               </p>
             ))}
-            <a
-              href={`#${about.ctaHash}`}
+            <Link
+              to={hashToHref(about.ctaHash)}
               className="group inline-flex items-center gap-3 mt-4 px-7 py-3.5 rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest transition-colors"
             >
               {about.ctaLabel}
               <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
-            </a>
+            </Link>
           </div>
         </div>
       </Section>
@@ -534,8 +541,8 @@ const HomePage = () => {
 
           {/* CTA tile — redesigned with watermark logo + rich gradient.
               Sits in the 12th cell on lg as the natural "next step". */}
-          <a
-            href={`#${gallery.ctaHash}`}
+          <Link
+            to={hashToHref(gallery.ctaHash)}
             className="group hidden lg:flex aspect-square relative overflow-hidden rounded-sm bg-gradient-to-br from-[color:var(--retro-burgundy)] via-[color:var(--retro-burgundy)] to-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] flex-col justify-between p-5 transition-all hover:shadow-2xl hover:shadow-[color:var(--retro-burgundy)]/40"
           >
             {/* Watermark logo bottom-right */}
@@ -570,7 +577,7 @@ const HomePage = () => {
                 <i className="ri-arrow-right-up-line text-base group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </span>
             </div>
-          </a>
+          </Link>
         </div>
 
         {/* Infinite marquee — CSS-only horizontal scroll of additional frames,
@@ -625,13 +632,13 @@ const HomePage = () => {
 
         {/* CTA button — visible only when bento CTA tile is hidden (sm/md) */}
         <div className="text-center mt-10 lg:hidden">
-          <a
-            href={`#${gallery.ctaHash}`}
+          <Link
+            to={hashToHref(gallery.ctaHash)}
             className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >
             {gallery.ctaLabel}
             <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-          </a>
+          </Link>
         </div>
       </Section>
 

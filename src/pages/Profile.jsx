@@ -5,7 +5,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Section from '../components/layout/Section';
+import Seo from '../components/Seo';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
@@ -91,6 +93,11 @@ const ProfilePage = () => {
 
   return (
     <main className="bg-[color:var(--retro-bg-primary)]">
+      <Seo
+        title="Profil Eli"
+        description="Profil lengkap Helisma Putri (Eli JKT48) — timeline karier, JKT48 Fight 2026 di Team Dream, diskografi termasuk Sousenkyo Rapsodi, daftar setlist teater, plus trivia dan fun facts."
+        path="/profile"
+      />
       {/* Editorial hero — title block left, layered portrait collage right */}
       <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
         <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/8 blur-3xl pointer-events-none" />
@@ -188,8 +195,8 @@ const ProfilePage = () => {
               const isActive = activeSection === section.id;
               return (
                 <li key={section.id}>
-                  <a
-                    href={`#${section.id}`}
+                  <Link
+                    to={`#${section.id}`}
                     className={`
                       inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.22em] transition-all
                       ${
@@ -208,7 +215,7 @@ const ProfilePage = () => {
                     </span>
                     <i className={`${section.icon} text-base`} />
                     <span>{section.label}</span>
-                  </a>
+                  </Link>
                 </li>
               );
             })}

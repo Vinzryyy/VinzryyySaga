@@ -79,21 +79,9 @@ const GalleryContext = createContext(null);
 export const GalleryProvider = ({ children }) => {
   const [state, dispatch] = useReducer(galleryReducer, initialState);
 
-  // Sync with Hash
-  React.useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      const validEras = state.eras.map(e => e.id);
-      if (validEras.includes(hash)) {
-        dispatch({ type: ActionTypes.SET_ERA_FILTER, payload: hash });
-      } else {
-        dispatch({ type: ActionTypes.SET_ERA_FILTER, payload: 'all' });
-      }
-    };
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [state.eras]);
+  // The era filter is now driven by the URL via /gallery/:year — the
+  // Gallery page reads useParams() and calls setEraFilter() in an
+  // effect. No global hashchange listener needed.
 
   const setEraFilter = useCallback((era) => dispatch({ type: ActionTypes.SET_ERA_FILTER, payload: era }), []);
   const setViewMode = useCallback((viewMode) => dispatch({ type: ActionTypes.SET_VIEW_MODE, payload: viewMode }), []);

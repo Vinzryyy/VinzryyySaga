@@ -1,20 +1,25 @@
 /**
- * NotFound (404) Page — shown when the hash router can't resolve to any
- * known route. On-brand fallback with Eli portrait + Indonesian message.
+ * NotFound (404) Page — catch-all route shown when no other path matches.
+ * On-brand fallback with Eli portrait + Indonesian message.
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
+import Seo from '../components/Seo';
 
 const NotFoundPage = () => {
   const eli = SITE_CONFIG.eli;
-
-  const navigate = (hash) => {
-    window.location.hash = hash;
-  };
+  const navigate = useNavigate();
+  const goTo = (path) => navigate(path);
 
   return (
     <main className="min-h-screen bg-[color:var(--retro-bg-primary)] flex items-center">
+      <Seo
+        title="404"
+        description="Halaman tidak ditemukan di Armeniaca."
+        path="/404"
+      />
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-32 pb-16 md:pb-24 w-full">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left: editorial 404 */}
@@ -41,7 +46,7 @@ const NotFoundPage = () => {
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={() => navigate('home')}
+                onClick={() => goTo('/')}
                 className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
               >
                 <i className="ri-home-4-line" />
@@ -49,7 +54,7 @@ const NotFoundPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => navigate('gallery')}
+                onClick={() => goTo('/gallery')}
                 className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-transparent border-2 border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] font-bold text-sm uppercase tracking-widest hover:border-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)] transition-all"
               >
                 <i className="ri-gallery-line" />
@@ -57,7 +62,7 @@ const NotFoundPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => navigate('profile')}
+                onClick={() => goTo('/profile')}
                 className="group inline-flex items-center gap-3 px-5 py-3 rounded-full text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest transition-colors"
               >
                 Profil {eli.stageName}
