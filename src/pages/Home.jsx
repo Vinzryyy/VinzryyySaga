@@ -51,26 +51,15 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
   const [active, setActive] = React.useState(null);
   const [mouse, setMouse] = React.useState({ x: 0, y: 0 });
   const [hasHover, setHasHover] = React.useState(true);
-  // isNarrow drives the mobile frame layout — frames hug top/bottom
-  // corners so they don't crash into the centered title text. Switches
-  // back to the desktop floating layout at sm (640px) and up.
-  const [isNarrow, setIsNarrow] = React.useState(false);
   const containerRef = React.useRef(null);
 
   React.useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const hoverMql = window.matchMedia('(hover: hover)');
-    const narrowMql = window.matchMedia('(max-width: 639px)');
-    setHasHover(hoverMql.matches);
-    setIsNarrow(narrowMql.matches);
-    const onHover = (e) => setHasHover(e.matches);
-    const onNarrow = (e) => setIsNarrow(e.matches);
-    hoverMql.addEventListener?.('change', onHover);
-    narrowMql.addEventListener?.('change', onNarrow);
-    return () => {
-      hoverMql.removeEventListener?.('change', onHover);
-      narrowMql.removeEventListener?.('change', onNarrow);
-    };
+    const mql = window.matchMedia('(hover: hover)');
+    setHasHover(mql.matches);
+    const onChange = (e) => setHasHover(e.matches);
+    mql.addEventListener?.('change', onChange);
+    return () => mql.removeEventListener?.('change', onChange);
   }, []);
 
   if (!highlights || highlights.length === 0) return null;
@@ -89,33 +78,14 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
   const handleLeave = () => { if (hasHover) setActive(null); };
   const handleClick = (idx) => setActive((prev) => (prev === idx ? null : idx));
 
-  // Two layouts:
-  // - Desktop / tablet: three frames floating at edges (left-top,
-  //   right-top, left-bottom) with mouse-parallax. Frames sit off to
-  //   the sides of the centered title.
-  // - Mobile (<640px): frames hug the top/bottom edges of the
-  //   container so the middle vertical band is clear for the title.
-  //   Two frames flank the top corners, one centers along the bottom.
-  //   Parallax disabled (factor 0) since touch input would jitter.
-  const POSITIONS_DESKTOP = [
-    { left: '2%', top: '8%', tx: 0, factor: 0.04, rotate: -5 },
-    { right: '2%', top: '5%', tx: 0, factor: 0.07, rotate: 6 },
-    { left: '6%', bottom: '8%', tx: 0, factor: 0.05, rotate: 3 },
+  const POSITIONS = [
+    { left: '2%', top: '8%', factor: 0.04, rotate: -5 },
+    { right: '2%', top: '5%', factor: 0.07, rotate: 6 },
+    { left: '6%', bottom: '8%', factor: 0.05, rotate: 3 },
   ];
-  const POSITIONS_MOBILE = [
-    { left: '0%', top: '0%', tx: 0, factor: 0, rotate: -3 },
-    { right: '0%', top: '0%', tx: 0, factor: 0, rotate: 3 },
-    { left: '50%', bottom: '0%', tx: -50, factor: 0, rotate: 0 },
-  ];
-  const POSITIONS = isNarrow ? POSITIONS_MOBILE : POSITIONS_DESKTOP;
 
   return (
-    <div
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleLeave}
-      className="relative mb-12 md:mb-16"
-    >
+    <div ref={containerRef} className="relative mb-12 md:mb-16">
       <div className="flex items-baseline justify-between gap-3 mb-6 md:mb-8">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
           {eyebrow}
@@ -126,10 +96,15 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
         </p>
       </div>
 
-      <div className="relative min-h-[620px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px]">
-        {/* Floating frames — one absolute layer per highlight, only the
-            active one is opaque. pointer-events-none so they don't trap
-            taps/hovers on the title list underneath. */}
+      {/* DESKTOP / large tablet (lg+) — hover-reveal floating frames
+          with mouse parallax. Centered title list sits above three
+          absolute-positioned frame layers (one per highlight, only the
+          active one is opaque). */}
+      <div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleLeave}
+        className="hidden lg:block relative min-h-[640px]"
+      >
         {highlights.map((h, hIdx) => {
           const isActive = active === hIdx;
           return (
@@ -141,16 +116,16 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
               }`}
             >
               {h.frames.slice(0, 3).map((frame, fIdx) => {
-                const { tx, factor, rotate, ...posStyle } = POSITIONS[fIdx] || POSITIONS[0];
+                const pos = POSITIONS[fIdx] || POSITIONS[0];
                 return (
                   <div
                     key={fIdx}
-                    className="absolute w-[110px] sm:w-[160px] md:w-[180px] lg:w-[220px] xl:w-[260px] aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
+                    className="absolute w-[220px] xl:w-[260px] aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl shadow-[color:var(--retro-brown-dark)]/30 will-change-transform"
                     style={{
-                      ...posStyle,
+                      ...pos,
                       transform: isActive
-                        ? `translate(calc(${tx}% + ${mouse.x * factor}px), ${mouse.y * factor}px) rotate(${rotate}deg)`
-                        : `translate(${tx}%, 24px) rotate(${rotate}deg)`,
+                        ? `translate3d(${mouse.x * pos.factor}px, ${mouse.y * pos.factor}px, 0) rotate(${pos.rotate}deg)`
+                        : `translate3d(0, 24px, 0) rotate(${pos.rotate}deg)`,
                       transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
                     }}
                   >
@@ -167,13 +142,11 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
           );
         })}
 
-        {/* Title list — relative + z-10 so it sits above the floating
-            frames and stays the click/hover target. */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-[620px] sm:min-h-[600px] md:min-h-[620px] lg:min-h-[640px] py-8 md:py-12">
-          <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4 md:mb-6">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[640px] py-12">
+          <p className="text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-6">
             {title}
           </p>
-          <ol className="flex flex-col items-center gap-0.5 md:gap-1">
+          <ol className="flex flex-col items-center gap-1">
             {highlights.map((h, hIdx) => {
               const isActive = active === hIdx;
               const isOther = active !== null && active !== hIdx;
@@ -196,7 +169,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
                   }`}
                 >
                   <h3
-                    className={`font-header text-3xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tighter leading-[1.05] transition-colors duration-300 ${
+                    className={`font-header text-6xl xl:text-7xl font-black tracking-tighter leading-[1.05] transition-colors duration-300 ${
                       isActive
                         ? 'text-[color:var(--retro-burgundy)] italic'
                         : 'text-[color:var(--retro-text-primary)] group-hover:text-[color:var(--retro-burgundy)]'
@@ -206,7 +179,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
                   </h3>
                   {h.subtitle && (
                     <p
-                      className={`mt-1.5 text-[10px] sm:text-xs md:text-xs font-black uppercase tracking-[0.3em] transition-colors duration-300 ${
+                      className={`mt-1 text-xs font-black uppercase tracking-[0.3em] transition-colors duration-300 ${
                         isActive
                           ? 'text-[color:var(--retro-burgundy)]/70'
                           : 'text-[color:var(--color-text-muted)]'
@@ -219,15 +192,56 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
               );
             })}
           </ol>
-
-          {/* Tap hint — only on touch devices, only before the user has
-              activated anything. Disappears after first activation. */}
-          {!hasHover && active === null && (
-            <p className="mt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/60 animate-pulse">
-              Tap untuk lihat momennya
-            </p>
-          )}
         </div>
+      </div>
+
+      {/* MOBILE / TABLET (<lg) — stacked editorial cards. Each card
+          shows a number/divider/frame-count strip, the highlight title +
+          subtitle, then a horizontal swipe strip of all the frames at
+          full quality (snap-mandatory so each photo lands centered).
+          No hover/tap interaction needed — everything in normal flow. */}
+      <div className="lg:hidden space-y-12 md:space-y-16">
+        <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] text-center">
+          {title}
+        </p>
+        {highlights.map((h, hIdx) => (
+          <article key={h.title}>
+            <div className="flex items-baseline gap-3 mb-3">
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 tabular-nums">
+                {String(hIdx + 1).padStart(2, '0')}
+              </span>
+              <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/15" />
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+                {h.frames.length} frame · swipe →
+              </span>
+            </div>
+            <div className="mb-5">
+              <h3 className="font-header text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[1.02]">
+                {h.title}
+              </h3>
+              {h.subtitle && (
+                <p className="mt-2 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+                  {h.subtitle}
+                </p>
+              )}
+            </div>
+            <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 sm:-mx-6 md:-mx-12 px-4 sm:px-6 md:px-12">
+              {h.frames.map((frame, fIdx) => (
+                <div
+                  key={fIdx}
+                  className="flex-shrink-0 w-[220px] sm:w-[260px] md:w-[300px] aspect-[3/4] rounded-2xl overflow-hidden shadow-md shadow-[color:var(--retro-brown-dark)]/15 snap-start bg-[color:var(--retro-brown-dark)]/10"
+                >
+                  <img
+                    src={frame}
+                    alt=""
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );
