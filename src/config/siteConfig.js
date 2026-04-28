@@ -291,8 +291,11 @@ export const SITE_CONFIG = {
       titleAccent: 'Armeniaca.',
       lead:
         'Arsip visual independen untuk Helisma Putri (Eli JKT48).',
-      portrait: '/archive/img-070.jpg',
-      portraitAlt: 'Helisma Putri (Eli JKT48)',
+      // Base path; the page derives .avif / .webp / .jpg <picture>
+      // sources from this stem so modern browsers get AVIF (smaller),
+      // Safari/old browsers fall back to JPG.
+      portrait: '/archive/img-157.jpg',
+      portraitAlt: 'Helisma Putri (Eli JKT48) di panggung — momen menyanyi.',
     },
     etymology: {
       eyebrow: 'Tema & Simbolisme',

@@ -45,6 +45,10 @@ const Hero = ({ hero }) => {
     triggerOnce: true,
   });
 
+  // Derive avif/webp/jpg sources from the portrait stem so the
+  // archive's pre-optimized variants get served when supported.
+  const portraitStem = hero.portrait.replace(/\.(jpe?g|png|webp|avif)$/i, '');
+
   return (
     <header className="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20 overflow-hidden">
       <div
@@ -85,12 +89,16 @@ const Hero = ({ hero }) => {
             className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/20"
             style={{ transform: `translateY(${portraitOffset}px)` }}
           >
-            <img
-              src={hero.portrait}
-              alt={hero.portraitAlt}
-              className="w-full h-full object-cover"
-              loading="eager"
-            />
+            <picture>
+              <source srcSet={`${portraitStem}.avif`} type="image/avif" />
+              <source srcSet={`${portraitStem}.webp`} type="image/webp" />
+              <img
+                src={`${portraitStem}.jpg`}
+                alt={hero.portraitAlt}
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            </picture>
             <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
           </div>
           <span className="absolute -top-3 -left-3 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
