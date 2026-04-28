@@ -578,8 +578,14 @@ const DiscographySection = () => {
                   <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight">
                     {entry.title}
                   </h3>
+                  {entry.campaignTagline && (
+                    <span className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[10px] font-black uppercase tracking-[0.3em]">
+                      <i className="ri-megaphone-line text-sm" />
+                      Tagline Kampanye · {entry.campaignTagline}
+                    </span>
+                  )}
                   {entry.note && (
-                    <p className="mt-1 text-sm text-[color:var(--color-text-secondary)]">
+                    <p className="mt-2 text-sm text-[color:var(--color-text-secondary)]">
                       {entry.note}
                     </p>
                   )}

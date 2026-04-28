@@ -156,6 +156,7 @@ export const ELI_DISCOGRAPHY = [
     year: '2026',
     position: 'Undergirls',
     note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo #KuSangatSuka.',
+    campaignTagline: '#Semangka',
     rosterLabel: 'Undergirls Roster',
     members: SOUSENKYO_2026_UNDERGIRLS,
   },
@@ -328,11 +329,12 @@ export const ELI_THEATER = [
   },
 ];
 
-// Tagline / hashtag yang dipakai Eli per tahun di sosial media —
-// catatan personal yang berubah seiring fase karier.
+// Tagline / hashtag personal yang dipakai Eli per tahun di sosial
+// media — catatan personal yang berubah seiring fase karier. Tagline
+// kampanye Sousenkyo / per-single tinggal di entry diskografinya
+// masing-masing (lihat `campaignTagline` pada ELI_DISCOGRAPHY).
 export const ELI_TAGLINES = [
   { year: '2019', tag: '#Survive' },
-  { year: '2024', tag: '#Semangka' },
 ];
 
 export const ELI_FIGHT_2026 = {
