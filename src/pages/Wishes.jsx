@@ -267,34 +267,76 @@ const WishesPage = () => {
                     />
                   </label>
 
-                  {/* Template picker — submitter chooses which card style
-                      their wish renders as on the wall. Stored as `template`
-                      on the wish doc; wall reads it back. Default is the
-                      first template; chip shows id + label, selected one
-                      gets a cream background. */}
+                  {/* Template picker — each option renders a real, scaled-down
+                      version of its template using sample content. Clicking
+                      selects; selected card gets a cream ring + lift. The
+                      preview is wrapped in `pointer-events-none` so clicks
+                      land on the outer button regardless of inner element
+                      shapes. */}
                   <fieldset>
-                    <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-2">
-                      Pilih tampilan kartu
+                    <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-3">
+                      Pilih tampilan kartu — preview live
                     </legend>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-3">
                       {WISH_TEMPLATES.map((tpl, tplIdx) => {
                         const selected = tpl.id === templateId;
+                        const PreviewCard = tpl.Component;
+                        // Live preview content. If the user has typed a
+                        // name/message the preview fills with it; otherwise
+                        // a tasteful placeholder so the layout still reads.
+                        const sampleWish = {
+                          name: name || 'Helismiley',
+                          handle: handle || '@helismiley',
+                          message:
+                            message ||
+                            'Selamat ulang tahun, Ceu Eli! Tetap mekar seperti aprikot di musim semi.',
+                          date: new Date().toISOString(),
+                        };
                         return (
                           <button
                             key={tpl.id}
                             type="button"
                             onClick={() => setTemplateId(tpl.id)}
                             aria-pressed={selected}
-                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                            title={tpl.label}
+                            className={`group flex flex-col items-stretch gap-1.5 p-1.5 rounded-xl transition-all ${
                               selected
-                                ? 'bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] shadow-md'
-                                : 'bg-[color:var(--retro-cream)]/10 text-[color:var(--retro-cream)]/70 hover:bg-[color:var(--retro-cream)]/20 hover:text-[color:var(--retro-cream)] border border-[color:var(--retro-cream)]/15'
+                                ? 'bg-[color:var(--retro-cream)]/15 ring-2 ring-[color:var(--retro-gold-light)] -translate-y-0.5 shadow-lg'
+                                : 'bg-[color:var(--retro-cream)]/5 ring-1 ring-[color:var(--retro-cream)]/10 hover:bg-[color:var(--retro-cream)]/10 hover:ring-[color:var(--retro-cream)]/30'
                             }`}
                           >
-                            <span className="opacity-60 tabular-nums">
-                              {String(tplIdx + 1).padStart(2, '0')}
-                            </span>
-                            <span>{tpl.label}</span>
+                            {/* Scaled preview — inner renders at ~320×260,
+                                outer is 50% of that so the chip stays compact */}
+                            <div
+                              aria-hidden="true"
+                              className="relative w-full h-[130px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
+                            >
+                              <div
+                                className="absolute top-0 left-0 origin-top-left"
+                                style={{
+                                  width: '320px',
+                                  height: '260px',
+                                  transform: 'scale(0.5)',
+                                }}
+                              >
+                                <PreviewCard wish={sampleWish} />
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 px-1">
+                              <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-gold-light)] opacity-70 tabular-nums">
+                                {String(tplIdx + 1).padStart(2, '0')}
+                              </span>
+                              <span
+                                className={`text-[10px] font-black uppercase tracking-[0.18em] truncate ${
+                                  selected ? 'text-[color:var(--retro-cream)]' : 'text-[color:var(--retro-cream)]/70'
+                                }`}
+                              >
+                                {tpl.label}
+                              </span>
+                              {selected && (
+                                <i className="ri-check-line ml-auto text-base text-[color:var(--retro-gold-light)]" />
+                              )}
+                            </div>
                           </button>
                         );
                       })}
