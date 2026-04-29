@@ -204,7 +204,7 @@ const WishesPage = () => {
             }}
           />
 
-          <div className="relative grid md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_340px] gap-0 z-[1]">
+          <div className="relative grid md:grid-cols-[1.4fr_1fr] lg:grid-cols-[1.3fr_1fr] gap-0 z-[1]">
             {/* LEFT — letter content */}
             <div className="px-5 py-7 sm:px-7 sm:py-9 md:px-8 md:py-10 lg:px-10 md:border-r border-dashed border-[color:var(--retro-burgundy)]/20 order-2 md:order-1">
               {/* Addressee block — like the "To:" line on a real letter */}
