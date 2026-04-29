@@ -179,9 +179,25 @@ const ScheduleCard = () => {
                       )}
                       {!isMG && entry.members && entry.members.length > 0 && (
                         <p className="text-[10px] text-[color:var(--color-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
-                          + {entry.members.length} member · klik untuk detail tiket
+                          + {entry.members.length} member · cek detail tiket
                         </p>
                       )}
+                      {/* Apply CTA — prominent when tickets are still
+                          available, muted when sold out / for theater shows */}
+                      <div className="mt-3 pt-3 border-t border-[color:var(--retro-brown-dark)]/8">
+                        {isMG && entry.sold_out ? (
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">
+                            <i className="ri-lock-line" />
+                            Tiket habis
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.2em] shadow-sm group-hover:-translate-y-0.5 group-hover:shadow-md transition-transform">
+                            <i className="ri-ticket-2-line" />
+                            {isMG ? 'Beli Tiket' : 'Cek Tiket'}
+                            <i className="ri-arrow-right-line" />
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </a>
