@@ -32,7 +32,7 @@ const WISHES_PAGE_SIZE = 100;
 
 /**
  * Submit a new wish.
- * @param {{name:string, handle?:string, message:string, honeypot?:string}} payload
+ * @param {{name:string, handle?:string, message:string, template?:string, honeypot?:string}} payload
  * @returns {Promise<{ok:boolean, silentRejection?:boolean, error?:string}>}
  *   - ok=true on real success
  *   - silentRejection=true when the honeypot fired (we lie back to the
@@ -52,6 +52,7 @@ export async function submitWish(payload) {
   const name = (payload.name || '').trim();
   const message = (payload.message || '').trim();
   const handle = (payload.handle || '').trim();
+  const template = (payload.template || '').trim();
 
   if (!name || !message) {
     return { ok: false, error: 'Nama dan pesan wajib diisi.' };
@@ -59,15 +60,21 @@ export async function submitWish(payload) {
   if (name.length > 60) return { ok: false, error: 'Nama maks 60 karakter.' };
   if (handle.length > 40) return { ok: false, error: 'Handle maks 40 karakter.' };
   if (message.length > 240) return { ok: false, error: 'Pesan maks 240 karakter.' };
+  if (template.length > 32) return { ok: false, error: 'Template id terlalu panjang.' };
 
   try {
     const wishRef = push(ref(realtimeDb, WISHES_PATH));
-    await set(wishRef, {
+    const data = {
       name,
       handle,
       message,
       date: serverTimestamp(),
-    });
+    };
+    // Only include template when present so the schema stays minimal for
+    // wishes submitted before the picker existed (and for any clients
+    // that opt out of choosing).
+    if (template) data.template = template;
+    await set(wishRef, data);
     return { ok: true };
   } catch (err) {
     return {
@@ -109,6 +116,7 @@ export function subscribeToWishes(callback) {
         name: wish.name,
         handle: wish.handle || '',
         message: wish.message,
+        template: wish.template || '',
         // serverTimestamp resolves to a millis number; convert to ISO so
         // existing date-formatting helpers keep working.
         date:

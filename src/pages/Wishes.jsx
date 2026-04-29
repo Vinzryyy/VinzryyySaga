@@ -34,6 +34,10 @@ const WishesPage = () => {
   const [handle, setHandle] = useState('');
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState(''); // bot trap — humans never fill this
+  // Template id chosen by the submitter — defaults to the first template.
+  // Stored alongside the wish in RTDB so the wall renders it in the
+  // submitter's chosen style instead of cycling.
+  const [templateId, setTemplateId] = useState(WISH_TEMPLATES[0].id);
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
   const [error, setError] = useState('');
   const [liveWishes, setLiveWishes] = useState([]);
@@ -48,20 +52,20 @@ const WishesPage = () => {
     return unsubscribe;
   }, []);
 
-  // Seeds = curated/pinned wishes from siteConfig, marked with `pinned: true`
-  // so the wall can render a small badge on them.
-  const pinnedSeeds = useMemo(
+  // Curated seeds from siteConfig come first in the wall (chronological),
+  // followed by live RTDB wishes (newest first). No visual differentiator —
+  // they read as one continuous wall.
+  const curatedSeeds = useMemo(
     () =>
-      [...(wishes.seeds || [])]
-        .map((s) => ({ ...s, pinned: true }))
-        .sort((a, b) => (b.date || '').localeCompare(a.date || '')),
+      [...(wishes.seeds || [])].sort(
+        (a, b) => (b.date || '').localeCompare(a.date || ''),
+      ),
     [wishes.seeds],
   );
 
-  // Combined feed: pinned seeds first, then live wishes (newest first).
   const seeds = useMemo(
-    () => [...pinnedSeeds, ...liveWishes],
-    [pinnedSeeds, liveWishes],
+    () => [...curatedSeeds, ...liveWishes],
+    [curatedSeeds, liveWishes],
   );
 
   const { elementRef: wallRef, isVisible: wallVisible } = useScrollReveal({
@@ -78,13 +82,15 @@ const WishesPage = () => {
       return;
     }
     setStatus('submitting');
-    const result = await submitWish({ name, handle, message, honeypot });
+    const result = await submitWish({ name, handle, message, honeypot, template: templateId });
     if (result.ok) {
       setStatus('success');
       setName('');
       setHandle('');
       setMessage('');
       setHoneypot('');
+      // Keep templateId as-is so users can quickly post another wish in
+      // the same style if they want.
     } else {
       setStatus('error');
       setError(result.error || 'Pesan gagal terkirim, coba lagi sebentar lagi.');
@@ -261,6 +267,40 @@ const WishesPage = () => {
                     />
                   </label>
 
+                  {/* Template picker — submitter chooses which card style
+                      their wish renders as on the wall. Stored as `template`
+                      on the wish doc; wall reads it back. Default is the
+                      first template; chip shows id + label, selected one
+                      gets a cream background. */}
+                  <fieldset>
+                    <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-2">
+                      Pilih tampilan kartu
+                    </legend>
+                    <div className="flex flex-wrap gap-2">
+                      {WISH_TEMPLATES.map((tpl, tplIdx) => {
+                        const selected = tpl.id === templateId;
+                        return (
+                          <button
+                            key={tpl.id}
+                            type="button"
+                            onClick={() => setTemplateId(tpl.id)}
+                            aria-pressed={selected}
+                            className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
+                              selected
+                                ? 'bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] shadow-md'
+                                : 'bg-[color:var(--retro-cream)]/10 text-[color:var(--retro-cream)]/70 hover:bg-[color:var(--retro-cream)]/20 hover:text-[color:var(--retro-cream)] border border-[color:var(--retro-cream)]/15'
+                            }`}
+                          >
+                            <span className="opacity-60 tabular-nums">
+                              {String(tplIdx + 1).padStart(2, '0')}
+                            </span>
+                            <span>{tpl.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+
                   {/* Honeypot — invisible to humans, irresistible to spam bots.
                       Off-screen, aria-hidden, tab-skipped. If a submission
                       arrives with this field filled, wishesDb silently
@@ -394,11 +434,13 @@ const WishesPage = () => {
             >
               {seeds.map((wish, idx) => {
                 const tilt = cardTilt(idx);
-                // Cycle through the 5 templates so the wall demos all of
-                // them. Once you pick a favourite, swap this for a fixed
-                // index (e.g. WISH_TEMPLATES[0].Component) or a per-wish
-                // template id stored on the seed object.
-                const template = WISH_TEMPLATES[idx % WISH_TEMPLATES.length];
+                // Prefer the template the submitter chose. Fall back to
+                // a per-index cycle for curated seeds (no template field)
+                // and for any legacy live wishes saved before the picker
+                // existed.
+                const template =
+                  WISH_TEMPLATES.find((t) => t.id === wish.template) ||
+                  WISH_TEMPLATES[idx % WISH_TEMPLATES.length];
                 const Card = template.Component;
                 return (
                   <div
@@ -416,11 +458,6 @@ const WishesPage = () => {
                     }`}
                     data-template={template.id}
                   >
-                    {wish.pinned && (
-                      <span className="absolute -top-2 -right-2 z-10 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)] text-[9px] font-black uppercase tracking-[0.3em] shadow-md">
-                        ★ Pinned
-                      </span>
-                    )}
                     <Card wish={wish} />
                   </div>
                 );
