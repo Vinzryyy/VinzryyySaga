@@ -171,8 +171,14 @@ const WishesPage = () => {
           peeking from the right. On mobile the portrait stacks on top
           like a hero banner; on lg+ it lives beside the form. */}
       <section className="mb-12 md:mb-16">
-        <div className="w-full">
-          <div className="bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
+        <div className="w-full overflow-x-hidden">
+          {/* Plate has no overflow-hidden anymore — that was suspected of
+              interfering with mobile horizontal swipe inside the picker.
+              Orbs are still clipped horizontally by the section wrapper
+              above (overflow-x-hidden), so they can't push the page wide,
+              but they're free to glow softly past the top/bottom plate
+              edges into the cream page bg. */}
+          <div className="bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
             <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
             <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
@@ -427,10 +433,10 @@ const WishesPage = () => {
 
               {/* RIGHT — portrait peeking from the side, like og-card.
                   Mobile (single col): renders ABOVE the form as a hero
-                  banner at 260px tall — substantial without dominating.
-                  md+ (side-by-side): stretches to match form column
-                  height with a generous min-h-[560px] floor. */}
-              <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden bg-[color:var(--retro-brown-dark)]/40">
+                  banner at 260px tall. md+ (side-by-side): stretches
+                  with a min-h-[560px] floor. overflow-hidden here is
+                  necessary to crop the absolute img to the column. */}
+              <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden">
                 <img
                   src="/archive/img-024.jpg"
                   alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
