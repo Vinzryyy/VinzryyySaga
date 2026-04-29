@@ -171,14 +171,14 @@ const WishesPage = () => {
           peeking from the right. On mobile the portrait stacks on top
           like a hero banner; on lg+ it lives beside the form. */}
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
             <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
             <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
-            <div className="relative grid lg:grid-cols-[1.7fr_1fr] gap-0 z-[2]">
+            <div className="relative grid md:grid-cols-[1.7fr_1fr] gap-0 z-[2]">
               {/* LEFT — text + form */}
-              <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 lg:order-1">
+              <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 md:order-1">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
                   ★ Form Ucapan
@@ -410,11 +410,10 @@ const WishesPage = () => {
               </div>
 
               {/* RIGHT — portrait peeking from the side, like og-card.
-                  Direct <img> (no <picture>) + eager loading + bg color
-                  fallback so the column reads even if the image 404s, so
-                  we can distinguish "image not loading" from "column not
-                  rendering". */}
-              <div className="relative order-1 lg:order-2 min-h-[320px] lg:min-h-[560px] overflow-hidden bg-[color:var(--retro-brown-dark)]/60">
+                  Side-by-side starts at md (768px) so tablet viewports
+                  get the full editorial composition instead of the
+                  stacked mobile fallback. */}
+              <div className="relative order-1 md:order-2 min-h-[320px] md:min-h-[560px] overflow-hidden bg-[color:var(--retro-brown-dark)]/60">
                 <img
                   src="/archive/img-024.jpg"
                   alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
@@ -422,12 +421,12 @@ const WishesPage = () => {
                   decoding="async"
                   className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
                 />
-                {/* Mobile fade — top edge fades into burgundy so eyebrow row stays readable */}
-                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[color:var(--retro-burgundy)] to-transparent lg:hidden" />
-                {/* Mobile fade — bottom edge fades into burgundy so the form below blends */}
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[color:var(--retro-burgundy)] to-transparent lg:hidden" />
-                {/* Desktop fade — left edge fades into burgundy so the form text doesn't crash into the photo */}
-                <div className="hidden lg:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[color:var(--retro-burgundy)] to-transparent" />
+                {/* Mobile fades (stacked layout): top + bottom edges fade
+                    into burgundy so eyebrow + form below blend in. */}
+                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[color:var(--retro-burgundy)] to-transparent md:hidden" />
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[color:var(--retro-burgundy)] to-transparent md:hidden" />
+                {/* Tablet+ fade — left edge fades into burgundy so form text doesn't crash into the photo */}
+                <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[color:var(--retro-burgundy)] to-transparent" />
                 <span className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-[color:var(--retro-cream)]/15 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] border border-[color:var(--retro-cream)]/20">
                   Eli · 15.06
                 </span>
