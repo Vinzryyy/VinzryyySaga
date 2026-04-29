@@ -274,13 +274,20 @@ const WishesPage = () => {
                       land on the outer button regardless of inner element
                       shapes. */}
                   <fieldset>
-                    <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-3">
-                      Pilih tampilan kartu — preview live
-                    </legend>
-                    {/* Mobile: horizontal swipe strip — keeps the picker
-                        from eating 5 vertical rows on small screens.
-                        sm+: flex-wrap so chips reflow to multiple rows. */}
-                    <div className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-x-visible scrollbar-hide no-scrollbar">
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
+                        Pilih tampilan kartu — preview live
+                      </legend>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/40 inline-flex items-center gap-1.5 flex-shrink-0">
+                        <i className="ri-arrow-left-line" />
+                        Geser
+                        <i className="ri-arrow-right-line" />
+                      </span>
+                    </div>
+                    {/* Horizontal swipe strip on all viewports — chips slide
+                        sideways instead of wrapping. Compact vertical
+                        footprint regardless of how many templates exist. */}
+                    <div className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-mandatory">
                       {WISH_TEMPLATES.map((tpl, tplIdx) => {
                         const selected = tpl.id === templateId;
                         const PreviewCard = tpl.Component;
@@ -302,27 +309,24 @@ const WishesPage = () => {
                             onClick={() => setTemplateId(tpl.id)}
                             aria-pressed={selected}
                             title={tpl.label}
-                            className={`flex-shrink-0 w-[200px] flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
+                            className={`flex-shrink-0 w-[200px] snap-start flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
                               selected
                                 ? 'bg-[color:var(--retro-cream)]/15 ring-2 ring-[color:var(--retro-gold-light)] -translate-y-0.5 shadow-lg'
                                 : 'bg-[color:var(--retro-cream)]/5 ring-1 ring-[color:var(--retro-cream)]/10 hover:bg-[color:var(--retro-cream)]/10 hover:ring-[color:var(--retro-cream)]/30'
                             }`}
                           >
-                            {/* Scaled preview — portrait rectangle (184×260,
-                                aspect ~1:1.4). Inner renders at 320×452
-                                so a scale of 0.575 lands at exactly 184
-                                wide × 260 tall. Templates have min-h-280
-                                and flex layouts, so they fill the taller
-                                inner naturally without empty space. */}
+                            {/* Scaled preview — landscape (184×160). Inner
+                                renders at 320×260, scale 0.575 lands at
+                                ~184 wide so it fills the tile cleanly. */}
                             <div
                               aria-hidden="true"
-                              className="relative w-[184px] h-[260px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
+                              className="relative w-[184px] h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
                             >
                               <div
                                 className="absolute top-0 left-0 origin-top-left"
                                 style={{
                                   width: '320px',
-                                  height: '452px',
+                                  height: '260px',
                                   transform: 'scale(0.575)',
                                 }}
                               >
