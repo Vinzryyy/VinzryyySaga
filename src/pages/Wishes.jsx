@@ -313,10 +313,10 @@ const WishesPage = () => {
               {/* RIGHT — portrait peeking from the side, like og-card */}
               <div className="relative order-1 lg:order-2 min-h-[280px] lg:min-h-0 overflow-hidden">
                 <picture>
-                  <source srcSet="/archive/img-070.avif" type="image/avif" />
-                  <source srcSet="/archive/img-070.webp" type="image/webp" />
+                  <source srcSet="/archive/img-024.avif" type="image/avif" />
+                  <source srcSet="/archive/img-024.webp" type="image/webp" />
                   <img
-                    src="/archive/img-070.jpg"
+                    src="/archive/img-024.jpg"
                     alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
