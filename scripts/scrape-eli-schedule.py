@@ -120,7 +120,7 @@ def fetch_detail(sc, token: str, slug: str):
     return r.json().get("data")
 
 
-def normalize_show(detail: dict) -> dict | None:
+def normalize_show(detail: dict, slug: str) -> dict | None:
     """SHOW → one event. Returns None if Eli not in cast."""
     members = detail.get("jkt48_member") or []
     eli = any(
@@ -145,11 +145,15 @@ def normalize_show(detail: dict) -> dict | None:
             for m in members
         ],
         "is_birthday_show": detail.get("birthday_member") is not None,
-        "url": f"{BASE}/schedule/{(detail.get('code') or '').lower()}",
+        # jkt48.com uses the full slug from the listing (e.g.
+        # `sh86f5-sambil-menggandeng-erat-tanganku`), not just the
+        # short `code` (`SH86F5`). Short-form URLs redirect to
+        # /schedule overview which loses context.
+        "url": f"{BASE}/schedule/{slug}",
     }
 
 
-def normalize_exclusive(detail: dict, listing_date: str | None) -> list[dict]:
+def normalize_exclusive(detail: dict, listing_date: str | None, slug: str) -> list[dict]:
     """EXCLUSIVE (M&G) → one event per session that has Eli in a Jalur."""
     out = []
     sessions = detail.get("session") or []
@@ -190,7 +194,8 @@ def normalize_exclusive(detail: dict, listing_date: str | None) -> list[dict]:
             "sold_out": all_sold_out,
             "remaining_total": total_remaining,
             "is_birthday_show": False,
-            "url": f"{BASE}/schedule/{(detail.get('code') or '').lower()}",
+            # Full listing slug — short `code` URLs hit /schedule overview
+            "url": f"{BASE}/schedule/{slug}",
         })
     return out
 
@@ -240,11 +245,11 @@ def main():
             seen_codes.add(slug)
             kind = entry.get("type")
             if kind == "SHOW":
-                norm = normalize_show(detail)
+                norm = normalize_show(detail, slug)
                 if norm:
                     eli_events.append(norm)
             elif kind == "EXCLUSIVE":
-                eli_events.extend(normalize_exclusive(detail, entry.get("date")))
+                eli_events.extend(normalize_exclusive(detail, entry.get("date"), slug))
 
     eli_events.sort(key=lambda s: s.get("date") or "")
     # Belt-and-suspenders dedupe by (code, date, start_time) in case the
