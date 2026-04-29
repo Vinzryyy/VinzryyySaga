@@ -1,0 +1,49 @@
+/**
+ * Template 3 — Vintage Telegram
+ * Cream paper with dotted top/bottom borders, centered "TELEGRAM · MM/YYYY"
+ * stamp, mono-feel body copy, "STOP." footer like a classic telegram.
+ */
+
+import React from 'react';
+
+const TELEGRAM_MONTH = (iso) => {
+  if (!iso) return '00 / 0000';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '00 / 0000';
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${mm} / ${d.getFullYear()}`;
+};
+
+const Template3Telegram = ({ wish }) => {
+  const stamp = TELEGRAM_MONTH(wish.date);
+  return (
+    <article className="relative h-full min-h-[280px] flex flex-col bg-[color:var(--retro-cream)] p-6 shadow-sm border border-[color:var(--retro-brown-dark)]/15 [border-style:double] rounded-md">
+      {/* Dotted top */}
+      <div className="absolute top-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-brown-dark)]/20" />
+      <div className="absolute bottom-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-brown-dark)]/20" />
+
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)] mt-2 mb-1">
+        Telegram
+      </p>
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums mb-4">
+        {stamp}
+      </p>
+
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-3">
+        TO · {wish.handle || 'Eli JKT48'}
+      </p>
+
+      <p className="text-sm text-[color:var(--retro-text-primary)] leading-relaxed flex-1 text-center font-mono tracking-tight">
+        {wish.message.toUpperCase()} STOP.
+      </p>
+
+      <div className="mt-4 pt-3 text-center">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+          — {wish.name} —
+        </p>
+      </div>
+    </article>
+  );
+};
+
+export default Template3Telegram;

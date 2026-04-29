@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import MarqueeStrip from '../components/wishes/MarqueeStrip';
+import { WISH_TEMPLATES } from '../components/wishes/templates';
 
 const formatRelative = (iso) => {
   if (!iso) return null;
@@ -325,49 +326,30 @@ const WishesPage = () => {
             >
               {seeds.map((wish, idx) => {
                 const tilt = cardTilt(idx);
-                const date = formatRelative(wish.date);
+                // Cycle through the 5 templates so the wall demos all of
+                // them. Once you pick a favourite, swap this for a fixed
+                // index (e.g. WISH_TEMPLATES[0].Component) or a per-wish
+                // template id stored on the seed object.
+                const template = WISH_TEMPLATES[idx % WISH_TEMPLATES.length];
+                const Card = template.Component;
                 return (
-                  <article
+                  <div
                     key={`${wish.name}-${wish.date}-${idx}`}
                     style={{
                       transitionDelay: `${idx * 50}ms`,
                       transform: `rotate(${tilt}deg)`,
-                      // Desync the bob — duration 4–7s, staggered by index
                       ['--bob-duration']: `${4 + (idx % 4)}s`,
                       ['--bob-delay']: `${(idx * 0.4) % 3}s`,
                     }}
-                    className={`wish-bob relative rounded-2xl bg-[color:var(--retro-bg-primary)] border border-[color:var(--retro-brown-dark)]/15 p-5 md:p-6 shadow-sm hover:shadow-xl hover:rotate-0 transition-all duration-500 ${
+                    className={`wish-bob hover:rotate-0 transition-all duration-500 ${
                       wallVisible
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 translate-y-6'
                     }`}
+                    data-template={template.id}
                   >
-                    <div className="flex items-baseline justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center flex-shrink-0">
-                          <i className="ri-user-smile-line text-base" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight truncate">
-                            {wish.name}
-                          </p>
-                          {wish.handle && (
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--color-text-muted)] truncate">
-                              {wish.handle}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      {date && (
-                        <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] flex-shrink-0">
-                          {date}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-[color:var(--retro-text-secondary)] leading-relaxed">
-                      "{wish.message}"
-                    </p>
-                  </article>
+                    <Card wish={wish} />
+                  </div>
                 );
               })}
             </div>
