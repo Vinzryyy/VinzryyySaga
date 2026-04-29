@@ -165,7 +165,7 @@ const generateLayout = (count, seed) => {
       rotate: (rand() - 0.5) * 80, // ±40°
       delay: rand() * 8, // s — desync drift across instances
       duration: 7 + rand() * 7, // 7–14s drift loop
-      opacity: 0.05 + rand() * 0.08, // 5–13%
+      opacity: 0.12 + rand() * 0.18, // 12–30%
       drift: 6 + rand() * 14, // px translateY amplitude
       // Mostly burgundy with occasional gold accents for warmth
       color: rand() > 0.78 ? 'var(--retro-gold)' : 'var(--retro-burgundy)',
