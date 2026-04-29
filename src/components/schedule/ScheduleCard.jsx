@@ -37,6 +37,8 @@ const formatRefreshed = (iso) => {
   }).format(d);
 };
 
+const RECENT_PAST_LIMIT = 6;
+
 const ScheduleCard = () => {
   const [calendar, setCalendar] = useState(null); // { events, fetchedAt, source } or null
   const [calendarError, setCalendarError] = useState(null);
@@ -55,15 +57,30 @@ const ScheduleCard = () => {
     [calendar],
   );
 
+  // Fallback when there are no upcoming events: show the last N past
+  // events (most recent first) so the section never reads as empty.
+  // Source is sorted ascending; reverse + slice the tail.
+  const recentPast = useMemo(() => {
+    const past = (calendar?.events || []).filter((e) => !isUpcoming(e.date));
+    return past.slice(-RECENT_PAST_LIMIT).reverse();
+  }, [calendar]);
+
+  // Decide which list drives the render. If upcoming is empty AND we
+  // have past events, fall back to recent past with a different heading.
+  const showingPast = upcoming.length === 0 && recentPast.length > 0;
+  const list = showingPast ? recentPast : upcoming;
+  const heading = showingPast ? 'Event JKT48 Terbaru' : 'Event JKT48 Mendatang';
+  const countLabel = showingPast ? `${list.length} recent` : `${list.length} upcoming`;
+
   return (
     <div className="rounded-2xl bg-[color:var(--retro-bg-primary)] border border-[color:var(--retro-brown-dark)]/15 p-6 md:p-8 shadow-sm">
       <div className="flex items-center justify-between gap-3 mb-5 pb-4 border-b border-[color:var(--retro-brown-dark)]/10">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
-          <i className="ri-calendar-event-line text-base" />
-          Event JKT48 Mendatang
+          <i className={`${showingPast ? 'ri-history-line' : 'ri-calendar-event-line'} text-base`} />
+          {heading}
         </p>
         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
-          {upcoming.length} upcoming
+          {countLabel}
         </span>
       </div>
 
@@ -77,11 +94,18 @@ const ScheduleCard = () => {
         <p className="text-sm text-[color:var(--color-text-muted)]">Memuat kalender…</p>
       )}
 
-      {calendar && upcoming.length === 0 && (
+      {showingPast && (
+        <p className="mb-4 text-xs text-[color:var(--color-text-muted)] leading-relaxed">
+          <i className="ri-information-line mr-1.5 align-[-2px]" />
+          Belum ada jadwal mendatang dari sumber. Menampilkan {recentPast.length} event terbaru sebagai konteks.
+        </p>
+      )}
+
+      {calendar && list.length === 0 && (
         <div className="rounded-xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 p-8 text-center">
           <i className="ri-calendar-todo-line text-4xl text-[color:var(--retro-burgundy)]/30 mb-3 inline-block" />
           <p className="font-bold text-[color:var(--retro-text-primary)]">
-            Belum ada event JKT48 yang dijadwalkan ke depan.
+            Belum ada event JKT48 di sumber.
           </p>
           <p className="text-sm text-[color:var(--color-text-muted)] mt-1">
             Sumber akan auto-refresh tiap 6 jam — cek lagi nanti.
@@ -89,34 +113,46 @@ const ScheduleCard = () => {
         </div>
       )}
 
-      {calendar && upcoming.length > 0 && (
+      {calendar && list.length > 0 && (
         <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {upcoming.map((entry, idx) => (
-            <li
-              key={`${entry.date}-${entry.title}-${idx}`}
-              className="flex items-stretch gap-3 p-4 rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 transition-all"
-            >
-              <div className="flex-shrink-0 w-14 text-center border-r border-[color:var(--retro-brown-dark)]/10 pr-3">
-                <p className="font-header text-3xl font-black text-[color:var(--retro-burgundy)] leading-none tabular-nums">
-                  {String(new Date(entry.date).getDate()).padStart(2, '0')}
-                </p>
-                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
-                  {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(entry.date))}
-                </p>
-                <p className="text-[9px] font-black tabular-nums text-[color:var(--color-text-muted)] mt-0.5">
-                  {new Date(entry.date).getFullYear()}
-                </p>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight">
-                  {entry.title}
-                </p>
-                <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
-                  {entry.location}
-                </p>
-                {entry.tags && entry.tags.length > 0 && (
+          {list.map((entry, idx) => {
+            const eventIsPast = !isUpcoming(entry.date);
+            return (
+              <li
+                key={`${entry.date}-${entry.title}-${idx}`}
+                className={`flex items-stretch gap-3 p-4 rounded-xl bg-white border transition-all ${
+                  eventIsPast
+                    ? 'border-[color:var(--retro-brown-dark)]/10 opacity-70 hover:opacity-100'
+                    : 'border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5'
+                }`}
+              >
+                <div className="flex-shrink-0 w-14 text-center border-r border-[color:var(--retro-brown-dark)]/10 pr-3">
+                  <p className={`font-header text-3xl font-black leading-none tabular-nums ${
+                    eventIsPast ? 'text-[color:var(--color-text-muted)]' : 'text-[color:var(--retro-burgundy)]'
+                  }`}>
+                    {String(new Date(entry.date).getDate()).padStart(2, '0')}
+                  </p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
+                    {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(entry.date))}
+                  </p>
+                  <p className="text-[9px] font-black tabular-nums text-[color:var(--color-text-muted)] mt-0.5">
+                    {new Date(entry.date).getFullYear()}
+                  </p>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight">
+                    {entry.title}
+                  </p>
+                  <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
+                    {entry.location}
+                  </p>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {entry.tags.map((tag) => (
+                    {eventIsPast && (
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--color-text-muted)]/15 text-[color:var(--color-text-muted)]">
+                        past
+                      </span>
+                    )}
+                    {entry.tags && entry.tags.map((tag) => (
                       <span
                         key={tag}
                         className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)]/80"
@@ -125,10 +161,10 @@ const ScheduleCard = () => {
                       </span>
                     ))}
                   </div>
-                )}
-              </div>
-            </li>
-          ))}
+                </div>
+              </li>
+            );
+          })}
         </ol>
       )}
 
