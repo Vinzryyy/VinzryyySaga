@@ -9,19 +9,22 @@ sits behind Cloudflare's anti-bot challenge that pure-HTTP libraries
 lightest tool that does, and it's Python-only. The frontend is still
 React/Vite — we just consume the JSON output.
 
+Two event categories handled:
+  1. SHOW (theater stages)     — `data.jkt48_member` array of {name, member_id}
+  2. EXCLUSIVE (meet & greet)  — `data.session[].session_detail[].jkt48_member_name`
+                                  (one M&G can have multiple sessions, each
+                                  with a separate Eli slot if applicable)
+
 How it works (per run):
   1. Read JKT48_SESSION_COOKIE from env (NextAuth session token,
-     captured from a real browser login). Cookie lasts ~30 days; refresh
-     when scraper starts failing with 401s.
+     captured from a real browser login). Cookie lasts ~30 days.
   2. GET /api/auth/session → extract `access_token` (separate JWT used
      as Bearer for the actual API).
   3. For the current month + next N months:
-       a. GET /api/v1/schedules?lang=id&month=M&year=Y → list of shows
-       b. Skip shows whose `jkt48_member_type` isn't DREAM (Eli's team)
-          or JKT48 (all-team) — saves detail fetches.
-       c. For each candidate: GET /api/v1/schedules/{slug} → cast list
-          includes `jkt48_member` array with names + member_id.
-       d. Keep shows where any member has member_id == ELI_MEMBER_ID.
+       a. GET /api/v1/schedules?lang=id&month=M&year=Y → list of events
+       b. For each SHOW: GET detail, keep if Eli in jkt48_member
+       c. For each EXCLUSIVE: GET detail, expand sessions, keep ones
+          where any session_detail mentions Helisma Putri
   4. Sort by date, write to public/data/eli-schedule.json.
 
 Run locally:
@@ -36,27 +39,23 @@ import os
 import sys
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import cloudscraper
 
-# Eli's member_id on jkt48.com — confirmed via the show detail endpoint
-# returning {"name": "Helisma Putri", "member_id": 112, ...}
 ELI_MEMBER_ID = 112
 ELI_NAME = "Helisma Putri"
 
-# How many months ahead to scrape. Schedules are typically published
-# 2-4 weeks ahead, so 3 months captures everything announced.
+# How many months ahead to scrape. JKT48 typically announces 2-4 weeks
+# out, so 3 months captures everything currently scheduled.
 MONTHS_AHEAD = 3
 
-# Member-type values we care about. DREAM = Eli's team. JKT48 = all-team
-# show (e.g. anniversary, special event) where any member can appear.
-# Other values like LOVE / PASSION are other teams — Eli won't be in those.
-RELEVANT_TYPES = {"DREAM", "JKT48"}
+# Event categories we KEEP from the listing for detail fetching.
+# `SHOW` = theater stages. `EXCLUSIVE` = meet & greet / 2Shot festivals.
+KEEP_TYPES = {"SHOW", "EXCLUSIVE"}
 
-# Reasonable politeness delay between detail fetches so we don't hammer
-# the API like a bot. 0.4s ≈ 150 req/min ceiling.
+# Politeness delay between detail fetches.
 DETAIL_DELAY_S = 0.4
 
 OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-schedule.json"
@@ -68,7 +67,7 @@ def must_env(name: str) -> str:
     if not v:
         sys.exit(
             f"[fatal] {name} is not set. Capture the NextAuth session cookie "
-            f"from a logged-in browser (DevTools → Application → Cookies → "
+            f"from a logged-in browser (DevTools -> Application -> Cookies -> "
             f"`__Secure-next-auth.session-token`) and pass it via env."
         )
     return v
@@ -78,7 +77,6 @@ def make_scraper(session_cookie: str) -> cloudscraper.CloudScraper:
     sc = cloudscraper.create_scraper(
         browser={"browser": "chrome", "platform": "windows", "desktop": True}
     )
-    # Set the session cookie so subsequent requests are authenticated
     sc.cookies.set(
         "__Secure-next-auth.session-token",
         session_cookie,
@@ -111,26 +109,28 @@ def fetch_month(sc, token: str, month: int, year: int):
     return body.get("data") or []
 
 
-def fetch_show_detail(sc, token: str, slug: str):
-    url = f"{BASE}/api/v1/schedules/{slug}"
-    r = sc.get(url, headers={"authorization": f"Bearer {token}"}, timeout=20)
+def fetch_detail(sc, token: str, slug: str):
+    r = sc.get(
+        f"{BASE}/api/v1/schedules/{slug}",
+        headers={"authorization": f"Bearer {token}"},
+        timeout=20,
+    )
     if r.status_code != 200:
         return None
-    body = r.json()
-    return body.get("data")
+    return r.json().get("data")
 
 
-def has_eli(show_detail: dict) -> bool:
-    members = show_detail.get("jkt48_member") or []
-    return any(
+def normalize_show(detail: dict) -> dict | None:
+    """SHOW → one event. Returns None if Eli not in cast."""
+    members = detail.get("jkt48_member") or []
+    eli = any(
         m.get("member_id") == ELI_MEMBER_ID or m.get("name") == ELI_NAME
         for m in members
     )
-
-
-def normalize_show(detail: dict) -> dict:
-    """Trim the verbose detail down to the fields the frontend uses."""
+    if not eli:
+        return None
     return {
+        "kind": "SHOW",
         "schedule_id": detail.get("theater_show_id"),
         "code": detail.get("code"),
         "title": detail.get("title"),
@@ -138,73 +138,135 @@ def normalize_show(detail: dict) -> dict:
         "start_time": detail.get("start_time"),
         "end_time": detail.get("end_time"),
         "set_list": detail.get("set_list"),
-        "team": detail.get("jkt48_member_type"),  # DREAM / JKT48 / etc
-        "venue": "JKT48 Theater",  # API doesn't return venue but theater shows are always at the theater
+        "team": detail.get("jkt48_member_type"),
+        "venue": "JKT48 Theater",
         "members": [
             {"name": m.get("name"), "member_id": m.get("member_id"), "type": m.get("type")}
-            for m in (detail.get("jkt48_member") or [])
+            for m in members
         ],
         "is_birthday_show": detail.get("birthday_member") is not None,
-        "url": f"https://jkt48.com/schedule/{detail.get('code', '').lower()}",
+        "url": f"{BASE}/schedule/{(detail.get('code') or '').lower()}",
     }
+
+
+def normalize_exclusive(detail: dict, listing_date: str | None) -> list[dict]:
+    """EXCLUSIVE (M&G) → one event per session that has Eli in a Jalur."""
+    out = []
+    sessions = detail.get("session") or []
+    for s_idx, sess in enumerate(sessions, start=1):
+        details = sess.get("session_detail") or []
+        eli_jalurs = [
+            d for d in details
+            if d.get("jkt48_member_name") == ELI_NAME
+        ]
+        if not eli_jalurs:
+            continue
+        # Compose a friendly title that includes the session label
+        base_title = detail.get("title") or "Personal Meet & Greet"
+        sess_label = sess.get("label") or f"Sesi {s_idx}"
+        out.append({
+            "kind": "EXCLUSIVE",
+            "schedule_id": detail.get("exclusive_id"),
+            "code": detail.get("code"),
+            "title": f"{base_title} ({sess_label})",
+            "date": sess.get("date") or listing_date,
+            "start_time": (sess.get("start_time") or "")[:5] if sess.get("start_time") else None,
+            "end_time": (sess.get("end_time") or "")[:5] if sess.get("end_time") else None,
+            "category": detail.get("category"),  # e.g. TWO_SHOT, MEET_GREET
+            "team": None,
+            "venue": "JKT48 Personal M&G Festival",
+            "members": [
+                {"name": d.get("jkt48_member_name")}
+                for d in details
+            ],
+            "eli_jalur": [d.get("label") for d in eli_jalurs],
+            "tickets_sold_eli": [d.get("tickets_sold") for d in eli_jalurs],
+            "is_birthday_show": False,
+            "url": f"{BASE}/schedule/{(detail.get('code') or '').lower()}",
+        })
+    return out
 
 
 def main():
     cookie = must_env("JKT48_SESSION_COOKIE")
     sc = make_scraper(cookie)
 
-    print("[1/3] Verifying session…")
+    print("[1/3] Verifying session...")
     token = get_access_token(sc)
-    print(f"      access_token len={len(token)} ✓")
+    print(f"      access_token len={len(token)} OK")
 
-    print(f"[2/3] Scanning {MONTHS_AHEAD} months ahead…")
+    print(f"[2/3] Scanning {MONTHS_AHEAD} months ahead...")
     today = datetime.now()
-    eli_shows = []
-    candidates_total = 0
-    skipped_total = 0
+    eli_events = []
     detail_calls = 0
+    # Dedupe upstream: each EXCLUSIVE M&G appears in the listing once per
+    # session-date, but `/api/v1/schedules/{slug}` returns ALL sessions in
+    # one payload — so fetching detail per listing entry produces duplicate
+    # normalized sessions. Track each unique detail `code` so we only fetch
+    # + emit per event once.
+    seen_codes = set()
 
     for offset in range(MONTHS_AHEAD):
-        # Compute target month with rollover
         m = today.month + offset
         y = today.year
         while m > 12:
             m -= 12
             y += 1
         listing = fetch_month(sc, token, m, y)
-        candidates = [s for s in listing if s.get("jkt48_member_type") in RELEVANT_TYPES]
+        candidates = [s for s in listing if s.get("type") in KEEP_TYPES]
         skipped = len(listing) - len(candidates)
-        candidates_total += len(candidates)
-        skipped_total += skipped
-        print(f"      {y}-{m:02d}: {len(listing)} shows, {len(candidates)} candidates (skipped {skipped} non-DREAM/JKT48)")
+        print(f"      {y}-{m:02d}: {len(listing)} entries, {len(candidates)} candidates ({skipped} skipped)")
 
-        for show in candidates:
-            slug = show.get("link")
+        for entry in candidates:
+            slug = entry.get("link")
             if not slug:
                 continue
-            detail = fetch_show_detail(sc, token, slug)
+            # Skip if we've already processed this slug
+            if slug in seen_codes:
+                continue
+            detail = fetch_detail(sc, token, slug)
             detail_calls += 1
             time.sleep(DETAIL_DELAY_S)
             if not detail:
                 continue
-            if has_eli(detail):
-                eli_shows.append(normalize_show(detail))
+            seen_codes.add(slug)
+            kind = entry.get("type")
+            if kind == "SHOW":
+                norm = normalize_show(detail)
+                if norm:
+                    eli_events.append(norm)
+            elif kind == "EXCLUSIVE":
+                eli_events.extend(normalize_exclusive(detail, entry.get("date")))
 
-    eli_shows.sort(key=lambda s: s.get("date") or "")
+    eli_events.sort(key=lambda s: s.get("date") or "")
+    # Belt-and-suspenders dedupe by (code, date, start_time) in case the
+    # source itself has overlapping records.
+    seen = set()
+    deduped = []
+    for e in eli_events:
+        key = (e.get("code"), e.get("date"), e.get("start_time"))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(e)
+    eli_events = deduped
 
-    print(f"[3/3] Found {len(eli_shows)} Eli appearances "
-          f"(scanned {candidates_total} candidates, {detail_calls} detail fetches)")
+    show_count = sum(1 for e in eli_events if e.get("kind") == "SHOW")
+    mg_count = sum(1 for e in eli_events if e.get("kind") == "EXCLUSIVE")
+    print(f"[3/3] Found {len(eli_events)} Eli appearances "
+          f"({show_count} shows, {mg_count} M&G sessions; {detail_calls} detail fetches)")
 
     payload = {
         "source": "https://jkt48.com (official) via authenticated session",
         "sourceNote": (
-            "Eli (Helisma Putri, member_id 112) appearances in JKT48 theater "
-            "schedule for the next {months} months. Cast list verified via per-show "
-            "detail endpoint."
+            "Eli (Helisma Putri, member_id 112) appearances in JKT48 "
+            "schedule for the next {months} months. Includes theater shows "
+            "(SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast "
+            "verified per event detail."
         ).format(months=MONTHS_AHEAD),
         "fetchedAt": datetime.utcnow().isoformat() + "Z",
-        "eventCount": len(eli_shows),
-        "events": eli_shows,
+        "eventCount": len(eli_events),
+        "events": eli_events,
     }
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

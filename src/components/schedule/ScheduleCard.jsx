@@ -42,6 +42,11 @@ const TEAM_LABEL = {
   PASSION: 'Team Passion',
 };
 
+const MG_CATEGORY_LABEL = {
+  TWO_SHOT: '2Shot',
+  MEET_GREET: 'Meet & Greet',
+};
+
 const ScheduleCard = () => {
   const [calendar, setCalendar] = useState(null);
   const [calendarError, setCalendarError] = useState(null);
@@ -97,11 +102,15 @@ const ScheduleCard = () => {
 
       {calendar && upcoming.length > 0 && (
         <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {upcoming.map((entry) => {
+          {upcoming.map((entry, idx) => {
             const date = new Date(entry.date);
-            const teamLabel = TEAM_LABEL[entry.team] || entry.team;
+            const isMG = entry.kind === 'EXCLUSIVE';
+            const primaryBadge = isMG
+              ? (MG_CATEGORY_LABEL[entry.category] || 'M&G')
+              : (TEAM_LABEL[entry.team] || entry.team);
+            const eliJalur = (entry.eli_jalur || []).join(', ');
             return (
-              <li key={entry.schedule_id}>
+              <li key={`${entry.code || entry.schedule_id}-${entry.date}-${entry.start_time || idx}`}>
                 <a
                   href={entry.url}
                   target="_blank"
@@ -122,8 +131,13 @@ const ScheduleCard = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]">
-                          {teamLabel}
+                        <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
+                          isMG
+                            ? 'bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]'
+                            : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
+                        }`}>
+                          <i className={isMG ? 'ri-user-heart-line' : 'ri-mic-line'} />
+                          {primaryBadge}
                         </span>
                         {entry.is_birthday_show && (
                           <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]">
@@ -144,7 +158,13 @@ const ScheduleCard = () => {
                         <i className="ri-map-pin-line mr-1 align-[-2px]" />
                         {entry.venue}
                       </p>
-                      {entry.members && entry.members.length > 0 && (
+                      {isMG && eliJalur && (
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)] mt-2 inline-flex items-center gap-1.5">
+                          <i className="ri-arrow-right-circle-line" />
+                          Eli di {eliJalur}
+                        </p>
+                      )}
+                      {!isMG && entry.members && entry.members.length > 0 && (
                         <p className="text-[10px] text-[color:var(--color-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
                           + {entry.members.length} member · klik untuk detail tiket
                         </p>
