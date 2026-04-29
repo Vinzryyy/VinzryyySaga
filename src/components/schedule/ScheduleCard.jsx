@@ -105,9 +105,29 @@ const ScheduleCard = () => {
           {upcoming.map((entry, idx) => {
             const date = new Date(entry.date);
             const isMG = entry.kind === 'EXCLUSIVE';
-            const primaryBadge = isMG
-              ? (MG_CATEGORY_LABEL[entry.category] || 'M&G')
-              : (TEAM_LABEL[entry.team] || entry.team);
+            const isShow = entry.kind === 'SHOW';
+            const isVC = entry.is_video_call === true;
+            const isGeneral = entry.kind === 'GENERAL';
+            const isEvent = entry.kind === 'EVENT' && !isVC;
+            // Pick badge label + icon per kind
+            let primaryBadge;
+            let badgeIcon;
+            if (isMG) {
+              primaryBadge = MG_CATEGORY_LABEL[entry.category] || 'M&G';
+              badgeIcon = 'ri-user-heart-line';
+            } else if (isVC) {
+              primaryBadge = 'Video Call';
+              badgeIcon = 'ri-vidicon-line';
+            } else if (isGeneral) {
+              primaryBadge = 'Off-site';
+              badgeIcon = 'ri-map-pin-line';
+            } else if (isEvent) {
+              primaryBadge = 'Event';
+              badgeIcon = 'ri-ticket-2-line';
+            } else {
+              primaryBadge = TEAM_LABEL[entry.team] || entry.team;
+              badgeIcon = 'ri-mic-line';
+            }
             const eliJalur = (entry.eli_jalur || []).join(', ');
             return (
               <li key={`${entry.code || entry.schedule_id}-${entry.date}-${entry.start_time || idx}`}>
@@ -132,11 +152,15 @@ const ScheduleCard = () => {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                         <span className={`text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
-                          isMG
+                          isVC
+                            ? 'bg-blue-100 text-blue-700'
+                            : isMG
                             ? 'bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]'
+                            : (isGeneral || isEvent)
+                            ? 'bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--retro-brown-dark)]'
                             : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
                         }`}>
-                          <i className={isMG ? 'ri-user-heart-line' : 'ri-mic-line'} />
+                          <i className={badgeIcon} />
                           {primaryBadge}
                         </span>
                         {entry.is_birthday_show && (

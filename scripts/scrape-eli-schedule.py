@@ -52,8 +52,16 @@ ELI_NAME = "Helisma Putri"
 MONTHS_AHEAD = 3
 
 # Event categories we KEEP from the listing for detail fetching.
-# `SHOW` = theater stages. `EXCLUSIVE` = meet & greet / 2Shot festivals.
-KEEP_TYPES = {"SHOW", "EXCLUSIVE"}
+#   SHOW       — theater stages
+#   EXCLUSIVE  — meet & greet / 2Shot festivals
+#   EVENT      — special standalone events (Video Call, dedicated session)
+#   GENERAL    — public/off-site events (festival, mall anniversary, etc.)
+# Eli appears in the cast list of EVENT/GENERAL when she's confirmed.
+# When `jkt48_member` is empty (e.g., gen-14-only events) we skip them.
+KEEP_TYPES = {"SHOW", "EXCLUSIVE", "EVENT", "GENERAL"}
+
+# Which kinds use the SHOW-style detail (flat jkt48_member array)
+SHOWLIKE_KINDS = {"SHOW", "EVENT", "GENERAL"}
 
 # Politeness delay between detail fetches.
 DETAIL_DELAY_S = 0.4
@@ -120,8 +128,13 @@ def fetch_detail(sc, token: str, slug: str):
     return r.json().get("data")
 
 
-def normalize_show(detail: dict, slug: str) -> dict | None:
-    """SHOW → one event. Returns None if Eli not in cast."""
+def normalize_showlike(detail: dict, slug: str, kind: str) -> dict | None:
+    """SHOW / EVENT / GENERAL → one event. Returns None if Eli not in cast.
+
+    All three share the same detail shape: flat `jkt48_member` array
+    plus top-level date/start_time/end_time. Difference is intent
+    (theater vs special event vs public event), surfaced via `kind`.
+    """
     members = detail.get("jkt48_member") or []
     eli = any(
         m.get("member_id") == ELI_MEMBER_ID or m.get("name") == ELI_NAME
@@ -129,9 +142,19 @@ def normalize_show(detail: dict, slug: str) -> dict | None:
     )
     if not eli:
         return None
+    # Pick a sensible default venue per kind. EVENT can be in-theater or
+    # virtual (Video Call); honor `is_in_theater` when present.
+    if kind == "SHOW":
+        venue = "JKT48 Theater"
+    elif kind == "EVENT":
+        is_vc = "video call" in (detail.get("title") or "").lower()
+        in_theater = detail.get("is_in_theater")
+        venue = "Video Call (online)" if is_vc else ("JKT48 Theater" if in_theater else "JKT48 Event")
+    else:  # GENERAL
+        venue = "JKT48 Off-site Event"
     return {
-        "kind": "SHOW",
-        "schedule_id": detail.get("theater_show_id"),
+        "kind": kind,
+        "schedule_id": detail.get("theater_show_id") or detail.get("event_id"),
         "code": detail.get("code"),
         "title": detail.get("title"),
         "date": detail.get("date"),
@@ -139,12 +162,13 @@ def normalize_show(detail: dict, slug: str) -> dict | None:
         "end_time": detail.get("end_time"),
         "set_list": detail.get("set_list"),
         "team": detail.get("jkt48_member_type"),
-        "venue": "JKT48 Theater",
+        "venue": venue,
         "members": [
             {"name": m.get("name"), "member_id": m.get("member_id"), "type": m.get("type")}
             for m in members
         ],
         "is_birthday_show": detail.get("birthday_member") is not None,
+        "is_video_call": kind == "EVENT" and "video call" in (detail.get("title") or "").lower(),
         # jkt48.com uses the full slug from the listing (e.g.
         # `sh86f5-sambil-menggandeng-erat-tanganku`), not just the
         # short `code` (`SH86F5`). Short-form URLs redirect to
@@ -244,8 +268,8 @@ def main():
                 continue
             seen_codes.add(slug)
             kind = entry.get("type")
-            if kind == "SHOW":
-                norm = normalize_show(detail, slug)
+            if kind in SHOWLIKE_KINDS:
+                norm = normalize_showlike(detail, slug, kind)
                 if norm:
                     eli_events.append(norm)
             elif kind == "EXCLUSIVE":
@@ -264,10 +288,13 @@ def main():
         deduped.append(e)
     eli_events = deduped
 
-    show_count = sum(1 for e in eli_events if e.get("kind") == "SHOW")
-    mg_count = sum(1 for e in eli_events if e.get("kind") == "EXCLUSIVE")
-    print(f"[3/3] Found {len(eli_events)} Eli appearances "
-          f"({show_count} shows, {mg_count} M&G sessions; {detail_calls} detail fetches)")
+    counts = {}
+    for e in eli_events:
+        k = e.get("kind", "?")
+        counts[k] = counts.get(k, 0) + 1
+    breakdown = ", ".join(f"{v} {k.lower()}" for k, v in counts.items())
+    print(f"[3/3] Found {len(eli_events)} Eli appearances ({breakdown}; "
+          f"{detail_calls} detail fetches)")
 
     payload = {
         "source": "https://jkt48.com (official) via authenticated session",
