@@ -5,7 +5,7 @@
  * doesn't feel like a different site.
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGallery } from '../context';
 import GalleryGrid from '../components/gallery/GalleryGrid';
@@ -18,6 +18,19 @@ import Seo from '../components/Seo';
 const AnimatedCount = ({ value, start, duration = 1200 }) => {
   const animated = useCountUp(value, { start, duration });
   return <>{animated.toLocaleString('id-ID')}</>;
+};
+
+// Header expand/collapse state — persisted across reloads so the user's
+// "I've seen the editorial intro, give me the grid" choice sticks.
+const HEADER_STORAGE_KEY = 'gallery.header.expanded';
+const readStoredHeaderExpanded = () => {
+  if (typeof window === 'undefined') return true;
+  try {
+    const v = window.localStorage.getItem(HEADER_STORAGE_KEY);
+    return v === null ? true : v === 'true';
+  } catch {
+    return true;
+  }
 };
 
 const GalleryPage = () => {
@@ -55,6 +68,15 @@ const GalleryPage = () => {
     rootMargin: '0px',
   });
 
+  const [headerExpanded, setHeaderExpanded] = useState(readStoredHeaderExpanded);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(HEADER_STORAGE_KEY, String(headerExpanded));
+    } catch {
+      /* localStorage unavailable — non-fatal */
+    }
+  }, [headerExpanded]);
+
   const seoTitle = year ? `Arsip ${year}` : 'Arsip Lengkap';
   const seoDescription = year
     ? `Frame-frame Eli JKT48 dari arsip tahun ${year}. Dokumentasi visual Helisma Putri di sepanjang tahun ${year}.`
@@ -64,8 +86,37 @@ const GalleryPage = () => {
   return (
     <main className="bg-[color:var(--retro-bg-primary)] min-h-screen">
       <Seo title={seoTitle} description={seoDescription} path={seoPath} />
-      {/* Editorial header — Issue plate + oversized title + lead + stat strip */}
-      <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
+      {/* Editorial header — Issue plate + oversized title + lead + stat strip.
+          Collapsible: the user can shrink it to a single-line summary bar
+          to skip past the editorial intro on repeat visits. State persists
+          via localStorage. */}
+      {!headerExpanded && (
+        <section className="relative pt-24 sm:pt-28 px-5 sm:px-6 md:px-12 lg:px-20">
+          <div className="max-w-7xl mx-auto flex items-center gap-3 py-3 border-b border-[color:var(--retro-brown-dark)]/10">
+            <button
+              type="button"
+              onClick={() => setHeaderExpanded(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[color:var(--retro-burgundy)]/90 transition-colors flex-shrink-0"
+              aria-label="Expand editorial header"
+              aria-expanded="false"
+            >
+              <i className="ri-arrow-down-s-line text-base -ml-1" />
+              <span>Arsip Penuh</span>
+            </button>
+            <span className="hidden sm:inline-block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] truncate">
+              Setiap frame, satu cerita kecil.
+            </span>
+            {stats && (
+              <span className="ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] tabular-nums whitespace-nowrap">
+                {stats.total.toLocaleString('id-ID')} <span className="text-[color:var(--color-text-muted)]">frames · {stats.eras} eras · {stats.first} → {stats.latest}</span>
+              </span>
+            )}
+          </div>
+        </section>
+      )}
+      <header
+        className={`${headerExpanded ? '' : 'hidden'} relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden`}
+      >
         {/* Watermark wordmark on the right (lg+) */}
         <div
           aria-hidden="true"
@@ -84,7 +135,19 @@ const GalleryPage = () => {
         />
 
         <div className="relative max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy)]">
+          {/* Minimize button — top-right of the editorial header */}
+          <button
+            type="button"
+            onClick={() => setHeaderExpanded(false)}
+            className="absolute top-0 right-0 w-9 h-9 flex items-center justify-center rounded-full bg-white/70 hover:bg-white text-[color:var(--retro-burgundy)] border border-[color:var(--retro-brown-dark)]/10 transition-all hover:scale-105 z-10 shadow-sm"
+            aria-label="Minimize editorial header"
+            aria-expanded="true"
+            title="Minimize editorial header"
+          >
+            <i className="ri-subtract-line text-base" />
+          </button>
+
+          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy)] pr-12">
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">Arsip Penuh</span>
             <span className="w-10 h-px bg-[color:var(--retro-burgundy)]/30" />
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
