@@ -33,7 +33,9 @@ const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
 const CountdownPage = lazy(() => import('./pages/Countdown'));
-const WishesPage = lazy(() => import('./pages/Wishes'));
+// Wishes feature di-disable sementara — un-comment lazy import + route
+// di bawah (dan nav entry di siteConfig) untuk re-enable.
+// const WishesPage = lazy(() => import('./pages/Wishes'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -89,7 +91,7 @@ function App() {
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/countdown" element={<CountdownPage />} />
-                      <Route path="/wishes" element={<WishesPage />} />
+                      {/* <Route path="/wishes" element={<WishesPage />} /> */}
                       <Route path="*" element={<NotFoundPage />} />
                     </Routes>
                   </Suspense>
