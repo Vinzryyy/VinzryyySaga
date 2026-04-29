@@ -13,6 +13,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import MarqueeStrip from '../components/wishes/MarqueeStrip';
 
 const formatRelative = (iso) => {
   if (!iso) return null;
@@ -91,8 +92,28 @@ const WishesPage = () => {
     }
   };
 
+  // Split seeds into two bands for the flying marquee (alternating).
+  // Band A gets even-indexed seeds, Band B gets odd-indexed; both scroll
+  // in opposite directions at slightly different speeds.
+  const marqueeA = seeds.filter((_, i) => i % 2 === 0);
+  const marqueeB = seeds.filter((_, i) => i % 2 === 1);
+
   return (
     <main className="bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
+      {/* Per-card bob keyframe — translates Y so it composes with each
+          card's inline `transform: rotate(...)` (the sticky-note tilt) */}
+      <style>{`
+        @keyframes wish-bob {
+          0%, 100% { translate: 0 0; }
+          50%      { translate: 0 -8px; }
+        }
+        .wish-bob {
+          animation: wish-bob var(--bob-duration, 5s) ease-in-out var(--bob-delay, 0s) infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .wish-bob { animation: none !important; }
+        }
+      `}</style>
       {/* Editorial header */}
       <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
         {/* Watermark wordmark */}
@@ -253,6 +274,28 @@ const WishesPage = () => {
         </div>
       </section>
 
+      {/* Flying marquee — wishes drift past in two opposite-direction bands.
+          Edge-to-edge (breaks out of container max-w) for the full sky-of-
+          wishes feel. */}
+      {seeds.length > 0 && (
+        <section aria-label="Wishes terbang" className="mb-12 md:mb-16">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 mb-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+              <i className="ri-send-plane-2-line text-base" />
+              Wishes terbang lewat
+            </p>
+          </div>
+          <div className="space-y-3">
+            {marqueeA.length > 0 && (
+              <MarqueeStrip wishes={marqueeA} direction="left" durationS={55} ariaLabel="Band wishes — kanan ke kiri" />
+            )}
+            {marqueeB.length > 0 && (
+              <MarqueeStrip wishes={marqueeB} direction="right" durationS={70} ariaLabel="Band wishes — kiri ke kanan" />
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Wall */}
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-16 md:pb-24">
         <div className="max-w-7xl mx-auto">
@@ -289,8 +332,11 @@ const WishesPage = () => {
                     style={{
                       transitionDelay: `${idx * 50}ms`,
                       transform: `rotate(${tilt}deg)`,
+                      // Desync the bob — duration 4–7s, staggered by index
+                      ['--bob-duration']: `${4 + (idx % 4)}s`,
+                      ['--bob-delay']: `${(idx * 0.4) % 3}s`,
                     }}
-                    className={`relative rounded-2xl bg-[color:var(--retro-bg-primary)] border border-[color:var(--retro-brown-dark)]/15 p-5 md:p-6 shadow-sm hover:shadow-xl hover:rotate-0 transition-all duration-500 ${
+                    className={`wish-bob relative rounded-2xl bg-[color:var(--retro-bg-primary)] border border-[color:var(--retro-brown-dark)]/15 p-5 md:p-6 shadow-sm hover:shadow-xl hover:rotate-0 transition-all duration-500 ${
                       wallVisible
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 translate-y-6'
