@@ -287,9 +287,19 @@ const WishesPage = () => {
                       </span>
                     </div>
                     {/* Horizontal swipe strip on all viewports — chips slide
-                        sideways instead of wrapping. Compact vertical
-                        footprint regardless of how many templates exist. */}
-                    <div className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-mandatory">
+                        sideways instead of wrapping. `touch-pan-x` tells
+                        the browser this strip owns horizontal touches
+                        (otherwise mobile absorbs the swipe into vertical
+                        page scroll or browser back-gesture). `overscroll-
+                        x-contain` stops a swipe past the end from
+                        triggering page navigation. snap-proximity (vs
+                        mandatory) is more forgiving on touch — chips
+                        nudge toward snap points but don't fight the
+                        finger. */}
+                    <div
+                      className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-proximity touch-pan-x overscroll-x-contain"
+                      style={{ WebkitOverflowScrolling: 'touch' }}
+                    >
                       {WISH_TEMPLATES.map((tpl, tplIdx) => {
                         const selected = tpl.id === templateId;
                         const PreviewCard = tpl.Component;
