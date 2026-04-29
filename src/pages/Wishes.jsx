@@ -34,6 +34,10 @@ const WishesPage = () => {
   const [handle, setHandle] = useState('');
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState(''); // bot trap — humans never fill this
+  // Template id for the wall card style. Picker lives in a separate
+  // section below the form (not inside the burgundy plate) so the form
+  // stays focused on writing the message.
+  const [templateId, setTemplateId] = useState(WISH_TEMPLATES[0].id);
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
   const [error, setError] = useState('');
   const [liveWishes, setLiveWishes] = useState([]);
@@ -78,7 +82,7 @@ const WishesPage = () => {
       return;
     }
     setStatus('submitting');
-    const result = await submitWish({ name, handle, message, honeypot });
+    const result = await submitWish({ name, handle, message, honeypot, template: templateId });
     if (result.ok) {
       setStatus('success');
       setName('');
@@ -332,6 +336,94 @@ const WishesPage = () => {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Template picker — separate section below the form so the burgundy
+          plate stays clean. Submitter taps a chip; the chosen template id
+          is sent with the wish so the wall renders it in that style. */}
+      <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-baseline justify-between gap-3 mb-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
+                Pilih Tampilan Kartu
+              </p>
+              <p className="text-xs text-[color:var(--color-text-muted)]">
+                Preview live — pesanmu akan tampil di wall dengan tampilan ini.
+              </p>
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5 flex-shrink-0">
+              <i className="ri-arrow-left-line" />
+              Geser
+              <i className="ri-arrow-right-line" />
+            </span>
+          </div>
+          <div
+            className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-3 scrollbar-hide no-scrollbar snap-x snap-proximity overscroll-x-contain"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-x',
+            }}
+          >
+            {WISH_TEMPLATES.map((tpl, tplIdx) => {
+              const selected = tpl.id === templateId;
+              const PreviewCard = tpl.Component;
+              const sampleWish = {
+                name: name || 'Armeniaca',
+                handle: handle || '@armeniaca15',
+                message:
+                  message ||
+                  'Selamat ulang tahun, Ceu Eli! Tetap mekar seperti aprikot di musim semi.',
+                date: new Date().toISOString(),
+              };
+              return (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => setTemplateId(tpl.id)}
+                  aria-pressed={selected}
+                  title={tpl.label}
+                  className={`flex-shrink-0 w-[75vw] max-w-[260px] sm:w-[220px] sm:max-w-[240px] snap-center sm:snap-start touch-pan-x flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
+                    selected
+                      ? 'bg-[color:var(--retro-burgundy)] ring-2 ring-[color:var(--retro-burgundy)] -translate-y-0.5 shadow-lg shadow-[color:var(--retro-burgundy)]/30'
+                      : 'bg-white ring-1 ring-[color:var(--retro-burgundy)]/15 hover:ring-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5'
+                  }`}
+                >
+                  <div
+                    aria-hidden="true"
+                    className="relative w-full h-[220px] sm:w-[204px] sm:h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-bg-primary)]"
+                  >
+                    <div
+                      className="absolute top-0 left-0 origin-top-left scale-[0.85] sm:scale-[0.64]"
+                      style={{ width: '320px', height: '260px' }}
+                    >
+                      <PreviewCard wish={sampleWish} />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-1">
+                    <span
+                      className={`text-[9px] font-black uppercase tracking-[0.25em] tabular-nums ${
+                        selected ? 'text-[color:var(--retro-gold-light)]' : 'text-[color:var(--retro-burgundy)]/60'
+                      }`}
+                    >
+                      {String(tplIdx + 1).padStart(2, '0')}
+                    </span>
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-[0.18em] truncate ${
+                        selected ? 'text-[color:var(--retro-cream)]' : 'text-[color:var(--retro-text-primary)]'
+                      }`}
+                    >
+                      {tpl.label}
+                    </span>
+                    {selected && (
+                      <i className="ri-check-line ml-auto text-base text-[color:var(--retro-gold-light)]" />
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
