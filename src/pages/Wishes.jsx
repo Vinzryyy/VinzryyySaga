@@ -204,9 +204,9 @@ const WishesPage = () => {
             }}
           />
 
-          <div className="relative grid lg:grid-cols-[1fr_300px] gap-0 z-[1]">
+          <div className="relative grid md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_340px] gap-0 z-[1]">
             {/* LEFT — letter content */}
-            <div className="px-5 py-7 sm:px-7 sm:py-9 md:px-10 md:py-10 lg:border-r border-dashed border-[color:var(--retro-burgundy)]/20 order-2 lg:order-1">
+            <div className="px-5 py-7 sm:px-7 sm:py-9 md:px-8 md:py-10 lg:px-10 md:border-r border-dashed border-[color:var(--retro-burgundy)]/20 order-2 md:order-1">
               {/* Addressee block — like the "To:" line on a real letter */}
               <div className="mb-6 pb-5 border-b border-dashed border-[color:var(--retro-burgundy)]/20">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1.5">
@@ -339,7 +339,7 @@ const WishesPage = () => {
                             onClick={() => setTemplateId(tpl.id)}
                             aria-pressed={selected}
                             title={tpl.label}
-                            className={`flex-shrink-0 w-[78vw] max-w-[280px] sm:w-[220px] sm:max-w-none snap-center sm:snap-start touch-pan-x flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
+                            className={`flex-shrink-0 w-[75vw] max-w-[260px] sm:w-[220px] sm:max-w-[240px] snap-center sm:snap-start touch-pan-x flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
                               selected
                                 ? 'bg-[color:var(--retro-burgundy)] ring-2 ring-[color:var(--retro-burgundy)] -translate-y-0.5 shadow-lg shadow-[color:var(--retro-burgundy)]/30'
                                 : 'bg-white ring-1 ring-[color:var(--retro-burgundy)]/15 hover:ring-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5'
@@ -440,9 +440,9 @@ const WishesPage = () => {
             </div>
 
             {/* RIGHT — postage column with Eli portrait + stamp box.
-                Mobile: stacks ABOVE the form as a hero banner. lg+: vertical
+                Mobile: stacks ABOVE the form as a hero banner. md+: vertical
                 strip on the right with the portrait + a postage-stamp tile. */}
-            <aside className="relative order-1 lg:order-2 min-h-[260px] lg:min-h-[640px] overflow-hidden lg:rounded-tr-2xl lg:rounded-br-2xl bg-[color:var(--retro-burgundy)]">
+            <aside className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] lg:min-h-[640px] overflow-hidden md:rounded-tr-2xl md:rounded-br-2xl bg-[color:var(--retro-burgundy)]">
               <img
                 src="/archive/img-024.jpg"
                 alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
