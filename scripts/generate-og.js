@@ -44,7 +44,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   </g>
 
   <!-- Title -->
-  <text x="70" y="290" font-family="'Playfair Display', 'Times New Roman', serif" font-size="120" font-weight="900" fill="#FDF6E3" letter-spacing="-4">Armeniaca<tspan fill="#8B4040">.</tspan></text>
+  <text x="70" y="290" font-family="'Fraunces', 'Playfair Display', 'Times New Roman', serif" font-size="120" font-weight="900" fill="#FDF6E3" letter-spacing="-4">Armeniaca<tspan fill="#8B4040">.</tspan></text>
 
   <!-- Subtitle -->
   <text x="74" y="350" font-family="'Helvetica Neue', Arial, sans-serif" font-size="26" font-weight="700" fill="#FDF6E3" fill-opacity="0.85" letter-spacing="0.5">Arsip Visual Helisma Putri — Eli JKT48</text>

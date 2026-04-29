@@ -1,5 +1,7 @@
-/* Fonts (Playfair Display + Poppins) are self-hosted via @fontsource —
-   imported in src/main.jsx so they no longer block first paint. */
+/* Fonts (Fraunces + Plus Jakarta Sans, both variable) are self-hosted
+   via @fontsource-variable — imported in src/main.jsx so they don't
+   block first paint. Variable woff2 single-file replaces what used to
+   be 8 static weights (Playfair + Poppins). */
 
 @import "tailwindcss";
 
@@ -69,7 +71,10 @@ html {
 }
 
 body {
-  font-family: "Poppins", sans-serif;
+  /* Plus Jakarta Sans Variable — Indonesian-designed (Tokotype) sans
+     with proper Bahasa diacritic + ng/ny rendering. Single variable
+     file covers 200–800 weight. */
+  font-family: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
   background-color: var(--retro-bg-primary) !important;
   background-image: linear-gradient(180deg, var(--retro-bg-primary) 0%, var(--retro-bg-secondary) 100%) !important;
   min-height: 100vh;
@@ -78,7 +83,11 @@ body {
 
 /* Font utilities */
 .font-header {
-  font-family: "Playfair Display", serif;
+  /* Fraunces Variable — display serif w/ optical sizing + soft axis.
+     We bump opsz toward display sizes since headers are usually 2rem+,
+     and lean a hair into the soft axis for the apricot/blossom warmth. */
+  font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
 }
 
 /* Retro Film Grain Overlay Effect */
