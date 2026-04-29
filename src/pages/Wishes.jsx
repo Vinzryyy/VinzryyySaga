@@ -409,8 +409,11 @@ const WishesPage = () => {
               </div>
               </div>
 
-              {/* RIGHT — portrait peeking from the side, like og-card */}
-              <div className="relative order-1 lg:order-2 min-h-[280px] lg:min-h-0 overflow-hidden">
+              {/* RIGHT — portrait peeking from the side, like og-card.
+                  Explicit lg min-h so the image always has a place to
+                  render even if the grid stretch behaviour is interrupted
+                  by overflow / sticky descendants in the form column. */}
+              <div className="relative order-1 lg:order-2 min-h-[320px] lg:min-h-[560px] overflow-hidden">
                 <picture>
                   <source srcSet="/archive/img-024.avif" type="image/avif" />
                   <source srcSet="/archive/img-024.webp" type="image/webp" />
