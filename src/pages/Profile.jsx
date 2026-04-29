@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import Section from '../components/layout/Section';
 import Seo from '../components/Seo';
 import MotifBackdrop from '../components/about/MotifBackdrop';
-import ScheduleCard from '../components/schedule/ScheduleCard';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
@@ -259,8 +258,6 @@ const SectionRouter = ({ id, section }) => {
       return <TimelineSection />;
     case 'fight':
       return <FightSection />;
-    case 'schedule':
-      return <ScheduleSection />;
     case 'discography':
       return <DiscographySection />;
     case 'theater':
@@ -272,17 +269,6 @@ const SectionRouter = ({ id, section }) => {
   }
 };
 
-const ScheduleSection = () => (
-  <>
-    <SectionOpener
-      id="schedule"
-      title="Jadwal Show Eli."
-      lead="Show theater Eli yang dikonfirmasi untuk waktu dekat — sumber langsung dari jkt48.com lewat API resmi mereka. Cast list per show terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam. Klik kartu untuk detail + tiket."
-      kicker="Eli-specific · live"
-    />
-    <ScheduleCard />
-  </>
-);
 
 const SectionOpener = ({ id, title, lead, kicker }) => {
   const idx = ELI_PROFILE_SECTIONS.findIndex((s) => s.id === id);

@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
+import ScheduleCard from '../components/schedule/ScheduleCard';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
@@ -496,6 +497,26 @@ const HomePage = () => {
           <div className="w-px h-8 bg-gradient-to-b from-[color:var(--retro-cream)]/50 to-transparent" />
         </div>
       </section>
+
+      {/* SCHEDULE — Eli's confirmed shows + M&G sessions, scraped live
+          from jkt48.com (auto-refresh every 6h). Placed near the top so
+          first-time visitors immediately see what's upcoming. */}
+      <Section id="schedule" padding="lg">
+        <div className="mb-6 md:mb-8 max-w-3xl">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
+            <i className="ri-calendar-event-line text-base" />
+            Jadwal Eli — Live
+          </p>
+          <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-3">
+            Show & Meet & Greet
+            <span className="text-[color:var(--retro-burgundy)]"> mendatang.</span>
+          </h2>
+          <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
+            Dijadwalkan dari jkt48.com — cast list per show terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam. Klik kartu untuk detail tiket.
+          </p>
+        </div>
+        <ScheduleCard />
+      </Section>
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">
