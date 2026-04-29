@@ -410,20 +410,18 @@ const WishesPage = () => {
               </div>
 
               {/* RIGHT — portrait peeking from the side, like og-card.
-                  Explicit lg min-h so the image always has a place to
-                  render even if the grid stretch behaviour is interrupted
-                  by overflow / sticky descendants in the form column. */}
-              <div className="relative order-1 lg:order-2 min-h-[320px] lg:min-h-[560px] overflow-hidden">
-                <picture>
-                  <source srcSet="/archive/img-024.avif" type="image/avif" />
-                  <source srcSet="/archive/img-024.webp" type="image/webp" />
-                  <img
-                    src="/archive/img-024.jpg"
-                    alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
-                  />
-                </picture>
+                  Direct <img> (no <picture>) + eager loading + bg color
+                  fallback so the column reads even if the image 404s, so
+                  we can distinguish "image not loading" from "column not
+                  rendering". */}
+              <div className="relative order-1 lg:order-2 min-h-[320px] lg:min-h-[560px] overflow-hidden bg-[color:var(--retro-brown-dark)]/60">
+                <img
+                  src="/archive/img-024.jpg"
+                  alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
+                  loading="eager"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
+                />
                 {/* Mobile fade — top edge fades into burgundy so eyebrow row stays readable */}
                 <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[color:var(--retro-burgundy)] to-transparent lg:hidden" />
                 {/* Mobile fade — bottom edge fades into burgundy so the form below blends */}
