@@ -321,25 +321,26 @@ const WishesPage = () => {
                             onClick={() => setTemplateId(tpl.id)}
                             aria-pressed={selected}
                             title={tpl.label}
-                            className={`flex-shrink-0 w-[200px] snap-start flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
+                            className={`flex-shrink-0 w-[78vw] max-w-[280px] sm:w-[220px] sm:max-w-none snap-center sm:snap-start flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
                               selected
                                 ? 'bg-[color:var(--retro-cream)]/15 ring-2 ring-[color:var(--retro-gold-light)] -translate-y-0.5 shadow-lg'
                                 : 'bg-[color:var(--retro-cream)]/5 ring-1 ring-[color:var(--retro-cream)]/10 hover:bg-[color:var(--retro-cream)]/10 hover:ring-[color:var(--retro-cream)]/30'
                             }`}
                           >
-                            {/* Scaled preview — landscape (184×160). Inner
-                                renders at 320×260, scale 0.575 lands at
-                                ~184 wide so it fills the tile cleanly. */}
+                            {/* Scaled preview tile — sized to match the chip.
+                                Mobile: ~full chip width × 220px tall, inner
+                                scaled 0.85 so the template reads big enough
+                                to evaluate at a glance.
+                                sm+: 204×160, inner scaled 0.64. */}
                             <div
                               aria-hidden="true"
-                              className="relative w-[184px] h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
+                              className="relative w-full h-[220px] sm:w-[204px] sm:h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
                             >
                               <div
-                                className="absolute top-0 left-0 origin-top-left"
+                                className="absolute top-0 left-0 origin-top-left scale-[0.85] sm:scale-[0.64]"
                                 style={{
                                   width: '320px',
                                   height: '260px',
-                                  transform: 'scale(0.575)',
                                 }}
                               >
                                 <PreviewCard wish={sampleWish} />
