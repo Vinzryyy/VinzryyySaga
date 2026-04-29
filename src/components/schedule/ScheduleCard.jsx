@@ -144,6 +144,19 @@ const ScheduleCard = () => {
                             <i className="ri-cake-2-line mr-0.5" />Birthday
                           </span>
                         )}
+                        {/* Sold-out / availability indicator (M&G only — show
+                            data isn't reliable for theater sold-out state) */}
+                        {isMG && entry.sold_out && (
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-red-100 text-red-700 inline-flex items-center gap-1">
+                            <i className="ri-close-circle-line" />Sold Out
+                          </span>
+                        )}
+                        {isMG && !entry.sold_out && entry.remaining_total > 0 && (
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 inline-flex items-center gap-1">
+                            <i className="ri-checkbox-circle-line" />
+                            {entry.remaining_total} tersisa
+                          </span>
+                        )}
                       </div>
                       <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight line-clamp-2">
                         {entry.title}

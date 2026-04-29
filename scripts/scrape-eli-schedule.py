@@ -164,6 +164,11 @@ def normalize_exclusive(detail: dict, listing_date: str | None) -> list[dict]:
         # Compose a friendly title that includes the session label
         base_title = detail.get("title") or "Personal Meet & Greet"
         sess_label = sess.get("label") or f"Sesi {s_idx}"
+        # Sold-out if every Eli-Jalur in this session has 0 quota left.
+        # Partial = some Jalur still has quota; treated as "available".
+        eli_remaining = [d.get("available_quota", 0) or 0 for d in eli_jalurs]
+        all_sold_out = all(q == 0 for q in eli_remaining)
+        total_remaining = sum(eli_remaining)
         out.append({
             "kind": "EXCLUSIVE",
             "schedule_id": detail.get("exclusive_id"),
@@ -181,6 +186,9 @@ def normalize_exclusive(detail: dict, listing_date: str | None) -> list[dict]:
             ],
             "eli_jalur": [d.get("label") for d in eli_jalurs],
             "tickets_sold_eli": [d.get("tickets_sold") for d in eli_jalurs],
+            "eli_remaining": eli_remaining,
+            "sold_out": all_sold_out,
+            "remaining_total": total_remaining,
             "is_birthday_show": False,
             "url": f"{BASE}/schedule/{(detail.get('code') or '').lower()}",
         })
