@@ -154,20 +154,33 @@ const WishesPage = () => {
         </div>
       </header>
 
-      {/* Submission form */}
+      {/* Submission form — og-card style: editorial burgundy plate with
+          eyebrow + oversized display title on the left, Eli portrait
+          peeking from the right. On mobile the portrait stacks on top
+          like a hero banner; on lg+ it lives beside the form. */}
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
-        <div className="max-w-3xl mx-auto">
-          <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 sm:p-8 md:p-10 relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-[300px] h-[300px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
+            <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
+            <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
-            <div className="relative">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">
-                Form Ucapan
-              </p>
-              <h2 className="font-header text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tighter mb-2">
-                Tulis pesan singkat untuk {eli.nickname}.
+            <div className="relative grid lg:grid-cols-[1.7fr_1fr] gap-0 z-[2]">
+              {/* LEFT — text + form */}
+              <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 lg:order-1">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
+                  ★ Form Ucapan
+                </span>
+                <span className="flex-1 h-px bg-[color:var(--retro-gold-light)]/40" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/50">
+                  Live Wall
+                </span>
+              </div>
+              <h2 className="font-header text-3xl sm:text-4xl md:text-5xl lg:text-[3.4rem] font-black leading-[0.95] tracking-tighter mb-3">
+                Tulis pesan untuk
+                <span className="text-[color:var(--retro-gold-light)]"> {eli.nickname}.</span>
               </h2>
-              <p className="text-sm text-[color:var(--retro-cream)]/70 mb-6">
+              <p className="text-sm md:text-base text-[color:var(--retro-cream)]/70 leading-relaxed mb-6 max-w-md">
                 {isFirebaseConfigured ? wishes.pendingMessage : wishes.demoMessage}
               </p>
 
@@ -284,6 +297,41 @@ const WishesPage = () => {
                   </button>
                 </form>
               )}
+
+              {/* Signature footer — mirrors og-card's bottom strip */}
+              <div className="mt-6 pt-4 border-t border-[color:var(--retro-cream)]/15 flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
+                  vinzryyysaga.com
+                </span>
+                <span className="w-6 h-px bg-[color:var(--retro-cream)]/20" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/50">
+                  #BloomInSpring
+                </span>
+              </div>
+              </div>
+
+              {/* RIGHT — portrait peeking from the side, like og-card */}
+              <div className="relative order-1 lg:order-2 min-h-[280px] lg:min-h-0 overflow-hidden">
+                <picture>
+                  <source srcSet="/archive/img-070.avif" type="image/avif" />
+                  <source srcSet="/archive/img-070.webp" type="image/webp" />
+                  <img
+                    src="/archive/img-070.jpg"
+                    alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
+                  />
+                </picture>
+                {/* Mobile fade — top edge fades into burgundy so eyebrow row stays readable */}
+                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[color:var(--retro-burgundy)] to-transparent lg:hidden" />
+                {/* Mobile fade — bottom edge fades into burgundy so the form below blends */}
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[color:var(--retro-burgundy)] to-transparent lg:hidden" />
+                {/* Desktop fade — left edge fades into burgundy so the form text doesn't crash into the photo */}
+                <div className="hidden lg:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[color:var(--retro-burgundy)] to-transparent" />
+                <span className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-[color:var(--retro-cream)]/15 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] border border-[color:var(--retro-cream)]/20">
+                  Eli · 15.06
+                </span>
+              </div>
             </div>
           </div>
         </div>
