@@ -103,7 +103,7 @@ const ProfilePage = () => {
       {/* Ambient motif backdrop — 20 themed glyphs (apricot, blossom, butterfly,
           ribbon, leaf, bug, ice, star, split apricot) drifting softly behind
           the page content. Decorative only; aria-hidden + pointer-events-none. */}
-      <MotifBackdrop count={50} seed="profile-2026" />
+      <MotifBackdrop count={300} seed="profile-2026" />
 
       {/* Editorial hero — title block left, layered portrait collage right */}
       <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
