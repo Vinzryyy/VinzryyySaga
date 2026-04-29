@@ -9,23 +9,14 @@
  * displays seed wishes from config (curated list).
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import MarqueeStrip from '../components/wishes/MarqueeStrip';
 import { WISH_TEMPLATES } from '../components/wishes/templates';
-
-const formatRelative = (iso) => {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return new Intl.DateTimeFormat('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(d);
-};
+import { submitWish, subscribeToWishes } from '../lib/wishesDb';
+import { isFirebaseConfigured } from '../lib/firebase';
 
 // Subtle decorative rotation for each card so the wall feels like sticky
 // notes pinned up rather than a uniform grid. Deterministic per index.
@@ -41,20 +32,35 @@ const WishesPage = () => {
   const [name, setName] = useState('');
   const [handle, setHandle] = useState('');
   const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // bot trap — humans never fill this
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
   const [error, setError] = useState('');
+  const [liveWishes, setLiveWishes] = useState([]);
 
   const charsLeft = wishes.charLimit - message.length;
   const isOverLimit = charsLeft < 0;
-  const hasEndpoint = Boolean(wishes.endpoint);
   const formDisabled = status === 'submitting' || isOverLimit || !name.trim() || !message.trim();
 
-  const seeds = useMemo(
+  // Subscribe to live RTDB wishes feed. Cleanup on unmount detaches the listener.
+  useEffect(() => {
+    const unsubscribe = subscribeToWishes(setLiveWishes);
+    return unsubscribe;
+  }, []);
+
+  // Seeds = curated/pinned wishes from siteConfig, marked with `pinned: true`
+  // so the wall can render a small badge on them.
+  const pinnedSeeds = useMemo(
     () =>
-      [...(wishes.seeds || [])].sort(
-        (a, b) => (b.date || '').localeCompare(a.date || '')
-      ),
-    [wishes.seeds]
+      [...(wishes.seeds || [])]
+        .map((s) => ({ ...s, pinned: true }))
+        .sort((a, b) => (b.date || '').localeCompare(a.date || '')),
+    [wishes.seeds],
+  );
+
+  // Combined feed: pinned seeds first, then live wishes (newest first).
+  const seeds = useMemo(
+    () => [...pinnedSeeds, ...liveWishes],
+    [pinnedSeeds, liveWishes],
   );
 
   const { elementRef: wallRef, isVisible: wallVisible } = useScrollReveal({
@@ -65,31 +71,22 @@ const WishesPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
-    if (!hasEndpoint) {
+    if (!isFirebaseConfigured) {
       setStatus('error');
       setError(wishes.demoMessage);
       return;
     }
     setStatus('submitting');
-    try {
-      const formData = new FormData();
-      formData.append('name', name.trim());
-      formData.append('handle', handle.trim());
-      formData.append('message', message.trim());
-      formData.append('_subject', `Birthday wish for ${eli.stageName}`);
-      const res = await fetch(wishes.endpoint, {
-        method: 'POST',
-        body: formData,
-        headers: { Accept: 'application/json' },
-      });
-      if (!res.ok) throw new Error(`Submission failed (${res.status})`);
+    const result = await submitWish({ name, handle, message, honeypot });
+    if (result.ok) {
       setStatus('success');
       setName('');
       setHandle('');
       setMessage('');
-    } catch (err) {
+      setHoneypot('');
+    } else {
       setStatus('error');
-      setError(err.message || 'Pesan gagal terkirim, coba lagi sebentar lagi.');
+      setError(result.error || 'Pesan gagal terkirim, coba lagi sebentar lagi.');
     }
   };
 
@@ -171,7 +168,7 @@ const WishesPage = () => {
                 Tulis pesan singkat untuk {eli.nickname}.
               </h2>
               <p className="text-sm text-[color:var(--retro-cream)]/70 mb-6">
-                {hasEndpoint ? wishes.pendingMessage : wishes.demoMessage}
+                {isFirebaseConfigured ? wishes.pendingMessage : wishes.demoMessage}
               </p>
 
               {status === 'success' ? (
@@ -244,6 +241,23 @@ const WishesPage = () => {
                       className="mt-1 w-full px-4 py-3 rounded-xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 focus:border-[color:var(--retro-gold-light)] focus:ring-2 focus:ring-[color:var(--retro-gold-light)]/30 focus:outline-none text-[color:var(--retro-cream)] placeholder-[color:var(--retro-cream)]/40 text-sm leading-relaxed transition-colors resize-none"
                     />
                   </label>
+
+                  {/* Honeypot — invisible to humans, irresistible to spam bots.
+                      Off-screen, aria-hidden, tab-skipped. If a submission
+                      arrives with this field filled, wishesDb silently
+                      rejects it (returns ok=true so the bot thinks success). */}
+                  <div aria-hidden="true" className="absolute left-[-9999px] w-px h-px overflow-hidden">
+                    <label>
+                      Website (jangan diisi)
+                      <input
+                        type="text"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                      />
+                    </label>
+                  </div>
 
                   {status === 'error' && error && (
                     <p className="text-xs text-[#FFB1A2] bg-[#FF8B7A]/10 border border-[#FF8B7A]/30 rounded-lg px-3 py-2">
@@ -334,20 +348,25 @@ const WishesPage = () => {
                 const Card = template.Component;
                 return (
                   <div
-                    key={`${wish.name}-${wish.date}-${idx}`}
+                    key={wish.id || `${wish.name}-${wish.date}-${idx}`}
                     style={{
                       transitionDelay: `${idx * 50}ms`,
                       transform: `rotate(${tilt}deg)`,
                       ['--bob-duration']: `${4 + (idx % 4)}s`,
                       ['--bob-delay']: `${(idx * 0.4) % 3}s`,
                     }}
-                    className={`wish-bob hover:rotate-0 transition-all duration-500 ${
+                    className={`wish-bob hover:rotate-0 transition-all duration-500 relative ${
                       wallVisible
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 translate-y-6'
                     }`}
                     data-template={template.id}
                   >
+                    {wish.pinned && (
+                      <span className="absolute -top-2 -right-2 z-10 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)] text-[9px] font-black uppercase tracking-[0.3em] shadow-md">
+                        ★ Pinned
+                      </span>
+                    )}
                     <Card wish={wish} />
                   </div>
                 );
