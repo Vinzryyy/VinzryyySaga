@@ -297,8 +297,11 @@ const WishesPage = () => {
                         nudge toward snap points but don't fight the
                         finger. */}
                     <div
-                      className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-proximity touch-pan-x overscroll-x-contain"
-                      style={{ WebkitOverflowScrolling: 'touch' }}
+                      className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-proximity overscroll-x-contain"
+                      style={{
+                        WebkitOverflowScrolling: 'touch',
+                        touchAction: 'pan-x',
+                      }}
                     >
                       {WISH_TEMPLATES.map((tpl, tplIdx) => {
                         const selected = tpl.id === templateId;
@@ -321,7 +324,7 @@ const WishesPage = () => {
                             onClick={() => setTemplateId(tpl.id)}
                             aria-pressed={selected}
                             title={tpl.label}
-                            className={`flex-shrink-0 w-[78vw] max-w-[280px] sm:w-[220px] sm:max-w-none snap-center sm:snap-start flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
+                            className={`flex-shrink-0 w-[78vw] max-w-[280px] sm:w-[220px] sm:max-w-none snap-center sm:snap-start touch-pan-x flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
                               selected
                                 ? 'bg-[color:var(--retro-cream)]/15 ring-2 ring-[color:var(--retro-gold-light)] -translate-y-0.5 shadow-lg'
                                 : 'bg-[color:var(--retro-cream)]/5 ring-1 ring-[color:var(--retro-cream)]/10 hover:bg-[color:var(--retro-cream)]/10 hover:ring-[color:var(--retro-cream)]/30'
