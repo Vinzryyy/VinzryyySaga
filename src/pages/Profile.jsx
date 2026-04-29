@@ -239,9 +239,10 @@ const ProfilePage = () => {
             padding="lg"
             // Transparent (vs `default`) so the MotifBackdrop shows through
             // — main already paints the cream bg, so this is visually
-            // identical except motifs are now visible.
+            // identical except motifs are now visible. Section is left
+            // non-positioned so the absolute MotifBackdrop (later sibling
+            // in main) paints on top per CSS stacking order.
             background={useGradient ? 'gradient' : 'transparent'}
-            className="relative"
           >
             <SectionRouter id={section.id} section={section} />
           </Section>

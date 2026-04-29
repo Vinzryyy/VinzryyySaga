@@ -196,6 +196,11 @@ const MotifBackdrop = ({ count = 20, seed = 'profile' }) => {
       <div
         aria-hidden="true"
         className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
+        // mix-blend-mode: multiply makes burgundy/gold motifs darken cream
+        // backdrops naturally, while becoming visually invisible over the
+        // dark burgundy/brown cards inside fight & theater (dark × dark
+        // ≈ same dark). Effect: motifs read on cream only, "for free".
+        style={{ mixBlendMode: 'multiply' }}
       >
         {items.map((item, i) => {
           const Glyph = GLYPHS.find((g) => g.key === item.key).Glyph;
