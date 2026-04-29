@@ -65,6 +65,15 @@ export const ELI_TIMELINE = [
     badge: 'New Formation',
   },
   {
+    id: 'undergirl-bibir-2024',
+    date: '2024-12-16',
+    period: '16 Desember 2024',
+    title: 'Undergirl di “Bibir yang Telah Dicuri”',
+    body:
+      'Eli terpilih sebagai Undergirl untuk single “Bibir yang Telah Dicuri” (Nusumareta Kuchibiru) pada konferensi pers pasca konser ulang tahun JKT48 ke-13 “Wonderland” dan pengumuman hasil akhir Sousenkyo, digelar di The Plaza IDN HQ, Lantai 3 Menara Global, Jakarta Selatan, DKI Jakarta.',
+    badge: 'Undergirls',
+  },
+  {
     id: 'three-team-announce',
     date: '2025-12-20',
     period: '20 Desember 2025',
