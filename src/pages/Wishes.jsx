@@ -277,7 +277,10 @@ const WishesPage = () => {
                     <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-3">
                       Pilih tampilan kartu — preview live
                     </legend>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                    {/* Mobile: horizontal swipe strip — keeps the picker
+                        from eating 5 vertical rows on small screens.
+                        sm+: flex-wrap so chips reflow to multiple rows. */}
+                    <div className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-x-visible scrollbar-hide no-scrollbar">
                       {WISH_TEMPLATES.map((tpl, tplIdx) => {
                         const selected = tpl.id === templateId;
                         const PreviewCard = tpl.Component;
@@ -299,24 +302,27 @@ const WishesPage = () => {
                             onClick={() => setTemplateId(tpl.id)}
                             aria-pressed={selected}
                             title={tpl.label}
-                            className={`group flex flex-col items-stretch gap-1.5 p-1.5 rounded-xl transition-all ${
+                            className={`flex-shrink-0 w-[200px] flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
                               selected
                                 ? 'bg-[color:var(--retro-cream)]/15 ring-2 ring-[color:var(--retro-gold-light)] -translate-y-0.5 shadow-lg'
                                 : 'bg-[color:var(--retro-cream)]/5 ring-1 ring-[color:var(--retro-cream)]/10 hover:bg-[color:var(--retro-cream)]/10 hover:ring-[color:var(--retro-cream)]/30'
                             }`}
                           >
-                            {/* Scaled preview — inner renders at ~320×260,
-                                outer is 50% of that so the chip stays compact */}
+                            {/* Scaled preview — inner renders at 320×260,
+                                outer is 200×170 (scale 0.625 fits 200 wide
+                                exactly; height clips the bottom 5px which
+                                is just card padding). Big enough to read
+                                eyebrows + names + first line of message. */}
                             <div
                               aria-hidden="true"
-                              className="relative w-full h-[130px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
+                              className="relative w-[184px] h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
                             >
                               <div
                                 className="absolute top-0 left-0 origin-top-left"
                                 style={{
                                   width: '320px',
                                   height: '260px',
-                                  transform: 'scale(0.5)',
+                                  transform: 'scale(0.575)',
                                 }}
                               >
                                 <PreviewCard wish={sampleWish} />
