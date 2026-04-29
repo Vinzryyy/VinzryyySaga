@@ -295,8 +295,8 @@ const WishesPage = () => {
                         // name/message the preview fills with it; otherwise
                         // a tasteful placeholder so the layout still reads.
                         const sampleWish = {
-                          name: name || 'Helismiley',
-                          handle: handle || '@helismiley',
+                          name: name || 'Armeniaca',
+                          handle: handle || '@armeniaca15',
                           message:
                             message ||
                             'Selamat ulang tahun, Ceu Eli! Tetap mekar seperti aprikot di musim semi.',

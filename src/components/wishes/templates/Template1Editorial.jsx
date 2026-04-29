@@ -24,7 +24,7 @@ const Template1Editorial = ({ wish }) => {
         </p>
         <div className="mt-4 pt-3 border-t border-[color:var(--retro-cream)]/15 flex items-center justify-between gap-3">
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] truncate">
-            {wish.handle || 'Helismiley'}
+            {wish.handle || 'Armeniaca'}
           </span>
           {date && (
             <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/60 tabular-nums">

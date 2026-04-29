@@ -54,7 +54,7 @@ const Template5Postcard = ({ wish }) => {
       </p>
 
       <p className="mt-3 text-right text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-        Helismiley · Armeniaca
+        Armeniaca
       </p>
     </article>
   );
