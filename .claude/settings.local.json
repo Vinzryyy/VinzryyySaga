@@ -33,7 +33,8 @@
       "Bash(gh repo *)",
       "Bash(gh api *)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
