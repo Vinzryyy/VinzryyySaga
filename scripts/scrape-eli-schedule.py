@@ -9,6 +9,10 @@ sits behind Cloudflare's anti-bot challenge that pure-HTTP libraries
 lightest tool that does, and it's Python-only. The frontend is still
 React/Vite — we just consume the JSON output.
 
+The public `/api/v1/schedules` endpoints don't actually require auth —
+both listing and detail return full cast arrays unauthenticated. So no
+session cookie, no bearer token, no secret rotation needed.
+
 Two event categories handled:
   1. SHOW (theater stages)     — `data.jkt48_member` array of {name, member_id}
   2. EXCLUSIVE (meet & greet)  — `data.session[].session_detail[].jkt48_member_name`
@@ -16,27 +20,18 @@ Two event categories handled:
                                   with a separate Eli slot if applicable)
 
 How it works (per run):
-  1. Read JKT48_SESSION_COOKIE from env (NextAuth session token,
-     captured from a real browser login). Cookie lasts ~30 days.
-  2. GET /api/auth/session → extract `access_token` (separate JWT used
-     as Bearer for the actual API).
-  3. For the current month + next N months:
+  1. For the current month + next N months:
        a. GET /api/v1/schedules?lang=id&month=M&year=Y → list of events
        b. For each SHOW: GET detail, keep if Eli in jkt48_member
        c. For each EXCLUSIVE: GET detail, expand sessions, keep ones
           where any session_detail mentions Helisma Putri
-  4. Sort by date, write to public/data/eli-schedule.json.
+  2. Sort by date, write to public/data/eli-schedule.json.
 
 Run locally:
   $ pip install -r scripts/requirements.txt
-  $ JKT48_SESSION_COOKIE='eyJ...' python scripts/scrape-eli-schedule.py
-
-In GitHub Actions: see .github/workflows/refresh-eli-schedule.yml
-which puts the cookie in repo secrets.
+  $ python scripts/scrape-eli-schedule.py
 """
 
-import os
-import sys
 import json
 import time
 from datetime import datetime
@@ -70,45 +65,15 @@ OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-schedule.j
 BASE = "https://jkt48.com"
 
 
-def must_env(name: str) -> str:
-    v = os.environ.get(name)
-    if not v:
-        sys.exit(
-            f"[fatal] {name} is not set. Capture the NextAuth session cookie "
-            f"from a logged-in browser (DevTools -> Application -> Cookies -> "
-            f"`__Secure-next-auth.session-token`) and pass it via env."
-        )
-    return v
-
-
-def make_scraper(session_cookie: str) -> cloudscraper.CloudScraper:
-    sc = cloudscraper.create_scraper(
+def make_scraper() -> cloudscraper.CloudScraper:
+    return cloudscraper.create_scraper(
         browser={"browser": "chrome", "platform": "windows", "desktop": True}
     )
-    sc.cookies.set(
-        "__Secure-next-auth.session-token",
-        session_cookie,
-        domain="jkt48.com",
-        secure=True,
-    )
-    return sc
 
 
-def get_access_token(sc: cloudscraper.CloudScraper) -> str:
-    r = sc.get(f"{BASE}/api/auth/session", timeout=20)
-    r.raise_for_status()
-    data = r.json()
-    if not data or "user" not in data:
-        sys.exit(
-            "[fatal] Session cookie expired or invalid. Re-capture from a "
-            "logged-in browser and update the JKT48_SESSION_COOKIE secret."
-        )
-    return data["user"]["access_token"]
-
-
-def fetch_month(sc, token: str, month: int, year: int):
+def fetch_month(sc, month: int, year: int):
     url = f"{BASE}/api/v1/schedules?lang=id&month={month}&year={year}"
-    r = sc.get(url, headers={"authorization": f"Bearer {token}"}, timeout=20)
+    r = sc.get(url, timeout=20)
     r.raise_for_status()
     body = r.json()
     if not body.get("status"):
@@ -117,12 +82,8 @@ def fetch_month(sc, token: str, month: int, year: int):
     return body.get("data") or []
 
 
-def fetch_detail(sc, token: str, slug: str):
-    r = sc.get(
-        f"{BASE}/api/v1/schedules/{slug}",
-        headers={"authorization": f"Bearer {token}"},
-        timeout=20,
-    )
+def fetch_detail(sc, slug: str):
+    r = sc.get(f"{BASE}/api/v1/schedules/{slug}", timeout=20)
     if r.status_code != 200:
         return None
     return r.json().get("data")
@@ -225,14 +186,9 @@ def normalize_exclusive(detail: dict, listing_date: str | None, slug: str) -> li
 
 
 def main():
-    cookie = must_env("JKT48_SESSION_COOKIE")
-    sc = make_scraper(cookie)
+    sc = make_scraper()
 
-    print("[1/3] Verifying session...")
-    token = get_access_token(sc)
-    print(f"      access_token len={len(token)} OK")
-
-    print(f"[2/3] Scanning {MONTHS_AHEAD} months ahead...")
+    print(f"[1/2] Scanning {MONTHS_AHEAD} months ahead...")
     today = datetime.now()
     eli_events = []
     detail_calls = 0
@@ -249,7 +205,7 @@ def main():
         while m > 12:
             m -= 12
             y += 1
-        listing = fetch_month(sc, token, m, y)
+        listing = fetch_month(sc, m, y)
         candidates = [s for s in listing if s.get("type") in KEEP_TYPES]
         skipped = len(listing) - len(candidates)
         print(f"      {y}-{m:02d}: {len(listing)} entries, {len(candidates)} candidates ({skipped} skipped)")
@@ -261,7 +217,7 @@ def main():
             # Skip if we've already processed this slug
             if slug in seen_codes:
                 continue
-            detail = fetch_detail(sc, token, slug)
+            detail = fetch_detail(sc, slug)
             detail_calls += 1
             time.sleep(DETAIL_DELAY_S)
             if not detail:
@@ -293,11 +249,11 @@ def main():
         k = e.get("kind", "?")
         counts[k] = counts.get(k, 0) + 1
     breakdown = ", ".join(f"{v} {k.lower()}" for k, v in counts.items())
-    print(f"[3/3] Found {len(eli_events)} Eli appearances ({breakdown}; "
+    print(f"[2/2] Found {len(eli_events)} Eli appearances ({breakdown}; "
           f"{detail_calls} detail fetches)")
 
     payload = {
-        "source": "https://jkt48.com (official) via authenticated session",
+        "source": "https://jkt48.com (official public API)",
         "sourceNote": (
             "Eli (Helisma Putri, member_id 112) appearances in JKT48 "
             "schedule for the next {months} months. Includes theater shows "

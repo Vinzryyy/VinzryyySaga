@@ -1,17 +1,12 @@
 name: Refresh Eli Schedule
 
-# Cron-scrape Eli's confirmed appearances from jkt48.com via the
-# authenticated API (using a long-lived NextAuth session cookie stored
-# as the JKT48_SESSION_COOKIE repo secret) and commit the resulting
-# JSON back to the repo. Frontend reads /data/eli-schedule.json as a
-# static asset.
+# Cron-scrape Eli's confirmed appearances from jkt48.com's public API
+# and commit the resulting JSON back to the repo. Frontend reads
+# /data/eli-schedule.json as a static asset.
 #
-# How to refresh the cookie when scraper starts failing:
-#   1. Login to jkt48.com in your browser
-#   2. DevTools → Application → Cookies → copy `__Secure-next-auth.session-token`
-#   3. Repo → Settings → Secrets and variables → Actions → update
-#      JKT48_SESSION_COOKIE
-# Cookie typically lasts ~30 days.
+# The /api/v1/schedules listing + detail endpoints are public — no
+# auth/cookie/token needed. cloudscraper handles Cloudflare's bot
+# challenge.
 
 on:
   schedule:
@@ -44,8 +39,6 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Scrape Eli schedule
-        env:
-          JKT48_SESSION_COOKIE: ${{ secrets.JKT48_SESSION_COOKIE }}
         run: python scripts/scrape-eli-schedule.py
 
       - name: Commit if changed
