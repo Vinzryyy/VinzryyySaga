@@ -176,7 +176,7 @@ const WishesPage = () => {
             <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
             <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
-            <div className="relative grid md:grid-cols-[1.3fr_1fr] gap-0 z-[2]">
+            <div className="relative grid md:grid-cols-[1fr_1fr] gap-0 z-[2]">
               {/* LEFT — text + form */}
               <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 md:order-1">
               <div className="flex items-center gap-3 mb-4">
