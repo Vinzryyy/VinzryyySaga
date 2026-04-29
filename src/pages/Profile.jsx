@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import Section from '../components/layout/Section';
 import Seo from '../components/Seo';
 import MotifBackdrop from '../components/about/MotifBackdrop';
+import ScheduleCard from '../components/schedule/ScheduleCard';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
@@ -258,6 +259,8 @@ const SectionRouter = ({ id, section }) => {
       return <TimelineSection />;
     case 'fight':
       return <FightSection />;
+    case 'schedule':
+      return <ScheduleSection />;
     case 'discography':
       return <DiscographySection />;
     case 'theater':
@@ -268,6 +271,18 @@ const SectionRouter = ({ id, section }) => {
       return <SectionPlaceholder section={section} />;
   }
 };
+
+const ScheduleSection = () => (
+  <>
+    <SectionOpener
+      id="schedule"
+      title="Jadwal & Kalender."
+      lead="Jadwal Eli yang sudah dikonfirmasi (diupdate manual oleh Armeniaca) di samping kalender umum JKT48 yang otomatis di-refresh dari beritajkt48 tiap 6 jam."
+      kicker="Live · auto-refresh"
+    />
+    <ScheduleCard />
+  </>
+);
 
 const SectionOpener = ({ id, title, lead, kicker }) => {
   const idx = ELI_PROFILE_SECTIONS.findIndex((s) => s.id === id);
