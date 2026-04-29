@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import MarqueeStrip from '../components/wishes/MarqueeStrip';
+import MotifBackdrop from '../components/about/MotifBackdrop';
 import { WISH_TEMPLATES } from '../components/wishes/templates';
 import { submitWish, subscribeToWishes } from '../lib/wishesDb';
 import { isFirebaseConfigured } from '../lib/firebase';
@@ -97,7 +98,12 @@ const WishesPage = () => {
   const marqueeB = seeds.filter((_, i) => i % 2 === 1);
 
   return (
-    <main className="bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
+    <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
+      {/* Ambient motif backdrop — same brand symbology used on Profile,
+          but with a wishes-specific seed so the layout differs and won't
+          look identical when both pages open in adjacent tabs. */}
+      <MotifBackdrop count={120} seed="wishes-2026" />
+
       {/* Per-card bob keyframe — translates Y so it composes with each
           card's inline `transform: rotate(...)` (the sticky-note tilt) */}
       <style>{`
