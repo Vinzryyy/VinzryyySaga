@@ -308,20 +308,21 @@ const WishesPage = () => {
                                 : 'bg-[color:var(--retro-cream)]/5 ring-1 ring-[color:var(--retro-cream)]/10 hover:bg-[color:var(--retro-cream)]/10 hover:ring-[color:var(--retro-cream)]/30'
                             }`}
                           >
-                            {/* Scaled preview — inner renders at 320×260,
-                                outer is 200×170 (scale 0.625 fits 200 wide
-                                exactly; height clips the bottom 5px which
-                                is just card padding). Big enough to read
-                                eyebrows + names + first line of message. */}
+                            {/* Scaled preview — portrait rectangle (184×260,
+                                aspect ~1:1.4). Inner renders at 320×452
+                                so a scale of 0.575 lands at exactly 184
+                                wide × 260 tall. Templates have min-h-280
+                                and flex layouts, so they fill the taller
+                                inner naturally without empty space. */}
                             <div
                               aria-hidden="true"
-                              className="relative w-[184px] h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
+                              className="relative w-[184px] h-[260px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-cream)]/5"
                             >
                               <div
                                 className="absolute top-0 left-0 origin-top-left"
                                 style={{
                                   width: '320px',
-                                  height: '260px',
+                                  height: '452px',
                                   transform: 'scale(0.575)',
                                 }}
                               >
