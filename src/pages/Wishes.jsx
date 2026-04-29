@@ -170,9 +170,9 @@ const WishesPage = () => {
           eyebrow + oversized display title on the left, Eli portrait
           peeking from the right. On mobile the portrait stacks on top
           like a hero banner; on lg+ it lives beside the form. */}
-      <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
+      <section className="mb-12 md:mb-16">
+        <div className="w-full">
+          <div className="bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
             <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
             <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
