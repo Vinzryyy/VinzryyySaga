@@ -307,7 +307,7 @@ const WishesPage = () => {
               {/* Signature footer — mirrors og-card's bottom strip */}
               <div className="mt-6 pt-4 border-t border-[color:var(--retro-cream)]/15 flex items-center gap-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
-                  vinzryyysaga.com
+                  armeniaca.online
                 </span>
                 <span className="w-6 h-px bg-[color:var(--retro-cream)]/20" />
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/50">

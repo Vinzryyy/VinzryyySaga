@@ -55,7 +55,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" 
   <!-- Bottom row -->
   <g transform="translate(70, ${H - 70})">
     <line x1="0" y1="0" x2="60" y2="0" stroke="#C9A961" stroke-width="2"/>
-    <text x="80" y="6" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="900" fill="#FDF6E3" fill-opacity="0.8" letter-spacing="4">VINZRYYYSAGA.COM · #BLOOMINSPRING</text>
+    <text x="80" y="6" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="900" fill="#FDF6E3" fill-opacity="0.8" letter-spacing="4">ARMENIACA.ONLINE · #BLOOMINSPRING</text>
   </g>
 </svg>`;
 
