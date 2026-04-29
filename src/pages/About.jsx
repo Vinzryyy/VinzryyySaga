@@ -2,7 +2,7 @@
  * AboutPage Component
  *
  * Three sections only — kept lean:
- *   1. Hero        — title + lead + portrait
+ *   1. Hero        — title + lead + draggable portrait card-stack
  *   2. Etymology   — apricot-blossom theme + logo + motif legend + palette
  *   3. Philosophy  — pull quote
  *
@@ -14,6 +14,7 @@ import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
 import Seo from '../components/Seo';
+import PortraitCardStack from '../components/about/PortraitCardStack';
 
 const STAGGER_STEP_MS = 60;
 const staggerStyle = (index, baseDelay = 0) => ({
@@ -44,10 +45,6 @@ const Hero = ({ hero }) => {
     threshold: 0.1,
     triggerOnce: true,
   });
-
-  // Derive avif/webp/jpg sources from the portrait stem so the
-  // archive's pre-optimized variants get served when supported.
-  const portraitStem = hero.portrait.replace(/\.(jpe?g|png|webp|avif)$/i, '');
 
   return (
     <header className="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20 overflow-hidden">
@@ -110,25 +107,17 @@ const Hero = ({ hero }) => {
         </div>
 
         <div className="lg:col-span-2 relative">
-          <div
-            className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/20"
-            style={{ transform: `translateY(${portraitOffset}px)` }}
-          >
-            <picture>
-              <source srcSet={`${portraitStem}.avif`} type="image/avif" />
-              <source srcSet={`${portraitStem}.webp`} type="image/webp" />
-              <img
-                src={`${portraitStem}.jpg`}
-                alt={hero.portraitAlt}
-                className="w-full h-full object-cover"
-                loading="eager"
-              />
-            </picture>
-            <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
-          </div>
-          <span className="absolute -top-3 -left-3 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
+          <PortraitCardStack
+            portraits={hero.portraits}
+            wrapperStyle={{ transform: `translateY(${portraitOffset}px)` }}
+          />
+          <span className="absolute -top-3 -left-3 z-10 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl pointer-events-none">
             Armeniaca
           </span>
+          <p className="mt-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+            <i className="ri-drag-move-2-line mr-1.5 align-[-2px]" />
+            Geser kartu
+          </p>
         </div>
       </div>
     </header>

@@ -354,11 +354,17 @@ export const SITE_CONFIG = {
         from: { label: 'Generasi 7', sub: '2018 · Debut' },
         to: { label: 'Team Dream', sub: '2026 · Fight' },
       },
-      // Base path; the page derives .avif / .webp / .jpg <picture>
-      // sources from this stem so modern browsers get AVIF (smaller),
-      // Safari/old browsers fall back to JPG.
-      portrait: '/archive/img-157.jpg',
-      portraitAlt: 'Helisma Putri (Eli JKT48) di panggung — momen menyanyi.',
+      // Stack of portraits rendered as a draggable card-stack in the hero.
+      // First entry is the resting top card. Each `src` stem auto-derives
+      // .avif / .webp / .jpg <picture> sources at render time.
+      portraits: [
+        { src: '/archive/img-359.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-148.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-085.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-022.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-011.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-379.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+      ],
     },
     etymology: {
       eyebrow: 'Tema & Simbolisme',
