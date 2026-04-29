@@ -177,8 +177,10 @@ const WishesPage = () => {
             <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
             <div className="relative grid md:grid-cols-[1fr_1fr] gap-0 z-[2]">
-              {/* LEFT — text + form */}
-              <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 md:order-1">
+              {/* LEFT — text + form. Mobile gets generous side padding
+                  (px-5) so it doesn't crash into the viewport edge,
+                  bumps with viewport up to lg. */}
+              <div className="px-5 py-8 sm:px-7 sm:py-10 md:p-10 lg:p-12 order-2 md:order-1">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
                   ★ Form Ucapan
@@ -410,10 +412,11 @@ const WishesPage = () => {
               </div>
 
               {/* RIGHT — portrait peeking from the side, like og-card.
-                  Side-by-side starts at md (768px) so tablet viewports
-                  get the full editorial composition instead of the
-                  stacked mobile fallback. */}
-              <div className="relative order-1 md:order-2 min-h-[320px] md:min-h-[560px] overflow-hidden bg-[color:var(--retro-brown-dark)]/60">
+                  Mobile (single col): renders ABOVE the form as a hero
+                  banner at 260px tall — substantial without dominating.
+                  md+ (side-by-side): stretches to match form column
+                  height with a generous min-h-[560px] floor. */}
+              <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden bg-[color:var(--retro-brown-dark)]/40">
                 <img
                   src="/archive/img-024.jpg"
                   alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
