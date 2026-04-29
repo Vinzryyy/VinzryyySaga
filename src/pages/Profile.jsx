@@ -276,9 +276,9 @@ const ScheduleSection = () => (
   <>
     <SectionOpener
       id="schedule"
-      title="Kalender JKT48."
-      lead="Event JKT48 yang dijadwalkan ke depan — theater stages, music festivals, special shows. Sumber dari beritajkt48 yang auto-refresh tiap 6 jam. Eli mungkin appear di sebagian — cek poster resmi JKT48 untuk cast list."
-      kicker="Auto-refresh · 6 hours"
+      title="Jadwal Show Eli."
+      lead="Show theater Eli yang dikonfirmasi untuk waktu dekat — sumber langsung dari jkt48.com lewat API resmi mereka. Cast list per show terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam. Klik kartu untuk detail + tiket."
+      kicker="Eli-specific · live"
     />
     <ScheduleCard />
   </>

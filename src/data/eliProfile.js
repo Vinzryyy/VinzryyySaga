@@ -440,7 +440,7 @@ export const ELI_FUN_FACTS = [
 export const ELI_PROFILE_SECTIONS = [
   { id: 'timeline', label: 'Timeline', icon: 'ri-route-line' },
   { id: 'fight', label: 'JKT48 Fight 2026', icon: 'ri-flashlight-line' },
-  { id: 'schedule', label: 'Kalender JKT48', icon: 'ri-calendar-event-line' },
+  { id: 'schedule', label: 'Jadwal Eli', icon: 'ri-calendar-event-line' },
   { id: 'discography', label: 'Diskografi', icon: 'ri-album-line' },
   { id: 'theater', label: 'Theater', icon: 'ri-mic-line' },
   { id: 'trivia', label: 'Trivia', icon: 'ri-information-line' },

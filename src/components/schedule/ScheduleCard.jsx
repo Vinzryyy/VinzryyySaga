@@ -1,16 +1,14 @@
 /**
- * ScheduleCard — JKT48 general events calendar.
+ * ScheduleCard — Eli-specific schedule from jkt48.com (official API).
  *
- * Auto-scraped from beritajkt48 every 6h via GitHub Actions
- * (.github/workflows/refresh-calendar.yml writes to
- * public/data/jkt48-calendar.json). Frontend reads the static JSON,
- * filters to upcoming events, and renders a tidy timeline.
+ * Auto-scraped every 6h via GitHub Actions:
+ *   .github/workflows/refresh-eli-schedule.yml runs scripts/scrape-
+ *   eli-schedule.py against jkt48.com using a session cookie kept in
+ *   repo secrets, and commits the result to public/data/eli-schedule.json.
  *
- * NOTE: source data is general JKT48 events (not Eli-specific) — cast
- * lists are not in the source. Any "Eli appears in X" tagging would
- * need either the JKT48Connect API (free key required) or owner-side
- * manual curation; this iteration intentionally skips both for a
- * zero-maintenance, fully-automatic widget.
+ * Each event lists Eli's confirmed appearance with the full Team Dream
+ * (or all-team) cast, set list code, time, and a deep-link to the
+ * official jkt48.com show page for ticket info.
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
@@ -19,7 +17,7 @@ const isUpcoming = (iso) => {
   if (!iso) return false;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return false;
-  // Treat anything from "today midnight" onward as upcoming
+  // "Upcoming" = today midnight or later
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   return d >= today;
@@ -37,13 +35,20 @@ const formatRefreshed = (iso) => {
   }).format(d);
 };
 
+const TEAM_LABEL = {
+  DREAM: 'Team Dream',
+  JKT48: 'All-Team',
+  LOVE: 'Team Love',
+  PASSION: 'Team Passion',
+};
+
 const ScheduleCard = () => {
-  const [calendar, setCalendar] = useState(null); // { events, fetchedAt, source } or null
+  const [calendar, setCalendar] = useState(null);
   const [calendarError, setCalendarError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/data/jkt48-calendar.json', { cache: 'no-cache' })
+    fetch('/data/eli-schedule.json', { cache: 'no-cache' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((data) => { if (!cancelled) setCalendar(data); })
       .catch((err) => { if (!cancelled) setCalendarError(err.message); });
@@ -60,7 +65,7 @@ const ScheduleCard = () => {
       <div className="flex items-center justify-between gap-3 mb-5 pb-4 border-b border-[color:var(--retro-brown-dark)]/10">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
           <i className="ri-calendar-event-line text-base" />
-          Event JKT48 Mendatang
+          Show Eli Mendatang
         </p>
         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
           {upcoming.length} upcoming
@@ -69,66 +74,87 @@ const ScheduleCard = () => {
 
       {calendarError && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 mb-3 text-xs text-red-700">
-          Gagal memuat kalender: {calendarError}
+          Gagal memuat schedule: {calendarError}
         </div>
       )}
 
       {!calendar && !calendarError && (
-        <p className="text-sm text-[color:var(--color-text-muted)]">Memuat kalender…</p>
+        <p className="text-sm text-[color:var(--color-text-muted)]">Memuat schedule…</p>
       )}
 
       {calendar && upcoming.length === 0 && (
         <div className="rounded-xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 p-8 text-center">
           <i className="ri-calendar-todo-line text-4xl text-[color:var(--retro-burgundy)]/30 mb-3 inline-block" />
           <p className="font-bold text-[color:var(--retro-text-primary)]">
-            Belum ada event JKT48 yang dijadwalkan ke depan.
+            Belum ada show Eli yang dijadwalkan ke depan.
           </p>
           <p className="text-sm text-[color:var(--color-text-muted)] mt-1">
-            Sumber akan auto-refresh tiap 6 jam — cek lagi nanti.
+            Sumber langsung dari jkt48.com — auto-refresh tiap 6 jam.
+            Cek lagi nanti, jadwal teater biasanya diumumkan 2–4 minggu sebelumnya.
           </p>
         </div>
       )}
 
       {calendar && upcoming.length > 0 && (
-        <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {upcoming.map((entry, idx) => (
-            <li
-              key={`${entry.date}-${entry.title}-${idx}`}
-              className="flex items-stretch gap-3 p-4 rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 transition-all"
-            >
-              <div className="flex-shrink-0 w-14 text-center border-r border-[color:var(--retro-brown-dark)]/10 pr-3">
-                <p className="font-header text-3xl font-black text-[color:var(--retro-burgundy)] leading-none tabular-nums">
-                  {String(new Date(entry.date).getDate()).padStart(2, '0')}
-                </p>
-                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
-                  {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(new Date(entry.date))}
-                </p>
-                <p className="text-[9px] font-black tabular-nums text-[color:var(--color-text-muted)] mt-0.5">
-                  {new Date(entry.date).getFullYear()}
-                </p>
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight">
-                  {entry.title}
-                </p>
-                <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
-                  {entry.location}
-                </p>
-                {entry.tags && entry.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {entry.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)]/80"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+        <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {upcoming.map((entry) => {
+            const date = new Date(entry.date);
+            const teamLabel = TEAM_LABEL[entry.team] || entry.team;
+            return (
+              <li key={entry.schedule_id}>
+                <a
+                  href={entry.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block h-full p-4 rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-stretch gap-3">
+                    <div className="flex-shrink-0 w-14 text-center border-r border-[color:var(--retro-brown-dark)]/10 pr-3">
+                      <p className="font-header text-3xl font-black text-[color:var(--retro-burgundy)] leading-none tabular-nums">
+                        {String(date.getDate()).padStart(2, '0')}
+                      </p>
+                      <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
+                        {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(date)}
+                      </p>
+                      <p className="text-[9px] font-black tabular-nums text-[color:var(--color-text-muted)] mt-0.5">
+                        {date.getFullYear()}
+                      </p>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]">
+                          {teamLabel}
+                        </span>
+                        {entry.is_birthday_show && (
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]">
+                            <i className="ri-cake-2-line mr-0.5" />Birthday
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight line-clamp-2">
+                        {entry.title}
+                      </p>
+                      {(entry.start_time || entry.end_time) && (
+                        <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1 tabular-nums">
+                          <i className="ri-time-line mr-1 align-[-2px]" />
+                          {entry.start_time}{entry.end_time ? ` – ${entry.end_time}` : ''}
+                        </p>
+                      )}
+                      <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
+                        <i className="ri-map-pin-line mr-1 align-[-2px]" />
+                        {entry.venue}
+                      </p>
+                      {entry.members && entry.members.length > 0 && (
+                        <p className="text-[10px] text-[color:var(--color-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+                          + {entry.members.length} member · klik untuk detail tiket
+                        </p>
+                      )}
+                    </div>
                   </div>
-                )}
-              </div>
-            </li>
-          ))}
+                </a>
+              </li>
+            );
+          })}
         </ol>
       )}
 
@@ -138,12 +164,12 @@ const ScheduleCard = () => {
             <i className="ri-refresh-line" />
             Auto-refresh tiap 6 jam · sumber{' '}
             <a
-              href="https://github.com/beritajkt48/event"
+              href="https://jkt48.com/schedule"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[color:var(--retro-burgundy)] hover:underline"
             >
-              beritajkt48
+              jkt48.com (official)
             </a>
           </span>
           {calendar.fetchedAt && (
