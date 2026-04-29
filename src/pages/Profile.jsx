@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Section from '../components/layout/Section';
 import Seo from '../components/Seo';
+import MotifBackdrop from '../components/about/MotifBackdrop';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
@@ -93,12 +94,17 @@ const ProfilePage = () => {
   const collageOffsetC = useParallax(-0.08);
 
   return (
-    <main className="bg-[color:var(--retro-bg-primary)]">
+    <main className="relative bg-[color:var(--retro-bg-primary)]">
       <Seo
         title="Profil Eli"
         description="Profil lengkap Helisma Putri (Eli JKT48) — timeline karier, JKT48 Fight 2026 di Team Dream, diskografi termasuk Sousenkyo Rapsodi, daftar setlist teater, plus trivia dan fun facts."
         path="/profile"
       />
+      {/* Ambient motif backdrop — 20 themed glyphs (apricot, blossom, butterfly,
+          ribbon, leaf, bug, ice, star, split apricot) drifting softly behind
+          the page content. Decorative only; aria-hidden + pointer-events-none. */}
+      <MotifBackdrop count={20} seed="profile-2026" />
+
       {/* Editorial hero — title block left, layered portrait collage right */}
       <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
         <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/8 blur-3xl pointer-events-none" />
@@ -231,7 +237,11 @@ const ProfilePage = () => {
             key={section.id}
             id={section.id}
             padding="lg"
-            background={useGradient ? 'gradient' : 'default'}
+            // Transparent (vs `default`) so the MotifBackdrop shows through
+            // — main already paints the cream bg, so this is visually
+            // identical except motifs are now visible.
+            background={useGradient ? 'gradient' : 'transparent'}
+            className="relative"
           >
             <SectionRouter id={section.id} section={section} />
           </Section>
