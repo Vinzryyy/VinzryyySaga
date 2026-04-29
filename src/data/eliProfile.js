@@ -130,10 +130,12 @@ const SOUSENKYO_RAPSODI = [
   { rank: 16, name: 'Viona Fadrin', group: 'Academy Class A', votes: 14566, status: 'NEW' },
 ];
 
-// Undergirls JKT48 Sousenkyo 2026 — rank 13–24 (Senbatsu mengisi 1–12).
-// Eli (Helisma Putri) di rank 22 dengan 28.925 suara, turun 7 peringkat
-// dari Sousenkyo #KuSangatSuka.
-const SOUSENKYO_2026_UNDERGIRLS = [
+// Undergirls JKT48 Sousenkyo 2024 — rank 13–24 (Senbatsu mengisi 1–12).
+// Hasil diumumkan 16 Desember 2024 di press conference pasca konser ulang
+// tahun ke-13 "Wonderland" di The Plaza IDN HQ. Eli (Helisma Putri) di
+// rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo
+// #KuSangatSuka. Single tied to these results dirilis tahun 2025.
+const SOUSENKYO_2024_UNDERGIRLS = [
   { rank: 13, name: 'Indah Cahya', group: 'JKT48', votes: 45716, status: 'NEW', position: 'Undergirls Center' },
   { rank: 14, name: 'Febriola Sinambela', group: 'JKT48', votes: 45028, status: 'NEW' },
   { rank: 15, name: 'Aurhel Alana', group: 'Trainee', votes: 42213, status: 'NEW' },
@@ -162,12 +164,12 @@ export const ELI_DISCOGRAPHY = [
   {
     title: 'Bibir yang Telah Dicuri (Nusumareta Kuchibiru)',
     type: 'Single',
-    year: '2026',
+    year: '2025',
     position: 'Undergirls',
-    note: 'Track Undergirls dari JKT48 Sousenkyo 2026. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo #KuSangatSuka.',
+    note: 'Track Undergirls dari JKT48 Sousenkyo 2024 (#Semangka, hasil diumumkan 16 Desember 2024). Single dirilis tahun 2025. Eli masuk Undergirls di rank 22 dengan 28.925 suara, turun 7 peringkat dari Sousenkyo #KuSangatSuka.',
     campaignTagline: '#Semangka',
     rosterLabel: 'Undergirls Roster',
-    members: SOUSENKYO_2026_UNDERGIRLS,
+    members: SOUSENKYO_2024_UNDERGIRLS,
   },
   // Single JKT48 lainnya yang melibatkan Eli akan ditambah seiring data
   // posisi per single terverifikasi.
