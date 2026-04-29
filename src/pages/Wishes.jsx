@@ -102,7 +102,7 @@ const WishesPage = () => {
       {/* Ambient motif backdrop — same brand symbology used on Profile,
           but with a wishes-specific seed so the layout differs and won't
           look identical when both pages open in adjacent tabs. */}
-      <MotifBackdrop count={75} seed="wishes-2026" />
+      <MotifBackdrop count={50} seed="wishes-2026" />
 
       {/* Per-card bob keyframe — translates Y so it composes with each
           card's inline `transform: rotate(...)` (the sticky-note tilt) */}
