@@ -34,10 +34,6 @@ const WishesPage = () => {
   const [handle, setHandle] = useState('');
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState(''); // bot trap — humans never fill this
-  // Template id chosen by the submitter — defaults to the first template.
-  // Stored alongside the wish in RTDB so the wall renders it in the
-  // submitter's chosen style instead of cycling.
-  const [templateId, setTemplateId] = useState(WISH_TEMPLATES[0].id);
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
   const [error, setError] = useState('');
   const [liveWishes, setLiveWishes] = useState([]);
@@ -82,15 +78,13 @@ const WishesPage = () => {
       return;
     }
     setStatus('submitting');
-    const result = await submitWish({ name, handle, message, honeypot, template: templateId });
+    const result = await submitWish({ name, handle, message, honeypot });
     if (result.ok) {
       setStatus('success');
       setName('');
       setHandle('');
       setMessage('');
       setHoneypot('');
-      // Keep templateId as-is so users can quickly post another wish in
-      // the same style if they want.
     } else {
       setStatus('error');
       setError(result.error || 'Pesan gagal terkirim, coba lagi sebentar lagi.');
@@ -166,247 +160,131 @@ const WishesPage = () => {
         </div>
       </header>
 
-      {/* Submission form — "Surat untuk Eli" editorial concept.
-          Cream paper plate (departing from the burgundy block) with a
-          burgundy letterhead bar at top, addressee block, letter-style
-          form on the left, and a vertical postage column with Eli's
-          portrait on the right. Reads like a letter to a pen-pal idol
-          rather than a contact form. */}
-      <section className="px-4 sm:px-6 md:px-8 lg:px-12 mb-12 md:mb-16">
-        <article className="max-w-6xl mx-auto bg-[color:var(--retro-bg-primary)] border border-[color:var(--retro-burgundy)]/15 rounded-2xl shadow-2xl shadow-[color:var(--retro-burgundy)]/15 relative">
-          {/* Letterhead — burgundy bar across the top */}
-          <header className="bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] px-5 sm:px-7 md:px-10 py-4 flex items-center justify-between gap-4 rounded-t-2xl">
-            <div className="flex items-center gap-3 min-w-0">
-              <i className="ri-mail-send-line text-xl text-[color:var(--retro-gold-light)] flex-shrink-0" />
-              <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.4em] truncate">
-                Surat Ulang Tahun
-              </p>
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60 tabular-nums hidden sm:block flex-shrink-0">
-              No. 2026 · Vol. 26
-            </p>
-          </header>
+      {/* Submission form — burgundy editorial plate (og-card style),
+          form on the left + Eli portrait on the right. No template
+          picker on this version (template selection happens elsewhere
+          if at all — wall just cycles through templates by index). */}
+      <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
+            <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
+            <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
-          {/* Faint blossom watermark in the body */}
-          <div
-            aria-hidden="true"
-            className="absolute right-0 top-16 bottom-0 w-2/5 hidden md:block pointer-events-none opacity-[0.04] z-0"
-            style={{
-              maskImage: 'url(/logo-armeniaca.png)',
-              WebkitMaskImage: 'url(/logo-armeniaca.png)',
-              maskSize: 'contain',
-              WebkitMaskSize: 'contain',
-              maskRepeat: 'no-repeat',
-              WebkitMaskRepeat: 'no-repeat',
-              maskPosition: 'right center',
-              WebkitMaskPosition: 'right center',
-              backgroundColor: 'var(--retro-burgundy)',
-            }}
-          />
-
-          <div className="relative grid md:grid-cols-[1.4fr_1fr] lg:grid-cols-[1.3fr_1fr] gap-0 z-[1]">
-            {/* LEFT — letter content */}
-            <div className="px-5 py-7 sm:px-7 sm:py-9 md:px-8 md:py-10 lg:px-10 md:border-r border-dashed border-[color:var(--retro-burgundy)]/20 order-2 md:order-1">
-              {/* Addressee block — like the "To:" line on a real letter */}
-              <div className="mb-6 pb-5 border-b border-dashed border-[color:var(--retro-burgundy)]/20">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1.5">
-                  Kepada
-                </p>
-                <p className="font-header text-xl sm:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
-                  Helisma Putri
-                </p>
-                <p className="text-xs font-bold uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
-                  {eli.stageName} JKT48 · Team Dream
-                </p>
-              </div>
-
-              {/* Title + lead */}
-              <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-3">
-                Suratmu, langsung di
-                <span className="text-[color:var(--retro-burgundy)]"> wall.</span>
-              </h2>
-              <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-7 max-w-md">
-                {isFirebaseConfigured ? wishes.pendingMessage : wishes.demoMessage}
-              </p>
-
-              {status === 'success' ? (
-                <div className="rounded-2xl bg-[color:var(--retro-burgundy)]/[0.04] border-2 border-dashed border-[color:var(--retro-burgundy)]/30 p-6 text-center">
-                  <i className="ri-checkbox-circle-line text-4xl text-[color:var(--retro-burgundy)] mb-3 inline-block" />
-                  <p className="font-bold text-[color:var(--retro-text-primary)] mb-1">{wishes.successMessage}</p>
-                  <button
-                    type="button"
-                    onClick={() => setStatus('idle')}
-                    className="mt-4 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-text-primary)] transition-colors"
-                  >
-                    <i className="ri-add-line" /> Tulis lagi
-                  </button>
+            <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-0 z-[2]">
+              {/* LEFT — text + form */}
+              <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 md:order-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
+                    ★ Form Ucapan
+                  </span>
+                  <span className="flex-1 h-px bg-[color:var(--retro-gold-light)]/40" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/50">
+                    Live Wall
+                  </span>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <label className="block">
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                        Dari <span className="text-[color:var(--retro-burgundy)]/60">*</span>
-                      </span>
-                      <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        maxLength={60}
-                        placeholder="Nama panggilan"
-                        className="mt-1 w-full px-4 py-3 rounded-lg bg-white border border-[color:var(--retro-burgundy)]/20 focus:border-[color:var(--retro-burgundy)] focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/20 focus:outline-none text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)] text-sm transition-colors"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                        Handle (opsional)
-                      </span>
-                      <input
-                        type="text"
-                        value={handle}
-                        onChange={(e) => setHandle(e.target.value)}
-                        maxLength={40}
-                        placeholder="@handle X / IG"
-                        className="mt-1 w-full px-4 py-3 rounded-lg bg-white border border-[color:var(--retro-burgundy)]/20 focus:border-[color:var(--retro-burgundy)] focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/20 focus:outline-none text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)] text-sm transition-colors"
-                      />
-                    </label>
-                  </div>
+                <h2 className="font-header text-3xl sm:text-4xl md:text-5xl lg:text-[3.4rem] font-black leading-[0.95] tracking-tighter mb-3">
+                  Tulis pesan untuk
+                  <span className="text-[color:var(--retro-gold-light)]"> {eli.nickname}.</span>
+                </h2>
+                <p className="text-sm md:text-base text-[color:var(--retro-cream)]/70 leading-relaxed mb-6 max-w-md">
+                  {isFirebaseConfigured ? wishes.pendingMessage : wishes.demoMessage}
+                </p>
 
-                  <label className="block">
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                        Isi surat <span className="text-[color:var(--retro-burgundy)]/60">*</span>
-                      </span>
-                      <span
-                        className={`text-[10px] font-black tabular-nums ${
-                          isOverLimit
-                            ? 'text-red-500'
-                            : charsLeft < 30
-                            ? 'text-[color:var(--retro-burgundy)]'
-                            : 'text-[color:var(--color-text-muted)]'
-                        }`}
-                      >
-                        {charsLeft}
-                      </span>
-                    </div>
-                    <textarea
-                      required
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      rows={4}
-                      placeholder="Tulis ucapan singkat untuk Ceu Eli..."
-                      className="mt-1 w-full px-4 py-3 rounded-lg bg-white border border-[color:var(--retro-burgundy)]/20 focus:border-[color:var(--retro-burgundy)] focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/20 focus:outline-none text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)] text-sm leading-relaxed transition-colors resize-none"
-                    />
-                  </label>
-
-                  {/* Template picker — chips on cream bg use white tile +
-                      burgundy outline; selected fills with burgundy. Strip
-                      stays a horizontal swipe carousel on all viewports. */}
-                  <fieldset>
-                    <div className="flex items-center justify-between gap-3 mb-3">
-                      <legend className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                        Tampilan kartu — preview live
-                      </legend>
-                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5 flex-shrink-0">
-                        <i className="ri-arrow-left-line" />
-                        Geser
-                        <i className="ri-arrow-right-line" />
-                      </span>
-                    </div>
-                    <div
-                      className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-proximity overscroll-x-contain"
-                      style={{
-                        WebkitOverflowScrolling: 'touch',
-                        touchAction: 'pan-x',
-                      }}
+                {status === 'success' ? (
+                  <div className="rounded-2xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 p-6 text-center">
+                    <i className="ri-checkbox-circle-line text-4xl text-[color:var(--retro-gold-light)] mb-3 inline-block" />
+                    <p className="font-bold mb-2">{wishes.successMessage}</p>
+                    <button
+                      type="button"
+                      onClick={() => setStatus('idle')}
+                      className="mt-4 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] hover:text-[color:var(--retro-cream)] transition-colors"
                     >
-                      {WISH_TEMPLATES.map((tpl, tplIdx) => {
-                        const selected = tpl.id === templateId;
-                        const PreviewCard = tpl.Component;
-                        const sampleWish = {
-                          name: name || 'Armeniaca',
-                          handle: handle || '@armeniaca15',
-                          message:
-                            message ||
-                            'Selamat ulang tahun, Ceu Eli! Tetap mekar seperti aprikot di musim semi.',
-                          date: new Date().toISOString(),
-                        };
-                        return (
-                          <button
-                            key={tpl.id}
-                            type="button"
-                            onClick={() => setTemplateId(tpl.id)}
-                            aria-pressed={selected}
-                            title={tpl.label}
-                            className={`flex-shrink-0 w-[75vw] max-w-[260px] sm:w-[220px] sm:max-w-[240px] snap-center sm:snap-start touch-pan-x flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
-                              selected
-                                ? 'bg-[color:var(--retro-burgundy)] ring-2 ring-[color:var(--retro-burgundy)] -translate-y-0.5 shadow-lg shadow-[color:var(--retro-burgundy)]/30'
-                                : 'bg-white ring-1 ring-[color:var(--retro-burgundy)]/15 hover:ring-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5'
-                            }`}
-                          >
-                            <div
-                              aria-hidden="true"
-                              className="relative w-full h-[220px] sm:w-[204px] sm:h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-bg-primary)]"
-                            >
-                              <div
-                                className="absolute top-0 left-0 origin-top-left scale-[0.85] sm:scale-[0.64]"
-                                style={{ width: '320px', height: '260px' }}
-                              >
-                                <PreviewCard wish={sampleWish} />
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1.5 px-1">
-                              <span
-                                className={`text-[9px] font-black uppercase tracking-[0.25em] tabular-nums ${
-                                  selected ? 'text-[color:var(--retro-gold-light)]' : 'text-[color:var(--retro-burgundy)]/60'
-                                }`}
-                              >
-                                {String(tplIdx + 1).padStart(2, '0')}
-                              </span>
-                              <span
-                                className={`text-[10px] font-black uppercase tracking-[0.18em] truncate ${
-                                  selected ? 'text-[color:var(--retro-cream)]' : 'text-[color:var(--retro-text-primary)]'
-                                }`}
-                              >
-                                {tpl.label}
-                              </span>
-                              {selected && (
-                                <i className="ri-check-line ml-auto text-base text-[color:var(--retro-gold-light)]" />
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
+                      <i className="ri-add-line" /> Tulis lagi
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      <label className="block">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
+                          Nama <span className="text-[color:var(--retro-gold-light)]">*</span>
+                        </span>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          maxLength={60}
+                          placeholder="Nama panggilan"
+                          className="mt-1 w-full px-4 py-3 rounded-xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 focus:border-[color:var(--retro-gold-light)] focus:ring-2 focus:ring-[color:var(--retro-gold-light)]/30 focus:outline-none text-[color:var(--retro-cream)] placeholder-[color:var(--retro-cream)]/40 text-sm transition-colors"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
+                          Handle (opsional)
+                        </span>
+                        <input
+                          type="text"
+                          value={handle}
+                          onChange={(e) => setHandle(e.target.value)}
+                          maxLength={40}
+                          placeholder="@handle X / IG"
+                          className="mt-1 w-full px-4 py-3 rounded-xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 focus:border-[color:var(--retro-gold-light)] focus:ring-2 focus:ring-[color:var(--retro-gold-light)]/30 focus:outline-none text-[color:var(--retro-cream)] placeholder-[color:var(--retro-cream)]/40 text-sm transition-colors"
+                        />
+                      </label>
                     </div>
-                  </fieldset>
 
-                  {/* Honeypot — invisible to humans, irresistible to spam bots */}
-                  <div aria-hidden="true" className="absolute left-[-9999px] w-px h-px overflow-hidden">
-                    <label>
-                      Website (jangan diisi)
-                      <input
-                        type="text"
-                        tabIndex={-1}
-                        autoComplete="off"
-                        value={honeypot}
-                        onChange={(e) => setHoneypot(e.target.value)}
+                    <label className="block">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
+                          Pesan <span className="text-[color:var(--retro-gold-light)]">*</span>
+                        </span>
+                        <span
+                          className={`text-[10px] font-black tabular-nums ${
+                            isOverLimit
+                              ? 'text-[#FF8B7A]'
+                              : charsLeft < 30
+                              ? 'text-[color:var(--retro-gold-light)]'
+                              : 'text-[color:var(--retro-cream)]/50'
+                          }`}
+                        >
+                          {charsLeft}
+                        </span>
+                      </div>
+                      <textarea
+                        required
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        rows={4}
+                        placeholder="Tulis ucapan singkat untuk Ceu Eli..."
+                        className="mt-1 w-full px-4 py-3 rounded-xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 focus:border-[color:var(--retro-gold-light)] focus:ring-2 focus:ring-[color:var(--retro-gold-light)]/30 focus:outline-none text-[color:var(--retro-cream)] placeholder-[color:var(--retro-cream)]/40 text-sm leading-relaxed transition-colors resize-none"
                       />
                     </label>
-                  </div>
 
-                  {status === 'error' && error && (
-                    <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                      {error}
-                    </p>
-                  )}
+                    {/* Honeypot — invisible to humans, irresistible to spam bots */}
+                    <div aria-hidden="true" className="absolute left-[-9999px] w-px h-px overflow-hidden">
+                      <label>
+                        Website (jangan diisi)
+                        <input
+                          type="text"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={honeypot}
+                          onChange={(e) => setHoneypot(e.target.value)}
+                        />
+                      </label>
+                    </div>
 
-                  {/* Submit — styled like a wax-seal stamp */}
-                  <div className="flex items-center gap-4 pt-2">
+                    {status === 'error' && error && (
+                      <p className="text-xs text-[#FFB1A2] bg-[#FF8B7A]/10 border border-[#FF8B7A]/30 rounded-lg px-3 py-2">
+                        {error}
+                      </p>
+                    )}
+
                     <button
                       type="submit"
                       disabled={formDisabled}
-                      className="inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-xl shadow-[color:var(--retro-burgundy)]/30 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 hover:shadow-2xl transition-all"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-7 py-3.5 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] font-bold text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 transition-all"
                     >
                       {status === 'submitting' ? (
                         <>
@@ -415,70 +293,47 @@ const WishesPage = () => {
                         </>
                       ) : (
                         <>
-                          <i className="ri-send-plane-fill" />
+                          <i className="ri-send-plane-line" />
                           {wishes.formCta}
                         </>
                       )}
                     </button>
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
-                      Terkirim · langsung di wall
-                    </p>
-                  </div>
-                </form>
-              )}
+                  </form>
+                )}
 
-              {/* Sign-off */}
-              <div className="mt-7 pt-5 border-t border-dashed border-[color:var(--retro-burgundy)]/20 flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
-                  armeniaca.online
-                </span>
-                <span className="w-6 h-px bg-[color:var(--retro-burgundy)]/30" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
-                  #BloomInSpring
+                {/* Signature footer — mirrors og-card's bottom strip */}
+                <div className="mt-6 pt-4 border-t border-[color:var(--retro-cream)]/15 flex items-center gap-3">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
+                    armeniaca.online
+                  </span>
+                  <span className="w-6 h-px bg-[color:var(--retro-cream)]/20" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/50">
+                    #BloomInSpring
+                  </span>
+                </div>
+              </div>
+
+              {/* RIGHT — portrait peeking from the side */}
+              <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden">
+                <img
+                  src="/archive/img-024.jpg"
+                  alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
+                  loading="eager"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
+                />
+                {/* Mobile fades — top + bottom edges fade into burgundy */}
+                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[color:var(--retro-burgundy)] to-transparent md:hidden" />
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[color:var(--retro-burgundy)] to-transparent md:hidden" />
+                {/* Tablet+ fade — left edge fades into burgundy so form text doesn't crash into the photo */}
+                <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[color:var(--retro-burgundy)] to-transparent" />
+                <span className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-[color:var(--retro-cream)]/15 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] border border-[color:var(--retro-cream)]/20">
+                  Eli · 15.06
                 </span>
               </div>
             </div>
-
-            {/* RIGHT — postage column with Eli portrait + stamp box.
-                Mobile: stacks ABOVE the form as a hero banner. md+: vertical
-                strip on the right with the portrait + a postage-stamp tile. */}
-            <aside className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] lg:min-h-[640px] overflow-hidden md:rounded-tr-2xl md:rounded-br-2xl bg-[color:var(--retro-burgundy)]">
-              <img
-                src="/archive/img-024.jpg"
-                alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
-                loading="eager"
-                decoding="async"
-                className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
-              />
-              {/* Burgundy gradient softens the image into the rest of the card */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-burgundy)] via-[color:var(--retro-burgundy)]/30 to-transparent" />
-              {/* Postage stamp — top-right */}
-              <div className="absolute top-4 right-4 w-[88px] border-2 border-dashed border-[color:var(--retro-cream)]/60 rounded bg-[color:var(--retro-cream)]/15 backdrop-blur-md text-center px-2 py-2.5">
-                <p className="text-[8px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
-                  Date
-                </p>
-                <p className="font-header text-base font-black text-[color:var(--retro-cream)] leading-tight tabular-nums my-0.5">
-                  15.06.26
-                </p>
-                <p className="text-[8px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
-                  Birthday
-                </p>
-              </div>
-              {/* Sealed-with footer */}
-              <div className="absolute bottom-5 left-5 right-5 text-[color:var(--retro-cream)]">
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-1">
-                  Sealed with
-                </p>
-                <p className="font-header text-2xl sm:text-3xl font-black leading-tight tracking-tight">
-                  #BloomInSpring
-                </p>
-                <p className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
-                  {eli.stageName} · 2026
-                </p>
-              </div>
-            </aside>
           </div>
-        </article>
+        </div>
       </section>
 
       {/* Flying marquee — wishes drift past in two opposite-direction bands.
