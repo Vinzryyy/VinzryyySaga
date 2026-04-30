@@ -31,10 +31,25 @@
 
     <link rel="preload" as="image" href="/logo-armeniaca.png" fetchpriority="high" />
 
+    <script>
+      // Skip the preloader on repeat visits within the same tab session.
+      // Runs before any paint, so cached visits never see a flash of splash.
+      try {
+        if (sessionStorage.getItem("armeniaca-preloader-seen")) {
+          document.documentElement.classList.add("preloader-skip");
+        }
+      } catch (_) {
+        // sessionStorage blocked (private mode w/ strict settings) → show splash, harmless.
+      }
+    </script>
+
     <style>
       /* Preloader — inline so it paints before the JS bundle parses.
          Removed from the DOM by src/main.jsx after React mounts +
          a min-display window (so users actually see the splash). */
+      .preloader-skip #preloader {
+        display: none;
+      }
       #preloader {
         position: fixed;
         inset: 0;

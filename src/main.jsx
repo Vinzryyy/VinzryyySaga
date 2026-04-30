@@ -32,6 +32,13 @@ const hidePreloader = () => {
   const el = document.getElementById("preloader");
   if (!el) return;
   el.classList.add("is-hidden");
+  // Mark splash as seen so the next route change / refresh in this
+  // tab session skips it via the inline gate in index.html.
+  try {
+    sessionStorage.setItem("armeniaca-preloader-seen", "1");
+  } catch (_) {
+    /* sessionStorage blocked — no-op, splash shows again next visit */
+  }
   setTimeout(() => el.remove(), 900);
 };
 const scheduleHide = () => {
