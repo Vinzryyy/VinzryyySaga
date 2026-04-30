@@ -1,7 +1,8 @@
 /**
  * Template 3 — Vintage Telegram
- * Cream paper with dotted top/bottom borders, centered "TELEGRAM · MM/YYYY"
- * stamp, mono-feel body copy, "STOP." footer like a classic telegram.
+ * Espresso-brown paper with dashed cream borders, centered "TELEGRAM ·
+ * MM/YYYY" stamp, mono body in bone-white, "STOP." footer like a classic
+ * telegram. Dark body so it doesn't blend with the cream page background.
  */
 
 import React from 'react';
@@ -17,28 +18,28 @@ const TELEGRAM_MONTH = (iso) => {
 const Template3Telegram = ({ wish }) => {
   const stamp = TELEGRAM_MONTH(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex flex-col bg-[color:var(--retro-cream)] p-6 shadow-sm border border-[color:var(--retro-brown-dark)]/15 [border-style:double] rounded-md">
-      {/* Dotted top */}
-      <div className="absolute top-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-brown-dark)]/20" />
-      <div className="absolute bottom-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-brown-dark)]/20" />
+    <article className="relative h-full min-h-[280px] flex flex-col bg-[color:var(--retro-brown-dark)] p-6 shadow-md border border-[color:var(--retro-cream)]/25 [border-style:double] rounded-md">
+      {/* Dotted top + bottom rules */}
+      <div className="absolute top-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-cream)]/30" />
+      <div className="absolute bottom-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-cream)]/30" />
 
-      <p className="text-center text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)] mt-2 mb-1">
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-gold-light)] mt-2 mb-1">
         Telegram
       </p>
-      <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums mb-4">
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55 tabular-nums mb-4">
         {stamp}
       </p>
 
-      <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-3">
+      <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55 mb-3">
         TO · {wish.handle || 'Eli JKT48'}
       </p>
 
-      <p className="text-sm text-[color:var(--retro-text-primary)] leading-relaxed flex-1 text-center font-mono tracking-tight">
+      <p className="text-sm text-[color:var(--retro-cream)] leading-relaxed flex-1 text-center font-mono tracking-tight">
         {wish.message.toUpperCase()} STOP.
       </p>
 
       <div className="mt-4 pt-3 text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]">
           — {wish.name} —
         </p>
       </div>
