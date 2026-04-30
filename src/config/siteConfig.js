@@ -107,7 +107,9 @@ export const SITE_CONFIG = {
     completedAboutBody:
       'Helisma Putri Kurnia lahir di Bandung pada 15 Juni 2000. Hari ini, di tengah era JKT48 Fight 2026 dan posisinya di Team Dream, ulang tahun ke-{age}-nya menandai satu dekade lebih perjalanan musiknya — satu frame yang Armeniaca rawat untuk selalu diingat.',
     // Gift box reveal pool — random pairing of one photo + one quote
-    // shown when fans open the gift on the celebration plate.
+    // shown when fans open the gift on the celebration plate. Photos
+    // and quotes are paired independently on each open, so 10 × 10 =
+    // 100 unique combinations.
     gifts: {
       photos: [
         '/archive/img-310.jpg',
@@ -118,6 +120,8 @@ export const SITE_CONFIG = {
         '/archive/img-335.jpg',
         '/archive/img-070.jpg',
         '/archive/img-022.jpg',
+        '/archive/img-359.jpg',
+        '/archive/img-148.jpg',
       ],
       quotes: [
         'Bagai lembayung senja — menghangatkan setiap panggung.',
@@ -128,6 +132,8 @@ export const SITE_CONFIG = {
         'Satu dekade lebih, dan masih terus tumbuh.',
         'Senyum Eli adalah cahaya yang Armeniaca rawat.',
         'Dari layar TV ke teater, perjalanan yang panjang.',
+        'Di setiap frame, Eli selalu jadi yang paling hangat.',
+        'Mekar di akhir musim dingin — itulah Armeniaca, itulah Eli.',
       ],
     },
   },
