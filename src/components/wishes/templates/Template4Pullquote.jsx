@@ -8,10 +8,10 @@
  */
 
 import React from 'react';
-import { formatWishDate } from './utils';
+import { formatWishTimeRelative } from './utils';
 
 const Template4Pullquote = ({ wish }) => {
-  const date = formatWishDate(wish.date);
+  const date = formatWishTimeRelative(wish.date);
   return (
     <article className="relative h-full min-h-[280px] flex rounded-2xl bg-white overflow-hidden shadow-md border border-[color:var(--retro-burgundy)]/25">
       {/* Left vertical strip with rotated eyebrow */}
