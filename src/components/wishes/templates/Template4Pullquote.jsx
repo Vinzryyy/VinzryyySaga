@@ -1,10 +1,9 @@
 /**
  * Template 4 — Magazine Pullquote
- * Two-tone composition on a milk-chocolate / kraft-paper body: thin
- * burgundy left strip with vertical eyebrow, giant gold quote glyph,
- * oversized italic message in cream, attribution dash with name + handle.
- * Reads like a kraft magazine callout box. Brown body so it doesn't blend
- * with the cream page background.
+ * Two-tone composition on a deep espresso body: thin burgundy left strip
+ * with vertical eyebrow, oversized italic message in cream, attribution
+ * dash with name + handle. Reads like a premium magazine callout box.
+ * Espresso body so it doesn't blend with the cream page background.
  */
 
 import React from 'react';
@@ -13,7 +12,7 @@ import { formatWishDate } from './utils';
 const Template4Pullquote = ({ wish }) => {
   const date = formatWishDate(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex rounded-2xl bg-[color:var(--retro-brown)] overflow-hidden shadow-md border border-[color:var(--retro-cream)]/20">
+    <article className="relative h-full min-h-[280px] flex rounded-2xl bg-[color:var(--retro-brown-dark)] overflow-hidden shadow-md border border-[color:var(--retro-cream)]/20">
       {/* Left vertical strip with rotated eyebrow */}
       <div className="w-9 flex-shrink-0 bg-[color:var(--retro-burgundy)] flex items-center justify-center">
         <span
