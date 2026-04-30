@@ -15,6 +15,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 import BirthdayCelebration from '../components/countdown/BirthdayCelebration';
+import BirthdayCake from '../components/countdown/BirthdayCake';
 
 const useCountdown = (targetIso) => {
   const target = useMemo(() => new Date(targetIso).getTime(), [targetIso]);
@@ -265,10 +266,10 @@ const CountdownPage = () => {
           )}
 
           {isComplete && (
-            <div className="rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-8 sm:p-10 md:p-16 text-center">
-              <i className="ri-cake-3-fill text-5xl sm:text-6xl text-[color:var(--retro-gold-light)] mb-4 inline-block" />
+            <div className="rounded-[1.75rem] sm:rounded-[2rem] overflow-hidden bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 sm:p-8 md:p-12 text-center flex flex-col items-center gap-6 sm:gap-8">
+              <BirthdayCake name={SITE_CONFIG.eli.nickname} />
               <p className="font-header text-2xl sm:text-3xl md:text-5xl font-black leading-[0.95] tracking-tighter">
-                Happy {config.age}th Birthday, Ceu Eli!
+                Happy {config.age}th Birthday, {SITE_CONFIG.eli.nickname}!
               </p>
             </div>
           )}
