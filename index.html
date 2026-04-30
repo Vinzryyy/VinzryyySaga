@@ -29,9 +29,12 @@
     <meta name="twitter:image" content="https://armeniaca.online/og-card.png" />
     <meta name="twitter:image:alt" content="Armeniaca — Arsip Visual Helisma Putri (Eli JKT48). Dari Generasi 7 hingga era Team Dream JKT48 Fight 2026." />
 
+    <link rel="preload" as="image" href="/logo-armeniaca.png" fetchpriority="high" />
+
     <style>
       /* Preloader — inline so it paints before the JS bundle parses.
-         Removed from the DOM by src/main.jsx after React mounts. */
+         Removed from the DOM by src/main.jsx after React mounts +
+         a min-display window (so users actually see the splash). */
       #preloader {
         position: fixed;
         inset: 0;
@@ -39,10 +42,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #FDF6E3 0%, #F5E6C8 100%);
+        background:
+          radial-gradient(ellipse at 50% 30%, rgba(201, 169, 97, 0.18) 0%, transparent 60%),
+          linear-gradient(180deg, #5C4A3A 0%, #3D342B 100%);
         font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
-        color: #3D342B;
-        transition: opacity 0.6s ease, visibility 0.6s ease;
+        color: #FDF6E3;
+        transition: opacity 0.7s ease, visibility 0.7s ease;
       }
       #preloader.is-hidden {
         opacity: 0;
@@ -51,41 +56,31 @@
       }
       .preloader-inner {
         text-align: center;
-        animation: pre-fade-in 0.8s ease-out both;
+        animation: pre-fade-in 0.9s ease-out both;
         padding: 0 1.5rem;
+        max-width: min(92vw, 480px);
       }
-      .preloader-blossom {
-        display: inline-block;
-        font-size: 1.1rem;
-        color: #8B4040;
-        opacity: 0.7;
-        margin-bottom: 1.25rem;
-        letter-spacing: 0.6em;
-        animation: pre-blossom 2.4s ease-in-out infinite;
-      }
-      .preloader-wordmark {
-        margin: 0;
-        font-size: clamp(2.5rem, 7vw, 4.5rem);
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        line-height: 1;
-        font-variation-settings: "opsz" 144, "SOFT" 50;
-      }
-      .preloader-dot {
-        color: #8B4040;
+      .preloader-logo {
+        display: block;
+        width: clamp(220px, 42vw, 380px);
+        height: auto;
+        margin: 0 auto 1rem;
+        opacity: 0.95;
+        animation: pre-breathe 4s ease-in-out infinite;
+        filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.25));
       }
       .preloader-tagline {
-        margin: 0.75rem 0 1.75rem;
+        margin: 0.5rem 0 2rem;
         font-style: italic;
-        color: #8B4040;
-        font-size: 0.9rem;
-        letter-spacing: 0.06em;
+        color: #E5C575;
+        font-size: 0.95rem;
+        letter-spacing: 0.08em;
       }
       .preloader-bar {
-        width: 140px;
+        width: 160px;
         height: 1px;
         margin: 0 auto;
-        background: rgba(139, 64, 64, 0.15);
+        background: rgba(253, 246, 227, 0.12);
         overflow: hidden;
         border-radius: 1px;
       }
@@ -93,25 +88,25 @@
         display: block;
         width: 40%;
         height: 100%;
-        background: #8B4040;
-        animation: pre-bar 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        background: linear-gradient(90deg, transparent, #E5C575 50%, transparent);
+        animation: pre-bar 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
       }
       .preloader-eyebrow {
-        margin-top: 1.25rem;
+        margin-top: 1.5rem;
         font-family: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
         font-size: 10px;
         font-style: normal;
         text-transform: uppercase;
-        letter-spacing: 0.32em;
-        color: #8B7D6B;
+        letter-spacing: 0.36em;
+        color: rgba(253, 246, 227, 0.55);
       }
       @keyframes pre-fade-in {
-        from { opacity: 0; transform: translateY(8px); }
+        from { opacity: 0; transform: translateY(10px); }
         to   { opacity: 1; transform: translateY(0); }
       }
-      @keyframes pre-blossom {
-        0%, 100% { opacity: 0.5; transform: scale(1); }
-        50%      { opacity: 1;   transform: scale(1.12); }
+      @keyframes pre-breathe {
+        0%, 100% { transform: scale(1);    opacity: 0.92; }
+        50%      { transform: scale(1.03); opacity: 1; }
       }
       @keyframes pre-bar {
         0%   { transform: translateX(-150%); }
@@ -119,7 +114,7 @@
       }
       @media (prefers-reduced-motion: reduce) {
         .preloader-inner,
-        .preloader-blossom,
+        .preloader-logo,
         .preloader-bar > span {
           animation: none;
         }
@@ -129,10 +124,13 @@
   <body>
     <div id="preloader" role="status" aria-label="Memuat Armeniaca">
       <div class="preloader-inner">
-        <div class="preloader-blossom" aria-hidden="true">✦ ✦ ✦</div>
-        <h1 class="preloader-wordmark">
-          Armeniaca<span class="preloader-dot">.</span>
-        </h1>
+        <img
+          class="preloader-logo"
+          src="/logo-armeniaca.png"
+          alt="Armeniaca"
+          width="380"
+          height="146"
+        />
         <p class="preloader-tagline">#BloomInSpring</p>
         <div class="preloader-bar" aria-hidden="true"><span></span></div>
         <p class="preloader-eyebrow">Arsip Visual · Eli JKT48</p>

@@ -22,13 +22,20 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   </React.StrictMode>
 );
 
-// Fade out the inline preloader once React has had a chance to paint.
-// Two RAFs ensure the first frame has actually committed before we start
-// the fade — otherwise the preloader vanishes onto an empty screen.
+// Fade out the inline preloader once React has painted AND the splash
+// has been visible for at least PRELOADER_MIN_MS (so it's a deliberate
+// brand moment, not a flash). performance.now() measures ms since the
+// browser began navigating — so the math accounts for time the user
+// has already been looking at the splash before main.jsx executes.
+const PRELOADER_MIN_MS = 5000;
 const hidePreloader = () => {
   const el = document.getElementById("preloader");
   if (!el) return;
   el.classList.add("is-hidden");
-  setTimeout(() => el.remove(), 700);
+  setTimeout(() => el.remove(), 800);
 };
-requestAnimationFrame(() => requestAnimationFrame(hidePreloader));
+const scheduleHide = () => {
+  const remaining = Math.max(0, PRELOADER_MIN_MS - performance.now());
+  setTimeout(hidePreloader, remaining);
+};
+requestAnimationFrame(() => requestAnimationFrame(scheduleHide));
