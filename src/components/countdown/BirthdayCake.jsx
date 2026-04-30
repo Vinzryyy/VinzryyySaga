@@ -81,10 +81,11 @@ const BirthdayCake = ({ name = 'Eli' }) => {
             <rect x="205" y="265" width="3" height="6" rx="1" transform="rotate(-25 206 268)" />
           </g>
 
-          {/* Top tier */}
-          <ellipse cx="120" cy="210" rx="75" ry="6" fill="var(--retro-burgundy)" />
-          <rect x="45" y="150" width="150" height="62" fill="var(--retro-burgundy)" />
-          <ellipse cx="120" cy="150" rx="75" ry="9" fill="var(--retro-burgundy-light)" />
+          {/* Top tier — sepia body so it contrasts against the burgundy
+              celebration plate (don't use burgundy here, it'd blend in) */}
+          <ellipse cx="120" cy="210" rx="75" ry="6" fill="var(--retro-brown)" />
+          <rect x="45" y="150" width="150" height="62" fill="var(--retro-sepia)" />
+          <ellipse cx="120" cy="150" rx="75" ry="9" fill="var(--retro-gold-light)" />
           {/* Cream drip icing on top tier */}
           <path
             d="M45 150
@@ -95,14 +96,15 @@ const BirthdayCake = ({ name = 'Eli' }) => {
                L195 150 L45 150 Z"
             fill="var(--retro-cream)"
           />
-          {/* Apricot blossoms on top tier (brand motif) */}
-          <g fill="var(--retro-cream)" opacity="0.9">
+          {/* Apricot blossoms on top tier (brand motif) — burgundy now
+              for contrast against the new sepia body */}
+          <g fill="var(--retro-burgundy)" opacity="0.85">
             <circle cx="70" cy="180" r="3.5" />
             <circle cx="73" cy="175" r="3" />
             <circle cx="73" cy="185" r="3" />
             <circle cx="76" cy="178" r="2" fill="var(--retro-gold)" />
           </g>
-          <g fill="var(--retro-cream)" opacity="0.9">
+          <g fill="var(--retro-burgundy)" opacity="0.85">
             <circle cx="170" cy="185" r="3.5" />
             <circle cx="173" cy="180" r="3" />
             <circle cx="173" cy="190" r="3" />
@@ -181,6 +183,13 @@ const BirthdayCake = ({ name = 'Eli' }) => {
           padding: 0;
           width: clamp(220px, 50vw, 340px);
           transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        /* Lift the cake off the burgundy celebration plate with a soft
+           dual shadow — dark base for depth, gold halo for warmth. */
+        .bd-cake-button > svg {
+          filter:
+            drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35))
+            drop-shadow(0 0 24px rgba(229, 197, 117, 0.18));
         }
         .bd-cake-button:hover { transform: translateY(-4px) scale(1.02); }
         .bd-cake-button:active { transform: translateY(-2px) scale(0.99); }
