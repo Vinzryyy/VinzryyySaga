@@ -81,6 +81,12 @@ export const SITE_CONFIG = {
   },
 
   // Birthday Countdown
+  //
+  // `completed*` fields take over the page from the moment
+  // `targetIso` passes (live, second-by-second via the page's
+  // setInterval — no refresh needed). Form/timer cards hide and
+  // celebration copy slots in place. Mirrors the Wishes takeover so
+  // both pages stay editorially consistent.
   countdown: {
     targetIso: '2026-06-15T00:00:00+07:00',
     targetLabel: '15 Juni 2026 · 00:00 WIB',
@@ -91,10 +97,15 @@ export const SITE_CONFIG = {
       'Helisma Putri akan merayakan ulang tahun ke-26 pada 15 Juni 2026. Armeniaca menghitung mundur menjelang harinya — momen kecil sebelum stage besar.',
     age: 26,
     backgroundImage: '/archive/img-127.jpg',
+    completedEyebrow: 'Hari Itu Tiba',
     completedTitle: 'Selamat Ulang Tahun',
     completedAccent: 'Ceu Eli!',
     completedLead:
       '15 Juni 2026 sudah tiba. Terima kasih sudah menemani perjalanan Eli dari panggung ke panggung — Armeniaca tetap berjaga, satu frame demi satu frame.',
+    completedAboutEyebrow: 'Hari Itu',
+    completedAboutTitle: '15 Juni 2026, momen ke-{age}.',
+    completedAboutBody:
+      'Helisma Putri Kurnia lahir di Bandung pada 15 Juni 2000. Hari ini, di tengah era JKT48 Fight 2026 dan posisinya di Team Dream, ulang tahun ke-{age}-nya menandai satu dekade lebih perjalanan musiknya — satu frame yang Armeniaca rawat untuk selalu diingat.',
   },
 
   // Birthday Wishes Wall — fans submit ucapan menjelang 15 Juni 2026.

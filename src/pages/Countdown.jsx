@@ -213,7 +213,7 @@ const CountdownPage = () => {
               className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em] mb-4 sm:mb-6 border border-[color:var(--retro-cream)]/20"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
-              {config.eyebrow}
+              {isComplete ? config.completedEyebrow : config.eyebrow}
             </span>
             <h1
               ref={heroTitleRef}
@@ -278,16 +278,24 @@ const CountdownPage = () => {
         <div ref={contextRef} className="grid md:grid-cols-2 gap-8 md:gap-16 items-start">
           <div>
             <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-              About the Day
+              {isComplete ? config.completedAboutEyebrow : 'About the Day'}
             </p>
             <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-5 sm:mb-6">
-              15 Juni 2026, hari ke-{config.age}.
+              {isComplete
+                ? config.completedAboutTitle.replace('{age}', config.age)
+                : `15 Juni 2026, hari ke-${config.age}.`}
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed">
-              Helisma Putri Kurnia lahir di Bandung pada 15 Juni 2000. Tahun
-              ini, di tengah era JKT48 Fight 2026 dan posisi barunya di Team
-              Dream, ulang tahun ke-{config.age} menjadi penanda satu dekade
-              lebih perjalanan musiknya.
+              {isComplete ? (
+                config.completedAboutBody.replace(/\{age\}/g, config.age)
+              ) : (
+                <>
+                  Helisma Putri Kurnia lahir di Bandung pada 15 Juni 2000. Tahun
+                  ini, di tengah era JKT48 Fight 2026 dan posisi barunya di Team
+                  Dream, ulang tahun ke-{config.age} menjadi penanda satu dekade
+                  lebih perjalanan musiknya.
+                </>
+              )}
             </p>
           </div>
 
