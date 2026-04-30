@@ -14,6 +14,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
+import BirthdayCelebration from '../components/countdown/BirthdayCelebration';
 
 const useCountdown = (targetIso) => {
   const target = useMemo(() => new Date(targetIso).getTime(), [targetIso]);
@@ -183,6 +184,7 @@ const CountdownPage = () => {
       id="countdown"
       className="bg-[color:var(--retro-bg-primary)] overflow-x-hidden"
     >
+      <BirthdayCelebration active={isComplete} />
       <Seo
         title="Countdown 15 Juni 2026"
         description="Hitung mundur menjelang ulang tahun ke-26 Helisma Putri (Eli JKT48) — 15 Juni 2026 di Indonesia."
