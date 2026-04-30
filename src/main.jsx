@@ -21,3 +21,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <App />
   </React.StrictMode>
 );
+
+// Fade out the inline preloader once React has had a chance to paint.
+// Two RAFs ensure the first frame has actually committed before we start
+// the fade — otherwise the preloader vanishes onto an empty screen.
+const hidePreloader = () => {
+  const el = document.getElementById("preloader");
+  if (!el) return;
+  el.classList.add("is-hidden");
+  setTimeout(() => el.remove(), 700);
+};
+requestAnimationFrame(() => requestAnimationFrame(hidePreloader));
