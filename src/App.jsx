@@ -27,6 +27,9 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
+import BirthdayCelebration from './components/countdown/BirthdayCelebration';
+import useIsBirthdayToday from './hooks/useIsBirthdayToday';
+import { SITE_CONFIG } from './config/siteConfig';
 
 const HomePage = lazy(() => import('./pages/Home'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
@@ -69,6 +72,39 @@ const ScrollManager = () => {
   return null;
 };
 
+function AppShell() {
+  // Site-wide birthday overlay — balloons + confetti + sparkles on
+  // every page on 15 Juni 2026 (24-hour window only). After the day
+  // passes, the overlay quietly removes itself; takeover headers /
+  // cake / gift on Countdown stay forever via separate isComplete
+  // checks.
+  const isBirthdayToday = useIsBirthdayToday(SITE_CONFIG.countdown.targetIso);
+
+  return (
+    <>
+      <ScrollManager />
+      <BirthdayCelebration active={isBirthdayToday} />
+      <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
+        <Navbar />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/gallery/:year" element={<GalleryPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/countdown" element={<CountdownPage />} />
+            <Route path="/wishes" element={<WishesPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+        <Footer />
+      </div>
+    </>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -77,24 +113,7 @@ function App() {
           <ThemeProvider>
             <GalleryProvider>
               <LightboxProvider>
-                <ScrollManager />
-                <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
-                  <Navbar />
-                  <Suspense fallback={<PageLoader />}>
-                    <Routes>
-                      <Route path="/" element={<HomePage />} />
-                      <Route path="/home" element={<HomePage />} />
-                      <Route path="/gallery" element={<GalleryPage />} />
-                      <Route path="/gallery/:year" element={<GalleryPage />} />
-                      <Route path="/profile" element={<ProfilePage />} />
-                      <Route path="/about" element={<AboutPage />} />
-                      <Route path="/countdown" element={<CountdownPage />} />
-                      <Route path="/wishes" element={<WishesPage />} />
-                      <Route path="*" element={<NotFoundPage />} />
-                    </Routes>
-                  </Suspense>
-                  <Footer />
-                </div>
+                <AppShell />
               </LightboxProvider>
             </GalleryProvider>
           </ThemeProvider>
