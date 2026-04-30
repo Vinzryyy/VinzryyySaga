@@ -18,6 +18,7 @@ import Seo from '../components/Seo';
 import BirthdayCelebration from '../components/countdown/BirthdayCelebration';
 import BirthdayCake from '../components/countdown/BirthdayCake';
 import LiveStatsStrip from '../components/countdown/LiveStatsStrip';
+import FloatingPetals from '../components/countdown/FloatingPetals';
 
 const useCountdown = (targetIso) => {
   const target = useMemo(() => new Date(targetIso).getTime(), [targetIso]);
@@ -187,6 +188,10 @@ const CountdownPage = () => {
       id="countdown"
       className="bg-[color:var(--retro-bg-primary)] overflow-x-hidden"
     >
+      {/* Floating petals always-on as ambient brand motif. Hidden once
+          the celebration overlay takes over so the screen doesn't get
+          overloaded with both at once. */}
+      {!isComplete && <FloatingPetals />}
       <BirthdayCelebration active={isComplete} />
       <Seo
         title="Countdown 15 Juni 2026"
