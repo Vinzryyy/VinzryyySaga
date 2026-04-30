@@ -212,6 +212,9 @@ export const SITE_CONFIG = {
     nickname: 'Ceu Eli',
     birthplace: 'Bandung, Jawa Barat',
     birthdate: '15 Juni 2000',
+    // ISO form of birthdate for live age math (used by Countdown's
+    // EliAgeClock — keep in sync with `birthdate` above).
+    birthdateIso: '2000-06-15T00:00:00+07:00',
     generation: 'Generasi 7 JKT48',
     team: 'Team Dream',
     joined: '29 September 2018',

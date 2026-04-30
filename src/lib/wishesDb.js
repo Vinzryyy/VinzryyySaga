@@ -85,6 +85,30 @@ export async function submitWish(payload) {
 }
 
 /**
+ * Subscribe to the live total wish count.
+ * Cheaper than fetching the wall when all the caller needs is a number,
+ * but still reads every key under /wishes — at meaningful scale (>1k) we
+ * should denormalize this into a /wishes_count node updated via a
+ * server-side trigger or transaction. Fine for the launch window.
+ *
+ * @param {(count:number) => void} callback
+ * @returns {() => void} unsubscribe
+ */
+export function subscribeToWishCount(callback) {
+  if (!isFirebaseConfigured) {
+    callback(0);
+    return () => {};
+  }
+  const wishesRef = ref(realtimeDb, WISHES_PATH);
+  const handler = (snapshot) => {
+    const value = snapshot.val();
+    callback(value ? Object.keys(value).length : 0);
+  };
+  onValue(wishesRef, handler);
+  return () => off(wishesRef, 'value', handler);
+}
+
+/**
  * Subscribe to the live wishes feed.
  * @param {(wishes: Array<{id:string, name:string, handle?:string, message:string, date:string}>) => void} callback
  *   — Called with the latest sorted (newest-first) wishes whenever RTDB updates.

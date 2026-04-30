@@ -17,6 +17,7 @@ import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 import BirthdayCelebration from '../components/countdown/BirthdayCelebration';
 import BirthdayCake from '../components/countdown/BirthdayCake';
+import LiveStatsStrip from '../components/countdown/LiveStatsStrip';
 
 const useCountdown = (targetIso) => {
   const target = useMemo(() => new Date(targetIso).getTime(), [targetIso]);
@@ -296,6 +297,12 @@ const CountdownPage = () => {
           )}
         </div>
       </section>
+
+      {/* Live Stats Strip — Eli's age clock + total wish count, both
+          updating in real time. Lives between the timer and the
+          About section so it carries the "menghitung hari" energy
+          downward. */}
+      <LiveStatsStrip />
 
       {/* Context block — birthday facts + catchphrase */}
       <section className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 py-12 sm:py-16 md:py-24">
