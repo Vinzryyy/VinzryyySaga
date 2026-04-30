@@ -101,12 +101,22 @@ export const SITE_CONFIG = {
   // endpoint kosong = form akan tampil dengan "demo mode" notice. Set ke
   // Formspree (https://formspree.io/), Web3Forms, atau backend lain yang
   // menerima POST application/x-www-form-urlencoded untuk aktifkan.
+  //
+  // `completed*` fields take over the page header from 15 Juni 2026
+  // onward (date check uses countdown.targetIso). Form stays open so
+  // late wishes still land — the takeover is purely editorial.
   wishes: {
     eyebrow: 'Birthday Wishes',
     title: 'Ucapkan untuk',
     titleAccent: 'Ceu Eli.',
     lead:
       'Tinggalkan pesan ulang tahun untuk Eli menjelang 15 Juni 2026. Pesan akan dimoderasi Armeniaca lalu masuk ke dinding ini — jadi catatan kolektif penggemar.',
+    completedEyebrow: 'Selamat Ulang Tahun',
+    completedTitle: 'Terima kasih atas',
+    completedTitleAccent: 'semua ucapannya.',
+    completedLead:
+      '15 Juni 2026 sudah lewat — Eli kini berusia 26. Wall ini penuh dengan pesan yang tertulis menjelang harinya. Telat? Boleh banget, masih kami terima — pesannya tetap masuk dinding ini.',
+    completedCountdownLink: 'Lihat momen 15 Juni 2026',
     formCta: 'Kirim Ucapan',
     successMessage:
       'Pesanmu sudah masuk! Armeniaca akan moderasi dan tampilkan di wall dalam waktu dekat.',

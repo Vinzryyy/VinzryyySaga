@@ -30,6 +30,24 @@ const WishesPage = () => {
   const wishes = SITE_CONFIG.wishes;
   const eli = SITE_CONFIG.eli;
 
+  // Birthday takeover — once 15 Juni 2026 (countdown.targetIso) has
+  // passed, swap the page header to the celebration copy. Form stays
+  // open so late wishes still land. Computed once per mount; if a fan
+  // happens to be on the page right at midnight the next refresh
+  // catches it.
+  const isBirthdayPassed = useMemo(() => {
+    const target = new Date(SITE_CONFIG.countdown.targetIso);
+    if (Number.isNaN(target.getTime())) return false;
+    return Date.now() >= target.getTime();
+  }, []);
+  const headerEyebrow = isBirthdayPassed ? wishes.completedEyebrow : wishes.eyebrow;
+  const headerTitle = isBirthdayPassed ? wishes.completedTitle : wishes.title;
+  const headerTitleAccent = isBirthdayPassed ? wishes.completedTitleAccent : wishes.titleAccent;
+  const headerLead = isBirthdayPassed ? wishes.completedLead : wishes.lead;
+  const countdownLinkLabel = isBirthdayPassed
+    ? wishes.completedCountdownLink
+    : 'Cek countdown 15 Juni 2026';
+
   const [name, setName] = useState('');
   const [handle, setHandle] = useState('');
   const [message, setMessage] = useState('');
@@ -142,23 +160,23 @@ const WishesPage = () => {
         />
         <div className="relative max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy)]">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em]">{wishes.eyebrow}</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em]">{headerEyebrow}</span>
             <span className="w-10 h-px bg-[color:var(--retro-burgundy)]/30" />
             <Link
               to="/countdown"
               className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] transition-colors inline-flex items-center gap-2"
             >
               <i className="ri-cake-2-line text-base" />
-              Cek countdown 15 Juni 2026
+              {countdownLinkLabel}
             </Link>
           </div>
 
           <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-4xl">
-            {wishes.title} <br />
-            <span className="text-[color:var(--retro-burgundy)]">{wishes.titleAccent}</span>
+            {headerTitle} <br />
+            <span className="text-[color:var(--retro-burgundy)]">{headerTitleAccent}</span>
           </h1>
           <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
-            {wishes.lead}
+            {headerLead}
           </p>
           <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent" />
         </div>
