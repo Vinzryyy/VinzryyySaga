@@ -22,7 +22,6 @@ const Footer = () => {
     { name: 'Profile', to: '/profile' },
     { name: 'Archive', to: '/gallery' },
     { name: 'Countdown', to: '/countdown' },
-    { name: 'Wishes', to: '/wishes' },
     { name: 'About', to: '/about' },
   ];
 
