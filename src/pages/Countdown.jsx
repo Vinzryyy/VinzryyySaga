@@ -12,6 +12,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 import BirthdayCelebration from '../components/countdown/BirthdayCelebration';
@@ -270,6 +271,26 @@ const CountdownPage = () => {
               <BirthdayCake name={SITE_CONFIG.eli.nickname} />
               <p className="font-header text-2xl sm:text-3xl md:text-5xl font-black leading-[0.95] tracking-tighter">
                 Happy {config.age}th Birthday, {SITE_CONFIG.eli.nickname}!
+              </p>
+              <Link
+                to="/wishes"
+                className="
+                  group inline-flex items-center gap-2.5
+                  px-6 sm:px-7 py-3 sm:py-3.5
+                  rounded-full
+                  bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)]
+                  font-bold text-xs sm:text-sm uppercase tracking-[0.2em]
+                  shadow-xl shadow-[color:var(--retro-burgundy)]/40
+                  hover:-translate-y-0.5 hover:shadow-2xl
+                  transition-all duration-300
+                "
+              >
+                <i className="ri-mail-heart-line text-base sm:text-lg" />
+                <span>Baca Wishes Wall</span>
+                <i className="ri-arrow-right-up-line text-base sm:text-lg transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-cream)]/60">
+                Lihat semua ucapan dari fans
               </p>
             </div>
           )}
