@@ -475,7 +475,7 @@ const WishesPage = () => {
           ) : (
             <div
               ref={wallRef}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+              className="columns-1 sm:columns-2 lg:columns-3 gap-4 md:gap-6"
             >
               {seeds.map((wish, idx) => {
                 const tilt = cardTilt(idx);
@@ -496,7 +496,7 @@ const WishesPage = () => {
                       ['--bob-duration']: `${4 + (idx % 4)}s`,
                       ['--bob-delay']: `${(idx * 0.4) % 3}s`,
                     }}
-                    className={`wish-bob hover:rotate-0 transition-all duration-500 relative ${
+                    className={`wish-bob hover:rotate-0 transition-all duration-500 relative break-inside-avoid mb-4 md:mb-6 ${
                       wallVisible
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 translate-y-6'

@@ -13,7 +13,7 @@ import { formatWishDate } from './utils';
 const Template5Postcard = ({ wish }) => {
   const date = formatWishDate(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex flex-col rounded-md bg-white p-5 shadow-md border-2 border-[color:var(--retro-burgundy)]/35">
+    <article className="relative flex flex-col rounded-md bg-white p-5 shadow-md border-2 border-[color:var(--retro-burgundy)]/35">
       {/* Header row — name + stamp */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0 flex-1">

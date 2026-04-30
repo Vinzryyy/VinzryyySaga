@@ -19,7 +19,7 @@ const TELEGRAM_MONTH = (iso) => {
 const Template3Telegram = ({ wish }) => {
   const stamp = TELEGRAM_MONTH(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex flex-col bg-[color:var(--retro-burgundy-light)] p-6 shadow-md border border-[color:var(--retro-cream)]/30 [border-style:double] rounded-md">
+    <article className="relative flex flex-col bg-[color:var(--retro-burgundy-light)] p-6 shadow-md border border-[color:var(--retro-cream)]/30 [border-style:double] rounded-md">
       {/* Dotted top + bottom rules */}
       <div className="absolute top-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-cream)]/30" />
       <div className="absolute bottom-3 left-6 right-6 border-t border-dashed border-[color:var(--retro-cream)]/30" />

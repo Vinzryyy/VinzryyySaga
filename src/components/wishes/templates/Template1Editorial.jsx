@@ -10,7 +10,7 @@ import { formatWishTimeRelative } from './utils';
 const Template1Editorial = ({ wish }) => {
   const date = formatWishTimeRelative(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex flex-col rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 overflow-hidden shadow-md">
+    <article className="relative flex flex-col rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 overflow-hidden shadow-md">
       <div className="absolute -top-16 -right-16 w-[220px] h-[220px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
       <div className="relative flex-1 flex flex-col">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">

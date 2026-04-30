@@ -11,7 +11,7 @@ import { formatWishDateNumeric } from './utils';
 const Template2Polaroid = ({ wish }) => {
   const date = formatWishDateNumeric(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex flex-col rounded-md bg-white p-5 pb-10 shadow-md border border-[color:var(--retro-brown-dark)]/8">
+    <article className="relative flex flex-col rounded-md bg-white p-5 pb-10 shadow-md border border-[color:var(--retro-brown-dark)]/8">
       {/* Bloom badge */}
       <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)] flex items-center justify-center">
         <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">

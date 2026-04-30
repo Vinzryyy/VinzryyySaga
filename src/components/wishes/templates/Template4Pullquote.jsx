@@ -13,7 +13,7 @@ import { formatWishTimeRelative } from './utils';
 const Template4Pullquote = ({ wish }) => {
   const date = formatWishTimeRelative(wish.date);
   return (
-    <article className="relative h-full min-h-[280px] flex rounded-2xl bg-white overflow-hidden shadow-md border border-[color:var(--retro-burgundy)]/25">
+    <article className="relative flex rounded-2xl bg-white overflow-hidden shadow-md border border-[color:var(--retro-burgundy)]/25">
       {/* Left vertical strip with rotated eyebrow */}
       <div className="w-9 flex-shrink-0 bg-[color:var(--retro-burgundy)] flex items-center justify-center">
         <span
