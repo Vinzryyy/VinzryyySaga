@@ -19,11 +19,6 @@ const STACK_SCALE_STEP = 0.04;       // each layer behind shrinks by this
 const STACK_REST_ROTATE = 3;         // alternating tilt for resting cards
 const EXIT_DURATION_MS = 350;
 
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' &&
-  window.matchMedia &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 const PortraitImage = ({ stem, alt, eager }) => (
   <picture>
     <source srcSet={`${stem}.avif`} type="image/avif" />
@@ -48,10 +43,18 @@ const PortraitCardStack = ({ portraits, wrapperStyle }) => {
   // instead of sliding back across the screen).
   const [skipTransitionFor, setSkipTransitionFor] = useState(null);
   const startRef = useRef({ x: 0, y: 0 });
-  const reducedRef = useRef(false);
+  // Tracked in state (not a ref) so render reads a stable, reactive
+  // value — and so a user toggling OS-level reduced-motion mid-session
+  // updates the stack's transition behavior without a refresh.
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    reducedRef.current = prefersReducedMotion();
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReducedMotion(mq.matches);
+    const onChange = (e) => setReducedMotion(e.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
   }, []);
 
   const cycleTopToBack = () => {
@@ -134,7 +137,7 @@ const PortraitCardStack = ({ portraits, wrapperStyle }) => {
         const skipTransition =
           skipTransitionFor === portraitIdx ||
           (isTop && drag.active) ||
-          reducedRef.current;
+          reducedMotion;
         const transition = skipTransition
           ? 'none'
           : 'transform 350ms cubic-bezier(.22,1,.36,1)';

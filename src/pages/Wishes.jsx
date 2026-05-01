@@ -32,14 +32,24 @@ const WishesPage = () => {
 
   // Birthday takeover — once 15 Juni 2026 (countdown.targetIso) has
   // passed, swap the page header to the celebration copy. Form stays
-  // open so late wishes still land. Computed once per mount; if a fan
-  // happens to be on the page right at midnight the next refresh
-  // catches it.
-  const isBirthdayPassed = useMemo(() => {
-    const target = new Date(SITE_CONFIG.countdown.targetIso);
-    if (Number.isNaN(target.getTime())) return false;
-    return Date.now() >= target.getTime();
+  // open so late wishes still land. Re-checks every 60s so a visitor
+  // sitting on the page at midnight gets the swap without a refresh.
+  const targetMs = useMemo(() => {
+    const t = new Date(SITE_CONFIG.countdown.targetIso).getTime();
+    return Number.isNaN(t) ? null : t;
   }, []);
+  const [isBirthdayPassed, setIsBirthdayPassed] = useState(
+    () => targetMs != null && Date.now() >= targetMs,
+  );
+  useEffect(() => {
+    if (targetMs == null || isBirthdayPassed) return undefined;
+    const tick = () => {
+      if (Date.now() >= targetMs) setIsBirthdayPassed(true);
+    };
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, [targetMs, isBirthdayPassed]);
   const headerEyebrow = isBirthdayPassed ? wishes.completedEyebrow : wishes.eyebrow;
   const headerTitle = isBirthdayPassed ? wishes.completedTitle : wishes.title;
   const headerTitleAccent = isBirthdayPassed ? wishes.completedTitleAccent : wishes.titleAccent;

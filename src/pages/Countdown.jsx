@@ -12,7 +12,9 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+// Link import di-disable bareng tombol Wishes wall di celebration plate.
+// Un-comment ini saat route /wishes di-enable kembali.
+// import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 import BirthdayCake from '../components/countdown/BirthdayCake';
@@ -285,7 +287,9 @@ const CountdownPage = () => {
               <p className="font-header text-2xl sm:text-3xl md:text-5xl font-black leading-[0.95] tracking-tighter">
                 Happy {config.age}th Birthday, {SITE_CONFIG.eli.nickname}!
               </p>
-              <Link
+              {/* Wishes wall CTA — di-disable bareng route /wishes (App.jsx +
+                  siteConfig nav). Un-comment ketiganya untuk re-enable. */}
+              {/* <Link
                 to="/wishes"
                 className="
                   group inline-flex items-center gap-2.5
@@ -304,7 +308,7 @@ const CountdownPage = () => {
               </Link>
               <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-cream)]/60">
                 Lihat semua ucapan dari fans
-              </p>
+              </p> */}
             </div>
           )}
         </div>

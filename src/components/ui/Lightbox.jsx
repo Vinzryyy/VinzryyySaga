@@ -34,7 +34,15 @@ const Lightbox = () => {
       else if (e.key === 'ArrowLeft') prev();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // Lock background scroll while the lightbox is open. Restoring the
+    // prior value (not blanking it) keeps the page playing nice with any
+    // outer component that also locks scroll (e.g. mobile menu).
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
   }, [isOpen, close, next, prev]);
 
   useEffect(() => {

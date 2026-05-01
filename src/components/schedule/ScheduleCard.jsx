@@ -105,7 +105,6 @@ const ScheduleCard = () => {
           {upcoming.map((entry, idx) => {
             const date = new Date(entry.date);
             const isMG = entry.kind === 'EXCLUSIVE';
-            const isShow = entry.kind === 'SHOW';
             const isVC = entry.is_video_call === true;
             const isGeneral = entry.kind === 'GENERAL';
             const isEvent = entry.kind === 'EVENT' && !isVC;

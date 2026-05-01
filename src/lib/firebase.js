@@ -27,7 +27,6 @@ const firebaseConfig = {
 // Surface a useful error in dev when env vars are missing instead of a
 // cryptic runtime crash deep inside the Firebase SDK.
 if (!firebaseConfig.apiKey || !firebaseConfig.databaseURL) {
-  // eslint-disable-next-line no-console
   console.warn(
     '[firebase] Missing VITE_FIREBASE_* env vars. Copy .env.example to .env.local and fill in the values from Firebase console → Project Settings.',
   );

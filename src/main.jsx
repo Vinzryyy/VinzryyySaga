@@ -36,7 +36,7 @@ const hidePreloader = () => {
   // tab session skips it via the inline gate in index.html.
   try {
     sessionStorage.setItem("armeniaca-preloader-seen", "1");
-  } catch (_) {
+  } catch {
     /* sessionStorage blocked — no-op, splash shows again next visit */
   }
   setTimeout(() => el.remove(), 900);
