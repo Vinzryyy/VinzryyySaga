@@ -24,16 +24,24 @@ const firebaseConfig = {
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
-// Surface a useful error in dev when env vars are missing instead of a
-// cryptic runtime crash deep inside the Firebase SDK.
-if (!firebaseConfig.apiKey || !firebaseConfig.databaseURL) {
-  console.warn(
-    '[firebase] Missing VITE_FIREBASE_* env vars. Copy .env.example to .env.local and fill in the values from Firebase console → Project Settings.',
-  );
-}
-
-export const firebaseApp = initializeApp(firebaseConfig);
-export const realtimeDb = getDatabase(firebaseApp);
 export const isFirebaseConfigured = Boolean(
   firebaseConfig.apiKey && firebaseConfig.databaseURL,
 );
+
+// Init only when both required env vars are present. `getDatabase()`
+// throws "FIREBASE FATAL ERROR: Cannot parse Firebase url" when
+// databaseURL is missing — that crash propagates up through the lazy
+// Countdown chunk and the ErrorBoundary catches it on Vercel deploys
+// where the env vars haven't been set. Every consumer in lib/wishesDb
+// already short-circuits via isFirebaseConfigured, so leaving these
+// null is safe.
+export const firebaseApp = isFirebaseConfigured
+  ? initializeApp(firebaseConfig)
+  : null;
+export const realtimeDb = firebaseApp ? getDatabase(firebaseApp) : null;
+
+if (!isFirebaseConfigured) {
+  console.warn(
+    '[firebase] Missing VITE_FIREBASE_* env vars — wishes feed disabled. Set VITE_FIREBASE_API_KEY and VITE_FIREBASE_DATABASE_URL (Vercel → Project → Settings → Environment Variables) to enable.',
+  );
+}
