@@ -176,27 +176,6 @@ export const SITE_CONFIG = {
           'Selamat ulang tahun, Ceu Eli. Tetap jadi sinar senja yang menghangatkan panggung — kami akan terus mengabadikan setiap momennya.',
         date: '2026-04-15',
       },
-      {
-        name: 'Helismiley OFC',
-        handle: '@helismiley_ofc',
-        message:
-          'Happy birthday Eli! 26 tahun yang penuh perjuangan dan dedikasi. Helismiley selalu di belakangmu — kapanpun, dimanapun.',
-        date: '2026-04-20',
-      },
-      {
-        name: 'Roni',
-        handle: '@helismikepo',
-        message:
-          'Dari yang dulu cuma nonton lewat layar TV, sekarang udah bisa lihat langsung di teater. Terima kasih udah selalu jadi alasan untuk datang. Selamat 26, Ceu!',
-        date: '2026-04-22',
-      },
-      {
-        name: 'Bunga',
-        handle: '@bungaforeli',
-        message:
-          'Ulang tahun pertama bareng Team Dream! Semoga Fight 2026 jadi babak terbaik buat Eli. We bloom in spring with you 🌸',
-        date: '2026-04-25',
-      },
     ],
   },
 
