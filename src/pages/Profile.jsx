@@ -106,27 +106,54 @@ const ProfilePage = () => {
           the page content. Decorative only; aria-hidden + pointer-events-none. */}
       <MotifBackdrop count={150} seed="profile-2026" />
 
-      {/* Editorial hero — title block left, layered portrait collage right */}
+      {/* Editorial hero — full-bleed photo background + gradient
+          overlay, title block left, layered portrait collage right.
+          The background photo (img-119) gives the page atmosphere
+          without fighting the collage on the right since the gradient
+          fades the right side darker behind the collage anchors. */}
       <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/8 blur-3xl pointer-events-none" />
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
+        {/* Full-bleed background photo */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-0 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/archive/img-119.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: '50% 30%',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+        {/* Vertical tonal overlay — warm dark brown top fading to the
+            cream page background so the MemberCard below blends in
+            seamlessly. Same blend pattern as /schedule for visual
+            consistency between the two long pages. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
+          }}
+        />
+        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/12 blur-3xl pointer-events-none" />
+        <div className="relative max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
           <div className="lg:col-span-7">
             {/* Magazine issue plate */}
-            <div className="flex items-center gap-3 mb-6 text-[color:var(--retro-burgundy)]">
+            <div className="flex items-center gap-3 mb-6 text-[color:var(--retro-burgundy-light)]">
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">{profile.issue}</span>
-              <span className="w-10 h-px bg-[color:var(--retro-burgundy)]/30" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">{profile.edition}</span>
+              <span className="w-10 h-px bg-[color:var(--retro-burgundy-light)]/50" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65">{profile.edition}</span>
             </div>
 
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-3">
               {profile.eyebrow}
             </p>
-            <h1 className="font-header text-5xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.9]">
+            <h1 className="font-header text-5xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9] drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
               {profile.title}
               <br />
-              <span className="text-[color:var(--retro-burgundy)]">{profile.titleAccent}</span>
+              <span className="text-[color:var(--retro-burgundy-light)]">{profile.titleAccent}</span>
             </h1>
-            <p className="mt-8 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+            <p className="mt-8 text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
               {profile.lead.replace('Eli', eli.stageName)}
             </p>
 
