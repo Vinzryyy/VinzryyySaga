@@ -70,6 +70,8 @@ SHOWLIKE_KINDS = {"SHOW", "EVENT", "GENERAL"}
 DETAIL_DELAY_S = 0.4
 
 OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-schedule.json"
+MEMBER_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-member.json"
+SALES_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-sales.json"
 BASE = "https://jkt48.com"
 
 
@@ -196,7 +198,7 @@ def normalize_exclusive(detail: dict, listing_date: str | None, slug: str) -> li
 def main():
     sc = make_scraper()
 
-    print(f"[1/2] Scanning {MONTHS_BEHIND} month behind + {MONTHS_AHEAD} months ahead...")
+    print(f"[1/3] Scanning {MONTHS_BEHIND} month behind + {MONTHS_AHEAD} months ahead...")
     today = datetime.now()
     eli_events = []
     detail_calls = 0
@@ -263,7 +265,7 @@ def main():
         k = e.get("kind", "?")
         counts[k] = counts.get(k, 0) + 1
     breakdown = ", ".join(f"{v} {k.lower()}" for k, v in counts.items())
-    print(f"[2/2] Found {len(eli_events)} Eli appearances ({breakdown}; "
+    print(f"[2/3] Found {len(eli_events)} Eli appearances ({breakdown}; "
           f"{detail_calls} detail fetches)")
 
     payload = {
@@ -284,6 +286,144 @@ def main():
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     print(f"      wrote {OUTPUT_PATH}")
+
+    # === Member + Sales ===
+    # Bonus pulls — once per scrape since these endpoints are cheap (1
+    # request each) and the data drives the MemberCard + OnSaleStrip
+    # components that don't need their own scraper.
+    print("[3/3] Fetching member profile + active sales...")
+    fetch_member(sc)
+    fetch_active_sales(sc)
+
+
+def fetch_member(sc):
+    """Cache /api/v1/members/112 to public/data/eli-member.json so the
+    Profile page can render official photos / socials / bio without
+    a hardcoded mirror in siteConfig."""
+    url = f"{BASE}/api/v1/members/{ELI_MEMBER_ID}"
+    try:
+        r = sc.get(url, timeout=20)
+        r.raise_for_status()
+        m = r.json().get("data") or {}
+    except Exception as e:
+        print(f"  [warn] member fetch failed: {e}")
+        return
+    if not m:
+        print("  [warn] member endpoint returned empty data")
+        return
+    payload = {
+        "fetchedAt": datetime.utcnow().isoformat() + "Z",
+        "member": {
+            "code": m.get("code"),
+            "name": m.get("name"),
+            "nickname": m.get("nickname"),
+            "type": m.get("type"),                 # team code (DREAM/LOVE/PASSION)
+            "birthDate": m.get("birth_date"),
+            "birthPlace": m.get("birth_place"),
+            "bloodType": m.get("blood_type"),
+            "bodyHeight": m.get("body_height"),
+            "horoscope": m.get("horoscope"),
+            "instagram": m.get("instagram_account"),
+            "twitter": m.get("twitter_account"),
+            "tiktok": m.get("tiktok_account"),
+            "youtube": m.get("youtube_profile_movie"),
+            # Photo URLs — `photo` is a relative path; photo_1/2/3 are
+            # absolute. Front-end falls back through these in order.
+            "photoPath": m.get("photo"),
+            "photoUrls": [
+                u for u in (m.get("photo_1"), m.get("photo_2"), m.get("photo_3"))
+                if u
+            ],
+        },
+    }
+    MEMBER_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    MEMBER_OUTPUT_PATH.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    print(f"      wrote {MEMBER_OUTPUT_PATH}")
+
+
+def fetch_active_sales(sc):
+    """List exclusives currently on sale that include Eli in any session
+    Jalur. Output drives the OnSaleStrip on /schedule. Each entry's
+    sales_period array is preserved verbatim so the front-end can
+    render a 'sale ends in X hours' countdown."""
+    try:
+        r = sc.get(f"{BASE}/api/v1/exclusives", timeout=20)
+        r.raise_for_status()
+        listing = r.json().get("data") or []
+    except Exception as e:
+        print(f"  [warn] exclusives list fetch failed: {e}")
+        return
+
+    eli_sales = []
+    for entry in listing:
+        code = entry.get("code")
+        if not code:
+            continue
+        try:
+            d = sc.get(f"{BASE}/api/v1/exclusives/{code}", timeout=20)
+            time.sleep(DETAIL_DELAY_S)
+            if d.status_code != 200:
+                continue
+            detail = d.json().get("data") or {}
+        except Exception:
+            continue
+
+        # Check if Eli is in any session_detail Jalur
+        sessions = detail.get("session") or []
+        eli_jalurs = []
+        soonest_session_date = None
+        for sess in sessions:
+            details = sess.get("session_detail") or []
+            matches = [
+                sd for sd in details
+                if sd.get("jkt48_member_name") == ELI_NAME
+            ]
+            if not matches:
+                continue
+            for sd in matches:
+                eli_jalurs.append({
+                    "sessionLabel": sess.get("label"),
+                    "sessionDate": sess.get("date"),
+                    "jalur": sd.get("label"),
+                    "ticketsSold": sd.get("tickets_sold"),
+                    "remainingQuota": sd.get("available_quota", 0) or 0,
+                })
+            if sess.get("date"):
+                if soonest_session_date is None or sess["date"] < soonest_session_date:
+                    soonest_session_date = sess["date"]
+
+        if not eli_jalurs:
+            continue
+
+        eli_sales.append({
+            "exclusiveId": detail.get("exclusive_id"),
+            "code": detail.get("code"),
+            "category": detail.get("category"),    # PHOTOCARD / TWO_SHOT / DIGITAL_PHOTOBOOK
+            "title": detail.get("title"),
+            "thumbnail": detail.get("thumbnail_image"),
+            "previewImage": detail.get("preview_image"),
+            "defaultPrice": detail.get("default_price"),
+            "totalQuota": detail.get("total_quota"),
+            "salesPeriod": detail.get("sales_period") or [],
+            "soonestSessionDate": soonest_session_date,
+            "eliSessions": eli_jalurs,
+            "url": f"{BASE}/exclusive/{detail.get('code')}",
+        })
+
+    payload = {
+        "fetchedAt": datetime.utcnow().isoformat() + "Z",
+        "salesCount": len(eli_sales),
+        "sales": eli_sales,
+    }
+    SALES_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SALES_OUTPUT_PATH.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    print(f"      wrote {SALES_OUTPUT_PATH} ({len(eli_sales)} active sales)")
 
 
 if __name__ == "__main__":

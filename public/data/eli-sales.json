@@ -1,0 +1,146 @@
+{
+  "fetchedAt": "2026-05-02T05:30:42.820898Z",
+  "salesCount": 3,
+  "sales": [
+    {
+      "exclusiveId": 936,
+      "code": "EXE588",
+      "category": "PHOTOCARD",
+      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, Meet & Greet - 23 May",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-preview-8a69c1.jpg",
+      "defaultPrice": 50000,
+      "totalQuota": 50000,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-04-02T11:00:00.000Z",
+          "end_date": "2026-05-23T03:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-04-03T11:00:00.000Z",
+          "end_date": "2026-05-23T03:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-05-22T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-05-22T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 250,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-05-22T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 250,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 5",
+          "sessionDate": "2026-05-22T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 250,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/exclusive/EXE588"
+    },
+    {
+      "exclusiveId": 944,
+      "code": "EXBE10",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "Love Dream Passion - Music Video Behind the Scenes",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-preview-98404e.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": 8100,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-04-10T15:00:00.000Z",
+          "end_date": "2026-04-20T00:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-04-12T15:00:00.000Z",
+          "end_date": "2026-04-20T00:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-04-18T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-04-18T17:00:00.000Z",
+          "jalur": "Jalur 5",
+          "ticketsSold": 44,
+          "remainingQuota": 1
+        },
+        {
+          "sessionLabel": "Sesi 5",
+          "sessionDate": "2026-04-18T17:00:00.000Z",
+          "jalur": "Jalur 5",
+          "ticketsSold": 45,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 6",
+          "sessionDate": "2026-04-18T17:00:00.000Z",
+          "jalur": "Jalur 5",
+          "ticketsSold": 45,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/exclusive/EXBE10"
+    },
+    {
+      "exclusiveId": 933,
+      "code": "EX579E",
+      "category": "TWO_SHOT",
+      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-thumb-c637b9.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-preview-e420c5.jpg",
+      "defaultPrice": 180000,
+      "totalQuota": 6975,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-04-01T11:00:00.000Z",
+          "end_date": "2026-05-23T03:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-04-03T11:00:00.000Z",
+          "end_date": "2026-05-23T03:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-05-22T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 7",
+          "sessionDate": "2026-05-22T17:00:00.000Z",
+          "jalur": "Jalur 4",
+          "ticketsSold": 75,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 8",
+          "sessionDate": "2026-05-22T17:00:00.000Z",
+          "jalur": "Jalur 4",
+          "ticketsSold": 75,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/exclusive/EX579E"
+    }
+  ]
+}

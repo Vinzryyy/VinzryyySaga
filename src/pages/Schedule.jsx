@@ -16,6 +16,7 @@ import Seo from '../components/Seo';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import LiveCounter from '../components/schedule/LiveCounter';
 import SetlistGrid from '../components/schedule/SetlistGrid';
+import OnSaleStrip from '../components/schedule/OnSaleStrip';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 const TEAM_LABEL = {
@@ -428,6 +429,10 @@ const SchedulePage = () => {
           special events done/upcoming. Uses careerStats baseline + the
           schedule JSON deltas. */}
       <LiveCounter events={events} careerStats={SITE_CONFIG.eli.careerStats} />
+
+      {/* On-sale strip — current Eli M&G + Photobook products with a
+          live sale window. Auto-hides when no sales are active. */}
+      <OnSaleStrip />
 
       {/* Setlist grid — every theater setlist Eli has performed in,
           merged from ELI_THEATER metadata + lifetime per-setlist counts

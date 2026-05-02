@@ -1,0 +1,24 @@
+{
+  "fetchedAt": "2026-05-02T05:30:40.923970Z",
+  "member": {
+    "code": "HELISMA_PUTRI",
+    "name": "Helisma Putri",
+    "nickname": "Eli",
+    "type": "DREAM",
+    "birthDate": "2000-06-14T17:00:00.000Z",
+    "birthPlace": "",
+    "bloodType": "A",
+    "bodyHeight": "167",
+    "horoscope": "Gemini",
+    "instagram": "jkt48.eli",
+    "twitter": "H_EliJKT48",
+    "tiktok": "elijkt48",
+    "youtube": "",
+    "photoPath": "media/jkt48-member/helisma_putri.jpg",
+    "photoUrls": [
+      "https://jkt48.com/api/v1/storages/media/jkt48-member/helisma_putri.jpg",
+      "https://jkt48.com/api/v1/storages/media/jkt48-member/helisma_putri.jpg",
+      "https://jkt48.com/api/v1/storages/media/jkt48-member/helisma_putri.jpg"
+    ]
+  }
+}

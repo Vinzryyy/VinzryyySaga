@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import Section from '../components/layout/Section';
 import Seo from '../components/Seo';
 import MotifBackdrop from '../components/about/MotifBackdrop';
+import MemberCard from '../components/profile/MemberCard';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useCountUp } from '../hooks/useCountUp';
@@ -190,6 +191,11 @@ const ProfilePage = () => {
           )}
         </div>
       </header>
+
+      {/* Live profile data from jkt48.com API — official photo,
+          team, bio facts, and social links. Updates with the
+          schedule scrape (every 6h via GitHub Actions). */}
+      <MemberCard />
 
       {/* Sticky sub-navigation — TOC with section numbers */}
       <nav className="sticky top-20 z-30 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10">
