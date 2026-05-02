@@ -35,22 +35,23 @@ const seedHashId = (seed) => {
   return `seed-${(h >>> 0).toString(36)}`;
 };
 
-// Card hang positions around the canopy at the max stage. Each entry
-// describes where the string anchors to a branch (anchorY) and where
-// the card body hangs below it. Coordinates are in the SVG's viewBox
-// space and assume CENTER_X = 200 / POT_TOP_Y = 320 / max trunkY ~ 58.
+// Card hang positions distributed around the LOWER + OUTER perimeter
+// of the canopy at the max stage. Each card's string anchors at
+// (CENTER_X + dx, trunkY + dy) — placed near the canopy edge so the
+// string emerges naturally from the foliage — and the card body
+// dangles `hang` pixels below the anchor. All dx values keep |dx| ≥ 70
+// to avoid overlapping the trunk visually.
 const HANG_POSITIONS = [
-  { dx: -120, dy: -180, hang: 32 },
-  { dx: 120, dy: -180, hang: 28 },
-  { dx: -60, dy: -220, hang: 30 },
-  { dx: 60, dy: -220, hang: 26 },
-  { dx: -160, dy: -130, hang: 34 },
-  { dx: 160, dy: -130, hang: 30 },
-  { dx: -100, dy: -90, hang: 38 },
-  { dx: 100, dy: -90, hang: 30 },
-  { dx: 0, dy: -140, hang: 40 },
-  { dx: -50, dy: -50, hang: 28 },
-  { dx: 50, dy: -50, hang: 28 },
+  { dx: -150, dy: -38, hang: 40 },
+  { dx: 150, dy: -38, hang: 40 },
+  { dx: -125, dy: 0, hang: 38 },
+  { dx: 125, dy: 0, hang: 38 },
+  { dx: -100, dy: 32, hang: 36 },
+  { dx: 100, dy: 32, hang: 36 },
+  { dx: -72, dy: 54, hang: 32 },
+  { dx: 72, dy: 54, hang: 32 },
+  { dx: -115, dy: -22, hang: 38 },
+  { dx: 115, dy: -22, hang: 38 },
 ];
 
 const SUPPORTS_PER_STAGE = 100;
@@ -286,16 +287,12 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </>
       )}
 
-      {/* Branches — proper limb structure that fans out into the
-          canopy. Each tier targets a row of HANG_POSITIONS so the
-          stage-10 wish cards land on or near a real branch tip
-          rather than floating in the foliage:
-          - Primary L/R       → cards at (±100, -90)
-          - Side twigs        → cards at (±50, -50)
-          - Center upward     → card at (0, -140)
-          - Lower outer pair  → cards at (±160, -130)
-          - Upper inner forks → cards at (±60, -220)
-          - Wider mid forks   → cards at (±120, -180)        */}
+      {/* Branches — kept INSIDE the foliage envelope so they read
+          as structural limbs within the canopy (no spikes poking out
+          above). Foliage layers cover them partially; what shows
+          through gives the canopy structural texture. Wish cards at
+          stage 10 hang from the lower/outer canopy edge below — see
+          HANG_POSITIONS for anchor points. */}
       {stage >= 3 && (
         <g
           stroke="var(--retro-brown-dark)"
@@ -303,76 +300,48 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
           fill="none"
           style={{ transition: 'all 0.7s ease' }}
         >
-          {/* Primary pair — main outward limbs from trunk top */}
+          {/* Primary outward pair — arc from trunk top into the canopy */}
           <path
-            strokeWidth={Math.min(9, 4 + Math.max(0, stage - 3))}
-            d={`M ${CENTER_X} ${trunkY + 18} Q ${CENTER_X - 50} ${trunkY - 30} ${CENTER_X - 100} ${trunkY - 90}`}
+            strokeWidth={Math.min(8, 4 + Math.max(0, stage - 3))}
+            d={`M ${CENTER_X} ${trunkY + 16} Q ${CENTER_X - 50} ${trunkY - 14} ${CENTER_X - 90} ${trunkY - 30}`}
           />
           <path
-            strokeWidth={Math.min(9, 4 + Math.max(0, stage - 3))}
-            d={`M ${CENTER_X} ${trunkY + 18} Q ${CENTER_X + 50} ${trunkY - 30} ${CENTER_X + 100} ${trunkY - 90}`}
+            strokeWidth={Math.min(8, 4 + Math.max(0, stage - 3))}
+            d={`M ${CENTER_X} ${trunkY + 16} Q ${CENTER_X + 50} ${trunkY - 14} ${CENTER_X + 90} ${trunkY - 30}`}
           />
 
-          {/* Stage 4+ — short side twigs near the trunk top */}
-          {stage >= 4 && (
-            <>
-              <path
-                strokeWidth={Math.min(5, 2 + (stage - 4))}
-                d={`M ${CENTER_X - 6} ${trunkY + 12} Q ${CENTER_X - 28} ${trunkY - 12} ${CENTER_X - 50} ${trunkY - 50}`}
-              />
-              <path
-                strokeWidth={Math.min(5, 2 + (stage - 4))}
-                d={`M ${CENTER_X + 6} ${trunkY + 12} Q ${CENTER_X + 28} ${trunkY - 12} ${CENTER_X + 50} ${trunkY - 50}`}
-              />
-            </>
-          )}
-
-          {/* Stage 5+ — center limb shooting straight up */}
+          {/* Stage 5+ — center limb upward inside the crown */}
           {stage >= 5 && (
             <path
-              strokeWidth={Math.min(7, 3 + (stage - 5))}
-              d={`M ${CENTER_X} ${trunkY + 4} Q ${CENTER_X - 8} ${trunkY - 70} ${CENTER_X} ${trunkY - 140}`}
+              strokeWidth={Math.min(6, 3 + (stage - 5))}
+              d={`M ${CENTER_X} ${trunkY + 4} Q ${CENTER_X - 4} ${trunkY - 50} ${CENTER_X} ${trunkY - 90}`}
             />
           )}
 
-          {/* Stage 6+ — lower outer pair sweeping from mid-trunk to canopy edge */}
+          {/* Stage 6+ — lower outward pair sweeping to the lower-outer canopy edge */}
           {stage >= 6 && (
             <>
               <path
-                strokeWidth={Math.min(7, 3 + (stage - 6))}
-                d={`M ${CENTER_X} ${trunkY + 70} Q ${CENTER_X - 70} ${trunkY + 20} ${CENTER_X - 160} ${trunkY - 130}`}
+                strokeWidth={Math.min(6, 3 + (stage - 6))}
+                d={`M ${CENTER_X} ${trunkY + 60} Q ${CENTER_X - 60} ${trunkY + 40} ${CENTER_X - 110} ${trunkY + 20}`}
               />
               <path
-                strokeWidth={Math.min(7, 3 + (stage - 6))}
-                d={`M ${CENTER_X} ${trunkY + 70} Q ${CENTER_X + 70} ${trunkY + 20} ${CENTER_X + 160} ${trunkY - 130}`}
+                strokeWidth={Math.min(6, 3 + (stage - 6))}
+                d={`M ${CENTER_X} ${trunkY + 60} Q ${CENTER_X + 60} ${trunkY + 40} ${CENTER_X + 110} ${trunkY + 20}`}
               />
             </>
           )}
 
-          {/* Stage 7+ — upper inner forks off the primary limbs */}
-          {stage >= 7 && (
-            <>
-              <path
-                strokeWidth={Math.min(5, 2 + (stage - 7))}
-                d={`M ${CENTER_X - 60} ${trunkY - 50} Q ${CENTER_X - 80} ${trunkY - 130} ${CENTER_X - 60} ${trunkY - 220}`}
-              />
-              <path
-                strokeWidth={Math.min(5, 2 + (stage - 7))}
-                d={`M ${CENTER_X + 60} ${trunkY - 50} Q ${CENTER_X + 80} ${trunkY - 130} ${CENTER_X + 60} ${trunkY - 220}`}
-              />
-            </>
-          )}
-
-          {/* Stage 8+ — wider mid forks reaching upper-outer canopy */}
+          {/* Stage 8+ — primary limb extensions to the side-mid canopy edge */}
           {stage >= 8 && (
             <>
               <path
-                strokeWidth={Math.min(5, 2 + (stage - 8))}
-                d={`M ${CENTER_X - 90} ${trunkY - 80} Q ${CENTER_X - 110} ${trunkY - 130} ${CENTER_X - 120} ${trunkY - 180}`}
+                strokeWidth={Math.min(5, 3 + (stage - 8))}
+                d={`M ${CENTER_X - 90} ${trunkY - 30} Q ${CENTER_X - 120} ${trunkY - 32} ${CENTER_X - 150} ${trunkY - 18}`}
               />
               <path
-                strokeWidth={Math.min(5, 2 + (stage - 8))}
-                d={`M ${CENTER_X + 90} ${trunkY - 80} Q ${CENTER_X + 110} ${trunkY - 130} ${CENTER_X + 120} ${trunkY - 180}`}
+                strokeWidth={Math.min(5, 3 + (stage - 8))}
+                d={`M ${CENTER_X + 90} ${trunkY - 30} Q ${CENTER_X + 120} ${trunkY - 32} ${CENTER_X + 150} ${trunkY - 18}`}
               />
             </>
           )}
@@ -542,8 +511,8 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
                   x2={cardCx}
                   y2={cardCy - cardH / 2}
                   stroke="var(--retro-brown-dark)"
-                  strokeWidth="1"
-                  opacity="0.5"
+                  strokeWidth="1.3"
+                  opacity="0.7"
                 />
                 {/* Card body — slight tilt so it reads as physically hanging */}
                 <g transform={`rotate(${tilt} ${cardCx} ${cardCy})`}>
@@ -636,16 +605,20 @@ const EliTree = () => {
   }, []);
 
   // Combined wish pool used for the hanging cards at the max stage —
-  // curated seeds from siteConfig + live RTDB submissions, newest
-  // first so the freshest ones land on the most-visible branches.
+  // curated seeds from siteConfig + live RTDB submissions, shuffled
+  // per page load so every wish gets fair rotation across refreshes
+  // instead of the newest 10 dominating forever.
   const hangingWishes = useMemo(() => {
     const seeds = (SITE_CONFIG.wishes?.seeds || []).map((s) => ({
       ...s,
       id: s.id || seedHashId(s),
     }));
-    return [...seeds, ...liveWishes].sort(
-      (a, b) => (b.date || '').localeCompare(a.date || ''),
-    );
+    const pool = [...seeds, ...liveWishes];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool;
   }, [liveWishes]);
 
   // Esc-to-close on the open wish modal
