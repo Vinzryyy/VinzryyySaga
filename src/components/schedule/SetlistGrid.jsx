@@ -70,7 +70,7 @@ const SetlistCard = ({ entry }) => {
           isActive ? 'border-[color:var(--retro-cream)]/15' : 'border-[color:var(--retro-brown-dark)]/10'
         }`}
       >
-        <div>
+        <div className="flex-1 min-w-0">
           <p
             className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1 ${
               isActive ? 'text-[color:var(--retro-cream)]/50' : 'text-[color:var(--color-text-muted)]'
@@ -86,14 +86,46 @@ const SetlistCard = ({ entry }) => {
             {entry.count}
           </p>
           {entry.centerCount > 0 && (
-            <p
-              className={`mt-1.5 text-[9px] font-black uppercase tracking-[0.3em] inline-flex items-center gap-1 ${
-                isActive ? 'text-[color:var(--retro-gold-light)]/80' : 'text-[color:var(--retro-burgundy)]/70'
-              }`}
-            >
-              <i className="ri-star-fill" />
-              {entry.centerCount} sebagai Center
-            </p>
+            <div className="mt-2">
+              <div
+                className={`flex items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[0.3em] mb-1 ${
+                  isActive ? 'text-[color:var(--retro-gold-light)]/90' : 'text-[color:var(--retro-burgundy)]/80'
+                }`}
+              >
+                <span className="inline-flex items-center gap-1">
+                  <i className="ri-star-fill" />
+                  Center
+                </span>
+                <span className="tabular-nums">
+                  {entry.centerCount}/{entry.count}
+                  <span
+                    className={`ml-1.5 ${
+                      isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--color-text-muted)]'
+                    }`}
+                  >
+                    {Math.round((entry.centerCount / entry.count) * 100)}%
+                  </span>
+                </span>
+              </div>
+              {/* Progress bar — fill width = centerCount / count.
+                  Visual representation of how often Eli led this
+                  setlist as Center. Active cards use gold-on-cream,
+                  retired use burgundy-on-cream. */}
+              <div
+                className={`h-1.5 rounded-full overflow-hidden ${
+                  isActive ? 'bg-[color:var(--retro-cream)]/15' : 'bg-[color:var(--retro-burgundy)]/10'
+                }`}
+              >
+                <div
+                  className={`h-full rounded-full transition-[width] duration-700 ease-out ${
+                    isActive ? 'bg-[color:var(--retro-gold-light)]' : 'bg-[color:var(--retro-burgundy)]'
+                  }`}
+                  style={{
+                    width: `${Math.min(100, Math.round((entry.centerCount / entry.count) * 100))}%`,
+                  }}
+                />
+              </div>
+            </div>
           )}
         </div>
         {(entry.firstDate || entry.lastDate) && (

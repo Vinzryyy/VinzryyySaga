@@ -184,10 +184,27 @@ const LiveCounter = ({ events, careerStats }) => {
 
         <div className="grid lg:grid-cols-3 gap-4">
           {/* Hero — Theater Shows. Burgundy plate, oversized number,
-              dominates the strip so the lifetime count reads first. */}
+              dominates the strip so the lifetime count reads first.
+              Right side carries an Eli portrait watermark masked into
+              gold so the card doesn't read as pure typography. */}
           <div className="lg:col-span-2 rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 md:p-8 lg:p-10 relative overflow-hidden flex flex-col">
             <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-32 -left-24 w-[260px] h-[260px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+            {/* Portrait watermark — lives behind the text and inside the
+                card's overflow-hidden, so it crops cleanly on small
+                viewports. Hidden below md to keep the headline readable. */}
+            <div
+              aria-hidden="true"
+              className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block pointer-events-none opacity-25"
+              style={{
+                backgroundImage: 'url(/archive/img-364.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: '50% 20%',
+                maskImage: 'linear-gradient(to left, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 75%)',
+                WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 75%)',
+                mixBlendMode: 'luminosity',
+              }}
+            />
             <div className="relative flex flex-col h-full">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3 inline-flex items-center gap-2">
                 <i className="ri-mic-line text-base" />
@@ -210,6 +227,40 @@ const LiveCounter = ({ events, careerStats }) => {
                   </span>
                 )}
               </p>
+
+              {/* Career totals — Center / Solo / Duo derived from the
+                  same show-log JSON. Pinned to the bottom of the hero
+                  so they share the burgundy plate visually rather than
+                  becoming a separate orphan strip. */}
+              {showLog?.totals && (
+                <div className="mt-6 pt-5 border-t border-[color:var(--retro-cream)]/15 grid grid-cols-3 gap-4 max-w-md">
+                  <div>
+                    <p className="font-header text-2xl md:text-3xl font-black tabular-nums text-[color:var(--retro-gold-light)] leading-none">
+                      {showLog.totals.centers}
+                    </p>
+                    <p className="mt-1 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                      Center
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-header text-2xl md:text-3xl font-black tabular-nums text-[color:var(--retro-cream)] leading-none">
+                      {showLog.totals.solos}
+                    </p>
+                    <p className="mt-1 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                      Solo
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-header text-2xl md:text-3xl font-black tabular-nums text-[color:var(--retro-cream)] leading-none">
+                      {showLog.totals.duos}
+                    </p>
+                    <p className="mt-1 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                      Duo
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <p className="mt-auto pt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55">
                 Baseline {baselineAsOfDate ? formatAsOf(baselineAsOfDate) : 'manual #JumlahShowJKT48'}
               </p>
