@@ -286,39 +286,94 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </>
       )}
 
-      {/* Branches — multiply at higher stages */}
+      {/* Branches — proper limb structure that fans out into the
+          canopy. Each tier targets a row of HANG_POSITIONS so the
+          stage-10 wish cards land on or near a real branch tip
+          rather than floating in the foliage:
+          - Primary L/R       → cards at (±100, -90)
+          - Side twigs        → cards at (±50, -50)
+          - Center upward     → card at (0, -140)
+          - Lower outer pair  → cards at (±160, -130)
+          - Upper inner forks → cards at (±60, -220)
+          - Wider mid forks   → cards at (±120, -180)        */}
       {stage >= 3 && (
         <g
           stroke="var(--retro-brown-dark)"
-          strokeWidth={Math.min(8, 4 + Math.max(0, stage - 4))}
           strokeLinecap="round"
           fill="none"
           style={{ transition: 'all 0.7s ease' }}
         >
-          {/* Always-present main pair */}
-          <path d={`M ${CENTER_X} ${trunkY + 14} Q ${CENTER_X - 36} ${trunkY} ${CENTER_X - 64} ${trunkY - 24}`} />
-          <path d={`M ${CENTER_X} ${trunkY + 14} Q ${CENTER_X + 36} ${trunkY} ${CENTER_X + 64} ${trunkY - 24}`} />
-          {/* Stage 5+ — second pair lower on trunk */}
-          {stage >= 5 && (
+          {/* Primary pair — main outward limbs from trunk top */}
+          <path
+            strokeWidth={Math.min(9, 4 + Math.max(0, stage - 3))}
+            d={`M ${CENTER_X} ${trunkY + 18} Q ${CENTER_X - 50} ${trunkY - 30} ${CENTER_X - 100} ${trunkY - 90}`}
+          />
+          <path
+            strokeWidth={Math.min(9, 4 + Math.max(0, stage - 3))}
+            d={`M ${CENTER_X} ${trunkY + 18} Q ${CENTER_X + 50} ${trunkY - 30} ${CENTER_X + 100} ${trunkY - 90}`}
+          />
+
+          {/* Stage 4+ — short side twigs near the trunk top */}
+          {stage >= 4 && (
             <>
-              <path d={`M ${CENTER_X} ${trunkY + 50} Q ${CENTER_X - 48} ${trunkY + 36} ${CENTER_X - 86} ${trunkY + 12}`} />
-              <path d={`M ${CENTER_X} ${trunkY + 50} Q ${CENTER_X + 48} ${trunkY + 36} ${CENTER_X + 86} ${trunkY + 12}`} />
+              <path
+                strokeWidth={Math.min(5, 2 + (stage - 4))}
+                d={`M ${CENTER_X - 6} ${trunkY + 12} Q ${CENTER_X - 28} ${trunkY - 12} ${CENTER_X - 50} ${trunkY - 50}`}
+              />
+              <path
+                strokeWidth={Math.min(5, 2 + (stage - 4))}
+                d={`M ${CENTER_X + 6} ${trunkY + 12} Q ${CENTER_X + 28} ${trunkY - 12} ${CENTER_X + 50} ${trunkY - 50}`}
+              />
             </>
           )}
-          {/* Stage 6+ — third pair (banyak cabang) */}
+
+          {/* Stage 5+ — center limb shooting straight up */}
+          {stage >= 5 && (
+            <path
+              strokeWidth={Math.min(7, 3 + (stage - 5))}
+              d={`M ${CENTER_X} ${trunkY + 4} Q ${CENTER_X - 8} ${trunkY - 70} ${CENTER_X} ${trunkY - 140}`}
+            />
+          )}
+
+          {/* Stage 6+ — lower outer pair sweeping from mid-trunk to canopy edge */}
           {stage >= 6 && (
             <>
-              <path d={`M ${CENTER_X} ${trunkY - 4} Q ${CENTER_X - 22} ${trunkY - 30} ${CENTER_X - 40} ${trunkY - 56}`} />
-              <path d={`M ${CENTER_X} ${trunkY - 4} Q ${CENTER_X + 22} ${trunkY - 30} ${CENTER_X + 40} ${trunkY - 56}`} />
-              <path d={`M ${CENTER_X - 50} ${trunkY - 18} Q ${CENTER_X - 70} ${trunkY - 32} ${CENTER_X - 96} ${trunkY - 44}`} />
-              <path d={`M ${CENTER_X + 50} ${trunkY - 18} Q ${CENTER_X + 70} ${trunkY - 32} ${CENTER_X + 96} ${trunkY - 44}`} />
+              <path
+                strokeWidth={Math.min(7, 3 + (stage - 6))}
+                d={`M ${CENTER_X} ${trunkY + 70} Q ${CENTER_X - 70} ${trunkY + 20} ${CENTER_X - 160} ${trunkY - 130}`}
+              />
+              <path
+                strokeWidth={Math.min(7, 3 + (stage - 6))}
+                d={`M ${CENTER_X} ${trunkY + 70} Q ${CENTER_X + 70} ${trunkY + 20} ${CENTER_X + 160} ${trunkY - 130}`}
+              />
             </>
           )}
-          {/* Stage 9+ — extra spread on the lower outer branches */}
-          {stage >= 9 && (
+
+          {/* Stage 7+ — upper inner forks off the primary limbs */}
+          {stage >= 7 && (
             <>
-              <path d={`M ${CENTER_X - 86} ${trunkY + 12} Q ${CENTER_X - 110} ${trunkY - 4} ${CENTER_X - 136} ${trunkY - 14}`} />
-              <path d={`M ${CENTER_X + 86} ${trunkY + 12} Q ${CENTER_X + 110} ${trunkY - 4} ${CENTER_X + 136} ${trunkY - 14}`} />
+              <path
+                strokeWidth={Math.min(5, 2 + (stage - 7))}
+                d={`M ${CENTER_X - 60} ${trunkY - 50} Q ${CENTER_X - 80} ${trunkY - 130} ${CENTER_X - 60} ${trunkY - 220}`}
+              />
+              <path
+                strokeWidth={Math.min(5, 2 + (stage - 7))}
+                d={`M ${CENTER_X + 60} ${trunkY - 50} Q ${CENTER_X + 80} ${trunkY - 130} ${CENTER_X + 60} ${trunkY - 220}`}
+              />
+            </>
+          )}
+
+          {/* Stage 8+ — wider mid forks reaching upper-outer canopy */}
+          {stage >= 8 && (
+            <>
+              <path
+                strokeWidth={Math.min(5, 2 + (stage - 8))}
+                d={`M ${CENTER_X - 90} ${trunkY - 80} Q ${CENTER_X - 110} ${trunkY - 130} ${CENTER_X - 120} ${trunkY - 180}`}
+              />
+              <path
+                strokeWidth={Math.min(5, 2 + (stage - 8))}
+                d={`M ${CENTER_X + 90} ${trunkY - 80} Q ${CENTER_X + 110} ${trunkY - 130} ${CENTER_X + 120} ${trunkY - 180}`}
+              />
             </>
           )}
         </g>
