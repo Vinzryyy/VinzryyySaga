@@ -424,13 +424,6 @@ export const SITE_CONFIG = {
         },
       ],
     },
-    eliX: {
-      eyebrow: 'Live · @H_EliJKT48',
-      title: 'Dari akun Eli',
-      titleAccent: 'sendiri.',
-      lead:
-        'Postingan terbaru langsung dari X Helisma. Embed auto-update — kalau widget X gagal load (script-blocker / X rewel), tombolnya jalan ke profil aslinya.',
-    },
     community: {
       eyebrow: 'About Helismiley',
       title: 'Komunitas Penggemar Eli',
