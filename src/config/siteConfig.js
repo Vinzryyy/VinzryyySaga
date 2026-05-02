@@ -37,6 +37,31 @@ export const SITE_CONFIG = {
     main: [
       { label: 'Home', hash: 'home', icon: 'ri-home-4-line' },
       {
+        label: 'Harmoni Kebaikan',
+        hash: '26',
+        icon: 'ri-plant-line',
+        children: [
+          {
+            label: '#26 — Galeri Kebaikan',
+            hash: '26',
+            description: 'Pohon untuk Eli yang tumbuh dari dukungan',
+            icon: 'ri-plant-line',
+          },
+          {
+            label: 'Countdown',
+            hash: 'countdown',
+            description: 'Hitung mundur 15 Juni 2026',
+            icon: 'ri-time-line',
+          },
+          {
+            label: 'Wishes',
+            hash: 'wishes',
+            description: 'Kirim ucapan untuk Eli',
+            icon: 'ri-mail-send-line',
+          },
+        ],
+      },
+      {
         label: 'Profil',
         hash: 'profile',
         icon: 'ri-user-3-line',
@@ -76,31 +101,6 @@ export const SITE_CONFIG = {
         ],
       },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
-      {
-        label: 'Harmoni Kebaikan',
-        hash: '26',
-        icon: 'ri-plant-line',
-        children: [
-          {
-            label: '#26 — Galeri Kebaikan',
-            hash: '26',
-            description: 'Pohon untuk Eli yang tumbuh dari dukungan',
-            icon: 'ri-plant-line',
-          },
-          {
-            label: 'Countdown',
-            hash: 'countdown',
-            description: 'Hitung mundur 15 Juni 2026',
-            icon: 'ri-time-line',
-          },
-          {
-            label: 'Wishes',
-            hash: 'wishes',
-            description: 'Kirim ucapan untuk Eli',
-            icon: 'ri-mail-send-line',
-          },
-        ],
-      },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
   },
