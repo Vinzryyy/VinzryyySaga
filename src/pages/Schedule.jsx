@@ -34,6 +34,7 @@ const FILTERS = [
   { id: 'all', label: 'Semua', icon: 'ri-calendar-line' },
   { id: 'show', label: 'Show Teater', icon: 'ri-mic-line' },
   { id: 'mg', label: 'Meet & Greet', icon: 'ri-user-heart-line' },
+  { id: 'vc', label: 'Video Call', icon: 'ri-vidicon-line' },
   { id: 'past', label: 'Riwayat', icon: 'ri-history-line' },
 ];
 
@@ -101,27 +102,41 @@ const formatRefreshed = (iso) => {
 
 const eventKindMatches = (entry, filter) => {
   if (filter === 'all' || filter === 'past') return true;
-  const isMG = entry.kind === 'EXCLUSIVE';
+  const isExclusive = entry.kind === 'EXCLUSIVE';
+  const isPhotobookVC = isExclusive && entry.category === 'DIGITAL_PHOTOBOOK';
+  const isVC = entry.is_video_call === true || isPhotobookVC;
+  const isMG = isExclusive && !isPhotobookVC;
+  if (filter === 'vc') return isVC;
   if (filter === 'mg') return isMG;
-  if (filter === 'show') return !isMG;
+  if (filter === 'show') return !isExclusive && !isVC;
   return true;
 };
 
 const ScheduleEventCard = ({ entry, dimmed }) => {
   const date = new Date(entry.date);
-  const isMG = entry.kind === 'EXCLUSIVE';
-  const isVC = entry.is_video_call === true;
+  // EXCLUSIVE = any per-fan paid session product. Photobook bonus VC
+  // sessions are tagged kind=EXCLUSIVE + category=DIGITAL_PHOTOBOOK;
+  // face-to-face M&G uses TWO_SHOT or PHOTOCARD. They share quota
+  // structure (Jalur, sold_out, remaining_total) so the rendering
+  // below treats them uniformly — only the primary badge differs.
+  const isExclusive = entry.kind === 'EXCLUSIVE';
+  const isPhotobookVC = isExclusive && entry.category === 'DIGITAL_PHOTOBOOK';
+  const isFaceMG = isExclusive && !isPhotobookVC;
+  const isVC = entry.is_video_call === true || isPhotobookVC;
   const isGeneral = entry.kind === 'GENERAL';
   const isEvent = entry.kind === 'EVENT' && !isVC;
+  // Kept for the existing sold_out/remaining/jalur conditional blocks
+  // below — true for any per-fan session, M&G or VC alike.
+  const isMG = isExclusive;
 
   let primaryBadge;
   let badgeIcon;
-  if (isMG) {
+  if (isVC) {
+    primaryBadge = isPhotobookVC ? 'Video Call · Photobook' : 'Video Call';
+    badgeIcon = 'ri-vidicon-line';
+  } else if (isFaceMG) {
     primaryBadge = MG_CATEGORY_LABEL[entry.category] || 'M&G';
     badgeIcon = 'ri-user-heart-line';
-  } else if (isVC) {
-    primaryBadge = 'Video Call';
-    badgeIcon = 'ri-vidicon-line';
   } else if (isGeneral) {
     primaryBadge = 'Off-site';
     badgeIcon = 'ri-map-pin-line';
@@ -288,10 +303,14 @@ const SchedulePage = () => {
   // Counts feed the filter chip pills + the page subtitle.
   const counts = useMemo(() => {
     const upcoming = events.filter((e) => isUpcoming(e.date));
+    const isPhotobookVC = (e) => e.kind === 'EXCLUSIVE' && e.category === 'DIGITAL_PHOTOBOOK';
+    const isVC = (e) => e.is_video_call === true || isPhotobookVC(e);
+    const isMG = (e) => e.kind === 'EXCLUSIVE' && !isPhotobookVC(e);
     return {
       all: upcoming.length,
-      show: upcoming.filter((e) => e.kind !== 'EXCLUSIVE').length,
-      mg: upcoming.filter((e) => e.kind === 'EXCLUSIVE').length,
+      show: upcoming.filter((e) => e.kind !== 'EXCLUSIVE' && !isVC(e)).length,
+      mg: upcoming.filter(isMG).length,
+      vc: upcoming.filter(isVC).length,
       past: events.length - upcoming.length,
     };
   }, [events]);
@@ -532,6 +551,8 @@ const SchedulePage = () => {
                   ? 'Belum ada riwayat tercatat di sumber ini.'
                   : filter === 'mg'
                   ? 'Belum ada Meet & Greet Eli yang dijadwalkan.'
+                  : filter === 'vc'
+                  ? 'Belum ada Video Call Eli yang dijadwalkan.'
                   : filter === 'show'
                   ? 'Belum ada show teater Eli yang dijadwalkan.'
                   : 'Belum ada show Eli yang dijadwalkan ke depan.'}

@@ -39,9 +39,20 @@ const isTheater = (entry) => {
   return false;
 };
 
-const isMG = (entry) => entry.kind === 'EXCLUSIVE';
-const isSpecialEvent = (entry) =>
-  (entry.kind === 'EVENT' && entry.is_video_call) || entry.kind === 'GENERAL';
+// Video Calls Eli participates in are sold as Digital Photobook
+// "bonus VC" sessions. The schedule API tags them as kind=EXCLUSIVE
+// with category=DIGITAL_PHOTOBOOK. The kind=EVENT video calls in the
+// API are gen-14 trial events Eli isn't part of.
+const isVC = (entry) =>
+  (entry.kind === 'EXCLUSIVE' && entry.category === 'DIGITAL_PHOTOBOOK') ||
+  (entry.kind === 'EVENT' && entry.is_video_call);
+
+// M&G = face-to-face EXCLUSIVE sessions (2Shot + Meet & Greet +
+// photocard bonus). Excludes Photobook VC which gets its own stat.
+const isMG = (entry) =>
+  entry.kind === 'EXCLUSIVE' && entry.category !== 'DIGITAL_PHOTOBOOK';
+
+const isSpecialEvent = (entry) => entry.kind === 'GENERAL';
 
 const StatCard = ({ eyebrow, value, valueAccent, sub, footnote }) => (
   <div className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 md:p-5 hover:border-[color:var(--retro-burgundy)]/30 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col">
@@ -80,6 +91,8 @@ const LiveCounter = ({ events, careerStats }) => {
     let theaterDelta = 0;
     let mgDone = 0;
     let mgUpcoming = 0;
+    let vcDone = 0;
+    let vcUpcoming = 0;
     let specialDone = 0;
     let specialUpcoming = 0;
 
@@ -96,6 +109,9 @@ const LiveCounter = ({ events, careerStats }) => {
         if (asOfMs != null && dMs > asOfMs && isPast) {
           theaterDelta += 1;
         }
+      } else if (isVC(entry)) {
+        if (isPast) vcDone += 1;
+        else vcUpcoming += 1;
       } else if (isMG(entry)) {
         if (isPast) mgDone += 1;
         else mgUpcoming += 1;
@@ -112,6 +128,8 @@ const LiveCounter = ({ events, careerStats }) => {
       theaterDelta,
       mgDone,
       mgUpcoming,
+      vcDone,
+      vcUpcoming,
       specialDone,
       specialUpcoming,
     };
@@ -180,7 +198,7 @@ const LiveCounter = ({ events, careerStats }) => {
             </div>
           </div>
 
-          {/* Secondary — M&G + Special Events stacked on lg, side-by-side
+          {/* Secondary — M&G + Video Call stacked on lg, side-by-side
               on md/sm so they don't overshadow the hero. */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
             <StatCard
@@ -188,24 +206,26 @@ const LiveCounter = ({ events, careerStats }) => {
               value={stats.mgDone}
               valueAccent={stats.mgUpcoming > 0 ? `/+${stats.mgUpcoming}` : null}
               sub={
-                stats.mgUpcoming > 0
+                stats.mgUpcoming + stats.mgDone === 0
+                  ? 'Belum ada sesi M&G face-to-face dijadwalkan.'
+                  : stats.mgUpcoming > 0
                   ? `${stats.mgDone} sesi selesai · ${stats.mgUpcoming} mendatang.`
-                  : `${stats.mgDone} sesi Meet & Greet selesai.`
+                  : `${stats.mgDone} sesi 2Shot / Meet & Greet selesai.`
               }
-              footnote="Window 4 bulan · auto-refresh 6 jam"
+              footnote="2Shot · Photocard · face-to-face"
             />
             <StatCard
-              eyebrow="Special Events"
-              value={stats.specialDone}
-              valueAccent={stats.specialUpcoming > 0 ? `/+${stats.specialUpcoming}` : null}
+              eyebrow="Video Call"
+              value={stats.vcDone}
+              valueAccent={stats.vcUpcoming > 0 ? `/+${stats.vcUpcoming}` : null}
               sub={
-                stats.specialDone + stats.specialUpcoming === 0
-                  ? 'Belum ada Video Call / off-site dijadwalkan.'
-                  : stats.specialUpcoming > 0
-                  ? `${stats.specialDone} selesai · ${stats.specialUpcoming} mendatang.`
-                  : `${stats.specialDone} VC / off-site selesai.`
+                stats.vcDone + stats.vcUpcoming === 0
+                  ? 'Belum ada Video Call dijadwalkan.'
+                  : stats.vcUpcoming > 0
+                  ? `${stats.vcDone} sesi selesai · ${stats.vcUpcoming} mendatang.`
+                  : `${stats.vcDone} sesi Video Call selesai.`
               }
-              footnote="Video Call & off-site"
+              footnote="Bonus Pre-Order Digital Photobook"
             />
           </div>
         </div>
