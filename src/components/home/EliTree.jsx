@@ -71,6 +71,150 @@ const STAGES = [
   { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah di tengah taman bunga — komunitas membawanya sampai ke puncak. Terima kasih.' },
 ];
 
+// === Ecosystem (taman bunga) generation ===
+//
+// As supports accumulate, the garden around the tree fills out:
+// rumput → bibit bunga → bunga mekar → daun lebar → pakis → jamur
+// → kupu-kupu beterbangan. Driven by raw `count` (not stage) so
+// every vote literally adds something to the ecosystem — 1 org 1
+// vote membantu ekosistem tumbuh.
+
+const FLOWER_PALETTE = [
+  '#F7D6E0', '#FFB7C5', '#FFD0A0', '#FFE082',
+  '#E1BEE7', '#B5EAD7', '#C8B6FF', '#FFAB91',
+];
+
+const BUTTERFLY_PALETTES = [
+  ['var(--retro-burgundy)', 'var(--retro-gold)'],
+  ['var(--retro-gold-light)', '#F7D6E0'],
+  ['#C8B6FF', '#E1BEE7'],
+  ['var(--retro-burgundy-light)', 'var(--retro-cream)'],
+];
+
+// Mulberry32 PRNG — deterministic so positions stay stable across
+// re-renders and only change when the population (driven by count)
+// grows enough to add new entries.
+const seedRandom = (seed) => {
+  let s = seed >>> 0;
+  return () => {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+// Linear interpolation across a list of [count, value] stops.
+const lerpStops = (x, stops) => {
+  if (x <= stops[0][0]) return stops[0][1];
+  const last = stops[stops.length - 1];
+  if (x >= last[0]) return last[1];
+  for (let i = 1; i < stops.length; i++) {
+    if (x <= stops[i][0]) {
+      const [x0, y0] = stops[i - 1];
+      const [x1, y1] = stops[i];
+      const t = (x - x0) / (x1 - x0);
+      return y0 + (y1 - y0) * t;
+    }
+  }
+  return last[1];
+};
+
+const generateEcosystem = (count) => {
+  const rand = seedRandom(13);
+  const c = Math.max(0, Math.min(2000, count || 0));
+  const potVisible = c < 500;
+
+  const flowerCount = Math.floor(lerpStops(c, [
+    [0, 0], [200, 0], [300, 3], [400, 10], [500, 25],
+    [600, 50], [700, 100], [800, 160], [900, 230], [1000, 300],
+  ]));
+  const budCount = Math.floor(lerpStops(c, [
+    [0, 0], [100, 0], [150, 1], [200, 4], [250, 5],
+    [300, 3], [400, 2], [500, 0],
+  ]));
+  const grassCount = Math.floor(lerpStops(c, [
+    [0, 0], [100, 4], [200, 10], [300, 18], [400, 28],
+    [500, 42], [600, 60], [700, 80], [800, 105], [900, 130], [1000, 160],
+  ]));
+  const butterflyCount = Math.floor(lerpStops(c, [
+    [0, 0], [400, 0], [500, 2], [600, 4], [700, 7],
+    [800, 11], [900, 16], [1000, 22],
+  ]));
+  const leafyCount = Math.floor(lerpStops(c, [
+    [0, 0], [600, 0], [700, 2], [800, 4], [900, 6], [1000, 8],
+  ]));
+  const fernCount = Math.floor(lerpStops(c, [
+    [0, 0], [700, 0], [800, 3], [900, 5], [1000, 7],
+  ]));
+  const mushroomCount = Math.floor(lerpStops(c, [
+    [0, 0], [800, 0], [900, 2], [1000, 5],
+  ]));
+
+  // Trunk + (when present) pot occupy a footprint that flowers must
+  // dodge so they don't render in front of the trunk or inside the pot.
+  const inTrunkOrPot = (x, y) => {
+    if (Math.abs(x - 200) < 26 && y < 320) return true;
+    if (potVisible && y >= 318 && y <= 362 && x >= 100 && x <= 300) return true;
+    return false;
+  };
+
+  const tryPlace = (target, builder, yMin, yMax) => {
+    const items = [];
+    const cap = target * 3 + 30;
+    let tries = 0;
+    while (items.length < target && tries < cap) {
+      tries++;
+      const x = 8 + rand() * 384;
+      const y = yMin + rand() * (yMax - yMin);
+      if (inTrunkOrPot(x, y)) continue;
+      items.push(builder(x, y));
+    }
+    return items;
+  };
+
+  const flowers = tryPlace(flowerCount, (x, y) => {
+    const v = rand();
+    return {
+      x, y,
+      color: FLOWER_PALETTE[Math.floor(rand() * FLOWER_PALETTE.length)],
+      variant: v < 0.07 ? 'tulip' : v < 0.24 ? 'big' : 'tiny',
+      size: 2 + rand() * 2,
+    };
+  }, 312, 380);
+  flowers.sort((a, b) => a.y - b.y);
+
+  const buds = tryPlace(budCount, (x, y) => ({ x, y }), 322, 372);
+  const grass = tryPlace(grassCount, (x, y) => ({
+    x, y,
+    lean: (rand() - 0.5) * 4,
+    tall: 5 + rand() * 5,
+  }), 348, 366);
+  const leafy = tryPlace(leafyCount, (x, y) => ({ x, y }), 322, 358);
+  const ferns = tryPlace(fernCount, (x, y) => ({
+    x, y,
+    dir: rand() < 0.5 ? 1 : -1,
+  }), 332, 360);
+  const mushrooms = tryPlace(mushroomCount, (x, y) => ({
+    x, y,
+    capColor: rand() < 0.5 ? 'var(--retro-burgundy)' : 'var(--retro-gold)',
+  }), 348, 362);
+
+  const butterflies = [];
+  for (let i = 0; i < butterflyCount; i++) {
+    butterflies.push({
+      x: 30 + rand() * 340,
+      y: 200 + rand() * 110,
+      palette: BUTTERFLY_PALETTES[Math.floor(rand() * BUTTERFLY_PALETTES.length)],
+      tilt: (rand() - 0.5) * 30,
+      scale: 0.75 + rand() * 0.5,
+      delay: -rand() * 4,
+    });
+  }
+
+  return { flowers, buds, grass, leafy, ferns, mushrooms, butterflies };
+};
+
 const LS_KEY = (dateStr) => `armeniaca-tree-support-${dateStr}`;
 
 const todayKey = () => {
@@ -114,7 +258,13 @@ const VIEWBOX_Y = -260;
 const VIEWBOX_W = 400;
 const VIEWBOX_H = 660;
 
-const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
+const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
+  // Procedural ecosystem — flowers, grass, butterflies etc. populate
+  // the ground based on the raw support count, so each new vote
+  // visibly enriches the garden. Memoized so the seeded RNG only
+  // re-rolls when `count` changes.
+  const ecosystem = useMemo(() => generateEcosystem(count), [count]);
+
   // Trunk extends from the pot rim upward. Bottom = POT_TOP_Y so it
   // visually meets the soil — no gap. Width and height scale per
   // stage with bigger jumps in the early "growth spurt" stages
@@ -199,101 +349,46 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </g>
       )}
 
-      {/* Ground decorations — taman bunga yang ikut tumbuh bertahap.
-          Setiap stage menambah variasi baru: rumput → bunga kecil →
-          tulip tinggi → bunga di soil mound → daun lebar → pakis →
-          jamur → kupu-kupu di stage puncak. */}
-      {stage >= 1 && (
-        <g style={{ transition: 'all 0.8s ease' }}>
-          {/* Stage 1+ — first grass tufts flanking the pot */}
-          <g stroke="#5E7C3F" strokeWidth="1.6" strokeLinecap="round" fill="none">
-            <path d={`M 115 ${POT_BOTTOM_Y - 4} Q 113 ${POT_BOTTOM_Y - 10} 111 ${POT_BOTTOM_Y - 16}`} />
-            <path d={`M 120 ${POT_BOTTOM_Y - 4} Q 122 ${POT_BOTTOM_Y - 9} 124 ${POT_BOTTOM_Y - 14}`} />
-            <path d={`M 280 ${POT_BOTTOM_Y - 4} Q 278 ${POT_BOTTOM_Y - 10} 276 ${POT_BOTTOM_Y - 14}`} />
-            <path d={`M 285 ${POT_BOTTOM_Y - 4} Q 287 ${POT_BOTTOM_Y - 9} 289 ${POT_BOTTOM_Y - 16}`} />
-          </g>
-
-          {/* Stage 3+ — first wildflowers next to the pot */}
-          {stage >= 3 && (
-            <>
-              <Flower cx={130} cy={POT_BOTTOM_Y - 14} size={5} petalColor="#F7D6E0" />
-              <Flower cx={270} cy={POT_BOTTOM_Y - 14} size={5} petalColor="var(--retro-gold-light)" />
-            </>
-          )}
-
-          {/* Stage 4+ — tulip pair adds vertical accents */}
-          {stage >= 4 && (
-            <>
-              <Tulip cx={75} cy={POT_BOTTOM_Y - 22} color="var(--retro-burgundy)" />
-              <Tulip cx={325} cy={POT_BOTTOM_Y - 22} color="var(--retro-gold)" />
-            </>
-          )}
-
-          {/* Stage 5+ — pot gone; garden spreads across the soil mound */}
-          {stage >= 5 && (
-            <>
-              <Flower cx={50} cy={POT_BOTTOM_Y - 14} size={6} petalColor="var(--retro-burgundy-light)" />
-              <Flower cx={350} cy={POT_BOTTOM_Y - 14} size={6} petalColor="#F7D6E0" />
-              <Flower cx={160} cy={POT_TOP_Y + 6} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
-              <Flower cx={240} cy={POT_TOP_Y + 6} size={4} petalColor="var(--retro-burgundy-light)" centerColor="var(--retro-gold)" />
-            </>
-          )}
-
-          {/* Stage 6+ — leafy plants for low groundcover variety */}
-          {stage >= 6 && (
-            <>
-              <LeafyPlant cx={178} cy={POT_TOP_Y + 14} />
-              <LeafyPlant cx={222} cy={POT_TOP_Y + 14} />
-            </>
-          )}
-
-          {/* Stage 7+ — pakis di kanan-kiri + tulip pinggir terluar */}
-          {stage >= 7 && (
-            <>
-              <Fern cx={102} cy={POT_BOTTOM_Y - 4} dir={1} />
-              <Fern cx={298} cy={POT_BOTTOM_Y - 4} dir={-1} />
-              <Tulip cx={28} cy={POT_BOTTOM_Y - 22} color="#F7D6E0" />
-              <Tulip cx={372} cy={POT_BOTTOM_Y - 22} color="var(--retro-burgundy-light)" />
-            </>
-          )}
-
-          {/* Stage 8+ — bunga depan + jamur pertama */}
-          {stage >= 8 && (
-            <>
-              <Flower cx={155} cy={POT_BOTTOM_Y - 12} size={4} petalColor="#F7D6E0" centerColor="var(--retro-burgundy)" />
-              <Mushroom cx={258} cy={POT_BOTTOM_Y - 4} />
-            </>
-          )}
-
-          {/* Stage 9+ — bunga simetris + jamur kedua */}
-          {stage >= 9 && (
-            <>
-              <Flower cx={245} cy={POT_BOTTOM_Y - 12} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
-              <Mushroom cx={142} cy={POT_BOTTOM_Y - 4} capColor="var(--retro-gold)" />
-            </>
-          )}
-
-          {/* Stage 10 — kupu-kupu beterbangan di antara bunga */}
-          {stage >= MAX_STAGE && (
-            <g>
-              <g transform={`translate(60, ${POT_BOTTOM_Y - 38})`}>
-                <ellipse cx={-3.5} cy={-1} rx="4" ry="3" fill="var(--retro-burgundy)" opacity="0.9" />
-                <ellipse cx={3.5} cy={-1} rx="4" ry="3" fill="var(--retro-burgundy)" opacity="0.9" />
-                <ellipse cx={-3.5} cy={3} rx="3" ry="2.5" fill="var(--retro-gold)" opacity="0.9" />
-                <ellipse cx={3.5} cy={3} rx="3" ry="2.5" fill="var(--retro-gold)" opacity="0.9" />
-                <line x1={0} y1={-3} x2={0} y2={5} stroke="var(--retro-brown-dark)" strokeWidth="1.2" strokeLinecap="round" />
-              </g>
-              <g transform={`translate(340, ${POT_BOTTOM_Y - 30})`}>
-                <ellipse cx={-3} cy={-1} rx="3.5" ry="2.5" fill="var(--retro-gold-light)" opacity="0.95" />
-                <ellipse cx={3} cy={-1} rx="3.5" ry="2.5" fill="var(--retro-gold-light)" opacity="0.95" />
-                <ellipse cx={-3} cy={2.5} rx="2.5" ry="2" fill="#F7D6E0" opacity="0.95" />
-                <ellipse cx={3} cy={2.5} rx="2.5" ry="2" fill="#F7D6E0" opacity="0.95" />
-                <line x1={0} y1={-3} x2={0} y2={4} stroke="var(--retro-brown-dark)" strokeWidth="1" strokeLinecap="round" />
-              </g>
-            </g>
-          )}
-        </g>
-      )}
+      {/* Ground ecosystem — procedurally populated based on raw
+          support count. Renders in depth order: grass → buds →
+          flowers (back-to-front by y) → leafy plants → ferns →
+          mushrooms. Butterflies render later above the trunk so they
+          appear in front of foliage. */}
+      <g style={{ transition: 'opacity 0.8s ease' }}>
+        {ecosystem.grass.map((g, i) => (
+          <GrassBlade key={`gr-${i}`} cx={g.x} cy={g.y} lean={g.lean} tall={g.tall} />
+        ))}
+        {ecosystem.buds.map((b, i) => (
+          <FlowerBud key={`bd-${i}`} cx={b.x} cy={b.y} />
+        ))}
+        {ecosystem.flowers.map((f, i) => {
+          if (f.variant === 'tulip') {
+            return <Tulip key={`fl-${i}`} cx={f.x} cy={f.y - 8} color={f.color} />;
+          }
+          if (f.variant === 'big') {
+            return (
+              <Flower
+                key={`fl-${i}`}
+                cx={f.x}
+                cy={f.y}
+                size={f.size + 1}
+                petalColor={f.color}
+                centerColor="var(--retro-gold)"
+              />
+            );
+          }
+          return <TinyFlower key={`fl-${i}`} cx={f.x} cy={f.y} color={f.color} size={f.size} />;
+        })}
+        {ecosystem.leafy.map((l, i) => (
+          <LeafyPlant key={`lf-${i}`} cx={l.x} cy={l.y} />
+        ))}
+        {ecosystem.ferns.map((fn, i) => (
+          <Fern key={`fn-${i}`} cx={fn.x} cy={fn.y} dir={fn.dir} />
+        ))}
+        {ecosystem.mushrooms.map((m, i) => (
+          <Mushroom key={`mu-${i}`} cx={m.x} cy={m.y} capColor={m.capColor} />
+        ))}
+      </g>
 
       {/* Stage 0 — seed on the soil */}
       {stage === 0 && (
@@ -543,6 +638,24 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </g>
       )}
 
+      {/* Butterflies — drawn after the canopy so they appear flying
+          IN FRONT of the foliage. Population scales with `count`. */}
+      {ecosystem.butterflies.length > 0 && (
+        <g style={{ transition: 'opacity 0.8s ease' }}>
+          {ecosystem.butterflies.map((b, i) => (
+            <Butterfly
+              key={`bf-${i}`}
+              x={b.x}
+              y={b.y}
+              palette={b.palette}
+              tilt={b.tilt}
+              scale={b.scale}
+              delay={b.delay}
+            />
+          ))}
+        </g>
+      )}
+
       {/* Hanging wish cards — stage 10 only. Each card is anchored
           to a branch tip in the canopy via a thin string, hanging
           below by `hang` pixels. Click handler calls onOpenWish so
@@ -629,6 +742,58 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </g>
       )}
     </svg>
+  );
+};
+
+// Tiny flower for high-density meadow rendering — just a colored
+// bloom + tiny center, no stem. Cheap to render in bulk.
+const TinyFlower = ({ cx, cy, color, size = 2.5 }) => (
+  <g>
+    <circle cx={cx} cy={cy} r={size} fill={color} />
+    <circle cx={cx} cy={cy} r={size * 0.4} fill="var(--retro-gold)" />
+  </g>
+);
+
+// Flower bud — bibit yang belum mekar. Closed green sheath on stem.
+const FlowerBud = ({ cx, cy }) => (
+  <g>
+    <line
+      x1={cx} y1={cy + 2} x2={cx} y2={cy + 9}
+      stroke="#5E7C3F" strokeWidth="1.2" strokeLinecap="round"
+    />
+    <ellipse cx={cx} cy={cy} rx="2" ry="3" fill="#88AB66" />
+    <ellipse cx={cx - 0.6} cy={cy - 0.6} rx="0.8" ry="1.2" fill="#9CC074" opacity="0.85" />
+  </g>
+);
+
+// Single grass blade — slight curve via lean parameter.
+const GrassBlade = ({ cx, cy, lean = 0, tall = 8 }) => (
+  <path
+    d={`M ${cx} ${cy} Q ${cx + lean / 2} ${cy - tall * 0.6} ${cx + lean} ${cy - tall}`}
+    fill="none"
+    stroke="#5E7C3F"
+    strokeWidth="1.4"
+    strokeLinecap="round"
+  />
+);
+
+// Butterfly with two-tone wings + thin body. CSS class drives a slow
+// flutter animation; delay staggers each butterfly's loop.
+const Butterfly = ({ x, y, palette, tilt = 0, scale = 1, delay = 0 }) => {
+  const [c1, c2] = palette;
+  return (
+    <g
+      className="eli-butterfly"
+      style={{ animationDelay: `${delay.toFixed(2)}s` }}
+    >
+      <g transform={`translate(${x} ${y}) rotate(${tilt}) scale(${scale})`}>
+        <ellipse cx={-3.5} cy={-1} rx="4" ry="3" fill={c1} opacity="0.92" />
+        <ellipse cx={3.5} cy={-1} rx="4" ry="3" fill={c1} opacity="0.92" />
+        <ellipse cx={-3.5} cy={3} rx="3" ry="2.5" fill={c2} opacity="0.92" />
+        <ellipse cx={3.5} cy={3} rx="3" ry="2.5" fill={c2} opacity="0.92" />
+        <line x1={0} y1={-3} x2={0} y2={5} stroke="var(--retro-brown-dark)" strokeWidth="1.2" strokeLinecap="round" />
+      </g>
+    </g>
   );
 };
 
@@ -877,6 +1042,7 @@ const EliTree = () => {
             <div className="relative w-full flex justify-center">
               <TreeArt
                 stage={stage}
+                count={count}
                 wishes={hangingWishes}
                 onOpenWish={setOpenWish}
               />

@@ -319,6 +319,25 @@ body {
   }
 }
 
+/* Butterflies on EliTree — gentle bobbing + tiny rotation flutter so
+   they look alive without being distracting. Each butterfly gets a
+   randomized animation-delay (set inline) so the flock isn't synced. */
+@keyframes eliButterflyFlutter {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25%      { transform: translate(3px, -4px) rotate(2deg); }
+  50%      { transform: translate(1px, -7px) rotate(-2deg); }
+  75%      { transform: translate(-3px, -3px) rotate(1deg); }
+}
+.eli-butterfly {
+  animation: eliButterflyFlutter 4s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .eli-butterfly { animation: none; }
+}
+
 /* ==========================================================================
    Scrollbar Styling
    ========================================================================== */
