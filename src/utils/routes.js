@@ -18,11 +18,14 @@ const PROFILE_ANCHORS = new Set([
 
 // Convert a SITE_CONFIG-style identifier (the legacy `hash` field on
 // nav/CTA items) to a router href. Year codes (`/^\d{4}$/`) become
-// `/gallery/{year}` so era filters are deep-linkable.
+// `/gallery/{year}` so era filters are deep-linkable. The literal
+// `26` page (Galeri Kebaikan) gets passed through verbatim — its
+// hash doesn't match the year regex but maps to /26 directly.
 export const hashToHref = (hash) => {
   if (!hash || hash === 'home') return '/';
   if (HOME_ANCHORS.has(hash)) return `/#${hash}`;
   if (PROFILE_ANCHORS.has(hash)) return `/profile#${hash}`;
+  if (hash === '26') return '/26';
   if (/^\d{4}$/.test(hash)) return `/gallery/${hash}`;
   return `/${hash}`;
 };
