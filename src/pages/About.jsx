@@ -48,9 +48,33 @@ const Hero = ({ hero }) => {
 
   return (
     <header className="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20 overflow-hidden">
+      {/* Full-bleed background photo + brown-dark gradient overlay,
+          matching the treatment on /schedule and /profile so the
+          three long pages share visual identity. img-211 picked here
+          so each page still has its own portrait. */}
       <div
         aria-hidden="true"
-        className="absolute right-0 top-0 bottom-0 w-2/5 hidden lg:block pointer-events-none opacity-[0.05]"
+        className="absolute inset-0 -z-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/archive/img-211.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: '50% 30%',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-0 pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
+        }}
+      />
+      {/* Wordmark watermark — kept but bumped opacity slightly so it
+          still reads on the new dark overlay. */}
+      <div
+        aria-hidden="true"
+        className="absolute right-0 top-0 bottom-0 w-2/5 hidden lg:block pointer-events-none opacity-[0.08]"
         style={{
           maskImage: 'url(/logo-armeniaca.png)',
           WebkitMaskImage: 'url(/logo-armeniaca.png)',
@@ -60,7 +84,7 @@ const Hero = ({ hero }) => {
           WebkitMaskRepeat: 'no-repeat',
           maskPosition: 'right center',
           WebkitMaskPosition: 'right center',
-          backgroundColor: 'var(--retro-burgundy)',
+          backgroundColor: 'var(--retro-cream)',
         }}
       />
 
@@ -69,14 +93,14 @@ const Hero = ({ hero }) => {
         className="relative max-w-7xl mx-auto grid lg:grid-cols-5 gap-10 lg:gap-16 items-center"
       >
         <div className={`lg:col-span-3 ${staggerClass(isVisible)}`}>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-4">
             {hero.eyebrow}
           </p>
-          <h1 className="font-header text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
+          <h1 className="font-header text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.95] drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
             {hero.title}
-            <span className="text-[color:var(--retro-burgundy)]"> {hero.titleAccent}</span>
+            <span className="text-[color:var(--retro-burgundy-light)]"> {hero.titleAccent}</span>
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+          <p className="mt-6 text-lg md:text-xl text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
             {hero.lead}
           </p>
 
