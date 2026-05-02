@@ -68,7 +68,9 @@ const daysSince = (iso) => {
 
 const SetlistCard = ({ entry }) => {
   const isActive = daysSince(entry.lastDate) <= ACTIVE_WINDOW_DAYS;
-  const teams = Object.entries(entry.byTeam || {});
+  // Sort by-team breakdown by count desc so the most-performed team
+  // is the primary chip even after merging multiple SL codes.
+  const teams = Object.entries(entry.byTeam || {}).sort((a, b) => b[1] - a[1]);
   const primaryTeam = teams[0]?.[0];
   const primaryTeamLabel = primaryTeam ? TEAM_LABEL[primaryTeam] || primaryTeam : null;
   const otherTeams = teams.slice(1);
@@ -199,11 +201,53 @@ const SetlistGrid = () => {
     };
   }, []);
 
+  // Merge entries that share a canonical title — jkt48.com sometimes
+  // assigns separate setlist codes to re-runs of the same setlist
+  // (e.g. SL_24 + SL_25 are both "Pertaruhan Cinta", SL_8 + SL_12 are
+  // both "Sambil Menggandeng Erat Tanganku"). To the user, those are
+  // one setlist, so we sum counts and merge team breakdowns.
+  const merged = useMemo(() => {
+    const groups = new Map();
+    (data?.setlists || []).forEach((entry) => {
+      const title = pickCanonicalTitle(entry);
+      const key = title.toLowerCase();
+      if (!groups.has(key)) {
+        groups.set(key, {
+          // Display fields
+          code: entry.code,
+          codes: [entry.code],
+          title,
+          titles: [...(entry.titles || [])],
+          count: entry.count || 0,
+          firstDate: entry.firstDate,
+          lastDate: entry.lastDate,
+          byTeam: { ...(entry.byTeam || {}) },
+        });
+        return;
+      }
+      const g = groups.get(key);
+      g.codes.push(entry.code);
+      g.count += entry.count || 0;
+      if (entry.firstDate && (!g.firstDate || entry.firstDate < g.firstDate)) {
+        g.firstDate = entry.firstDate;
+      }
+      if (entry.lastDate && (!g.lastDate || entry.lastDate > g.lastDate)) {
+        g.lastDate = entry.lastDate;
+      }
+      Object.entries(entry.byTeam || {}).forEach(([team, count]) => {
+        g.byTeam[team] = (g.byTeam[team] || 0) + count;
+      });
+      (entry.titles || []).forEach((t) => {
+        if (!g.titles.includes(t)) g.titles.push(t);
+      });
+    });
+    return Array.from(groups.values());
+  }, [data]);
+
   // Sort: currently-active setlists first (by lastDate desc), then
   // retired setlists by count desc.
   const ordered = useMemo(() => {
-    const setlists = data?.setlists || [];
-    return [...setlists].sort((a, b) => {
+    return [...merged].sort((a, b) => {
       const aActive = daysSince(a.lastDate) <= ACTIVE_WINDOW_DAYS ? 1 : 0;
       const bActive = daysSince(b.lastDate) <= ACTIVE_WINDOW_DAYS ? 1 : 0;
       if (aActive !== bActive) return bActive - aActive;
@@ -212,7 +256,7 @@ const SetlistGrid = () => {
       }
       return (b.count || 0) - (a.count || 0);
     });
-  }, [data]);
+  }, [merged]);
 
   const totalStages = data?.totalShowsTallied ?? 0;
   const activeCount = useMemo(
