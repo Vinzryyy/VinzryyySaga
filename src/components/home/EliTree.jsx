@@ -15,12 +15,43 @@
  * shows a "demo mode" message instead of crashing.
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   subscribeToTreeSupports,
   incrementTreeSupports,
 } from '../../lib/treeDb';
+import { subscribeToWishes } from '../../lib/wishesDb';
 import { isFirebaseConfigured } from '../../lib/firebase';
+import { SITE_CONFIG } from '../../config/siteConfig';
+
+// Same hash function used in /wishes so curated seeds get a stable
+// id we can show alongside live RTDB submissions.
+const seedHashId = (seed) => {
+  const str = `${seed.name || ''}|${seed.date || ''}|${(seed.message || '').slice(0, 40)}`;
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 33) ^ str.charCodeAt(i);
+  }
+  return `seed-${(h >>> 0).toString(36)}`;
+};
+
+// Card hang positions around the canopy at the max stage. Each entry
+// describes where the string anchors to a branch (anchorY) and where
+// the card body hangs below it. Coordinates are in the SVG's viewBox
+// space and assume CENTER_X = 200 / POT_TOP_Y = 320 / max trunkY ~ 58.
+const HANG_POSITIONS = [
+  { dx: -120, dy: -180, hang: 32 },
+  { dx: 120, dy: -180, hang: 28 },
+  { dx: -60, dy: -220, hang: 30 },
+  { dx: 60, dy: -220, hang: 26 },
+  { dx: -160, dy: -130, hang: 34 },
+  { dx: 160, dy: -130, hang: 30 },
+  { dx: -100, dy: -90, hang: 38 },
+  { dx: 100, dy: -90, hang: 30 },
+  { dx: 0, dy: -140, hang: 40 },
+  { dx: -50, dy: -50, hang: 28 },
+  { dx: 50, dy: -50, hang: 28 },
+];
 
 const SUPPORTS_PER_STAGE = 100;
 const MAX_STAGE = 10;
@@ -77,7 +108,7 @@ const CENTER_X = 200;
 const VIEWBOX_W = 400;
 const VIEWBOX_H = 460;
 
-const TreeArt = ({ stage }) => {
+const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
   // Trunk extends from the pot rim upward. Bottom = POT_TOP_Y so it
   // visually meets the soil — no gap. Width and height scale per
   // stage with bigger jumps in the early "growth spurt" stages
@@ -97,9 +128,11 @@ const TreeArt = ({ stage }) => {
   const foliageTop = stage >= 4 ? Math.min(72, 28 + (stage - 4) * 6) : 0;
   const foliageOuter = stage >= 5 ? Math.min(66, 24 + (stage - 5) * 7) : 0;
 
-  // Pot cracks start at stage 4. potBroken === split visually at 5+.
+  // Pot cracks at stage 4, then disappears entirely from stage 5+
+  // (the tree has outgrown it). Soil mound + roots remain to anchor
+  // the tree visually.
   const potCracked = stage >= 4;
-  const potBroken = stage >= 5;
+  const potVisible = stage <= 4;
   // Roots peek out from cracks starting stage 4, expand at stage 6.
   const rootsVisible = stage >= 4;
 
@@ -154,56 +187,40 @@ const TreeArt = ({ stage }) => {
         </g>
       )}
 
-      {/* Pot — at stage 5+ rendered as two halves split apart slightly,
-          otherwise a single piece. */}
-      {!potBroken && (
+      {/* Pot rendered intact through stage 4. From stage 5 onward the
+          tree has outgrown its container, so we drop the pot entirely
+          and let the soil + visible roots anchor the visual. */}
+      {potVisible && (
         <g style={{ transition: 'opacity 0.6s ease' }}>
           <path
             d={`M ${CENTER_X - 100} ${POT_TOP_Y + 14} Q ${CENTER_X - 100} ${POT_BOTTOM_Y} ${CENTER_X - 60} ${POT_BOTTOM_Y} L ${CENTER_X + 60} ${POT_BOTTOM_Y} Q ${CENTER_X + 100} ${POT_BOTTOM_Y} ${CENTER_X + 100} ${POT_TOP_Y + 14} L ${CENTER_X + 92} ${POT_TOP_Y} L ${CENTER_X - 92} ${POT_TOP_Y} Z`}
             fill="var(--retro-brown)"
           />
           <ellipse cx={CENTER_X} cy={POT_TOP_Y} rx="92" ry="9" fill="var(--retro-brown-dark)" />
+          {/* Stage-4 cracks on the still-intact pot — telegraph the
+              imminent break. */}
+          {potCracked && (
+            <g
+              stroke="var(--retro-brown-dark)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              fill="none"
+              style={{ transition: 'opacity 0.6s ease' }}
+            >
+              <path d={`M ${CENTER_X - 70} ${POT_TOP_Y} L ${CENTER_X - 78} ${POT_TOP_Y + 14} L ${CENTER_X - 70} ${POT_TOP_Y + 28} L ${CENTER_X - 80} ${POT_BOTTOM_Y - 4}`} />
+              <path d={`M ${CENTER_X + 30} ${POT_TOP_Y} L ${CENTER_X + 36} ${POT_TOP_Y + 18} L ${CENTER_X + 28} ${POT_TOP_Y + 32} L ${CENTER_X + 42} ${POT_BOTTOM_Y - 6}`} />
+            </g>
+          )}
         </g>
       )}
 
-      {/* Stage 4: cracks visible on the still-intact pot */}
-      {potCracked && !potBroken && (
-        <g
-          stroke="var(--retro-brown-dark)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          fill="none"
-          style={{ transition: 'opacity 0.6s ease' }}
-        >
-          <path d={`M ${CENTER_X - 70} ${POT_TOP_Y} L ${CENTER_X - 78} ${POT_TOP_Y + 14} L ${CENTER_X - 70} ${POT_TOP_Y + 28} L ${CENTER_X - 80} ${POT_BOTTOM_Y - 4}`} />
-          <path d={`M ${CENTER_X + 30} ${POT_TOP_Y} L ${CENTER_X + 36} ${POT_TOP_Y + 18} L ${CENTER_X + 28} ${POT_TOP_Y + 32} L ${CENTER_X + 42} ${POT_BOTTOM_Y - 6}`} />
-        </g>
-      )}
-
-      {/* Stage 5+: pot split into two halves, gap in the middle filled
-          with soil that bulges up. Halves slide apart slightly so the
-          cracks read as "pecah". */}
-      {potBroken && (
+      {/* Soil mound — replaces the pot from stage 5+. Pohon yang
+          tumbuh langsung di tanah. */}
+      {!potVisible && (
         <g style={{ transition: 'all 0.8s ease' }}>
-          {/* LEFT HALF — tilted slightly */}
-          <g transform={`translate(-${Math.min(8, (stage - 4) * 2)} 0) rotate(-3 ${CENTER_X - 100} ${POT_BOTTOM_Y})`}>
-            <path
-              d={`M ${CENTER_X - 100} ${POT_TOP_Y + 14} Q ${CENTER_X - 100} ${POT_BOTTOM_Y} ${CENTER_X - 60} ${POT_BOTTOM_Y} L ${CENTER_X - 12} ${POT_BOTTOM_Y} L ${CENTER_X - 16} ${POT_TOP_Y + 32} L ${CENTER_X - 22} ${POT_TOP_Y + 14} L ${CENTER_X - 36} ${POT_TOP_Y} L ${CENTER_X - 92} ${POT_TOP_Y} Z`}
-              fill="var(--retro-brown)"
-            />
-            <ellipse cx={CENTER_X - 64} cy={POT_TOP_Y} rx="28" ry="6" fill="var(--retro-brown-dark)" opacity="0.85" />
-          </g>
-          {/* RIGHT HALF — tilted opposite */}
-          <g transform={`translate(${Math.min(8, (stage - 4) * 2)} 0) rotate(3 ${CENTER_X + 100} ${POT_BOTTOM_Y})`}>
-            <path
-              d={`M ${CENTER_X + 12} ${POT_BOTTOM_Y} L ${CENTER_X + 60} ${POT_BOTTOM_Y} Q ${CENTER_X + 100} ${POT_BOTTOM_Y} ${CENTER_X + 100} ${POT_TOP_Y + 14} L ${CENTER_X + 92} ${POT_TOP_Y} L ${CENTER_X + 36} ${POT_TOP_Y} L ${CENTER_X + 22} ${POT_TOP_Y + 14} L ${CENTER_X + 16} ${POT_TOP_Y + 32} Z`}
-              fill="var(--retro-brown)"
-            />
-            <ellipse cx={CENTER_X + 64} cy={POT_TOP_Y} rx="28" ry="6" fill="var(--retro-brown-dark)" opacity="0.85" />
-          </g>
-          {/* Soil bulging through the broken middle */}
-          <ellipse cx={CENTER_X} cy={POT_TOP_Y + 6} rx="40" ry="10" fill="var(--retro-brown-dark)" />
-          <ellipse cx={CENTER_X} cy={POT_TOP_Y - 2} rx="32" ry="6" fill="#5C4A3A" />
+          <ellipse cx={CENTER_X} cy={POT_TOP_Y + 8} rx="120" ry="16" fill="var(--retro-brown-dark)" />
+          <ellipse cx={CENTER_X} cy={POT_TOP_Y} rx="100" ry="10" fill="#5C4A3A" />
+          <ellipse cx={CENTER_X - 20} cy={POT_TOP_Y - 2} rx="30" ry="5" fill="var(--retro-brown)" opacity="0.6" />
         </g>
       )}
 
@@ -429,6 +446,92 @@ const TreeArt = ({ stage }) => {
           ))}
         </g>
       )}
+
+      {/* Hanging wish cards — stage 10 only. Each card is anchored
+          to a branch tip in the canopy via a thin string, hanging
+          below by `hang` pixels. Click handler calls onOpenWish so
+          the parent can pop a modal. */}
+      {stage >= MAX_STAGE && wishes.length > 0 && (
+        <g style={{ transition: 'opacity 0.8s ease' }}>
+          {wishes.slice(0, HANG_POSITIONS.length).map((wish, i) => {
+            const pos = HANG_POSITIONS[i];
+            const anchorX = CENTER_X + pos.dx;
+            const anchorY = trunkY + pos.dy;
+            const cardCx = anchorX;
+            const cardCy = anchorY + pos.hang;
+            const cardW = 64;
+            const cardH = 32;
+            const tilt = (i % 2 === 0 ? -1 : 1) * (3 + (i % 3));
+            const displayName = (wish.name || 'Anonim').slice(0, 9);
+            return (
+              <g
+                key={wish.id || `hang-${i}`}
+                onClick={() => onOpenWish?.(wish)}
+                style={{ cursor: 'pointer', transition: 'transform 0.4s ease' }}
+                className="hanging-wish-card"
+                tabIndex={0}
+                role="button"
+                aria-label={`Buka ucapan dari ${wish.name}`}
+              >
+                {/* String connecting branch to card */}
+                <line
+                  x1={anchorX}
+                  y1={anchorY}
+                  x2={cardCx}
+                  y2={cardCy - cardH / 2}
+                  stroke="var(--retro-brown-dark)"
+                  strokeWidth="1"
+                  opacity="0.5"
+                />
+                {/* Card body — slight tilt so it reads as physically hanging */}
+                <g transform={`rotate(${tilt} ${cardCx} ${cardCy})`}>
+                  <rect
+                    x={cardCx - cardW / 2}
+                    y={cardCy - cardH / 2}
+                    width={cardW}
+                    height={cardH}
+                    rx="4"
+                    fill="var(--retro-cream)"
+                    stroke="var(--retro-burgundy)"
+                    strokeWidth="1.5"
+                  />
+                  {/* Heart decoration */}
+                  <text
+                    x={cardCx - cardW / 2 + 6}
+                    y={cardCy - cardH / 2 + 11}
+                    fontSize="9"
+                    fill="var(--retro-burgundy)"
+                    fontWeight="900"
+                  >
+                    ♥
+                  </text>
+                  <text
+                    x={cardCx}
+                    y={cardCy + 1}
+                    textAnchor="middle"
+                    fontSize="9"
+                    fontWeight="800"
+                    fill="var(--retro-text-primary)"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {displayName}
+                  </text>
+                  <text
+                    x={cardCx}
+                    y={cardCy + 11}
+                    textAnchor="middle"
+                    fontSize="6.5"
+                    fill="var(--retro-burgundy)"
+                    style={{ pointerEvents: 'none', letterSpacing: '0.1em' }}
+                  >
+                    BUKA
+                  </text>
+                </g>
+              </g>
+            );
+          })}
+        </g>
+      )}
     </svg>
   );
 };
@@ -457,12 +560,41 @@ const EliTree = () => {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null); // { kind: 'success'|'error', message }
   const [justAdvancedStage, setJustAdvancedStage] = useState(null);
+  const [liveWishes, setLiveWishes] = useState([]);
+  const [openWish, setOpenWish] = useState(null);
 
   useEffect(() => {
     setSupportedToday(hasSupportedToday());
-    const unsub = subscribeToTreeSupports(setCount);
-    return unsub;
+    const unsubCount = subscribeToTreeSupports(setCount);
+    const unsubWishes = subscribeToWishes(setLiveWishes);
+    return () => {
+      unsubCount();
+      unsubWishes();
+    };
   }, []);
+
+  // Combined wish pool used for the hanging cards at the max stage —
+  // curated seeds from siteConfig + live RTDB submissions, newest
+  // first so the freshest ones land on the most-visible branches.
+  const hangingWishes = useMemo(() => {
+    const seeds = (SITE_CONFIG.wishes?.seeds || []).map((s) => ({
+      ...s,
+      id: s.id || seedHashId(s),
+    }));
+    return [...seeds, ...liveWishes].sort(
+      (a, b) => (b.date || '').localeCompare(a.date || ''),
+    );
+  }, [liveWishes]);
+
+  // Esc-to-close on the open wish modal
+  useEffect(() => {
+    if (!openWish) return undefined;
+    const handler = (e) => {
+      if (e.key === 'Escape') setOpenWish(null);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [openWish]);
 
   const stage = Math.min(MAX_STAGE, Math.floor(count / SUPPORTS_PER_STAGE));
   const stageMeta = STAGES[stage];
@@ -517,7 +649,11 @@ const EliTree = () => {
               room to grow without being cramped against the form. */}
           <div className="relative flex flex-col items-center">
             <div className="relative w-full flex justify-center">
-              <TreeArt stage={stage} />
+              <TreeArt
+                stage={stage}
+                wishes={hangingWishes}
+                onOpenWish={setOpenWish}
+              />
               {justAdvancedStage != null && (
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.3em] shadow-lg animate-[fadeIn_0.4s_ease-out]">
                   <i className="ri-sparkling-2-fill mr-1" />
@@ -630,7 +766,75 @@ const EliTree = () => {
           </div>
         </div>
       </div>
+
+      {/* Wish open modal — fired when a hanging card on the canopy
+          is clicked. Click outside, Esc, or the X button closes. */}
+      {openWish && (
+        <WishModal wish={openWish} onClose={() => setOpenWish(null)} />
+      )}
     </section>
+  );
+};
+
+const WishModal = ({ wish, onClose }) => {
+  const formatted = (() => {
+    if (!wish.date) return '';
+    const d = new Date(wish.date);
+    if (Number.isNaN(d.getTime())) return wish.date;
+    return new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(d);
+  })();
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Ucapan dari ${wish.name}`}
+      onClick={onClose}
+      className="fixed inset-0 z-[200] flex items-center justify-center px-4 py-8 bg-[color:var(--retro-brown-dark)]/70 backdrop-blur-sm animate-[fadeIn_0.25s_ease-out]"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-md rounded-3xl bg-[color:var(--retro-cream)] shadow-2xl border-2 border-[color:var(--retro-burgundy)]/20 overflow-hidden"
+      >
+        {/* Top burgundy strip */}
+        <div className="h-2 bg-gradient-to-r from-[color:var(--retro-burgundy)] via-[color:var(--retro-gold)] to-[color:var(--retro-burgundy)]" />
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Tutup ucapan"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[color:var(--retro-burgundy)]/10 hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] flex items-center justify-center text-xl transition-colors"
+        >
+          <i className="ri-close-line" />
+        </button>
+        <div className="p-6 sm:p-8">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2 mb-4">
+            <i className="ri-mail-heart-line text-base" />
+            Ucapan untuk Eli
+          </p>
+          <h3 className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] tracking-tight leading-tight">
+            {wish.name}
+          </h3>
+          {wish.handle && (
+            <p className="mt-1 text-xs font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)]">
+              {wish.handle}
+            </p>
+          )}
+          <blockquote className="mt-5 pl-4 border-l-2 border-[color:var(--retro-burgundy)]/40 text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed italic">
+            "{wish.message}"
+          </blockquote>
+          {formatted && (
+            <p className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5">
+              <i className="ri-calendar-line text-base" />
+              {formatted}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
