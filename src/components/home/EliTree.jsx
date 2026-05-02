@@ -37,18 +37,12 @@ const STAGES = [
 
 const LS_KEY = (dateStr) => `armeniaca-tree-support-${dateStr}`;
 
-// Dev-mode bypass — when running `npm run dev` locally, the rate
-// limit is skipped so the maintainer can mash the button to test
-// stage progressions. Production builds always enforce 1×/day.
-const RATE_LIMIT_BYPASSED = import.meta.env.DEV;
-
 const todayKey = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 const hasSupportedToday = () => {
-  if (RATE_LIMIT_BYPASSED) return false;
   try {
     return localStorage.getItem(LS_KEY(todayKey())) === '1';
   } catch {
@@ -57,7 +51,6 @@ const hasSupportedToday = () => {
 };
 
 const markSupportedToday = () => {
-  if (RATE_LIMIT_BYPASSED) return;
   try {
     localStorage.setItem(LS_KEY(todayKey()), '1');
   } catch {
