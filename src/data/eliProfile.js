@@ -70,7 +70,7 @@ export const ELI_TIMELINE = [
     period: '16 Desember 2024',
     title: 'Undergirl di “Bibir yang Telah Dicuri”',
     body:
-      'Eli terpilih sebagai Undergirl untuk single “Bibir yang Telah Dicuri” (Nusumareta Kuchibiru) pada pengumuman hasil akhir Sousenkyo, digelar di The Plaza IDN HQ, Lantai 3 Menara Global, Jakarta Selatan, DKI Jakarta.',
+      'Eli terpilih sebagai Undergirl untuk single “Bibir yang Telah Dicuri” (Nusumareta Kuchibiru) pada pengumuman hasil akhir Sousenkyo.',
     badge: 'Undergirls',
   },
   {
@@ -97,7 +97,7 @@ export const ELI_TIMELINE = [
     period: '1 April 2026',
     title: 'Bergabung dengan Team Dream',
     body:
-      'Sistem tiga tim resmi berlaku. Eli ditempatkan di Team Dream, dipimpin oleh Captain Freya Jayawardana, untuk format kompetisi JKT48 Fight 2026.',
+      'Sistem tiga tim resmi berlaku. Eli ditempatkan di Team Dream, satu tim dengan Kapten JKT48 Freya Jayawardana, untuk format kompetisi JKT48 Fight 2026.',
     badge: 'Team Dream',
   },
 ];
@@ -229,13 +229,13 @@ export const ELI_FIGHT_2026 = {
   team: {
     name: 'Team Dream',
     captain: 'Freya Jayawardana',
-    captainNote: 'Member generasi 7, satu generasi dengan Eli.',
+    captainTitle: 'Kapten JKT48',
+    captainNote: 'Kapten JKT48 secara keseluruhan; member generasi 7, satu generasi dengan Eli.',
     color: 'Dream',
     members: [
       'Freya Jayawardana',
       'Eli',
       'Delynn',
-      'Amanda',
       'Chelsea',
       'Olla',
       'Ella',

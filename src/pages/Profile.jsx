@@ -477,7 +477,7 @@ const FightSection = () => {
           <aside className="space-y-4">
             <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                Captain
+                {team.captainTitle || 'Captain'}
               </p>
               <p className="font-header text-2xl font-black leading-tight mb-1">{team.captain}</p>
               <p className="text-xs text-[color:var(--retro-cream)]/60 leading-relaxed">{team.captainNote}</p>
@@ -521,7 +521,7 @@ const FightSection = () => {
                 <p className="font-bold text-sm leading-tight">{member}</p>
                 {isCaptain && (
                   <span className="mt-2 inline-block text-[8px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                    Captain
+                    {team.captainTitle || 'Captain'}
                   </span>
                 )}
                 {isEli && (
