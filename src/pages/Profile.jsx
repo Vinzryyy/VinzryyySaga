@@ -1,7 +1,8 @@
 /**
- * Profile Page — full archive of Eli's career, discography, theater
- * setlists, JKT48 Fight 2026 placement, and trivia. Five anchored
- * sections share one page so the navbar stays compact.
+ * Profile Page — full archive of Eli's career, discography, JKT48
+ * Fight 2026 placement, and trivia. Four anchored sections share one
+ * page so the navbar stays compact. Theater setlist data lives on
+ * /schedule (live from the jkt48.com API).
  */
 
 import React, { useEffect, useState } from 'react';
@@ -18,7 +19,6 @@ import {
   ELI_TIMELINE,
   ELI_DISCOGRAPHY,
   ELI_ALBUMS,
-  ELI_THEATER,
   ELI_FIGHT_2026,
   ELI_TRIVIA,
   ELI_FUN_FACTS,
@@ -97,7 +97,7 @@ const ProfilePage = () => {
     <main className="relative bg-[color:var(--retro-bg-primary)]">
       <Seo
         title="Profil Eli"
-        description="Profil lengkap Helisma Putri (Eli JKT48) — timeline karier, JKT48 Fight 2026 di Team Dream, diskografi termasuk Sousenkyo Rapsodi, daftar setlist teater, plus trivia dan fun facts."
+        description="Profil lengkap Helisma Putri (Eli JKT48) — timeline karier, JKT48 Fight 2026 di Team Dream, diskografi termasuk Sousenkyo Rapsodi, plus trivia dan fun facts."
         path="/profile"
       />
       {/* Ambient motif backdrop — 20 themed glyphs (apricot, blossom, butterfly,
@@ -231,7 +231,7 @@ const ProfilePage = () => {
       </nav>
 
       {ELI_PROFILE_SECTIONS.map((section) => {
-        const useGradient = section.id === 'fight' || section.id === 'theater';
+        const useGradient = section.id === 'fight';
         return (
           <Section
             key={section.id}
@@ -260,8 +260,6 @@ const SectionRouter = ({ id, section }) => {
       return <FightSection />;
     case 'discography':
       return <DiscographySection />;
-    case 'theater':
-      return <TheaterSection />;
     case 'trivia':
       return <TriviaSection />;
     default:
@@ -783,281 +781,6 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
         ))}
       </ol>
     </div>
-  );
-};
-
-const TheaterSection = () => {
-  const formatDate = (iso) => {
-    if (!iso) return null;
-    const d = new Date(iso);
-    return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
-  };
-  const { elementRef: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
-
-  // Spotlight defaults to the debut entry. Clicking a card in "Setlist Lainnya"
-  // sets activeCode to swap that entry into the spotlight; clicking the same
-  // card again toggles activeCode back to null and the debut returns.
-  const debutEntry = ELI_THEATER.find((entry) => entry.isDebut) || ELI_THEATER[0];
-  const [activeCode, setActiveCode] = useState(null);
-  const feature =
-    (activeCode && ELI_THEATER.find((e) => e.code === activeCode)) || debutEntry;
-  const isDebutFeature = feature.code === debutEntry.code;
-  const handleSelectCard = (code) => {
-    setActiveCode((prev) => (prev === code ? null : code));
-  };
-
-  const debut = formatDate(feature.debutDate);
-
-  return (
-    <>
-      <SectionOpener
-        id="theater"
-        title="Panggung yang Pernah Dinaiki."
-        lead="Setlist teater JKT48 yang pernah dibawakan Eli sepanjang kariernya, beserta unit songs dan tim yang membawakannya."
-        kicker={`${ELI_THEATER.length} setlists tracked`}
-      />
-
-      {/* Spotlight — defaults to Stage Debut, swapped by clicking another card */}
-      <article
-        key={feature.code}
-        className="relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-6 md:mb-8 transition-opacity duration-300"
-      >
-        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
-        <div className="relative grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <span className="px-3 py-1 rounded-full bg-[color:var(--retro-gold-light)]/20 text-[color:var(--retro-gold-light)] text-[9px] font-black uppercase tracking-[0.4em]">
-                {isDebutFeature ? 'Stage Debut' : 'Setlist'}
-              </span>
-              {feature.status === 'active' && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-[0.4em]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  Sedang Aktif
-                </span>
-              )}
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
-                {feature.team}
-              </span>
-              {!isDebutFeature && (
-                <button
-                  type="button"
-                  onClick={() => setActiveCode(null)}
-                  className="ml-auto inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 hover:text-[color:var(--retro-cream)] transition-colors"
-                >
-                  <i className="ri-arrow-go-back-line" />
-                  Kembali ke Stage Debut
-                </button>
-              )}
-            </div>
-            <h3 className="font-header text-3xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
-              {feature.setlist}
-            </h3>
-            {feature.note && (
-              <p className="text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
-                {feature.note}
-              </p>
-            )}
-            {feature.units.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-[color:var(--retro-cream)]/10">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-3">
-                  Unit Songs Eli
-                </p>
-                <ul className="space-y-2">
-                  {feature.units.map((unit) => (
-                    <li
-                      key={unit.song}
-                      className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
-                    >
-                      <span className="flex items-center gap-2 font-bold">
-                        <i className="ri-music-fill text-[color:var(--retro-gold-light)]" />
-                        {unit.song}
-                      </span>
-                      {unit.note && (
-                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/50">
-                          {unit.note}
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-          <aside className="space-y-3">
-            {debut && (
-              <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                  Tanggal Debut
-                </p>
-                <p className="font-header text-xl font-black leading-tight">{debut}</p>
-              </div>
-            )}
-            <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                Status
-              </p>
-              <p className="font-header text-xl font-black leading-tight">
-                {isDebutFeature
-                  ? 'Setlist Pertama'
-                  : feature.status === 'active'
-                  ? 'Sedang Aktif'
-                  : 'Setlist Berakhir'}
-              </p>
-              <p className="text-xs text-[color:var(--retro-cream)]/60 mt-1">
-                {isDebutFeature
-                  ? 'Titik nol panggung Eli di JKT48.'
-                  : feature.status === 'active'
-                  ? 'Setlist yang sedang dibawakan Eli saat ini.'
-                  : 'Setlist sudah selesai berjalan.'}
-              </p>
-            </div>
-            <div className="rounded-2xl bg-[color:var(--retro-cream)]/5 border border-[color:var(--retro-cream)]/10 p-5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-2">
-                Total Setlist
-              </p>
-              <p className="font-header text-xl font-black leading-tight">
-                {ELI_THEATER.length} <span className="text-sm text-[color:var(--retro-cream)]/60 font-bold">stages</span>
-              </p>
-            </div>
-          </aside>
-        </div>
-      </article>
-
-      <RemainingTheaters
-        formatDate={formatDate}
-        gridRef={gridRef}
-        gridVisible={gridVisible}
-        activeCode={activeCode}
-        onSelect={handleSelectCard}
-      />
-    </>
-  );
-};
-
-// Renders the non-debut setlists as a responsive grid. Click a card to
-// swap its detail into the spotlight at the top of TheaterSection.
-const RemainingTheaters = ({ formatDate, gridRef, gridVisible, activeCode, onSelect }) => {
-  const remaining = ELI_THEATER;
-
-  return (
-    <>
-      <div className="flex items-baseline justify-between mb-6">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-          Daftar Setlist
-        </p>
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-          Klik kartu · tampil di spotlight
-        </p>
-      </div>
-      <div
-        ref={gridRef}
-        className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
-      >
-        {remaining.map((entry, idx) => (
-          <div
-            key={entry.code}
-            style={staggerStyle(idx)}
-            className={staggerClass(gridVisible)}
-          >
-            <TheaterCard
-              entry={entry}
-              formatDate={formatDate}
-              isActive={activeCode === entry.code}
-              onSelect={onSelect}
-            />
-          </div>
-        ))}
-      </div>
-    </>
-  );
-};
-
-const TheaterCard = ({ entry, formatDate, isActive = false, onSelect }) => {
-  const debut = formatDate(entry.debutDate);
-  const interactive = typeof onSelect === 'function';
-  const handleClick = () => {
-    if (!interactive) return;
-    onSelect(entry.code);
-  };
-  return (
-    <article
-      role={interactive ? 'button' : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={handleClick}
-      onKeyDown={(e) => {
-        if (!interactive) return;
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      aria-pressed={interactive ? isActive : undefined}
-      className={`group relative rounded-2xl border p-6 transition-all h-full ${
-        isActive
-          ? 'bg-[color:var(--retro-burgundy)]/10 border-[color:var(--retro-burgundy)] shadow-md shadow-[color:var(--retro-burgundy)]/15'
-          : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40'
-      } ${interactive ? 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-burgundy)]/60' : ''}`}
-    >
-      {isActive && (
-        <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
-          On Spotlight
-        </span>
-      )}
-      {entry.status === 'active' && (
-        <span className="absolute -top-2 right-6 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-black uppercase tracking-[0.3em] shadow-md shadow-emerald-500/30">
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          Aktif
-        </span>
-      )}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-          {entry.team}
-        </span>
-        {debut && (
-          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] text-right">
-            Debut · {debut}
-          </span>
-        )}
-      </div>
-      <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight">
-        {entry.setlist}
-      </h3>
-      {entry.note && (
-        <p className="mt-2 text-sm text-[color:var(--color-text-secondary)] leading-snug">
-          {entry.note}
-        </p>
-      )}
-      {entry.units.length > 0 && (
-        <div className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-3">
-            Unit Songs Eli
-          </p>
-          <ul className="space-y-2">
-            {entry.units.map((unit) => (
-              <li
-                key={unit.song}
-                className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
-              >
-                <span className="flex items-center gap-2 font-bold text-[color:var(--retro-text-primary)]">
-                  <i className="ri-music-fill text-[color:var(--retro-burgundy)]" />
-                  {unit.song}
-                </span>
-                {unit.note && (
-                  <span className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
-                    {unit.note}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {interactive && (
-        <p className="mt-4 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70">
-          {isActive ? 'Klik lagi · kembali ke Stage Debut' : 'Klik · tampilkan di spotlight'}
-        </p>
-      )}
-    </article>
   );
 };
 
