@@ -179,7 +179,7 @@ const WishesPage = () => {
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
+              'linear-gradient(180deg, rgba(61, 52, 43, 0.92) 0%, rgba(61, 52, 43, 0.85) 40%, rgba(252, 244, 230, 0.95) 75%, var(--retro-bg-primary) 100%)',
           }}
         />
         {/* Wordmark watermark — re-tinted to cream so it still reads
