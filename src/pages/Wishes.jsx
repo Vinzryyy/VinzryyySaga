@@ -15,6 +15,7 @@ import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import MarqueeStrip from '../components/wishes/MarqueeStrip';
 import MotifBackdrop from '../components/about/MotifBackdrop';
+import FloatingPetals from '../components/countdown/FloatingPetals';
 import { WISH_TEMPLATES } from '../components/wishes/templates';
 import { submitWish, subscribeToWishes } from '../lib/wishesDb';
 import { isFirebaseConfigured } from '../lib/firebase';
@@ -95,6 +96,9 @@ const WishesPage = () => {
     () => [...curatedSeeds, ...liveWishes],
     [curatedSeeds, liveWishes],
   );
+  // Live counter for the header pill — total of curated seeds plus
+  // RTDB submissions. Increments in real time as fans submit.
+  const totalWishCount = seeds.length;
 
   const { elementRef: wallRef, isVisible: wallVisible } = useScrollReveal({
     threshold: 0.05,
@@ -135,6 +139,11 @@ const WishesPage = () => {
           but with a wishes-specific seed so the layout differs and won't
           look identical when both pages open in adjacent tabs. */}
       <MotifBackdrop count={50} seed="wishes-2026" />
+      {/* Floating petals — same drift effect used on /countdown,
+          dialed in via the component's own low-opacity defaults
+          (~0.25-0.4). Adds birthday atmosphere over the wishes wall
+          without distracting from reading. Honors prefers-reduced-motion. */}
+      <FloatingPetals />
 
       {/* Per-card bob keyframe — translates Y so it composes with each
           card's inline `transform: rotate(...)` (the sticky-note tilt) */}
@@ -150,12 +159,34 @@ const WishesPage = () => {
           .wish-bob { animation: none !important; }
         }
       `}</style>
-      {/* Editorial header */}
+      {/* Editorial header — full-bleed photo + brown-dark gradient
+          overlay, matching the treatment on /schedule, /profile, and
+          /about. img-087 picked here so each page still has its own
+          portrait. */}
       <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
-        {/* Watermark wordmark */}
         <div
           aria-hidden="true"
-          className="absolute right-0 top-0 bottom-0 w-2/5 hidden lg:block pointer-events-none opacity-[0.05]"
+          className="absolute inset-0 -z-0 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/archive/img-087.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: '50% 30%',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
+          }}
+        />
+        {/* Wordmark watermark — re-tinted to cream so it still reads
+            on the new dark overlay. */}
+        <div
+          aria-hidden="true"
+          className="absolute right-0 top-0 bottom-0 w-2/5 hidden lg:block pointer-events-none opacity-[0.08]"
           style={{
             maskImage: 'url(/logo-armeniaca.png)',
             WebkitMaskImage: 'url(/logo-armeniaca.png)',
@@ -165,30 +196,38 @@ const WishesPage = () => {
             WebkitMaskRepeat: 'no-repeat',
             maskPosition: 'right center',
             WebkitMaskPosition: 'right center',
-            backgroundColor: 'var(--retro-burgundy)',
+            backgroundColor: 'var(--retro-cream)',
           }}
         />
         <div className="relative max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy)]">
+          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy-light)] flex-wrap">
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">{headerEyebrow}</span>
-            <span className="w-10 h-px bg-[color:var(--retro-burgundy)]/30" />
+            <span className="w-10 h-px bg-[color:var(--retro-burgundy-light)]/50" />
             <Link
               to="/countdown"
-              className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] transition-colors inline-flex items-center gap-2"
+              className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65 hover:text-[color:var(--retro-burgundy-light)] transition-colors inline-flex items-center gap-2"
             >
               <i className="ri-cake-2-line text-base" />
               {countdownLinkLabel}
             </Link>
+            {/* Live counter pill — total wish count from RTDB +
+                curated seeds. Updates in real time as fans submit. */}
+            {totalWishCount > 0 && (
+              <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy-light)]/15 text-[color:var(--retro-burgundy-light)] border border-[color:var(--retro-burgundy-light)]/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {totalWishCount} ucapan terkumpul
+              </span>
+            )}
           </div>
 
-          <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-4xl">
+          <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.95] max-w-4xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
             {headerTitle} <br />
-            <span className="text-[color:var(--retro-burgundy)]">{headerTitleAccent}</span>
+            <span className="text-[color:var(--retro-burgundy-light)]">{headerTitleAccent}</span>
           </h1>
-          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
             {headerLead}
           </p>
-          <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent" />
+          <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
         </div>
       </header>
 
