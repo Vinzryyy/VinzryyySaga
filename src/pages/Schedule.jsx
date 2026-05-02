@@ -371,39 +371,66 @@ const SchedulePage = () => {
         description="Daftar lengkap show teater dan Personal Meet & Greet Eli JKT48 (Helisma Putri). Auto-refresh dari jkt48.com setiap 6 jam."
       />
 
-      {/* Editorial header */}
-      <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy)]">
+      {/* Editorial header — stage photo full-bleed background with
+          burgundy gradient overlay so the eyebrow / h1 / lead stay
+          legible. Hidden mask edges fade to the page bg color so the
+          header blends into the LiveCounter section below. */}
+      <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
+        {/* Background photo — Eli on stage. Object-position keeps her
+            face roughly above the headline on most aspect ratios. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-0 pointer-events-none"
+          style={{
+            backgroundImage: 'url(/archive/img-310.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: '50% 25%',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+        {/* Tonal overlay — heavy on the bottom so the gradient blends
+            into the page background, keeping the LiveCounter section
+            below from snapping visually. Light-burgundy wash on top
+            warms the photo into the brand palette. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(72, 24, 32, 0.78) 0%, rgba(72, 24, 32, 0.65) 35%, rgba(252, 244, 230, 0.92) 90%, var(--retro-bg-primary) 100%)',
+          }}
+        />
+        <div className="relative max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-gold-light)]">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] inline-flex items-center gap-2">
               <i className="ri-calendar-event-line text-base" />
               Schedule · Live
             </span>
-            <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30 max-w-[120px]" />
+            <span className="flex-1 h-px bg-[color:var(--retro-gold-light)]/40 max-w-[120px]" />
             {subtitle && (
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
                 {subtitle}
               </span>
             )}
           </div>
-          <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-4xl">
+          <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.95] max-w-4xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
             Jadwal Eli, <br />
-            <span className="text-[color:var(--retro-burgundy)]">satu kalender penuh.</span>
+            <span className="text-[color:var(--retro-gold-light)]">satu kalender penuh.</span>
           </h1>
-          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-cream)]/85 leading-relaxed max-w-2xl">
             Show teater Team Dream, all-team event, dan Personal Meet &amp; Greet — disaring dari{' '}
             <a
               href="https://jkt48.com/schedule"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[color:var(--retro-burgundy)] underline-offset-4 hover:underline"
+              className="text-[color:var(--retro-gold-light)] underline-offset-4 hover:underline"
             >
               jkt48.com
             </a>{' '}
             dengan cast list resmi yang sudah terverifikasi (Eli ada di lineup).
             Auto-refresh tiap 6 jam.
           </p>
-          <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent" />
+          <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-gold-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
         </div>
       </header>
 
