@@ -11,7 +11,7 @@
  * without a baseline.
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 const startOfToday = () => {
   const d = new Date();
@@ -82,9 +82,28 @@ const StatCard = ({ eyebrow, value, valueAccent, sub, footnote }) => (
 
 const LiveCounter = ({ events, careerStats }) => {
   const today = startOfToday();
-  const asOfMs = careerStats?.asOfDate
-    ? new Date(careerStats.asOfDate).getTime()
-    : null;
+
+  // Prefer the manual show log as the lifetime baseline source — it
+  // updates whenever scripts/parse-show-log.py is re-run from the TSV.
+  // Falls back to the static siteConfig baseline if the JSON fails
+  // to load (offline cache, deploy without re-parse, etc.).
+  const [showLog, setShowLog] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/data/eli-show-log.json', { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled) setShowLog(d);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const baselineTheater = showLog?.totalShows ?? careerStats?.theater ?? 0;
+  const baselineAsOfDate = showLog?.asOfDate ?? careerStats?.asOfDate ?? null;
+  const asOfMs = baselineAsOfDate ? new Date(baselineAsOfDate).getTime() : null;
 
   const stats = useMemo(() => {
     const todayMs = today.getTime();
@@ -121,10 +140,9 @@ const LiveCounter = ({ events, careerStats }) => {
       }
     });
 
-    const theaterBaseline = careerStats?.theater ?? 0;
     return {
-      theaterTotal: theaterBaseline + theaterDelta,
-      theaterBaseline,
+      theaterTotal: baselineTheater + theaterDelta,
+      theaterBaseline: baselineTheater,
       theaterDelta,
       mgDone,
       mgUpcoming,
@@ -137,7 +155,7 @@ const LiveCounter = ({ events, careerStats }) => {
     // and it's stable enough within a single page view (no live midnight
     // crossover handling needed for a stat strip). Excluded from deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [events, asOfMs, careerStats?.theater]);
+  }, [events, asOfMs, baselineTheater]);
 
   return (
     <section
@@ -193,7 +211,7 @@ const LiveCounter = ({ events, careerStats }) => {
                 )}
               </p>
               <p className="mt-auto pt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55">
-                Baseline {careerStats?.asOfDate ? formatAsOf(careerStats.asOfDate) : 'manual #JumlahShowJKT48'}
+                Baseline {baselineAsOfDate ? formatAsOf(baselineAsOfDate) : 'manual #JumlahShowJKT48'}
               </p>
             </div>
           </div>
