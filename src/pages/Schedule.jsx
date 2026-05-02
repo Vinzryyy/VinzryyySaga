@@ -397,7 +397,7 @@ const SchedulePage = () => {
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(180deg, rgba(72, 24, 32, 0.78) 0%, rgba(72, 24, 32, 0.65) 35%, rgba(252, 244, 230, 0.92) 90%, var(--retro-bg-primary) 100%)',
+              'linear-gradient(180deg, rgba(61, 52, 43, 0.82) 0%, rgba(92, 74, 58, 0.65) 35%, rgba(252, 244, 230, 0.92) 90%, var(--retro-bg-primary) 100%)',
           }}
         />
         <div className="relative max-w-7xl mx-auto">
