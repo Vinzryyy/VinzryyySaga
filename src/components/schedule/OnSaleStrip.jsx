@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react';
 // across whatever sale entries are visible — first card gets the
 // first frame, second card the second, and so on. Wraps if there
 // are more sales than frames.
-const SALE_FRAMES = ['/archive/x/x-F8spTPXboAAWWiF.jpg', '/archive/x/x-F9muG2kacAAHGsL.jpg'];
+const SALE_FRAMES = ['/archive/img-303.jpg', '/archive/img-206.jpg'];
 
 const CATEGORY_LABEL = {
   TWO_SHOT: '2Shot',

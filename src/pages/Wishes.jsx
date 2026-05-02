@@ -271,13 +271,14 @@ const WishesPage = () => {
       `}</style>
       {/* Editorial header — full-bleed photo + brown-dark gradient
           overlay, matching the treatment on /schedule, /profile, and
-          /about. */}
+          /about. img-087 picked here so each page still has its own
+          portrait. */}
       <header className="relative pt-28 sm:pt-32 md:pt-40 pb-10 md:pb-14 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
-            backgroundImage: 'url(/archive/x/x-GHbYnXhaoAAXAXn.jpg)',
+            backgroundImage: 'url(/archive/img-353.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: '50% 30%',
             backgroundRepeat: 'no-repeat',
@@ -496,7 +497,7 @@ const WishesPage = () => {
               {/* RIGHT — portrait peeking from the side */}
               <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden">
                 <img
-                  src="/archive/x/x-F_X8ypvaEAALmj6.jpg"
+                  src="/archive/img-024.jpg"
                   alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
                   loading="eager"
                   decoding="async"
