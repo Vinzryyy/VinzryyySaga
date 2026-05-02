@@ -516,6 +516,16 @@ const HomePage = () => {
           </p>
         </div>
         <ScheduleCard />
+        <div className="mt-6 md:mt-8 flex justify-center">
+          <Link
+            to="/schedule"
+            className="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white border border-[color:var(--retro-burgundy)]/20 text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
+          >
+            <i className="ri-calendar-line" />
+            Lihat semua jadwal
+            <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </Section>
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}

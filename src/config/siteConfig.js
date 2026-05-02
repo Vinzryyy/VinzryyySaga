@@ -74,6 +74,7 @@ export const SITE_CONFIG = {
           // Era pills are appended dynamically from the gallery data
         ],
       },
+      { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       { label: 'Countdown', hash: 'countdown', icon: 'ri-cake-2-line' },
       // Wishes feature di-disable sementara — un-comment baris di bawah
       // (dan baris route di src/App.jsx) untuk re-enable.
