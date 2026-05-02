@@ -68,7 +68,7 @@ const STAGES = [
   { id: 7, label: 'Berbunga', icon: 'ri-flower-line', detail: 'Bunga aprikot mekar — Bloom in Spring.' },
   { id: 8, label: 'Berbuah', icon: 'ri-apple-line', detail: 'Buah aprikot matang siap dipanen.' },
   { id: 9, label: 'Pohon Penuh', icon: 'ri-sun-line', detail: 'Pohon penuh, kanopi terluas, panen melimpah.' },
-  { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah di tengah taman bunga — komunitas membawanya sampai ke puncak. Terima kasih.' },
+  { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah di tengah taman bunga. Setelah ini setiap dukungan baru menambah satu makhluk hidup ke ekosistem. Terima kasih.' },
 ];
 
 // === Ecosystem (taman bunga) generation ===
@@ -122,32 +122,36 @@ const lerpStops = (x, stops) => {
 
 const generateEcosystem = (count) => {
   const rand = seedRandom(13);
-  const c = Math.max(0, Math.min(2000, count || 0));
+  const c = Math.max(0, Math.min(3000, count || 0));
   const potVisible = c < 500;
+  // Base population is driven by lerp stops up to count=1000. Past
+  // that, every additional vote drops a single random element into
+  // the garden via the bonus loop at the bottom.
+  const baseCount = Math.min(c, 1000);
 
-  const flowerCount = Math.floor(lerpStops(c, [
+  const flowerCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [200, 0], [300, 3], [400, 10], [500, 25],
     [600, 50], [700, 100], [800, 160], [900, 230], [1000, 300],
   ]));
-  const budCount = Math.floor(lerpStops(c, [
+  const budCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [100, 0], [150, 1], [200, 4], [250, 5],
     [300, 3], [400, 2], [500, 0],
   ]));
-  const grassCount = Math.floor(lerpStops(c, [
+  const grassCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [100, 4], [200, 10], [300, 18], [400, 28],
     [500, 42], [600, 60], [700, 80], [800, 105], [900, 130], [1000, 160],
   ]));
-  const butterflyCount = Math.floor(lerpStops(c, [
+  const butterflyCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [400, 0], [500, 2], [600, 4], [700, 7],
     [800, 11], [900, 16], [1000, 22],
   ]));
-  const leafyCount = Math.floor(lerpStops(c, [
+  const leafyCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [600, 0], [700, 2], [800, 4], [900, 6], [1000, 8],
   ]));
-  const fernCount = Math.floor(lerpStops(c, [
+  const fernCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [700, 0], [800, 3], [900, 5], [1000, 7],
   ]));
-  const mushroomCount = Math.floor(lerpStops(c, [
+  const mushroomCount = Math.floor(lerpStops(baseCount, [
     [0, 0], [800, 0], [900, 2], [1000, 5],
   ]));
 
@@ -182,7 +186,6 @@ const generateEcosystem = (count) => {
       size: 2 + rand() * 2,
     };
   }, 312, 380);
-  flowers.sort((a, b) => a.y - b.y);
 
   const buds = tryPlace(budCount, (x, y) => ({ x, y }), 322, 372);
   const grass = tryPlace(grassCount, (x, y) => ({
@@ -212,7 +215,68 @@ const generateEcosystem = (count) => {
     });
   }
 
-  return { flowers, buds, grass, leafy, ferns, mushrooms, butterflies };
+  const fallenFruits = [];
+  const bees = [];
+
+  // Bonus growth past 1000 — each additional vote drops one random
+  // element into the garden (bunga / rumput / buah jatuh / hewan).
+  // Type weights: 55% bunga, 20% rumput, 12% buah, 13% hewan.
+  // RNG is shared with the base population, so positions stay stable
+  // across re-renders and only NEW slots open up as count grows.
+  const bonusCount = Math.max(0, c - 1000);
+  for (let i = 0; i < bonusCount; i++) {
+    const typeRoll = rand();
+    if (typeRoll < 0.55) {
+      const x = 8 + rand() * 384;
+      const y = 312 + rand() * 68;
+      const v = rand();
+      const color = FLOWER_PALETTE[Math.floor(rand() * FLOWER_PALETTE.length)];
+      const size = 2 + rand() * 2;
+      if (!inTrunkOrPot(x, y)) {
+        flowers.push({
+          x, y, color,
+          variant: v < 0.07 ? 'tulip' : v < 0.24 ? 'big' : 'tiny',
+          size,
+        });
+      }
+    } else if (typeRoll < 0.75) {
+      const x = 8 + rand() * 384;
+      const y = 348 + rand() * 18;
+      const lean = (rand() - 0.5) * 4;
+      const tall = 5 + rand() * 5;
+      if (!inTrunkOrPot(x, y)) grass.push({ x, y, lean, tall });
+    } else if (typeRoll < 0.87) {
+      const x = 8 + rand() * 384;
+      const y = 350 + rand() * 14;
+      const size = 4 + rand() * 2;
+      if (!inTrunkOrPot(x, y)) fallenFruits.push({ x, y, size });
+    } else {
+      const x = 30 + rand() * 340;
+      const y = 200 + rand() * 130;
+      if (rand() < 0.3) {
+        bees.push({
+          x, y,
+          scale: 0.8 + rand() * 0.3,
+          delay: -rand() * 4,
+        });
+      } else {
+        butterflies.push({
+          x, y,
+          palette: BUTTERFLY_PALETTES[Math.floor(rand() * BUTTERFLY_PALETTES.length)],
+          tilt: (rand() - 0.5) * 30,
+          scale: 0.75 + rand() * 0.5,
+          delay: -rand() * 4,
+        });
+      }
+    }
+  }
+
+  flowers.sort((a, b) => a.y - b.y);
+
+  return {
+    flowers, buds, grass, leafy, ferns, mushrooms,
+    butterflies, fallenFruits, bees,
+  };
 };
 
 const LS_KEY = (dateStr) => `armeniaca-tree-support-${dateStr}`;
@@ -387,6 +451,9 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
         ))}
         {ecosystem.mushrooms.map((m, i) => (
           <Mushroom key={`mu-${i}`} cx={m.x} cy={m.y} capColor={m.capColor} />
+        ))}
+        {ecosystem.fallenFruits.map((f, i) => (
+          <FallenApricot key={`ff-${i}`} x={f.x} y={f.y} size={f.size} />
         ))}
       </g>
 
@@ -638,9 +705,10 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
         </g>
       )}
 
-      {/* Butterflies — drawn after the canopy so they appear flying
-          IN FRONT of the foliage. Population scales with `count`. */}
-      {ecosystem.butterflies.length > 0 && (
+      {/* Flying creatures — drawn after the canopy so they appear
+          IN FRONT of the foliage. Butterflies from the base population
+          + bonus bees/butterflies past count=1000. */}
+      {(ecosystem.butterflies.length > 0 || ecosystem.bees.length > 0) && (
         <g style={{ transition: 'opacity 0.8s ease' }}>
           {ecosystem.butterflies.map((b, i) => (
             <Butterfly
@@ -652,6 +720,9 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
               scale={b.scale}
               delay={b.delay}
             />
+          ))}
+          {ecosystem.bees.map((b, i) => (
+            <Bee key={`be-${i}`} x={b.x} y={b.y} scale={b.scale} delay={b.delay} />
           ))}
         </g>
       )}
@@ -775,6 +846,34 @@ const GrassBlade = ({ cx, cy, lean = 0, tall = 8 }) => (
     strokeWidth="1.4"
     strokeLinecap="round"
   />
+);
+
+// Bonus apricot resting on the ground — small drop shadow makes it
+// read as a fallen fruit rather than a yellow dot.
+const FallenApricot = ({ x, y, size = 5 }) => (
+  <g>
+    <ellipse cx={x} cy={y + size * 0.3 + 1} rx={size + 1} ry="1.4" fill="var(--retro-brown-dark)" opacity="0.25" />
+    <circle cx={x} cy={y} r={size} fill="var(--retro-gold)" />
+    <ellipse cx={x - size * 0.3} cy={y - size * 0.3} rx={size * 0.35} ry={size * 0.35} fill="var(--retro-gold-light)" opacity="0.85" />
+  </g>
+);
+
+// Bee — small rounded body with stripes + tiny translucent wings.
+// Reuses the .eli-butterfly class for fluttering motion.
+const Bee = ({ x, y, scale = 1, delay = 0 }) => (
+  <g
+    className="eli-butterfly"
+    style={{ animationDelay: `${delay.toFixed(2)}s` }}
+  >
+    <g transform={`translate(${x} ${y}) scale(${scale})`}>
+      <ellipse cx={-1.5} cy={-2.2} rx="2.2" ry="1.4" fill="white" opacity="0.7" />
+      <ellipse cx={1.5} cy={-2.2} rx="2.2" ry="1.4" fill="white" opacity="0.7" />
+      <ellipse cx={0} cy={0} rx="3.5" ry="2.3" fill="var(--retro-gold)" />
+      <line x1={-2} y1={-1.6} x2={-2} y2={1.6} stroke="var(--retro-brown-dark)" strokeWidth="0.9" strokeLinecap="round" />
+      <line x1={0} y1={-1.8} x2={0} y2={1.8} stroke="var(--retro-brown-dark)" strokeWidth="0.9" strokeLinecap="round" />
+      <line x1={2} y1={-1.6} x2={2} y2={1.6} stroke="var(--retro-brown-dark)" strokeWidth="0.9" strokeLinecap="round" />
+    </g>
+  </g>
 );
 
 // Butterfly with two-tone wings + thin body. CSS class drives a slow
