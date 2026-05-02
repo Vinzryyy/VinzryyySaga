@@ -14,6 +14,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Seo from '../components/Seo';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import LiveCounter from '../components/schedule/LiveCounter';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 const TEAM_LABEL = {
   DREAM: 'Team Dream',
@@ -335,6 +337,11 @@ const SchedulePage = () => {
           <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent" />
         </div>
       </header>
+
+      {/* Live stats — theater shows (baseline + delta), M&G done/upcoming,
+          special events done/upcoming. Uses careerStats baseline + the
+          schedule JSON deltas. */}
+      <LiveCounter events={events} careerStats={SITE_CONFIG.eli.careerStats} />
 
       {/* Filter chips */}
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-8 md:mb-10">

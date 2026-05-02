@@ -255,6 +255,30 @@ export const SITE_CONFIG = {
     catchphrase:
       'Bagai Lembayung Senja, Dengan Energi Kehangatan ku aku akan menghangatkan suasana.',
     portrait: '/archive/img-364.jpg',
+    // Career stats anchor for the LiveCounter on /schedule.
+    //
+    // Why a manual baseline: jkt48.com's `/api/v1/schedules` has gaps
+    // for older shows (especially 2018-2020 era) — an automated walk
+    // catches ~98% of theater appearances but misses a handful of
+    // revival/Sousenkyo nights. The fan-community standard
+    // #JumlahShowJKT48 (manually maintained on X) is the trusted
+    // figure. The LiveCounter takes this baseline and adds any
+    // shows in eli-schedule.json with date > asOfDate to compute
+    // a live total without re-running the manual count.
+    //
+    // Update protocol: bump `theater` and `asOfDate` whenever
+    // @jehaes_ posts a new #JumlahShowJKT48 recap that updates Eli's row.
+    careerStats: {
+      asOfDate: '2026-04-26',
+      source: {
+        label: '#JumlahShowJKT48 / @jehaes_',
+        url: 'https://x.com/jehaes_/status/2048362190772883762',
+      },
+      // Lifetime theater shows (SHOW + in-theater EVENT). Includes
+      // regular stages, Sousenkyo concerts, anniversary nights,
+      // dedicated theater sessions. Excludes Video Calls, M&G, off-site.
+      theater: 385,
+    },
   },
 
   // Home Page (corsyava-style flow)

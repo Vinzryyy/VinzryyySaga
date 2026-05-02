@@ -46,6 +46,14 @@ ELI_NAME = "Helisma Putri"
 # out, so 3 months captures everything currently scheduled.
 MONTHS_AHEAD = 3
 
+# How many months behind to also include. We need 1 month of recent past
+# so the live counter on /schedule can detect shows that aired between the
+# manual #JumlahShowJKT48 baseline (last updated mid-month) and today.
+# Past shows past the live-counter window are still in the lifetime
+# baseline (siteConfig.eli.careerStats), so 1 month of trailing data is
+# enough to bridge the gap.
+MONTHS_BEHIND = 1
+
 # Event categories we KEEP from the listing for detail fetching.
 #   SHOW       — theater stages
 #   EXCLUSIVE  — meet & greet / 2Shot festivals
@@ -188,7 +196,7 @@ def normalize_exclusive(detail: dict, listing_date: str | None, slug: str) -> li
 def main():
     sc = make_scraper()
 
-    print(f"[1/2] Scanning {MONTHS_AHEAD} months ahead...")
+    print(f"[1/2] Scanning {MONTHS_BEHIND} month behind + {MONTHS_AHEAD} months ahead...")
     today = datetime.now()
     eli_events = []
     detail_calls = 0
@@ -199,12 +207,18 @@ def main():
     # + emit per event once.
     seen_codes = set()
 
-    for offset in range(MONTHS_AHEAD):
+    # Iterate from MONTHS_BEHIND in the past through MONTHS_AHEAD in the
+    # future (inclusive). Negative offsets walk backward from today's
+    # month; non-negative offsets walk forward.
+    for offset in range(-MONTHS_BEHIND, MONTHS_AHEAD):
         m = today.month + offset
         y = today.year
         while m > 12:
             m -= 12
             y += 1
+        while m < 1:
+            m += 12
+            y -= 1
         listing = fetch_month(sc, m, y)
         candidates = [s for s in listing if s.get("type") in KEEP_TYPES]
         skipped = len(listing) - len(candidates)
