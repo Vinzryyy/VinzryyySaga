@@ -25,7 +25,7 @@ const Footer = () => {
     .map((item) => {
       const hash = item.hash || item.children?.[0]?.hash;
       if (!hash) return null;
-      return { name: item.label, to: hashToHref(hash), highlight: Boolean(item.highlight) };
+      return { name: item.label, to: hashToHref(hash) };
     })
     .filter(Boolean);
 
@@ -106,29 +106,21 @@ const Footer = () => {
                 <li key={link.name}>
                   <Link
                     to={link.to}
-                    className={`
-                      group inline-flex items-center gap-2 text-sm transition-colors
-                      ${link.highlight
-                        ? 'text-[color:var(--retro-burgundy)] font-bold hover:text-[color:var(--retro-burgundy-dark,var(--retro-burgundy))]'
-                        : 'text-[color:var(--retro-text-secondary)] hover:text-[color:var(--retro-burgundy)]'}
-                    `}
+                    className="
+                      group inline-flex items-center gap-2
+                      text-[color:var(--retro-text-secondary)] hover:text-[color:var(--retro-burgundy)]
+                      text-sm transition-colors
+                    "
                   >
                     <span
-                      className={`
-                        h-px w-3 transition-all duration-300
-                        ${link.highlight
-                          ? 'bg-[color:var(--retro-gold)] group-hover:w-5'
-                          : 'bg-[color:var(--retro-border-dark)] group-hover:w-5 group-hover:bg-[color:var(--retro-burgundy)]'}
-                      `}
+                      className="
+                        h-px w-3 bg-[color:var(--retro-border-dark)]
+                        transition-all duration-300
+                        group-hover:w-5 group-hover:bg-[color:var(--retro-burgundy)]
+                      "
                       aria-hidden="true"
                     />
                     {link.name}
-                    {link.highlight && (
-                      <span
-                        aria-hidden="true"
-                        className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] shadow-[0_0_6px_rgba(229,197,117,0.8)] animate-pulse"
-                      />
-                    )}
                   </Link>
                 </li>
               ))}

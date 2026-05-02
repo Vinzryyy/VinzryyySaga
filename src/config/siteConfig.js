@@ -77,10 +77,16 @@ export const SITE_CONFIG = {
       },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       {
-        label: 'Ultah',
-        hash: 'countdown',
-        icon: 'ri-cake-2-line',
+        label: 'Harmoni Kebaikan',
+        hash: '26',
+        icon: 'ri-plant-line',
         children: [
+          {
+            label: '#26 — Galeri Kebaikan',
+            hash: '26',
+            description: 'Pohon untuk Eli yang tumbuh dari dukungan',
+            icon: 'ri-plant-line',
+          },
           {
             label: 'Countdown',
             hash: 'countdown',
@@ -95,7 +101,6 @@ export const SITE_CONFIG = {
           },
         ],
       },
-      { label: '#26', hash: '26', icon: 'ri-plant-line', highlight: true },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
   },

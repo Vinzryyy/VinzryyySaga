@@ -185,27 +185,18 @@ function Navbar() {
                 const dropOpen = openDropdown === item.label;
 
                 if (!hasChildren) {
-                  const highlighted = item.highlight && !active;
                   return (
                     <li key={item.label}>
                       <button
                         type="button"
                         onClick={() => navigateTo(item.hash)}
                         className={`
-                          relative inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
+                          inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
                           ${active
                             ? "bg-[color:var(--retro-burgundy)] text-white shadow-md"
-                            : highlighted
-                            ? "bg-[color:var(--retro-gold-light)]/20 border border-[color:var(--retro-gold)]/45 text-[color:var(--retro-burgundy)] shadow-[0_4px_14px_rgba(201,169,97,0.25)] hover:bg-[color:var(--retro-gold-light)]/35"
                             : `${palette.textMuted} ${palette.hoverBg} hover:${palette.text}`}
                         `}
                       >
-                        {highlighted && (
-                          <span
-                            aria-hidden="true"
-                            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[color:var(--retro-gold)] shadow-[0_0_8px_rgba(229,197,117,0.9)] animate-pulse"
-                          />
-                        )}
                         {item.label}
                       </button>
                     </li>
@@ -351,8 +342,6 @@ function Navbar() {
               <ul className="space-y-1">
                 {navItems.map((item) => {
                   const hasChildren = Array.isArray(item.children) && item.children.length > 0;
-                  const isMobileActive = item.hash === activeHash;
-                  const isMobileHighlighted = item.highlight && !isMobileActive;
                   return (
                     <li key={item.label}>
                       {item.hash && (
@@ -360,10 +349,8 @@ function Navbar() {
                           type="button"
                           onClick={() => navigateTo(item.hash)}
                           className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
-                            isMobileActive
+                            item.hash === activeHash
                               ? "bg-[color:var(--retro-burgundy)] text-white"
-                              : isMobileHighlighted
-                              ? "bg-[color:var(--retro-gold-light)]/15 border border-[color:var(--retro-gold)]/40 text-[color:var(--retro-burgundy)]"
                               : "text-[color:var(--retro-text-primary)] hover:bg-[color:var(--retro-burgundy)]/5"
                           }`}
                         >
@@ -372,12 +359,6 @@ function Navbar() {
                             <span className="font-header text-base font-black tracking-tight">
                               {item.label}
                             </span>
-                            {isMobileHighlighted && (
-                              <span
-                                aria-hidden="true"
-                                className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] shadow-[0_0_6px_rgba(229,197,117,0.9)] animate-pulse"
-                              />
-                            )}
                           </span>
                           <i className="ri-arrow-right-line text-base opacity-50" />
                         </button>
