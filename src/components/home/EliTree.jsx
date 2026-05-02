@@ -230,6 +230,89 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </g>
       )}
 
+      {/* Ground decorations — rumput dan bunga warna-warni yang ikut
+          tumbuh seiring pohon. Stage 1: rumput pertama → stage 3:
+          bunga pertama → stage 5+: tersebar lebih luas seiring pot
+          menghilang → stage 9+: penuh dengan jamur → stage 10:
+          kupu-kupu beterbangan. */}
+      {stage >= 1 && (
+        <g style={{ transition: 'all 0.8s ease' }}>
+          {/* Stage 1+ — first grass tufts flanking the pot */}
+          <g stroke="#5E7C3F" strokeWidth="1.6" strokeLinecap="round" fill="none">
+            <path d={`M 110 ${POT_BOTTOM_Y - 4} Q 108 ${POT_BOTTOM_Y - 10} 106 ${POT_BOTTOM_Y - 16}`} />
+            <path d={`M 116 ${POT_BOTTOM_Y - 4} Q 118 ${POT_BOTTOM_Y - 9} 120 ${POT_BOTTOM_Y - 14}`} />
+            <path d={`M 284 ${POT_BOTTOM_Y - 4} Q 282 ${POT_BOTTOM_Y - 10} 280 ${POT_BOTTOM_Y - 14}`} />
+            <path d={`M 290 ${POT_BOTTOM_Y - 4} Q 292 ${POT_BOTTOM_Y - 9} 294 ${POT_BOTTOM_Y - 16}`} />
+          </g>
+
+          {/* Stage 3+ — first wildflowers next to the pot */}
+          {stage >= 3 && (
+            <>
+              <Flower cx={85} cy={POT_BOTTOM_Y - 8} size={5} petalColor="#F7D6E0" />
+              <Flower cx={315} cy={POT_BOTTOM_Y - 8} size={5} petalColor="var(--retro-gold-light)" />
+            </>
+          )}
+
+          {/* Stage 5+ — pot gone, flowers spread across the soil mound */}
+          {stage >= 5 && (
+            <>
+              <Flower cx={55} cy={POT_BOTTOM_Y - 4} size={6} petalColor="var(--retro-burgundy-light)" />
+              <Flower cx={345} cy={POT_BOTTOM_Y - 4} size={6} petalColor="#F7D6E0" />
+              <Flower cx={150} cy={POT_TOP_Y + 8} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
+              <Flower cx={250} cy={POT_TOP_Y + 8} size={4} petalColor="var(--retro-burgundy-light)" centerColor="var(--retro-gold)" />
+            </>
+          )}
+
+          {/* Stage 7+ — extra flowers + denser grass */}
+          {stage >= 7 && (
+            <>
+              <Flower cx={35} cy={POT_BOTTOM_Y - 2} size={5} petalColor="var(--retro-gold-light)" />
+              <Flower cx={365} cy={POT_BOTTOM_Y - 2} size={5} petalColor="var(--retro-burgundy-light)" />
+              <g stroke="#5E7C3F" strokeWidth="1.4" strokeLinecap="round" fill="none">
+                <path d={`M 130 ${POT_BOTTOM_Y - 2} Q 128 ${POT_BOTTOM_Y - 8} 127 ${POT_BOTTOM_Y - 14}`} />
+                <path d={`M 270 ${POT_BOTTOM_Y - 2} Q 272 ${POT_BOTTOM_Y - 8} 273 ${POT_BOTTOM_Y - 14}`} />
+                <path d={`M 175 ${POT_BOTTOM_Y - 4} Q 173 ${POT_BOTTOM_Y - 10} 172 ${POT_BOTTOM_Y - 16}`} />
+                <path d={`M 225 ${POT_BOTTOM_Y - 4} Q 227 ${POT_BOTTOM_Y - 10} 228 ${POT_BOTTOM_Y - 16}`} />
+              </g>
+            </>
+          )}
+
+          {/* Stage 9+ — full bloom with a small mushroom */}
+          {stage >= 9 && (
+            <>
+              <Flower cx={180} cy={POT_BOTTOM_Y - 8} size={4} petalColor="#F7D6E0" centerColor="var(--retro-burgundy)" />
+              <Flower cx={220} cy={POT_BOTTOM_Y - 8} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
+              <g>
+                <ellipse cx={295} cy={POT_BOTTOM_Y - 6} rx="7" ry="5" fill="var(--retro-burgundy)" />
+                <ellipse cx={293} cy={POT_BOTTOM_Y - 7} rx="2" ry="1.2" fill="var(--retro-cream)" opacity="0.95" />
+                <ellipse cx={297.5} cy={POT_BOTTOM_Y - 4.5} rx="1.5" ry="1" fill="var(--retro-cream)" opacity="0.9" />
+                <rect x={293.5} y={POT_BOTTOM_Y - 5} width="3.5" height="5" rx="1.5" fill="var(--retro-cream)" />
+              </g>
+            </>
+          )}
+
+          {/* Stage 10 — butterflies fluttering through the flower bed */}
+          {stage >= MAX_STAGE && (
+            <g>
+              <g transform={`translate(72, ${POT_BOTTOM_Y - 36})`}>
+                <ellipse cx={-3.5} cy={-1} rx="4" ry="3" fill="var(--retro-burgundy)" opacity="0.9" />
+                <ellipse cx={3.5} cy={-1} rx="4" ry="3" fill="var(--retro-burgundy)" opacity="0.9" />
+                <ellipse cx={-3.5} cy={3} rx="3" ry="2.5" fill="var(--retro-gold)" opacity="0.9" />
+                <ellipse cx={3.5} cy={3} rx="3" ry="2.5" fill="var(--retro-gold)" opacity="0.9" />
+                <line x1={0} y1={-3} x2={0} y2={5} stroke="var(--retro-brown-dark)" strokeWidth="1.2" strokeLinecap="round" />
+              </g>
+              <g transform={`translate(330, ${POT_BOTTOM_Y - 28})`}>
+                <ellipse cx={-3} cy={-1} rx="3.5" ry="2.5" fill="var(--retro-gold-light)" opacity="0.95" />
+                <ellipse cx={3} cy={-1} rx="3.5" ry="2.5" fill="var(--retro-gold-light)" opacity="0.95" />
+                <ellipse cx={-3} cy={2.5} rx="2.5" ry="2" fill="#F7D6E0" opacity="0.95" />
+                <ellipse cx={3} cy={2.5} rx="2.5" ry="2" fill="#F7D6E0" opacity="0.95" />
+                <line x1={0} y1={-3} x2={0} y2={4} stroke="var(--retro-brown-dark)" strokeWidth="1" strokeLinecap="round" />
+              </g>
+            </g>
+          )}
+        </g>
+      )}
+
       {/* Stage 0 — seed on the soil */}
       {stage === 0 && (
         <g style={{ transition: 'opacity 0.6s ease' }}>
@@ -566,6 +649,27 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
     </svg>
   );
 };
+
+// Reusable 4-petal flower for ground decorations. Stem points down
+// from the bloom and is sized relative to the bloom for consistency.
+const Flower = ({ cx, cy, size = 5, petalColor, centerColor = 'var(--retro-gold)' }) => (
+  <g>
+    <line
+      x1={cx}
+      y1={cy + size + 1}
+      x2={cx}
+      y2={cy + size + 8}
+      stroke="#5E7C3F"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+    <circle cx={cx - size * 0.6} cy={cy} r={size * 0.7} fill={petalColor} />
+    <circle cx={cx + size * 0.6} cy={cy} r={size * 0.7} fill={petalColor} />
+    <circle cx={cx} cy={cy - size * 0.6} r={size * 0.7} fill={petalColor} />
+    <circle cx={cx} cy={cy + size * 0.6} r={size * 0.7} fill={petalColor} />
+    <circle cx={cx} cy={cy} r={size * 0.5} fill={centerColor} />
+  </g>
+);
 
 // Reusable apricot fruit. Stem + leaf included so it reads as a real
 // fruit on the branch rather than just a yellow dot.
