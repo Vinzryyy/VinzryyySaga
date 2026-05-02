@@ -11,6 +11,25 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { GALLERY_IMAGES } from '../../data/galleryData';
+
+// Stable hash so the same sale code always picks the same archive
+// frame — random-looking on first render, persistent across reloads
+// and re-renders. Cheap djb2-style integer hash.
+const hashCode = (str) => {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 33) ^ str.charCodeAt(i);
+  }
+  return h >>> 0;
+};
+
+const ARCHIVE_FRAMES = GALLERY_IMAGES.map((img) => img.url || img.thumbnail).filter(Boolean);
+
+const pickFrame = (code) => {
+  if (!code || ARCHIVE_FRAMES.length === 0) return null;
+  return ARCHIVE_FRAMES[hashCode(code) % ARCHIVE_FRAMES.length];
+};
 
 const CATEGORY_LABEL = {
   TWO_SHOT: '2Shot',
@@ -90,16 +109,21 @@ const SaleCard = ({ sale }) => {
       rel="noopener noreferrer"
       className="group flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
     >
-      {/* Thumbnail with category badge overlaid */}
+      {/* Thumbnail with category badge overlaid. Source is a random
+          archive frame picked deterministically from the sale code,
+          rather than the API thumbnail (which is a generic product
+          banner) — keeps the strip visually tied to Eli. */}
       <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
-        {sale.thumbnail && (
+        {pickFrame(sale.code) && (
           <img
-            src={sale.thumbnail}
+            src={pickFrame(sale.code)}
             alt={sale.title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         )}
+        {/* Subtle bottom-fade so badges read on lighter photos */}
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
         <div className="absolute inset-x-0 top-0 p-3 flex items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
             <i className={icon} />
