@@ -82,23 +82,14 @@ const SetlistCard = ({ entry }) => {
           : 'bg-white text-[color:var(--retro-text-primary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40'
       }`}
     >
-      <div className="flex items-center gap-2 flex-wrap">
-        <span
-          className={`text-[9px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded tabular-nums ${
-            isActive
-              ? 'bg-[color:var(--retro-cream)]/15 text-[color:var(--retro-gold-light)]'
-              : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
-          }`}
-        >
-          {entry.code}
-        </span>
-        {isActive && (
+      {isActive && (
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-emerald-500 text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             Aktif
           </span>
-        )}
-      </div>
+        </div>
+      )}
       <div>
         <h3
           className={`font-header text-xl md:text-2xl font-black leading-[1.1] tracking-tight ${
