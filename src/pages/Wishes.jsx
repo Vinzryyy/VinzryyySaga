@@ -721,20 +721,20 @@ const WishesPage = () => {
                     data-template={template.id}
                   >
                     <Card wish={wish} />
-                    {/* Heart button — pinned bottom-right of the card.
-                        Disabled (visually) once the user has hearted on
-                        this device; localStorage de-dup. RTDB transaction
-                        keeps the count atomic across users. */}
+                    {/* Heart button — overlaps the top-right corner of
+                        the card (offset out a few px so it reads as a
+                        sticker pinned over the note). Disabled visually
+                        once the user has hearted on this device. */}
                     {wishId && (
                       <button
                         type="button"
                         onClick={() => handleHeart(wishId)}
                         disabled={hearted}
                         aria-label={hearted ? `Sudah disukai (${heartCount})` : `Suka ucapan (${heartCount})`}
-                        className={`absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all backdrop-blur-sm shadow-md ${
+                        className={`absolute -top-2 -right-2 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg ${
                           hearted
                             ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] cursor-default'
-                            : 'bg-white/95 text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-105 active:scale-95 cursor-pointer'
+                            : 'bg-white text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer'
                         }`}
                       >
                         <i
