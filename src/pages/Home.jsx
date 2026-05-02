@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
 import ScheduleCard from '../components/schedule/ScheduleCard';
+import EliXTimeline from '../components/home/EliXTimeline';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
@@ -235,7 +236,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
-  const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
+  const { hero, harmoniKebaikan, data, about, gallery, eliX, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
 
@@ -832,6 +833,41 @@ const HomePage = () => {
             {gallery.ctaLabel}
             <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </Link>
+        </div>
+      </Section>
+
+      {/* ELI ON X — embed @H_EliJKT48 timeline so visitors see Eli's
+          own voice without leaving the page. Component lazy-mounts
+          the X widget script when the section enters the viewport
+          and falls back to a "Buka di X" button if it can't load. */}
+      <Section id="eli-x" padding="lg">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="lg:col-span-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
+              <i className="ri-twitter-x-line text-base" />
+              {eliX.eyebrow}
+            </p>
+            <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-4">
+              {eliX.title}
+              <span className="text-[color:var(--retro-burgundy)]"> {eliX.titleAccent}</span>
+            </h2>
+            <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-6">
+              {eliX.lead}
+            </p>
+            <a
+              href={SITE_CONFIG.social.eliTwitter}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-3 px-5 py-3 rounded-full bg-white border border-[color:var(--retro-burgundy)]/20 text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
+            >
+              <i className="ri-twitter-x-line" />
+              Buka di X
+              <i className="ri-arrow-right-up-line group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </a>
+          </div>
+          <div className="lg:col-span-7">
+            <EliXTimeline />
+          </div>
         </div>
       </Section>
 
