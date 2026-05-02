@@ -17,7 +17,12 @@ import MarqueeStrip from '../components/wishes/MarqueeStrip';
 import MotifBackdrop from '../components/about/MotifBackdrop';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import { WISH_TEMPLATES } from '../components/wishes/templates';
-import { submitWish, subscribeToWishes } from '../lib/wishesDb';
+import {
+  submitWish,
+  subscribeToWishes,
+  subscribeToHearts,
+  incrementWishHearts,
+} from '../lib/wishesDb';
 import { isFirebaseConfigured } from '../lib/firebase';
 
 // Subtle decorative rotation for each card so the wall feels like sticky
@@ -26,6 +31,45 @@ const cardTilt = (idx) => {
   const tilts = [-1.2, 0.8, -0.4, 1.5, -0.9, 0.5, -1.6, 1.1];
   return tilts[idx % tilts.length];
 };
+
+// Stable id for curated seeds (siteConfig has no push-id) so heart
+// counts can persist for them too. djb2-style hash on name + date.
+const seedHashId = (seed) => {
+  const str = `${seed.name || ''}|${seed.date || ''}|${(seed.message || '').slice(0, 40)}`;
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 33) ^ str.charCodeAt(i);
+  }
+  return `seed-${(h >>> 0).toString(36)}`;
+};
+
+// localStorage key for tracking which wishes the current device has
+// already hearted. Stops double-counts from accidental retap. Server
+// trusts the request; throttling lives in RTDB rules.
+const HEARTS_LS_KEY = 'armeniaca-wish-hearts-v1';
+const loadHeartedSet = () => {
+  try {
+    const raw = localStorage.getItem(HEARTS_LS_KEY);
+    if (!raw) return new Set();
+    return new Set(JSON.parse(raw));
+  } catch {
+    return new Set();
+  }
+};
+const persistHeartedSet = (set) => {
+  try {
+    localStorage.setItem(HEARTS_LS_KEY, JSON.stringify([...set]));
+  } catch {
+    /* private mode / quota — just no persistence */
+  }
+};
+
+const SORT_OPTIONS = [
+  { id: 'newest', label: 'Terbaru', icon: 'ri-time-line' },
+  { id: 'oldest', label: 'Tertua', icon: 'ri-history-line' },
+  { id: 'liked', label: 'Paling Disukai', icon: 'ri-heart-fill' },
+  { id: 'random', label: 'Acak', icon: 'ri-shuffle-line' },
+];
 
 const WishesPage = () => {
   const wishes = SITE_CONFIG.wishes;
@@ -70,32 +114,98 @@ const WishesPage = () => {
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
   const [error, setError] = useState('');
   const [liveWishes, setLiveWishes] = useState([]);
+  const [heartCounts, setHeartCounts] = useState({});
+  const [heartedIds, setHeartedIds] = useState(() => loadHeartedSet());
+  const [sortMode, setSortMode] = useState('newest');
+  // Random sort needs a seed that changes when the user explicitly
+  // re-clicks the chip (so they get a fresh shuffle on demand). Stored
+  // as a counter so increments trigger a useMemo recompute.
+  const [randomNonce, setRandomNonce] = useState(0);
 
   const charsLeft = wishes.charLimit - message.length;
   const isOverLimit = charsLeft < 0;
   const formDisabled = status === 'submitting' || isOverLimit || !name.trim() || !message.trim();
 
-  // Subscribe to live RTDB wishes feed. Cleanup on unmount detaches the listener.
+  // Subscribe to live RTDB wishes feed + per-wish heart counts.
   useEffect(() => {
-    const unsubscribe = subscribeToWishes(setLiveWishes);
-    return unsubscribe;
+    const unsubWishes = subscribeToWishes(setLiveWishes);
+    const unsubHearts = subscribeToHearts(setHeartCounts);
+    return () => {
+      unsubWishes();
+      unsubHearts();
+    };
   }, []);
 
-  // Curated seeds from siteConfig come first in the wall (chronological),
-  // followed by live RTDB wishes (newest first). No visual differentiator —
-  // they read as one continuous wall.
+  const handleHeart = async (wishId) => {
+    if (!wishId || heartedIds.has(wishId)) return;
+    // Optimistic local mark — the RTDB subscription will reconcile
+    // the count on the next snapshot.
+    const next = new Set(heartedIds);
+    next.add(wishId);
+    setHeartedIds(next);
+    persistHeartedSet(next);
+    if (isFirebaseConfigured) {
+      const result = await incrementWishHearts(wishId);
+      if (!result.ok) {
+        // Roll back so user can try again.
+        const rollback = new Set(next);
+        rollback.delete(wishId);
+        setHeartedIds(rollback);
+        persistHeartedSet(rollback);
+      }
+    }
+  };
+
+  // Curated seeds from siteConfig — assigned a stable hash id so heart
+  // counts can attach to them just like RTDB wishes. The hash is
+  // deterministic from name+date+message so reloads don't reset
+  // counts.
   const curatedSeeds = useMemo(
     () =>
-      [...(wishes.seeds || [])].sort(
-        (a, b) => (b.date || '').localeCompare(a.date || ''),
-      ),
+      [...(wishes.seeds || [])]
+        .map((s) => ({ ...s, id: s.id || seedHashId(s) }))
+        .sort((a, b) => (b.date || '').localeCompare(a.date || '')),
     [wishes.seeds],
   );
 
-  const seeds = useMemo(
-    () => [...curatedSeeds, ...liveWishes],
-    [curatedSeeds, liveWishes],
+  // Combined list of curated seeds + live RTDB wishes with hearts
+  // merged in. Sort happens later — this is the unsorted pool.
+  const allWishes = useMemo(
+    () =>
+      [...curatedSeeds, ...liveWishes].map((w) => ({
+        ...w,
+        hearts: heartCounts[w.id] || 0,
+      })),
+    [curatedSeeds, liveWishes, heartCounts],
   );
+
+  // Sorted view — drives the marquee + wall. The four sort modes:
+  //   newest = date desc, oldest = date asc, liked = hearts desc,
+  //   random = stable shuffle keyed by randomNonce so re-clicking
+  //   the chip reshuffles without re-rendering on every state change.
+  const seeds = useMemo(() => {
+    const list = [...allWishes];
+    if (sortMode === 'oldest') {
+      return list.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    }
+    if (sortMode === 'liked') {
+      return list.sort((a, b) => (b.hearts || 0) - (a.hearts || 0));
+    }
+    if (sortMode === 'random') {
+      // Fisher-Yates with a deterministic seed (id-based) so React
+      // reconciliation stays cheap during the same shuffle. randomNonce
+      // is intentionally part of the seed so re-clicking reshuffles.
+      const seeded = list.map((w, i) => ({
+        w,
+        // simple deterministic mix of id + nonce
+        k: ((w.id || `${i}`).charCodeAt(0) * 9301 + randomNonce * 49297) & 0x7fffffff,
+      }));
+      seeded.sort((a, b) => a.k - b.k);
+      return seeded.map((s) => s.w);
+    }
+    // newest
+    return list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }, [allWishes, sortMode, randomNonce]);
   // Live counter for the header pill — total of curated seeds plus
   // RTDB submissions. Increments in real time as fans submit.
   const totalWishCount = seeds.length;
@@ -520,13 +630,50 @@ const WishesPage = () => {
       {/* Wall */}
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-16 md:pb-24">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-baseline justify-between mb-6">
+          <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
               Wall · {seeds.length} ucapan
             </p>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
-              Kurasi terbaru di atas
+              Tap kartu untuk kasih ❤
             </p>
+          </div>
+
+          {/* Sort chips — Terbaru / Tertua / Paling Disukai / Acak.
+              Stays visible above the wall on all breakpoints. Random
+              re-click reshuffles via randomNonce. */}
+          <div
+            className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide"
+            role="tablist"
+            aria-label="Urutkan wishes"
+          >
+            {SORT_OPTIONS.map((opt) => {
+              const active = opt.id === sortMode;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => {
+                    if (opt.id === 'random' && active) {
+                      setRandomNonce((n) => n + 1);
+                    } else {
+                      setSortMode(opt.id);
+                      if (opt.id === 'random') setRandomNonce((n) => n + 1);
+                    }
+                  }}
+                  className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all border ${
+                    active
+                      ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-md'
+                      : 'bg-white text-[color:var(--retro-text-secondary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:text-[color:var(--retro-burgundy)]'
+                  }`}
+                >
+                  <i className={opt.icon} />
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
 
           {seeds.length === 0 ? (
@@ -554,9 +701,12 @@ const WishesPage = () => {
                   WISH_TEMPLATES.find((t) => t.id === wish.template) ||
                   WISH_TEMPLATES[idx % WISH_TEMPLATES.length];
                 const Card = template.Component;
+                const wishId = wish.id;
+                const hearted = wishId ? heartedIds.has(wishId) : false;
+                const heartCount = wish.hearts || 0;
                 return (
                   <div
-                    key={wish.id || `${wish.name}-${wish.date}-${idx}`}
+                    key={wishId || `${wish.name}-${wish.date}-${idx}`}
                     style={{
                       transitionDelay: `${idx * 50}ms`,
                       transform: `rotate(${tilt}deg)`,
@@ -571,6 +721,30 @@ const WishesPage = () => {
                     data-template={template.id}
                   >
                     <Card wish={wish} />
+                    {/* Heart button — pinned bottom-right of the card.
+                        Disabled (visually) once the user has hearted on
+                        this device; localStorage de-dup. RTDB transaction
+                        keeps the count atomic across users. */}
+                    {wishId && (
+                      <button
+                        type="button"
+                        onClick={() => handleHeart(wishId)}
+                        disabled={hearted}
+                        aria-label={hearted ? `Sudah disukai (${heartCount})` : `Suka ucapan (${heartCount})`}
+                        className={`absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all backdrop-blur-sm shadow-md ${
+                          hearted
+                            ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] cursor-default'
+                            : 'bg-white/95 text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-105 active:scale-95 cursor-pointer'
+                        }`}
+                      >
+                        <i
+                          className={`text-base ${
+                            hearted ? 'ri-heart-3-fill animate-pulse' : 'ri-heart-3-line'
+                          }`}
+                        />
+                        <span className="tabular-nums">{heartCount}</span>
+                      </button>
+                    )}
                   </div>
                 );
               })}

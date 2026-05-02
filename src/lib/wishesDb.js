@@ -22,10 +22,14 @@ import {
   orderByChild,
   limitToLast,
   serverTimestamp,
+  runTransaction,
 } from 'firebase/database';
 import { realtimeDb, isFirebaseConfigured } from './firebase';
 
 const WISHES_PATH = 'wishes';
+// Per-wish heart counts live under their own subtree so we can read
+// them without pulling full wish bodies. Schema: /wish_hearts/{id} = N.
+const HEARTS_PATH = 'wish_hearts';
 // Cap on how many wishes the wall renders. RTDB's limitToLast keeps the
 // query cheap regardless of total volume.
 const WISHES_PAGE_SIZE = 100;
@@ -154,4 +158,52 @@ export function subscribeToWishes(callback) {
 
   onValue(wishesRef, handler);
   return () => off(wishesRef, 'value', handler);
+}
+
+/**
+ * Subscribe to per-wish heart counts. Returns an object keyed by wish id.
+ * Cheap because the path stores integers only — no message bodies.
+ *
+ * @param {(hearts: Record<string, number>) => void} callback
+ * @returns {() => void} unsubscribe
+ */
+export function subscribeToHearts(callback) {
+  if (!isFirebaseConfigured) {
+    callback({});
+    return () => {};
+  }
+  const heartsRef = ref(realtimeDb, HEARTS_PATH);
+  const handler = (snapshot) => {
+    callback(snapshot.val() || {});
+  };
+  onValue(heartsRef, handler);
+  return () => off(heartsRef, 'value', handler);
+}
+
+/**
+ * Increment the heart count for a wish by 1 atomically.
+ * Client-side de-dup happens in the caller via localStorage so this
+ * just trusts the request. Spammy clients still get throttled by RTDB
+ * security rules (set up at deploy time).
+ *
+ * @param {string} wishId
+ * @returns {Promise<{ok:boolean, count?:number, error?:string}>}
+ */
+export async function incrementWishHearts(wishId) {
+  if (!isFirebaseConfigured) {
+    return { ok: false, error: 'Firebase belum terkonfigurasi.' };
+  }
+  if (!wishId) {
+    return { ok: false, error: 'Wish id diperlukan.' };
+  }
+  try {
+    const heartRef = ref(realtimeDb, `${HEARTS_PATH}/${wishId}`);
+    const result = await runTransaction(heartRef, (current) => (current || 0) + 1);
+    return { ok: true, count: result.snapshot.val() };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err?.message || 'Gagal menyimpan reaksi.',
+    };
+  }
 }
