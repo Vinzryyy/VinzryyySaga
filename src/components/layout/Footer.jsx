@@ -7,6 +7,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../../config/siteConfig';
 import { useGallery } from '../../context';
+import { hashToHref } from '../../utils/routes';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -17,13 +18,16 @@ const Footer = () => {
     { name: 'Twitter', icon: 'ri-twitter-x-line', url: SITE_CONFIG.social.twitter },
   ].filter((item) => Boolean(item.url));
 
-  const navigateLinks = [
-    { name: 'Home', to: '/' },
-    { name: 'Profile', to: '/profile' },
-    { name: 'Archive', to: '/gallery' },
-    { name: 'Countdown', to: '/countdown' },
-    { name: 'About', to: '/about' },
-  ];
+  // Derive footer page links from the same SITE_CONFIG source as the
+  // navbar so adding/renaming a page only happens in one place. Pure-
+  // dropdown parents (no own hash) fall back to their first child.
+  const navigateLinks = SITE_CONFIG.navigation.main
+    .map((item) => {
+      const hash = item.hash || item.children?.[0]?.hash;
+      if (!hash) return null;
+      return { name: item.label, to: hashToHref(hash), highlight: Boolean(item.highlight) };
+    })
+    .filter(Boolean);
 
   const eraLinks = eras.map((era) => ({
     name: era.label,
@@ -97,26 +101,34 @@ const Footer = () => {
             <h4 className="font-header text-2xl font-semibold text-[color:var(--retro-text-primary)] mt-3 mb-5">
               Halaman
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 md:grid-cols-1">
               {navigateLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     to={link.to}
-                    className="
-                      group inline-flex items-center gap-2
-                      text-[color:var(--retro-text-secondary)] hover:text-[color:var(--retro-burgundy)]
-                      text-sm transition-colors
-                    "
+                    className={`
+                      group inline-flex items-center gap-2 text-sm transition-colors
+                      ${link.highlight
+                        ? 'text-[color:var(--retro-burgundy)] font-bold hover:text-[color:var(--retro-burgundy-dark,var(--retro-burgundy))]'
+                        : 'text-[color:var(--retro-text-secondary)] hover:text-[color:var(--retro-burgundy)]'}
+                    `}
                   >
                     <span
-                      className="
-                        h-px w-3 bg-[color:var(--retro-border-dark)]
-                        transition-all duration-300
-                        group-hover:w-5 group-hover:bg-[color:var(--retro-burgundy)]
-                      "
+                      className={`
+                        h-px w-3 transition-all duration-300
+                        ${link.highlight
+                          ? 'bg-[color:var(--retro-gold)] group-hover:w-5'
+                          : 'bg-[color:var(--retro-border-dark)] group-hover:w-5 group-hover:bg-[color:var(--retro-burgundy)]'}
+                      `}
                       aria-hidden="true"
                     />
                     {link.name}
+                    {link.highlight && (
+                      <span
+                        aria-hidden="true"
+                        className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] shadow-[0_0_6px_rgba(229,197,117,0.8)] animate-pulse"
+                      />
+                    )}
                   </Link>
                 </li>
               ))}

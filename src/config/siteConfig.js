@@ -38,8 +38,15 @@ export const SITE_CONFIG = {
       { label: 'Home', hash: 'home', icon: 'ri-home-4-line' },
       {
         label: 'Profil',
+        hash: 'profile',
         icon: 'ri-user-3-line',
         children: [
+          {
+            label: 'Profil Lengkap',
+            hash: 'profile',
+            description: 'Timeline, diskografi, fight',
+            icon: 'ri-route-line',
+          },
           {
             label: 'Profil Singkat',
             hash: 'data',
@@ -51,12 +58,6 @@ export const SITE_CONFIG = {
             hash: 'about-preview',
             description: 'Cerita Sang Mermaid',
             icon: 'ri-quill-pen-line',
-          },
-          {
-            label: 'Profil Lengkap',
-            hash: 'profile',
-            description: 'Timeline, diskografi, fight',
-            icon: 'ri-route-line',
           },
         ],
       },
@@ -75,8 +76,25 @@ export const SITE_CONFIG = {
         ],
       },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
-      { label: 'Countdown', hash: 'countdown', icon: 'ri-cake-2-line' },
-      { label: 'Wishes', hash: 'wishes', icon: 'ri-mail-send-line' },
+      {
+        label: 'Ultah',
+        hash: 'countdown',
+        icon: 'ri-cake-2-line',
+        children: [
+          {
+            label: 'Countdown',
+            hash: 'countdown',
+            description: 'Hitung mundur 15 Juni 2026',
+            icon: 'ri-time-line',
+          },
+          {
+            label: 'Wishes',
+            hash: 'wishes',
+            description: 'Kirim ucapan untuk Eli',
+            icon: 'ri-mail-send-line',
+          },
+        ],
+      },
       { label: '#26', hash: '26', icon: 'ri-plant-line', highlight: true },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
