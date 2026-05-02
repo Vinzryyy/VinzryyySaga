@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
 import ScheduleCard from '../components/schedule/ScheduleCard';
+import NewsStrip from '../components/home/NewsStrip';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
@@ -527,6 +528,10 @@ const HomePage = () => {
           </Link>
         </div>
       </Section>
+
+      {/* NEWS — live JKT48 announcements feed pulled from /api/v1/news.
+          Auto-hides if the JSON is missing/empty. */}
+      <NewsStrip />
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">

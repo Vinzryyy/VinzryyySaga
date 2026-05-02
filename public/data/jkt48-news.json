@@ -1,0 +1,96 @@
+{
+  "fetchedAt": "2026-05-02T06:33:32.327632Z",
+  "count": 10,
+  "items": [
+    {
+      "id": 1824,
+      "title": "Pengumuman Mengenai Trial Video Call bersama Member JKT48 Generasi 14",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-trial-video-call-bersama-member-jkt48-generasi-14",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-trial-video-call-bersama-member-jkt48-generasi-14",
+      "image": null,
+      "publishedAt": "2026-04-23T17:00:00.000Z"
+    },
+    {
+      "id": 1823,
+      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “Love Dream Passion - Music Video Behind the Scenes\" dengan bonus Video Call with JKT48",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-pre-order-jkt48-digital-photobook-love-dream-passion-music-video-behind-the-scen",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-love-dream-passion-music-video-behind-the-scen",
+      "image": null,
+      "publishedAt": "2026-04-08T17:00:00.000Z"
+    },
+    {
+      "id": 1822,
+      "title": "Pengumuman Mengenai Birthday 2-Shot Online bulan April dengan Chekicha",
+      "category": "Birthday",
+      "slug": "pengumuman-mengenai-birthday-2-shot-online-bulan-april-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-april-dengan-chekicha",
+      "image": null,
+      "publishedAt": "2026-04-06T17:00:00.000Z"
+    },
+    {
+      "id": 1821,
+      "title": "Pengumuman Mengenai JKT48 Request Hour 2026 Setlist Best 40",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-request-hour-2026-setlist-best-40",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-request-hour-2026-setlist-best-40",
+      "image": null,
+      "publishedAt": "2026-03-30T17:00:00.000Z"
+    },
+    {
+      "id": 1820,
+      "title": "Pengumuman Mengenai Peraturan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-peraturan-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-peraturan-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "image": null,
+      "publishedAt": "2026-03-27T17:00:00.000Z"
+    },
+    {
+      "id": 1819,
+      "title": "Pengumuman Mengenai Timetable JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "image": "https://jkt48.com/api/v1/storages/media/news/2026/03/pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion-df75e1.png",
+      "publishedAt": "2026-03-26T17:00:00.000Z"
+    },
+    {
+      "id": 1818,
+      "title": "Pengumuman Mengenai Jadwal Penjualan Tiket 2-Shot & Photocard JKT48 Personal Meet & Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jadwal-penjualan-tiket-2-shot-photocard-jkt48-personal-meet-greet-festival-love-",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jadwal-penjualan-tiket-2-shot-photocard-jkt48-personal-meet-greet-festival-love-",
+      "image": null,
+      "publishedAt": "2026-03-24T17:00:00.000Z"
+    },
+    {
+      "id": 1032,
+      "title": "Pengumuman Mengenai Maintenance Website JKT48",
+      "category": "Other",
+      "slug": "pengumuman-mengenai-maintenance-website-jkt48-2008",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-12T17:00:00.000Z"
+    },
+    {
+      "id": 946,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-12T17:00:00.000Z"
+    },
+    {
+      "id": 1523,
+      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-10T17:00:00.000Z"
+    }
+  ]
+}

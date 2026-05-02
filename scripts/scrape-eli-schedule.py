@@ -72,6 +72,7 @@ DETAIL_DELAY_S = 0.4
 OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-schedule.json"
 MEMBER_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-member.json"
 SALES_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-sales.json"
+NEWS_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "jkt48-news.json"
 BASE = "https://jkt48.com"
 
 
@@ -305,9 +306,10 @@ def main():
     # Bonus pulls — once per scrape since these endpoints are cheap (1
     # request each) and the data drives the MemberCard + OnSaleStrip
     # components that don't need their own scraper.
-    print("[3/3] Fetching member profile + active sales...")
+    print("[3/3] Fetching member profile + active sales + news...")
     fetch_member(sc)
     fetch_active_sales(sc, slug_by_code)
+    fetch_news(sc)
 
 
 def fetch_member(sc):
@@ -499,6 +501,49 @@ def fetch_active_sales(sc, slug_by_code=None):
         encoding="utf-8",
     )
     print(f"      wrote {SALES_OUTPUT_PATH} ({len(eli_sales)} active sales)")
+
+
+def fetch_news(sc, limit=10):
+    """Cache the latest JKT48 news headlines for the NewsStrip on Home.
+    The /api/v1/news endpoint returns recent announcements with title,
+    category, slug, and a background image URL — enough to render
+    cards that link back to the canonical jkt48.com/news/{slug} page.
+    """
+    url = f"{BASE}/api/v1/news?lang=id&limit={limit}"
+    try:
+        r = sc.get(url, timeout=20)
+        r.raise_for_status()
+        items = r.json().get("data") or []
+    except Exception as e:
+        print(f"  [warn] news fetch failed: {e}")
+        return
+
+    payload_items = []
+    for n in items[:limit]:
+        slug = n.get("link")
+        if not slug:
+            continue
+        payload_items.append({
+            "id": n.get("news_id"),
+            "title": n.get("title"),
+            "category": n.get("category"),
+            "slug": slug,
+            "url": f"{BASE}/news/{slug}",
+            "image": n.get("background_image"),
+            "publishedAt": n.get("valid_date_from"),
+        })
+
+    payload = {
+        "fetchedAt": datetime.utcnow().isoformat() + "Z",
+        "count": len(payload_items),
+        "items": payload_items,
+    }
+    NEWS_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    NEWS_OUTPUT_PATH.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    print(f"      wrote {NEWS_OUTPUT_PATH} ({len(payload_items)} news items)")
 
 
 if __name__ == "__main__":
