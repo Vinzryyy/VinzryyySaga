@@ -53,8 +53,8 @@ const Page26 = () => (
       <div className="relative max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy-light)] flex-wrap">
           <span className="text-[10px] font-black uppercase tracking-[0.4em] inline-flex items-center gap-2">
-            <i className="ri-cake-2-line text-base" />
-            Galeri Kebaikan
+            <i className="ri-plant-line text-base" />
+            Harmoni Kebaikan · Galeri Kebaikan
           </span>
           <span className="flex-1 h-px bg-[color:var(--retro-burgundy-light)]/50 max-w-[120px]" />
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65">
@@ -65,11 +65,14 @@ const Page26 = () => (
           <span className="text-[color:var(--retro-burgundy-light)]">#</span>
           26
         </h1>
-        <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
-          Setiap orang punya kesempatan menyiram. Setiap 100 dukungan, pohon
-          untuk Eli tumbuh ke tahap berikutnya — dari bibit, tunas, pohon muda,
-          dewasa, berbunga, hingga akhirnya berbuah aprikot. Mari kita lihat
-          seberapa jauh komunitas bisa membawa pohon ini menjelang 15 Juni 2026.
+        <p className="mt-5 sm:mt-6 font-header italic text-base sm:text-lg md:text-xl text-[color:var(--retro-cream)]/85 leading-relaxed max-w-2xl">
+          Pohon ini tidak akan tumbuh sendirian.
+        </p>
+        <p className="mt-4 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
+          Setiap satu dukungan adalah satu siraman; setiap 100 siraman, pohon
+          untuk Eli naik ke tahap berikutnya — dari bibit, tunas, pohon muda,
+          dewasa, berbunga, hingga berbuah aprikot. Mari kumpulkan tangan-tangan
+          Helismiley sebanyak mungkin sebelum 15 Juni 2026 tiba.
         </p>
         <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
       </div>
@@ -78,17 +81,23 @@ const Page26 = () => (
     {/* The gimmick itself — tree art + counter + support button. */}
     <EliTree />
 
-    {/* Footer mini — context that this is one of the project's
-        sub-modules (more sub-modules can land here later). */}
+    {/* Footer mini — frames Galeri Kebaikan as the first module of
+        the wider Harmoni Kebaikan hub. More modules land here as
+        15 Juni 2026 approaches. */}
     <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-20 md:pb-28">
       <div className="max-w-3xl mx-auto text-center">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
           Tentang Galeri Kebaikan
         </p>
+        <p className="font-header italic text-lg md:text-xl text-[color:var(--retro-text-primary)] leading-relaxed mb-4">
+          Armeniaca berarti aprikot — pohon yang mekar pelan, lalu sekaligus.
+        </p>
         <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-          Galeri Kebaikan adalah project komunitas Armeniaca untuk merayakan
-          ulang tahun ke-26 Eli. Pohon ini hanyalah satu modul; aksi-aksi
-          kebaikan lain akan ditambahkan menjelang 15 Juni 2026.
+          Galeri Kebaikan adalah ruang kecil tempat Helismiley merayakan Ceu Eli
+          dengan cara serupa: aksi-aksi sederhana yang dikumpulkan jadi satu
+          panggung kolektif. Pohon di atas adalah modul pertama dari Harmoni
+          Kebaikan — modul lain akan menyusul satu per satu menjelang 15 Juni
+          2026.
         </p>
       </div>
     </section>

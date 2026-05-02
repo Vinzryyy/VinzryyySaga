@@ -303,6 +303,45 @@ export const SITE_CONFIG = {
       primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
       secondaryCta: { label: 'Mengenal Armeniaca', hash: 'about', icon: 'ri-information-line' },
     },
+    // Notice block — three sub-pages of the birthday/charity hub
+    // surfaced together so visitors landing on Home immediately see
+    // the project even if they skip the navbar dropdown.
+    harmoniKebaikan: {
+      eyebrow: 'Notice · Untuk 15 Juni 2026',
+      title: 'Harmoni Kebaikan',
+      titleAccent: 'untuk Ceu Eli.',
+      lead:
+        'Tiga aksi kecil yang dikumpulkan jadi perayaan besar — sirami pohon untuk Eli, hitung mundur bersama, dan tinggalkan ucapan. Setiap tangan ikut tumbuh.',
+      cards: [
+        {
+          eyebrow: 'Project Inti',
+          label: '#26 — Galeri Kebaikan',
+          description:
+            'Pohon untuk Eli yang tumbuh dari setiap dukungan komunitas. 100 dukungan = naik satu tahap, sampai berbuah aprikot.',
+          ctaLabel: 'Sirami pohonnya',
+          icon: 'ri-plant-line',
+          hash: '26',
+        },
+        {
+          eyebrow: 'Hitung Mundur',
+          label: 'Countdown',
+          description:
+            'Detik per detik menuju 15 Juni 2026. Momen kecil sebelum panggung besar, hadiah random saat hari-H tiba.',
+          ctaLabel: 'Lihat hitungannya',
+          icon: 'ri-time-line',
+          hash: 'countdown',
+        },
+        {
+          eyebrow: 'Pesan Komunitas',
+          label: 'Wishes Wall',
+          description:
+            'Tinggalkan ucapan untuk Eli. Pesan masuk dinding setelah dimoderasi — jadi catatan kolektif Helismiley.',
+          ctaLabel: 'Kirim ucapan',
+          icon: 'ri-mail-send-line',
+          hash: 'wishes',
+        },
+      ],
+    },
     data: {
       eyebrow: 'Data Eli',
       title: 'Profil Singkat',

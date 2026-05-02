@@ -235,7 +235,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
-  const { hero, data, about, gallery, community } = SITE_CONFIG.home;
+  const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
 
@@ -497,6 +497,87 @@ const HomePage = () => {
           <div className="w-px h-8 bg-gradient-to-b from-[color:var(--retro-cream)]/50 to-transparent" />
         </div>
       </section>
+
+      {/* HARMONI KEBAIKAN — notice block teasing the three birthday
+          sub-pages (#26, Countdown, Wishes) so home visitors see the
+          project even if they skip the navbar dropdown. Placed right
+          after the hero so it's the first call to action. */}
+      <Section id="harmoni-kebaikan" padding="lg">
+        <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
+          {/* Soft burgundy/gold radial wash — gives the block a warm
+              "notice" tint without competing with the photography on
+              other sections. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none opacity-70"
+            style={{
+              background:
+                'radial-gradient(circle at 20% 0%, rgba(122, 46, 46, 0.08) 0%, transparent 55%), radial-gradient(circle at 100% 100%, rgba(201, 169, 97, 0.12) 0%, transparent 60%)',
+            }}
+          />
+
+          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14">
+            <div className="flex items-center gap-3 mb-4 text-[color:var(--retro-burgundy)] flex-wrap">
+              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
+                {harmoniKebaikan.eyebrow}
+              </span>
+              <span className="hidden sm:block flex-1 h-px bg-[color:var(--retro-burgundy)]/20 max-w-[160px]" />
+            </div>
+
+            <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-10">
+              <h2 className="lg:col-span-7 font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
+                {harmoniKebaikan.title}
+                <span className="text-[color:var(--retro-burgundy)]"> {harmoniKebaikan.titleAccent}</span>
+              </h2>
+              <p className="lg:col-span-5 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
+                {harmoniKebaikan.lead}
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+              {harmoniKebaikan.cards.map((card) => (
+                <Link
+                  key={card.hash}
+                  to={hashToHref(card.hash)}
+                  className="
+                    group relative flex flex-col gap-4 p-5 md:p-6 rounded-2xl
+                    bg-white/70 backdrop-blur-sm
+                    border border-[color:var(--retro-burgundy)]/15
+                    hover:border-[color:var(--retro-burgundy)]/40
+                    hover:bg-white hover:-translate-y-0.5
+                    shadow-[0_4px_18px_rgba(61,52,43,0.06)] hover:shadow-[0_12px_32px_rgba(61,52,43,0.10)]
+                    transition-all duration-300
+                  "
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="w-11 h-11 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
+                      <i className={`${card.icon} text-xl`} />
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.32em] text-[color:var(--color-text-muted)]">
+                      {card.eyebrow}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-header text-xl md:text-2xl font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-2">
+                      {card.label}
+                    </h3>
+                    <p className="text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-relaxed">
+                      {card.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between pt-3 border-t border-[color:var(--retro-burgundy)]/10">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                      {card.ctaLabel}
+                    </span>
+                    <i className="ri-arrow-right-up-line text-base text-[color:var(--retro-burgundy)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
 
       {/* SCHEDULE — Eli's confirmed shows + M&G sessions, scraped live
           from jkt48.com (auto-refresh every 6h). Placed near the top so

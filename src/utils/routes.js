@@ -3,6 +3,7 @@
 // path so the browser handles smooth scroll natively after navigation.
 
 const HOME_ANCHORS = new Set([
+  'harmoni-kebaikan',
   'data',
   'about-preview',
   'gallery-preview',
