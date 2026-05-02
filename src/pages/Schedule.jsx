@@ -416,7 +416,7 @@ const SchedulePage = () => {
             Jadwal Eli, <br />
             <span className="text-[color:var(--retro-burgundy-light)]">satu kalender penuh.</span>
           </h1>
-          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-cream)]/85 leading-relaxed max-w-2xl">
+          <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
             Show teater Team Dream, all-team event, dan Personal Meet &amp; Greet —
             cast list resmi yang sudah terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam.
           </p>
