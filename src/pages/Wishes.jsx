@@ -731,7 +731,7 @@ const WishesPage = () => {
                         onClick={() => handleHeart(wishId)}
                         disabled={hearted}
                         aria-label={hearted ? `Sudah disukai (${heartCount})` : `Suka ucapan (${heartCount})`}
-                        className={`absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-md ${
+                        className={`absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-md ${
                           hearted
                             ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] cursor-default'
                             : 'bg-white/95 backdrop-blur-sm text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer'
