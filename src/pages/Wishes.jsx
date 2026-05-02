@@ -168,7 +168,7 @@ const WishesPage = () => {
           aria-hidden="true"
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
-            backgroundImage: 'url(/archive/img-087.jpg)',
+            backgroundImage: 'url(/archive/img-353.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: '50% 30%',
             backgroundRepeat: 'no-repeat',
