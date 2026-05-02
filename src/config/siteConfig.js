@@ -121,7 +121,7 @@ export const SITE_CONFIG = {
     lead:
       'Helisma Putri akan merayakan ulang tahun ke-26 pada 15 Juni 2026. Armeniaca menghitung mundur menjelang harinya — momen kecil sebelum stage besar.',
     age: 26,
-    backgroundImage: '/archive/img-127.jpg',
+    backgroundImage: '/archive/x/x-F8spTPXboAAWWiF.jpg',
     completedEyebrow: 'Hari Itu Tiba',
     completedTitle: 'Selamat Ulang Tahun',
     completedAccent: 'Ceu Eli!',
@@ -137,16 +137,16 @@ export const SITE_CONFIG = {
     // 100 unique combinations.
     gifts: {
       photos: [
-        '/archive/img-310.jpg',
-        '/archive/img-211.jpg',
-        '/archive/img-119.jpg',
-        '/archive/img-087.jpg',
-        '/archive/img-083.jpg',
-        '/archive/img-335.jpg',
-        '/archive/img-070.jpg',
-        '/archive/img-022.jpg',
-        '/archive/img-359.jpg',
-        '/archive/img-148.jpg',
+        '/archive/x/x-GHJuwCCaoAAZ-wY.jpg',
+        '/archive/x/x-F82qnMPaoAAZTip.jpg',
+        '/archive/x/x-F9NvZJPbwAAiqT-.jpg',
+        '/archive/x/x-F8kNfi4bEAAe7Lo.jpg',
+        '/archive/x/x-F8spTPXboAAWWiF.jpg',
+        '/archive/x/x-F-ydFTObYAAHR8O.jpg',
+        '/archive/x/x-F_Ox_uPaUAAevtm.jpg',
+        '/archive/x/x-F_lsYIpa4AA70vc.jpg',
+        '/archive/x/x-GF6BHgeaAAAVvQ9.jpg',
+        '/archive/x/x-GAeD0pfbIAANgkh.jpg',
       ],
       quotes: [
         'Bagai lembayung senja — menghangatkan setiap panggung.',
@@ -208,21 +208,21 @@ export const SITE_CONFIG = {
     slides: [
       {
         id: 1,
-        image: '/archive/img-000.jpg',
+        image: '/archive/x/x-GHmSHjFaEAA28L0.jpg',
         title: 'Eli',
         subtitle: 'The Lovely Mermaid',
         meta: 'JKT48 Eli | ARCHIVE',
       },
       {
         id: 2,
-        image: '/archive/img-002.jpg',
+        image: '/archive/x/x-GHJuwCCaoAAZ-wY.jpg',
         title: 'The Most',
         subtitle: 'Beautiful Woman',
         meta: 'JKT48 Eli | SEASONS',
       },
       {
         id: 3,
-        image: '/archive/img-004.jpg',
+        image: '/archive/x/x-GHHFLjhbAAAeW-q.jpg',
         title: 'Capturing Every',
         subtitle: 'Moment',
         meta: 'JKT48 Eli | MOMENTS',
@@ -255,7 +255,7 @@ export const SITE_CONFIG = {
     origin: 'Bandung',
     catchphrase:
       'Bagai Lembayung Senja, Dengan Energi Kehangatan ku aku akan menghangatkan suasana.',
-    portrait: '/archive/img-364.jpg',
+    portrait: '/archive/x/x-GDohOZSaUAATZvf.jpg',
     // Career stats anchor for the LiveCounter on /schedule.
     //
     // Why a manual baseline: jkt48.com's `/api/v1/schedules` has gaps
@@ -291,13 +291,13 @@ export const SITE_CONFIG = {
       lead:
         'Sebuah dedikasi visual untuk Ceu Eli, sang “lovely mermaid” dari Team Dream. Armeniaca merawat setiap senyum, setiap panggung, dan setiap momen yang membuat Eli bersinar.',
       backgrounds: [
-        '/archive/img-310.jpg',
-        '/archive/img-305.jpg',
-        '/archive/img-211.jpg',
-        '/archive/img-119.jpg',
-        '/archive/img-087.jpg',
-        '/archive/img-083.jpg',
-        '/archive/img-335.jpg',
+        '/archive/x/x-GHJuwCCaoAAZ-wY.jpg',
+        '/archive/x/x-F8nYjy4aAAAKBbT.jpg',
+        '/archive/x/x-F82qnMPaoAAZTip.jpg',
+        '/archive/x/x-F9NvZJPbwAAiqT-.jpg',
+        '/archive/x/x-F8kNfi4bEAAe7Lo.jpg',
+        '/archive/x/x-F8spTPXboAAWWiF.jpg',
+        '/archive/x/x-F-ydFTObYAAHR8O.jpg',
       ],
       backgroundIntervalMs: 10000,
       primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
@@ -357,7 +357,7 @@ export const SITE_CONFIG = {
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
-      portrait: '/archive/img-070.jpg',
+      portrait: '/archive/x/x-F_Ox_uPaUAAevtm.jpg',
       portraitAlt: 'Helisma Putri (Eli JKT48)',
     },
     gallery: {
@@ -378,48 +378,48 @@ export const SITE_CONFIG = {
           title: 'Armeniaca Debut',
           subtitle: '231015 · Indomaret Fresh Pahlawan Seribu, BSD',
           frames: [
-            '/archive/img-365.webp',
-            '/archive/img-363.jpg',
-            '/archive/img-353.jpg',
+            '/archive/x/x-GDoJ1fCbYAAwafv.webp',
+            '/archive/x/x-GDyJiZQbwAATljj.jpg',
+            '/archive/x/x-GHbYnXhaoAAXAXn.jpg',
           ],
         },
         {
           title: 'TV Station',
           subtitle: '240111 · Konser Raya 29 Tahun Indosiar Luar Biasa',
           frames: [
-            '/archive/img-335.jpg',
-            '/archive/img-334.jpg',
-            '/archive/img-333.jpg',
-            '/archive/img-332.webp',
+            '/archive/x/x-F-ydFTObYAAHR8O.jpg',
+            '/archive/x/x-F_Ox_uPaUAAevtm.jpg',
+            '/archive/x/x-F_RnpbIbcAACeYc.jpg',
+            '/archive/x/x-F_X8ypvaEAALmj6.webp',
           ],
         },
         {
           title: 'Airport Fashion',
           subtitle: 'Every Airport',
           frames: [
-            '/archive/img-207.jpg',
-            '/archive/img-142.jpg',
-            '/archive/img-050.jpg',
-            '/archive/img-033.jpg',
+            '/archive/x/x-F9NvZJPbwAAiqT-.jpg',
+            '/archive/x/x-GD3_YJ0bYAALS6c.jpg',
+            '/archive/x/x-GGMY05lbgAA2zwH.jpg',
+            '/archive/x/x-F9ClGTbawAAdq3K.jpg',
           ],
         },
         {
           title: 'JKT48 Event',
           subtitle: 'JKT48 Official Event',
           frames: [
-            '/archive/img-090.jpg',
-            '/archive/img-106.jpg',
-            '/archive/img-073.jpg',
+            '/archive/x/x-GHJuwCCaoAAZ-wY.jpg',
+            '/archive/x/x-GAbM9stbgAAG2W5.jpg',
+            '/archive/x/x-F9swlhSbYAA5aUn.jpg',
           ],
         },
         {
           title: 'Team Dream',
           subtitle: 'Adventure with Team Dream',
           frames: [
-            '/archive/img-366.jpg',
-            '/archive/img-369.jpg',
-            '/archive/img-372.jpg',
-            '/archive/img-377.jpg',
+            '/archive/x/x-GCMRQzWagAARae7.jpg',
+            '/archive/x/x-GAg3bbDXcAA0VPe.jpg',
+            '/archive/x/x-GAbMY3zboAAT9wO.jpg',
+            '/archive/x/x-F_RnpbIbcAACeYc.jpg',
           ],
         },
       ],
@@ -447,9 +447,9 @@ export const SITE_CONFIG = {
     lead:
       'Riwayat karier Eli, partisipasi single, setlist teater, posisinya di JKT48 Fight 2026, sampai trivia ringan — semua dirangkum dalam satu tempat.',
     heroCollage: [
-      '/archive/img-310.jpg',
-      '/archive/img-142.jpg',
-      '/archive/img-211.jpg',
+      '/archive/x/x-GHJuwCCaoAAZ-wY.jpg',
+      '/archive/x/x-GD3_YJ0bYAALS6c.jpg',
+      '/archive/x/x-F82qnMPaoAAZTip.jpg',
     ],
     quickStats: [
       { label: 'Generasi', value: '7' },
@@ -477,12 +477,12 @@ export const SITE_CONFIG = {
       // First entry is the resting top card. Each `src` stem auto-derives
       // .avif / .webp / .jpg <picture> sources at render time.
       portraits: [
-        { src: '/archive/img-359.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-148.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-085.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-022.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-011.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-379.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/x/x-GF6BHgeaAAAVvQ9.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/x/x-GAeD0pfbIAANgkh.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/x/x-F8nYjy4aAAAKBbT.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/x/x-F_lsYIpa4AA70vc.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/x/x-GDyJiZQbwAATljj.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/x/x-F-ydFTObYAAHR8O.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
       ],
     },
     etymology: {

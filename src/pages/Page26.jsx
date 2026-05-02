@@ -36,7 +36,7 @@ const Page26 = () => (
         aria-hidden="true"
         className="absolute inset-0 -z-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(/archive/img-211.jpg)',
+          backgroundImage: 'url(/archive/x/x-F82qnMPaoAAZTip.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: '50% 25%',
           backgroundRepeat: 'no-repeat',

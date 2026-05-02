@@ -108,16 +108,16 @@ const ProfilePage = () => {
 
       {/* Editorial hero — full-bleed photo background + gradient
           overlay, title block left, layered portrait collage right.
-          The background photo (img-119) gives the page atmosphere
-          without fighting the collage on the right since the gradient
-          fades the right side darker behind the collage anchors. */}
+          The background photo gives the page atmosphere without
+          fighting the collage on the right since the gradient fades
+          the right side darker behind the collage anchors. */}
       <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
         {/* Full-bleed background photo */}
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
-            backgroundImage: 'url(/archive/img-119.jpg)',
+            backgroundImage: 'url(/archive/x/x-F9NvZJPbwAAiqT-.jpg)',
             backgroundSize: 'cover',
             backgroundPosition: '50% 30%',
             backgroundRepeat: 'no-repeat',
@@ -822,7 +822,7 @@ const TriviaSection = () => {
   // Catchphrase tile portrait — face is upper-left in the source frame, so
   // object-position is biased to keep it visible above the gradient overlay
   // both in the square (mobile) and 2:1 (lg) crops.
-  const featurePhoto = '/archive/img-019.jpg';
+  const featurePhoto = '/archive/x/x-GAbkgt-a4AA3Vt3.jpg';
   const { elementRef: idRef, isVisible: idVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   const { elementRef: funRef, isVisible: funVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (

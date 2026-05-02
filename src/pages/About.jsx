@@ -50,13 +50,12 @@ const Hero = ({ hero }) => {
     <header className="relative pt-32 pb-16 md:pt-40 md:pb-20 px-6 md:px-12 lg:px-20 overflow-hidden">
       {/* Full-bleed background photo + brown-dark gradient overlay,
           matching the treatment on /schedule and /profile so the
-          three long pages share visual identity. img-211 picked here
-          so each page still has its own portrait. */}
+          three long pages share visual identity. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(/archive/img-211.jpg)',
+          backgroundImage: 'url(/archive/x/x-F82qnMPaoAAZTip.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: '50% 30%',
           backgroundRepeat: 'no-repeat',

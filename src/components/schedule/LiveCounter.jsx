@@ -185,7 +185,7 @@ const LiveCounter = ({ events, careerStats }) => {
               aria-hidden="true"
               className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block pointer-events-none opacity-25"
               style={{
-                backgroundImage: 'url(/archive/img-364.jpg)',
+                backgroundImage: 'url(/archive/x/x-GDohOZSaUAATZvf.jpg)',
                 backgroundSize: 'cover',
                 backgroundPosition: '50% 20%',
                 maskImage: 'linear-gradient(to left, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 40%, transparent 75%)',

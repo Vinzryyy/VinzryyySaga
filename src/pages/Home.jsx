@@ -612,11 +612,10 @@ const HomePage = () => {
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-          {/* Portrait close-up. Source img-364 has Eli's face in the
-              upper 5-25% of frame — anchor object-position at the very
-              top + drop the scale entirely so the face is never pushed
-              out by parallax. Parallax intensity halved so the image
-              barely shifts on scroll, keeping face locked in view. */}
+          {/* Portrait close-up — object-position pinned to the top so
+              faces in upper-frame photos don't get pushed out by the
+              parallax. Parallax intensity halved so the image barely
+              shifts on scroll, keeping the subject locked in view. */}
           <div className="lg:col-span-5 relative">
             <div className="relative aspect-[3/4] rounded-sm overflow-hidden">
               <img
