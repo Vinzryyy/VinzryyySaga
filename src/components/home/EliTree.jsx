@@ -105,8 +105,13 @@ const markSupportedToday = () => {
 const POT_TOP_Y = 320;
 const POT_BOTTOM_Y = 360;
 const CENTER_X = 200;
+// viewBox dimensions. The y origin is negative so the foliage +
+// hanging cards at the highest stages have headroom above y=0
+// without clipping. x range still 0..400, y range -260..400.
+const VIEWBOX_X = 0;
+const VIEWBOX_Y = -260;
 const VIEWBOX_W = 400;
-const VIEWBOX_H = 460;
+const VIEWBOX_H = 660;
 
 const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
   // Trunk extends from the pot rim upward. Bottom = POT_TOP_Y so it
@@ -138,7 +143,7 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
 
   return (
     <svg
-      viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
+      viewBox={`${VIEWBOX_X} ${VIEWBOX_Y} ${VIEWBOX_W} ${VIEWBOX_H}`}
       className="w-full h-auto drop-shadow-[0_24px_40px_rgba(61,52,43,0.22)]"
       role="img"
       aria-label={`Pohon Eli stage ${stage} dari ${MAX_STAGE}`}
@@ -425,11 +430,13 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </g>
       )}
 
-      {/* Sparkles for the maxed-out tree */}
+      {/* Sparkles for the maxed-out tree — placed around the canopy
+          which now lives in the upper portion of the (negative-y)
+          viewBox. */}
       {stage >= MAX_STAGE && (
         <g style={{ transition: 'opacity 0.8s ease' }}>
           {[
-            [70, 100], [330, 110], [50, 240], [350, 250], [80, 180], [320, 170],
+            [40, -200], [360, -190], [20, -60], [380, -50], [60, -130], [340, -120],
           ].map(([cx, cy], i) => (
             <g key={`sp-${i}`}>
               <path
