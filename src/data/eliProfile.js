@@ -218,6 +218,7 @@ export const ELI_ALBUMS = [
 // masing-masing (lihat `campaignTagline` pada ELI_DISCOGRAPHY).
 export const ELI_TAGLINES = [
   { year: '2019', tag: '#Survive' },
+  { year: '2024', tag: '#Semangka' },
 ];
 
 export const ELI_FIGHT_2026 = {
