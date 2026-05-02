@@ -50,6 +50,28 @@ const isUpcoming = (iso) => {
   return d >= startOfToday();
 };
 
+// Days from now until the event date (0 = today, 1 = tomorrow, etc.).
+// Negative values mean the event is in the past. Returns Infinity for
+// invalid inputs so callers can ignore those cases without branching.
+const daysUntil = (iso) => {
+  if (!iso) return Infinity;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return Infinity;
+  d.setHours(0, 0, 0, 0);
+  return Math.round((d.getTime() - startOfToday().getTime()) / 86400000);
+};
+
+// Returns null if the event isn't in the imminence window (within 7
+// days of today). Otherwise returns { label, tone } where tone picks
+// the badge color treatment (today = strong gold, this-week = soft).
+const getImminenceBadge = (iso) => {
+  const n = daysUntil(iso);
+  if (n < 0 || n > 7) return null;
+  if (n === 0) return { label: 'Hari ini', tone: 'today' };
+  if (n === 1) return { label: 'Besok', tone: 'soon' };
+  return { label: `${n} hari lagi`, tone: 'soon' };
+};
+
 const monthKey = (iso) => {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return 'unknown';
@@ -111,14 +133,19 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
     badgeIcon = 'ri-mic-line';
   }
   const eliJalur = (entry.eli_jalur || []).join(', ');
+  const imminence = dimmed ? null : getImminenceBadge(entry.date);
 
   return (
     <a
       href={entry.url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`block h-full p-4 rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-md transition-all group ${
-        dimmed ? 'opacity-70' : ''
+      className={`relative block h-full p-4 rounded-xl bg-white border transition-all group ${
+        dimmed
+          ? 'opacity-70 border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-md'
+          : imminence?.tone === 'today'
+          ? 'border-[color:var(--retro-gold)] shadow-[0_0_0_3px_rgba(232,180,80,0.15)] hover:-translate-y-0.5 hover:shadow-lg'
+          : 'border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-md'
       }`}
     >
       <div className="flex items-stretch gap-3">
@@ -135,6 +162,21 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+            {imminence && (
+              <span
+                className={`text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
+                  imminence.tone === 'today'
+                    ? 'bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]'
+                    : 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
+                }`}
+              >
+                {imminence.tone === 'today' && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-brown-dark)] animate-pulse" />
+                )}
+                <i className={imminence.tone === 'today' ? 'ri-flashlight-fill' : 'ri-time-line'} />
+                {imminence.label}
+              </span>
+            )}
             <span
               className={`text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
                 isVC
@@ -224,6 +266,7 @@ const SchedulePage = () => {
   const [calendar, setCalendar] = useState(null);
   const [calendarError, setCalendarError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -257,15 +300,21 @@ const SchedulePage = () => {
   // to reverse-chronological so the most recent past show leads.
   const filtered = useMemo(() => {
     const past = filter === 'past';
+    const q = query.trim().toLowerCase();
     const pool = events
       .filter((e) => (past ? !isUpcoming(e.date) : isUpcoming(e.date)))
-      .filter((e) => eventKindMatches(e, filter));
+      .filter((e) => eventKindMatches(e, filter))
+      .filter((e) => {
+        if (!q) return true;
+        const haystack = `${e.title || ''} ${e.venue || ''}`.toLowerCase();
+        return haystack.includes(q);
+      });
     return [...pool].sort((a, b) => {
       const da = new Date(a.date).getTime();
       const db = new Date(b.date).getTime();
       return past ? db - da : da - db;
     });
-  }, [events, filter]);
+  }, [events, filter, query]);
 
   // Group by month so the wall reads as a calendar (Mei 2026 / Juni 2026 / …).
   const monthGroups = useMemo(() => {
@@ -349,47 +398,78 @@ const SchedulePage = () => {
           from the API (eli-setlists.json snapshot). */}
       <SetlistGrid />
 
-      {/* Filter chips */}
-      <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-8 md:mb-10">
-        <div
-          className="max-w-7xl mx-auto flex gap-2 overflow-x-auto pb-2 scrollbar-hide"
-          role="tablist"
-          aria-label="Filter jadwal"
-        >
-          {FILTERS.map((opt) => {
-            const active = opt.id === filter;
-            const count = counts[opt.id];
-            return (
+      {/* Toolbar — sticky search + filter chips. Sits just under the
+          navbar so users can re-filter while scrolling through long
+          event lists. backdrop-blur keeps it legible as content
+          scrolls underneath. */}
+      <div
+        className="sticky top-[72px] z-30 mb-8 md:mb-10 bg-[color:var(--retro-bg-primary)]/85 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10"
+      >
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 py-3 md:py-4 flex flex-col md:flex-row md:items-center gap-3">
+          {/* Search input — live filter on title + venue substring */}
+          <label className="relative flex-shrink-0 md:w-72">
+            <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-muted)]" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cari judul / venue…"
+              className="w-full pl-9 pr-9 py-2 rounded-full bg-white border border-[color:var(--retro-brown-dark)]/15 focus:border-[color:var(--retro-burgundy)]/50 focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)] transition-colors"
+              aria-label="Cari jadwal"
+            />
+            {query && (
               <button
-                key={opt.id}
                 type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setFilter(opt.id)}
-                className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all border ${
-                  active
-                    ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-md'
-                    : 'bg-white text-[color:var(--retro-text-secondary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:text-[color:var(--retro-burgundy)]'
-                }`}
+                onClick={() => setQuery('')}
+                aria-label="Bersihkan pencarian"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--color-text-muted)] text-sm transition-colors"
               >
-                <i className={opt.icon} />
-                {opt.label}
-                {count > 0 && (
-                  <span
-                    className={`tabular-nums text-[9px] px-1.5 py-0.5 rounded-full ${
-                      active
-                        ? 'bg-[color:var(--retro-cream)]/20 text-[color:var(--retro-cream)]'
-                        : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
-                    }`}
-                  >
-                    {count}
-                  </span>
-                )}
+                <i className="ri-close-line" />
               </button>
-            );
-          })}
+            )}
+          </label>
+
+          {/* Filter chips — same as before, now in a sticky toolbar */}
+          <div
+            className="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+            role="tablist"
+            aria-label="Filter jadwal"
+          >
+            {FILTERS.map((opt) => {
+              const active = opt.id === filter;
+              const count = counts[opt.id];
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setFilter(opt.id)}
+                  className={`flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all border ${
+                    active
+                      ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-md'
+                      : 'bg-white text-[color:var(--retro-text-secondary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:text-[color:var(--retro-burgundy)]'
+                  }`}
+                >
+                  <i className={opt.icon} />
+                  {opt.label}
+                  {count > 0 && (
+                    <span
+                      className={`tabular-nums text-[9px] px-1.5 py-0.5 rounded-full ${
+                        active
+                          ? 'bg-[color:var(--retro-cream)]/20 text-[color:var(--retro-cream)]'
+                          : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </section>
+      </div>
 
       {/* Body */}
       <section ref={gridRef} className="px-5 sm:px-6 md:px-12 lg:px-20 pb-16 md:pb-24">
@@ -402,12 +482,44 @@ const SchedulePage = () => {
           )}
 
           {!calendar && !calendarError && (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 6 }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="h-44 rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 animate-pulse"
-                />
+            <div className="space-y-12 md:space-y-16">
+              {Array.from({ length: 2 }).map((_, groupIdx) => (
+                <div key={groupIdx}>
+                  {/* Month header skeleton — mirrors the real header
+                      so the layout doesn't jump when data lands */}
+                  <div className="flex items-baseline gap-3 mb-5 pb-3 border-b border-[color:var(--retro-brown-dark)]/15">
+                    <div className="h-8 w-32 md:h-9 md:w-44 rounded bg-[color:var(--retro-brown-dark)]/10 animate-pulse" />
+                    <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+                    <div className="h-3 w-16 rounded bg-[color:var(--retro-brown-dark)]/10 animate-pulse" />
+                  </div>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {Array.from({ length: groupIdx === 0 ? 4 : 2 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 animate-pulse"
+                      >
+                        <div className="flex items-stretch gap-3">
+                          {/* Date plate skeleton */}
+                          <div className="flex-shrink-0 w-14 border-r border-[color:var(--retro-brown-dark)]/10 pr-3 space-y-1.5">
+                            <div className="h-7 rounded bg-[color:var(--retro-brown-dark)]/15" />
+                            <div className="h-2 rounded bg-[color:var(--retro-brown-dark)]/10 w-3/4 mx-auto" />
+                            <div className="h-2 rounded bg-[color:var(--retro-brown-dark)]/10 w-2/3 mx-auto" />
+                          </div>
+                          {/* Content skeleton */}
+                          <div className="min-w-0 flex-1 space-y-2">
+                            <div className="h-3 w-20 rounded bg-[color:var(--retro-burgundy)]/15" />
+                            <div className="h-4 w-5/6 rounded bg-[color:var(--retro-brown-dark)]/15" />
+                            <div className="h-3 w-2/3 rounded bg-[color:var(--retro-brown-dark)]/10" />
+                            <div className="h-3 w-1/2 rounded bg-[color:var(--retro-brown-dark)]/10" />
+                            <div className="pt-3 mt-2 border-t border-[color:var(--retro-brown-dark)]/8">
+                              <div className="h-6 w-24 rounded-full bg-[color:var(--retro-burgundy)]/15" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}

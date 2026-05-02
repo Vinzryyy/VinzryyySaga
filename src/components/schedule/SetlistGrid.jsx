@@ -185,6 +185,7 @@ const SetlistCard = ({ entry }) => {
 const SetlistGrid = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [showRetired, setShowRetired] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -259,8 +260,12 @@ const SetlistGrid = () => {
   }, [merged]);
 
   const totalStages = data?.totalShowsTallied ?? 0;
-  const activeCount = useMemo(
-    () => ordered.filter((s) => daysSince(s.lastDate) <= ACTIVE_WINDOW_DAYS).length,
+  const activeSetlists = useMemo(
+    () => ordered.filter((s) => daysSince(s.lastDate) <= ACTIVE_WINDOW_DAYS),
+    [ordered],
+  );
+  const retiredSetlists = useMemo(
+    () => ordered.filter((s) => daysSince(s.lastDate) > ACTIVE_WINDOW_DAYS),
     [ordered],
   );
 
@@ -283,9 +288,9 @@ const SetlistGrid = () => {
             <h2 className="font-header text-2xl md:text-3xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-tight">
               {ordered.length} setlist
               <span className="text-[color:var(--retro-burgundy)]"> · {totalStages} stage</span>
-              {activeCount > 0 && (
+              {activeSetlists.length > 0 && (
                 <span className="text-[color:var(--color-text-muted)] text-base md:text-lg font-bold ml-3">
-                  ({activeCount} aktif)
+                  ({activeSetlists.length} aktif)
                 </span>
               )}
             </h2>
@@ -305,11 +310,60 @@ const SetlistGrid = () => {
           </div>
         )}
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ordered.map((entry) => (
-            <SetlistCard key={entry.code} entry={entry} />
-          ))}
-        </div>
+        {/* Active setlists — always visible, lead the section */}
+        {activeSetlists.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-emerald-500 text-white">
+                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                Aktif sekarang
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums">
+                {activeSetlists.length}
+              </span>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {activeSetlists.map((entry) => (
+                <SetlistCard key={entry.code} entry={entry} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Retired setlists — collapsed behind a toggle. Setlists not
+            performed in the last 60 days; click the toggle to expand. */}
+        {retiredSetlists.length > 0 && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowRetired((v) => !v)}
+              aria-expanded={showRetired}
+              className="w-full inline-flex items-center justify-between gap-3 mb-3 px-4 py-3 rounded-xl bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-burgundy)]/[0.02] transition-all group"
+            >
+              <span className="inline-flex items-center gap-3">
+                <i className="ri-archive-line text-[color:var(--retro-burgundy)] text-base" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                  Setlist arsip
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums">
+                  {retiredSetlists.length} · {retiredSetlists.reduce((s, e) => s + e.count, 0)} stage
+                </span>
+              </span>
+              <i
+                className={`ri-arrow-down-s-line text-xl text-[color:var(--retro-burgundy)] transition-transform ${
+                  showRetired ? 'rotate-180' : ''
+                } group-hover:translate-y-0.5`}
+              />
+            </button>
+            {showRetired && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-[fadeIn_0.3s_ease-out]">
+                {retiredSetlists.map((entry) => (
+                  <SetlistCard key={entry.code} entry={entry} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

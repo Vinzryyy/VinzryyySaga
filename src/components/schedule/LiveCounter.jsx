@@ -44,25 +44,25 @@ const isSpecialEvent = (entry) =>
   (entry.kind === 'EVENT' && entry.is_video_call) || entry.kind === 'GENERAL';
 
 const StatCard = ({ eyebrow, value, valueAccent, sub, footnote }) => (
-  <div className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5 md:p-6 hover:border-[color:var(--retro-burgundy)]/30 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col">
+  <div className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 md:p-5 hover:border-[color:var(--retro-burgundy)]/30 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col">
     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
       {eyebrow}
     </p>
-    <p className="font-header text-5xl md:text-6xl font-black text-[color:var(--retro-text-primary)] tracking-tighter leading-none mt-3 tabular-nums">
+    <p className="font-header text-4xl md:text-5xl font-black text-[color:var(--retro-text-primary)] tracking-tighter leading-none mt-2 tabular-nums">
       {value}
       {valueAccent != null && (
-        <span className="text-[color:var(--retro-burgundy)] text-3xl md:text-4xl ml-1 align-baseline">
+        <span className="text-[color:var(--retro-burgundy)] text-2xl md:text-3xl ml-1 align-baseline">
           {valueAccent}
         </span>
       )}
     </p>
     {sub && (
-      <p className="mt-3 text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-snug">
+      <p className="mt-2 text-xs text-[color:var(--color-text-secondary)] leading-snug">
         {sub}
       </p>
     )}
     {footnote && (
-      <p className="mt-auto pt-3 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+      <p className="mt-auto pt-2 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
         {footnote}
       </p>
     )}
@@ -146,52 +146,68 @@ const LiveCounter = ({ events, careerStats }) => {
           )}
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-4">
-          <StatCard
-            eyebrow="Theater Shows"
-            value={stats.theaterTotal}
-            valueAccent={stats.theaterDelta > 0 ? `+${stats.theaterDelta}` : null}
-            sub={
-              <>
+        <div className="grid lg:grid-cols-3 gap-4">
+          {/* Hero — Theater Shows. Burgundy plate, oversized number,
+              dominates the strip so the lifetime count reads first. */}
+          <div className="lg:col-span-2 rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 md:p-8 lg:p-10 relative overflow-hidden flex flex-col">
+            <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-32 -left-24 w-[260px] h-[260px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+            <div className="relative flex flex-col h-full">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3 inline-flex items-center gap-2">
+                <i className="ri-mic-line text-base" />
+                Theater Shows · Lifetime
+              </p>
+              <p className="font-header text-[5.5rem] sm:text-[7rem] md:text-[8rem] lg:text-[8.5rem] font-black tabular-nums leading-[0.85] tracking-tighter">
+                {stats.theaterTotal}
+                {stats.theaterDelta > 0 && (
+                  <span className="text-[color:var(--retro-gold-light)] text-3xl md:text-4xl ml-3 align-baseline">
+                    +{stats.theaterDelta}
+                  </span>
+                )}
+              </p>
+              <p className="mt-4 text-sm md:text-base text-[color:var(--retro-cream)]/80 leading-relaxed max-w-md">
                 Total panggung teater Eli sejak debut Team T (16 Des 2018).
                 {stats.theaterDelta > 0 && (
-                  <span className="text-[color:var(--retro-burgundy)] font-bold">
+                  <span className="text-[color:var(--retro-gold-light)] font-bold">
                     {' '}
                     +{stats.theaterDelta} sejak baseline.
                   </span>
                 )}
-              </>
-            }
-            footnote={
-              careerStats?.asOfDate
-                ? `Baseline ${formatAsOf(careerStats.asOfDate)}`
-                : 'Baseline manual · #JumlahShowJKT48'
-            }
-          />
-          <StatCard
-            eyebrow="Personal M&G"
-            value={stats.mgDone}
-            valueAccent={stats.mgUpcoming > 0 ? `/+${stats.mgUpcoming}` : null}
-            sub={
-              stats.mgUpcoming > 0
-                ? `${stats.mgDone} sesi selesai · ${stats.mgUpcoming} sesi mendatang dijadwalkan.`
-                : `${stats.mgDone} sesi Meet & Greet selesai.`
-            }
-            footnote="Window 4 bulan · auto-refresh 6 jam"
-          />
-          <StatCard
-            eyebrow="Special Events"
-            value={stats.specialDone}
-            valueAccent={stats.specialUpcoming > 0 ? `/+${stats.specialUpcoming}` : null}
-            sub={
-              stats.specialDone + stats.specialUpcoming === 0
-                ? 'Belum ada Video Call atau event off-site dijadwalkan.'
-                : stats.specialUpcoming > 0
-                ? `${stats.specialDone} selesai · ${stats.specialUpcoming} mendatang (Video Call & off-site).`
-                : `${stats.specialDone} Video Call / event off-site selesai.`
-            }
-            footnote="Window 4 bulan · auto-refresh 6 jam"
-          />
+              </p>
+              <p className="mt-auto pt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55">
+                Baseline {careerStats?.asOfDate ? formatAsOf(careerStats.asOfDate) : 'manual #JumlahShowJKT48'}
+              </p>
+            </div>
+          </div>
+
+          {/* Secondary — M&G + Special Events stacked on lg, side-by-side
+              on md/sm so they don't overshadow the hero. */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+            <StatCard
+              eyebrow="Personal M&G"
+              value={stats.mgDone}
+              valueAccent={stats.mgUpcoming > 0 ? `/+${stats.mgUpcoming}` : null}
+              sub={
+                stats.mgUpcoming > 0
+                  ? `${stats.mgDone} sesi selesai · ${stats.mgUpcoming} mendatang.`
+                  : `${stats.mgDone} sesi Meet & Greet selesai.`
+              }
+              footnote="Window 4 bulan · auto-refresh 6 jam"
+            />
+            <StatCard
+              eyebrow="Special Events"
+              value={stats.specialDone}
+              valueAccent={stats.specialUpcoming > 0 ? `/+${stats.specialUpcoming}` : null}
+              sub={
+                stats.specialDone + stats.specialUpcoming === 0
+                  ? 'Belum ada Video Call / off-site dijadwalkan.'
+                  : stats.specialUpcoming > 0
+                  ? `${stats.specialDone} selesai · ${stats.specialUpcoming} mendatang.`
+                  : `${stats.specialDone} VC / off-site selesai.`
+              }
+              footnote="Video Call & off-site"
+            />
+          </div>
         </div>
       </div>
     </section>
