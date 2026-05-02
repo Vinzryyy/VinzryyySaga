@@ -13,22 +13,20 @@
 import React, { useEffect, useState } from 'react';
 import { GALLERY_IMAGES } from '../../data/galleryData';
 
-// Stable hash so the same sale code always picks the same archive
-// frame — random-looking on first render, persistent across reloads
-// and re-renders. Cheap djb2-style integer hash.
-const hashCode = (str) => {
-  let h = 5381;
-  for (let i = 0; i < str.length; i++) {
-    h = (h * 33) ^ str.charCodeAt(i);
-  }
-  return h >>> 0;
-};
-
 const ARCHIVE_FRAMES = GALLERY_IMAGES.map((img) => img.url || img.thumbnail).filter(Boolean);
 
-const pickFrame = (code) => {
-  if (!code || ARCHIVE_FRAMES.length === 0) return null;
-  return ARCHIVE_FRAMES[hashCode(code) % ARCHIVE_FRAMES.length];
+// Pick N distinct random frames. Used once per mount so the strip
+// looks fresh on each visit but stays stable while the user is
+// scrolling through it.
+const pickRandomFrames = (n) => {
+  if (ARCHIVE_FRAMES.length === 0) return [];
+  const pool = [...ARCHIVE_FRAMES];
+  const out = [];
+  for (let i = 0; i < n && pool.length > 0; i++) {
+    const idx = Math.floor(Math.random() * pool.length);
+    out.push(pool.splice(idx, 1)[0]);
+  }
+  return out;
 };
 
 const CATEGORY_LABEL = {
@@ -90,7 +88,7 @@ const formatCountdown = (endMs) => {
   return `${days} hari lagi`;
 };
 
-const SaleCard = ({ sale }) => {
+const SaleCard = ({ sale, frameSrc }) => {
   const label = CATEGORY_LABEL[sale.category] || sale.category;
   const icon = CATEGORY_ICON[sale.category] || 'ri-shopping-bag-3-line';
   const price = formatPrice(sale.defaultPrice);
@@ -110,13 +108,13 @@ const SaleCard = ({ sale }) => {
       className="group flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
     >
       {/* Thumbnail with category badge overlaid. Source is a random
-          archive frame picked deterministically from the sale code,
-          rather than the API thumbnail (which is a generic product
-          banner) — keeps the strip visually tied to Eli. */}
+          archive frame chosen at component mount (reshuffles per
+          visit) rather than the API thumbnail, which is a generic
+          product banner. */}
       <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
-        {pickFrame(sale.code) && (
+        {frameSrc && (
           <img
-            src={pickFrame(sale.code)}
+            src={frameSrc}
             alt={sale.title}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -182,6 +180,11 @@ const OnSaleStrip = () => {
   // in render). Refilter every minute so newly-expired sales drop
   // off without requiring a page reload.
   const [activeSales, setActiveSales] = useState([]);
+  // Random archive frames assigned to each sale on mount. Refreshes
+  // on every visit (reshuffles when the user comes back to /schedule),
+  // but stable for the duration of a single mount so the cards don't
+  // visually swap during scroll.
+  const [frames, setFrames] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -205,7 +208,11 @@ const OnSaleStrip = () => {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (cancelled || !d?.sales) return;
-        setActiveSales(refilter(d.sales));
+        const filtered = refilter(d.sales);
+        setActiveSales(filtered);
+        // Roll fresh random frames once we know how many sales we
+        // need to render; reshuffles on next mount.
+        setFrames(pickRandomFrames(filtered.length));
         // Re-filter every minute — cheap, drops expired sales when
         // their countdown crosses zero on a long-open page.
         refreshTimer = setInterval(() => {
@@ -245,9 +252,9 @@ const OnSaleStrip = () => {
           className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-proximity"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          {activeSales.map((sale) => (
+          {activeSales.map((sale, idx) => (
             <div key={sale.code} className="snap-start">
-              <SaleCard sale={sale} />
+              <SaleCard sale={sale} frameSrc={frames[idx]} />
             </div>
           ))}
         </div>
