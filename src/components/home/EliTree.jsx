@@ -68,7 +68,7 @@ const STAGES = [
   { id: 7, label: 'Berbunga', icon: 'ri-flower-line', detail: 'Bunga aprikot mekar — Bloom in Spring.' },
   { id: 8, label: 'Berbuah', icon: 'ri-apple-line', detail: 'Buah aprikot matang siap dipanen.' },
   { id: 9, label: 'Pohon Penuh', icon: 'ri-sun-line', detail: 'Pohon penuh, kanopi terluas, panen melimpah.' },
-  { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah dengan akar terlihat — komunitas membawanya sampai ke puncak. Terima kasih.' },
+  { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah di tengah taman bunga — komunitas membawanya sampai ke puncak. Terima kasih.' },
 ];
 
 const LS_KEY = (dateStr) => `armeniaca-tree-support-${dateStr}`;
@@ -135,12 +135,10 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
   const foliageOuter = stage >= 5 ? Math.min(66, 24 + (stage - 5) * 7) : 0;
 
   // Pot cracks at stage 4, then disappears entirely from stage 5+
-  // (the tree has outgrown it). Soil mound + roots remain to anchor
-  // the tree visually.
+  // (the tree has outgrown it). Soil mound + flower garden anchor
+  // the tree visually from stage 5 onward.
   const potCracked = stage >= 4;
   const potVisible = stage <= 4;
-  // Roots peek out from cracks starting stage 4, expand at stage 6.
-  const rootsVisible = stage >= 4;
 
   return (
     <svg
@@ -163,35 +161,6 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
 
       {/* Ground shadow */}
       <ellipse cx={CENTER_X} cy={POT_BOTTOM_Y - 4} rx="160" ry="14" fill="#5C4A3A" opacity="0.2" />
-
-      {/* Roots emerging beyond the pot — stage 4+, spread further at
-          higher stages. Drawn before the pot so the pot edges sit on
-          top of where the roots meet it. */}
-      {rootsVisible && (
-        <g
-          stroke="var(--retro-brown-dark)"
-          strokeWidth={Math.min(7, 3 + (stage - 4))}
-          strokeLinecap="round"
-          fill="none"
-          opacity={Math.min(1, (stage - 3) * 0.3)}
-          style={{ transition: 'all 0.8s ease' }}
-        >
-          <path d={`M ${CENTER_X - 60} ${POT_TOP_Y + 6} Q ${CENTER_X - 90} ${POT_TOP_Y + 28} ${CENTER_X - 130} ${POT_BOTTOM_Y - 4}`} />
-          <path d={`M ${CENTER_X + 60} ${POT_TOP_Y + 6} Q ${CENTER_X + 90} ${POT_TOP_Y + 28} ${CENTER_X + 130} ${POT_BOTTOM_Y - 4}`} />
-          {stage >= 5 && (
-            <>
-              <path d={`M ${CENTER_X - 30} ${POT_TOP_Y + 10} Q ${CENTER_X - 50} ${POT_BOTTOM_Y - 8} ${CENTER_X - 80} ${POT_BOTTOM_Y + 14}`} />
-              <path d={`M ${CENTER_X + 30} ${POT_TOP_Y + 10} Q ${CENTER_X + 50} ${POT_BOTTOM_Y - 8} ${CENTER_X + 80} ${POT_BOTTOM_Y + 14}`} />
-            </>
-          )}
-          {stage >= 7 && (
-            <>
-              <path d={`M ${CENTER_X - 100} ${POT_TOP_Y + 18} Q ${CENTER_X - 140} ${POT_BOTTOM_Y} ${CENTER_X - 180} ${POT_BOTTOM_Y + 12}`} />
-              <path d={`M ${CENTER_X + 100} ${POT_TOP_Y + 18} Q ${CENTER_X + 140} ${POT_BOTTOM_Y} ${CENTER_X + 180} ${POT_BOTTOM_Y + 12}`} />
-            </>
-          )}
-        </g>
-      )}
 
       {/* Pot rendered intact through stage 4. From stage 5 onward the
           tree has outgrown its container, so we drop the pot entirely
@@ -230,78 +199,91 @@ const TreeArt = ({ stage, wishes = [], onOpenWish }) => {
         </g>
       )}
 
-      {/* Ground decorations — rumput dan bunga warna-warni yang ikut
-          tumbuh seiring pohon. Stage 1: rumput pertama → stage 3:
-          bunga pertama → stage 5+: tersebar lebih luas seiring pot
-          menghilang → stage 9+: penuh dengan jamur → stage 10:
-          kupu-kupu beterbangan. */}
+      {/* Ground decorations — taman bunga yang ikut tumbuh bertahap.
+          Setiap stage menambah variasi baru: rumput → bunga kecil →
+          tulip tinggi → bunga di soil mound → daun lebar → pakis →
+          jamur → kupu-kupu di stage puncak. */}
       {stage >= 1 && (
         <g style={{ transition: 'all 0.8s ease' }}>
           {/* Stage 1+ — first grass tufts flanking the pot */}
           <g stroke="#5E7C3F" strokeWidth="1.6" strokeLinecap="round" fill="none">
-            <path d={`M 110 ${POT_BOTTOM_Y - 4} Q 108 ${POT_BOTTOM_Y - 10} 106 ${POT_BOTTOM_Y - 16}`} />
-            <path d={`M 116 ${POT_BOTTOM_Y - 4} Q 118 ${POT_BOTTOM_Y - 9} 120 ${POT_BOTTOM_Y - 14}`} />
-            <path d={`M 284 ${POT_BOTTOM_Y - 4} Q 282 ${POT_BOTTOM_Y - 10} 280 ${POT_BOTTOM_Y - 14}`} />
-            <path d={`M 290 ${POT_BOTTOM_Y - 4} Q 292 ${POT_BOTTOM_Y - 9} 294 ${POT_BOTTOM_Y - 16}`} />
+            <path d={`M 115 ${POT_BOTTOM_Y - 4} Q 113 ${POT_BOTTOM_Y - 10} 111 ${POT_BOTTOM_Y - 16}`} />
+            <path d={`M 120 ${POT_BOTTOM_Y - 4} Q 122 ${POT_BOTTOM_Y - 9} 124 ${POT_BOTTOM_Y - 14}`} />
+            <path d={`M 280 ${POT_BOTTOM_Y - 4} Q 278 ${POT_BOTTOM_Y - 10} 276 ${POT_BOTTOM_Y - 14}`} />
+            <path d={`M 285 ${POT_BOTTOM_Y - 4} Q 287 ${POT_BOTTOM_Y - 9} 289 ${POT_BOTTOM_Y - 16}`} />
           </g>
 
           {/* Stage 3+ — first wildflowers next to the pot */}
           {stage >= 3 && (
             <>
-              <Flower cx={85} cy={POT_BOTTOM_Y - 8} size={5} petalColor="#F7D6E0" />
-              <Flower cx={315} cy={POT_BOTTOM_Y - 8} size={5} petalColor="var(--retro-gold-light)" />
+              <Flower cx={130} cy={POT_BOTTOM_Y - 14} size={5} petalColor="#F7D6E0" />
+              <Flower cx={270} cy={POT_BOTTOM_Y - 14} size={5} petalColor="var(--retro-gold-light)" />
             </>
           )}
 
-          {/* Stage 5+ — pot gone, flowers spread across the soil mound */}
+          {/* Stage 4+ — tulip pair adds vertical accents */}
+          {stage >= 4 && (
+            <>
+              <Tulip cx={75} cy={POT_BOTTOM_Y - 22} color="var(--retro-burgundy)" />
+              <Tulip cx={325} cy={POT_BOTTOM_Y - 22} color="var(--retro-gold)" />
+            </>
+          )}
+
+          {/* Stage 5+ — pot gone; garden spreads across the soil mound */}
           {stage >= 5 && (
             <>
-              <Flower cx={55} cy={POT_BOTTOM_Y - 4} size={6} petalColor="var(--retro-burgundy-light)" />
-              <Flower cx={345} cy={POT_BOTTOM_Y - 4} size={6} petalColor="#F7D6E0" />
-              <Flower cx={150} cy={POT_TOP_Y + 8} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
-              <Flower cx={250} cy={POT_TOP_Y + 8} size={4} petalColor="var(--retro-burgundy-light)" centerColor="var(--retro-gold)" />
+              <Flower cx={50} cy={POT_BOTTOM_Y - 14} size={6} petalColor="var(--retro-burgundy-light)" />
+              <Flower cx={350} cy={POT_BOTTOM_Y - 14} size={6} petalColor="#F7D6E0" />
+              <Flower cx={160} cy={POT_TOP_Y + 6} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
+              <Flower cx={240} cy={POT_TOP_Y + 6} size={4} petalColor="var(--retro-burgundy-light)" centerColor="var(--retro-gold)" />
             </>
           )}
 
-          {/* Stage 7+ — extra flowers + denser grass */}
+          {/* Stage 6+ — leafy plants for low groundcover variety */}
+          {stage >= 6 && (
+            <>
+              <LeafyPlant cx={178} cy={POT_TOP_Y + 14} />
+              <LeafyPlant cx={222} cy={POT_TOP_Y + 14} />
+            </>
+          )}
+
+          {/* Stage 7+ — pakis di kanan-kiri + tulip pinggir terluar */}
           {stage >= 7 && (
             <>
-              <Flower cx={35} cy={POT_BOTTOM_Y - 2} size={5} petalColor="var(--retro-gold-light)" />
-              <Flower cx={365} cy={POT_BOTTOM_Y - 2} size={5} petalColor="var(--retro-burgundy-light)" />
-              <g stroke="#5E7C3F" strokeWidth="1.4" strokeLinecap="round" fill="none">
-                <path d={`M 130 ${POT_BOTTOM_Y - 2} Q 128 ${POT_BOTTOM_Y - 8} 127 ${POT_BOTTOM_Y - 14}`} />
-                <path d={`M 270 ${POT_BOTTOM_Y - 2} Q 272 ${POT_BOTTOM_Y - 8} 273 ${POT_BOTTOM_Y - 14}`} />
-                <path d={`M 175 ${POT_BOTTOM_Y - 4} Q 173 ${POT_BOTTOM_Y - 10} 172 ${POT_BOTTOM_Y - 16}`} />
-                <path d={`M 225 ${POT_BOTTOM_Y - 4} Q 227 ${POT_BOTTOM_Y - 10} 228 ${POT_BOTTOM_Y - 16}`} />
-              </g>
+              <Fern cx={102} cy={POT_BOTTOM_Y - 4} dir={1} />
+              <Fern cx={298} cy={POT_BOTTOM_Y - 4} dir={-1} />
+              <Tulip cx={28} cy={POT_BOTTOM_Y - 22} color="#F7D6E0" />
+              <Tulip cx={372} cy={POT_BOTTOM_Y - 22} color="var(--retro-burgundy-light)" />
             </>
           )}
 
-          {/* Stage 9+ — full bloom with a small mushroom */}
+          {/* Stage 8+ — bunga depan + jamur pertama */}
+          {stage >= 8 && (
+            <>
+              <Flower cx={155} cy={POT_BOTTOM_Y - 12} size={4} petalColor="#F7D6E0" centerColor="var(--retro-burgundy)" />
+              <Mushroom cx={258} cy={POT_BOTTOM_Y - 4} />
+            </>
+          )}
+
+          {/* Stage 9+ — bunga simetris + jamur kedua */}
           {stage >= 9 && (
             <>
-              <Flower cx={180} cy={POT_BOTTOM_Y - 8} size={4} petalColor="#F7D6E0" centerColor="var(--retro-burgundy)" />
-              <Flower cx={220} cy={POT_BOTTOM_Y - 8} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
-              <g>
-                <ellipse cx={295} cy={POT_BOTTOM_Y - 6} rx="7" ry="5" fill="var(--retro-burgundy)" />
-                <ellipse cx={293} cy={POT_BOTTOM_Y - 7} rx="2" ry="1.2" fill="var(--retro-cream)" opacity="0.95" />
-                <ellipse cx={297.5} cy={POT_BOTTOM_Y - 4.5} rx="1.5" ry="1" fill="var(--retro-cream)" opacity="0.9" />
-                <rect x={293.5} y={POT_BOTTOM_Y - 5} width="3.5" height="5" rx="1.5" fill="var(--retro-cream)" />
-              </g>
+              <Flower cx={245} cy={POT_BOTTOM_Y - 12} size={4} petalColor="var(--retro-gold-light)" centerColor="var(--retro-burgundy)" />
+              <Mushroom cx={142} cy={POT_BOTTOM_Y - 4} capColor="var(--retro-gold)" />
             </>
           )}
 
-          {/* Stage 10 — butterflies fluttering through the flower bed */}
+          {/* Stage 10 — kupu-kupu beterbangan di antara bunga */}
           {stage >= MAX_STAGE && (
             <g>
-              <g transform={`translate(72, ${POT_BOTTOM_Y - 36})`}>
+              <g transform={`translate(60, ${POT_BOTTOM_Y - 38})`}>
                 <ellipse cx={-3.5} cy={-1} rx="4" ry="3" fill="var(--retro-burgundy)" opacity="0.9" />
                 <ellipse cx={3.5} cy={-1} rx="4" ry="3" fill="var(--retro-burgundy)" opacity="0.9" />
                 <ellipse cx={-3.5} cy={3} rx="3" ry="2.5" fill="var(--retro-gold)" opacity="0.9" />
                 <ellipse cx={3.5} cy={3} rx="3" ry="2.5" fill="var(--retro-gold)" opacity="0.9" />
                 <line x1={0} y1={-3} x2={0} y2={5} stroke="var(--retro-brown-dark)" strokeWidth="1.2" strokeLinecap="round" />
               </g>
-              <g transform={`translate(330, ${POT_BOTTOM_Y - 28})`}>
+              <g transform={`translate(340, ${POT_BOTTOM_Y - 30})`}>
                 <ellipse cx={-3} cy={-1} rx="3.5" ry="2.5" fill="var(--retro-gold-light)" opacity="0.95" />
                 <ellipse cx={3} cy={-1} rx="3.5" ry="2.5" fill="var(--retro-gold-light)" opacity="0.95" />
                 <ellipse cx={-3} cy={2.5} rx="2.5" ry="2" fill="#F7D6E0" opacity="0.95" />
@@ -668,6 +650,111 @@ const Flower = ({ cx, cy, size = 5, petalColor, centerColor = 'var(--retro-gold)
     <circle cx={cx} cy={cy - size * 0.6} r={size * 0.7} fill={petalColor} />
     <circle cx={cx} cy={cy + size * 0.6} r={size * 0.7} fill={petalColor} />
     <circle cx={cx} cy={cy} r={size * 0.5} fill={centerColor} />
+  </g>
+);
+
+// Tulip — closed bloom on a tall stem with a single side leaf.
+// `cy` marks the BLOOM position; the stem extends 18px below.
+const Tulip = ({ cx, cy, color = 'var(--retro-burgundy)' }) => (
+  <g>
+    <line
+      x1={cx}
+      y1={cy + 2}
+      x2={cx}
+      y2={cy + 20}
+      stroke="#5E7C3F"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+    />
+    <ellipse
+      cx={cx - 4}
+      cy={cy + 12}
+      rx="3"
+      ry="5"
+      fill="#7BA05B"
+      transform={`rotate(-25 ${cx - 4} ${cy + 12})`}
+    />
+    <path
+      d={`M ${cx - 3.5} ${cy + 2} Q ${cx - 4.5} ${cy - 4} ${cx} ${cy - 6} Q ${cx + 4.5} ${cy - 4} ${cx + 3.5} ${cy + 2} Z`}
+      fill={color}
+    />
+    <path
+      d={`M ${cx - 1.5} ${cy} Q ${cx} ${cy - 4} ${cx + 1.5} ${cy}`}
+      fill="none"
+      stroke="rgba(0,0,0,0.18)"
+      strokeWidth="0.8"
+    />
+  </g>
+);
+
+// Low leafy groundcover plant (hosta-style) — 3 broad ellipse leaves.
+const LeafyPlant = ({ cx, cy }) => (
+  <g>
+    <ellipse
+      cx={cx - 5}
+      cy={cy}
+      rx="6"
+      ry="3.2"
+      fill="#7BA05B"
+      transform={`rotate(-22 ${cx - 5} ${cy})`}
+    />
+    <ellipse
+      cx={cx + 5}
+      cy={cy}
+      rx="6"
+      ry="3.2"
+      fill="#88AB66"
+      transform={`rotate(22 ${cx + 5} ${cy})`}
+    />
+    <ellipse cx={cx} cy={cy - 3} rx="5" ry="3" fill="#9CC074" />
+  </g>
+);
+
+// Fern frond — curved spine with three leaflets that taper. `dir`
+// controls the curve direction (1 = lean right, -1 = lean left).
+const Fern = ({ cx, cy, dir = 1 }) => (
+  <g>
+    <path
+      d={`M ${cx} ${cy} Q ${cx + 3 * dir} ${cy - 7} ${cx + 7 * dir} ${cy - 15}`}
+      fill="none"
+      stroke="#5E7C3F"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+    />
+    <ellipse
+      cx={cx + 2 * dir}
+      cy={cy - 4}
+      rx="2.6"
+      ry="1.2"
+      fill="#7BA05B"
+      transform={`rotate(${-35 * dir} ${cx + 2 * dir} ${cy - 4})`}
+    />
+    <ellipse
+      cx={cx + 4 * dir}
+      cy={cy - 9}
+      rx="2.2"
+      ry="1.1"
+      fill="#88AB66"
+      transform={`rotate(${-45 * dir} ${cx + 4 * dir} ${cy - 9})`}
+    />
+    <ellipse
+      cx={cx + 5.5 * dir}
+      cy={cy - 13}
+      rx="1.6"
+      ry="0.9"
+      fill="#9CC074"
+      transform={`rotate(${-55 * dir} ${cx + 5.5 * dir} ${cy - 13})`}
+    />
+  </g>
+);
+
+// Spotted mushroom — cap + stalk with a couple of light spots.
+const Mushroom = ({ cx, cy, capColor = 'var(--retro-burgundy)' }) => (
+  <g>
+    <rect x={cx - 2} y={cy - 1} width="4" height="6" rx="1.5" fill="var(--retro-cream)" />
+    <ellipse cx={cx} cy={cy - 1} rx="7" ry="5" fill={capColor} />
+    <ellipse cx={cx - 2.5} cy={cy - 2.5} rx="1.8" ry="1.1" fill="var(--retro-cream)" opacity="0.95" />
+    <ellipse cx={cx + 2.5} cy={cy - 0.5} rx="1.4" ry="0.9" fill="var(--retro-cream)" opacity="0.9" />
   </g>
 );
 
