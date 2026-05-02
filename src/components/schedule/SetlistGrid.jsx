@@ -17,6 +17,38 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 const ACTIVE_WINDOW_DAYS = 60;
 
+// Map jkt48.com show titles (Indonesian) to the manual log's setlist
+// names (mostly Japanese romaji). Used to auto-increment setlist
+// counts when a new show airs between manual baseline updates.
+//
+// Titles not listed here match by direct case-insensitive equality
+// (Pajama Drive, Saka Agari, Pertaruhan Cinta, Dream Bakudan,
+// Romansa Sang Gadis — same string in both sources).
+const SCHEDULE_TITLE_ALIASES = {
+  'sambil menggandeng erat tanganku': 'Te wo Tsunaginagara',
+  'cara meminum ramune': 'Ramune no Nomikata',
+  'aturan anti cinta': 'Renai Kinshi Jourei',
+  'gadis gadis remaja': 'Seishun Girls',
+  'tunas di balik seragam': 'Seifuku no Me',
+  'dewi theater': 'Theater no Megami',
+};
+
+// Resolve a schedule-JSON show title to a setlist name in the manual
+// log. Returns null when the title doesn't correspond to any of Eli's
+// known setlists (e.g. tour-venue titles like "JKT48 Theater Sementara
+// Yogyakarta" share a setlist code with the underlying production).
+const resolveSetlistName = (apiTitle, knownSetlists) => {
+  if (!apiTitle) return null;
+  const lc = apiTitle.toLowerCase().trim();
+  if (SCHEDULE_TITLE_ALIASES[lc]) return SCHEDULE_TITLE_ALIASES[lc];
+  // Direct match (case-insensitive) against the canonical setlist list
+  const direct = knownSetlists.find(
+    (s) => s.setlist.toLowerCase() === lc,
+  );
+  if (direct) return direct.setlist;
+  return null;
+};
+
 const formatDate = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -205,15 +237,26 @@ const SetlistCard = ({ entry }) => {
 
 const SetlistGrid = () => {
   const [data, setData] = useState(null);
+  const [schedule, setSchedule] = useState(null);
   const [error, setError] = useState(null);
   const [showRetired, setShowRetired] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/data/eli-show-log.json', { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((d) => {
-        if (!cancelled) setData(d);
+    Promise.all([
+      fetch('/data/eli-show-log.json', { cache: 'no-cache' }).then((r) =>
+        r.ok ? r.json() : Promise.reject(new Error(`log HTTP ${r.status}`)),
+      ),
+      // Schedule JSON is optional — used only to bump counts for shows
+      // aired since the manual baseline. Failure here is silent.
+      fetch('/data/eli-schedule.json', { cache: 'no-cache' })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+    ])
+      .then(([log, sched]) => {
+        if (cancelled) return;
+        setData(log);
+        setSchedule(sched);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -223,10 +266,47 @@ const SetlistGrid = () => {
     };
   }, []);
 
+  // Merge live deltas into the manual setlist tallies.
+  //
+  // For each SHOW-kind event in the schedule JSON dated AFTER the log's
+  // asOfDate AND on/before today (already aired), match its title to
+  // a setlist in the log and add +1 to that setlist's count plus push
+  // its lastDate forward. Future-scheduled shows aren't counted yet —
+  // they'll bump the totals once the date passes.
+  const mergedSetlists = useMemo(() => {
+    const baseSetlists = data?.setlists || [];
+    if (!schedule?.events?.length || !data?.asOfDate) return baseSetlists;
+
+    const todayMs = (() => {
+      const t = new Date();
+      t.setHours(0, 0, 0, 0);
+      return t.getTime();
+    })();
+    const asOfMs = new Date(data.asOfDate).getTime();
+    const merged = baseSetlists.map((s) => ({ ...s }));
+
+    schedule.events.forEach((ev) => {
+      if (ev.kind !== 'SHOW') return;
+      const dMs = new Date(ev.date).getTime();
+      if (Number.isNaN(dMs)) return;
+      if (dMs <= asOfMs || dMs > todayMs) return;
+      const matchName = resolveSetlistName(ev.title, baseSetlists);
+      if (!matchName) return;
+      const target = merged.find((s) => s.setlist === matchName);
+      if (!target) return;
+      target.count += 1;
+      const iso = ev.date.slice(0, 10);
+      if (!target.lastDate || iso > target.lastDate) {
+        target.lastDate = iso;
+      }
+    });
+    return merged;
+  }, [data, schedule]);
+
   // Sort: currently-active setlists first (by lastDate desc), then
   // retired setlists by count desc.
   const ordered = useMemo(() => {
-    const setlists = data?.setlists || [];
+    const setlists = mergedSetlists;
     return [...setlists].sort((a, b) => {
       const aActive = daysSince(a.lastDate) <= ACTIVE_WINDOW_DAYS ? 1 : 0;
       const bActive = daysSince(b.lastDate) <= ACTIVE_WINDOW_DAYS ? 1 : 0;
@@ -236,9 +316,15 @@ const SetlistGrid = () => {
       }
       return (b.count || 0) - (a.count || 0);
     });
-  }, [data]);
+  }, [mergedSetlists]);
 
-  const totalStages = data?.totalShows ?? 0;
+  // Sum of merged counts so the header total tracks live deltas
+  // (e.g. when a new show airs, the total ticks 385 -> 386 alongside
+  // the per-setlist card count).
+  const totalStages = useMemo(
+    () => mergedSetlists.reduce((s, e) => s + (e.count || 0), 0),
+    [mergedSetlists],
+  );
   const activeSetlists = useMemo(
     () => ordered.filter((s) => daysSince(s.lastDate) <= ACTIVE_WINDOW_DAYS),
     [ordered],
