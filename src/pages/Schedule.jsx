@@ -368,7 +368,7 @@ const SchedulePage = () => {
       <Seo
         path="/schedule"
         title="Jadwal Eli"
-        description="Daftar lengkap show teater dan Personal Meet & Greet Eli JKT48 (Helisma Putri). Auto-refresh dari jkt48.com setiap 6 jam."
+        description="Daftar lengkap show teater dan Personal Meet & Greet Eli JKT48 (Helisma Putri). Auto-refresh setiap 6 jam."
       />
 
       {/* Editorial header — stage photo full-bleed background with
@@ -388,36 +388,24 @@ const SchedulePage = () => {
             backgroundRepeat: 'no-repeat',
           }}
         />
-        {/* Vertical tonal overlay — heavier dark on top so the text
-            block stays legible, then fades into the cream page bg
-            so the LiveCounter section below blends without a
-            visible seam. */}
+        {/* Tonal overlay — heavy on the bottom so the gradient blends
+            into the page background, keeping the LiveCounter section
+            below from snapping visually. */}
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(180deg, rgba(40, 30, 22, 0.92) 0%, rgba(40, 30, 22, 0.85) 45%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
-          }}
-        />
-        {/* Horizontal accent — extra darken on the left where the
-            text block sits, lets the right side of the photo breathe
-            so it still reads as a portrait, not just a dark plate. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-0 pointer-events-none hidden md:block"
-          style={{
-            background:
-              'linear-gradient(90deg, rgba(40, 30, 22, 0.45) 0%, rgba(40, 30, 22, 0.15) 45%, transparent 75%)',
+              'linear-gradient(180deg, rgba(61, 52, 43, 0.82) 0%, rgba(92, 74, 58, 0.65) 35%, rgba(252, 244, 230, 0.92) 90%, var(--retro-bg-primary) 100%)',
           }}
         />
         <div className="relative max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-gold-light)]">
+          <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy-light)]">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] inline-flex items-center gap-2">
               <i className="ri-calendar-event-line text-base" />
               Schedule · Live
             </span>
-            <span className="flex-1 h-px bg-[color:var(--retro-gold-light)]/40 max-w-[120px]" />
+            <span className="flex-1 h-px bg-[color:var(--retro-burgundy-light)]/50 max-w-[120px]" />
             {subtitle && (
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
                 {subtitle}
@@ -426,22 +414,13 @@ const SchedulePage = () => {
           </div>
           <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.95] max-w-4xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
             Jadwal Eli, <br />
-            <span className="text-[color:var(--retro-gold-light)]">satu kalender penuh.</span>
+            <span className="text-[color:var(--retro-burgundy-light)]">satu kalender penuh.</span>
           </h1>
           <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-cream)]/85 leading-relaxed max-w-2xl">
-            Show teater Team Dream, all-team event, dan Personal Meet &amp; Greet — disaring dari{' '}
-            <a
-              href="https://jkt48.com/schedule"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[color:var(--retro-gold-light)] underline-offset-4 hover:underline"
-            >
-              jkt48.com
-            </a>{' '}
-            dengan cast list resmi yang sudah terverifikasi (Eli ada di lineup).
-            Auto-refresh tiap 6 jam.
+            Show teater Team Dream, all-team event, dan Personal Meet &amp; Greet —
+            cast list resmi yang sudah terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam.
           </p>
-          <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-gold-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
+          <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
         </div>
       </header>
 
@@ -596,8 +575,7 @@ const SchedulePage = () => {
                   : 'Belum ada show Eli yang dijadwalkan ke depan.'}
               </p>
               <p className="text-sm text-[color:var(--color-text-muted)] mt-2 max-w-md mx-auto">
-                Sumber langsung dari jkt48.com — auto-refresh tiap 6 jam.
-                Jadwal teater biasanya diumumkan 2–4 minggu sebelumnya.
+                Auto-refresh tiap 6 jam. Jadwal teater biasanya diumumkan 2–4 minggu sebelumnya.
               </p>
             </div>
           )}
@@ -635,20 +613,12 @@ const SchedulePage = () => {
             </div>
           )}
 
-          {/* Source credit footer */}
+          {/* Refresh footer */}
           {calendar && (
             <p className="mt-12 pt-6 border-t border-[color:var(--retro-brown-dark)]/10 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] flex items-center justify-between gap-2 flex-wrap">
               <span className="inline-flex items-center gap-2">
                 <i className="ri-refresh-line" />
-                Auto-refresh tiap 6 jam · sumber{' '}
-                <a
-                  href="https://jkt48.com/schedule"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[color:var(--retro-burgundy)] hover:underline"
-                >
-                  jkt48.com (official)
-                </a>
+                Auto-refresh tiap 6 jam
               </span>
               {calendar.fetchedAt && (
                 <span className="text-[color:var(--color-text-muted)]/70 normal-case tracking-normal font-bold">

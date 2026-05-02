@@ -168,18 +168,6 @@ const LiveCounter = ({ events, careerStats }) => {
             <i className="ri-pulse-line text-base text-[color:var(--retro-burgundy)]" />
             Statistik · Live
           </p>
-          {careerStats?.source && (
-            <a
-              href={careerStats.source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] inline-flex items-center gap-1.5 transition-colors"
-            >
-              <i className="ri-quote-text" />
-              <span className="hidden sm:inline">Sumber baseline:</span>
-              <span>{careerStats.source.label}</span>
-            </a>
-          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4">
