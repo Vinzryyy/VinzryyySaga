@@ -11,23 +11,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { GALLERY_IMAGES } from '../../data/galleryData';
 
-const ARCHIVE_FRAMES = GALLERY_IMAGES.map((img) => img.url || img.thumbnail).filter(Boolean);
-
-// Pick N distinct random frames. Used once per mount so the strip
-// looks fresh on each visit but stays stable while the user is
-// scrolling through it.
-const pickRandomFrames = (n) => {
-  if (ARCHIVE_FRAMES.length === 0) return [];
-  const pool = [...ARCHIVE_FRAMES];
-  const out = [];
-  for (let i = 0; i < n && pool.length > 0; i++) {
-    const idx = Math.floor(Math.random() * pool.length);
-    out.push(pool.splice(idx, 1)[0]);
-  }
-  return out;
-};
+// Hand-picked archive frames for the on-sale cards. Cycled in order
+// across whatever sale entries are visible — first card gets the
+// first frame, second card the second, and so on. Wraps if there
+// are more sales than frames.
+const SALE_FRAMES = ['/archive/img-303.jpg', '/archive/img-206.jpg'];
 
 const CATEGORY_LABEL = {
   TWO_SHOT: '2Shot',
@@ -180,11 +169,6 @@ const OnSaleStrip = () => {
   // in render). Refilter every minute so newly-expired sales drop
   // off without requiring a page reload.
   const [activeSales, setActiveSales] = useState([]);
-  // Random archive frames assigned to each sale on mount. Refreshes
-  // on every visit (reshuffles when the user comes back to /schedule),
-  // but stable for the duration of a single mount so the cards don't
-  // visually swap during scroll.
-  const [frames, setFrames] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -208,11 +192,7 @@ const OnSaleStrip = () => {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (cancelled || !d?.sales) return;
-        const filtered = refilter(d.sales);
-        setActiveSales(filtered);
-        // Roll fresh random frames once we know how many sales we
-        // need to render; reshuffles on next mount.
-        setFrames(pickRandomFrames(filtered.length));
+        setActiveSales(refilter(d.sales));
         // Re-filter every minute — cheap, drops expired sales when
         // their countdown crosses zero on a long-open page.
         refreshTimer = setInterval(() => {
@@ -254,7 +234,7 @@ const OnSaleStrip = () => {
         >
           {activeSales.map((sale, idx) => (
             <div key={sale.code} className="snap-start">
-              <SaleCard sale={sale} frameSrc={frames[idx]} />
+              <SaleCard sale={sale} frameSrc={SALE_FRAMES[idx % SALE_FRAMES.length]} />
             </div>
           ))}
         </div>
