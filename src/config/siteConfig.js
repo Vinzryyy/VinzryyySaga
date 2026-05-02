@@ -77,7 +77,7 @@ export const SITE_CONFIG = {
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       { label: 'Countdown', hash: 'countdown', icon: 'ri-cake-2-line' },
       { label: 'Wishes', hash: 'wishes', icon: 'ri-mail-send-line' },
-      { label: '#26', hash: '26', icon: 'ri-plant-line' },
+      { label: '#26', hash: '26', icon: 'ri-plant-line', highlight: true },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
   },
