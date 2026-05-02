@@ -413,9 +413,9 @@ const SchedulePage = () => {
               </span>
             )}
           </div>
-          <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.95] max-w-4xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
+          <h1 className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-white leading-[0.95] max-w-4xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
             Jadwal Eli, <br />
-            <span className="text-[color:var(--retro-burgundy-light)]">satu kalender penuh.</span>
+            <span className="text-white">satu kalender penuh.</span>
           </h1>
           <p className="mt-5 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
             Show teater Team Dream, all-team event, dan Personal Meet &amp; Greet —
