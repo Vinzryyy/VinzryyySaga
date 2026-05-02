@@ -208,6 +208,14 @@ def main():
     # normalized sessions. Track each unique detail `code` so we only fetch
     # + emit per event once.
     seen_codes = set()
+    # Map detail.code -> listing slug so fetch_active_sales can build
+    # canonical /schedule/{slug} URLs for the on-sale strip. The
+    # /api/v1/exclusives endpoint only returns the short code; the
+    # public site's product page lives under /schedule/{slug} where
+    # slug is `{code.lower()}-{ddmmyyyy}` derived from the WIB-shifted
+    # listing date — non-trivial to reconstruct, so we capture it
+    # during the schedule walk where it's free.
+    slug_by_code = {}
 
     # Iterate from MONTHS_BEHIND in the past through MONTHS_AHEAD in the
     # future (inclusive). Negative offsets walk backward from today's
@@ -240,6 +248,12 @@ def main():
                 continue
             seen_codes.add(slug)
             kind = entry.get("type")
+            # Record slug for any EXCLUSIVE we've seen in the listing.
+            # detail.code is the short product code (EXBE10 etc.).
+            if kind == "EXCLUSIVE":
+                ex_code = detail.get("code")
+                if ex_code:
+                    slug_by_code[ex_code] = slug
             if kind in SHOWLIKE_KINDS:
                 norm = normalize_showlike(detail, slug, kind)
                 if norm:
@@ -293,7 +307,7 @@ def main():
     # components that don't need their own scraper.
     print("[3/3] Fetching member profile + active sales...")
     fetch_member(sc)
-    fetch_active_sales(sc)
+    fetch_active_sales(sc, slug_by_code)
 
 
 def fetch_member(sc):
@@ -344,11 +358,56 @@ def fetch_member(sc):
     print(f"      wrote {MEMBER_OUTPUT_PATH}")
 
 
-def fetch_active_sales(sc):
+def lookup_exclusive_slug(sc, code, soonest_session_iso):
+    """Find an exclusive's listing slug by querying the month its
+    soonest session falls into. Used as a fallback when the slug
+    wasn't captured during the main schedule walk (e.g. session is
+    >MONTHS_AHEAD in the future)."""
+    if not code or not soonest_session_iso:
+        return None
+    try:
+        d = datetime.fromisoformat(soonest_session_iso.replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return None
+    # The listing slug uses WIB-shifted dates, which can land in the
+    # next or previous month vs UTC — probe ±1 month for safety.
+    code_lc = code.lower()
+    candidates = [(d.year, d.month)]
+    nm = d.month + 1 if d.month < 12 else 1
+    ny = d.year if d.month < 12 else d.year + 1
+    candidates.append((ny, nm))
+    pm = d.month - 1 if d.month > 1 else 12
+    py = d.year if d.month > 1 else d.year - 1
+    candidates.append((py, pm))
+    for y, m in candidates:
+        try:
+            r = sc.get(
+                f"{BASE}/api/v1/schedules?lang=id&month={m}&year={y}",
+                timeout=15,
+            )
+            time.sleep(DETAIL_DELAY_S)
+            listing = r.json().get("data") or []
+        except Exception:
+            continue
+        for entry in listing:
+            slug = (entry.get("link") or "").lower()
+            if slug.startswith(f"{code_lc}-"):
+                return entry.get("link")
+    return None
+
+
+def fetch_active_sales(sc, slug_by_code=None):
     """List exclusives currently on sale that include Eli in any session
     Jalur. Output drives the OnSaleStrip on /schedule. Each entry's
     sales_period array is preserved verbatim so the front-end can
-    render a 'sale ends in X hours' countdown."""
+    render a 'sale ends in X hours' countdown.
+
+    slug_by_code: optional dict captured by the schedule walk earlier
+    in this run, mapping product code -> listing slug. Used to build
+    correct /schedule/{slug} URLs since /exclusive/{code} 404s on the
+    public site.
+    """
+    slug_by_code = slug_by_code or {}
     try:
         r = sc.get(f"{BASE}/api/v1/exclusives", timeout=20)
         r.raise_for_status()
@@ -398,9 +457,25 @@ def fetch_active_sales(sc):
         if not eli_jalurs:
             continue
 
+        ex_code = detail.get("code")
+        listing_slug = slug_by_code.get(ex_code)
+        # Prefer the canonical listing slug captured during the schedule
+        # walk; fall back to the API listing endpoint to find it for
+        # exclusives whose nearest session falls outside the scrape
+        # window.
+        if not listing_slug:
+            listing_slug = lookup_exclusive_slug(sc, ex_code, soonest_session_date)
+        if listing_slug:
+            url = f"{BASE}/schedule/{listing_slug}"
+        else:
+            # Last resort — the schedule page list view at least gets
+            # the user to the right area instead of a 404.
+            url = f"{BASE}/schedule"
+
         eli_sales.append({
             "exclusiveId": detail.get("exclusive_id"),
-            "code": detail.get("code"),
+            "code": ex_code,
+            "slug": listing_slug,
             "category": detail.get("category"),    # PHOTOCARD / TWO_SHOT / DIGITAL_PHOTOBOOK
             "title": detail.get("title"),
             "thumbnail": detail.get("thumbnail_image"),
@@ -410,7 +485,7 @@ def fetch_active_sales(sc):
             "salesPeriod": detail.get("sales_period") or [],
             "soonestSessionDate": soonest_session_date,
             "eliSessions": eli_jalurs,
-            "url": f"{BASE}/exclusive/{detail.get('code')}",
+            "url": url,
         })
 
     payload = {

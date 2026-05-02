@@ -1,10 +1,11 @@
 {
-  "fetchedAt": "2026-05-02T05:30:42.820898Z",
+  "fetchedAt": "2026-05-02T06:01:15.131681Z",
   "salesCount": 3,
   "sales": [
     {
       "exclusiveId": 936,
       "code": "EXE588",
+      "slug": "exe588-23052026",
       "category": "PHOTOCARD",
       "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, Meet & Greet - 23 May",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
@@ -49,11 +50,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/exclusive/EXE588"
+      "url": "https://jkt48.com/schedule/exe588-23052026"
     },
     {
       "exclusiveId": 944,
       "code": "EXBE10",
+      "slug": "exbe10-20042026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Love Dream Passion - Music Video Behind the Scenes",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
@@ -98,11 +100,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/exclusive/EXBE10"
+      "url": "https://jkt48.com/schedule/exbe10-20042026"
     },
     {
       "exclusiveId": 933,
       "code": "EX579E",
+      "slug": "ex579e-23052026",
       "category": "TWO_SHOT",
       "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-thumb-c637b9.jpg",
@@ -140,7 +143,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/exclusive/EX579E"
+      "url": "https://jkt48.com/schedule/ex579e-23052026"
     }
   ]
 }
