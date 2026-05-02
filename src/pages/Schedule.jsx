@@ -388,16 +388,27 @@ const SchedulePage = () => {
             backgroundRepeat: 'no-repeat',
           }}
         />
-        {/* Tonal overlay — heavy on the bottom so the gradient blends
-            into the page background, keeping the LiveCounter section
-            below from snapping visually. Light-burgundy wash on top
-            warms the photo into the brand palette. */}
+        {/* Vertical tonal overlay — heavier dark on top so the text
+            block stays legible, then fades into the cream page bg
+            so the LiveCounter section below blends without a
+            visible seam. */}
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
             background:
-              'linear-gradient(180deg, rgba(61, 52, 43, 0.82) 0%, rgba(92, 74, 58, 0.65) 35%, rgba(252, 244, 230, 0.92) 90%, var(--retro-bg-primary) 100%)',
+              'linear-gradient(180deg, rgba(40, 30, 22, 0.92) 0%, rgba(40, 30, 22, 0.85) 45%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
+          }}
+        />
+        {/* Horizontal accent — extra darken on the left where the
+            text block sits, lets the right side of the photo breathe
+            so it still reads as a portrait, not just a dark plate. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-0 pointer-events-none hidden md:block"
+          style={{
+            background:
+              'linear-gradient(90deg, rgba(40, 30, 22, 0.45) 0%, rgba(40, 30, 22, 0.15) 45%, transparent 75%)',
           }}
         />
         <div className="relative max-w-7xl mx-auto">
