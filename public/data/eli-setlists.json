@@ -1,0 +1,179 @@
+{
+  "asOfDate": "2026-05-02",
+  "source": "jkt48.com /api/v1/schedules - SHOW kind only, set_list code + title",
+  "totalShowsTallied": 335,
+  "setlists": [
+    {
+      "code": "SL_2",
+      "title": "Aturan Anti Cinta",
+      "titles": [
+        "Aturan Anti Cinta"
+      ],
+      "count": 85,
+      "byTeam": {
+        "JKT48": 85
+      },
+      "firstDate": "2021-03-24T17:00:00.000Z",
+      "lastDate": "2025-12-25T17:00:00.000Z"
+    },
+    {
+      "code": "SL_16",
+      "title": "Saka Agari",
+      "titles": [
+        "Saka Agari"
+      ],
+      "count": 65,
+      "byTeam": {
+        "JKT48": 65
+      },
+      "firstDate": "2019-08-06T17:00:00.000Z",
+      "lastDate": "2020-03-14T17:00:00.000Z"
+    },
+    {
+      "code": "SL_20",
+      "title": "Cara Meminum Ramune",
+      "titles": [
+        "Cara Meminum Ramune"
+      ],
+      "count": 53,
+      "byTeam": {
+        "JKT48": 53
+      },
+      "firstDate": "2021-01-05T17:00:00.000Z",
+      "lastDate": "2026-02-15T17:00:00.000Z"
+    },
+    {
+      "code": "SL_8",
+      "title": "Sambil Menggandeng Erat Tanganku",
+      "titles": [
+        "Sambil Menggandeng Erat Tanganku"
+      ],
+      "count": 42,
+      "byTeam": {
+        "JKT48": 42
+      },
+      "firstDate": "2019-02-25T17:00:00.000Z",
+      "lastDate": "2026-02-06T17:00:00.000Z"
+    },
+    {
+      "code": "SL_5",
+      "title": "Gadis Gadis Remaja",
+      "titles": [
+        "Gadis Gadis Remaja"
+      ],
+      "count": 26,
+      "byTeam": {
+        "JKT48": 26
+      },
+      "firstDate": "2021-04-02T17:00:00.000Z",
+      "lastDate": "2022-12-21T17:00:00.000Z"
+    },
+    {
+      "code": "SL_1",
+      "title": "Pajama Drive",
+      "titles": [
+        "Pajama Drive"
+      ],
+      "count": 21,
+      "byTeam": {
+        "JKT48": 21
+      },
+      "firstDate": "2019-03-28T17:00:00.000Z",
+      "lastDate": "2019-08-02T17:00:00.000Z"
+    },
+    {
+      "code": "SL_19",
+      "title": "Tunas di Balik Seragam",
+      "titles": [
+        "Tunas di Balik Seragam"
+      ],
+      "count": 20,
+      "byTeam": {
+        "JKT48": 20
+      },
+      "firstDate": "2021-06-03T17:00:00.000Z",
+      "lastDate": "2024-12-20T17:00:00.000Z"
+    },
+    {
+      "code": "SL_10",
+      "title": "Dewi Theater",
+      "titles": [
+        "Dewi Theater"
+      ],
+      "count": 7,
+      "byTeam": {
+        "JKT48": 7
+      },
+      "firstDate": "2018-12-15T17:00:00.000Z",
+      "lastDate": "2019-01-26T17:00:00.000Z"
+    },
+    {
+      "code": "SL_24",
+      "title": "JKT48 Theater Sementara Yogyakarta",
+      "titles": [
+        "JKT48 Theater Sementara Yogyakarta",
+        "Pertaruhan Cinta"
+      ],
+      "count": 5,
+      "byTeam": {
+        "JKT48": 5
+      },
+      "firstDate": "2024-06-27T17:00:00.000Z",
+      "lastDate": "2026-04-03T17:00:00.000Z"
+    },
+    {
+      "code": "SL_25",
+      "title": "Pertaruhan Cinta",
+      "titles": [
+        "Pertaruhan Cinta"
+      ],
+      "count": 5,
+      "byTeam": {
+        "JKT48": 5
+      },
+      "firstDate": "2025-11-27T17:00:00.000Z",
+      "lastDate": "2026-02-14T17:00:00.000Z"
+    },
+    {
+      "code": "SL_12",
+      "title": "JKT48 Theater Sementara Surabaya",
+      "titles": [
+        "JKT48 Theater Sementara Surabaya",
+        "Sambil Menggandeng Erat Tanganku"
+      ],
+      "count": 4,
+      "byTeam": {
+        "JKT48": 3,
+        "DREAM": 1
+      },
+      "firstDate": "2024-07-03T17:00:00.000Z",
+      "lastDate": "2026-04-09T17:00:00.000Z"
+    },
+    {
+      "code": "SL_18",
+      "title": "Romansa Sang Gadis",
+      "titles": [
+        "Romansa Sang Gadis"
+      ],
+      "count": 1,
+      "byTeam": {
+        "JKT48": 1
+      },
+      "firstDate": "2019-12-14T17:00:00.000Z",
+      "lastDate": "2019-12-14T17:00:00.000Z"
+    },
+    {
+      "code": "SL_26",
+      "title": "DREAM BAKUDAN",
+      "titles": [
+        "DREAM BAKUDAN"
+      ],
+      "count": 1,
+      "byTeam": {
+        "DREAM": 1
+      },
+      "firstDate": "2026-04-23T17:00:00.000Z",
+      "lastDate": "2026-04-23T17:00:00.000Z"
+    }
+  ]
+}

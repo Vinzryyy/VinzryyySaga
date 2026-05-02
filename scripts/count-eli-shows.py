@@ -4,10 +4,9 @@ backwards from today to Eli's theater debut (Dec 2018) and prints how
 many appearances she's made, broken down by kind (SHOW / EXCLUSIVE /
 EVENT / GENERAL) and by year.
 
-This is a counting variant of scrape-eli-schedule.py. Same matching
-logic, same kind classification — but no JSON output, no dedupe across
-sessions (each EXCLUSIVE session counts as one appearance, matching
-how the production scraper emits them).
+Side-output: writes public/data/eli-setlists.json with per-setlist
+counts (SHOW kind only — `set_list` field on each detail). The
+frontend consumes this on /schedule to render the SetlistGrid.
 
 Run:
   $ pip install -r scripts/requirements.txt
@@ -17,11 +16,15 @@ Note: the public API may return empty for very old months. The script
 prints per-month progress so you can see if/when coverage starts.
 """
 
+import json
 import time
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 
 import cloudscraper
+
+SETLIST_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-setlists.json"
 
 ELI_MEMBER_ID = 112
 ELI_NAME = "Helisma Putri"
@@ -121,6 +124,22 @@ def main():
     by_kind = defaultdict(int)
     by_year = defaultdict(int)
     by_year_kind = defaultdict(lambda: defaultdict(int))
+    # Per-setlist tracking — SHOW kind only.
+    #
+    # Group key is the setlist code (`SL_X`) from the API. The site's
+    # public setlists endpoint isn't exposed (404), but the `title`
+    # field on each show detail is stable per code, so we use it as
+    # the human-readable name.
+    #
+    # Same code can appear under different team labels over time
+    # (e.g. SL_12 was JKT48 pre-Fight2026, then DREAM after the team
+    # split), so we record the team set per code and a per-team count
+    # split as well.
+    setlist_total = defaultdict(int)              # code -> total count
+    setlist_titles = defaultdict(set)             # code -> {title, ...}
+    setlist_teams = defaultdict(lambda: defaultdict(int))  # code -> {team -> count}
+    setlist_first = {}                            # code -> earliest date
+    setlist_last = {}                             # code -> latest date
     detail_calls = 0
     seen_slugs = set()  # don't refetch a slug we've already seen this run
 
@@ -152,6 +171,24 @@ def main():
                     by_year[entry_year] += 1
                     by_year_kind[entry_year][bucket] += 1
                     month_count += 1
+                    # Tally per-setlist (SHOW kind only — EVENT entries
+                    # rarely carry a meaningful set_list value).
+                    if kind == "SHOW":
+                        sl_code = (detail.get("set_list") or "").strip()
+                        sl_title = (detail.get("title") or "").strip()
+                        team = detail.get("jkt48_member_type") or ""
+                        if sl_code:
+                            setlist_total[sl_code] += 1
+                            if sl_title:
+                                setlist_titles[sl_code].add(sl_title)
+                            if team:
+                                setlist_teams[sl_code][team] += 1
+                            d = entry.get("date") or detail.get("date")
+                            if d:
+                                if sl_code not in setlist_first or d < setlist_first[sl_code]:
+                                    setlist_first[sl_code] = d
+                                if sl_code not in setlist_last or d > setlist_last[sl_code]:
+                                    setlist_last[sl_code] = d
             elif kind == "EXCLUSIVE":
                 n = count_eli_in_exclusive(detail)
                 if n:
@@ -203,6 +240,54 @@ def main():
             bits.append(f"{kinds['EXCLUSIVE']} M&G")
         breakdown = ", ".join(bits)
         print(f"  {yr}: {ts:>3} theater  ({breakdown})")
+
+    # Per-setlist summary + JSON output for the frontend.
+    setlists_sorted = sorted(
+        setlist_total.items(), key=lambda kv: (-kv[1], kv[0])
+    )
+    setlist_payload = []
+    for code, count in setlists_sorted:
+        titles = sorted(setlist_titles.get(code, set()))
+        # Pick the longest title as canonical (full Indonesian title
+        # tends to be more descriptive than short variants the site
+        # sometimes uses on individual show pages).
+        primary_title = max(titles, key=len) if titles else None
+        teams = setlist_teams.get(code, {})
+        setlist_payload.append({
+            "code": code,
+            "title": primary_title,
+            "titles": titles,
+            "count": count,
+            "byTeam": dict(sorted(teams.items(), key=lambda kv: -kv[1])),
+            "firstDate": setlist_first.get(code),
+            "lastDate": setlist_last.get(code),
+        })
+
+    # Write JSON FIRST so any stdout encoding error doesn't cost us
+    # the result of a 5-minute scrape.
+    SETLIST_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SETLIST_OUTPUT_PATH.write_text(
+        json.dumps({
+            "asOfDate": datetime.utcnow().date().isoformat(),
+            "source": "jkt48.com /api/v1/schedules - SHOW kind only, set_list code + title",
+            "totalShowsTallied": sum(setlist_total.values()),
+            "setlists": setlist_payload,
+        }, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    print()
+    print(f"Setlists ({len(setlist_total)} unique codes):")
+    for code, count in setlists_sorted:
+        titles = sorted(setlist_titles.get(code, set()))
+        primary_title = max(titles, key=len) if titles else "-"
+        teams = setlist_teams.get(code, {})
+        team_summary = ", ".join(f"{t}:{c}" for t, c in sorted(teams.items(), key=lambda kv: -kv[1]))
+        # Encode-safe print — strip any chars the console can't render
+        # so a single weird title doesn't crash the whole summary.
+        safe_title = primary_title.encode("ascii", errors="replace").decode("ascii")
+        print(f"  {count:>4} | {code:<6} | {safe_title:<40} | {team_summary}")
+    print(f"\n      wrote {SETLIST_OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
