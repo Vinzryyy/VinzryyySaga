@@ -15,7 +15,6 @@ import { useGallery } from '../context';
 import ArchiveProfileHeader from '../components/gallery/ArchiveProfileHeader';
 import InstagramGrid from '../components/gallery/InstagramGrid';
 import FilterBar from '../components/gallery/FilterBar';
-import VivoSection from '../components/gallery/VivoSection';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 
@@ -76,54 +75,12 @@ const GalleryPage = () => {
             the profile header so filtering stays one tap away. */}
         <FilterBar />
 
-        {/* Type tabs — IG/X-style "Posts / Reels / Tagged" pattern
-            so visitors landing on /gallery immediately see the page
-            holds two content types (photo grid + live video). Pure
-            jump nav (no actual tab swap) since both sections live
-            on the same page; smooth-scroll handled by the global
-            ScrollManager. */}
-        <nav
-          aria-label="Tipe arsip"
-          className="px-5 sm:px-6 md:px-12 lg:px-20 pt-4"
-        >
-          <div className="max-w-5xl mx-auto flex items-center gap-2 border-b border-[color:var(--retro-brown-dark)]/15">
-            <a
-              href="#foto"
-              className="group inline-flex items-center gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)] border-b-2 border-[color:var(--retro-burgundy)] -mb-px"
-            >
-              <i className="ri-image-2-line text-base" />
-              Foto
-            </a>
-            <a
-              href="#vivo"
-              className="group inline-flex items-center gap-2 px-4 py-3 text-[11px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] border-b-2 border-transparent hover:border-[color:var(--retro-burgundy)]/40 -mb-px transition-colors"
-            >
-              <i className="ri-live-line text-base" />
-              Live
-              <span className="hidden sm:inline-flex items-center gap-1 ml-1 text-[8px] tracking-[0.18em] text-[color:var(--retro-gold-dark,#a07d3a)]">
-                <span className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
-                YouTube
-              </span>
-            </a>
-          </div>
-        </nav>
-
-        {/* IG-style square photo grid — anchored as #foto for the
-            tab nav above. */}
-        <section
-          id="foto"
-          className="scroll-mt-24 md:scroll-mt-32 px-1 sm:px-2 md:px-4 lg:px-6 pt-4 pb-4"
-        >
+        {/* IG-style square photo grid */}
+        <section className="px-1 sm:px-2 md:px-4 lg:px-6 pb-12 md:pb-16">
           <div className="max-w-5xl mx-auto">
             <InstagramGrid />
           </div>
         </section>
-
-        {/* Vivo — live streaming archive (IDN + SHOWROOM playlists)
-            embedded as a single segment under the photo grid. Already
-            has its own #vivo anchor + per-platform sub-anchors
-            (#vivo-idn, #vivo-showroom). */}
-        <VivoSection />
 
         {/* Footer micro-sig */}
         <div className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pb-12 md:pb-16">

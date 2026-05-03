@@ -93,7 +93,7 @@ export const SITE_CONFIG = {
         children: [
           {
             label: 'Foto · Semua Memoria',
-            hash: 'foto',
+            hash: 'gallery',
             description: 'Lihat seluruh frame',
             icon: 'ri-image-2-line',
           },
