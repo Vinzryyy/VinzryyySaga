@@ -69,7 +69,8 @@
       "PowerShell(gh run *)",
       "PowerShell(python -c \"import cloudscraper; sc = cloudscraper.create_scraper\\(browser={'browser':'chrome','platform':'windows','desktop':True}\\); r = sc.get\\('https://jkt48.com/api/v1/schedules?lang=id&month=4&year=2026', timeout=20\\); print\\('status:', r.status_code\\); print\\('body[:500]:', r.text[:500]\\)\")",
       "PowerShell(python -c \"import cloudscraper, json; sc = cloudscraper.create_scraper\\(browser={'browser':'chrome','platform':'windows','desktop':True}\\); r = sc.get\\('https://jkt48.com/api/v1/schedules/sh8cd7-pertaruhan-cinta', timeout=20\\); print\\('status:', r.status_code\\); body = r.json\\(\\) if r.status_code==200 else None; data = body.get\\('data'\\) if body else None; print\\('has_data:', bool\\(data\\)\\); print\\('has_jkt48_member:', 'jkt48_member' in \\(data or {}\\)\\); print\\('member_count:', len\\(\\(data or {}\\).get\\('jkt48_member'\\) or []\\)\\); print\\('sample_member:', \\(\\(data or {}\\).get\\('jkt48_member'\\) or [{}]\\)[0] if \\(data or {}\\).get\\('jkt48_member'\\) else None\\)\")",
-      "PowerShell(python scripts/scrape-eli-schedule.py)"
+      "PowerShell(python scripts/scrape-eli-schedule.py)",
+      "Bash(npx eslint *)"
     ]
   }
 }
