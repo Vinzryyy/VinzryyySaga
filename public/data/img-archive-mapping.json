@@ -1,12 +1,14 @@
 {
-  "generatedAt": "2026-05-03T03:51:25.270Z",
+  "generatedAt": "2026-05-03T03:57:46.333Z",
   "totalFiles": 364,
   "matched": 44,
   "unmatched": 320,
   "notes": {
     "methodology": "Perceptual dHash (9x8 grayscale, Hamming distance threshold 12/64). Matched legacy img-NNN files to x-MEDIAKEY files imported from @armeniaca15.",
     "missingFields": "caption + eventName are null because X caption text was never captured by extract-x-media.js v4. Fill via X API (sync-x-archive.js with bearer token) or extract-x-media-v5.js that captures tweet caption text.",
-    "source": "armeniaca-authentic-archive.json (manual browser-console scrape via extract-x-media.js)"
+    "source": "armeniaca-authentic-archive.json (manual browser-console scrape via extract-x-media.js)",
+    "captionSource": "Fetched via cdn.syndication.twimg.com tweet-result endpoint (public, no auth). Same endpoint used by twitter widgets.js. Token computed from tweet ID via the documented algorithm.",
+    "eventParsing": "Caption first line with format \"YYMMDD EventName\" → eventDate (YYYY-MM-DD) + eventName (mentions/hashtags/emojis stripped)."
   },
   "entries": [
     {
@@ -3690,8 +3692,18 @@
       "year": "2024",
       "tweetId": "1763601468668723451",
       "tweetUrl": "https://x.com/armeniaca15/status/1763601468668723451",
-      "caption": null,
-      "eventName": null
+      "caption": "240224 GIS 2 Festival 2024🧜🏻‍♀️\n\n👍\n\n@H_EliJKT48  #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/CXgnVees0S",
+      "eventName": "GIS 2 Festival 2024",
+      "uploadDate": "2024-03-01",
+      "eventDate": "2024-02-24",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 92
     },
     {
       "file": "img-323.jpg",
@@ -3702,8 +3714,18 @@
       "year": "2024",
       "tweetId": "1762834489867427901",
       "tweetUrl": "https://x.com/armeniaca15/status/1762834489867427901",
-      "caption": null,
-      "eventName": null
+      "caption": "240224 GIS 2 Festival 2024🧜🏻‍♀️\n\n🙂😕\n\n@H_EliJKT48  #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/lumhGkbmXd",
+      "eventName": "GIS 2 Festival 2024",
+      "uploadDate": "2024-02-28",
+      "eventDate": "2024-02-24",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 188
     },
     {
       "file": "img-324.jpg",
@@ -3714,8 +3736,18 @@
       "year": "2024",
       "tweetId": "1761592185743614275",
       "tweetUrl": "https://x.com/armeniaca15/status/1761592185743614275",
-      "caption": null,
-      "eventName": null
+      "caption": "240224 GIS 2 Festival 2024🧜🏻‍♀️\n\nHelisma @H_EliJKT48\n\n #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/KwEIElNxHz",
+      "eventName": "GIS 2 Festival 2024",
+      "uploadDate": "2024-02-25",
+      "eventDate": "2024-02-24",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 154
     },
     {
       "file": "img-325.jpg",
@@ -3726,8 +3758,18 @@
       "year": "2024",
       "tweetId": "1761412113120309547",
       "tweetUrl": "https://x.com/armeniaca15/status/1761412113120309547",
-      "caption": null,
-      "eventName": null
+      "caption": "240224 GIS 2 Festival 2024🧜🏻‍♀️\n\nBest places for the most beautiful 💐@H_EliJKT48\n\n #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/8iyXGp6zXq",
+      "eventName": "GIS 2 Festival 2024",
+      "uploadDate": "2024-02-24",
+      "eventDate": "2024-02-24",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 164
     },
     {
       "file": "img-326.jpg",
@@ -3738,8 +3780,18 @@
       "year": "2024",
       "tweetId": "1761405744740810891",
       "tweetUrl": "https://x.com/armeniaca15/status/1761405744740810891",
-      "caption": null,
-      "eventName": null
+      "caption": "240224 GIS 2 Festival 2024🧜🏻‍♀️\n\nLove from  @H_EliJKT48\n\n #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/7Vt1DrkkWx",
+      "eventName": "GIS 2 Festival 2024",
+      "uploadDate": "2024-02-24",
+      "eventDate": "2024-02-24",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 145
     },
     {
       "file": "img-327.jpg",
@@ -3750,8 +3802,18 @@
       "year": "2024",
       "tweetId": "1757652786752389224",
       "tweetUrl": "https://x.com/armeniaca15/status/1757652786752389224",
-      "caption": null,
-      "eventName": null
+      "caption": "240207 Harmoni pemilu damai 🧜🏻‍♀️\nHappy mood @H_EliJKT48\n #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/fAE7qcTszX",
+      "eventName": "Harmoni pemilu damai",
+      "uploadDate": "2024-02-14",
+      "eventDate": "2024-02-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 99
     },
     {
       "file": "img-328.jpg",
@@ -3762,8 +3824,18 @@
       "year": "2024",
       "tweetId": "1757275588463910944",
       "tweetUrl": "https://x.com/armeniaca15/status/1757275588463910944",
-      "caption": null,
-      "eventName": null
+      "caption": "240207 Harmoni pemilu damai 🧜🏻‍♀️\n\nRandom pic\n\n@H_EliJKT48\n #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/n0YfyLrJXP",
+      "eventName": "Harmoni pemilu damai",
+      "uploadDate": "2024-02-13",
+      "eventDate": "2024-02-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 61
     },
     {
       "file": "img-329.jpg",
@@ -3774,8 +3846,18 @@
       "year": "2024",
       "tweetId": "1755982884593443241",
       "tweetUrl": "https://x.com/armeniaca15/status/1755982884593443241",
-      "caption": null,
-      "eventName": null
+      "caption": "240207 Harmoni pemilu damai 🧜🏻‍♀️\nOtsukaresama\n@H_EliJKT48 #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/YiSwrDiL36",
+      "eventName": "Harmoni pemilu damai",
+      "uploadDate": "2024-02-09",
+      "eventDate": "2024-02-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 138
     },
     {
       "file": "img-330.jpg",
@@ -3786,8 +3868,18 @@
       "year": "2024",
       "tweetId": "1755238163684135374",
       "tweetUrl": "https://x.com/armeniaca15/status/1755238163684135374",
-      "caption": null,
-      "eventName": null
+      "caption": "240207 Harmoni pemilu damai 🧜🏻‍♀️\n춤출 때 너무 예뻐요💐\n@H_EliJKT48 #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/FR7ZhaVc9L",
+      "eventName": "Harmoni pemilu damai",
+      "uploadDate": "2024-02-07",
+      "eventDate": "2024-02-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 154
     },
     {
       "file": "img-331.jpg",
@@ -3798,8 +3890,18 @@
       "year": "2024",
       "tweetId": "1755159570538971323",
       "tweetUrl": "https://x.com/armeniaca15/status/1755159570538971323",
-      "caption": null,
-      "eventName": null
+      "caption": "240207 Harmoni pemilu damai 🧜🏻‍♀️\n\nHelisma\n\n@H_EliJKT48 #HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/Tu63h3iVhB",
+      "eventName": "Harmoni pemilu damai",
+      "uploadDate": "2024-02-07",
+      "eventDate": "2024-02-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 264
     },
     {
       "file": "img-332.jpg",
@@ -3810,8 +3912,18 @@
       "year": "2024",
       "tweetId": "1746833090071384194",
       "tweetUrl": "https://x.com/armeniaca15/status/1746833090071384194",
-      "caption": null,
-      "eventName": null
+      "caption": "240111 Konser Raya 29 Tahun Indosiar Luar Biasa 🧜🏻‍♀️\n\n😁💕\n\n@H_EliJKT48 \n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/B5v0OR6X68",
+      "eventName": "Konser Raya 29 Tahun Indosiar Luar Biasa",
+      "uploadDate": "2024-01-15",
+      "eventDate": "2024-01-11",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 256
     },
     {
       "file": "img-333.jpg",
@@ -3822,8 +3934,18 @@
       "year": "2024",
       "tweetId": "1746421999050838209",
       "tweetUrl": "https://x.com/armeniaca15/status/1746421999050838209",
-      "caption": null,
-      "eventName": null
+      "caption": "240111 Konser Raya 29 Tahun Indosiar Luar Biasa 🧜🏻‍♀️\n\nBunga kosmos yang indah pun…… 🎶\n\n@H_EliJKT48 \n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/wq8zKjNPYK",
+      "eventName": "Konser Raya 29 Tahun Indosiar Luar Biasa",
+      "uploadDate": "2024-01-14",
+      "eventDate": "2024-01-11",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 170
     },
     {
       "file": "img-334.jpg",
@@ -3834,8 +3956,18 @@
       "year": "2024",
       "tweetId": "1745744348564877470",
       "tweetUrl": "https://x.com/armeniaca15/status/1745744348564877470",
-      "caption": null,
-      "eventName": null
+      "caption": "240111 Konser Raya 29 Tahun Indosiar Luar Biasa 🧜🏻‍♀️\n\nThe smile beautiful helisma 🎶\n\n@H_EliJKT48 \n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/sDu9EAfoRk",
+      "eventName": "Konser Raya 29 Tahun Indosiar Luar Biasa",
+      "uploadDate": "2024-01-12",
+      "eventDate": "2024-01-11",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 228
     },
     {
       "file": "img-335.jpg",
@@ -3846,8 +3978,18 @@
       "year": "2024",
       "tweetId": "1745718637766517152",
       "tweetUrl": "https://x.com/armeniaca15/status/1745718637766517152",
-      "caption": null,
-      "eventName": null
+      "caption": "240111 Konser Raya 29 Tahun Indosiar Luar Biasa 🧜🏻‍♀️\n\nPesawat kertas 🚀🚀\n\n@H_EliJKT48 \n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/G8XailTAEi",
+      "eventName": "Konser Raya 29 Tahun Indosiar Luar Biasa",
+      "uploadDate": "2024-01-12",
+      "eventDate": "2024-01-11",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 353
     },
     {
       "file": "img-336.jpg",
@@ -3858,8 +4000,18 @@
       "year": "2023",
       "tweetId": "1739252869982024050",
       "tweetUrl": "https://x.com/armeniaca15/status/1739252869982024050",
-      "caption": null,
-      "eventName": null
+      "caption": "231223 Rans sport party 🧜🏻‍♀️\n\n안녕\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/VJVEAzQdnL",
+      "eventName": "Rans sport party",
+      "uploadDate": "2023-12-25",
+      "eventDate": "2023-12-23",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 94
     },
     {
       "file": "img-337.jpg",
@@ -3870,8 +4022,18 @@
       "year": "2023",
       "tweetId": "1738904833078579237",
       "tweetUrl": "https://x.com/armeniaca15/status/1738904833078579237",
-      "caption": null,
-      "eventName": null
+      "caption": "231223 Rans sport party 🧜🏻‍♀️\n\nCenter\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/1XPghb3Au4",
+      "eventName": "Rans sport party",
+      "uploadDate": "2023-12-24",
+      "eventDate": "2023-12-23",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 195
     },
     {
       "file": "img-338.jpg",
@@ -3882,8 +4044,18 @@
       "year": "2023",
       "tweetId": "1731695021747786076",
       "tweetUrl": "https://x.com/armeniaca15/status/1731695021747786076",
-      "caption": null,
-      "eventName": null
+      "caption": "231131 Soekarno-Hatta International Airport 🧜🏻‍♀️\n\nWelcome home \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/jBXX1aDmd7",
+      "eventName": "Soekarno-Hatta International Airport",
+      "uploadDate": "2023-12-04",
+      "eventDate": "2023-11-31",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 88
     },
     {
       "file": "img-339.jpg",
@@ -3894,8 +4066,18 @@
       "year": "2023",
       "tweetId": "1731497529219657852",
       "tweetUrl": "https://x.com/armeniaca15/status/1731497529219657852",
-      "caption": null,
-      "eventName": null
+      "caption": "231202 Wonderful Kukar Festival 2023🧜🏻‍♀️\n\n Roar\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/XpOMC5zF9f",
+      "eventName": "Wonderful Kukar Festival 2023",
+      "uploadDate": "2023-12-04",
+      "eventDate": "2023-12-02",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 107
     },
     {
       "file": "img-340.jpg",
@@ -3906,8 +4088,18 @@
       "year": "2023",
       "tweetId": "1731322365836230778",
       "tweetUrl": "https://x.com/armeniaca15/status/1731322365836230778",
-      "caption": null,
-      "eventName": null
+      "caption": "231202 Wonderful Kukar Festival 2023🧜🏻‍♀️\n\n The expressions on their face remain an unforgettable painting\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/tbLMDIg2TT",
+      "eventName": "Wonderful Kukar Festival 2023",
+      "uploadDate": "2023-12-03",
+      "eventDate": "2023-12-02",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 74
     },
     {
       "file": "img-341.jpg",
@@ -3918,8 +4110,18 @@
       "year": "2023",
       "tweetId": "1731296478927495635",
       "tweetUrl": "https://x.com/armeniaca15/status/1731296478927495635",
-      "caption": null,
-      "eventName": null
+      "caption": "231125 Healix Musication Bali Vol.3🧜🏻‍♀️\n\nmanyun\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/iA3kcsRWa8",
+      "eventName": "Healix Musication Bali Vol.3",
+      "uploadDate": "2023-12-03",
+      "eventDate": "2023-11-25",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 78
     },
     {
       "file": "img-342.jpg",
@@ -3930,8 +4132,18 @@
       "year": "2023",
       "tweetId": "1731295848313827794",
       "tweetUrl": "https://x.com/armeniaca15/status/1731295848313827794",
-      "caption": null,
-      "eventName": null
+      "caption": "231125 I Gusti Ngurah Rai International Airport🧜🏻‍♀️\n\nArrived\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/60l82oVS1e",
+      "eventName": "I Gusti Ngurah Rai International Airport",
+      "uploadDate": "2023-12-03",
+      "eventDate": "2023-11-25",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 77
     },
     {
       "file": "img-343.jpg",
@@ -3942,8 +4154,18 @@
       "year": "2023",
       "tweetId": "1727869615299277068",
       "tweetUrl": "https://x.com/armeniaca15/status/1727869615299277068",
-      "caption": null,
-      "eventName": null
+      "caption": "231028 Wara Wiri Fest - Padang\n\nHeatwaves❤️\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/wl14ZXmYVo",
+      "eventName": "Wara Wiri Fest - Padang",
+      "uploadDate": "2023-11-24",
+      "eventDate": "2023-10-28",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 90
     },
     {
       "file": "img-344.jpg",
@@ -3954,8 +4176,18 @@
       "year": "2023",
       "tweetId": "1727531103203016978",
       "tweetUrl": "https://x.com/armeniaca15/status/1727531103203016978",
-      "caption": null,
-      "eventName": null
+      "caption": "231118 ADIRA FESTIVAL - Konser Musikaria🧜🏻‍♀️\n\nRapsodi~~~\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/lY4RDv1MsA",
+      "eventName": "ADIRA FESTIVAL - Konser Musikaria",
+      "uploadDate": "2023-11-23",
+      "eventDate": "2023-11-18",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 63
     },
     {
       "file": "img-345.jpg",
@@ -3966,8 +4198,18 @@
       "year": "2023",
       "tweetId": "1726937770554450405",
       "tweetUrl": "https://x.com/armeniaca15/status/1726937770554450405",
-      "caption": null,
-      "eventName": null
+      "caption": "231119, Farmasi Cup 2023 Closing Ceremony🧜🏻‍♀️\n\nHer beautiful is predefined\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/d4j7dlLp1x",
+      "eventName": "Farmasi Cup 2023 Closing Ceremony",
+      "uploadDate": "2023-11-21",
+      "eventDate": "2023-11-19",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 44
     },
     {
       "file": "img-346.jpg",
@@ -3978,8 +4220,18 @@
       "year": "2023",
       "tweetId": "1726563996319539621",
       "tweetUrl": "https://x.com/armeniaca15/status/1726563996319539621",
-      "caption": null,
-      "eventName": null
+      "caption": "231119, Farmasi Cup 2023 Closing Ceremony🧜🏻‍♀️\n\nOnly you\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/NAV28A53r5",
+      "eventName": "Farmasi Cup 2023 Closing Ceremony",
+      "uploadDate": "2023-11-20",
+      "eventDate": "2023-11-19",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 76
     },
     {
       "file": "img-347.jpg",
@@ -3990,8 +4242,20 @@
       "year": "2023",
       "tweetId": "1726118532524720638",
       "tweetUrl": "https://x.com/armeniaca15/status/1726118532524720638",
-      "caption": null,
-      "eventName": null
+      "caption": "231118 ADIRA FESTIVAL - Konser Musikaria🧜🏻‍♀️\n\nStanding next to you\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #GreesellaAdhalia #GreeselJKT48 https://t.co/tuUeeK7Zdx",
+      "eventName": "ADIRA FESTIVAL - Konser Musikaria",
+      "uploadDate": "2023-11-19",
+      "eventDate": "2023-11-18",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "GreesellaAdhalia",
+        "GreeselJKT48"
+      ],
+      "favoriteCount": 104
     },
     {
       "file": "img-348.jpg",
@@ -4002,8 +4266,18 @@
       "year": "2023",
       "tweetId": "1725918803710869901",
       "tweetUrl": "https://x.com/armeniaca15/status/1725918803710869901",
-      "caption": null,
-      "eventName": null
+      "caption": "231117, AMAZING KIDS FAVORITE AWARDS🧜🏻‍♀️\n\n🎶🎶\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/3dV1yKEuV0",
+      "eventName": "AMAZING KIDS FAVORITE AWARDS",
+      "uploadDate": "2023-11-18",
+      "eventDate": "2023-11-17",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 47
     },
     {
       "file": "img-349.jpg",
@@ -4014,8 +4288,18 @@
       "year": "2023",
       "tweetId": "1723925482796659166",
       "tweetUrl": "https://x.com/armeniaca15/status/1723925482796659166",
-      "caption": null,
-      "eventName": null
+      "caption": "231001 Kerlap Kerlip Fest , Ice BSD🧜🏻‍♀️\n\n👑\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/F7xHIYlzcV",
+      "eventName": "Kerlap Kerlip Fest , Ice BSD",
+      "uploadDate": "2023-11-13",
+      "eventDate": "2023-10-01",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 42
     },
     {
       "file": "img-350.jpg",
@@ -4026,8 +4310,18 @@
       "year": "2023",
       "tweetId": "1723563423869645302",
       "tweetUrl": "https://x.com/armeniaca15/status/1723563423869645302",
-      "caption": null,
-      "eventName": null
+      "caption": "231111 Shopee 11.11 Big Sale TV SHOW\n\n🧡🧡\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/nHIDGOs2gd",
+      "eventName": "Shopee 11.11 Big Sale TV SHOW",
+      "uploadDate": "2023-11-12",
+      "eventDate": "2023-11-11",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 87
     },
     {
       "file": "img-351.jpg",
@@ -4038,8 +4332,18 @@
       "year": "2023",
       "tweetId": "1719021145410949394",
       "tweetUrl": "https://x.com/armeniaca15/status/1719021145410949394",
-      "caption": null,
-      "eventName": null
+      "caption": "231028 Wara Wiri Fest - Padang\n\n❤️\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/2UCZmZMAm1",
+      "eventName": "Wara Wiri Fest - Padang",
+      "uploadDate": "2023-10-30",
+      "eventDate": "2023-10-28",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 50
     },
     {
       "file": "img-352.jpg",
@@ -4050,8 +4354,18 @@
       "year": "2023",
       "tweetId": "1718596178408018308",
       "tweetUrl": "https://x.com/armeniaca15/status/1718596178408018308",
-      "caption": null,
-      "eventName": null
+      "caption": "231028 Wara Wiri Fest - Padang\n\nWhat a time~~ \n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/toTlhpNhlb",
+      "eventName": "Wara Wiri Fest - Padang",
+      "uploadDate": "2023-10-29",
+      "eventDate": "2023-10-28",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 53
     },
     {
       "file": "img-353.jpg",
@@ -4062,8 +4376,18 @@
       "year": "2023",
       "tweetId": "1716838382545092957",
       "tweetUrl": "https://x.com/armeniaca15/status/1716838382545092957",
-      "caption": null,
-      "eventName": null
+      "caption": "231015  Indomaret Fresh Pahlawan Seribu , BSD🧜🏻‍♀️\n\nPeace for you \n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/d8OFhKmcGJ",
+      "eventName": "Indomaret Fresh Pahlawan Seribu , BSD",
+      "uploadDate": "2023-10-24",
+      "eventDate": "2023-10-15",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 61
     },
     {
       "file": "img-354.jpg",
@@ -4074,8 +4398,18 @@
       "year": "2023",
       "tweetId": "1716477334990303617",
       "tweetUrl": "https://x.com/armeniaca15/status/1716477334990303617",
-      "caption": null,
-      "eventName": null
+      "caption": "231014 Atma Asta 2023🧜🏻‍♀️\n\nTake a chance  with me\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/NgG1Vg7YIh",
+      "eventName": "Atma Asta 2023",
+      "uploadDate": "2023-10-23",
+      "eventDate": "2023-10-14",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 78
     },
     {
       "file": "img-355.jpg",
@@ -4086,8 +4420,18 @@
       "year": "2023",
       "tweetId": "1716053001667063923",
       "tweetUrl": "https://x.com/armeniaca15/status/1716053001667063923",
-      "caption": null,
-      "eventName": null
+      "caption": "230416 Grand Finals FFML Season 7🧜🏻‍♀️\n\nSo obvious~\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/0Hedw6wLOJ",
+      "eventName": "Grand Finals FFML Season 7",
+      "uploadDate": "2023-10-22",
+      "eventDate": "2023-04-16",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 65
     },
     {
       "file": "img-356.jpg",
@@ -4098,8 +4442,18 @@
       "year": "2023",
       "tweetId": "1715750846666022954",
       "tweetUrl": "https://x.com/armeniaca15/status/1715750846666022954",
-      "caption": null,
-      "eventName": null
+      "caption": "231021 Playlist  Live Festival 2023🧜🏻‍♀️\n\nHometown pride 👸🏻\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/iKkAMt2aDY",
+      "eventName": "Playlist Live Festival 2023",
+      "uploadDate": "2023-10-21",
+      "eventDate": "2023-10-21",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 180
     },
     {
       "file": "img-357.jpg",
@@ -4110,8 +4464,18 @@
       "year": "2023",
       "tweetId": "1715214636482785763",
       "tweetUrl": "https://x.com/armeniaca15/status/1715214636482785763",
-      "caption": null,
-      "eventName": null
+      "caption": "230730 Impactnation Japan Festival 2023🧜🏻‍♀️\n\nHey you there ，Gomen ne 🙏\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/5RgBFhahsx",
+      "eventName": "Impactnation Japan Festival 2023",
+      "uploadDate": "2023-10-20",
+      "eventDate": "2023-07-30",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 76
     },
     {
       "file": "img-358.jpg",
@@ -4122,8 +4486,18 @@
       "year": "2023",
       "tweetId": "1714964100944740375",
       "tweetUrl": "https://x.com/armeniaca15/status/1714964100944740375",
-      "caption": null,
-      "eventName": null
+      "caption": "231014 Atma Asta 2023🧜🏻‍♀️\n\nYou are beautiful just the way you are~~\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/xzooBvO6oQ",
+      "eventName": "Atma Asta 2023",
+      "uploadDate": "2023-10-19",
+      "eventDate": "2023-10-14",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 53
     },
     {
       "file": "img-359.jpg",
@@ -4134,8 +4508,19 @@
       "year": "2023",
       "tweetId": "1714899625776435632",
       "tweetUrl": "https://x.com/armeniaca15/status/1714899625776435632",
-      "caption": null,
-      "eventName": null
+      "caption": "230507 JKT48 Personal Meet &amp; Great Festival “Nice to See You”🧜🏻‍♀️\n\nLittle bunny\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #EliChinese https://t.co/KA4qIHMNA0",
+      "eventName": "JKT48 Personal Meet & Great Festival “Nice to See You”",
+      "uploadDate": "2023-10-19",
+      "eventDate": "2023-05-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "EliChinese"
+      ],
+      "favoriteCount": 64
     },
     {
       "file": "img-360.jpg",
@@ -4146,8 +4531,19 @@
       "year": "2023",
       "tweetId": "1714578347269984294",
       "tweetUrl": "https://x.com/armeniaca15/status/1714578347269984294",
-      "caption": null,
-      "eventName": null
+      "caption": "230714 JKT48 Summer Tour Solo 🧜🏻‍♀️\n\nCici Helisma? \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #EliChinese https://t.co/OQ1jPhfCxr",
+      "eventName": "JKT48 Summer Tour Solo",
+      "uploadDate": "2023-10-18",
+      "eventDate": "2023-07-14",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "EliChinese"
+      ],
+      "favoriteCount": 74
     },
     {
       "file": "img-361.jpg",
@@ -4158,8 +4554,18 @@
       "year": "2023",
       "tweetId": "1714509507920069062",
       "tweetUrl": "https://x.com/armeniaca15/status/1714509507920069062",
-      "caption": null,
-      "eventName": null
+      "caption": "230702  JKT48 Summer Festival 2023🧜🏻‍♀️\n\n🧜🏻‍♀️ 🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/8C0Vz7ppJN",
+      "eventName": "JKT48 Summer Festival 2023",
+      "uploadDate": "2023-10-18",
+      "eventDate": "2023-07-02",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 49
     },
     {
       "file": "img-362.jpg",
@@ -4170,8 +4576,18 @@
       "year": "2023",
       "tweetId": "1714456895212400955",
       "tweetUrl": "https://x.com/armeniaca15/status/1714456895212400955",
-      "caption": null,
-      "eventName": null
+      "caption": "230926  Indonesian Television Award 2023🧜🏻‍♀️\n\nNo no\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/dxQIvoqNl1",
+      "eventName": "Indonesian Television Award 2023",
+      "uploadDate": "2023-10-18",
+      "eventDate": "2023-09-26",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 42
     },
     {
       "file": "img-363.jpg",
@@ -4182,8 +4598,18 @@
       "year": "2023",
       "tweetId": "1714139258527858905",
       "tweetUrl": "https://x.com/armeniaca15/status/1714139258527858905",
-      "caption": null,
-      "eventName": null
+      "caption": "231015  Indomaret Fresh Pahlawan Seribu , BSD🧜🏻‍♀️\n\nVitamin C~~\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/EK16tYyGOT",
+      "eventName": "Indomaret Fresh Pahlawan Seribu , BSD",
+      "uploadDate": "2023-10-17",
+      "eventDate": "2023-10-15",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 42
     },
     {
       "file": "img-364.jpg",
@@ -4194,8 +4620,18 @@
       "year": "2023",
       "tweetId": "1714084257105314063",
       "tweetUrl": "https://x.com/armeniaca15/status/1714084257105314063",
-      "caption": null,
-      "eventName": null
+      "caption": "231007  Ragnarok Stars 2023 🧜🏻‍♀️\n\nHey there~~~\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/kbt7ZqenQy",
+      "eventName": "Ragnarok Stars 2023",
+      "uploadDate": "2023-10-17",
+      "eventDate": "2023-10-07",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 77
     },
     {
       "file": "img-365.jpg",
@@ -4206,8 +4642,18 @@
       "year": "2023",
       "tweetId": "1713918188008964241",
       "tweetUrl": "https://x.com/armeniaca15/status/1713918188008964241",
-      "caption": null,
-      "eventName": null
+      "caption": "Hello welcome to the first post for our lovely mermaid, Helisma Putri @H_EliJKT48  🧜🏻‍♀️ \n\n#HelismaPutri #EliJKT48 #armeniaca #エリ #헬리스마 https://t.co/iyX90ycidq",
+      "eventName": "Hello welcome to the first post for our lovely mermaid, Helisma Putri",
+      "uploadDate": "2023-10-16",
+      "eventDate": "2023-10-16",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 384
     },
     {
       "file": "img-366.jpg",
@@ -4377,5 +4823,7 @@
       "caption": null,
       "eventName": null
     }
-  ]
+  ],
+  "enrichedAt": "2026-05-03T03:57:46.333Z",
+  "enrichedCount": 44
 }
