@@ -182,7 +182,7 @@ const MerchCard = ({ product }) => {
   return (
     <Tag
       {...tagProps}
-      className={`group w-full rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
+      className={`group w-full md:max-w-[300px] md:justify-self-start rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
         link
           ? 'hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg'
           : 'cursor-default'
