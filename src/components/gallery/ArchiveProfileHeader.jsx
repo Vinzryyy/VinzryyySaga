@@ -20,6 +20,7 @@ import React, { memo, useMemo } from 'react';
 import { useGallery } from '../../context';
 import { SITE_CONFIG } from '../../config/siteConfig';
 import SocialStoriesRing from '../SocialStoriesRing';
+import IdnLiveStreamPlayer from '../IdnLiveStreamPlayer';
 import { useShowroomLive } from '../../hooks/useShowroomLive';
 import { useIdnLive } from '../../hooks/useIdnLive';
 
@@ -199,16 +200,29 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
             {(SITE_CONFIG.site?.url || 'armeniaca.online').replace(/^https?:\/\//, '')}
           </a>
 
-          {/* "Live Now" alert — surfaces when Eli is actively
-              streaming on either IDN or SHOWROOM. Click drops the
-              user straight into the live room. */}
-          {(idnLive.isLive || showroomLive.isLive) && (
+          {/* IDN inline player — when Eli is live on IDN, embed the
+              raw HLS stream directly so visitors get a clean watch
+              experience without the platform's gift animation chrome.
+              Falls back to a "Tonton di IDN App" CTA inside the
+              player frame on CORS rejection. */}
+          {idnLive.isLive && idnLive.liveStream?.playbackUrl && (
+            <div className="mt-5 max-w-2xl">
+              <IdnLiveStreamPlayer
+                playbackUrl={idnLive.liveStream.playbackUrl}
+                posterUrl={idnLive.liveStream.imageUrl}
+                externalUrl={idnLive.liveStream.url}
+                title={idnLive.liveStream.title}
+                viewCount={idnLive.liveStream.viewCount}
+              />
+            </div>
+          )}
+
+          {/* SHOWROOM live banner (no inline embed — SHOWROOM uses
+              their own proprietary player, not HLS). Click drops to
+              the live room on showroom-live.com. */}
+          {!idnLive.isLive && showroomLive.isLive && (
             <a
-              href={
-                idnLive.isLive
-                  ? idnLive.liveStream?.url || 'https://www.idn.app/jkt48_eli'
-                  : 'https://www.showroom-live.com/r/JKT48_Eli'
-              }
+              href="https://www.showroom-live.com/r/JKT48_Eli"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-5 inline-flex items-center gap-3 px-4 py-2.5 rounded-full bg-red-600 text-white shadow-md shadow-red-500/30 hover:-translate-y-0.5 transition-transform"
@@ -218,13 +232,8 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
               </span>
               <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                Live Now · {idnLive.isLive ? 'IDN' : 'SHOWROOM'}
+                Live Now · SHOWROOM
               </span>
-              {idnLive.isLive && idnLive.liveStream?.title && (
-                <span className="text-xs font-bold truncate max-w-[180px] sm:max-w-xs">
-                  {idnLive.liveStream.title}
-                </span>
-              )}
               <i className="ri-arrow-right-up-line text-base ml-auto" />
             </a>
           )}

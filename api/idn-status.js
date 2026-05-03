@@ -60,6 +60,7 @@ export default async function handler(req, res) {
       gql(
         '{ getLivestreams(page: 1) {' +
           ' slug title status live_at view_count image_url' +
+          ' playback_url room_identifier' +
           ' creator { username name }' +
           ' } }',
       ),
@@ -91,6 +92,8 @@ export default async function handler(req, res) {
             viewCount: liveEntry.view_count,
             liveAt: liveEntry.live_at,
             imageUrl: liveEntry.image_url,
+            playbackUrl: liveEntry.playback_url,
+            roomIdentifier: liveEntry.room_identifier,
             url: `https://www.idn.app/${encodeURIComponent(username)}/live/${liveEntry.slug}`,
           }
         : null,
