@@ -30,6 +30,7 @@ const FilterBar = memo(function FilterBar() {
     filters,
     ui,
     setEraFilter,
+    setEventQuery,
     setViewMode,
     setDensity,
     clearFilters,
@@ -40,6 +41,21 @@ const FilterBar = memo(function FilterBar() {
   } = useGallery();
 
   const [isExpanded, setIsExpanded] = useState(readStoredExpanded);
+  // Local input state so typing stays snappy; pushes to context on
+  // change. The context is the source of truth — this is just a
+  // controlled-input mirror.
+  const [eventInput, setEventInput] = useState(filters.eventQuery || '');
+
+  // Sync from context when external clears happen (e.g. resetFilters).
+  useEffect(() => {
+    setEventInput(filters.eventQuery || '');
+  }, [filters.eventQuery]);
+
+  const handleEventChange = (e) => {
+    const v = e.target.value;
+    setEventInput(v);
+    setEventQuery(v);
+  };
 
   useEffect(() => {
     try {
@@ -146,6 +162,38 @@ const FilterBar = memo(function FilterBar() {
             <i className="ri-subtract-line text-base" />
           </button>
           
+          {/* Event search — substring match on eventName + caption.
+              Sits above the era chips since it's a stronger filter
+              (narrows by topic) than the era pills (narrows by year). */}
+          <div className="relative pr-10">
+            <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--retro-burgundy)]/60" />
+            <input
+              type="search"
+              value={eventInput}
+              onChange={handleEventChange}
+              placeholder="Cari event… (mis. Indosiar, Festival, Theater)"
+              aria-label="Cari berdasarkan nama event atau caption"
+              className="
+                w-full pl-11 pr-10 py-2.5 rounded-full
+                bg-white/70 backdrop-blur-sm
+                border border-white/60 focus:border-[color:var(--retro-burgundy)]/40
+                focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none
+                text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)]
+                transition-all
+              "
+            />
+            {eventInput && (
+              <button
+                type="button"
+                onClick={() => { setEventInput(''); setEventQuery(''); }}
+                aria-label="Bersihkan pencarian event"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--color-text-muted)] text-sm transition-colors"
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+
           {/* Era Selection - Editorial Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto w-full pb-2 pr-10 scrollbar-hide no-scrollbar">
             <button

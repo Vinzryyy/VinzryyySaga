@@ -226,50 +226,110 @@ const Lightbox = ({ isOpen, onClose, initialImage }) => {
         />
       </div>
 
-      {/* Image Info Panel */}
+      {/* Image Info Panel — driven by enriched metadata from
+          gallery-enrichments.json. Falls back to placeholders for
+          frames that didn't get enriched (legacy unmatched). */}
       <div
         className={`
           absolute bottom-0 left-0 right-0
-          bg-gradient-to-t from-[color:var(--retro-bg-dark)]/95 via-[color:var(--retro-bg-dark)]/80 to-transparent
-          p-6 md:p-8
+          bg-gradient-to-t from-[color:var(--retro-bg-dark)]/95 via-[color:var(--retro-bg-dark)]/85 to-transparent
+          px-5 sm:px-8 pt-12 pb-6 md:pb-8
           transform transition-transform duration-300
           ${showDetails ? 'translate-y-0' : 'translate-y-full'}
         `}
       >
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-header font-bold text-[color:var(--retro-cream)] mb-2">
-            {currentImage.title}
-          </h2>
-          
-          <p className="text-[color:var(--retro-text-light)] mb-4">{currentImage.description}</p>
-
-          <div className="flex flex-wrap gap-4 text-sm text-[color:var(--retro-text-muted)]">
-            <span className="flex items-center gap-1">
-              <i className="ri-map-pin-line" />
-              {currentImage.location}
-            </span>
-            <span className="flex items-center gap-1">
-              <i className="ri-calendar-line" />
-              {new Date(currentImage.date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </span>
-            <span className="flex items-center gap-1">
-              <i className="ri-camera-line" />
-              {currentImage.camera}
-            </span>
-            <span className="flex items-center gap-1">
-              <i className="ri-disc-line" />
-              {currentImage.lens}
-            </span>
-            {currentImage.dimensions && (
-              <span>
-                {currentImage.dimensions.width} x {currentImage.dimensions.height}
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-start justify-between gap-4 mb-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-header font-bold text-[color:var(--retro-cream)] leading-tight">
+              {currentImage.eventName || currentImage.title || 'Eli JKT48'}
+            </h2>
+            {typeof currentImage.favoriteCount === 'number' && currentImage.favoriteCount > 0 && (
+              <span className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/80 text-[color:var(--retro-cream)] text-xs font-black tabular-nums">
+                <i className="ri-heart-fill text-[color:var(--retro-gold-light)]" />
+                {currentImage.favoriteCount.toLocaleString('id-ID')}
               </span>
             )}
           </div>
+
+          {/* Date row — separates event date (when it happened) from
+              upload date (when it was posted to X). For throwback
+              posts these differ by months. */}
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:text-sm text-[color:var(--retro-cream)]/75 mb-3">
+            {currentImage.eventDate && (
+              <span className="inline-flex items-center gap-1.5">
+                <i className="ri-calendar-event-line text-[color:var(--retro-gold-light)]" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] mr-1">Event</span>
+                {new Date(currentImage.eventDate).toLocaleDateString('id-ID', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </span>
+            )}
+            {currentImage.uploadDate && currentImage.uploadDate !== currentImage.eventDate && (
+              <span className="inline-flex items-center gap-1.5">
+                <i className="ri-upload-line text-[color:var(--retro-cream)]/40" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] mr-1">Diposting</span>
+                {new Date(currentImage.uploadDate).toLocaleDateString('id-ID', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+            )}
+            {currentImage.dimensions && (
+              <span className="inline-flex items-center gap-1.5 text-[color:var(--retro-cream)]/55">
+                <i className="ri-aspect-ratio-line" />
+                <span className="tabular-nums">
+                  {currentImage.dimensions.width}×{currentImage.dimensions.height}
+                </span>
+              </span>
+            )}
+            {currentImage.metaSource === 'manual' && (
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded bg-[color:var(--retro-gold-light)]/80 text-[color:var(--retro-brown-dark)] self-center">
+                Manual
+              </span>
+            )}
+          </div>
+
+          {/* Raw caption — collapsed-by-default look (line-clamp 3) so
+              long captions don't dominate the panel. Hover/tap unfolds
+              via group-hover + peer pattern would over-engineer this,
+              so we just show the truncated form and let users click
+              "Buka di X" for the full thing. */}
+          {currentImage.caption && (
+            <p className="text-xs sm:text-sm text-[color:var(--retro-cream)]/85 leading-relaxed mb-3 max-w-3xl whitespace-pre-line line-clamp-3">
+              {currentImage.caption}
+            </p>
+          )}
+
+          {/* Hashtag chips */}
+          {currentImage.hashtags?.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {currentImage.hashtags.slice(0, 6).map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] font-bold tracking-wide px-2 py-0.5 rounded bg-[color:var(--retro-cream)]/10 text-[color:var(--retro-cream)]/70"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Tweet link CTA */}
+          {currentImage.tweetUrl && (
+            <a
+              href={currentImage.tweetUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-gold-light)] hover:text-[color:var(--retro-gold)] transition-colors"
+            >
+              <i className="ri-twitter-x-line text-base" />
+              Lihat post di X
+              <i className="ri-arrow-right-up-line text-base" />
+            </a>
+          )}
         </div>
       </div>
 
