@@ -79,12 +79,67 @@ const stripEmoji = (s) =>
     .replace(/\s{2,}/g, ' ')
     .trim();
 
+// Try to interpret "AABBCC" as either YYMMDD or DDMMYY (both formats
+// observed in @armeniaca15 captions). Returns the valid date that's
+// most plausible given the upload date — events should be ≤ upload
+// date (you post AFTER the event), and the one closest to upload date
+// wins when both interpretations are valid. Returns null if neither
+// parse produces a sensible date.
+const parseAmbiguousDate = (digits, uploadDateStr) => {
+  const a = digits.slice(0, 2);
+  const b = digits.slice(2, 4);
+  const c = digits.slice(4, 6);
+
+  const tryDate = (yy, mm, dd) => {
+    const m = parseInt(mm, 10);
+    const d = parseInt(dd, 10);
+    if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+    const iso = `20${yy}-${mm}-${dd}`;
+    const date = new Date(`${iso}T00:00:00Z`);
+    if (Number.isNaN(date.getTime())) return null;
+    // Validate the JS-parsed date matches input (rejects invalid days
+    // like Feb 30 that JS would silently roll forward to March)
+    if (
+      date.getUTCFullYear() !== 2000 + parseInt(yy, 10) ||
+      date.getUTCMonth() + 1 !== m ||
+      date.getUTCDate() !== d
+    ) {
+      return null;
+    }
+    return { iso, date };
+  };
+
+  const yymmdd = tryDate(a, b, c); // "100126" → 2010-01-26
+  const ddmmyy = tryDate(c, b, a); // "100126" → 2026-01-10
+  const upload = uploadDateStr ? new Date(`${uploadDateStr}T00:00:00Z`) : null;
+
+  // Allow 1-day fuzz forward (timezone slip when posting near midnight)
+  const cutoff = upload ? upload.getTime() + 86400000 : Infinity;
+  const candidates = [yymmdd, ddmmyy].filter(
+    (c) => c && c.date.getTime() <= cutoff && c.date.getUTCFullYear() >= 2018,
+  );
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1 || !upload) return candidates[0].iso;
+
+  // Both valid — pick the one closer to upload date
+  candidates.sort(
+    (x, y) =>
+      Math.abs(upload - x.date) - Math.abs(upload - y.date),
+  );
+  return candidates[0].iso;
+};
+
 // Parse "240224 GIS 2 Festival 2024 🧜🏻‍♀️\n@H_EliJKT48 #..." → {
 //   eventDate: "2024-02-24", eventName: "GIS 2 Festival 2024"
 // }
 //
-// Date prefix accepts "YYMMDD" followed by space, comma, dash, or colon
-// — observed in the wild as "240224 ...", "231117, ...", "231119 - ...".
+// Date prefix accepts 6 digits followed by space, comma, dash, colon,
+// or pipe — observed in the wild as "240224 ...", "231117, ...",
+// "100126 || ...", "280625 | ...".
+//
+// 6-digit prefix is ambiguous: @armeniaca15 uses both YYMMDD (older
+// posts) and DDMMYY (newer posts). parseAmbiguousDate disambiguates
+// using the upload date as a sanity anchor.
 const parseCaption = (text, fallbackUploadDate) => {
   if (!text) {
     return { eventDate: fallbackUploadDate, eventName: null };
@@ -94,18 +149,26 @@ const parseCaption = (text, fallbackUploadDate) => {
 
   // Strip trailing mentions/hashtags/URLs so eventName is just the
   // human-readable bit. Processed before date extraction so the
-  // leading YYMMDD stays untouched.
+  // leading 6-digit date stays untouched.
   const trimmed = firstLine
     .replace(/\s*(@\w+|#\w+|https?:\/\/\S+|t\.co\/\S+)/g, '')
     .trim();
 
-  const dateMatch = trimmed.match(/^(\d{2})(\d{2})(\d{2})[\s,\-:.]+(.+)$/);
+  const dateMatch = trimmed.match(/^(\d{6})[\s,\-:.|/]+(.+)$/);
   if (dateMatch) {
-    const [, yy, mm, dd, rest] = dateMatch;
-    const fullYear = `20${yy}`;
+    const [, digits, rest] = dateMatch;
+    const parsedDate = parseAmbiguousDate(digits, fallbackUploadDate);
+    if (parsedDate) {
+      return {
+        eventDate: parsedDate,
+        eventName: stripEmoji(rest.replace(/^[\s,\-:.|/]+/, '')) || null,
+      };
+    }
+    // Date prefix didn't make sense — keep the rest as event name,
+    // fall back to upload date.
     return {
-      eventDate: `${fullYear}-${mm}-${dd}`,
-      eventName: stripEmoji(rest) || null,
+      eventDate: fallbackUploadDate,
+      eventName: stripEmoji(rest.replace(/^[\s,\-:.|/]+/, '')) || null,
     };
   }
 
