@@ -281,6 +281,7 @@ export const SITE_CONFIG = {
     socials: [
       { platform: 'Instagram', handle: '@jkt48.eli', url: 'https://www.instagram.com/jkt48.eli/', icon: 'ri-instagram-line' },
       { platform: 'X', handle: '@H_EliJKT48', url: 'https://x.com/H_EliJKT48', icon: 'ri-twitter-x-line' },
+      { platform: 'TikTok', handle: '@elijkt48', url: 'https://www.tiktok.com/@elijkt48', icon: 'ri-tiktok-line' },
       { platform: 'IDN Live', handle: 'jkt48_eli', url: 'https://www.idn.app/jkt48_eli', icon: 'ri-broadcast-line' },
       { platform: 'SHOWROOM', handle: 'JKT48_Eli', url: 'https://www.showroom-live.com/r/JKT48_Eli', icon: 'ri-vidicon-line' },
     ],
