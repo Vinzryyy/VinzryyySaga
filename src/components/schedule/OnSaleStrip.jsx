@@ -182,49 +182,37 @@ const MerchCard = ({ product }) => {
   return (
     <Tag
       {...tagProps}
-      className={`group flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
+      className={`group flex-shrink-0 self-start w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
         link
           ? 'hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg'
           : 'cursor-default'
       }`}
     >
-      <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
+      {/* Promo image is a designed flyer (1080×1350, 4:5) with sizes,
+          PO date, and bonus burned in. Render at native aspect with
+          no overlays so the burned-in info reads cleanly — no need to
+          duplicate badges. self-start on the wrapper keeps the strip
+          aligned to the top so this taller card doesn't stretch the
+          shorter SaleCards next to it. */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
         <img
           src={product.image}
           alt={product.imageAlt || product.name}
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 p-3 flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
-            <i className="ri-shopping-bag-3-line" />
-            Pre-Order
-          </span>
-          {product.preorderUntil && (
-            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]">
-              <i className="ri-time-line" />
-              s/d {product.preorderUntil}
-            </span>
-          )}
-        </div>
       </div>
 
       <div className="p-4 flex flex-col gap-2">
         <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight line-clamp-2">
           {product.name}
         </p>
-        <div className="flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
-          <span className="text-[color:var(--color-text-muted)] inline-flex items-center gap-1 truncate">
+        {product.store && (
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5 truncate">
             <i className="ri-store-2-line text-base flex-shrink-0" />
-            <span className="truncate">{product.store || 'Official Store'}</span>
-          </span>
-          {product.sizes?.length > 0 && (
-            <span className="text-[color:var(--retro-burgundy)] tabular-nums flex-shrink-0">
-              {product.sizes.length} ukuran
-            </span>
-          )}
-        </div>
+            <span className="truncate">{product.store}</span>
+          </p>
+        )}
         <div className="pt-3 mt-1 border-t border-[color:var(--retro-brown-dark)]/8 flex items-center justify-between gap-2">
           <span className="font-header text-lg font-black text-[color:var(--retro-burgundy)] tabular-nums">
             {product.price}
@@ -318,7 +306,7 @@ const OnSaleStrip = () => {
           </p>
         </div>
         <div
-          className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-proximity"
+          className="-mx-1 px-1 flex items-start gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-proximity"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {activeSales.map((sale, idx) => (
