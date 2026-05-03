@@ -58,18 +58,26 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
   const tagline = SITE_CONFIG.branding?.tagline;
 
   return (
-    <section aria-label="Profil arsip" className="pt-16 sm:pt-20">
-      {/* Cover banner — full-bleed, ~3:1 aspect. Bottom gradient
-          ensures the avatar + handle row reads cleanly even on light
-          banner content. */}
-      <div className="relative w-full h-40 sm:h-52 md:h-64 lg:h-72 overflow-hidden bg-[color:var(--retro-brown-dark)]">
+    <section aria-label="Profil arsip">
+      {/* Cover banner — full-bleed from the very top of the viewport
+          so the fixed navbar sits over it (no white gap above). Height
+          accounts for the ~72px navbar + a usable visible band below.
+          Bottom gradient ensures the avatar + handle row reads cleanly
+          even on light banner content. */}
+      <div className="relative w-full h-56 sm:h-72 md:h-80 lg:h-96 overflow-hidden bg-[color:var(--retro-brown-dark)]">
         <img
           src={COVER_IMAGE}
           alt=""
           aria-hidden="true"
           className="w-full h-full object-cover"
-          style={{ objectPosition: '55% 28%' }}
+          style={{ objectPosition: '55% 30%' }}
           loading="eager"
+        />
+        {/* Top-fade overlay — gives the navbar a darker backdrop so
+            its links/icons stay legible against the photo. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[color:var(--retro-brown-dark)]/60 to-transparent"
         />
         <div
           aria-hidden="true"
