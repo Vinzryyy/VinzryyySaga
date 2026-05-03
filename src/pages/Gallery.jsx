@@ -15,6 +15,7 @@ import { useGallery } from '../context';
 import ArchiveProfileHeader from '../components/gallery/ArchiveProfileHeader';
 import InstagramGrid from '../components/gallery/InstagramGrid';
 import FilterBar from '../components/gallery/FilterBar';
+import VivoSection from '../components/gallery/VivoSection';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 
@@ -76,11 +77,15 @@ const GalleryPage = () => {
         <FilterBar />
 
         {/* IG-style square grid */}
-        <section className="px-1 sm:px-2 md:px-4 lg:px-6 pb-12 md:pb-16">
+        <section className="px-1 sm:px-2 md:px-4 lg:px-6 pb-4">
           <div className="max-w-5xl mx-auto">
             <InstagramGrid />
           </div>
         </section>
+
+        {/* Vivo — live streaming archive (IDN + SHOWROOM playlists)
+            embedded as a single segment under the photo grid. */}
+        <VivoSection />
 
         {/* Footer micro-sig */}
         <div className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pb-12 md:pb-16">

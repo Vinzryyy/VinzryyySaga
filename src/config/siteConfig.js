@@ -97,32 +97,13 @@ export const SITE_CONFIG = {
             description: 'Lihat seluruh frame',
             icon: 'ri-stack-line',
           },
-          // Era pills are appended dynamically from the gallery data
-        ],
-      },
-      {
-        label: 'Vivo',
-        hash: 'vivo',
-        icon: 'ri-live-line',
-        children: [
           {
-            label: 'Semua Live',
+            label: 'Vivo · Live Streaming',
             hash: 'vivo',
-            description: 'Playlist live streaming Eli',
-            icon: 'ri-play-list-line',
+            description: 'Playlist IDN & SHOWROOM Eli',
+            icon: 'ri-live-line',
           },
-          {
-            label: 'IDN Live',
-            hash: 'vivo-idn',
-            description: 'Arsip live di IDN',
-            icon: 'ri-broadcast-line',
-          },
-          {
-            label: 'SHOWROOM',
-            hash: 'vivo-showroom',
-            description: 'Arsip live di SHOWROOM',
-            icon: 'ri-vidicon-line',
-          },
+          // Era pills are appended dynamically from the gallery data
         ],
       },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
