@@ -1,38 +1,21 @@
 /**
- * FilterBar Component - Era-Based Editorial Version
+ * FilterBar — sticky era pills + event search for /gallery.
  *
- * Collapsible: a "minimize" toggle in the corner shrinks the whole bar
- * to a single compact pill (era name + view mode + density + count) so
- * the gallery grid gets back ~140px of vertical real-estate while
- * scrolling. State persists in localStorage so user's choice survives
- * across page navigations and reloads. Defaults to expanded on first
- * visit so the controls stay discoverable.
+ * IG-style: a horizontally-scrolling pill row of era filters with a
+ * compact search input on the right. No view-mode / density toggles
+ * (the IG grid is the only mode now). Sits sticky just under the
+ * navbar so filtering is always one tap away while scrolling the grid.
  */
 
 import React, { memo, useEffect, useState } from 'react';
 import { useGallery } from '../../context';
 
-const STORAGE_KEY = 'gallery.filterBar.expanded';
-
-const readStoredExpanded = () => {
-  if (typeof window === 'undefined') return true;
-  try {
-    const v = window.localStorage.getItem(STORAGE_KEY);
-    return v === null ? true : v === 'true';
-  } catch {
-    return true;
-  }
-};
-
 const FilterBar = memo(function FilterBar() {
   const {
     eras,
     filters,
-    ui,
     setEraFilter,
     setEventQuery,
-    setViewMode,
-    setDensity,
     clearFilters,
     hasFilters,
     activeFilterCount,
@@ -40,258 +23,107 @@ const FilterBar = memo(function FilterBar() {
     totalImages,
   } = useGallery();
 
-  const [isExpanded, setIsExpanded] = useState(readStoredExpanded);
-  // Local input state so typing stays snappy; pushes to context on
-  // change. The context is the source of truth — this is just a
-  // controlled-input mirror.
+  // Local input mirror so typing stays snappy; pushes to context on
+  // change. Context is the source of truth for the actual filter.
   const [eventInput, setEventInput] = useState(filters.eventQuery || '');
-
-  // Sync from context when external clears happen (e.g. resetFilters).
   useEffect(() => {
     setEventInput(filters.eventQuery || '');
   }, [filters.eventQuery]);
-
   const handleEventChange = (e) => {
     const v = e.target.value;
     setEventInput(v);
     setEventQuery(v);
   };
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, String(isExpanded));
-    } catch {
-      /* storage may be unavailable (private mode etc.) — non-fatal */
-    }
-  }, [isExpanded]);
-
-  const viewModes = [
-    { id: 'grid', label: 'Grid', icon: 'ri-layout-grid-line' },
-    { id: 'timeline', label: 'Timeline', icon: 'ri-menu-line' },
-    { id: 'moodboard', label: 'Moodboard', icon: 'ri-dashboard-line' },
-  ];
-
-  const densityModes = [
-    { id: 'compact', label: 'Compact' },
-    { id: 'comfortable', label: 'Comfortable' },
-    { id: 'editorial', label: 'Editorial' },
-  ];
-
-  // Active era label for the compact view
-  const activeEraLabel =
-    filters.era === 'all'
-      ? 'Full Archive'
-      : eras.find((e) => String(e.id) === String(filters.era))?.label || filters.era;
-  const activeViewMode = viewModes.find((m) => m.id === ui.viewMode);
-  const activeDensity = densityModes.find((m) => m.id === ui.density);
-
-  // — Compact (minimized) — single pill summarising current state ----------
-  if (!isExpanded) {
-    return (
-      <div className="sticky top-20 z-[90] py-3 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 bg-white/60 backdrop-blur-2xl border border-white/40 rounded-full px-4 py-2 shadow-retro">
+  return (
+    <div className="sticky top-[68px] sm:top-[72px] z-30 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10 px-4 sm:px-6 md:px-8">
+      <div className="max-w-5xl mx-auto py-3 flex flex-col md:flex-row md:items-center gap-3">
+        {/* Search — full width on mobile, fixed width on desktop. */}
+        <label className="relative flex-shrink-0 md:w-72">
+          <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-muted)]" />
+          <input
+            type="search"
+            value={eventInput}
+            onChange={handleEventChange}
+            placeholder="Cari event… (mis. Indosiar, Festival)"
+            aria-label="Cari berdasarkan nama event atau caption"
+            className="
+              w-full pl-9 pr-9 py-2 rounded-full
+              bg-white border border-[color:var(--retro-brown-dark)]/15
+              focus:border-[color:var(--retro-burgundy)]/50
+              focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none
+              text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)]
+              transition-colors
+            "
+          />
+          {eventInput && (
             <button
               type="button"
-              onClick={() => setIsExpanded(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[color:var(--retro-burgundy)]/90 transition-colors"
-              aria-label="Expand filter bar"
-              aria-expanded="false"
+              onClick={() => { setEventInput(''); setEventQuery(''); }}
+              aria-label="Bersihkan pencarian event"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--color-text-muted)] text-sm transition-colors"
             >
-              <i className="ri-equalizer-2-line text-sm" />
-              <span className="hidden sm:inline">Filter</span>
-              <i className="ri-arrow-down-s-line text-base -mr-1" />
+              <i className="ri-close-line" />
             </button>
+          )}
+        </label>
 
-            <div className="h-5 w-px bg-[color:var(--retro-burgundy)]/15" />
-
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)] truncate">
-              {activeEraLabel}
-            </span>
-
-            <div className="hidden md:flex items-center gap-1.5 ml-1 text-[9px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-secondary)]">
-              {activeViewMode && (
-                <span className="inline-flex items-center gap-1">
-                  <i className={`${activeViewMode.icon} text-xs`} />
-                  {activeViewMode.label}
-                </span>
-              )}
-              {activeDensity && (
-                <>
-                  <span className="opacity-30">·</span>
-                  <span>{activeDensity.label}</span>
-                </>
-              )}
-            </div>
-
-            <span className="ml-auto text-[10px] font-black tracking-[0.2em] text-[color:var(--retro-burgundy)] tabular-nums">
-              {filteredCount}/{totalImages}
-            </span>
-
-            {hasFilters && (
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="w-7 h-7 flex-shrink-0 flex items-center justify-center bg-white/70 hover:bg-red-50 text-red-500 rounded-full border border-red-100 transition-all"
-                title={`Reset ${activeFilterCount} active filter${activeFilterCount === 1 ? '' : 's'}`}
-                aria-label="Reset filters"
-              >
-                <i className="ri-restart-line text-sm" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // — Full (expanded) — original two-row layout + minimize button -----------
-  return (
-    <div className="sticky top-20 z-[90] py-6 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="relative flex flex-col gap-4 bg-white/40 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] p-4 shadow-retro">
-          {/* Minimize button — top-right corner, doesn't overlap content */}
+        {/* Era pills — horizontally scrollable, mirrors IG/X tab bar. */}
+        <div
+          className="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
+          role="tablist"
+          aria-label="Filter era"
+        >
           <button
             type="button"
-            onClick={() => setIsExpanded(false)}
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/70 hover:bg-white text-[color:var(--retro-burgundy)] border border-white/60 transition-all hover:scale-105 z-10"
-            aria-label="Minimize filter bar"
-            aria-expanded="true"
-            title="Minimize filter bar"
+            role="tab"
+            aria-selected={filters.era === 'all'}
+            onClick={() => setEraFilter('all')}
+            className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all border ${
+              filters.era === 'all'
+                ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-md'
+                : 'bg-white text-[color:var(--retro-text-secondary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:text-[color:var(--retro-burgundy)]'
+            }`}
           >
-            <i className="ri-subtract-line text-base" />
+            <i className="ri-history-line text-xs" />
+            All
           </button>
-          
-          {/* Event search — substring match on eventName + caption.
-              Sits above the era chips since it's a stronger filter
-              (narrows by topic) than the era pills (narrows by year). */}
-          <div className="relative pr-10">
-            <i className="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--retro-burgundy)]/60" />
-            <input
-              type="search"
-              value={eventInput}
-              onChange={handleEventChange}
-              placeholder="Cari event… (mis. Indosiar, Festival, Theater)"
-              aria-label="Cari berdasarkan nama event atau caption"
-              className="
-                w-full pl-11 pr-10 py-2.5 rounded-full
-                bg-white/70 backdrop-blur-sm
-                border border-white/60 focus:border-[color:var(--retro-burgundy)]/40
-                focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none
-                text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)]
-                transition-all
-              "
-            />
-            {eventInput && (
-              <button
-                type="button"
-                onClick={() => { setEventInput(''); setEventQuery(''); }}
-                aria-label="Bersihkan pencarian event"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--color-text-muted)] text-sm transition-colors"
-              >
-                <i className="ri-close-line" />
-              </button>
-            )}
-          </div>
-
-          {/* Era Selection - Editorial Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full pb-2 pr-10 scrollbar-hide no-scrollbar">
+          {eras.map((era) => (
             <button
-              onClick={() => setEraFilter('all')}
-              className={`
-                flex items-center gap-2 px-8 py-3 rounded-full
-                text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap
-                transition-all duration-500
-                ${
-                  filters.era === 'all'
-                    ? 'bg-[color:var(--retro-burgundy)] text-white shadow-lg shadow-[color:var(--retro-burgundy)]/20'
-                    : 'text-[color:var(--retro-text-secondary)] hover:bg-white/50'
-                }
-              `}
+              key={era.id}
+              type="button"
+              role="tab"
+              aria-selected={String(filters.era) === String(era.id)}
+              onClick={() => setEraFilter(era.id)}
+              className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all border ${
+                String(filters.era) === String(era.id)
+                  ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)] shadow-md'
+                  : 'bg-white text-[color:var(--retro-text-secondary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:text-[color:var(--retro-burgundy)]'
+              }`}
             >
-              <i className="ri-history-line text-xs" />
-              <span>Full Archive</span>
+              {era.label}
             </button>
+          ))}
+        </div>
 
-            <div className="h-6 w-[1px] bg-[color:var(--retro-burgundy)]/20 mx-2 hidden lg:block" />
-
-            {eras.map((era) => (
-              <button
-                key={era.id}
-                onClick={() => setEraFilter(era.id)}
-                className={`
-                  flex items-center gap-2 px-8 py-3 rounded-full
-                  text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap
-                  transition-all duration-500
-                  ${
-                    filters.era === era.id
-                      ? 'bg-[color:var(--retro-burgundy)] text-white shadow-lg shadow-[color:var(--retro-burgundy)]/20'
-                      : 'text-[color:var(--retro-text-secondary)] hover:bg-white/50'
-                  }
-                `}
-              >
-                <span>{era.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Smart Controls */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-white/40 bg-[color:var(--retro-brown-dark)]/5 p-1 overflow-x-auto">
-              {viewModes.map((mode) => (
-                <button
-                  key={mode.id}
-                  onClick={() => setViewMode(mode.id)}
-                  className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all ${
-                    ui.viewMode === mode.id
-                      ? 'bg-[color:var(--retro-burgundy)] text-white'
-                      : 'text-[color:var(--retro-text-secondary)] hover:bg-white/60'
-                  }`}
-                >
-                  <i className={`${mode.icon} mr-1`} />
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2 rounded-full border border-white/40 bg-[color:var(--retro-brown-dark)]/5 p-1 overflow-x-auto">
-              {densityModes.map((mode) => (
-                <button
-                  key={mode.id}
-                  onClick={() => setDensity(mode.id)}
-                  className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.12em] whitespace-nowrap transition-all ${
-                    ui.density === mode.id
-                      ? 'bg-white text-[color:var(--retro-burgundy)]'
-                      : 'text-[color:var(--retro-text-secondary)] hover:bg-white/60'
-                  }`}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between rounded-full border border-white/40 bg-[color:var(--retro-brown-dark)]/5 px-5 py-2">
-              <span className="text-[10px] font-black tracking-[0.2em] text-[color:var(--retro-burgundy)]">
-                {filteredCount} / {totalImages} MOMENTS
-              </span>
-              <div className="flex items-center gap-2">
-                {hasFilters && (
-                  <span className="text-[9px] font-black tracking-[0.15em] uppercase text-[color:var(--retro-burgundy)]/70">
-                    {activeFilterCount} Active
-                  </span>
-                )}
-                {hasFilters && (
-                  <button
-                    onClick={clearFilters}
-                    className="w-9 h-9 flex items-center justify-center bg-white/70 hover:bg-red-50 text-red-500 rounded-full border border-red-100 transition-all hover:scale-105"
-                    title="Reset Eras"
-                  >
-                    <i className="ri-restart-line text-base" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Count + reset — flush right on desktop, separate row on mobile. */}
+        <div className="flex items-center justify-between md:justify-end gap-3 flex-shrink-0">
+          <span className="text-[10px] font-black tracking-[0.2em] text-[color:var(--color-text-muted)] tabular-nums whitespace-nowrap">
+            <span className="text-[color:var(--retro-burgundy)]">{filteredCount.toLocaleString('id-ID')}</span>
+            <span className="opacity-50"> / {totalImages.toLocaleString('id-ID')}</span>
+          </span>
+          {hasFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-[0.18em] transition-colors"
+              title={`Reset ${activeFilterCount} filter aktif`}
+              aria-label="Reset semua filter"
+            >
+              <i className="ri-restart-line text-sm" />
+              Reset
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -21,10 +21,6 @@ import {
 const ActionTypes = {
   SET_ERA_FILTER: 'SET_ERA_FILTER',
   SET_EVENT_QUERY: 'SET_EVENT_QUERY',
-  SET_VIEW_MODE: 'SET_VIEW_MODE',
-  SET_DENSITY: 'SET_DENSITY',
-  SET_LOADING: 'SET_LOADING',
-  SET_ERROR: 'SET_ERROR',
   LOAD_IMAGES: 'LOAD_IMAGES',
   APPLY_ENRICHMENTS: 'APPLY_ENRICHMENTS',
   CLEAR_FILTERS: 'CLEAR_FILTERS',
@@ -40,10 +36,6 @@ const initialState = {
   filters: {
     era: 'all',
     eventQuery: '',
-  },
-  ui: {
-    viewMode: 'grid',
-    density: 'comfortable',
   },
   isLoading: false,
   error: null,
@@ -134,10 +126,6 @@ const galleryReducer = (state, action) => {
       const filtered = applyFilters(state.images, newFilters);
       return { ...state, filters: newFilters, filteredImages: filtered };
     }
-    case ActionTypes.SET_VIEW_MODE:
-      return { ...state, ui: { ...state.ui, viewMode: action.payload } };
-    case ActionTypes.SET_DENSITY:
-      return { ...state, ui: { ...state.ui, density: action.payload } };
     case ActionTypes.CLEAR_FILTERS: {
       const newFilters = { era: 'all', eventQuery: '' };
       return { ...state, filters: newFilters, filteredImages: applyFilters(state.images, newFilters) };
@@ -191,8 +179,6 @@ export const GalleryProvider = ({ children }) => {
 
   const setEraFilter = useCallback((era) => dispatch({ type: ActionTypes.SET_ERA_FILTER, payload: era }), []);
   const setEventQuery = useCallback((q) => dispatch({ type: ActionTypes.SET_EVENT_QUERY, payload: q }), []);
-  const setViewMode = useCallback((viewMode) => dispatch({ type: ActionTypes.SET_VIEW_MODE, payload: viewMode }), []);
-  const setDensity = useCallback((density) => dispatch({ type: ActionTypes.SET_DENSITY, payload: density }), []);
   const clearFilters = useCallback(() => dispatch({ type: ActionTypes.CLEAR_FILTERS }), []);
   const setSelectedImage = useCallback((image) => dispatch({ type: ActionTypes.SET_SELECTED_IMAGE, payload: image }), []);
   const clearSelectedImage = useCallback(() => dispatch({ type: ActionTypes.CLEAR_SELECTED_IMAGE }), []);
@@ -220,8 +206,6 @@ export const GalleryProvider = ({ children }) => {
     ...state,
     setEraFilter,
     setEventQuery,
-    setViewMode,
-    setDensity,
     clearFilters,
     setSelectedImage,
     clearSelectedImage,
@@ -231,7 +215,7 @@ export const GalleryProvider = ({ children }) => {
     totalImages: state.images.length,
     filteredCount: state.filteredImages.length,
     featuredImages: getFeaturedImages(),
-  }), [state, setEraFilter, setEventQuery, setViewMode, setDensity, clearFilters, setSelectedImage, clearSelectedImage]);
+  }), [state, setEraFilter, setEventQuery, clearFilters, setSelectedImage, clearSelectedImage]);
 
   return <GalleryContext.Provider value={contextValue}>{children}</GalleryContext.Provider>;
 };
