@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-05-03T05:28:04.534Z",
-  "coveredMediaKeys": 355,
+  "generatedAt": "2026-05-03T06:09:45.371Z",
+  "coveredMediaKeys": 356,
   "totalMappingEntries": 364,
   "manualOverrideFiles": 7,
   "excludedMediaKeyCount": 9,
@@ -4214,6 +4214,23 @@
       "favoriteCount": 106,
       "source": "x"
     },
+    "GPWnGlBaUAEs360": {
+      "eventName": "NIVEA Men Activation",
+      "eventDate": "2023-10-15",
+      "uploadDate": "2024-06-06",
+      "caption": "231015  Indomaret Fresh Pahlawan Seribu , BSD🧜🏻‍♀️\n\nLove from @H_EliJKT48 \n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/ctYknxTLsM",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "tweetId": "1798527366144389492",
+      "tweetUrl": "https://x.com/armeniaca15/status/1798527366144389492",
+      "favoriteCount": 167,
+      "source": "manual"
+    },
     "GPTBqMracAAU7e8": {
       "eventName": "Festival Semesta Bergoyang Jilid 2",
       "eventDate": "2024-05-25",
@@ -6129,7 +6146,7 @@
   "manualByFile": {
     "img-258.jpg": {
       "eventName": "NIVEA Men Activation",
-      "eventDate": null,
+      "eventDate": "2023-10-15",
       "source": "manual",
       "notes": "Brand event booth — NIVEA Men signage visible. Date & exact event title belum dikonfirmasi."
     },

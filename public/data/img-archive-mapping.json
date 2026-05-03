@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-05-03T05:12:47.616Z",
+  "generatedAt": "2026-05-03T06:09:45.249Z",
   "totalFiles": 364,
-  "matched": 357,
-  "unmatched": 7,
+  "matched": 358,
+  "unmatched": 6,
   "notes": {
     "methodology": "Perceptual dHash (9x8 grayscale, Hamming distance threshold 12/64). Matched legacy img-NNN files to x-MEDIAKEY files imported from @armeniaca15.",
     "missingFields": "caption + eventName are null because X caption text was never captured by extract-x-media.js v4. Fill via X API (sync-x-archive.js with bearer token) or extract-x-media-v5.js that captures tweet caption text.",
@@ -5439,14 +5439,24 @@
     {
       "file": "img-258.jpg",
       "path": "/archive/img-258.jpg",
-      "matched": false,
-      "confidence": 0,
-      "date": null,
-      "year": null,
-      "tweetId": null,
-      "tweetUrl": null,
-      "caption": null,
+      "matched": true,
+      "confidence": 0.984,
+      "date": "2024-06-06",
+      "year": "2024",
+      "tweetId": "1798527366144389492",
+      "tweetUrl": "https://x.com/armeniaca15/status/1798527366144389492",
+      "caption": "231015  Indomaret Fresh Pahlawan Seribu , BSD🧜🏻‍♀️\n\nLove from @H_EliJKT48 \n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 https://t.co/ctYknxTLsM",
       "eventName": "NIVEA Men Activation",
+      "uploadDate": "2024-06-06",
+      "eventDate": "2023-10-15",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마"
+      ],
+      "favoriteCount": 167,
       "source": "manual",
       "manualNotes": "Brand event booth — NIVEA Men signage visible. Date & exact event title belum dikonfirmasi."
     },
@@ -8055,7 +8065,7 @@
       "favoriteCount": 474
     }
   ],
-  "enrichedAt": "2026-05-03T05:12:47.617Z",
-  "enrichedCount": 357,
+  "enrichedAt": "2026-05-03T06:09:45.249Z",
+  "enrichedCount": 358,
   "manualOverrideCount": 7
 }
