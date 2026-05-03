@@ -20,7 +20,7 @@ import React, { memo, useMemo } from 'react';
 import { useGallery } from '../../context';
 import { SITE_CONFIG } from '../../config/siteConfig';
 
-const COVER_IMAGE = '/archive/img-036.jpg';
+const COVER_IMAGE = '/archive/img-024.jpg';
 
 const formatYearRange = (images) => {
   if (!images || images.length === 0) return '—';
@@ -68,7 +68,7 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
           alt=""
           aria-hidden="true"
           className="w-full h-full object-cover"
-          style={{ objectPosition: '50% 35%' }}
+          style={{ objectPosition: '55% 28%' }}
           loading="eager"
         />
         <div
