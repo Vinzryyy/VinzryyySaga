@@ -274,6 +274,16 @@ export const SITE_CONFIG = {
     catchphrase:
       'Bagai Lembayung Senja, Dengan Energi Kehangatan ku aku akan menghangatkan suasana.',
     portrait: '/archive/img-364.jpg',
+    // Eli's official social / live-streaming handles. Rendered in the
+    // "Profil Singkat" (Data Eli) section on Home as inline icon
+    // links. To add more (Instagram, TikTok, etc), append to this
+    // array — the row layout adapts.
+    socials: [
+      { platform: 'Instagram', handle: '@jkt48.eli', url: 'https://www.instagram.com/jkt48.eli/', icon: 'ri-instagram-line' },
+      { platform: 'X', handle: '@H_EliJKT48', url: 'https://x.com/H_EliJKT48', icon: 'ri-twitter-x-line' },
+      { platform: 'IDN Live', handle: 'jkt48_eli', url: 'https://www.idn.app/jkt48_eli', icon: 'ri-broadcast-line' },
+      { platform: 'SHOWROOM', handle: 'JKT48_Eli', url: 'https://www.showroom-live.com/r/JKT48_Eli', icon: 'ri-vidicon-line' },
+    ],
     // Career stats anchor for the LiveCounter on /schedule.
     //
     // Why a manual baseline: jkt48.com's `/api/v1/schedules` has gaps

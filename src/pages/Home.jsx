@@ -247,6 +247,32 @@ const HomePage = () => {
       { label: 'Team', value: eli.team },
       { label: 'Bergabung', value: eli.joined },
       { label: 'Asal', value: eli.origin },
+      // Social media row — inline icon pills, each links to Eli's
+      // handle on that platform. Source: SITE_CONFIG.eli.socials.
+      // font-sans on the wrapper resets the parent dd's font-header
+      // so the pill labels use the body font (cleaner at small size).
+      ...(eli.socials?.length
+        ? [{
+            label: 'Sosial Media',
+            value: (
+              <div className="flex flex-wrap items-center gap-2 font-sans">
+                {eli.socials.map((s) => (
+                  <a
+                    key={s.platform}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`${s.platform}: ${s.handle}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/8 hover:bg-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] border border-[color:var(--retro-burgundy)]/15 hover:border-[color:var(--retro-burgundy)] text-[11px] font-bold transition-colors"
+                  >
+                    <i className={`${s.icon} text-base`} />
+                    {s.handle}
+                  </a>
+                ))}
+              </div>
+            ),
+          }]
+        : []),
     ],
     [eli]
   );
