@@ -1,0 +1,15 @@
+{
+  "_doc": "Files to exclude from /gallery — promotional materials, duplicates, off-topic content. Read by scripts/build-gallery-enrichments.js and merged into public/data/gallery-enrichments.json.excludeMediaKeys, which GalleryContext consumes at load time. Reversible: remove from this file and re-run `node scripts/build-gallery-enrichments.js` to bring an entry back.",
+  "_format": "Each entry: { mediaKey: string (the part after `/x-` before the extension), reason: string, addedBy?: string }",
+  "excludes": [
+    { "mediaKey": "HHW1f-UbsAArgTC", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HHW1fPIasAAqhqQ", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HHW1gpxaYAA3HyU", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HHW1h7XawAAY8Y_", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HHW1hMuaUAA6df6", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HG-bwGSboAAaSHd", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HF1vmU6bQAAfr3e", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HCuU1v4aUAUNN4r", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" },
+    { "mediaKey": "HBNosd4bEAAoYt7", "reason": "Bahan promosi", "addedBy": "user 2026-05-03" }
+  ]
+}

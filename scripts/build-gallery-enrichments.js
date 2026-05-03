@@ -24,6 +24,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const MAPPING_FILE = path.join(ROOT, 'public', 'data', 'img-archive-mapping.json');
 const AUTH_FILE = path.join(ROOT, 'armeniaca-authentic-archive.json');
+const EXCLUDES_FILE = path.join(ROOT, 'gallery-excludes.json');
 const OUT_DIR = path.join(ROOT, 'public', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'gallery-enrichments.json');
 
@@ -97,6 +98,21 @@ const main = async () => {
     }
   });
 
+  // Pull in the exclude list so the consumer can filter promo / off-
+  // topic frames at render time without us having to delete files.
+  // Optional — missing file = empty exclude list (graceful default).
+  let excludeMediaKeys = [];
+  let excludeDetails = [];
+  try {
+    const excludesDoc = JSON.parse(await readFile(EXCLUDES_FILE, 'utf8'));
+    excludeDetails = (excludesDoc.excludes || []).filter(
+      (e) => e && e.mediaKey,
+    );
+    excludeMediaKeys = excludeDetails.map((e) => e.mediaKey);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(
     OUT_FILE,
@@ -106,14 +122,17 @@ const main = async () => {
         coveredMediaKeys,
         totalMappingEntries: mapping.entries.length,
         manualOverrideFiles: Object.keys(manualByFile).length,
+        excludedMediaKeyCount: excludeMediaKeys.length,
         notes: {
           source:
             'Built from public/data/img-archive-mapping.json (caption + event metadata) joined to armeniaca-authentic-archive.json (mediaKey ↔ tweetId) by tweetId.',
           schema:
-            'byMediaKey[mediaKey] = full metadata; manualByFile[img-NNN.jpg] = manual overrides for files outside the X scrape.',
+            'byMediaKey[mediaKey] = full metadata; manualByFile[img-NNN.jpg] = manual overrides for files outside the X scrape; excludeMediaKeys = mediaKeys to hide from the gallery (consumer filters at load).',
         },
         byMediaKey: enrichments,
         manualByFile,
+        excludeMediaKeys,
+        excludeDetails,
       },
       null,
       2,
@@ -123,6 +142,7 @@ const main = async () => {
 
   console.log(`Built enrichments: ${coveredMediaKeys} mediaKeys covered.`);
   console.log(`Manual overrides: ${Object.keys(manualByFile).length} files.`);
+  console.log(`Excluded mediaKeys: ${excludeMediaKeys.length}`);
   if (skippedDupes) console.log(`(skipped ${skippedDupes} duplicate mediaKey writes — same metadata across multi-photo tweets)`);
   console.log(`Output: ${path.relative(ROOT, OUT_FILE)}`);
 };

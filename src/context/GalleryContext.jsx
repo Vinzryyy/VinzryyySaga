@@ -71,7 +71,19 @@ const mergeEnrichments = (images, enrichmentDoc) => {
   if (!enrichmentDoc) return images;
   const byMediaKey = enrichmentDoc.byMediaKey || {};
   const manualByFile = enrichmentDoc.manualByFile || {};
-  return images.map((img) => {
+  const excludeSet = new Set(enrichmentDoc.excludeMediaKeys || []);
+
+  // Drop excluded mediaKeys before mapping — promo materials, off-topic
+  // content, etc. List lives in gallery-excludes.json at repo root and
+  // is bundled into the enrichment JSON by build-gallery-enrichments.js.
+  const filtered = excludeSet.size === 0
+    ? images
+    : images.filter((img) => {
+        const mk = extractMediaKey(img.url || img.thumbnail);
+        return !mk || !excludeSet.has(mk);
+      });
+
+  return filtered.map((img) => {
     const mk = extractMediaKey(img.url || img.thumbnail);
     const meta = (mk && byMediaKey[mk]) || null;
     const manual = (() => {
