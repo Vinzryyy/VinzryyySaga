@@ -87,12 +87,12 @@ export const SITE_CONFIG = {
         ],
       },
       {
-        label: 'Archive',
+        label: 'Memoria',
         hash: 'gallery',
         icon: 'ri-gallery-line',
         children: [
           {
-            label: 'Semua Arsip',
+            label: 'Semua Memoria',
             hash: 'gallery',
             description: 'Lihat seluruh frame',
             icon: 'ri-stack-line',
@@ -300,7 +300,7 @@ export const SITE_CONFIG = {
         '/archive/img-335.jpg',
       ],
       backgroundIntervalMs: 10000,
-      primaryCta: { label: 'Jelajahi Arsip', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
+      primaryCta: { label: 'Jelajahi Memoria', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
       secondaryCta: { label: 'Mengenal Armeniaca', hash: 'about', icon: 'ri-information-line' },
     },
     // Notice block — three sub-pages of the birthday/charity hub
@@ -364,7 +364,7 @@ export const SITE_CONFIG = {
       eyebrow: 'Gallery Eli',
       title: 'Frame Pilihan',
       subtitle: 'Momen-momen pilihan dari arsip Armeniaca.',
-      ctaLabel: 'Lihat Semua Arsip',
+      ctaLabel: 'Lihat Semua Memoria',
       ctaHash: 'gallery',
       // Hover-reveal highlight reel — each entry shows 3 frames floating
       // around the hovered title with mouse parallax. Edit the array to
@@ -461,7 +461,7 @@ export const SITE_CONFIG = {
         imageAlt:
           'Pre-order JKT48 Birthday T-Shirt Helisma Putri 2026 — desain hijau dengan ilustrasi tarot mermaid',
         store: 'JKT48 Official Store · Tokopedia',
-        link: null,
+        link: 'https://tk.tokopedia.com/ZS99hy8og/',
         linkPendingLabel: 'Link Menyusul',
       },
     ],

@@ -166,7 +166,7 @@ const writeGalleryData = async (records) => {
  */
 
 export const CATEGORIES = [
-  { id: 'all', label: 'All Archive', icon: 'ri-gallery-line' },
+  { id: 'all', label: 'All Memoria', icon: 'ri-gallery-line' },
 ];
 
 const RAW_DATA = ${JSON.stringify(sorted, null, 2)};
@@ -178,7 +178,7 @@ export const GALLERY_IMAGES = RAW_DATA.map((img) => ({
 
 export const getAvailableEras = () => {
   const years = [...new Set(RAW_DATA.map((img) => img.year))].sort((a, b) => b.localeCompare(a));
-  return years.map((year) => ({ id: year, label: \`\${year} Archive\` }));
+  return years.map((year) => ({ id: year, label: \`\${year}\` }));
 };
 
 export const getFeaturedImages = () => GALLERY_IMAGES.filter((img) => img.featured);
