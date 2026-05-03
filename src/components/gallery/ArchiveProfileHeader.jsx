@@ -79,6 +79,24 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
           aria-hidden="true"
           className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[color:var(--retro-brown-dark)]/60 to-transparent"
         />
+        {/* Decorative icon scatter — Armeniaca theme (flower for the
+            #BloomInSpring tagline, sparkle/heart for stage moments,
+            music note for performance). Positioned percent-based so
+            they reflow on resize. Soft white at low opacity so they
+            read as ornament against any banner photo without
+            stealing focus from the avatar/handle below. */}
+        <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <i className="ri-flower-fill absolute text-white/25 text-2xl sm:text-3xl md:text-4xl drop-shadow-md" style={{ top: '18%', left: '6%', transform: 'rotate(-12deg)' }} />
+          <i className="ri-sparkling-2-fill absolute text-[color:var(--retro-gold-light)]/70 text-lg sm:text-xl md:text-2xl drop-shadow-md" style={{ top: '32%', left: '18%' }} />
+          <i className="ri-heart-fill absolute text-white/20 text-base sm:text-lg drop-shadow-md" style={{ top: '52%', left: '11%' }} />
+          <i className="ri-flower-line absolute text-white/30 text-xl sm:text-2xl md:text-3xl drop-shadow-md" style={{ top: '22%', right: '8%', transform: 'rotate(15deg)' }} />
+          <i className="ri-sparkling-line absolute text-white/35 text-2xl sm:text-3xl drop-shadow-md" style={{ top: '14%', right: '22%' }} />
+          <i className="ri-music-2-fill absolute text-white/20 text-lg sm:text-xl drop-shadow-md" style={{ bottom: '32%', right: '14%', transform: 'rotate(-8deg)' }} />
+          <i className="ri-leaf-fill absolute text-[color:var(--retro-gold-light)]/40 text-base sm:text-lg drop-shadow-md" style={{ bottom: '18%', right: '6%', transform: 'rotate(20deg)' }} />
+          <i className="ri-flower-fill absolute text-white/15 text-3xl sm:text-4xl md:text-5xl drop-shadow-md" style={{ bottom: '24%', left: '38%', transform: 'rotate(8deg)' }} />
+          <i className="ri-sparkling-2-line absolute text-white/30 text-base sm:text-lg drop-shadow-md" style={{ top: '40%', right: '38%' }} />
+          <i className="ri-heart-line absolute text-[color:var(--retro-gold-light)]/50 text-sm sm:text-base drop-shadow-md" style={{ bottom: '40%', left: '24%' }} />
+        </div>
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-bg-primary)] via-[color:var(--retro-bg-primary)]/30 to-transparent"
