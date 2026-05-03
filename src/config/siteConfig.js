@@ -481,6 +481,13 @@ export const SITE_CONFIG = {
           'https://www.youtube.com/playlist?list=PLfEpwox-vkk4QauAvybcmXzOs1RVb2EZn',
         liveProfileUrl: 'https://www.idn.app/jkt48_eli',
         liveProfileLabel: 'Tonton Live di IDN',
+        // Curated top picks — featured above the full playlist embed.
+        // Order matters: shown left-to-right. Click loads YT iframe in place.
+        topPicks: [
+          'uTjBJoSPlDs',
+          'zoK9cNDRNs4',
+          'nxTI_wyYdyw',
+        ],
       },
       {
         id: 'vivo-showroom',
@@ -495,6 +502,10 @@ export const SITE_CONFIG = {
           'https://www.youtube.com/playlist?list=PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
         liveProfileUrl: 'https://www.showroom-live.com/r/JKT48_Eli',
         liveProfileLabel: 'Tonton Live di SHOWROOM',
+        topPicks: [
+          'X6aJYiK4N08',
+          'fSbR0-01sfA',
+        ],
       },
     ],
   },

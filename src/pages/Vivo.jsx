@@ -18,6 +18,73 @@ import { SITE_CONFIG } from '../config/siteConfig';
 
 const VIVO = SITE_CONFIG.vivo;
 
+// Lite YouTube embed — show thumbnail + play button until clicked, then
+// swap to the actual iframe. Saves a player-JS download per card on
+// page load (only the cards the user actually clicks load the player).
+// Uses youtube-nocookie + autoplay=1 so the click→play feels instant.
+const TopPickCard = ({ videoId }) => {
+  const [playing, setPlaying] = useState(false);
+
+  if (playing) {
+    return (
+      <div className="relative aspect-video rounded-xl overflow-hidden bg-black">
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+          title={`Video ${videoId}`}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setPlaying(true)}
+      aria-label="Putar video"
+      className="group relative block aspect-video rounded-xl overflow-hidden bg-black/80 cursor-pointer w-full"
+    >
+      {/* maxresdefault often doesn't exist for older live recordings;
+          hqdefault is guaranteed and looks fine at this size. */}
+      <img
+        src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      />
+      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+      <span className="absolute inset-0 flex items-center justify-center">
+        <span className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-600/95 group-hover:bg-red-600 group-hover:scale-110 flex items-center justify-center shadow-lg shadow-black/40 transition-all">
+          <i className="ri-play-fill text-white text-3xl sm:text-4xl ml-1" />
+        </span>
+      </span>
+    </button>
+  );
+};
+
+const TopPicksGrid = ({ videoIds }) => {
+  // De-dupe in case the source list has duplicates
+  const unique = [...new Set(videoIds)];
+  if (unique.length === 0) return null;
+  return (
+    <div className="mb-6 md:mb-8">
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/80 mb-3 inline-flex items-center gap-2">
+        <i className="ri-star-fill text-[color:var(--retro-gold)]" />
+        Top Picks
+        <span className="text-[color:var(--color-text-muted)] tabular-nums">· {unique.length}</span>
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        {unique.map((id) => (
+          <TopPickCard key={id} videoId={id} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const PlaylistEmbed = ({ playlistId, title }) => {
   const wrapperRef = useRef(null);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -117,6 +184,21 @@ const PlatformSection = ({ entry }) => (
     <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-6 max-w-2xl">
       {entry.description}
     </p>
+
+    {/* Curated top picks above the full playlist embed. Lite-embed
+        cards (thumbnail → click → player) so the page doesn't load
+        N YouTube iframes upfront. */}
+    {entry.topPicks?.length > 0 && (
+      <TopPicksGrid videoIds={entry.topPicks} />
+    )}
+
+    {/* Divider between top picks and the full playlist */}
+    {entry.topPicks?.length > 0 && (
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-3 inline-flex items-center gap-2">
+        <i className="ri-play-list-line text-base" />
+        Playlist Lengkap
+      </p>
+    )}
 
     <PlaylistEmbed playlistId={entry.playlistId} title={entry.title} />
   </section>
