@@ -424,6 +424,13 @@ export const SITE_CONFIG = {
         },
       ],
     },
+    armeniacaX: {
+      eyebrow: 'Live · @armeniaca15',
+      title: 'Update terbaru',
+      titleAccent: 'dari arsip.',
+      lead:
+        'Postingan langsung dari akun X Armeniaca — frame baru, momen pendek, catatan kecil. Kalau widget gagal load (script-blocker / X rewel), tombolnya jalan ke profil.',
+    },
     community: {
       eyebrow: 'About Helismiley',
       title: 'Komunitas Penggemar Eli',
