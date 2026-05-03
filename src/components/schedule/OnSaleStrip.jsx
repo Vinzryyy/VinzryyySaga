@@ -1,16 +1,21 @@
 /**
- * OnSaleStrip — currently on-sale Eli M&G + Photobook products.
+ * OnSaleStrip — everything currently on sale for Eli, in one strip.
  *
- * Reads /data/eli-sales.json (refreshed every 6h with the schedule
- * scrape). Filters to entries where at least one salesPeriod end_date
- * is still in the future, so expired sales (e.g. EXBE10 photobook
- * after 2026-04-20) are auto-hidden. Renders a horizontal strip of
- * product cards with thumbnail, category badge, title, soonest
- * session date, sales countdown, and a buy CTA linking to
- * jkt48.com/exclusive/{code}.
+ * Two sources, same row:
+ * 1. /data/eli-sales.json — live M&G + Photobook products from the
+ *    jkt48.com API (auto-refresh every 6h with the schedule scrape).
+ *    Filters to entries where at least one salesPeriod end_date is
+ *    still in the future, so expired sales auto-hide.
+ * 2. SITE_CONFIG.sedangDijual.products — manual merch list (t-shirts,
+ *    physical items, anything not exposed by the API). Maintained by
+ *    hand since Tokopedia/external stores don't publish a feed.
+ *
+ * Both are rendered with the same card chrome (SaleCard / MerchCard
+ * share width + badge layout) so the strip reads as one row.
  */
 
 import React, { useEffect, useState } from 'react';
+import { SITE_CONFIG } from '../../config/siteConfig';
 
 // Hand-picked archive frames for the on-sale cards. Cycled in order
 // across whatever sale entries are visible — first card gets the
@@ -163,6 +168,84 @@ const SaleCard = ({ sale, frameSrc }) => {
   );
 };
 
+// Mirrors SaleCard's chrome (width, thumb aspect, badge layout, footer)
+// so a manual merch entry slots into the strip without breaking rhythm.
+// link=null renders a disabled "Link Menyusul" pill in place of the
+// buy CTA, kept as a `span` so it doesn't pretend to be interactive.
+const MerchCard = ({ product }) => {
+  const { link } = product;
+  const Tag = link ? 'a' : 'div';
+  const tagProps = link
+    ? { href: link, target: '_blank', rel: 'noopener noreferrer' }
+    : {};
+
+  return (
+    <Tag
+      {...tagProps}
+      className={`group flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
+        link
+          ? 'hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg'
+          : 'cursor-default'
+      }`}
+    >
+      <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
+        <img
+          src={product.image}
+          alt={product.imageAlt || product.name}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 p-3 flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
+            <i className="ri-shopping-bag-3-line" />
+            Pre-Order
+          </span>
+          {product.preorderUntil && (
+            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]">
+              <i className="ri-time-line" />
+              s/d {product.preorderUntil}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="p-4 flex flex-col gap-2">
+        <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight line-clamp-2">
+          {product.name}
+        </p>
+        <div className="flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
+          <span className="text-[color:var(--color-text-muted)] inline-flex items-center gap-1 truncate">
+            <i className="ri-store-2-line text-base flex-shrink-0" />
+            <span className="truncate">{product.store || 'Official Store'}</span>
+          </span>
+          {product.sizes?.length > 0 && (
+            <span className="text-[color:var(--retro-burgundy)] tabular-nums flex-shrink-0">
+              {product.sizes.length} ukuran
+            </span>
+          )}
+        </div>
+        <div className="pt-3 mt-1 border-t border-[color:var(--retro-brown-dark)]/8 flex items-center justify-between gap-2">
+          <span className="font-header text-lg font-black text-[color:var(--retro-burgundy)] tabular-nums">
+            {product.price}
+          </span>
+          {link ? (
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)] group-hover:translate-x-0.5 transition-transform">
+              Beli sekarang
+              <i className="ri-arrow-right-up-line text-base" />
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+              <i className="ri-link-unlink-m" />
+              {product.linkPendingLabel || 'Link Menyusul'}
+            </span>
+          )}
+        </div>
+      </div>
+    </Tag>
+  );
+};
+
 const OnSaleStrip = () => {
   // Store already-filtered + sorted active sales so the render body
   // stays pure (the React Compiler's purity rule blocks Date.now()
@@ -207,7 +290,13 @@ const OnSaleStrip = () => {
     };
   }, []);
 
-  if (activeSales.length === 0) return null;
+  // Manual merch list lives in siteConfig — append after the API
+  // sales so live time-sensitive M&G sessions lead the strip and
+  // physical merch (longer windows) follows.
+  const merchProducts = SITE_CONFIG.sedangDijual?.products || [];
+  const totalCount = activeSales.length + merchProducts.length;
+
+  if (totalCount === 0) return null;
 
   return (
     <section
@@ -220,12 +309,12 @@ const OnSaleStrip = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Sedang Dijual
             <span className="text-[color:var(--color-text-muted)] tabular-nums">
-              · {activeSales.length}
+              · {totalCount}
             </span>
           </p>
           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-flex items-center gap-1.5">
             <i className="ri-shopping-bag-3-line" />
-            Sesi M&G &amp; Photobook
+            Sesi M&G, Photobook &amp; Merchandise
           </p>
         </div>
         <div
@@ -235,6 +324,11 @@ const OnSaleStrip = () => {
           {activeSales.map((sale, idx) => (
             <div key={sale.code} className="snap-start">
               <SaleCard sale={sale} frameSrc={SALE_FRAMES[idx % SALE_FRAMES.length]} />
+            </div>
+          ))}
+          {merchProducts.map((product, idx) => (
+            <div key={`merch-${product.name}-${idx}`} className="snap-start">
+              <MerchCard product={product} />
             </div>
           ))}
         </div>
