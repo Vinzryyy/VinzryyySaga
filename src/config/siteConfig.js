@@ -505,6 +505,7 @@ export const SITE_CONFIG = {
         topPicks: [
           'X6aJYiK4N08',
           'fSbR0-01sfA',
+          'p3LF7VpQWKk',
         ],
       },
     ],
