@@ -80,16 +80,32 @@ const PlatformSection = ({ entry }) => (
           {entry.platform}
         </p>
       </div>
-      <a
-        href={entry.playlistUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)]/70 transition-colors"
-      >
-        <i className="ri-youtube-line text-base" />
-        Buka di YouTube
-        <i className="ri-arrow-right-up-line text-base" />
-      </a>
+      <div className="flex items-center gap-3 flex-wrap">
+        {entry.liveProfileUrl && (
+          <a
+            href={entry.liveProfileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.25em] text-white shadow-md shadow-black/20 hover:-translate-y-0.5 transition-all"
+            style={{ backgroundColor: entry.platformColor }}
+            title={`Profile Eli di ${entry.platform}`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            {entry.liveProfileLabel || `Tonton Live di ${entry.platform}`}
+            <i className="ri-arrow-right-up-line text-base" />
+          </a>
+        )}
+        <a
+          href={entry.playlistUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy)]/70 transition-colors"
+        >
+          <i className="ri-youtube-line text-base" />
+          Buka di YouTube
+          <i className="ri-arrow-right-up-line text-base" />
+        </a>
+      </div>
     </div>
 
     <h2

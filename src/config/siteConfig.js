@@ -479,6 +479,8 @@ export const SITE_CONFIG = {
         playlistId: 'PLfEpwox-vkk4QauAvybcmXzOs1RVb2EZn',
         playlistUrl:
           'https://www.youtube.com/playlist?list=PLfEpwox-vkk4QauAvybcmXzOs1RVb2EZn',
+        liveProfileUrl: 'https://www.idn.app/jkt48_eli',
+        liveProfileLabel: 'Tonton Live di IDN',
       },
       {
         id: 'vivo-showroom',
@@ -491,6 +493,9 @@ export const SITE_CONFIG = {
         playlistId: 'PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
         playlistUrl:
           'https://www.youtube.com/playlist?list=PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
+        // TODO: ganti dengan URL SHOWROOM Eli yang benar (showroom-live.com/r/...)
+        liveProfileUrl: null,
+        liveProfileLabel: 'Tonton Live di SHOWROOM',
       },
     ],
   },
