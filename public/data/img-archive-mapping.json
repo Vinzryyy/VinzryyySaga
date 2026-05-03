@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-03T04:55:13.980Z",
+  "generatedAt": "2026-05-03T05:12:47.616Z",
   "totalFiles": 364,
   "matched": 357,
   "unmatched": 7,
@@ -5446,7 +5446,9 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "NIVEA Men Activation",
+      "source": "manual",
+      "manualNotes": "Brand event booth — NIVEA Men signage visible. Date & exact event title belum dikonfirmasi."
     },
     {
       "file": "img-259.jpg",
@@ -7773,7 +7775,10 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "source": "manual",
+      "eventDate": "2024-09-08",
+      "manualNotes": "Anniversary 12 tahun Theater JKT48 (8 Sept 2012 → 8 Sept 2024). Plakat 11th & 12th Anniversary terlihat di background, costume strip biru-merah-putih khas anniversary."
     },
     {
       "file": "img-367.jpg",
@@ -7860,7 +7865,10 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "source": "manual",
+      "eventDate": "2024-09-08",
+      "manualNotes": "Frame yang sama dengan img-366, costume anniversary, framed member photos terlihat di background."
     },
     {
       "file": "img-371.jpg",
@@ -7897,7 +7905,10 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "source": "manual",
+      "eventDate": "2024-09-08",
+      "manualNotes": "Cluster img-366..378 diasumsikan dari event yang sama (anniversary). Verifikasi visual kalo perlu."
     },
     {
       "file": "img-373.jpg",
@@ -7934,7 +7945,10 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "source": "manual",
+      "eventDate": "2024-09-08",
+      "manualNotes": "Asumsi sama event seperti img-366."
     },
     {
       "file": "img-375.jpg",
@@ -7971,7 +7985,10 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "source": "manual",
+      "eventDate": "2024-09-08",
+      "manualNotes": "Asumsi sama event seperti img-366."
     },
     {
       "file": "img-377.jpg",
@@ -8008,7 +8025,10 @@
       "tweetId": null,
       "tweetUrl": null,
       "caption": null,
-      "eventName": null
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "source": "manual",
+      "eventDate": "2024-09-08",
+      "manualNotes": "Asumsi sama event seperti img-366."
     },
     {
       "file": "img-379.jpg",
@@ -8035,6 +8055,7 @@
       "favoriteCount": 474
     }
   ],
-  "enrichedAt": "2026-05-03T04:55:13.980Z",
-  "enrichedCount": 357
+  "enrichedAt": "2026-05-03T05:12:47.617Z",
+  "enrichedCount": 357,
+  "manualOverrideCount": 7
 }

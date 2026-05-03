@@ -26,6 +26,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const MAPPING_FILE = path.join(ROOT, 'public', 'data', 'img-archive-mapping.json');
+const OVERRIDES_FILE = path.join(ROOT, 'manual-archive-overrides.json');
 
 const REQUEST_HEADERS = {
   'User-Agent':
@@ -237,10 +238,37 @@ const main = async () => {
     };
   });
 
+  // Apply manual overrides for files that don't appear in the X scrape
+  // (different source account, edited/cropped variants the perceptual
+  // hash didn't catch, etc). Overrides only fill non-null fields, so
+  // partial entries (eventName known but eventDate not) work cleanly.
+  let overrideCount = 0;
+  try {
+    const overridesRaw = await readFile(OVERRIDES_FILE, 'utf8');
+    const overridesDoc = JSON.parse(overridesRaw);
+    const overrides = overridesDoc.overrides || {};
+    data.entries = data.entries.map((entry) => {
+      const ov = overrides[entry.file];
+      if (!ov) return entry;
+      overrideCount++;
+      const merged = { ...entry, source: ov.source || 'manual' };
+      if (ov.eventDate != null) merged.eventDate = ov.eventDate;
+      if (ov.eventName != null) merged.eventName = ov.eventName;
+      if (ov.tweetUrl != null) merged.tweetUrl = ov.tweetUrl;
+      if (ov.notes) merged.manualNotes = ov.notes;
+      return merged;
+    });
+    console.log(`Applied ${overrideCount} manual overrides.`);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+    console.log('No manual-archive-overrides.json — skipping override step.');
+  }
+
   // Refresh metadata block on the wrapper.
   data.generatedAt = new Date().toISOString();
   data.enrichedAt = new Date().toISOString();
   data.enrichedCount = enrichedCount;
+  data.manualOverrideCount = overrideCount;
   data.notes = {
     ...data.notes,
     captionSource:

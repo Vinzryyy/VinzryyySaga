@@ -1,0 +1,55 @@
+{
+  "_doc": "Manual metadata overrides for archive files that don't appear in the @armeniaca15 X scrape. Merged into public/data/img-archive-mapping.json by scripts/enrich-x-archive.js. Add new entries by file name; nulls stay null. eventName/eventDate filled here win over (the missing) auto-detected values; tweetUrl can also be set if you find the source post on a different account.",
+  "_format": "Each entry mirrors the mapping JSON: { eventDate: 'YYYY-MM-DD' | null, eventName: string | null, tweetUrl: string | null, source: string (where you got this from), notes: string }",
+  "overrides": {
+    "img-258.jpg": {
+      "eventDate": null,
+      "eventName": "NIVEA Men Activation",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Brand event booth — NIVEA Men signage visible. Date & exact event title belum dikonfirmasi."
+    },
+    "img-366.jpg": {
+      "eventDate": "2024-09-08",
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Anniversary 12 tahun Theater JKT48 (8 Sept 2012 → 8 Sept 2024). Plakat 11th & 12th Anniversary terlihat di background, costume strip biru-merah-putih khas anniversary."
+    },
+    "img-370.jpg": {
+      "eventDate": "2024-09-08",
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Frame yang sama dengan img-366, costume anniversary, framed member photos terlihat di background."
+    },
+    "img-372.jpg": {
+      "eventDate": "2024-09-08",
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Cluster img-366..378 diasumsikan dari event yang sama (anniversary). Verifikasi visual kalo perlu."
+    },
+    "img-374.jpg": {
+      "eventDate": "2024-09-08",
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Asumsi sama event seperti img-366."
+    },
+    "img-376.jpg": {
+      "eventDate": "2024-09-08",
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Asumsi sama event seperti img-366."
+    },
+    "img-378.jpg": {
+      "eventDate": "2024-09-08",
+      "eventName": "JKT48 Theater 12th Anniversary",
+      "tweetUrl": null,
+      "source": "manual",
+      "notes": "Asumsi sama event seperti img-366."
+    }
+  }
+}
