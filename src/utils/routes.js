@@ -16,8 +16,7 @@ const PROFILE_ANCHORS = new Set([
   'theater',
   'trivia',
 ]);
-const GALLERY_ANCHORS = new Set([
-  'vivo',
+const VIVO_ANCHORS = new Set([
   'vivo-idn',
   'vivo-showroom',
 ]);
@@ -31,7 +30,7 @@ export const hashToHref = (hash) => {
   if (!hash || hash === 'home') return '/';
   if (HOME_ANCHORS.has(hash)) return `/#${hash}`;
   if (PROFILE_ANCHORS.has(hash)) return `/profile#${hash}`;
-  if (GALLERY_ANCHORS.has(hash)) return `/gallery#${hash}`;
+  if (VIVO_ANCHORS.has(hash)) return `/vivo#${hash}`;
   if (hash === '26') return '/26';
   if (/^\d{4}$/.test(hash)) return `/gallery/${hash}`;
   return `/${hash}`;
