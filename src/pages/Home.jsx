@@ -235,7 +235,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
-  const { hero, harmoniKebaikan, sedangDijual, data, about, gallery, community } = SITE_CONFIG.home;
+  const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
 
@@ -579,11 +579,9 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* SCHEDULE + SEDANG DIJUAL — combined section. Schedule on top
-          (live from jkt48.com), then the current birthday merch
-          spotlight as a sub-card below the "Lihat semua jadwal" link.
-          Single Section so visitors see "what's happening" + "what's
-          on sale" together without scrolling through extra padding. */}
+      {/* SCHEDULE — Eli's confirmed shows + M&G sessions, scraped live
+          from jkt48.com (auto-refresh every 6h). Placed near the top so
+          first-time visitors immediately see what's upcoming. */}
       <Section id="schedule" padding="lg">
         <div className="mb-6 md:mb-8 max-w-3xl">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
@@ -609,139 +607,6 @@ const HomePage = () => {
             <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
-
-        {/* Merch sub-card. Divider + reduced eyebrow size signal that
-            this is a sub-section under the same Section, not a new
-            top-level block. link=null renders the disabled "Link
-            Menyusul" badge until the Tokopedia listing goes live. */}
-        {sedangDijual && sedangDijual.product && (
-          <div id="sedang-dijual" className="mt-12 md:mt-16 pt-10 md:pt-12 border-t border-[color:var(--retro-brown-dark)]/15">
-            <div className="mb-6 md:mb-8 max-w-3xl">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
-                <i className="ri-shopping-bag-3-line text-base" />
-                {sedangDijual.eyebrow}
-              </p>
-              <h3 className="font-header text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-3">
-                {sedangDijual.title}
-                <span className="text-[color:var(--retro-burgundy)]"> {sedangDijual.titleAccent}</span>
-              </h3>
-              <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-                {sedangDijual.lead}
-              </p>
-            </div>
-
-            <div className="relative overflow-hidden rounded-3xl border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 pointer-events-none opacity-70"
-                style={{
-                  background:
-                    'radial-gradient(circle at 100% 0%, rgba(122, 46, 46, 0.08) 0%, transparent 55%), radial-gradient(circle at 0% 100%, rgba(201, 169, 97, 0.12) 0%, transparent 60%)',
-                }}
-              />
-
-              <div className="relative grid lg:grid-cols-12 gap-6 lg:gap-10 p-5 sm:p-6 md:p-8 items-center">
-                <div className="lg:col-span-5 relative">
-                  <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-brown-dark)]/5">
-                    <img
-                      src={sedangDijual.product.image}
-                      alt={sedangDijual.product.imageAlt}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
-                    />
-                    <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] shadow-lg">
-                      <span className="w-1 h-1 rounded-full bg-[color:var(--retro-gold-light)] animate-pulse" />
-                      Pre-Order
-                    </span>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-7">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-2">
-                    Produk
-                  </p>
-                  <h4 className="font-header text-lg md:text-xl font-black text-[color:var(--retro-text-primary)] leading-snug mb-4">
-                    {sedangDijual.product.name}
-                  </h4>
-
-                  <div className="flex items-baseline gap-3 flex-wrap mb-4">
-                    <span className="font-header text-3xl md:text-4xl font-black text-[color:var(--retro-burgundy)]">
-                      {sedangDijual.product.price}
-                    </span>
-                    {sedangDijual.product.priceNote && (
-                      <span className="text-[11px] md:text-xs font-bold text-[color:var(--color-text-muted)]">
-                        {sedangDijual.product.priceNote}
-                      </span>
-                    )}
-                  </div>
-
-                  {sedangDijual.product.sizes && sedangDijual.product.sizes.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-2">
-                        Ukuran tersedia
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {sedangDijual.product.sizes.map((size) => (
-                          <span
-                            key={size}
-                            className="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-md bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[11px] font-black tracking-wide"
-                          >
-                            {size}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <ul className="space-y-1.5 text-xs md:text-sm text-[color:var(--color-text-secondary)] mb-5">
-                    {sedangDijual.product.preorderUntil && (
-                      <li className="flex items-start gap-2">
-                        <i className="ri-time-line text-[color:var(--retro-burgundy)] mt-0.5" />
-                        <span>
-                          Pre-order s/d <strong className="text-[color:var(--retro-text-primary)]">{sedangDijual.product.preorderUntil}</strong>
-                        </span>
-                      </li>
-                    )}
-                    {sedangDijual.product.bonus && (
-                      <li className="flex items-start gap-2">
-                        <i className="ri-gift-line text-[color:var(--retro-burgundy)] mt-0.5" />
-                        <span>{sedangDijual.product.bonus}</span>
-                      </li>
-                    )}
-                    {sedangDijual.product.store && (
-                      <li className="flex items-start gap-2">
-                        <i className="ri-store-2-line text-[color:var(--retro-burgundy)] mt-0.5" />
-                        <span>{sedangDijual.product.store}</span>
-                      </li>
-                    )}
-                  </ul>
-
-                  {sedangDijual.product.link ? (
-                    <a
-                      href={sedangDijual.product.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs md:text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
-                    >
-                      <i className="ri-shopping-cart-2-line" />
-                      Beli di Tokopedia
-                      <i className="ri-arrow-right-up-line group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    </a>
-                  ) : (
-                    <span
-                      role="status"
-                      aria-disabled="true"
-                      className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--color-text-muted)] font-bold text-xs md:text-sm uppercase tracking-widest cursor-not-allowed select-none"
-                    >
-                      <i className="ri-link-unlink-m" />
-                      {sedangDijual.product.linkPendingLabel || 'Link Menyusul'}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </Section>
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}

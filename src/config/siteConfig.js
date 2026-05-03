@@ -342,31 +342,6 @@ export const SITE_CONFIG = {
         },
       ],
     },
-    // Merch / pre-order spotlight. Single-product card surfacing the
-    // current Eli birthday merch run. `link: null` renders as a
-    // disabled "Link Menyusul" button until the Tokopedia listing
-    // goes live.
-    sedangDijual: {
-      eyebrow: 'Sedang Dijual',
-      title: 'Birthday Merchandise',
-      titleAccent: 'untuk Ceu Eli.',
-      lead:
-        'Pre-order resmi dari JKT48 Official Store. Setiap pembelian ikut merayakan ulang tahun Eli pada 15 Juni 2026.',
-      product: {
-        name: '( Pre-order ) JKT48 Birthday T-Shirt Helisma Putri 2026',
-        price: 'Rp225.000',
-        priceNote: '3XL & 4XL: Rp240.000',
-        sizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'],
-        preorderUntil: '16 Mei 2026',
-        bonus: 'Bonus 1 pcs random birthday card',
-        image: '/bdts/bdts.jpg',
-        imageAlt:
-          'Pre-order JKT48 Birthday T-Shirt Helisma Putri 2026 — desain hijau dengan ilustrasi tarot mermaid',
-        store: 'JKT48 Official Store · Tokopedia',
-        link: null,
-        linkPendingLabel: 'Link Menyusul',
-      },
-    },
     data: {
       eyebrow: 'Data Eli',
       title: 'Profil Singkat',
@@ -460,6 +435,36 @@ export const SITE_CONFIG = {
         { label: 'Eli JKT48 (X)', url: 'https://x.com/H_EliJKT48', icon: 'ri-twitter-x-line' },
       ],
     },
+  },
+
+  // Sedang Dijual — manual merch list shown on /schedule. Distinct
+  // from OnSaleStrip (which reads /data/eli-sales.json for live M&G +
+  // photobook sales). Use this for physical merch (t-shirts, photobook
+  // bonus items, anything not surfaced by the API). `link: null`
+  // renders the disabled "Link Menyusul" badge until the listing
+  // goes live.
+  sedangDijual: {
+    eyebrow: 'Sedang Dijual',
+    title: 'Merchandise Eli',
+    titleAccent: 'pre-order & official store.',
+    lead:
+      'Daftar merchandise resmi yang sedang dijual. Update manual oleh tim Armeniaca tiap ada drop baru.',
+    products: [
+      {
+        name: '( Pre-order ) JKT48 Birthday T-Shirt Helisma Putri 2026',
+        price: 'Rp225.000',
+        priceNote: '3XL & 4XL: Rp240.000',
+        sizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'],
+        preorderUntil: '16 Mei 2026',
+        bonus: 'Bonus 1 pcs random birthday card',
+        image: '/bdts/bdts.jpg',
+        imageAlt:
+          'Pre-order JKT48 Birthday T-Shirt Helisma Putri 2026 — desain hijau dengan ilustrasi tarot mermaid',
+        store: 'JKT48 Official Store · Tokopedia',
+        link: null,
+        linkPendingLabel: 'Link Menyusul',
+      },
+    ],
   },
 
   // Profil Lengkap (multi-section profile page)
