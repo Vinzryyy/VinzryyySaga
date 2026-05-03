@@ -493,8 +493,7 @@ export const SITE_CONFIG = {
         playlistId: 'PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
         playlistUrl:
           'https://www.youtube.com/playlist?list=PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
-        // TODO: ganti dengan URL SHOWROOM Eli yang benar (showroom-live.com/r/...)
-        liveProfileUrl: null,
+        liveProfileUrl: 'https://www.showroom-live.com/r/JKT48_Eli',
         liveProfileLabel: 'Tonton Live di SHOWROOM',
       },
     ],
