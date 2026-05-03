@@ -100,6 +100,31 @@ export const SITE_CONFIG = {
           // Era pills are appended dynamically from the gallery data
         ],
       },
+      {
+        label: 'Vivo',
+        hash: 'vivo',
+        icon: 'ri-live-line',
+        children: [
+          {
+            label: 'Semua Live',
+            hash: 'vivo',
+            description: 'Playlist live streaming Eli',
+            icon: 'ri-play-list-line',
+          },
+          {
+            label: 'IDN Live',
+            hash: 'vivo-idn',
+            description: 'Arsip live di IDN',
+            icon: 'ri-broadcast-line',
+          },
+          {
+            label: 'SHOWROOM',
+            hash: 'vivo-showroom',
+            description: 'Arsip live di SHOWROOM',
+            icon: 'ri-vidicon-line',
+          },
+        ],
+      },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],
@@ -435,6 +460,46 @@ export const SITE_CONFIG = {
         { label: 'Eli JKT48 (X)', url: 'https://x.com/H_EliJKT48', icon: 'ri-twitter-x-line' },
       ],
     },
+  },
+
+  // Vivo — live streaming archive page (/vivo). Two YouTube playlists
+  // covering Eli's IDN Live and SHOWROOM sessions. Each platform gets
+  // its own anchored section so deep links from the navbar dropdown
+  // (#vivo-idn, #vivo-showroom) jump directly to the right embed.
+  vivo: {
+    eyebrow: 'Live Streaming · Arsip',
+    title: 'Vivo',
+    titleAccent: 'momen live Eli.',
+    lead:
+      'Arsip lengkap live streaming Helisma Putri di IDN Live dan SHOWROOM — tertawa, lagu, ngobrol panjang dengan Helismiley. Auto-update kalau playlist YouTube ditambah.',
+    coverImage: '/archive/img-211.jpg',
+    coverPosition: '50% 30%',
+    platforms: [
+      {
+        id: 'vivo-idn',
+        platform: 'IDN Live',
+        platformIcon: 'ri-broadcast-line',
+        platformColor: '#0061ff',
+        title: 'IDN Live Sessions',
+        description:
+          'Sesi panjang dengan tema bebas — quiz, makan bareng, talk show kecil. Eli sering bawakan ini dengan member lain di IDN App.',
+        playlistId: 'PLfEpwox-vkk4QauAvybcmXzOs1RVb2EZn',
+        playlistUrl:
+          'https://www.youtube.com/playlist?list=PLfEpwox-vkk4QauAvybcmXzOs1RVb2EZn',
+      },
+      {
+        id: 'vivo-showroom',
+        platform: 'SHOWROOM',
+        platformIcon: 'ri-vidicon-line',
+        platformColor: '#ff5d6e',
+        title: 'SHOWROOM Sessions',
+        description:
+          'Live intim Eli di platform SHOWROOM — bercakap dengan fans, request lagu, momen kecil sebelum dan sesudah show.',
+        playlistId: 'PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
+        playlistUrl:
+          'https://www.youtube.com/playlist?list=PLX15XB_3XZuSFq7SLPIuyXbdPJjxhwd0M',
+      },
+    ],
   },
 
   // Sedang Dijual — manual merch list shown on /schedule. Distinct

@@ -16,6 +16,10 @@ const PROFILE_ANCHORS = new Set([
   'theater',
   'trivia',
 ]);
+const VIVO_ANCHORS = new Set([
+  'vivo-idn',
+  'vivo-showroom',
+]);
 
 // Convert a SITE_CONFIG-style identifier (the legacy `hash` field on
 // nav/CTA items) to a router href. Year codes (`/^\d{4}$/`) become
@@ -26,6 +30,7 @@ export const hashToHref = (hash) => {
   if (!hash || hash === 'home') return '/';
   if (HOME_ANCHORS.has(hash)) return `/#${hash}`;
   if (PROFILE_ANCHORS.has(hash)) return `/profile#${hash}`;
+  if (VIVO_ANCHORS.has(hash)) return `/vivo#${hash}`;
   if (hash === '26') return '/26';
   if (/^\d{4}$/.test(hash)) return `/gallery/${hash}`;
   return `/${hash}`;
