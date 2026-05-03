@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { useGallery } from '../context';
 import Section from '../components/layout/Section';
 import ScheduleCard from '../components/schedule/ScheduleCard';
-import ArmeniacaXTimeline from '../components/home/ArmeniacaXTimeline';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
@@ -236,7 +235,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
-  const { hero, harmoniKebaikan, data, about, gallery, armeniacaX, community } = SITE_CONFIG.home;
+  const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
 
@@ -833,42 +832,6 @@ const HomePage = () => {
             {gallery.ctaLabel}
             <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </Link>
-        </div>
-      </Section>
-
-      {/* ARMENIACA ON X — embed @armeniaca15 timeline so visitors see the
-          archive's own posts (frame drops, captions, notes) without
-          leaving the page. Lazy-mounts the X widget script when the
-          section enters the viewport, falls back to a "Buka di X"
-          button if the script can't load. */}
-      <Section id="armeniaca-x" padding="lg">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          <div className="lg:col-span-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
-              <i className="ri-twitter-x-line text-base" />
-              {armeniacaX.eyebrow}
-            </p>
-            <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-4">
-              {armeniacaX.title}
-              <span className="text-[color:var(--retro-burgundy)]"> {armeniacaX.titleAccent}</span>
-            </h2>
-            <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-6">
-              {armeniacaX.lead}
-            </p>
-            <a
-              href={SITE_CONFIG.social.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-3 px-5 py-3 rounded-full bg-white border border-[color:var(--retro-burgundy)]/20 text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
-            >
-              <i className="ri-twitter-x-line" />
-              Buka di X
-              <i className="ri-arrow-right-up-line group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </a>
-          </div>
-          <div className="lg:col-span-7">
-            <ArmeniacaXTimeline />
-          </div>
         </div>
       </Section>
 

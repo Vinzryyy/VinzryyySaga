@@ -7,7 +7,6 @@ const HOME_ANCHORS = new Set([
   'data',
   'about-preview',
   'gallery-preview',
-  'armeniaca-x',
   'community',
 ]);
 const PROFILE_ANCHORS = new Set([
