@@ -19,6 +19,8 @@
 import React, { memo, useMemo } from 'react';
 import { useGallery } from '../../context';
 import { SITE_CONFIG } from '../../config/siteConfig';
+import SocialStoriesRing from '../SocialStoriesRing';
+import { useShowroomLive } from '../../hooks/useShowroomLive';
 
 const COVER_IMAGE = '/archive/img-024.jpg';
 
@@ -35,6 +37,8 @@ const formatYearRange = (images) => {
 
 const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
   const { images, totalImages } = useGallery();
+  const showroomLive = useShowroomLive('JKT48_Eli');
+  const liveMap = { SHOWROOM: showroomLive.isLive };
 
   const stats = useMemo(() => {
     const events = new Set(
@@ -180,6 +184,19 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
             <i className="ri-link" />
             {(SITE_CONFIG.site?.url || 'armeniaca.online').replace(/^https?:\/\//, '')}
           </a>
+
+          {/* Stories ring — IG-style avatar tray for Eli's social
+              accounts. SHOWROOM avatar gets a red pulse + LIVE badge
+              when the showroom-status proxy reports is_live=true. */}
+          {SITE_CONFIG.eli?.socials?.length > 0 && (
+            <div className="mt-5">
+              <SocialStoriesRing
+                socials={SITE_CONFIG.eli.socials}
+                avatar={avatar}
+                liveMap={liveMap}
+              />
+            </div>
+          )}
 
           {/* Stats — IG-style, equal columns, centered text on mobile. */}
           <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-6 max-w-md text-[color:var(--retro-text-primary)]">

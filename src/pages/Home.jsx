@@ -16,6 +16,7 @@ import { useElementParallax } from '../hooks/useElementParallax';
 import { useLightbox } from '../context/LightboxContext';
 import { hashToHref } from '../utils/routes';
 import Seo from '../components/Seo';
+import { useShowroomLive } from '../hooks/useShowroomLive';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -238,6 +239,7 @@ const HomePage = () => {
   const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
+  const showroomLive = useShowroomLive('JKT48_Eli');
 
   const profileFacts = useMemo(
     () => [
@@ -248,7 +250,9 @@ const HomePage = () => {
       { label: 'Bergabung', value: eli.joined },
       { label: 'Asal', value: eli.origin },
       // Social media row — inline icon pills, each links to Eli's
-      // handle on that platform. Source: SITE_CONFIG.eli.socials.
+      // handle on that platform. SHOWROOM pill turns red + pulses
+      // when she's actively streaming (status checked every 30s via
+      // /api/showroom-status proxy). Source: SITE_CONFIG.eli.socials.
       // font-sans on the wrapper resets the parent dd's font-header
       // so the pill labels use the body font (cleaner at small size).
       ...(eli.socials?.length
@@ -256,25 +260,34 @@ const HomePage = () => {
             label: 'Sosial Media',
             value: (
               <div className="flex flex-wrap items-center gap-2 font-sans">
-                {eli.socials.map((s) => (
-                  <a
-                    key={s.platform}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`${s.platform}: ${s.handle}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/8 hover:bg-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] border border-[color:var(--retro-burgundy)]/15 hover:border-[color:var(--retro-burgundy)] text-[11px] font-bold transition-colors"
-                  >
-                    <i className={`${s.icon} text-base`} />
-                    {s.handle}
-                  </a>
-                ))}
+                {eli.socials.map((s) => {
+                  const isLive = s.platform === 'SHOWROOM' && showroomLive.isLive;
+                  return (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`${s.platform}: ${s.handle}${isLive ? ' · LIVE NOW' : ''}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-colors ${
+                        isLive
+                          ? 'bg-red-600 hover:bg-red-700 text-white border-red-600 shadow-md shadow-red-500/30'
+                          : 'bg-[color:var(--retro-burgundy)]/8 hover:bg-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)]/15 hover:border-[color:var(--retro-burgundy)]'
+                      }`}
+                    >
+                      {isLive && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                      <i className={`${s.icon} text-base`} />
+                      {s.handle}
+                      {isLive && <span className="text-[9px] tracking-[0.18em] uppercase ml-0.5">Live</span>}
+                    </a>
+                  );
+                })}
               </div>
             ),
           }]
         : []),
     ],
-    [eli]
+    [eli, showroomLive.isLive]
   );
 
   const featuredEight = useMemo(
