@@ -99,7 +99,7 @@ const SaleCard = ({ sale, frameSrc }) => {
       href={sale.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex-shrink-0 w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+      className="group flex-shrink-0 w-[260px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg transition-all"
     >
       {/* Thumbnail with category badge overlaid. Source is a random
           archive frame chosen at component mount (reshuffles per
@@ -182,7 +182,7 @@ const MerchCard = ({ product }) => {
   return (
     <Tag
       {...tagProps}
-      className={`group flex-shrink-0 self-start w-[280px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
+      className={`group flex-shrink-0 self-start w-[260px] sm:w-[320px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10 transition-all ${
         link
           ? 'hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5 hover:shadow-lg'
           : 'cursor-default'
@@ -300,25 +300,50 @@ const OnSaleStrip = () => {
               · {totalCount}
             </span>
           </p>
+          {/* Two taglines: full label on sm+, swipe hint on mobile so
+              touch users immediately know the strip scrolls. Hint hides
+              when there's only a single card (nothing to swipe). */}
           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-flex items-center gap-1.5">
             <i className="ri-shopping-bag-3-line" />
             Sesi M&G, Photobook &amp; Merchandise
           </p>
+          {totalCount > 1 && (
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex sm:hidden items-center gap-1">
+              <i className="ri-arrow-left-right-line text-sm" />
+              Geser
+            </p>
+          )}
         </div>
-        <div
-          className="-mx-1 px-1 flex items-start gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-proximity"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-        >
-          {activeSales.map((sale, idx) => (
-            <div key={sale.code} className="snap-start">
-              <SaleCard sale={sale} frameSrc={SALE_FRAMES[idx % SALE_FRAMES.length]} />
-            </div>
-          ))}
-          {merchProducts.map((product, idx) => (
-            <div key={`merch-${product.name}-${idx}`} className="snap-start">
-              <MerchCard product={product} />
-            </div>
-          ))}
+        {/* Strip wrapper. Edge fades on left/right hint at horizontal
+            scroll on mobile (where overflow indicators are otherwise
+            invisible). snap-mandatory makes swipes always land on a
+            card edge — the previous snap-proximity sometimes drifted
+            mid-card on flick gestures. */}
+        <div className="relative">
+          <div
+            className="-mx-1 px-1 flex items-start gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory sm:snap-proximity"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {activeSales.map((sale, idx) => (
+              <div key={sale.code} className="snap-start">
+                <SaleCard sale={sale} frameSrc={SALE_FRAMES[idx % SALE_FRAMES.length]} />
+              </div>
+            ))}
+            {merchProducts.map((product, idx) => (
+              <div key={`merch-${product.name}-${idx}`} className="snap-start">
+                <MerchCard product={product} />
+              </div>
+            ))}
+          </div>
+          {/* Right-side fade. Bg matches the page background var so it
+              blends regardless of viewport. Hidden on sm+ where the
+              edges are usually visible without a hint. */}
+          {totalCount > 1 && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute top-0 right-0 bottom-3 w-10 bg-gradient-to-l from-[color:var(--retro-bg-primary)] to-transparent sm:hidden"
+            />
+          )}
         </div>
       </div>
     </section>
