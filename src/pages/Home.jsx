@@ -579,65 +579,90 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* SEDANG DIJUAL — single-product spotlight for Eli birthday merch.
-          link can be null while the Tokopedia listing isn't live yet —
-          the CTA renders as a disabled "Link Menyusul" badge. */}
-      {sedangDijual && sedangDijual.product && (
-        <Section id="sedang-dijual" padding="lg">
-          <div className="relative overflow-hidden rounded-3xl border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 pointer-events-none opacity-70"
-              style={{
-                background:
-                  'radial-gradient(circle at 100% 0%, rgba(122, 46, 46, 0.08) 0%, transparent 55%), radial-gradient(circle at 0% 100%, rgba(201, 169, 97, 0.12) 0%, transparent 60%)',
-              }}
-            />
+      {/* SCHEDULE + SEDANG DIJUAL — combined section. Schedule on top
+          (live from jkt48.com), then the current birthday merch
+          spotlight as a sub-card below the "Lihat semua jadwal" link.
+          Single Section so visitors see "what's happening" + "what's
+          on sale" together without scrolling through extra padding. */}
+      <Section id="schedule" padding="lg">
+        <div className="mb-6 md:mb-8 max-w-3xl">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
+            <i className="ri-calendar-event-line text-base" />
+            Jadwal Eli — Live
+          </p>
+          <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-3">
+            Show & Meet & Greet
+            <span className="text-[color:var(--retro-burgundy)]"> mendatang.</span>
+          </h2>
+          <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
+            Dijadwalkan dari jkt48.com — cast list per show terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam. Klik kartu untuk detail tiket.
+          </p>
+        </div>
+        <ScheduleCard />
+        <div className="mt-6 md:mt-8 flex justify-center">
+          <Link
+            to="/schedule"
+            className="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white border border-[color:var(--retro-burgundy)]/20 text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
+          >
+            <i className="ri-calendar-line" />
+            Lihat semua jadwal
+            <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
 
-            <div className="relative grid lg:grid-cols-12 gap-8 lg:gap-12 p-6 sm:p-8 md:p-12 items-center">
-              {/* Product photo — full bleed at md, sticky aspect on mobile.
-                  Pre-order ribbon sits over the top-right corner. */}
-              <div className="lg:col-span-5 relative">
-                <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-brown-dark)]/5">
-                  <img
-                    src={sedangDijual.product.image}
-                    alt={sedangDijual.product.imageAlt}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                  <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] shadow-lg">
-                    <span className="w-1 h-1 rounded-full bg-[color:var(--retro-gold-light)] animate-pulse" />
-                    Pre-Order
-                  </span>
+        {/* Merch sub-card. Divider + reduced eyebrow size signal that
+            this is a sub-section under the same Section, not a new
+            top-level block. link=null renders the disabled "Link
+            Menyusul" badge until the Tokopedia listing goes live. */}
+        {sedangDijual && sedangDijual.product && (
+          <div id="sedang-dijual" className="mt-12 md:mt-16 pt-10 md:pt-12 border-t border-[color:var(--retro-brown-dark)]/15">
+            <div className="mb-6 md:mb-8 max-w-3xl">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
+                <i className="ri-shopping-bag-3-line text-base" />
+                {sedangDijual.eyebrow}
+              </p>
+              <h3 className="font-header text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-3">
+                {sedangDijual.title}
+                <span className="text-[color:var(--retro-burgundy)]"> {sedangDijual.titleAccent}</span>
+              </h3>
+              <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
+                {sedangDijual.lead}
+              </p>
+            </div>
+
+            <div className="relative overflow-hidden rounded-3xl border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none opacity-70"
+                style={{
+                  background:
+                    'radial-gradient(circle at 100% 0%, rgba(122, 46, 46, 0.08) 0%, transparent 55%), radial-gradient(circle at 0% 100%, rgba(201, 169, 97, 0.12) 0%, transparent 60%)',
+                }}
+              />
+
+              <div className="relative grid lg:grid-cols-12 gap-6 lg:gap-10 p-5 sm:p-6 md:p-8 items-center">
+                <div className="lg:col-span-5 relative">
+                  <div className="relative rounded-2xl overflow-hidden shadow-xl shadow-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-brown-dark)]/5">
+                    <img
+                      src={sedangDijual.product.image}
+                      alt={sedangDijual.product.imageAlt}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                    <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] shadow-lg">
+                      <span className="w-1 h-1 rounded-full bg-[color:var(--retro-gold-light)] animate-pulse" />
+                      Pre-Order
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Detail column */}
-              <div className="lg:col-span-7">
-                <div className="flex items-center gap-3 mb-4 text-[color:var(--retro-burgundy)] flex-wrap">
-                  <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em]">
-                    <i className="ri-shopping-bag-3-line text-base" />
-                    {sedangDijual.eyebrow}
-                  </span>
-                  <span className="hidden sm:block flex-1 h-px bg-[color:var(--retro-burgundy)]/20 max-w-[120px]" />
-                </div>
-
-                <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
-                  {sedangDijual.title}
-                  <span className="text-[color:var(--retro-burgundy)]"> {sedangDijual.titleAccent}</span>
-                </h2>
-
-                <p className="mt-4 md:mt-5 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-                  {sedangDijual.lead}
-                </p>
-
-                <div className="mt-6 md:mt-7 p-5 md:p-6 rounded-2xl bg-white/70 backdrop-blur-sm border border-[color:var(--retro-burgundy)]/15">
+                <div className="lg:col-span-7">
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-2">
                     Produk
                   </p>
-                  <h3 className="font-header text-lg md:text-xl font-black text-[color:var(--retro-text-primary)] leading-snug mb-4">
+                  <h4 className="font-header text-lg md:text-xl font-black text-[color:var(--retro-text-primary)] leading-snug mb-4">
                     {sedangDijual.product.name}
-                  </h3>
+                  </h4>
 
                   <div className="flex items-baseline gap-3 flex-wrap mb-4">
                     <span className="font-header text-3xl md:text-4xl font-black text-[color:var(--retro-burgundy)]">
@@ -668,7 +693,7 @@ const HomePage = () => {
                     </div>
                   )}
 
-                  <ul className="space-y-1.5 text-xs md:text-sm text-[color:var(--color-text-secondary)]">
+                  <ul className="space-y-1.5 text-xs md:text-sm text-[color:var(--color-text-secondary)] mb-5">
                     {sedangDijual.product.preorderUntil && (
                       <li className="flex items-start gap-2">
                         <i className="ri-time-line text-[color:var(--retro-burgundy)] mt-0.5" />
@@ -690,9 +715,7 @@ const HomePage = () => {
                       </li>
                     )}
                   </ul>
-                </div>
 
-                <div className="mt-5 md:mt-6">
                   {sedangDijual.product.link ? (
                     <a
                       href={sedangDijual.product.link}
@@ -718,37 +741,7 @@ const HomePage = () => {
               </div>
             </div>
           </div>
-        </Section>
-      )}
-
-      {/* SCHEDULE — Eli's confirmed shows + M&G sessions, scraped live
-          from jkt48.com (auto-refresh every 6h). Placed near the top so
-          first-time visitors immediately see what's upcoming. */}
-      <Section id="schedule" padding="lg">
-        <div className="mb-6 md:mb-8 max-w-3xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
-            <i className="ri-calendar-event-line text-base" />
-            Jadwal Eli — Live
-          </p>
-          <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] text-[color:var(--retro-text-primary)] mb-3">
-            Show & Meet & Greet
-            <span className="text-[color:var(--retro-burgundy)]"> mendatang.</span>
-          </h2>
-          <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-            Dijadwalkan dari jkt48.com — cast list per show terverifikasi (Eli ada di lineup). Auto-refresh tiap 6 jam. Klik kartu untuk detail tiket.
-          </p>
-        </div>
-        <ScheduleCard />
-        <div className="mt-6 md:mt-8 flex justify-center">
-          <Link
-            to="/schedule"
-            className="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white border border-[color:var(--retro-burgundy)]/20 text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
-          >
-            <i className="ri-calendar-line" />
-            Lihat semua jadwal
-            <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
+        )}
       </Section>
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
