@@ -17,6 +17,7 @@ import { useLightbox } from '../context/LightboxContext';
 import { hashToHref } from '../utils/routes';
 import Seo from '../components/Seo';
 import { useShowroomLive } from '../hooks/useShowroomLive';
+import { useIdnLive } from '../hooks/useIdnLive';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -240,6 +241,7 @@ const HomePage = () => {
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
   const showroomLive = useShowroomLive('JKT48_Eli');
+  const idnLive = useIdnLive('jkt48_eli');
 
   const profileFacts = useMemo(
     () => [
@@ -261,11 +263,24 @@ const HomePage = () => {
             value: (
               <div className="flex flex-wrap items-center gap-2 font-sans">
                 {eli.socials.map((s) => {
-                  const isLive = s.platform === 'SHOWROOM' && showroomLive.isLive;
+                  // Map platform name → its live boolean from the
+                  // matching hook. Both polled every 30s; both fail
+                  // silently in dev where /api routes aren't served.
+                  const liveMap = {
+                    SHOWROOM: showroomLive.isLive,
+                    'IDN Live': idnLive.isLive,
+                  };
+                  const isLive = !!liveMap[s.platform];
+                  // When live, swap the static profile URL for the
+                  // active stream's room URL so the click drops the
+                  // user directly into the live room.
+                  const liveUrl = isLive
+                    ? (s.platform === 'IDN Live' && idnLive.liveStream?.url) || s.url
+                    : s.url;
                   return (
                     <a
                       key={s.platform}
-                      href={s.url}
+                      href={liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       title={`${s.platform}: ${s.handle}${isLive ? ' · LIVE NOW' : ''}`}
@@ -287,7 +302,7 @@ const HomePage = () => {
           }]
         : []),
     ],
-    [eli, showroomLive.isLive]
+    [eli, showroomLive.isLive, idnLive.isLive, idnLive.liveStream]
   );
 
   const featuredEight = useMemo(

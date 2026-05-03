@@ -21,8 +21,18 @@ import { useGallery } from '../../context';
 import { SITE_CONFIG } from '../../config/siteConfig';
 import SocialStoriesRing from '../SocialStoriesRing';
 import { useShowroomLive } from '../../hooks/useShowroomLive';
+import { useIdnLive } from '../../hooks/useIdnLive';
 
 const COVER_IMAGE = '/archive/img-024.jpg';
+
+// 252586 → "253K", 1500000 → "1.5M". Compact format for IG-style
+// stat strip where space is tight. Uses Indonesian formatting.
+const formatCompact = (n) => {
+  if (n == null || Number.isNaN(n)) return '—';
+  if (n < 1000) return n.toLocaleString('id-ID');
+  if (n < 1_000_000) return `${Math.round(n / 1000)}K`;
+  return `${(n / 1_000_000).toFixed(1)}M`;
+};
 
 const formatYearRange = (images) => {
   if (!images || images.length === 0) return '—';
@@ -38,7 +48,11 @@ const formatYearRange = (images) => {
 const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
   const { images, totalImages } = useGallery();
   const showroomLive = useShowroomLive('JKT48_Eli');
-  const liveMap = { SHOWROOM: showroomLive.isLive };
+  const idnLive = useIdnLive('jkt48_eli');
+  const liveMap = {
+    SHOWROOM: showroomLive.isLive,
+    'IDN Live': idnLive.isLive,
+  };
 
   const stats = useMemo(() => {
     const events = new Set(
@@ -185,9 +199,39 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
             {(SITE_CONFIG.site?.url || 'armeniaca.online').replace(/^https?:\/\//, '')}
           </a>
 
+          {/* "Live Now" alert — surfaces when Eli is actively
+              streaming on either IDN or SHOWROOM. Click drops the
+              user straight into the live room. */}
+          {(idnLive.isLive || showroomLive.isLive) && (
+            <a
+              href={
+                idnLive.isLive
+                  ? idnLive.liveStream?.url || 'https://www.idn.app/jkt48_eli'
+                  : 'https://www.showroom-live.com/r/JKT48_Eli'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-5 inline-flex items-center gap-3 px-4 py-2.5 rounded-full bg-red-600 text-white shadow-md shadow-red-500/30 hover:-translate-y-0.5 transition-transform"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
+              </span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                Live Now · {idnLive.isLive ? 'IDN' : 'SHOWROOM'}
+              </span>
+              {idnLive.isLive && idnLive.liveStream?.title && (
+                <span className="text-xs font-bold truncate max-w-[180px] sm:max-w-xs">
+                  {idnLive.liveStream.title}
+                </span>
+              )}
+              <i className="ri-arrow-right-up-line text-base ml-auto" />
+            </a>
+          )}
+
           {/* Stories ring — IG-style avatar tray for Eli's social
-              accounts. SHOWROOM avatar gets a red pulse + LIVE badge
-              when the showroom-status proxy reports is_live=true. */}
+              accounts. Avatar gets a red pulse + LIVE badge when the
+              corresponding live-status proxy reports is_live=true. */}
           {SITE_CONFIG.eli?.socials?.length > 0 && (
             <div className="mt-5">
               <SocialStoriesRing
@@ -198,10 +242,13 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
             </div>
           )}
 
-          {/* Stats — IG-style, equal columns, centered text on mobile. */}
-          <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-6 max-w-md text-[color:var(--retro-text-primary)]">
+          {/* Stats — IG-style strip. Adds an IDN follower count
+              when the proxy returns one (live data, refreshes per
+              page load). 4-up grid on mobile gets a tighter gap so
+              all numbers fit without wrapping. */}
+          <dl className="mt-6 grid grid-cols-4 gap-2 sm:gap-6 max-w-lg text-[color:var(--retro-text-primary)]">
             <div className="text-center sm:text-left">
-              <dd className="font-header text-lg sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
+              <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
                 {stats.frames.toLocaleString('id-ID')}
               </dd>
               <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-0.5">
@@ -209,7 +256,7 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
               </dt>
             </div>
             <div className="text-center sm:text-left border-l sm:border-0 border-[color:var(--retro-brown-dark)]/10 pl-2 sm:pl-0">
-              <dd className="font-header text-lg sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
+              <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
                 {stats.events.toLocaleString('id-ID')}
               </dd>
               <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-0.5">
@@ -217,11 +264,22 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
               </dt>
             </div>
             <div className="text-center sm:text-left border-l sm:border-0 border-[color:var(--retro-brown-dark)]/10 pl-2 sm:pl-0">
-              <dd className="font-header text-lg sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
+              <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
                 {stats.yearRange}
               </dd>
               <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-0.5">
                 Era
+              </dt>
+            </div>
+            <div className="text-center sm:text-left border-l sm:border-0 border-[color:var(--retro-brown-dark)]/10 pl-2 sm:pl-0">
+              <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
+                {idnLive.profile?.followerCount != null
+                  ? formatCompact(idnLive.profile.followerCount)
+                  : '—'}
+              </dd>
+              <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-0.5 inline-flex items-center gap-1">
+                <i className="ri-broadcast-line text-[10px]" />
+                IDN
               </dt>
             </div>
           </dl>
