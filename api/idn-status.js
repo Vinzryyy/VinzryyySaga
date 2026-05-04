@@ -8,7 +8,9 @@
  *
  * GraphQL doesn't filter `getLivestreams` by streamerID reliably (the
  * arg is accepted but the upstream returns the same global list), so we
- * scan the array client-side and match by `creator.username`.
+ * scan the array client-side and match by `creator.username`. The list
+ * is paginated (~12 streams per page, ordered by viewer count desc), so
+ * we walk pages until we find the user or hit an empty page.
  *
  * Edge-cached 20s + SWR 60s so all polling clients share a near-cached
  * read regardless of visitor count.
@@ -50,27 +52,40 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'invalid username' });
   }
 
-  try {
-    const [profileResp, streamsResp] = await Promise.all([
-      gql(
-        `{ getPublicProfileByUsername(username: "${username}") {` +
-          ' uuid username name avatar bio_description follower_count short_id' +
-          ' } }',
-      ),
-      gql(
-        '{ getLivestreams(page: 1) {' +
-          ' slug title status live_at view_count image_url' +
-          ' playback_url room_identifier' +
-          ' creator { username name }' +
-          ' } }',
-      ),
-    ]);
-
-    const profile = profileResp?.data?.getPublicProfileByUsername;
-    const allStreams = streamsResp?.data?.getLivestreams || [];
-    const liveEntry = allStreams.find(
-      (s) => s?.creator?.username === username && s?.status === 'live',
+  const fetchStreamsPage = (page) =>
+    gql(
+      `{ getLivestreams(page: ${page}) {` +
+        ' slug title status live_at view_count image_url' +
+        ' playback_url room_identifier' +
+        ' creator { username name }' +
+        ' } }',
     );
+
+  const MAX_PAGES = 8;
+
+  try {
+    const profilePromise = gql(
+      `{ getPublicProfileByUsername(username: "${username}") {` +
+        ' uuid username name avatar bio_description follower_count short_id' +
+        ' } }',
+    );
+
+    let liveEntry = null;
+    for (let page = 1; page <= MAX_PAGES; page += 1) {
+      const resp = await fetchStreamsPage(page);
+      const streams = resp?.data?.getLivestreams || [];
+      if (streams.length === 0) break;
+      const match = streams.find(
+        (s) => s?.creator?.username === username && s?.status === 'live',
+      );
+      if (match) {
+        liveEntry = match;
+        break;
+      }
+    }
+
+    const profileResp = await profilePromise;
+    const profile = profileResp?.data?.getPublicProfileByUsername;
 
     res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=60');
     return res.status(200).json({
