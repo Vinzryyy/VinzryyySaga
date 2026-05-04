@@ -135,7 +135,7 @@ const ProfilePage = () => {
               'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
           }}
         />
-        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/12 blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 -right-32 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/12 blur-3xl pointer-events-none" />
         <div className="relative max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
           <div className="lg:col-span-7">
             {/* Magazine issue plate */}
@@ -458,8 +458,8 @@ const FightSection = () => {
 
       {/* Hero card — team summary */}
       <div className="relative overflow-hidden rounded-[2rem] bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-10">
-        <div className="absolute -top-24 -right-24 w-[400px] h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] md:w-[320px] md:h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
 
         <div className="relative grid lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
@@ -608,7 +608,7 @@ const DiscographySection = () => {
                   First Senbatsu
                 </span>
               )}
-              <div className="grid md:grid-cols-[120px_1fr_auto] gap-4 md:gap-6 items-center">
+              <div className="flex flex-col gap-3 md:grid md:grid-cols-[120px_1fr_auto] md:gap-6 md:items-center">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
                     {entry.type}
