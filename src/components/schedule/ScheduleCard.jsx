@@ -101,7 +101,7 @@ const ScheduleCard = () => {
       )}
 
       {calendar && upcoming.length > 0 && (
-        <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <ol className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
           {upcoming.map((entry, idx) => {
             const date = new Date(entry.date);
             const isMG = entry.kind === 'EXCLUSIVE';
@@ -129,7 +129,10 @@ const ScheduleCard = () => {
             }
             const eliJalur = (entry.eli_jalur || []).join(', ');
             return (
-              <li key={`${entry.code || entry.schedule_id}-${entry.date}-${entry.start_time || idx}`}>
+              <li
+                key={`${entry.code || entry.schedule_id}-${entry.date}-${entry.start_time || idx}`}
+                className="flex-shrink-0 w-[80%] sm:w-auto snap-center"
+              >
                 <a
                   href={entry.url}
                   target="_blank"

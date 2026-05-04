@@ -589,13 +589,14 @@ const HomePage = () => {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+            <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
               {harmoniKebaikan.cards.map((card) => (
                 <Link
                   key={card.hash}
                   to={hashToHref(card.hash)}
                   className="
                     group relative flex flex-col gap-4 p-5 md:p-6 rounded-2xl
+                    flex-shrink-0 w-[80%] sm:w-auto snap-center
                     bg-white/70 backdrop-blur-sm
                     border border-[color:var(--retro-burgundy)]/15
                     hover:border-[color:var(--retro-burgundy)]/40
