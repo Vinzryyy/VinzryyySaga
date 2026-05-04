@@ -128,7 +128,7 @@ const ProfilePage = () => {
               <br />
               <span className="text-[color:var(--retro-burgundy-light)]">{profile.titleAccent}</span>
             </h1>
-            <p className="mt-8 text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
+            <p className="mt-8 text-base md:text-lg text-[color:var(--retro-cream)]/80 leading-relaxed max-w-2xl">
               {profile.lead.replace('Eli', eli.stageName)}
             </p>
 
