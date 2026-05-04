@@ -9,6 +9,7 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [progress, setProgress] = useState(0);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [mobileExpanded, setMobileExpanded] = useState(null);
   const dropdownRef = useRef(null);
   const { eras } = useGallery();
   const location = useLocation();
@@ -61,6 +62,17 @@ function Navbar() {
       document.body.style.overflow = previous;
     };
   }, [open]);
+
+  // Auto-expand the section containing the active page when the mobile menu opens
+  useEffect(() => {
+    if (!open) return;
+    const parent = navItems.find(
+      (item) =>
+        Array.isArray(item.children) &&
+        item.children.some((child) => child.hash === activeHash)
+    );
+    setMobileExpanded(parent?.label ?? null);
+  }, [open, activeHash, navItems]);
 
   // Click-away to close dropdowns
   useEffect(() => {
@@ -342,39 +354,78 @@ function Navbar() {
               <ul className="space-y-1">
                 {navItems.map((item) => {
                   const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+                  const expanded = mobileExpanded === item.label;
+                  const active = isItemActive(item);
                   return (
                     <li key={item.label}>
-                      {item.hash && (
+                      {hasChildren ? (
                         <button
                           type="button"
-                          onClick={() => navigateTo(item.hash)}
+                          aria-expanded={expanded}
+                          onClick={() =>
+                            setMobileExpanded((current) =>
+                              current === item.label ? null : item.label
+                            )
+                          }
                           className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
-                            item.hash === activeHash
+                            active
                               ? "bg-[color:var(--retro-burgundy)] text-white"
                               : "text-[color:var(--retro-text-primary)] hover:bg-[color:var(--retro-burgundy)]/5"
                           }`}
                         >
                           <span className="flex items-center gap-3">
-                            {item.icon && <i className={`${item.icon} text-lg opacity-70`} />}
+                            {item.icon && (
+                              <i
+                                className={`${item.icon} text-lg ${
+                                  active ? "opacity-90" : "opacity-70"
+                                }`}
+                              />
+                            )}
                             <span className="font-header text-base font-black tracking-tight">
                               {item.label}
                             </span>
                           </span>
-                          <i className="ri-arrow-right-line text-base opacity-50" />
+                          <i
+                            className={`ri-arrow-down-s-line text-base transition-transform ${
+                              expanded ? "rotate-180" : ""
+                            } ${active ? "opacity-90" : "opacity-50"}`}
+                          />
                         </button>
+                      ) : (
+                        item.hash && (
+                          <button
+                            type="button"
+                            onClick={() => navigateTo(item.hash)}
+                            className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left transition-colors ${
+                              item.hash === activeHash
+                                ? "bg-[color:var(--retro-burgundy)] text-white"
+                                : "text-[color:var(--retro-text-primary)] hover:bg-[color:var(--retro-burgundy)]/5"
+                            }`}
+                          >
+                            <span className="flex items-center gap-3">
+                              {item.icon && <i className={`${item.icon} text-lg opacity-70`} />}
+                              <span className="font-header text-base font-black tracking-tight">
+                                {item.label}
+                              </span>
+                            </span>
+                            <i className="ri-arrow-right-line text-base opacity-50" />
+                          </button>
+                        )
                       )}
-                      {!item.hash && (
-                        <div className="px-4 py-3 flex items-center gap-3">
-                          {item.icon && (
-                            <i className={`${item.icon} text-lg text-[color:var(--retro-burgundy)]/70`} />
+                      {hasChildren && expanded && (
+                        <ul className="mt-1 ml-3 pl-3 border-l border-[color:var(--retro-brown-dark)]/10 space-y-1 animate-[fadeIn_0.18s_ease-out]">
+                          {item.hash && (
+                            <li>
+                              <button
+                                type="button"
+                                onClick={() => navigateTo(item.hash)}
+                                className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/5"
+                              >
+                                <span>Buka {item.label}</span>
+                                <i className="ri-arrow-right-up-line text-base" />
+                              </button>
+                            </li>
                           )}
-                          <span className="font-header text-base font-black tracking-tight text-[color:var(--retro-text-primary)]">
-                            {item.label}
-                          </span>
-                        </div>
-                      )}
-                      {hasChildren && (
-                        <ul className="mt-1 ml-3 pl-3 border-l border-[color:var(--retro-brown-dark)]/10 space-y-1">
                           {item.children.map((child) => (
                             <li key={`m-${item.label}-${child.hash}`}>
                               <button
