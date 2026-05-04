@@ -148,7 +148,7 @@ const ProfilePage = () => {
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-3">
               {profile.eyebrow}
             </p>
-            <h1 className="font-header text-5xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9] drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
+            <h1 className="font-header text-4xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9] drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
               {profile.title}
               <br />
               <span className="text-[color:var(--retro-burgundy-light)]">{profile.titleAccent}</span>
@@ -226,6 +226,11 @@ const ProfilePage = () => {
 
       {/* Sticky sub-navigation — TOC with section numbers */}
       <nav className="sticky top-20 z-30 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10">
+        {/* Edge fades — hint at horizontal scroll on mobile where the
+            pills overflow the viewport. Hidden at md+ where every pill
+            fits without scrolling. */}
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[color:var(--retro-bg-primary)] to-transparent md:hidden z-10" />
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[color:var(--retro-bg-primary)] to-transparent md:hidden z-10" />
         <div className="max-w-7xl mx-auto px-4 md:px-12 lg:px-20 overflow-x-auto">
           <ul className="flex items-center gap-1 py-3 min-w-max">
             <li className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] pr-3 hidden md:block">
@@ -708,12 +713,12 @@ const DiscographySection = () => {
           </span>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
           {ELI_ALBUMS.map((album, idx) => (
             <article
               key={album.title}
               style={staggerStyle(idx, 100)}
-              className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 flex flex-col ${staggerClass(albumsVisible)}`}
+              className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 flex flex-col flex-shrink-0 w-[80%] sm:w-auto snap-center ${staggerClass(albumsVisible)}`}
             >
               <div className="flex items-start justify-between gap-3 mb-4">
                 <span className="px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em]">
