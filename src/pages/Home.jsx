@@ -18,6 +18,7 @@ import { hashToHref } from '../utils/routes';
 import Seo from '../components/Seo';
 import { useShowroomLive } from '../hooks/useShowroomLive';
 import { useIdnLive } from '../hooks/useIdnLive';
+import IdnLiveStreamPlayer from '../components/IdnLiveStreamPlayer';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -551,6 +552,78 @@ const HomePage = () => {
           <div className="w-px h-8 bg-gradient-to-b from-[color:var(--retro-cream)]/50 to-transparent" />
         </div>
       </section>
+
+      {/* LIVE NOW — only mounts when Eli is actively streaming on IDN
+          and the API returned a playback URL. Sits directly under the
+          hero so visitors don't have to hunt for the player. Hidden
+          completely otherwise (no empty placeholder). */}
+      {idnLive.isLive && idnLive.liveStream?.playbackUrl && (
+        <Section id="live-now" padding="lg">
+          <div className="relative rounded-3xl overflow-hidden border border-red-500/25 bg-gradient-to-br from-[color:var(--retro-brown-dark)] via-[color:var(--retro-burgundy)] to-black shadow-2xl shadow-red-900/20">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 pointer-events-none opacity-40"
+              style={{
+                background:
+                  'radial-gradient(circle at 90% 0%, rgba(220, 38, 38, 0.35) 0%, transparent 55%), radial-gradient(circle at 0% 100%, rgba(201, 169, 97, 0.18) 0%, transparent 60%)',
+              }}
+            />
+            <div className="relative px-5 sm:px-7 md:px-10 py-7 md:py-9">
+              <div className="flex items-center gap-3 mb-5 flex-wrap">
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-md shadow-red-900/40">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+                  </span>
+                  On Air
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/70">
+                  Eli sedang live di IDN App
+                </span>
+                <span className="hidden sm:block flex-1 h-px bg-[color:var(--retro-cream)]/15 max-w-[200px]" />
+              </div>
+
+              <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+                <div className="lg:col-span-8">
+                  <IdnLiveStreamPlayer
+                    playbackUrl={idnLive.liveStream.playbackUrl}
+                    posterUrl={idnLive.liveStream.imageUrl}
+                    externalUrl={idnLive.liveStream.url}
+                    title={idnLive.liveStream.title}
+                    viewCount={idnLive.liveStream.viewCount}
+                  />
+                </div>
+                <div className="lg:col-span-4 text-[color:var(--retro-cream)]">
+                  <h2 className="font-header text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter leading-[0.95] mb-3">
+                    {idnLive.liveStream.title || 'Live bareng Eli'}
+                  </h2>
+                  <p className="text-sm text-[color:var(--retro-cream)]/75 leading-relaxed mb-5">
+                    Klik tombol di player buat aktifin suara. Mau kirim gift atau komentar? Buka langsung di IDN App.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {typeof idnLive.liveStream.viewCount === 'number' && idnLive.liveStream.viewCount > 0 && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-[11px] font-black uppercase tracking-[0.25em] tabular-nums">
+                        <i className="ri-eye-line text-sm" />
+                        {idnLive.liveStream.viewCount.toLocaleString('id-ID')} nonton
+                      </span>
+                    )}
+                    <a
+                      href={idnLive.liveStream.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white text-[color:var(--retro-brown-dark)] text-[11px] font-black uppercase tracking-[0.25em] hover:bg-[color:var(--retro-cream)] transition-colors"
+                    >
+                      <i className="ri-broadcast-line text-sm" />
+                      Buka di IDN
+                      <i className="ri-arrow-right-up-line text-sm" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+      )}
 
       {/* HARMONI KEBAIKAN — notice block teasing the three birthday
           sub-pages (#26, Countdown, Wishes) so home visitors see the
