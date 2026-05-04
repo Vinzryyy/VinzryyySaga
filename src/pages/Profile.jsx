@@ -111,30 +111,13 @@ const ProfilePage = () => {
           The background photo (img-119) gives the page atmosphere
           without fighting the collage on the right since the gradient
           fades the right side darker behind the collage anchors. */}
-      <header className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden">
-        {/* Full-bleed background photo */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-0 pointer-events-none"
-          style={{
-            backgroundImage: 'url(/archive/img-119.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: '50% 30%',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-        {/* Vertical tonal overlay — warm dark brown top fading to the
-            cream page background so the MemberCard below blends in
-            seamlessly. Same blend pattern as /schedule for visual
-            consistency between the two long pages. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-0 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
-          }}
-        />
+      <header
+        className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 lg:px-20 overflow-hidden"
+        style={{
+          background:
+            'linear-gradient(180deg, var(--retro-brown-dark) 0%, var(--retro-brown-dark) 60%, var(--retro-bg-primary) 100%)',
+        }}
+      >
         <div className="relative max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
           <div className="lg:col-span-7">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-3">
