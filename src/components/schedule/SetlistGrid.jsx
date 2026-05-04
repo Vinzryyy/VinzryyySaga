@@ -74,7 +74,7 @@ const SetlistCard = ({ entry }) => {
 
   return (
     <article
-      className={`relative rounded-2xl p-5 md:p-6 border transition-all flex flex-col gap-3 hover:-translate-y-0.5 hover:shadow-md ${
+      className={`relative rounded-2xl p-5 md:p-6 border transition-all flex flex-col gap-3 hover:-translate-y-0.5 hover:shadow-md flex-shrink-0 w-[80%] sm:w-auto snap-center ${
         isActive
           ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)]'
           : 'bg-white text-[color:var(--retro-text-primary)] border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40'
@@ -387,7 +387,7 @@ const SetlistGrid = () => {
                 {activeSetlists.length}
               </span>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 -mx-5 sm:mx-0 px-5 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
               {activeSetlists.map((entry) => (
                 <SetlistCard key={entry.setlist} entry={entry} />
               ))}
@@ -421,7 +421,7 @@ const SetlistGrid = () => {
               />
             </button>
             {showRetired && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-[fadeIn_0.3s_ease-out]">
+              <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 -mx-5 sm:mx-0 px-5 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none animate-[fadeIn_0.3s_ease-out]">
                 {retiredSetlists.map((entry) => (
                   <SetlistCard key={entry.setlist} entry={entry} />
                 ))}
