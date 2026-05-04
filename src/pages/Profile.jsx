@@ -135,20 +135,12 @@ const ProfilePage = () => {
               'linear-gradient(180deg, rgba(61, 52, 43, 0.85) 0%, rgba(92, 74, 58, 0.7) 35%, rgba(252, 244, 230, 0.95) 92%, var(--retro-bg-primary) 100%)',
           }}
         />
-        <div className="absolute -top-32 -right-32 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] rounded-full bg-[color:var(--retro-burgundy)]/12 blur-3xl pointer-events-none" />
         <div className="relative max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
           <div className="lg:col-span-7">
-            {/* Magazine issue plate */}
-            <div className="flex items-center gap-3 mb-6 text-[color:var(--retro-burgundy-light)]">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">{profile.issue}</span>
-              <span className="w-10 h-px bg-[color:var(--retro-burgundy-light)]/50" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65">{profile.edition}</span>
-            </div>
-
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-3">
-              {profile.eyebrow}
+              {profile.edition}
             </p>
-            <h1 className="font-header text-4xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9] drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
+            <h1 className="font-header text-4xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9]">
               {profile.title}
               <br />
               <span className="text-[color:var(--retro-burgundy-light)]">{profile.titleAccent}</span>
@@ -311,49 +303,20 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
   const eyebrow = ELI_PROFILE_SECTIONS[idx]?.label || '';
   const { elementRef, isVisible } = useScrollReveal({ threshold: 0.2, rootMargin: '-50px' });
   return (
-    <header ref={elementRef} className="relative mb-12 md:mb-16 overflow-hidden">
-      {/* Decorative wordmark watermark — fills the empty right side of the
-          opener on lg+ where title/lead are constrained to max-w-3xl/2xl.
-          Mask-image lets us tint the white asset to faded burgundy. */}
-      <div
-        aria-hidden="true"
-        className={`absolute right-0 top-0 bottom-0 w-2/5 hidden lg:block pointer-events-none transition-opacity duration-1000 ${
-          isVisible ? 'opacity-[0.07]' : 'opacity-0'
-        }`}
-        style={{
-          maskImage: 'url(/logo-armeniaca.png)',
-          WebkitMaskImage: 'url(/logo-armeniaca.png)',
-          maskSize: 'contain',
-          WebkitMaskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          WebkitMaskRepeat: 'no-repeat',
-          maskPosition: 'right center',
-          WebkitMaskPosition: 'right center',
-          backgroundColor: 'var(--retro-burgundy)',
-        }}
-      />
-
-      <div className="relative flex items-baseline gap-4 mb-5">
+    <header ref={elementRef} className="relative mb-10 md:mb-14">
+      <div className="relative flex items-baseline gap-3 mb-4">
         <span
-          className={`font-header text-5xl md:text-7xl font-black text-[color:var(--retro-burgundy)]/15 tracking-tighter leading-none select-none transition-all duration-1000 ease-out origin-left ${
-            isVisible ? 'opacity-100 scale-100 translate-x-0' : 'opacity-0 scale-50 -translate-x-6'
+          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/70 tabular-nums transition-all duration-700 ease-out ${
+            isVisible ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          {String(idx + 1).padStart(2, '0')}
-        </span>
-        <span
-          style={{ transitionDelay: '120ms' }}
-          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] transition-all duration-700 ease-out ${
-            isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
-          }`}
-        >
-          {eyebrow}
+          {String(idx + 1).padStart(2, '0')} · {eyebrow}
         </span>
         {kicker && (
           <span
-            style={{ transitionDelay: '300ms' }}
+            style={{ transitionDelay: '200ms' }}
             className={`ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-block transition-all duration-700 ease-out ${
-              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-3'
+              isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           >
             {kicker}
@@ -361,29 +324,23 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
         )}
       </div>
       <h2
-        style={{ transitionDelay: '160ms' }}
-        className={`relative font-header text-4xl md:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl transition-all duration-1000 ease-out ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+        style={{ transitionDelay: '100ms' }}
+        className={`font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl transition-all duration-1000 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >
         {title}
       </h2>
       {lead && (
         <p
-          style={{ transitionDelay: '260ms' }}
-          className={`relative mt-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          style={{ transitionDelay: '200ms' }}
+          className={`mt-4 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
           }`}
         >
           {lead}
         </p>
       )}
-      <div
-        className={`relative mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy)]/40 via-[color:var(--retro-brown-dark)]/10 to-transparent transition-all duration-[1200ms] ease-out origin-left ${
-          isVisible ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
-        }`}
-        style={{ transitionDelay: '400ms' }}
-      />
     </header>
   );
 };
@@ -462,10 +419,7 @@ const FightSection = () => {
       />
 
       {/* Hero card — team summary */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-10">
-        <div className="absolute -top-24 -right-24 w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] md:w-[320px] md:h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
-
+      <div className="relative overflow-hidden rounded-3xl bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-10">
         <div className="relative grid lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">
@@ -602,16 +556,16 @@ const DiscographySection = () => {
             <article
               key={key}
               style={staggerStyle(idx)}
-              className={`relative rounded-2xl border p-5 md:p-6 ${
+              className={`relative rounded-2xl border border-[color:var(--retro-brown-dark)]/12 bg-[color:var(--retro-bg-primary)] p-5 md:p-6 ${
                 entry.highlight
-                  ? 'bg-[color:var(--retro-burgundy)]/5 border-[color:var(--retro-burgundy)]/30'
-                  : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15'
+                  ? 'border-l-4 border-l-[color:var(--retro-burgundy)]'
+                  : ''
               } ${staggerClass(singlesVisible)}`}
             >
               {entry.highlight && (
-                <span className="absolute -top-2 left-6 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em]">
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
                   First Senbatsu
-                </span>
+                </p>
               )}
               <div className="flex flex-col gap-3 md:grid md:grid-cols-[120px_1fr_auto] md:gap-6 md:items-center">
                 <div>
@@ -855,14 +809,13 @@ const TriviaSection = () => {
               loading="lazy"
               className="absolute inset-0 w-full h-full object-cover object-[35%_25%] transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/40 to-transparent" />
-            <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-6 text-[color:var(--retro-cream)]">
-              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">
-                Catchphrase Eli
+            <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/95 via-[color:var(--retro-brown-dark)]/35 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-7 text-[color:var(--retro-cream)]">
+              <p className="font-header text-base md:text-lg leading-snug font-medium">
+                “{eli.catchphrase}”
               </p>
-              <i className="ri-double-quotes-l text-2xl text-[color:var(--retro-gold-light)] mb-1" />
-              <p className="font-header text-sm md:text-base italic leading-snug">
-                {eli.catchphrase}
+              <p className="mt-3 text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]/80">
+                — {eli.nickname || eli.stageName}
               </p>
             </div>
           </div>
