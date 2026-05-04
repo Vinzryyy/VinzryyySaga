@@ -1,8 +1,8 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-05-04T12:44:18.511960Z",
-  "eventCount": 12,
+  "fetchedAt": "2026-05-04T18:41:20.387691Z",
+  "eventCount": 13,
   "events": [
     {
       "kind": "SHOW",
@@ -380,127 +380,81 @@
       "url": "https://jkt48.com/schedule/sh1a3d-dream-bakudan"
     },
     {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 933,
-      "code": "EX579E",
-      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 7)",
-      "date": "2026-05-22T17:00:00.000Z",
-      "start_time": "17:00",
+      "kind": "SHOW",
+      "schedule_id": 3146,
+      "code": "SH1723",
+      "title": "DREAM BAKUDAN",
+      "date": "2026-05-09T17:00:00.000Z",
+      "start_time": "16:00",
       "end_time": "18:00",
-      "category": "TWO_SHOT",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
+      "set_list": "SL_26",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
       "members": [
         {
-          "name": "Febriola Sinambela"
+          "name": "Adeline Wijaya",
+          "member_id": 2,
+          "type": "DREAM"
         },
         {
-          "name": "Freya Jayawardana"
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
         },
         {
-          "name": "Greesella Adhalia"
+          "name": "Freya Jayawardana",
+          "member_id": 94,
+          "type": "DREAM"
         },
         {
-          "name": "Helisma Putri"
+          "name": "Gabriela Abigail",
+          "member_id": 97,
+          "type": "DREAM"
         },
         {
-          "name": "Adeline Wijaya"
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
         },
         {
-          "name": "Nina Tutachia"
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
         },
         {
-          "name": "Oline Manuel"
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
         },
         {
-          "name": "Celline Thefani"
+          "name": "Jesslyn Elly",
+          "member_id": 131,
+          "type": "DREAM"
         },
         {
-          "name": "Cynthia Yaputera"
+          "name": "Marsha Lenathea",
+          "member_id": 152,
+          "type": "DREAM"
         },
         {
-          "name": "Alya Amanda"
+          "name": "Nina Tutachia",
+          "member_id": 178,
+          "type": "DREAM"
         },
         {
-          "name": "Bong Aprilli"
+          "name": "Oline Manuel",
+          "member_id": 185,
+          "type": "DREAM"
+        },
+        {
+          "name": "Shabilqis Naila",
+          "member_id": 221,
+          "type": "DREAM"
         }
       ],
-      "eli_jalur": [
-        "Jalur 4"
-      ],
-      "tickets_sold_eli": [
-        75
-      ],
-      "eli_remaining": [
-        0
-      ],
-      "sold_out": true,
-      "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex579e-23052026"
-    },
-    {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 933,
-      "code": "EX579E",
-      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 8)",
-      "date": "2026-05-22T17:00:00.000Z",
-      "start_time": "18:00",
-      "end_time": "19:00",
-      "category": "TWO_SHOT",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
-      "members": [
-        {
-          "name": "Febriola Sinambela"
-        },
-        {
-          "name": "Freya Jayawardana"
-        },
-        {
-          "name": "Greesella Adhalia"
-        },
-        {
-          "name": "Helisma Putri"
-        },
-        {
-          "name": "Adeline Wijaya"
-        },
-        {
-          "name": "Nina Tutachia"
-        },
-        {
-          "name": "Oline Manuel"
-        },
-        {
-          "name": "Celline Thefani"
-        },
-        {
-          "name": "Cynthia Yaputera"
-        },
-        {
-          "name": "Alya Amanda"
-        },
-        {
-          "name": "Mikaela Kusjanto"
-        },
-        {
-          "name": "Humaira Ramadhani"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 4"
-      ],
-      "tickets_sold_eli": [
-        75
-      ],
-      "eli_remaining": [
-        0
-      ],
-      "sold_out": true,
-      "remaining_total": 0,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex579e-23052026"
+      "is_video_call": false,
+      "url": "https://jkt48.com/schedule/sh1723-dream-bakudan"
     },
     {
       "kind": "EXCLUSIVE",
@@ -900,15 +854,138 @@
         "Jalur 8"
       ],
       "tickets_sold_eli": [
-        14
+        39
       ],
       "eli_remaining": [
-        236
+        211
       ],
       "sold_out": false,
-      "remaining_total": 236,
+      "remaining_total": 211,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 933,
+      "code": "EX579E",
+      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 7)",
+      "date": "2026-05-22T17:00:00.000Z",
+      "start_time": "17:00",
+      "end_time": "18:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Febriola Sinambela"
+        },
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Helisma Putri"
+        },
+        {
+          "name": "Adeline Wijaya"
+        },
+        {
+          "name": "Nina Tutachia"
+        },
+        {
+          "name": "Oline Manuel"
+        },
+        {
+          "name": "Celline Thefani"
+        },
+        {
+          "name": "Cynthia Yaputera"
+        },
+        {
+          "name": "Alya Amanda"
+        },
+        {
+          "name": "Bong Aprilli"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 4"
+      ],
+      "tickets_sold_eli": [
+        75
+      ],
+      "eli_remaining": [
+        0
+      ],
+      "sold_out": true,
+      "remaining_total": 0,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/ex579e-23052026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 933,
+      "code": "EX579E",
+      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 8)",
+      "date": "2026-05-22T17:00:00.000Z",
+      "start_time": "18:00",
+      "end_time": "19:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Febriola Sinambela"
+        },
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Helisma Putri"
+        },
+        {
+          "name": "Adeline Wijaya"
+        },
+        {
+          "name": "Nina Tutachia"
+        },
+        {
+          "name": "Oline Manuel"
+        },
+        {
+          "name": "Celline Thefani"
+        },
+        {
+          "name": "Cynthia Yaputera"
+        },
+        {
+          "name": "Alya Amanda"
+        },
+        {
+          "name": "Mikaela Kusjanto"
+        },
+        {
+          "name": "Humaira Ramadhani"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 4"
+      ],
+      "tickets_sold_eli": [
+        75
+      ],
+      "eli_remaining": [
+        0
+      ],
+      "sold_out": true,
+      "remaining_total": 0,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/ex579e-23052026"
     }
   ]
 }
