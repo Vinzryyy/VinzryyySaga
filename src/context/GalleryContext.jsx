@@ -66,7 +66,7 @@ const mergeEnrichments = (images, enrichmentDoc) => {
   const excludeSet = new Set(enrichmentDoc.excludeMediaKeys || []);
 
   // Drop excluded mediaKeys before mapping — promo materials, off-topic
-  // content, etc. List lives in gallery-excludes.json at repo root and
+  // content, etc. List lives in data/gallery-excludes.json and
   // is bundled into the enrichment JSON by build-gallery-enrichments.js.
   const filtered = excludeSet.size === 0
     ? images

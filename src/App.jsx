@@ -17,6 +17,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
   useLocation,
 } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -92,7 +93,7 @@ function AppShell() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/home" element={<HomePage />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/gallery/:year" element={<GalleryPage />} />
             <Route path="/profile" element={<ProfilePage />} />

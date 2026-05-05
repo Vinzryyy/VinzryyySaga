@@ -34,7 +34,7 @@ const ROOT = path.join(__dirname, '..');
 
 const INPUT_JSON = process.argv[2]
   ? path.resolve(process.argv[2])
-  : path.join(ROOT, 'armeniaca-authentic-archive.json');
+  : path.join(ROOT, 'data', 'armeniaca-authentic-archive.json');
 const OUT_DIR = path.join(ROOT, 'public', 'archive', 'x');
 const GALLERY_OUTPUT = path.join(ROOT, 'src', 'data', 'galleryData.js');
 

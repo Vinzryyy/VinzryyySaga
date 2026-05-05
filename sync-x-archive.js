@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 const ENV_PATH = path.join(__dirname, '.env');
 const STATE_DIR = path.join(__dirname, '.sync');
 const STATE_PATH = path.join(STATE_DIR, 'x-sync-state.json');
-const AUTH_ARCHIVE_PATH = path.join(__dirname, 'armeniaca-authentic-archive.json');
+const AUTH_ARCHIVE_PATH = path.join(__dirname, 'data', 'armeniaca-authentic-archive.json');
 const X_ARCHIVE_PATH = path.join(__dirname, 'src', 'data', 'xArchive.json');
 
 const monthNames = [

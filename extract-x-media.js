@@ -15,7 +15,7 @@
  *    going up as new posts render in.
  * 5. When count stabilizes, click "Download JSON" on the panel.
  * 6. File saves as `armeniaca-authentic-archive.json`. Replace the
- *    existing one in the repo root, then run `npm run import-x-archive`.
+ *    existing one in `data/`, then run `npm run import-x-archive`.
  *
  * Tip: if you suspect you missed a section, scroll back up through it —
  * the observer captures URLs once (deduped by media key), so re-passes

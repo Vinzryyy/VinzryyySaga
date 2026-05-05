@@ -44,7 +44,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const ARCHIVE_DIR = path.join(ROOT, 'public', 'archive');
 const X_DIR = path.join(ARCHIVE_DIR, 'x');
-const AUTH_JSON = path.join(ROOT, 'armeniaca-authentic-archive.json');
+const AUTH_JSON = path.join(ROOT, 'data', 'armeniaca-authentic-archive.json');
 const OUT_DIR = path.join(ROOT, 'public', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'img-archive-mapping.json');
 

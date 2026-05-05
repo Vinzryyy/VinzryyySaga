@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 
-const JSON_FILE = './x_image_urls (2).json';
+const JSON_FILE = './data/x_image_urls (2).json';
 const DOWNLOAD_DIR = './public/archive';
 
 // Ensure directory exists

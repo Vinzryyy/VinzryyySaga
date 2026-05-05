@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const MAPPING_FILE = path.join(ROOT, 'public', 'data', 'img-archive-mapping.json');
-const OVERRIDES_FILE = path.join(ROOT, 'manual-archive-overrides.json');
+const OVERRIDES_FILE = path.join(ROOT, 'data', 'manual-archive-overrides.json');
 
 const REQUEST_HEADERS = {
   'User-Agent':

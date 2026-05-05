@@ -23,8 +23,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const MAPPING_FILE = path.join(ROOT, 'public', 'data', 'img-archive-mapping.json');
-const AUTH_FILE = path.join(ROOT, 'armeniaca-authentic-archive.json');
-const EXCLUDES_FILE = path.join(ROOT, 'gallery-excludes.json');
+const AUTH_FILE = path.join(ROOT, 'data', 'armeniaca-authentic-archive.json');
+const EXCLUDES_FILE = path.join(ROOT, 'data', 'gallery-excludes.json');
 const OUT_DIR = path.join(ROOT, 'public', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'gallery-enrichments.json');
 
