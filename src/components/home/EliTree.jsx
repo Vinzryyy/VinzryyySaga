@@ -1048,6 +1048,10 @@ const EliTree = () => {
   const [justAdvancedStage, setJustAdvancedStage] = useState(null);
   const [liveWishes, setLiveWishes] = useState([]);
   const [openWish, setOpenWish] = useState(null);
+  // One random seed picked once per mount. Drives the hanging-wish
+  // shuffle below via a deterministic PRNG so the memo stays pure
+  // (Math.random() during render trips react-hooks/purity).
+  const [shuffleSeed] = useState(() => Math.floor(Math.random() * 0x7fffffff));
 
   useEffect(() => {
     setSupportedToday(hasSupportedToday());
@@ -1062,19 +1066,28 @@ const EliTree = () => {
   // Combined wish pool used for the hanging cards at the max stage —
   // curated seeds from siteConfig + live RTDB submissions, shuffled
   // per page load so every wish gets fair rotation across refreshes
-  // instead of the newest 10 dominating forever.
+  // instead of the newest 10 dominating forever. Seeded mulberry32 PRNG
+  // keeps this deterministic for a given mount.
   const hangingWishes = useMemo(() => {
     const seeds = (SITE_CONFIG.wishes?.seeds || []).map((s) => ({
       ...s,
       id: s.id || seedHashId(s),
     }));
     const pool = [...seeds, ...liveWishes];
+    let s = shuffleSeed >>> 0;
+    const rand = () => {
+      s = (s + 0x6d2b79f5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
     for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rand() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
     return pool;
-  }, [liveWishes]);
+  }, [liveWishes, shuffleSeed]);
 
   // Esc-to-close on the open wish modal
   useEffect(() => {
