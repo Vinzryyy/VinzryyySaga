@@ -16,11 +16,26 @@
 import React, { memo, useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useGallery } from '../../context';
 import { useLightbox } from '../../context/LightboxContext';
-import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { SITE_CONFIG } from '../../config/siteConfig';
 
 const INITIAL_COUNT = 15; // first paint stays light — only 15 thumbs render
 const BATCH_SIZE = 15;    // each subsequent scroll-triggered append
+
+// Derive 400px-wide thumbnail URLs from an /archive/x/x-{key}.{jpg|webp}
+// path. The dedicated thumbs are produced by scripts/build-thumbnails.js
+// — ~10× smaller than the 1600px-wide variants so the grid doesn't pay
+// full-resolution bytes per cell. Falls through (returns null) for any
+// non-archive URL so the <picture> just uses image.thumbnail directly.
+const deriveThumbUrls = (url) => {
+  if (!url) return null;
+  const m = url.match(/^\/archive\/x\/(x-[A-Za-z0-9_-]+)\.[a-z]+$/);
+  if (!m) return null;
+  const base = m[1];
+  return {
+    avif: `/archive/x/thumbs/${base}.avif`,
+    webp: `/archive/x/thumbs/${base}.webp`,
+  };
+};
 
 // Quick lookup: which tweetIds carry > 1 image. Used to flag carousel-
 // style posts with the IG copy icon. Not stored in the image record
@@ -41,35 +56,29 @@ const buildMultiImageSet = (images) => {
 const ThumbCell = memo(function ThumbCell({ image, index, isCarousel }) {
   const { open } = useLightbox();
   const { filteredImages } = useGallery();
-  const { elementRef, isVisible } = useScrollReveal({
-    threshold: 0.05,
-    rootMargin: '300px',
-    triggerOnce: true,
-  });
 
   const handleClick = () => open(filteredImages, index);
   const fav = typeof image.favoriteCount === 'number' ? image.favoriteCount : null;
+  const thumbs = deriveThumbUrls(image.url || image.thumbnail);
 
   return (
     <button
-      ref={elementRef}
       type="button"
       onClick={handleClick}
       aria-label={`Buka ${image.eventName || image.title || 'frame'}`}
-      className={`
-        group relative block aspect-square overflow-hidden bg-[color:var(--retro-brown-dark)]/8
-        transition-opacity duration-500 ease-out
-        ${isVisible ? 'opacity-100' : 'opacity-0'}
-      `}
+      className="group relative block aspect-square overflow-hidden bg-[color:var(--retro-brown-dark)]/8"
     >
       <picture>
-        {image.avifSrcSet && <source srcSet={image.avifSrcSet} type="image/avif" />}
-        {image.webpSrcSet && <source srcSet={image.webpSrcSet} type="image/webp" />}
+        {thumbs && <source srcSet={thumbs.avif} type="image/avif" />}
+        {thumbs && <source srcSet={thumbs.webp} type="image/webp" />}
         <img
           src={image.thumbnail || image.url}
           alt={image.eventName || image.title || 'Eli JKT48'}
-          loading="lazy"
+          loading={index < 6 ? 'eager' : 'lazy'}
+          fetchpriority={index < 3 ? 'high' : 'auto'}
           decoding="async"
+          width="400"
+          height="400"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
         />
       </picture>
