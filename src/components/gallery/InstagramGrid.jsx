@@ -19,7 +19,8 @@ import { useLightbox } from '../../context/LightboxContext';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 import { SITE_CONFIG } from '../../config/siteConfig';
 
-const BATCH_SIZE = 36; // bumped up — square crops are smaller, screen fits more
+const INITIAL_COUNT = 15; // first paint stays light — only 15 thumbs render
+const BATCH_SIZE = 15;    // each subsequent scroll-triggered append
 
 // Quick lookup: which tweetIds carry > 1 image. Used to flag carousel-
 // style posts with the IG copy icon. Not stored in the image record
@@ -118,13 +119,13 @@ const ThumbCell = memo(function ThumbCell({ image, index, isCarousel }) {
 const InstagramGrid = memo(function InstagramGrid() {
   const { filteredImages, isLoading, error, hasFilters, clearFilters } = useGallery();
 
-  const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const [isAppending, setIsAppending] = useState(false);
   const sentinelRef = useRef(null);
   const appendTimeoutRef = useRef(null);
 
   useEffect(() => {
-    setVisibleCount(BATCH_SIZE);
+    setVisibleCount(INITIAL_COUNT);
   }, [filteredImages.length, hasFilters]);
 
   const loadMore = useCallback(() => {
@@ -145,7 +146,7 @@ const InstagramGrid = memo(function InstagramGrid() {
           loadMore();
         }
       },
-      { threshold: 0.1, rootMargin: '600px' },
+      { threshold: 0.1, rootMargin: '200px' },
     );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
