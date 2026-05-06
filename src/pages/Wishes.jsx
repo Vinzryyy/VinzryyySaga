@@ -65,6 +65,24 @@ const persistHeartedSet = (set) => {
   }
 };
 
+// Open X's tweet intent prefilled with the wish. Stays in a popup so the
+// user can post without losing the wishes wall. Body is trimmed so the
+// quote + attribution + auto-appended URL stay under X's 280 limit (URL
+// is counted as ~23 chars regardless of length).
+const shareWishToX = (wish) => {
+  const attribution = ` — ${wish.name || 'Anon'}`;
+  const MAX_BODY = 200;
+  const raw = wish.message || '';
+  const room = MAX_BODY - attribution.length - 2; // 2 = the surrounding quotes
+  const trimmed = raw.length > room ? `${raw.slice(0, room - 1).trimEnd()}…` : raw;
+  const body = `"${trimmed}"${attribution}`;
+  const intent = new URL('https://x.com/intent/tweet');
+  intent.searchParams.set('text', body);
+  intent.searchParams.set('url', `${SITE_CONFIG.site.url}/wishes`);
+  intent.searchParams.set('hashtags', 'EliJKT48,BloomInSpring');
+  window.open(intent.toString(), '_blank', 'noopener,noreferrer,width=550,height=520');
+};
+
 const SORT_OPTIONS = [
   { id: 'newest', label: 'Terbaru', icon: 'ri-time-line' },
   { id: 'oldest', label: 'Tertua', icon: 'ri-history-line' },
@@ -727,30 +745,40 @@ const WishesPage = () => {
                     data-template={template.id}
                   >
                     <Card wish={wish} />
-                    {/* Heart button — sits inside the top-left corner
-                        of the card so it reads as part of the note's
-                        ornamentation rather than a sticker over it.
-                        Disabled visually once hearted on this device. */}
-                    {wishId && (
+                    {/* Action cluster — share opens X intent, heart bumps
+                        the count via RTDB. Both styled the same so they
+                        read as a paired control rather than two stickers. */}
+                    <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
                       <button
                         type="button"
-                        onClick={() => handleHeart(wishId)}
-                        disabled={hearted}
-                        aria-label={hearted ? `Sudah disukai (${heartCount})` : `Suka ucapan (${heartCount})`}
-                        className={`absolute top-3 right-3 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-md ${
-                          hearted
-                            ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] cursor-default'
-                            : 'bg-white/95 backdrop-blur-sm text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer'
-                        }`}
+                        onClick={() => shareWishToX(wish)}
+                        aria-label="Bagikan ucapan ke X"
+                        title="Bagikan ke X"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-black transition-all shadow-md bg-white/95 backdrop-blur-sm text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer"
                       >
-                        <i
-                          className={`text-base ${
-                            hearted ? 'ri-heart-3-fill animate-pulse' : 'ri-heart-3-line'
-                          }`}
-                        />
-                        <span className="tabular-nums">{heartCount}</span>
+                        <i className="ri-twitter-x-line text-sm" />
                       </button>
-                    )}
+                      {wishId && (
+                        <button
+                          type="button"
+                          onClick={() => handleHeart(wishId)}
+                          disabled={hearted}
+                          aria-label={hearted ? `Sudah disukai (${heartCount})` : `Suka ucapan (${heartCount})`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-md ${
+                            hearted
+                              ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] cursor-default'
+                              : 'bg-white/95 backdrop-blur-sm text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer'
+                          }`}
+                        >
+                          <i
+                            className={`text-base ${
+                              hearted ? 'ri-heart-3-fill animate-pulse' : 'ri-heart-3-line'
+                            }`}
+                          />
+                          <span className="tabular-nums">{heartCount}</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
