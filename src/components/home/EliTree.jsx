@@ -68,7 +68,7 @@ const STAGES = [
   { id: 7, label: 'Berbunga', icon: 'ri-flower-line', detail: 'Bunga aprikot mekar — Bloom in Spring.' },
   { id: 8, label: 'Berbuah', icon: 'ri-apple-line', detail: 'Buah aprikot matang siap dipanen.' },
   { id: 9, label: 'Pohon Penuh', icon: 'ri-sun-line', detail: 'Pohon penuh, kanopi terluas, panen melimpah.' },
-  { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah di tengah taman bunga. Setelah ini setiap dukungan baru menambah satu makhluk hidup ke ekosistem. Terima kasih.' },
+  { id: 10, label: 'Pohon Megah', icon: 'ri-sparkling-2-fill', detail: 'Pohon megah di tengah taman bunga. Setelah ini setiap 50 dukungan menambah satu makhluk hidup ke ekosistem. Terima kasih.' },
 ];
 
 // === Ecosystem (taman bunga) generation ===
@@ -122,17 +122,16 @@ const lerpStops = (x, stops) => {
 
 const generateEcosystem = (count) => {
   const rand = seedRandom(13);
-  // Hard cap di 10.000 sebagai safety perf — tiap vote di atas 1.000
-  // menambah 1 SVG element ke garden via bonus loop di bawah, jadi
-  // 10K total ≈ 9K node bonus + ~700 base. Masih lancar di desktop;
-  // kalau benar-benar tembus angka ini, perlu tune ulang (clustering
-  // / decimation). Naik dari 3.000 supaya gelombang dukungan besar
-  // tidak bikin taman "berhenti tumbuh" persis di milestone tersebut.
-  const c = Math.max(0, Math.min(10000, count || 0));
+  // Hard cap di 50.000 sebagai safety perf. Bonus loop di bawah hanya
+  // drop 1 elemen per 50 votes (cadence pelan supaya garden tetap
+  // readable past 1.000), jadi 50K total ≈ 980 bonus node + base.
+  // Sangat manageable di DOM; cap tinggi memberi ruang nafas untuk
+  // gelombang dukungan besar tanpa stuck di milestone tertentu.
+  const c = Math.max(0, Math.min(50000, count || 0));
   const potVisible = c < 500;
   // Base population is driven by lerp stops up to count=1000. Past
-  // that, every additional vote drops a single random element into
-  // the garden via the bonus loop at the bottom.
+  // that, every 50 additional votes drops a single random element
+  // into the garden via the bonus loop at the bottom.
   const baseCount = Math.min(c, 1000);
 
   const flowerCount = Math.floor(lerpStops(baseCount, [
@@ -224,12 +223,21 @@ const generateEcosystem = (count) => {
   const fallenFruits = [];
   const bees = [];
 
-  // Bonus growth past 1000 — each additional vote drops one random
-  // element into the garden (bunga / rumput / buah jatuh / hewan).
-  // Type weights: 55% bunga, 20% rumput, 12% buah, 13% hewan.
-  // RNG is shared with the base population, so positions stay stable
-  // across re-renders and only NEW slots open up as count grows.
-  const bonusCount = Math.max(0, c - 1000);
+  // Bonus growth past 1000, two-tier cadence supaya DOM tetap waras
+  // kalau ada gelombang dukungan besar:
+  //   Tier 1 (votes 1.001-10.000): 1 elemen per 50 votes  (max ~180)
+  //   Tier 2 (votes 10.001+):      1 elemen per 200 votes (max ~200 di cap 50K)
+  // Tier 2 = antisipasi viral — di skala low-end mobile, ratusan node
+  // SVG masih lancar, ribuan mulai berat. Cadence pelan = ekosistem
+  // tetap tumbuh tanpa meledakkan render cost.
+  // Each bonus slot drops one random element (bunga / rumput / buah
+  // jatuh / hewan) — type weights: 55% bunga, 20% rumput, 12% buah,
+  // 13% hewan. RNG is shared with the base population, so positions
+  // stay stable across re-renders and only NEW slots open up as count
+  // grows.
+  const tier1Votes = Math.min(Math.max(0, c - 1000), 9000);
+  const tier2Votes = Math.max(0, c - 10000);
+  const bonusCount = Math.floor(tier1Votes / 50) + Math.floor(tier2Votes / 200);
   for (let i = 0; i < bonusCount; i++) {
     const typeRoll = rand();
     if (typeRoll < 0.55) {
