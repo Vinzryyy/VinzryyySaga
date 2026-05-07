@@ -40,7 +40,10 @@ const CountdownPage = lazy(() => import('./pages/Countdown'));
 const SchedulePage = lazy(() => import('./pages/Schedule'));
 const WishesPage = lazy(() => import('./pages/Wishes'));
 const Page26 = lazy(() => import('./pages/Page26'));
-const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
+// Galeri Kebaikan — disabled sampai project resmi diumumkan. Page &
+// data file tetap di src/ supaya reaktivasi cuma uncomment lazy import,
+// kembalikan Route, dan revert hide di siteConfig nav + Page26 footer.
+// const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
@@ -103,7 +106,9 @@ function AppShell() {
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
-            <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
+            {/* /galeri-kebaikan redirects to /26 while the project is
+                pre-announce — keeps any pre-shared links from 404'ing. */}
+            <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

@@ -1,5 +1,5 @@
 /**
- * Page26 — "#26" / Galeri Kebaikan landing page.
+ * Page26 — "#26" / Pohon Kebaikan landing page.
  *
  * Centerpiece of the birthday community-driven project: visitors
  * collectively water "Pohon untuk Eli" (one support per device per
@@ -11,7 +11,6 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import EliTree from '../components/home/EliTree';
 import FloatingPetals from '../components/countdown/FloatingPetals';
@@ -20,7 +19,7 @@ const Page26 = () => (
   <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
     <Seo
       path="/26"
-      title="#26 — Galeri Kebaikan"
+      title="#26 — Pohon Kebaikan"
       description="Project ulang tahun ke-26 Eli JKT48. Tekan tombol untuk memberi 1 dukungan; setiap 100 dukungan, pohon untuk Eli tumbuh ke tahap berikutnya."
     />
 
@@ -55,7 +54,7 @@ const Page26 = () => (
         <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy-light)] flex-wrap">
           <span className="text-[10px] font-black uppercase tracking-[0.4em] inline-flex items-center gap-2">
             <i className="ri-plant-line text-base" />
-            Harmoni Kebaikan · Galeri Kebaikan
+            Harmoni Kebaikan · Pohon Kebaikan
           </span>
           <span className="flex-1 h-px bg-[color:var(--retro-burgundy-light)]/50 max-w-[120px]" />
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65">
@@ -82,29 +81,21 @@ const Page26 = () => (
     {/* The gimmick itself — tree art + counter + support button. */}
     <EliTree />
 
-    {/* Modul kedua — arsip kebaikan punya page sendiri di /galeri-kebaikan.
-        Footer di sini frames /26 sebagai modul pertama + CTA ke arsip. */}
+    {/* Closing note — frames Pohon Kebaikan as Harmoni Kebaikan's first
+        module. Sub-page Galeri Kebaikan disabled until announce. */}
     <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-20 md:pb-28">
       <div className="max-w-3xl mx-auto text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-          Tentang Galeri Kebaikan
+          Tentang Pohon Kebaikan
         </p>
         <p className="font-header italic text-lg md:text-xl text-[color:var(--retro-text-primary)] leading-relaxed mb-4">
           Armeniaca berarti aprikot — pohon yang mekar pelan, lalu sekaligus.
         </p>
         <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-          Pohon di atas adalah modul pertama dari Harmoni Kebaikan. Modul kedua
-          — arsip aksi kebaikan yang dikumpulkan atas nama Eli — sudah hadir di
-          page-nya sendiri.
+          Pohon di atas adalah modul pertama dari Harmoni Kebaikan untuk
+          ulang tahun ke-26 Eli. Modul-modul lain akan menyusul sebelum
+          15 Juni 2026.
         </p>
-        <Link
-          to="/galeri-kebaikan"
-          className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[11px] font-black uppercase tracking-[0.25em] shadow-md hover:-translate-y-0.5 transition-all"
-        >
-          <i className="ri-hand-heart-line text-base" />
-          Buka Galeri Kebaikan
-          <i className="ri-arrow-right-line text-base" />
-        </Link>
       </div>
     </section>
   </main>

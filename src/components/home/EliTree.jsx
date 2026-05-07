@@ -1180,7 +1180,7 @@ const EliTree = () => {
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Galeri Kebaikan · Live
+              Pohon Kebaikan · Live
             </p>
             <h2 className="font-header text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
               Pohon untuk

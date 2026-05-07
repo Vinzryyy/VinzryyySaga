@@ -42,17 +42,21 @@ export const SITE_CONFIG = {
         icon: 'ri-plant-line',
         children: [
           {
-            label: '#26 — Pohon Eli',
+            label: '#26 — Pohon Kebaikan',
             hash: '26',
             description: 'Pohon untuk Eli yang tumbuh dari dukungan',
             icon: 'ri-plant-line',
           },
-          {
-            label: 'Galeri Kebaikan',
-            hash: 'galeri-kebaikan',
-            description: 'Arsip aksi kebaikan untuk Eli',
-            icon: 'ri-hand-heart-line',
-          },
+          // Galeri Kebaikan — hidden sampai project resmi diumumkan.
+          // Untuk reaktivasi: uncomment item ini, lalu kembalikan
+          // route `/galeri-kebaikan` di App.jsx + tombol di Page26.jsx
+          // + label notice card di home (siteConfig.harmoniKebaikan).
+          // {
+          //   label: 'Galeri Kebaikan',
+          //   hash: 'galeri-kebaikan',
+          //   description: 'Arsip aksi kebaikan untuk Eli',
+          //   icon: 'ri-hand-heart-line',
+          // },
           {
             label: 'Countdown',
             hash: 'countdown',
@@ -350,7 +354,7 @@ export const SITE_CONFIG = {
       cards: [
         {
           eyebrow: 'Project Inti',
-          label: '#26 — Galeri Kebaikan',
+          label: '#26 — Pohon Kebaikan',
           description:
             'Pohon untuk Eli yang tumbuh dari setiap dukungan komunitas. 100 dukungan = naik satu tahap, sampai berbuah aprikot.',
           ctaLabel: 'Sirami pohonnya',
