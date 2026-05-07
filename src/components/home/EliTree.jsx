@@ -122,7 +122,13 @@ const lerpStops = (x, stops) => {
 
 const generateEcosystem = (count) => {
   const rand = seedRandom(13);
-  const c = Math.max(0, Math.min(3000, count || 0));
+  // Hard cap di 10.000 sebagai safety perf — tiap vote di atas 1.000
+  // menambah 1 SVG element ke garden via bonus loop di bawah, jadi
+  // 10K total ≈ 9K node bonus + ~700 base. Masih lancar di desktop;
+  // kalau benar-benar tembus angka ini, perlu tune ulang (clustering
+  // / decimation). Naik dari 3.000 supaya gelombang dukungan besar
+  // tidak bikin taman "berhenti tumbuh" persis di milestone tersebut.
+  const c = Math.max(0, Math.min(10000, count || 0));
   const potVisible = c < 500;
   // Base population is driven by lerp stops up to count=1000. Past
   // that, every additional vote drops a single random element into
