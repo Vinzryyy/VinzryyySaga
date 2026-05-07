@@ -13,6 +13,10 @@ export default defineConfig({
       brotliSize: true,
     }),
   ],
+  server: {
+    port: 3821,
+    strictPort: true,
+  },
   build: {
     rollupOptions: {
       output: {
