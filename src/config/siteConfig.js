@@ -42,10 +42,16 @@ export const SITE_CONFIG = {
         icon: 'ri-plant-line',
         children: [
           {
-            label: '#26 — Galeri Kebaikan',
+            label: '#26 — Pohon Eli',
             hash: '26',
             description: 'Pohon untuk Eli yang tumbuh dari dukungan',
             icon: 'ri-plant-line',
+          },
+          {
+            label: 'Galeri Kebaikan',
+            hash: 'galeri-kebaikan',
+            description: 'Arsip aksi kebaikan untuk Eli',
+            icon: 'ri-hand-heart-line',
           },
           {
             label: 'Countdown',

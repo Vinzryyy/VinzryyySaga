@@ -11,9 +11,9 @@
  */
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import EliTree from '../components/home/EliTree';
-import KebaikanArchive from '../components/galeri/KebaikanArchive';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 
 const Page26 = () => (
@@ -82,14 +82,8 @@ const Page26 = () => (
     {/* The gimmick itself — tree art + counter + support button. */}
     <EliTree />
 
-    {/* Modul kedua — arsip kebaikan yang dikumpulkan atas nama Eli.
-        Curated by Armeniaca, mirrors physical display di CGV FX
-        Sudirman F7 hari-H seitansai. */}
-    <KebaikanArchive />
-
-    {/* Footer mini — frames Galeri Kebaikan as the first module of
-        the wider Harmoni Kebaikan hub. More modules land here as
-        15 Juni 2026 approaches. */}
+    {/* Modul kedua — arsip kebaikan punya page sendiri di /galeri-kebaikan.
+        Footer di sini frames /26 sebagai modul pertama + CTA ke arsip. */}
     <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-20 md:pb-28">
       <div className="max-w-3xl mx-auto text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
@@ -99,12 +93,18 @@ const Page26 = () => (
           Armeniaca berarti aprikot — pohon yang mekar pelan, lalu sekaligus.
         </p>
         <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-          Galeri Kebaikan adalah ruang kecil tempat Helismiley merayakan Ceu Eli
-          dengan cara serupa: aksi-aksi sederhana yang dikumpulkan jadi satu
-          panggung kolektif. Pohon di atas adalah modul pertama dari Harmoni
-          Kebaikan — modul lain akan menyusul satu per satu menjelang 15 Juni
-          2026.
+          Pohon di atas adalah modul pertama dari Harmoni Kebaikan. Modul kedua
+          — arsip aksi kebaikan yang dikumpulkan atas nama Eli — sudah hadir di
+          page-nya sendiri.
         </p>
+        <Link
+          to="/galeri-kebaikan"
+          className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[11px] font-black uppercase tracking-[0.25em] shadow-md hover:-translate-y-0.5 transition-all"
+        >
+          <i className="ri-hand-heart-line text-base" />
+          Buka Galeri Kebaikan
+          <i className="ri-arrow-right-line text-base" />
+        </Link>
       </div>
     </section>
   </main>

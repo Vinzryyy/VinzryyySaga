@@ -40,6 +40,7 @@ const CountdownPage = lazy(() => import('./pages/Countdown'));
 const SchedulePage = lazy(() => import('./pages/Schedule'));
 const WishesPage = lazy(() => import('./pages/Wishes'));
 const Page26 = lazy(() => import('./pages/Page26'));
+const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
@@ -102,6 +103,7 @@ function AppShell() {
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
+            <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
