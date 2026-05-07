@@ -13,27 +13,21 @@
  *   2. hls.js (Chrome, Firefox, Edge) — lazy-loaded so it only ships
  *      to viewers who actually open a live stream.
  *
- * If the manifest fails to load (CORS rejection from a non-IDN origin,
- * stream just ended, network blip), we surface a clean fallback card
- * with the IDN App deep link so the viewer doesn't hit a dead player.
+ * Failure handling is **soft**: AWS-IVS commonly rejects manifest fetches
+ * from any origin that isn't idn.app, so playback failure is the *expected*
+ * path for many viewers, not the exception. Instead of surfacing a red
+ * error card, we drop into "poster mode" — the existing posterUrl fills
+ * the frame, gradient overlay for legibility, and a single inviting CTA
+ * to open IDN App. Visually it reads as a preview card, not a crash.
  *
  * NOTE: Bypassing IDN's player means the broadcaster doesn't see this
  * viewer's view count or receive their gifts. This is a conscious
  * tradeoff for a less-distracting watch experience; the "Tonton di IDN
- * App" button stays prominently visible so engaged viewers can switch
+ * App" CTA stays prominently visible so engaged viewers can switch
  * over when they want to send support.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-
-const FALLBACK_REASONS = {
-  manifest:
-    'Player gagal memuat stream (kemungkinan dibatasi origin / CORS). Tonton langsung di IDN App.',
-  network:
-    'Koneksi ke stream putus. Tonton langsung di IDN App untuk pengalaman penuh.',
-  ended:
-    'Live ini sudah selesai. Tonton arsipnya di YouTube atau follow Eli untuk live berikutnya.',
-};
 
 const IdnLiveStreamPlayer = ({
   playbackUrl,
@@ -147,6 +141,16 @@ const IdnLiveStreamPlayer = ({
 
   if (!playbackUrl) return null;
 
+  // When playback fails, we slip into poster mode and the LIVE badge is
+  // only honest if the stream is still actually live. `ended` is the one
+  // failure reason where the upstream told us the broadcast is over.
+  const isFailed = status === 'failed';
+  const isEnded = isFailed && failReason === 'ended';
+  const showLiveBadge = !isEnded;
+  // Hide the corner IDN App link in failed state — the central CTA takes
+  // over so we don't render two competing buttons in one card.
+  const showCornerExternalLink = externalUrl && !isFailed;
+
   return (
     <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-xl shadow-black/30">
       {/* The actual video element. autoplay+muted satisfies browser
@@ -164,25 +168,27 @@ const IdnLiveStreamPlayer = ({
       />
 
       {/* Top-left LIVE badge */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 pointer-events-none">
-        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-md">
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+      {showLiveBadge && (
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-2 pointer-events-none">
+          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-md">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+            </span>
+            Live
           </span>
-          Live
-        </span>
-        {typeof viewCount === 'number' && viewCount > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm text-white text-[10px] font-black tabular-nums">
-            <i className="ri-eye-line" />
-            {viewCount.toLocaleString('id-ID')}
-          </span>
-        )}
-      </div>
+          {typeof viewCount === 'number' && viewCount > 0 && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/55 backdrop-blur-sm text-white text-[10px] font-black tabular-nums">
+              <i className="ri-eye-line" />
+              {viewCount.toLocaleString('id-ID')}
+            </span>
+          )}
+        </div>
+      )}
 
-      {/* Top-right "open in IDN" — visible at all times so engaged
+      {/* Top-right "open in IDN" — visible while playing so engaged
           viewers can switch over to leave gifts/comments. */}
-      {externalUrl && (
+      {showCornerExternalLink && (
         <a
           href={externalUrl}
           target="_blank"
@@ -233,27 +239,40 @@ const IdnLiveStreamPlayer = ({
         </button>
       )}
 
-      {/* Failure fallback — keep visitor on the page with a clear
-          path to the working IDN player. */}
-      {status === 'failed' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-black/80 to-black/95 px-6 text-center text-white">
-          <i className="ri-error-warning-line text-4xl text-red-400 mb-3" />
-          <p className="text-sm font-bold mb-2 max-w-xs">
-            {FALLBACK_REASONS[failReason] || FALLBACK_REASONS.manifest}
-          </p>
+      {/* Failure fallback — soft poster mode. The poster fills the
+          frame (so the card reads as a preview, not a broken player)
+          and the entire surface is one big tappable CTA into IDN App. */}
+      {isFailed && (
+        <>
+          {posterUrl && (
+            <img
+              src={posterUrl}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/30"
+          />
           {externalUrl && (
             <a
               href={externalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-[0.2em] transition-colors"
+              aria-label={isEnded ? 'Live sudah selesai — buka di IDN App' : 'Tonton di IDN App'}
+              className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 group focus:outline-none"
             >
-              <i className="ri-broadcast-line text-base" />
-              Tonton di IDN App
-              <i className="ri-arrow-right-up-line text-base" />
+              <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-600/95 group-hover:bg-red-600 group-hover:scale-110 shadow-2xl shadow-black/40 transition-all">
+                <i className={`${isEnded ? 'ri-history-line' : 'ri-broadcast-line'} text-white text-3xl`} />
+              </span>
+              <span className="px-4 py-2 rounded-full bg-white/95 text-black text-[10px] font-black uppercase tracking-[0.25em] shadow-xl">
+                {isEnded ? 'Live Selesai · IDN App' : 'Tonton di IDN App'}
+              </span>
             </a>
           )}
-        </div>
+        </>
       )}
     </div>
   );
