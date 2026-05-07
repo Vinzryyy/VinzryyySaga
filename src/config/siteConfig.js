@@ -278,7 +278,7 @@ export const SITE_CONFIG = {
     joined: '29 September 2018',
     origin: 'Bandung',
     catchphrase:
-      'Bagai Lembayung Senja, Dengan Energi Kehangatan ku aku akan menghangatkan suasana.',
+      'Bagai Lembayung Senja, Dengan Energi Kegembiraan ku aku akan menghangatkan suasana.',
     portrait: '/archive/img-364.jpg',
     // Eli's official social / live-streaming handles. Rendered in the
     // "Profil Singkat" (Data Eli) section on Home as inline icon
