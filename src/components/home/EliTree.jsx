@@ -1267,6 +1267,35 @@ const EliTree = () => {
               <i className="ri-time-line text-base" />
               Reset tiap tengah malam · 1 device · 1 dukungan / hari
             </p>
+
+            {/* Whisper card — clue tentang janji pohon aprikot asli yang
+                akan ditanam Armeniaca kalau siraman tembus 1.000. Dashed
+                border + tone "bisik-bisik" supaya tidak terbaca sebagai
+                pengumuman formal; copy berubah jadi konfirmasi saat
+                milestone tercapai (isMaxStage ↔ count ≥ 1.000). */}
+            <div className="mt-6 max-w-md p-4 rounded-2xl border-2 border-dashed border-[color:var(--retro-burgundy)]/30 bg-[color:var(--retro-gold)]/[0.08]">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
+                <i className={`${isMaxStage ? 'ri-sparkling-2-fill' : 'ri-quill-pen-line'} text-base`} />
+                {isMaxStage ? 'Janji terpenuhi' : 'Bisik-bisik dari Armeniaca'}
+              </p>
+              <p className="font-header italic text-sm md:text-base text-[color:var(--retro-text-primary)] leading-relaxed">
+                {isMaxStage ? (
+                  <>
+                    <span className="not-italic font-black tabular-nums text-[color:var(--retro-burgundy)]">1.000</span>{' '}
+                    siraman tercapai. Satu pohon aprikot{' '}
+                    <span className="not-italic font-bold text-[color:var(--retro-burgundy)]">asli</span>{' '}
+                    akan ditanam Armeniaca atas nama Eli — kabar lengkapnya menyusul.
+                  </>
+                ) : (
+                  <>
+                    Di siraman ke-<span className="not-italic font-black tabular-nums text-[color:var(--retro-burgundy)]">1.000</span>,
+                    satu pohon aprikot{' '}
+                    <span className="not-italic font-bold text-[color:var(--retro-burgundy)]">asli</span>{' '}
+                    akan ditanam atas nama Eli. Pelan-pelan dulu — siraman tiap hari adalah hujan kecilnya.
+                  </>
+                )}
+              </p>
+            </div>
           </div>
         </div>
       </div>
