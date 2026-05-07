@@ -13,6 +13,7 @@
 import React from 'react';
 import Seo from '../components/Seo';
 import EliTree from '../components/home/EliTree';
+import KebaikanArchive from '../components/galeri/KebaikanArchive';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 
 const Page26 = () => (
@@ -80,6 +81,11 @@ const Page26 = () => (
 
     {/* The gimmick itself — tree art + counter + support button. */}
     <EliTree />
+
+    {/* Modul kedua — arsip kebaikan yang dikumpulkan atas nama Eli.
+        Curated by Armeniaca, mirrors physical display di CGV FX
+        Sudirman F7 hari-H seitansai. */}
+    <KebaikanArchive />
 
     {/* Footer mini — frames Galeri Kebaikan as the first module of
         the wider Harmoni Kebaikan hub. More modules land here as
