@@ -238,6 +238,50 @@ const generateEcosystem = (count) => {
   const tier1Votes = Math.min(Math.max(0, c - 1000), 9000);
   const tier2Votes = Math.max(0, c - 10000);
   const bonusCount = Math.floor(tier1Votes / 50) + Math.floor(tier2Votes / 200);
+
+  // Pohon-pohon kecil tambahan (companion trees) — past 1.000 siraman,
+  // satu pohon kecil baru tumbuh setiap 200 siraman di sisi kiri /
+  // kanan kanvas, sebagai pengkaya environment di sekitar pohon utama.
+  // Capped 30 supaya grid tetap bersih + tidak menutupi pohon utama.
+  // Pakai seed RNG terpisah supaya posisi pohon kecil stabil tanpa
+  // tergantung perubahan di loop bonus di atas.
+  const companionRand = seedRandom(17);
+  const companionTarget = c > 1000
+    ? Math.min(30, Math.floor((c - 1000) / 200))
+    : 0;
+  const companions = [];
+  if (companionTarget > 0) {
+    let tries = 0;
+    const cap = companionTarget * 8 + 30;
+    while (companions.length < companionTarget && tries < cap) {
+      tries++;
+      // Selalu di sisi (kiri ATAU kanan) — pohon utama di tengah, jadi
+      // companion tidak boleh menutupi trunk/canopy area.
+      const onLeft = companionRand() < 0.5;
+      const x = onLeft
+        ? 16 + companionRand() * 114   // 16..130
+        : 270 + companionRand() * 114; // 270..384
+      const y = 340 + companionRand() * 36; // 340..376 (variasi depth)
+      // Min-distance check ke companion lain supaya tidak overlap.
+      let tooClose = false;
+      for (let i = 0; i < companions.length; i++) {
+        const o = companions[i];
+        const dx = o.x - x;
+        const dy = o.y - y;
+        if (dx * dx + dy * dy < 30 * 30) { tooClose = true; break; }
+      }
+      if (tooClose) continue;
+      companions.push({
+        x, y,
+        scale: 0.85 + companionRand() * 0.55,    // 0.85..1.4
+        tone: Math.floor(companionRand() * 3),   // 0..2 hue palette
+        hasFruit: companionRand() < 0.3,         // ~30% berbuah
+      });
+    }
+    // Sort by y so companions di belakang render dulu (depth order).
+    companions.sort((a, b) => a.y - b.y);
+  }
+
   for (let i = 0; i < bonusCount; i++) {
     const typeRoll = rand();
     if (typeRoll < 0.55) {
@@ -289,7 +333,7 @@ const generateEcosystem = (count) => {
 
   return {
     flowers, buds, grass, leafy, ferns, mushrooms,
-    butterflies, fallenFruits, bees,
+    butterflies, fallenFruits, bees, companions,
   };
 };
 
@@ -428,11 +472,21 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
       )}
 
       {/* Ground ecosystem — procedurally populated based on raw
-          support count. Renders in depth order: grass → buds →
-          flowers (back-to-front by y) → leafy plants → ferns →
-          mushrooms. Butterflies render later above the trunk so they
-          appear in front of foliage. */}
+          support count. Renders in depth order: companion trees
+          (background, sides) → grass → buds → flowers (back-to-front
+          by y) → leafy plants → ferns → mushrooms. Butterflies render
+          later above the trunk so they appear in front of foliage. */}
       <g style={{ transition: 'opacity 0.8s ease' }}>
+        {ecosystem.companions.map((c, i) => (
+          <CompanionTree
+            key={`co-${i}`}
+            cx={c.x}
+            cy={c.y}
+            scale={c.scale}
+            tone={c.tone}
+            hasFruit={c.hasFruit}
+          />
+        ))}
         {ecosystem.grass.map((g, i) => (
           <GrassBlade key={`gr-${i}`} cx={g.x} cy={g.y} lean={g.lean} tall={g.tall} />
         ))}
@@ -1025,6 +1079,47 @@ const Fern = ({ cx, cy, dir = 1 }) => (
     />
   </g>
 );
+
+// Pohon kecil pendamping — muncul di sisi kiri/kanan past 1.000
+// siraman (lihat companions generation di generateEcosystem).
+// Trunk pendek + canopy 3-lapis supaya silhouette-nya kebaca sebagai
+// pohon mungil, bukan semak. `tone` pilih palet hijau (terang / sedang
+// / gelap), `hasFruit` nambahin ~3 buah aprikot kecil di canopy.
+const COMPANION_TONES = [
+  { back: '#88AB66', main: '#9CC074', highlight: '#B3D097' },
+  { back: '#5E7C3F', main: '#7BA05B', highlight: '#88AB66' },
+  { back: '#4A6630', main: '#5E7C3F', highlight: '#7BA05B' },
+];
+const CompanionTree = ({ cx, cy, scale = 1, tone = 1, hasFruit = false }) => {
+  const trunkH = 18 * scale;
+  const trunkW = Math.max(2, 2.4 * scale);
+  const canopyR = 11 * scale;
+  const p = COMPANION_TONES[tone] || COMPANION_TONES[1];
+  return (
+    <g>
+      <ellipse cx={cx} cy={cy + 1.5} rx={canopyR * 1.05} ry={2} fill="#5C4A3A" opacity="0.22" />
+      <rect
+        x={cx - trunkW / 2}
+        y={cy - trunkH}
+        width={trunkW}
+        height={trunkH}
+        rx={trunkW / 4}
+        fill="var(--retro-brown-dark)"
+      />
+      <circle cx={cx - canopyR * 0.5} cy={cy - trunkH} r={canopyR * 0.78} fill={p.back} opacity="0.86" />
+      <circle cx={cx + canopyR * 0.5} cy={cy - trunkH} r={canopyR * 0.78} fill={p.back} opacity="0.86" />
+      <circle cx={cx} cy={cy - trunkH - 3} r={canopyR} fill={p.main} opacity="0.94" />
+      <circle cx={cx - canopyR * 0.3} cy={cy - trunkH - 6} r={canopyR * 0.55} fill={p.highlight} opacity="0.85" />
+      {hasFruit && (
+        <g>
+          <circle cx={cx - canopyR * 0.45} cy={cy - trunkH - 1} r={1.4} fill="var(--retro-gold)" />
+          <circle cx={cx + canopyR * 0.35} cy={cy - trunkH - 4} r={1.3} fill="var(--retro-gold-light)" />
+          <circle cx={cx - canopyR * 0.05} cy={cy - trunkH + 2} r={1.2} fill="var(--retro-gold)" />
+        </g>
+      )}
+    </g>
+  );
+};
 
 // Spotted mushroom — cap + stalk with a couple of light spots.
 const Mushroom = ({ cx, cy, capColor = 'var(--retro-burgundy)' }) => (
