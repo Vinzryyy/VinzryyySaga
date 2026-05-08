@@ -271,11 +271,21 @@ const generateEcosystem = (count) => {
         if (dx * dx + dy * dy < 30 * 30) { tooClose = true; break; }
       }
       if (tooClose) continue;
+      // Roll order dipertahankan supaya posisi companion existing
+      // tidak bergeser saat menambah varian medium (call medium roll
+      // di paling akhir).
+      const scaleRoll = 0.85 + companionRand() * 0.55;     // 0.85..1.4
+      const toneRoll = Math.floor(companionRand() * 3);    // 0..2
+      const hasFruitRoll = companionRand() < 0.3;          // ~30% berbuah
+      const isMedium = companionRand() < 0.28;             // ~28% medium
       companions.push({
         x, y,
-        scale: 0.85 + companionRand() * 0.55,    // 0.85..1.4
-        tone: Math.floor(companionRand() * 3),   // 0..2 hue palette
-        hasFruit: companionRand() < 0.3,         // ~30% berbuah
+        scale: isMedium ? 1 : scaleRoll,                   // medium = fixed
+        tone: toneRoll,
+        // Pohon sedang = pohon dewasa berbuah (fase 8) → selalu pakai
+        // apricot fruits supaya silhouette-nya kebaca.
+        hasFruit: isMedium ? true : hasFruitRoll,
+        size: isMedium ? 'medium' : 'small',
       });
     }
     // Sort by y so companions di belakang render dulu (depth order).
@@ -485,6 +495,7 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
             scale={c.scale}
             tone={c.tone}
             hasFruit={c.hasFruit}
+            size={c.size}
           />
         ))}
         {ecosystem.grass.map((g, i) => (
@@ -1080,21 +1091,65 @@ const Fern = ({ cx, cy, dir = 1 }) => (
   </g>
 );
 
-// Pohon kecil pendamping — muncul di sisi kiri/kanan past 1.000
-// siraman (lihat companions generation di generateEcosystem).
-// Trunk pendek + canopy 3-lapis supaya silhouette-nya kebaca sebagai
-// pohon mungil, bukan semak. `tone` pilih palet hijau (terang / sedang
-// / gelap), `hasFruit` nambahin ~3 buah aprikot kecil di canopy.
+// Pohon pendamping — muncul di sisi kiri/kanan past 1.000 siraman.
+// Dua varian:
+//   - 'small'  : trunk pendek + canopy 3-lapis, tinggi ~30-40px,
+//                ~30% berbuah. Pohon mungil pengisi background.
+//   - 'medium' : trunk sedang + canopy 4-lapis dengan apricot
+//                fruits, kira-kira setinggi pohon utama di fase 8
+//                (pohon dewasa berbuah, tapi proporsi kecil). Selalu
+//                berbuah supaya silhouette-nya kebaca sebagai
+//                "pohon yang sudah berbuah".
+// `tone` pilih palet hijau (terang / sedang / gelap).
 const COMPANION_TONES = [
   { back: '#88AB66', main: '#9CC074', highlight: '#B3D097' },
   { back: '#5E7C3F', main: '#7BA05B', highlight: '#88AB66' },
   { back: '#4A6630', main: '#5E7C3F', highlight: '#7BA05B' },
 ];
-const CompanionTree = ({ cx, cy, scale = 1, tone = 1, hasFruit = false }) => {
-  const trunkH = 18 * scale;
-  const trunkW = Math.max(2, 2.4 * scale);
-  const canopyR = 11 * scale;
+const CompanionTree = ({ cx, cy, scale = 1, tone = 1, hasFruit = false, size = 'small' }) => {
   const p = COMPANION_TONES[tone] || COMPANION_TONES[1];
+  const isMedium = size === 'medium';
+  const trunkH = isMedium ? 50 : 18 * scale;
+  const trunkW = isMedium ? 4.6 : Math.max(2, 2.4 * scale);
+  const canopyR = isMedium ? 18 : 11 * scale;
+
+  if (isMedium) {
+    const top = cy - trunkH;
+    return (
+      <g>
+        <ellipse cx={cx} cy={cy + 2} rx={canopyR * 1.15} ry={2.6} fill="#5C4A3A" opacity="0.26" />
+        <rect
+          x={cx - trunkW / 2}
+          y={top}
+          width={trunkW}
+          height={trunkH}
+          rx={trunkW / 4}
+          fill="var(--retro-brown-dark)"
+        />
+        <rect
+          x={cx - trunkW / 2 + 0.8}
+          y={top + 4}
+          width={Math.max(1, trunkW / 4)}
+          height={trunkH - 8}
+          fill="var(--retro-brown)"
+          opacity="0.5"
+        />
+        <circle cx={cx - canopyR * 0.62} cy={top + 2} r={canopyR * 0.78} fill={p.back} opacity="0.86" />
+        <circle cx={cx + canopyR * 0.62} cy={top + 2} r={canopyR * 0.78} fill={p.back} opacity="0.86" />
+        <circle cx={cx} cy={top - 6} r={canopyR} fill={p.main} opacity="0.94" />
+        <circle cx={cx - canopyR * 0.5} cy={top - 12} r={canopyR * 0.65} fill={p.highlight} opacity="0.86" />
+        <circle cx={cx + canopyR * 0.5} cy={top - 12} r={canopyR * 0.65} fill={p.highlight} opacity="0.86" />
+        <circle cx={cx} cy={top - 16} r={canopyR * 0.5} fill={p.highlight} opacity="0.78" />
+        <circle cx={cx - canopyR * 0.55} cy={top - 2} r={2} fill="var(--retro-gold)" />
+        <circle cx={cx + canopyR * 0.5} cy={top - 4} r={2} fill="var(--retro-gold)" />
+        <circle cx={cx} cy={top + 2} r={1.8} fill="var(--retro-gold-light)" />
+        <circle cx={cx - canopyR * 0.25} cy={top - 14} r={1.7} fill="var(--retro-gold)" />
+        <circle cx={cx + canopyR * 0.3} cy={top - 9} r={1.7} fill="var(--retro-gold-light)" />
+        <circle cx={cx - canopyR * 0.05} cy={top - 8} r={1.5} fill="var(--retro-gold)" />
+      </g>
+    );
+  }
+
   return (
     <g>
       <ellipse cx={cx} cy={cy + 1.5} rx={canopyR * 1.05} ry={2} fill="#5C4A3A" opacity="0.22" />
