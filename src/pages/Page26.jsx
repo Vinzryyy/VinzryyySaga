@@ -96,6 +96,30 @@ const Page26 = () => (
           ulang tahun ke-26 Eli. Modul-modul lain akan menyusul sebelum
           15 Juni 2026.
         </p>
+
+        {/* Peta Filosofi CTA — opens standalone parchment-style poster
+            (public/filosofi-pohon-kebaikan.html) explaining all 10 stages
+            from Bibit to Pohon Megah. Standalone HTML rather than a React
+            route because the typography (Italiana/Cormorant) and
+            parchment treatment is a self-contained piece, not a section
+            of the site shell. */}
+        <div className="mt-10 flex justify-center">
+          <a
+            href="/filosofi-pohon-kebaikan.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 border-2 border-[color:var(--retro-burgundy)] bg-[color:var(--retro-cream)]/30 text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300"
+          >
+            <i className="ri-map-2-line text-lg sm:text-xl" aria-hidden="true" />
+            <span className="font-header text-[11px] sm:text-xs font-black uppercase tracking-[0.32em]">
+              Buka Peta Filosofi
+            </span>
+            <i className="ri-arrow-right-up-line text-sm sm:text-base opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" aria-hidden="true" />
+          </a>
+        </div>
+        <p className="mt-4 text-[11px] text-[color:var(--color-text-secondary)]/70 italic">
+          Sepuluh singgah dari Bibit menjadi Ekosistem &middot; terbuka di tab baru
+        </p>
       </div>
     </section>
   </main>

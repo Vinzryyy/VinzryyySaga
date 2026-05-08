@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peta Filosofi Pohon Kebaikan — Armeniaca</title>
+<meta name="description" content="Peta filosofi Pohon Kebaikan — sepuluh singgah dari bibit menjadi ekosistem. Modul pertama Harmoni Kebaikan untuk ulang tahun ke-26 Eli JKT48.">
+<meta name="theme-color" content="#2a201a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+SC:wght@500;600;700&family=Italiana&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f5ecd9;
+    --cream-2:#efe3c7;
+    --ink:#1a1410;
+    --ink-soft:#2a201a;
+    --copper:#8b5a2b;
+    --copper-light:#b07a45;
+    --gold:#a8803a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#2a201a;}
+  body{
+    font-family:'Cormorant Garamond',serif;
+    color:var(--ink);
+    padding:clamp(8px, 2vw, 24px);
+    display:flex;justify-content:center;
+    min-height:100vh;
+  }
+
+  /* ============ POSTER CANVAS ============ */
+  .poster{
+    width:100%;
+    max-width:1240px;
+    background:
+      radial-gradient(ellipse at top,#f9f1de 0%,#f3e8cc 55%,#ecdfbe 100%);
+    position:relative;
+    box-shadow:0 40px 120px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.05);
+    padding:clamp(28px, 5vw, 60px) clamp(20px, 5vw, 70px) clamp(40px, 6vw, 70px);
+    overflow:hidden;
+  }
+
+  /* paper grain */
+  .poster::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(139,90,43,.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(139,90,43,.05) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, transparent 0%, rgba(60,40,20,.06) 100%);
+    mix-blend-mode:multiply;
+    z-index:1;
+  }
+  .poster::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3  0 0 0 0 0.2  0 0 0 0 0.1  0 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity:.5;mix-blend-mode:multiply;z-index:1;
+  }
+
+  /* ornamental frame */
+  .frame{
+    position:absolute;inset:clamp(12px, 2vw, 24px);border:1px solid rgba(60,40,20,.35);
+    pointer-events:none;z-index:2;
+  }
+  .frame::before{
+    content:"";position:absolute;inset:6px;border:1px solid rgba(60,40,20,.18);
+  }
+
+  /* corner ornaments */
+  .corner{position:absolute;width:clamp(60px, 10vw, 120px);height:clamp(60px, 10vw, 120px);z-index:3;pointer-events:none;color:var(--ink);}
+  .corner.tl{top:clamp(16px, 2.5vw, 30px);left:clamp(16px, 2.5vw, 30px);}
+  .corner.tr{top:clamp(16px, 2.5vw, 30px);right:clamp(16px, 2.5vw, 30px);transform:scaleX(-1);}
+  .corner.bl{bottom:clamp(16px, 2.5vw, 30px);left:clamp(16px, 2.5vw, 30px);transform:scaleY(-1);}
+  .corner.br{bottom:clamp(16px, 2.5vw, 30px);right:clamp(16px, 2.5vw, 30px);transform:scale(-1,-1);}
+
+  .content{position:relative;z-index:5;}
+
+  /* ============ BACK LINK ============ */
+  .back-link{
+    position:absolute;top:clamp(14px, 2vw, 22px);left:clamp(50px, 8vw, 100px);
+    z-index:6;
+    font-family:'Cormorant SC',serif;
+    font-size:11px;letter-spacing:.28em;font-weight:600;
+    color:var(--copper);text-decoration:none;
+    padding:6px 12px;border:1px solid transparent;
+    transition:border-color .25s ease, color .25s ease;
+  }
+  .back-link:hover{color:var(--ink);border-color:rgba(139,90,43,.4);}
+  .back-link::before{content:"← ";}
+
+  /* ============ HEADER ============ */
+  .header{text-align:center;padding:clamp(40px, 6vw, 60px) 0 14px;}
+  .compass-wrap{
+    display:flex;justify-content:center;
+    margin-bottom:clamp(14px, 2vw, 20px);
+  }
+  .compass{
+    width:clamp(70px, 9vw, 96px);height:clamp(70px, 9vw, 96px);
+    color:var(--ink);
+  }
+  .arc-filosofi{
+    font-family:'Italiana',serif;
+    font-size:clamp(20px, 2.4vw, 30px);letter-spacing:.42em;
+    color:var(--ink);
+    margin-bottom:14px;
+    display:flex;align-items:center;justify-content:center;gap:18px;
+    flex-wrap:wrap;
+  }
+  .arc-filosofi::before,.arc-filosofi::after{
+    content:"✦";font-size:14px;color:var(--copper);letter-spacing:0;
+  }
+  h1.title{
+    font-family:'Italiana',serif;
+    font-size:clamp(48px, 8vw, 96px);
+    letter-spacing:.04em;
+    line-height:.95;
+    color:var(--ink);
+    font-weight:400;
+    margin-bottom:8px;
+  }
+  .title-decor{
+    display:flex;align-items:center;justify-content:center;gap:14px;
+    margin:14px 0 6px;color:var(--copper);
+  }
+  .title-decor .line{width:clamp(60px, 12vw, 140px);height:1px;background:var(--copper);opacity:.55;}
+  .title-decor .dot{font-size:18px;}
+  .subtitle{
+    font-family:'Cormorant SC',serif;
+    letter-spacing:.32em;
+    color:var(--copper);
+    font-size:clamp(11px, 1.1vw, 14px);font-weight:600;
+    margin-top:10px;
+  }
+  .lead{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:clamp(15px, 1.6vw, 19px);
+    color:var(--ink-soft);
+    max-width:760px;
+    margin:14px auto 0;
+    line-height:1.55;
+  }
+
+  /* ============ HERO TREE BAND ============ */
+  .hero-band{
+    position:relative;
+    margin:clamp(22px, 4vw, 36px) -10px clamp(18px, 3vw, 24px);
+    padding:clamp(18px, 3vw, 30px) 0 20px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .hero-band-inner{
+    display:flex;justify-content:center;
+    min-width:560px;
+  }
+  .hero-band svg{display:block;width:100%;max-width:1100px;height:auto;}
+
+  /* ============ STAGES ============ */
+  .stages-section{
+    margin-top:clamp(22px, 4vw, 30px);
+    position:relative;
+  }
+  .section-divider{
+    display:flex;align-items:center;justify-content:center;gap:16px;
+    margin:0 0 clamp(20px, 3vw, 28px);
+    color:var(--copper);
+    flex-wrap:wrap;
+  }
+  .section-divider .ln{flex:0 0 auto;width:clamp(60px, 12vw, 140px);height:1px;background:linear-gradient(to right,transparent,var(--copper),transparent);opacity:.7;}
+  .section-divider .heading{
+    font-family:'Italiana',serif;font-size:clamp(20px, 2.4vw, 26px);letter-spacing:.32em;color:var(--ink);
+    text-align:center;
+  }
+
+  .stages{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:clamp(18px, 2.5vw, 30px) clamp(28px, 4vw, 50px);
+    margin-top:6px;
+  }
+
+  .stage{
+    display:grid;
+    grid-template-columns:120px 1fr;
+    gap:clamp(14px, 1.8vw, 20px);
+    padding:18px 18px 18px 0;
+    position:relative;
+    border-bottom:1px dashed rgba(60,40,20,.22);
+  }
+  .stage:nth-last-child(-n+2){border-bottom:none;}
+
+  .stage-illus{
+    width:120px;height:130px;
+    display:flex;align-items:flex-end;justify-content:center;
+    position:relative;
+    flex-shrink:0;
+  }
+  .stage-illus svg{display:block;}
+  .stage-num{
+    position:absolute;top:-2px;left:0;
+    font-family:'Italiana',serif;
+    font-size:46px;color:var(--ink);opacity:.08;
+    line-height:1;
+    letter-spacing:-.02em;
+  }
+  .stage-text h3{
+    font-family:'Cormorant SC',serif;
+    font-weight:700;
+    font-size:clamp(14px, 1.3vw, 15px);
+    letter-spacing:.22em;
+    color:var(--ink);
+    margin-bottom:6px;
+    line-height:1.3;
+  }
+  .stage-text .roman{
+    font-family:'Cormorant SC',serif;font-size:11px;
+    letter-spacing:.3em;color:var(--copper);font-weight:600;
+    margin-bottom:6px;display:block;
+  }
+  .stage-text p{
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(14px, 1.2vw, 14.5px);line-height:1.55;
+    color:var(--ink-soft);
+  }
+  .stage-text .narration{margin-bottom:8px;}
+  .stage-text .filosofi{
+    border-left:2px solid rgba(139,90,43,.55);
+    padding-left:12px;
+    color:var(--ink);
+    font-style:italic;
+  }
+  .stage-text .filosofi-label{
+    font-family:'Cormorant SC',serif;
+    font-style:normal;font-weight:700;font-size:10.5px;
+    letter-spacing:.28em;color:var(--copper);
+    display:block;margin-bottom:3px;
+  }
+  .stage-text .accent{
+    font-style:italic;color:var(--copper);
+  }
+
+  /* ============ CENTRAL QUOTE ============ */
+  .quote-card{
+    margin:clamp(28px, 5vw, 46px) auto clamp(18px, 3vw, 24px);
+    max-width:860px;
+    border:1px solid rgba(60,40,20,.4);
+    padding:clamp(24px, 4vw, 34px) clamp(22px, 4vw, 40px) clamp(20px, 3vw, 28px);
+    background:rgba(255,250,235,.4);
+    text-align:center;
+    position:relative;
+  }
+  .quote-card::before,.quote-card::after{
+    content:"";position:absolute;width:14px;height:14px;
+    border:1px solid rgba(60,40,20,.4);
+  }
+  .quote-card::before{top:-7px;left:-7px;border-right:none;border-bottom:none;}
+  .quote-card::after{bottom:-7px;right:-7px;border-left:none;border-top:none;}
+  .quote-mark{
+    font-family:'Italiana',serif;
+    font-size:clamp(36px, 5vw, 46px);color:var(--copper);
+    line-height:.4;margin-bottom:10px;
+  }
+  .quote-card blockquote{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;font-size:clamp(18px, 2.3vw, 24px);
+    line-height:1.45;color:var(--ink);
+    margin-bottom:10px;
+  }
+  .quote-card cite{
+    font-family:'Cormorant SC',serif;
+    letter-spacing:.3em;font-size:11px;
+    color:var(--copper);font-weight:600;font-style:normal;
+    display:flex;align-items:center;justify-content:center;gap:14px;
+    flex-wrap:wrap;
+  }
+  .quote-card cite::before,.quote-card cite::after{
+    content:"";width:40px;height:1px;background:var(--copper);opacity:.5;
+  }
+
+  /* ============ FOOTER PRINCIPLES ============ */
+  .principles{
+    margin-top:clamp(22px, 4vw, 30px);
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid rgba(60,40,20,.35);
+    padding-top:clamp(20px, 3vw, 24px);
+    gap:14px 0;
+  }
+  .principle{
+    text-align:center;padding:0 clamp(8px, 1.5vw, 16px);
+    border-right:1px solid rgba(60,40,20,.15);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .principle:last-child{border-right:none;}
+  .principle svg{width:30px;height:30px;}
+  .principle .label{
+    font-family:'Cormorant SC',serif;
+    font-weight:700;
+    font-size:11px;letter-spacing:.22em;
+    color:var(--ink);line-height:1.5;
+  }
+
+  /* signature footer */
+  .colophon{
+    margin-top:clamp(22px, 4vw, 30px);text-align:center;
+    font-family:'Cormorant SC',serif;
+    color:var(--copper);font-size:10px;letter-spacing:.4em;font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:14px;
+    flex-wrap:wrap;
+  }
+  .colophon::before,.colophon::after{
+    content:"";width:60px;height:1px;background:var(--copper);opacity:.5;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 860px){
+    .stages{grid-template-columns:1fr;gap:6px;}
+    .stage{border-bottom:1px dashed rgba(60,40,20,.22);}
+    .stage:nth-last-child(-n+2){border-bottom:1px dashed rgba(60,40,20,.22);}
+    .stage:last-child{border-bottom:none;}
+    .principles{grid-template-columns:repeat(2,1fr);}
+    .principle:nth-child(2){border-right:none;}
+    .principle:nth-child(1),.principle:nth-child(2){
+      border-bottom:1px solid rgba(60,40,20,.15);
+      padding-bottom:14px;
+    }
+    .principle:nth-child(3),.principle:nth-child(4){padding-top:14px;}
+    .corner{display:none;}
+    .back-link{position:relative;top:auto;left:auto;display:inline-block;margin-bottom:10px;}
+  }
+  @media (max-width: 520px){
+    .stage{grid-template-columns:80px 1fr;gap:14px;}
+    .stage-illus{width:80px;height:100px;}
+    .stage-illus svg{width:80px;height:96px;}
+    .stage-num{font-size:34px;}
+    .arc-filosofi{letter-spacing:.32em;gap:12px;}
+    .arc-filosofi::before,.arc-filosofi::after{font-size:11px;}
+    .frame{inset:8px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="poster">
+  <div class="frame"></div>
+
+  <a href="/26" class="back-link">Kembali ke #26</a>
+
+  <!-- ===== Corner ornaments ===== -->
+  <svg class="corner tl" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+    <path d="M5 60 Q 5 5 60 5" stroke-opacity=".4"/>
+    <path d="M15 30 Q 25 22 35 30 Q 30 40 22 38 Q 15 35 15 30 Z" fill="currentColor" fill-opacity=".75"/>
+    <path d="M22 28 L 10 18" stroke-opacity=".6"/>
+    <path d="M40 18 Q 48 12 56 18 Q 52 26 46 25 Q 40 22 40 18 Z" fill="currentColor" fill-opacity=".55"/>
+    <path d="M44 22 L 34 12" stroke-opacity=".5"/>
+    <circle cx="62" cy="14" r="1.5" fill="currentColor"/>
+    <circle cx="14" cy="62" r="1.5" fill="currentColor"/>
+    <path d="M30 55 Q 40 50 48 58 Q 44 66 36 64 Q 30 60 30 55 Z" fill="currentColor" fill-opacity=".6"/>
+    <path d="M36 60 L 26 70" stroke-opacity=".4"/>
+  </svg>
+  <svg class="corner tr" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+    <path d="M5 60 Q 5 5 60 5" stroke-opacity=".4"/>
+    <path d="M15 30 Q 25 22 35 30 Q 30 40 22 38 Q 15 35 15 30 Z" fill="currentColor" fill-opacity=".75"/>
+    <path d="M22 28 L 10 18" stroke-opacity=".6"/>
+    <path d="M40 18 Q 48 12 56 18 Q 52 26 46 25 Q 40 22 40 18 Z" fill="currentColor" fill-opacity=".55"/>
+    <path d="M44 22 L 34 12" stroke-opacity=".5"/>
+    <circle cx="62" cy="14" r="1.5" fill="currentColor"/>
+  </svg>
+  <svg class="corner bl" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+    <path d="M5 60 Q 5 5 60 5" stroke-opacity=".4"/>
+    <path d="M15 30 Q 25 22 35 30 Q 30 40 22 38 Q 15 35 15 30 Z" fill="currentColor" fill-opacity=".75"/>
+    <path d="M22 28 L 10 18" stroke-opacity=".6"/>
+  </svg>
+  <svg class="corner br" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+    <path d="M5 60 Q 5 5 60 5" stroke-opacity=".4"/>
+    <path d="M15 30 Q 25 22 35 30 Q 30 40 22 38 Q 15 35 15 30 Z" fill="currentColor" fill-opacity=".75"/>
+    <path d="M22 28 L 10 18" stroke-opacity=".6"/>
+  </svg>
+
+  <div class="content">
+
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+      <div class="compass-wrap">
+        <svg class="compass" viewBox="0 0 120 120" fill="none">
+          <!-- outer ring -->
+          <circle cx="60" cy="60" r="56" stroke="currentColor" stroke-width="1.2" stroke-opacity=".6"/>
+          <circle cx="60" cy="60" r="48" stroke="currentColor" stroke-width=".6" stroke-opacity=".4"/>
+          <!-- tick marks -->
+          <g stroke="currentColor" stroke-width=".6" stroke-opacity=".4">
+            <line x1="60" y1="6" x2="60" y2="12"/>
+            <line x1="60" y1="108" x2="60" y2="114"/>
+            <line x1="6" y1="60" x2="12" y2="60"/>
+            <line x1="108" y1="60" x2="114" y2="60"/>
+          </g>
+          <!-- diagonal small needles -->
+          <g fill="currentColor" fill-opacity=".35">
+            <path d="M30 30 L 56 56 L 50 50 L 44 56 Z"/>
+            <path d="M90 30 L 64 56 L 70 50 L 76 56 Z"/>
+            <path d="M30 90 L 56 64 L 50 70 L 44 64 Z"/>
+            <path d="M90 90 L 64 64 L 70 70 L 76 64 Z"/>
+          </g>
+          <!-- main needle (N up, S down) -->
+          <path d="M60 12 L 66 60 L 60 56 L 54 60 Z" fill="#8b5a2b"/>
+          <path d="M60 108 L 54 60 L 60 64 L 66 60 Z" fill="#1a1410" fill-opacity=".7"/>
+          <!-- horizontal needle -->
+          <path d="M12 60 L 56 54 L 60 60 L 56 66 Z" fill="#1a1410" fill-opacity=".55"/>
+          <path d="M108 60 L 64 54 L 60 60 L 64 66 Z" fill="#1a1410" fill-opacity=".55"/>
+          <!-- center pivot -->
+          <circle cx="60" cy="60" r="3" fill="#1a1410"/>
+          <circle cx="60" cy="60" r="1.4" fill="#f5ecd9"/>
+          <!-- cardinal letters -->
+          <g font-family="Cormorant SC, serif" font-size="9" font-weight="700" fill="#8b5a2b" text-anchor="middle" letter-spacing="1">
+            <text x="60" y="22">N</text>
+            <text x="60" y="104">S</text>
+            <text x="100" y="64">E</text>
+            <text x="20" y="64">W</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="arc-filosofi">PETA &middot; FILOSOFI</div>
+      <h1 class="title">POHON KEBAIKAN</h1>
+      <div class="title-decor">
+        <span class="line"></span>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M11 2 Q 14 7 11 11 Q 8 7 11 2 Z" fill="#8b5a2b"/>
+          <path d="M11 11 Q 16 14 20 11 Q 16 17 11 11 Z" fill="#8b5a2b" fill-opacity=".7"/>
+          <path d="M11 11 Q 6 14 2 11 Q 6 17 11 11 Z" fill="#8b5a2b" fill-opacity=".7"/>
+          <path d="M11 11 Q 14 16 11 20 Q 8 16 11 11 Z" fill="#8b5a2b" fill-opacity=".5"/>
+        </svg>
+        <span class="line"></span>
+      </div>
+      <div class="subtitle">SEPULUH SINGGAH &middot; DARI BIBIT MENJADI EKOSISTEM</div>
+      <p class="lead">Setiap kebaikan tumbuh melalui musimnya sendiri &mdash; dari niat yang diam di tanah, harapan yang berani mendongak, hingga kanopi yang menaungi kehidupan lain. Inilah peta perjalanan sebatang pohon, dan inilah peta perjalanan kebaikan.</p>
+    </header>
+
+    <!-- ============ HERO TREE PROGRESSION BAND ============ -->
+    <div class="hero-band">
+      <div class="hero-band-inner">
+      <svg viewBox="0 0 1100 220" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ground line -->
+        <line x1="20" y1="195" x2="1080" y2="195" stroke="#1a1410" stroke-width="1" stroke-dasharray="2,3" opacity=".35"/>
+
+        <!-- Stage 0: Bibit -->
+        <g transform="translate(50,195)">
+          <ellipse cx="0" cy="2" rx="14" ry="3" fill="#1a1410" opacity=".15"/>
+          <path d="M-1 0 Q 0 -8 1 0 Z" fill="#1a1410"/>
+          <circle cx="0" cy="-2" r="2" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 1: Tunas -->
+        <g transform="translate(150,195)">
+          <ellipse cx="0" cy="2" rx="14" ry="3" fill="#1a1410" opacity=".15"/>
+          <path d="M0 0 L 0 -22" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+          <path d="M0 -18 Q -6 -22 -8 -28 Q -2 -26 0 -22" fill="#1a1410"/>
+          <path d="M0 -22 Q 5 -26 8 -32 Q 2 -32 0 -28" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 2: Setek -->
+        <g transform="translate(250,195)">
+          <ellipse cx="0" cy="2" rx="16" ry="3" fill="#1a1410" opacity=".15"/>
+          <path d="M0 0 L 0 -42" stroke="#1a1410" stroke-width="2" fill="none"/>
+          <path d="M0 -22 Q -10 -22 -14 -32 Q -8 -30 0 -28" fill="#1a1410"/>
+          <path d="M0 -32 Q 10 -32 14 -42 Q 8 -40 0 -38" fill="#1a1410"/>
+          <path d="M0 -38 Q -8 -40 -12 -48 Q -6 -48 0 -44" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 3: Pohon Muda -->
+        <g transform="translate(350,195)">
+          <ellipse cx="0" cy="2" rx="20" ry="3.5" fill="#1a1410" opacity=".15"/>
+          <path d="M0 0 L 0 -50" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+          <path d="M0 -30 Q -8 -38 -14 -42" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+          <path d="M0 -34 Q 10 -40 16 -42" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+          <ellipse cx="-12" cy="-46" rx="9" ry="11" fill="#1a1410"/>
+          <ellipse cx="12" cy="-48" rx="11" ry="13" fill="#1a1410"/>
+          <ellipse cx="0" cy="-58" rx="13" ry="14" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 4: Pohon Tumbuh -->
+        <g transform="translate(450,195)">
+          <ellipse cx="0" cy="2" rx="28" ry="4" fill="#1a1410" opacity=".18"/>
+          <path d="M-3 0 Q -2 -25 -1 -50 L 1 -50 Q 2 -25 3 0 Z" fill="#1a1410"/>
+          <path d="M-1 -30 Q -10 -42 -20 -46" stroke="#1a1410" stroke-width="2" fill="none"/>
+          <path d="M1 -32 Q 12 -44 22 -48" stroke="#1a1410" stroke-width="2" fill="none"/>
+          <ellipse cx="-18" cy="-58" rx="14" ry="16" fill="#1a1410"/>
+          <ellipse cx="20" cy="-60" rx="16" ry="18" fill="#1a1410"/>
+          <ellipse cx="0" cy="-70" rx="20" ry="20" fill="#1a1410"/>
+          <ellipse cx="-8" cy="-78" rx="11" ry="12" fill="#1a1410"/>
+          <ellipse cx="10" cy="-78" rx="11" ry="12" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 5: Pohon Dewasa -->
+        <g transform="translate(560,195)">
+          <ellipse cx="0" cy="2" rx="40" ry="5" fill="#1a1410" opacity=".2"/>
+          <path d="M-40 0 Q -20 -2 0 -2 Q 20 -2 40 0 Z" fill="#1a1410" opacity=".4"/>
+          <path d="M-5 0 Q -3 -30 -2 -60 L 2 -60 Q 3 -30 5 0 Z" fill="#1a1410"/>
+          <path d="M-2 -38 Q -14 -50 -28 -54" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+          <path d="M2 -40 Q 16 -54 30 -58" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+          <path d="M0 -55 Q 0 -70 -4 -78" stroke="#1a1410" stroke-width="2" fill="none"/>
+          <ellipse cx="-26" cy="-66" rx="18" ry="20" fill="#1a1410"/>
+          <ellipse cx="28" cy="-68" rx="20" ry="22" fill="#1a1410"/>
+          <ellipse cx="0" cy="-82" rx="26" ry="24" fill="#1a1410"/>
+          <ellipse cx="-12" cy="-92" rx="14" ry="14" fill="#1a1410"/>
+          <ellipse cx="14" cy="-92" rx="14" ry="14" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 6: Pohon Kuat -->
+        <g transform="translate(680,195)">
+          <ellipse cx="0" cy="2" rx="48" ry="6" fill="#1a1410" opacity=".22"/>
+          <path d="M-48 0 Q -24 -3 0 -3 Q 24 -3 48 0 Z" fill="#1a1410" opacity=".5"/>
+          <path d="M-7 0 Q -5 -35 -3 -70 L 3 -70 Q 5 -35 7 0 Z" fill="#1a1410"/>
+          <path d="M-3 -42 Q -18 -58 -36 -60" stroke="#1a1410" stroke-width="3" fill="none"/>
+          <path d="M3 -45 Q 20 -62 38 -64" stroke="#1a1410" stroke-width="3" fill="none"/>
+          <path d="M0 -62 Q -2 -78 -8 -86" stroke="#1a1410" stroke-width="2" fill="none"/>
+          <path d="M0 -62 Q 2 -78 8 -86" stroke="#1a1410" stroke-width="2" fill="none"/>
+          <ellipse cx="-32" cy="-72" rx="22" ry="24" fill="#1a1410"/>
+          <ellipse cx="34" cy="-74" rx="24" ry="26" fill="#1a1410"/>
+          <ellipse cx="0" cy="-92" rx="30" ry="26" fill="#1a1410"/>
+          <ellipse cx="-14" cy="-104" rx="16" ry="14" fill="#1a1410"/>
+          <ellipse cx="16" cy="-104" rx="16" ry="14" fill="#1a1410"/>
+        </g>
+
+        <!-- Stage 7: Berbunga -->
+        <g transform="translate(810,195)">
+          <ellipse cx="0" cy="2" rx="56" ry="6" fill="#1a1410" opacity=".22"/>
+          <path d="M-56 0 Q -28 -4 0 -4 Q 28 -4 56 0 Z" fill="#1a1410" opacity=".5"/>
+          <path d="M-8 0 Q -6 -38 -4 -76 L 4 -76 Q 6 -38 8 0 Z" fill="#1a1410"/>
+          <path d="M-4 -46 Q -20 -64 -42 -68" stroke="#1a1410" stroke-width="3" fill="none"/>
+          <path d="M4 -48 Q 22 -68 44 -72" stroke="#1a1410" stroke-width="3" fill="none"/>
+          <ellipse cx="-38" cy="-78" rx="24" ry="26" fill="#1a1410"/>
+          <ellipse cx="40" cy="-80" rx="26" ry="28" fill="#1a1410"/>
+          <ellipse cx="0" cy="-100" rx="34" ry="30" fill="#1a1410"/>
+          <ellipse cx="-16" cy="-114" rx="18" ry="16" fill="#1a1410"/>
+          <ellipse cx="18" cy="-114" rx="18" ry="16" fill="#1a1410"/>
+          <g fill="#f9f1de">
+            <circle cx="-30" cy="-78" r="2.5"/>
+            <circle cx="-10" cy="-90" r="2.5"/>
+            <circle cx="20" cy="-94" r="2.5"/>
+            <circle cx="38" cy="-72" r="2.5"/>
+            <circle cx="0" cy="-114" r="2.5"/>
+            <circle cx="-22" cy="-106" r="2.5"/>
+            <circle cx="26" cy="-108" r="2.5"/>
+            <circle cx="12" cy="-72" r="2.5"/>
+            <circle cx="-42" cy="-90" r="2.5"/>
+            <circle cx="48" cy="-90" r="2.5"/>
+          </g>
+          <ellipse cx="-60" cy="-50" rx="2" ry="1" fill="#f9f1de" transform="rotate(20 -60 -50)"/>
+          <ellipse cx="62" cy="-30" rx="2" ry="1" fill="#f9f1de" transform="rotate(-30 62 -30)"/>
+        </g>
+
+        <!-- Stage 8: Berbuah -->
+        <g transform="translate(930,195)">
+          <ellipse cx="0" cy="2" rx="60" ry="6" fill="#1a1410" opacity=".22"/>
+          <path d="M-60 0 Q -30 -4 0 -4 Q 30 -4 60 0 Z" fill="#1a1410" opacity=".55"/>
+          <path d="M-9 0 Q -7 -40 -5 -80 L 5 -80 Q 7 -40 9 0 Z" fill="#1a1410"/>
+          <path d="M-5 -50 Q -22 -68 -46 -72" stroke="#1a1410" stroke-width="3" fill="none"/>
+          <path d="M5 -52 Q 24 -72 48 -76" stroke="#1a1410" stroke-width="3" fill="none"/>
+          <ellipse cx="-42" cy="-82" rx="26" ry="28" fill="#1a1410"/>
+          <ellipse cx="44" cy="-84" rx="28" ry="30" fill="#1a1410"/>
+          <ellipse cx="0" cy="-104" rx="38" ry="32" fill="#1a1410"/>
+          <ellipse cx="-18" cy="-118" rx="20" ry="18" fill="#1a1410"/>
+          <ellipse cx="20" cy="-118" rx="20" ry="18" fill="#1a1410"/>
+          <g fill="#f9f1de">
+            <circle cx="-30" cy="-80" r="3.5"/>
+            <circle cx="-12" cy="-94" r="3.5"/>
+            <circle cx="22" cy="-96" r="3.5"/>
+            <circle cx="40" cy="-76" r="3.5"/>
+            <circle cx="0" cy="-118" r="3.5"/>
+            <circle cx="-24" cy="-110" r="3.5"/>
+            <circle cx="28" cy="-110" r="3.5"/>
+            <circle cx="14" cy="-76" r="3.5"/>
+            <circle cx="-44" cy="-94" r="3.5"/>
+            <circle cx="50" cy="-94" r="3.5"/>
+            <circle cx="6" cy="-100" r="3.5"/>
+            <circle cx="-6" cy="-86" r="3.5"/>
+          </g>
+        </g>
+
+        <!-- Stage 9 + 10: ekosistem hint -->
+        <g transform="translate(1050,195)">
+          <ellipse cx="0" cy="2" rx="22" ry="3" fill="#1a1410" opacity=".15"/>
+          <g transform="translate(0,-50)">
+            <path d="M0 0 Q -6 -4 -8 -2 Q -6 2 0 0" fill="#1a1410"/>
+            <path d="M0 0 Q 6 -4 8 -2 Q 6 2 0 0" fill="#1a1410"/>
+            <line x1="0" y1="-2" x2="0" y2="2" stroke="#1a1410" stroke-width=".5"/>
+          </g>
+          <text x="0" y="-12" text-anchor="middle" font-family="Italiana,serif" font-size="18" fill="#8b5a2b" letter-spacing="2">&#8594;</text>
+        </g>
+
+        <!-- Roman numerals under each stage -->
+        <g font-family="Cormorant SC, serif" font-size="9" font-weight="700" letter-spacing="2" fill="#8b5a2b" text-anchor="middle">
+          <text x="50" y="215">0</text>
+          <text x="150" y="215">I</text>
+          <text x="250" y="215">II</text>
+          <text x="350" y="215">III</text>
+          <text x="450" y="215">IV</text>
+          <text x="560" y="215">V</text>
+          <text x="680" y="215">VI</text>
+          <text x="810" y="215">VII</text>
+          <text x="930" y="215">VIII</text>
+          <text x="1050" y="215">IX&middot;X</text>
+        </g>
+      </svg>
+      </div>
+    </div>
+
+    <!-- ============ STAGES SECTION ============ -->
+    <div class="stages-section">
+      <div class="section-divider">
+        <span class="ln"></span>
+        <span class="heading">SEPULUH SINGGAH</span>
+        <span class="ln"></span>
+      </div>
+
+      <div class="stages">
+
+        <!-- STAGE 0 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">0</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="110" rx="35" ry="5" fill="#1a1410" opacity=".15"/>
+              <path d="M30 110 Q 50 100 70 110 Z" fill="#1a1410" opacity=".55"/>
+              <ellipse cx="50" cy="105" rx="6" ry="4" fill="#1a1410"/>
+              <path d="M50 100 Q 48 96 50 92 Q 52 96 50 100" fill="#1a1410" opacity=".7"/>
+              <circle cx="42" cy="98" r="1.2" fill="#1a1410" opacity=".5"/>
+              <circle cx="58" cy="100" r="1" fill="#1a1410" opacity=".5"/>
+              <path d="M75 60 L 76 64 L 80 65 L 76 66 L 75 70 L 74 66 L 70 65 L 74 64 Z" fill="#8b5a2b" opacity=".7"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH NOL</span>
+            <h3>BIBIT</h3>
+            <p class="narration">Awal dari segalanya. Sebuah niat kecil yang diam di tanah, belum kelihatan apa-apa, tapi sudah memilih untuk ada.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Kepercayaan sebelum bukti &mdash; kita menanam tanpa jaminan akan tumbuh.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 1 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">I</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="110" rx="35" ry="5" fill="#1a1410" opacity=".15"/>
+              <path d="M30 110 Q 50 100 70 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M50 105 L 50 75" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+              <path d="M50 88 Q 40 82 36 72 Q 46 76 50 80" fill="#1a1410"/>
+              <path d="M50 80 Q 60 74 64 64 Q 54 66 50 72" fill="#1a1410"/>
+              <circle cx="78" cy="40" r="3" fill="#a8803a" opacity=".5"/>
+              <line x1="78" y1="32" x2="78" y2="36" stroke="#a8803a" stroke-width="1" opacity=".6"/>
+              <line x1="78" y1="44" x2="78" y2="48" stroke="#a8803a" stroke-width="1" opacity=".6"/>
+              <line x1="70" y1="40" x2="74" y2="40" stroke="#a8803a" stroke-width="1" opacity=".6"/>
+              <line x1="82" y1="40" x2="86" y2="40" stroke="#a8803a" stroke-width="1" opacity=".6"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH SATU</span>
+            <h3>TUNAS</h3>
+            <p class="narration">Respon pertama terhadap perhatian. Tunas hijau yang mendongak ke matahari menggambarkan harapan yang berani muncul &mdash; sekecil apa pun dukungan, ia menemukan arah.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Harapan tidak butuh ukuran besar untuk berani muncul.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 2 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">II</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="110" rx="35" ry="5" fill="#1a1410" opacity=".15"/>
+              <path d="M28 110 Q 50 100 72 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M50 110 L 50 50" stroke="#1a1410" stroke-width="2" fill="none"/>
+              <path d="M50 110 Q 42 116 36 118" stroke="#1a1410" stroke-width=".8" fill="none" opacity=".6"/>
+              <path d="M50 110 Q 58 116 64 118" stroke="#1a1410" stroke-width=".8" fill="none" opacity=".6"/>
+              <path d="M50 80 Q 36 78 30 68 Q 42 70 50 76" fill="#1a1410"/>
+              <path d="M50 70 Q 64 68 70 58 Q 58 60 50 66" fill="#1a1410"/>
+              <path d="M50 58 Q 38 54 32 44 Q 46 46 50 54" fill="#1a1410"/>
+              <path d="M50 50 Q 60 44 64 34 Q 54 38 50 46" fill="#1a1410"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH DUA</span>
+            <h3>SETEK</h3>
+            <p class="narration">Daun pertama membuka, akar mulai mencengkeram.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Identitas mulai terbentuk &mdash; pohon tidak lagi sekadar tunggal, ia mulai mengikat dirinya pada tempat ia dibesarkan.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 3 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">III</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="110" rx="35" ry="5" fill="#1a1410" opacity=".15"/>
+              <path d="M28 110 Q 50 100 72 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M50 110 L 50 60" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+              <path d="M50 80 Q 38 72 28 68" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+              <path d="M50 76 Q 62 70 72 66" stroke="#1a1410" stroke-width="1.5" fill="none"/>
+              <ellipse cx="32" cy="62" rx="11" ry="13" fill="#1a1410"/>
+              <ellipse cx="68" cy="60" rx="13" ry="15" fill="#1a1410"/>
+              <ellipse cx="50" cy="48" rx="15" ry="16" fill="#1a1410"/>
+              <ellipse cx="42" cy="38" rx="9" ry="10" fill="#1a1410"/>
+              <ellipse cx="58" cy="40" rx="9" ry="10" fill="#1a1410"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH TIGA</span>
+            <h3>POHON MUDA</h3>
+            <p class="narration">Ranting pertama bercabang.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Inilah momen percabangan pilihan &mdash; sekali bercabang, pohon belajar bahwa tumbuh bukan ke satu arah saja, melainkan menyambut banyak kemungkinan.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 4 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">IV</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="110" rx="35" ry="5" fill="#1a1410" opacity=".15"/>
+              <path d="M30 110 L 32 92 L 68 92 L 70 110 Z" fill="none" stroke="#1a1410" stroke-width="1.5" opacity=".7"/>
+              <line x1="40" y1="92" x2="42" y2="108" stroke="#1a1410" stroke-width=".8" opacity=".5"/>
+              <path d="M48 92 L 47 100 L 50 102 L 49 108" stroke="#1a1410" stroke-width=".8" fill="none" opacity=".6"/>
+              <path d="M30 92 L 70 92" stroke="#1a1410" stroke-width="1" opacity=".4"/>
+              <path d="M47 92 Q 50 88 53 92" fill="#1a1410" opacity=".4"/>
+              <path d="M46 0 L 54 0 L 55 50 L 45 50 Z" fill="#1a1410"/>
+              <path d="M50 30 Q 36 20 22 18" stroke="#1a1410" stroke-width="2" fill="none"/>
+              <path d="M50 28 Q 64 16 78 14" stroke="#1a1410" stroke-width="2" fill="none"/>
+              <ellipse cx="24" cy="14" rx="14" ry="14" fill="#1a1410"/>
+              <ellipse cx="76" cy="12" rx="16" ry="14" fill="#1a1410"/>
+              <ellipse cx="50" cy="6" rx="20" ry="14" fill="#1a1410"/>
+              <ellipse cx="38" cy="-2" rx="11" ry="9" fill="#1a1410"/>
+              <ellipse cx="62" cy="-2" rx="11" ry="9" fill="#1a1410"/>
+              <ellipse cx="50" cy="88" rx="42" ry="3" fill="#1a1410" opacity=".15"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH EMPAT</span>
+            <h3>POHON TUMBUH</h3>
+            <p class="narration">Batang menebal, bayangan teduh muncul. Pot retak di sini: wadah lama tak lagi cukup.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Manfaat mulai mengalir keluar &mdash; pertumbuhan bukan lagi untuk diri sendiri, ada yang berteduh di bawahnya.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 5 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">V</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="112" rx="40" ry="6" fill="#1a1410" opacity=".22"/>
+              <path d="M14 110 Q 50 102 86 110 Z" fill="#1a1410" opacity=".5"/>
+              <path d="M46 50 L 54 50 L 55 102 L 45 102 Z" fill="#1a1410"/>
+              <path d="M50 76 Q 34 64 18 60" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+              <path d="M50 74 Q 66 60 82 58" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+              <path d="M50 60 Q 48 44 44 36" stroke="#1a1410" stroke-width="2" fill="none"/>
+              <ellipse cx="20" cy="56" rx="16" ry="18" fill="#1a1410"/>
+              <ellipse cx="80" cy="54" rx="18" ry="20" fill="#1a1410"/>
+              <ellipse cx="50" cy="34" rx="22" ry="18" fill="#1a1410"/>
+              <ellipse cx="36" cy="22" rx="13" ry="11" fill="#1a1410"/>
+              <ellipse cx="64" cy="22" rx="13" ry="11" fill="#1a1410"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH LIMA</span>
+            <h3>POHON DEWASA</h3>
+            <p class="narration">Pot menghilang, berganti gundukan tanah.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Lepas dari batas yang membesarkan &mdash; pohon tidak lagi butuh wadah; ia sudah cukup kuat untuk berpijak langsung pada bumi.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 6 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">VI</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="112" rx="44" ry="6" fill="#1a1410" opacity=".22"/>
+              <path d="M8 110 Q 50 100 92 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M40 102 Q 30 108 20 112" stroke="#1a1410" stroke-width="1" fill="none" opacity=".6"/>
+              <path d="M60 102 Q 70 108 80 112" stroke="#1a1410" stroke-width="1" fill="none" opacity=".6"/>
+              <path d="M44 50 L 56 50 L 57 102 L 43 102 Z" fill="#1a1410"/>
+              <path d="M50 76 Q 32 60 14 56" stroke="#1a1410" stroke-width="3" fill="none"/>
+              <path d="M50 74 Q 68 56 86 54" stroke="#1a1410" stroke-width="3" fill="none"/>
+              <path d="M50 56 Q 46 38 40 30" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+              <path d="M50 56 Q 54 38 60 30" stroke="#1a1410" stroke-width="2.5" fill="none"/>
+              <ellipse cx="16" cy="50" rx="18" ry="20" fill="#1a1410"/>
+              <ellipse cx="84" cy="48" rx="20" ry="22" fill="#1a1410"/>
+              <ellipse cx="50" cy="28" rx="26" ry="20" fill="#1a1410"/>
+              <ellipse cx="34" cy="14" rx="14" ry="12" fill="#1a1410"/>
+              <ellipse cx="66" cy="14" rx="14" ry="12" fill="#1a1410"/>
+              <path d="M-2 30 Q 4 28 8 30" stroke="#8b5a2b" stroke-width=".8" fill="none" opacity=".5"/>
+              <path d="M-2 36 Q 4 34 6 36" stroke="#8b5a2b" stroke-width=".8" fill="none" opacity=".5"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH ENAM</span>
+            <h3>POHON KUAT</h3>
+            <p class="narration">Akar dalam, tahan segala cuaca.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Ketahanan yang tidak lagi diuji &mdash; bukan karena cuaca berhenti, tapi karena akarnya sudah lebih dalam dari badai.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 7 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">VII</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="112" rx="44" ry="6" fill="#1a1410" opacity=".22"/>
+              <path d="M8 110 Q 50 100 92 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M44 50 L 56 50 L 57 102 L 43 102 Z" fill="#1a1410"/>
+              <path d="M50 74 Q 32 58 14 54" stroke="#1a1410" stroke-width="3" fill="none"/>
+              <path d="M50 72 Q 68 54 86 52" stroke="#1a1410" stroke-width="3" fill="none"/>
+              <ellipse cx="16" cy="48" rx="18" ry="20" fill="#1a1410"/>
+              <ellipse cx="84" cy="46" rx="20" ry="22" fill="#1a1410"/>
+              <ellipse cx="50" cy="26" rx="26" ry="20" fill="#1a1410"/>
+              <ellipse cx="34" cy="12" rx="14" ry="12" fill="#1a1410"/>
+              <ellipse cx="66" cy="12" rx="14" ry="12" fill="#1a1410"/>
+              <g fill="#f9f1de">
+                <circle cx="20" cy="44" r="2"/>
+                <circle cx="36" cy="36" r="2"/>
+                <circle cx="50" cy="20" r="2"/>
+                <circle cx="64" cy="34" r="2"/>
+                <circle cx="80" cy="44" r="2"/>
+                <circle cx="42" cy="50" r="2"/>
+                <circle cx="58" cy="48" r="2"/>
+                <circle cx="28" cy="58" r="1.5"/>
+                <circle cx="72" cy="56" r="1.5"/>
+              </g>
+              <ellipse cx="6" cy="78" rx="2" ry="1" fill="#f9f1de" transform="rotate(30 6 78)"/>
+              <ellipse cx="92" cy="86" rx="2" ry="1" fill="#f9f1de" transform="rotate(-30 92 86)"/>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH TUJUH &middot; BLOOM IN SPRING</span>
+            <h3>BERBUNGA</h3>
+            <p class="narration">Bunga aprikot mekar. Bunga belum bisa dimakan, tapi ia memberi tahu: yang ditunggu sebentar lagi tiba.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Inilah jembatan antara kerja dan hasil &mdash; keindahan sebagai janji.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 8 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">VIII</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="112" rx="44" ry="6" fill="#1a1410" opacity=".22"/>
+              <path d="M8 110 Q 50 100 92 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M43 50 L 57 50 L 58 102 L 42 102 Z" fill="#1a1410"/>
+              <path d="M50 72 Q 30 56 12 52" stroke="#1a1410" stroke-width="3" fill="none"/>
+              <path d="M50 70 Q 70 52 88 50" stroke="#1a1410" stroke-width="3" fill="none"/>
+              <ellipse cx="14" cy="46" rx="18" ry="20" fill="#1a1410"/>
+              <ellipse cx="86" cy="44" rx="20" ry="22" fill="#1a1410"/>
+              <ellipse cx="50" cy="22" rx="28" ry="20" fill="#1a1410"/>
+              <ellipse cx="32" cy="8" rx="14" ry="12" fill="#1a1410"/>
+              <ellipse cx="68" cy="8" rx="14" ry="12" fill="#1a1410"/>
+              <g fill="#f9f1de">
+                <circle cx="20" cy="42" r="3"/>
+                <circle cx="34" cy="32" r="3"/>
+                <circle cx="50" cy="16" r="3"/>
+                <circle cx="64" cy="32" r="3"/>
+                <circle cx="80" cy="42" r="3"/>
+                <circle cx="40" cy="48" r="3"/>
+                <circle cx="60" cy="48" r="3"/>
+                <circle cx="50" cy="40" r="3"/>
+                <circle cx="26" cy="56" r="2.5"/>
+                <circle cx="74" cy="56" r="2.5"/>
+              </g>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH DELAPAN &middot; ARMENIACA</span>
+            <h3>BERBUAH</h3>
+            <p class="narration">Aprikot matang. Di sini nama Armeniaca (genus aprikot) bertemu maknanya.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Panen dari yang dirawat bersama &mdash; buah bukan milik penanam saja, tapi milik setiap tangan yang pernah menyiram.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 9 -->
+        <div class="stage">
+          <div class="stage-illus">
+            <span class="stage-num">IX</span>
+            <svg width="100" height="120" viewBox="0 0 100 120">
+              <ellipse cx="50" cy="112" rx="46" ry="6" fill="#1a1410" opacity=".22"/>
+              <path d="M4 110 Q 50 98 96 110 Z" fill="#1a1410" opacity=".55"/>
+              <path d="M42 56 L 58 56 L 59 102 L 41 102 Z" fill="#1a1410"/>
+              <path d="M50 78 Q 28 60 6 56" stroke="#1a1410" stroke-width="3.5" fill="none"/>
+              <path d="M50 76 Q 72 56 94 54" stroke="#1a1410" stroke-width="3.5" fill="none"/>
+              <ellipse cx="10" cy="50" rx="20" ry="22" fill="#1a1410"/>
+              <ellipse cx="90" cy="48" rx="22" ry="24" fill="#1a1410"/>
+              <ellipse cx="50" cy="24" rx="32" ry="22" fill="#1a1410"/>
+              <ellipse cx="30" cy="8" rx="16" ry="14" fill="#1a1410"/>
+              <ellipse cx="70" cy="8" rx="16" ry="14" fill="#1a1410"/>
+              <ellipse cx="50" cy="0" rx="18" ry="10" fill="#1a1410"/>
+              <g fill="#f9f1de">
+                <circle cx="16" cy="46" r="3"/>
+                <circle cx="32" cy="30" r="3"/>
+                <circle cx="50" cy="14" r="3"/>
+                <circle cx="68" cy="30" r="3"/>
+                <circle cx="84" cy="46" r="3"/>
+                <circle cx="40" cy="50" r="3"/>
+                <circle cx="60" cy="50" r="3"/>
+                <circle cx="22" cy="60" r="2.5"/>
+                <circle cx="78" cy="60" r="2.5"/>
+                <circle cx="50" cy="38" r="3"/>
+                <circle cx="38" cy="22" r="2.5"/>
+                <circle cx="62" cy="22" r="2.5"/>
+              </g>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH SEMBILAN</span>
+            <h3>POHON PENUH</h3>
+            <p class="narration">Kanopi terluas, panen melimpah.</p>
+            <p class="filosofi"><span class="filosofi-label">Filosofi</span>Kelimpahan yang tenang &mdash; tidak lagi mengejar tumbuh, hanya memberi.</p>
+          </div>
+        </div>
+
+        <!-- STAGE 10 -->
+        <div class="stage" style="grid-column:1 / -1; border-bottom:none; padding-top:30px; border-top:1px dashed rgba(60,40,20,.22); margin-top:10px;">
+          <div class="stage-illus" style="width:120px; height:160px;">
+            <span class="stage-num">X</span>
+            <svg width="120" height="160" viewBox="0 0 120 160">
+              <ellipse cx="60" cy="148" rx="56" ry="7" fill="#1a1410" opacity=".25"/>
+              <path d="M0 145 Q 60 130 120 145 Z" fill="#1a1410" opacity=".6"/>
+              <g fill="#1a1410">
+                <circle cx="14" cy="138" r="4"/>
+                <circle cx="106" cy="138" r="4"/>
+                <circle cx="22" cy="142" r="3"/>
+                <circle cx="98" cy="142" r="3"/>
+                <circle cx="32" cy="138" r="3.5"/>
+                <circle cx="88" cy="138" r="3.5"/>
+                <circle cx="42" cy="142" r="3"/>
+                <circle cx="78" cy="142" r="3"/>
+                <ellipse cx="50" cy="140" rx="2.5" ry="4"/>
+                <ellipse cx="70" cy="140" rx="2.5" ry="4"/>
+              </g>
+              <g fill="#f9f1de">
+                <circle cx="14" cy="138" r="1.5"/>
+                <circle cx="106" cy="138" r="1.5"/>
+                <circle cx="32" cy="138" r="1.5"/>
+                <circle cx="88" cy="138" r="1.5"/>
+              </g>
+              <path d="M50 70 L 70 70 L 72 130 L 48 130 Z" fill="#1a1410"/>
+              <path d="M60 92 Q 36 72 8 68" stroke="#1a1410" stroke-width="4" fill="none"/>
+              <path d="M60 90 Q 84 70 112 66" stroke="#1a1410" stroke-width="4" fill="none"/>
+              <ellipse cx="12" cy="60" rx="22" ry="24" fill="#1a1410"/>
+              <ellipse cx="108" cy="58" rx="24" ry="26" fill="#1a1410"/>
+              <ellipse cx="60" cy="32" rx="36" ry="24" fill="#1a1410"/>
+              <ellipse cx="36" cy="14" rx="18" ry="16" fill="#1a1410"/>
+              <ellipse cx="84" cy="14" rx="18" ry="16" fill="#1a1410"/>
+              <ellipse cx="60" cy="4" rx="20" ry="12" fill="#1a1410"/>
+              <g fill="#f9f1de">
+                <circle cx="18" cy="56" r="3"/>
+                <circle cx="36" cy="38" r="3"/>
+                <circle cx="60" cy="20" r="3"/>
+                <circle cx="84" cy="38" r="3"/>
+                <circle cx="102" cy="56" r="3"/>
+                <circle cx="48" cy="56" r="3"/>
+                <circle cx="72" cy="56" r="3"/>
+                <circle cx="60" cy="44" r="3"/>
+                <circle cx="28" cy="68" r="2.5"/>
+                <circle cx="92" cy="68" r="2.5"/>
+              </g>
+              <g fill="#1a1410" opacity=".85">
+                <g transform="translate(8,90)">
+                  <path d="M0 0 Q -5 -3 -7 -1 Q -5 2 0 0"/>
+                  <path d="M0 0 Q 5 -3 7 -1 Q 5 2 0 0"/>
+                </g>
+                <g transform="translate(110,98)">
+                  <path d="M0 0 Q -5 -3 -7 -1 Q -5 2 0 0"/>
+                  <path d="M0 0 Q 5 -3 7 -1 Q 5 2 0 0"/>
+                </g>
+                <g transform="translate(60,108)">
+                  <path d="M0 0 Q -4 -2 -5 -1 Q -4 1 0 0"/>
+                  <path d="M0 0 Q 4 -2 5 -1 Q 4 1 0 0"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <div class="stage-text">
+            <span class="roman">SINGGAH SEPULUH &middot; PUNCAK PETA</span>
+            <h3>POHON MEGAH &mdash; RUMAH BAGI EKOSISTEM</h3>
+            <p class="narration" style="font-size:clamp(14px, 1.3vw, 15.5px);line-height:1.6;">Pohon di tengah taman bunga. Setiap lima puluh siraman menambah satu makhluk hidup ke ekosistem &mdash; kupu-kupu, bunga, penghuni taman.</p>
+            <p class="filosofi" style="font-size:clamp(14px, 1.3vw, 15.5px);line-height:1.6;"><span class="filosofi-label">Filosofi Puncak</span>Pohon bukan lagi tujuan, melainkan rumah &mdash; ia sudah menjadi ekosistem; pertumbuhan diteruskan kepada yang lain. Dari individu menjadi komunitas. Dari satu pohon, lahirlah dunia kecil yang merawat dirinya sendiri.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ CENTRAL QUOTE ============ -->
+    <div class="quote-card">
+      <div class="quote-mark">&ldquo;</div>
+      <blockquote>
+        Pohon tidak terburu-buru tumbuh,<br>
+        namun ia tidak pernah berhenti.<br>
+        <em>Kebaikan pun begitu.</em>
+      </blockquote>
+      <cite>FILOSOFI ARMENIACA</cite>
+    </div>
+
+    <!-- ============ FOOTER PRINCIPLES ============ -->
+    <div class="principles">
+      <div class="principle">
+        <svg viewBox="0 0 30 30" fill="#1a1410">
+          <path d="M8 14 L 8 22 Q 8 26 12 26 L 18 26 Q 22 26 22 22 L 22 14 Z"/>
+          <path d="M6 14 L 24 14 L 24 12 L 6 12 Z"/>
+          <path d="M22 16 L 27 12 L 27 20 Z"/>
+          <circle cx="12" cy="9" r="1"/>
+          <circle cx="15" cy="7" r="1"/>
+          <circle cx="18" cy="9" r="1"/>
+        </svg>
+        <span class="label">SETIAP SIRAMAN<br>ADALAH PILIHAN</span>
+      </div>
+      <div class="principle">
+        <svg viewBox="0 0 30 30" fill="#1a1410">
+          <path d="M15 26 L 15 14"/>
+          <path d="M15 16 Q 8 12 5 6 Q 12 8 15 14" />
+          <path d="M15 14 Q 22 10 25 4 Q 18 6 15 12"/>
+          <line x1="15" y1="26" x2="15" y2="14" stroke="#1a1410" stroke-width="1.5"/>
+        </svg>
+        <span class="label">SETIAP HARI<br>ADALAH PROSES</span>
+      </div>
+      <div class="principle">
+        <svg viewBox="0 0 30 30" fill="#1a1410">
+          <circle cx="15" cy="15" r="3"/>
+          <ellipse cx="15" cy="7" rx="3" ry="5"/>
+          <ellipse cx="15" cy="23" rx="3" ry="5"/>
+          <ellipse cx="7" cy="15" rx="5" ry="3"/>
+          <ellipse cx="23" cy="15" rx="5" ry="3"/>
+          <ellipse cx="9" cy="9" rx="3" ry="3" transform="rotate(-45 9 9)"/>
+          <ellipse cx="21" cy="9" rx="3" ry="3" transform="rotate(45 21 9)"/>
+          <ellipse cx="9" cy="21" rx="3" ry="3" transform="rotate(45 9 21)"/>
+          <ellipse cx="21" cy="21" rx="3" ry="3" transform="rotate(-45 21 21)"/>
+        </svg>
+        <span class="label">SETIAP ORANG<br>BISA MENANAM</span>
+      </div>
+      <div class="principle">
+        <svg viewBox="0 0 30 30" fill="#1a1410">
+          <path d="M8 12 Q 5 8 8 6 Q 11 6 11 9 Q 11 6 14 6 Q 17 8 14 12 L 11 16 Z"/>
+          <path d="M16 16 Q 13 12 16 10 Q 19 10 19 13 Q 19 10 22 10 Q 25 12 22 16 L 19 20 Z"/>
+        </svg>
+        <span class="label">BERSAMA, KITA<br>MENUMBUHKAN DUNIA</span>
+      </div>
+    </div>
+
+    <div class="colophon">PETA FILOSOFI POHON KEBAIKAN &middot; ARMENIACA &middot; UNTUK ELI</div>
+
+  </div>
+</div>
+
+</body>
+</html>
