@@ -10,12 +10,16 @@
  * has its own dedicated context — visitors arrive intentionally.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import Seo from '../components/Seo';
 import EliTree from '../components/home/EliTree';
 import FloatingPetals from '../components/countdown/FloatingPetals';
+import FilosofiModal from '../components/page26/FilosofiModal';
 
-const Page26 = () => (
+const Page26 = () => {
+  const [filosofiOpen, setFilosofiOpen] = useState(false);
+
+  return (
   <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
     <Seo
       path="/26"
@@ -97,17 +101,15 @@ const Page26 = () => (
           15 Juni 2026.
         </p>
 
-        {/* Peta Filosofi CTA — opens standalone parchment-style poster
-            (public/filosofi-pohon-kebaikan.html) explaining all 10 stages
-            from Bibit to Pohon Megah. Standalone HTML rather than a React
-            route because the typography (Italiana/Cormorant) and
-            parchment treatment is a self-contained piece, not a section
-            of the site shell. */}
+        {/* Peta Filosofi CTA — opens FilosofiModal which embeds the
+            standalone parchment poster (public/filosofi-pohon-kebaikan.html)
+            via iframe so the HTML stays the single source of truth and
+            the modal experience keeps the user inside /26 (no tab
+            switch, no context loss). */}
         <div className="mt-10 flex justify-center">
-          <a
-            href="/filosofi-pohon-kebaikan.html"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setFilosofiOpen(true)}
             className="group inline-flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 border-2 border-[color:var(--retro-burgundy)] bg-[color:var(--retro-cream)]/30 text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300"
           >
             <i className="ri-map-2-line text-lg sm:text-xl" aria-hidden="true" />
@@ -115,14 +117,17 @@ const Page26 = () => (
               Buka Peta Filosofi
             </span>
             <i className="ri-arrow-right-up-line text-sm sm:text-base opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" aria-hidden="true" />
-          </a>
+          </button>
         </div>
         <p className="mt-4 text-[11px] text-[color:var(--color-text-secondary)]/70 italic">
-          Sepuluh singgah dari Bibit menjadi Ekosistem &middot; terbuka di tab baru
+          Sepuluh singgah dari Bibit menjadi Ekosistem
         </p>
       </div>
     </section>
+
+    <FilosofiModal isOpen={filosofiOpen} onClose={() => setFilosofiOpen(false)} />
   </main>
-);
+  );
+};
 
 export default Page26;

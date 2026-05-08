@@ -336,7 +336,29 @@
     .arc-filosofi::before,.arc-filosofi::after{font-size:11px;}
     .frame{inset:8px;}
   }
+
+  /* ============ EMBED MODE (loaded inside modal iframe) ============ */
+  /* Triggered by ?embed=1 query param or by being inside an iframe.
+     Back-link hidden because the parent modal already has an X close
+     button — duplicate close affordances would confuse. Slight padding
+     reduction so the parchment fills the modal more snugly. */
+  html.embedded body{padding:0;}
+  html.embedded .back-link{display:none;}
+  html.embedded .poster{box-shadow:none;}
 </style>
+<script>
+  (function(){
+    try{
+      var inIframe = window.self !== window.top;
+      var qs = new URLSearchParams(window.location.search);
+      if(inIframe || qs.get('embed') === '1'){
+        document.documentElement.classList.add('embedded');
+      }
+    }catch(e){
+      document.documentElement.classList.add('embedded');
+    }
+  })();
+</script>
 </head>
 <body>
 
