@@ -315,32 +315,50 @@ const FallingLeaves = ({ count = 60 }) => {
 // Position: 5 lantern di antara tree pairs, alternating side (kiri/
 // kanan) supaya cahaya distribute even sepanjang lorong. x=±3.5 (di
 // luar PATH_X_OFFSET=2.6 supaya nggak overlap pohon).
+// Lentera #3 (z=-17, tengah path) sengaja `dead: true` — path
+// storytelling: ada satu yang udah mati, kasih hint waktu lewat.
 const LANTERN_DEFS = [
   { pos: [-3.5, 0, -5], phase: 0 },
   { pos: [3.5, 0, -11], phase: 1.3 },
-  { pos: [-3.5, 0, -17], phase: 2.5 },
+  { pos: [-3.5, 0, -17], phase: 2.5, dead: true },
   { pos: [3.5, 0, -23], phase: 0.7 },
   { pos: [-3.5, 0, -29], phase: 1.8 },
 ];
 
-const LanternPost = ({ pos, phase }) => {
+const LanternPost = ({ pos, phase, dead = false, signatureTime }) => {
   const lightRef = useRef();
   const matRef = useRef();
   const groupRef = useRef();
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    const slow = Math.sin(t * 0.7 + phase * 1.4) * 0.18;
-    const fast = Math.sin(t * 8 + phase) * 0.05;
-    // Saat gust, flicker drop tajam (api ketiup angin)
     const wind = getWind(t, phase * 1.7);
-    const gustDip = Math.max(0, Math.abs(wind.gust) - 0.4) * 0.35;
-    const factor = (1 + slow + fast) * (1 - gustDip);
-    if (lightRef.current) lightRef.current.intensity = 1.6 * factor;
-    if (matRef.current) matRef.current.emissiveIntensity = 1.2 * factor;
-    // Pole sway pelan — subtle, lentera kayu memang nggak goyang banyak
+    // Pole sway tetap berlaku walau lentera mati
     if (groupRef.current) {
       groupRef.current.rotation.z = wind.total * 0.012;
     }
+    if (dead) {
+      // Lentera mati — no light, no glow
+      if (lightRef.current) lightRef.current.intensity = 0;
+      if (matRef.current) matRef.current.emissiveIntensity = 0;
+      return;
+    }
+    const slow = Math.sin(t * 0.7 + phase * 1.4) * 0.18;
+    const fast = Math.sin(t * 8 + phase) * 0.05;
+    const gustDip = Math.max(0, Math.abs(wind.gust) - 0.4) * 0.35;
+    let factor = (1 + slow + fast) * (1 - gustDip);
+    // Signature moment — sync flicker (semua lentera ramp peak bareng)
+    if (signatureTime != null) {
+      const dt = t - signatureTime;
+      if (dt > 0 && dt < 3) {
+        let boost = 0;
+        if (dt < 0.5) boost = dt / 0.5; // ramp up 0→1
+        else if (dt < 2.0) boost = 1; // hold
+        else boost = (3 - dt) / 1; // fade 1→0
+        factor *= 1 + boost * 1.4;
+      }
+    }
+    if (lightRef.current) lightRef.current.intensity = 1.6 * factor;
+    if (matRef.current) matRef.current.emissiveIntensity = 1.2 * factor;
   });
   return (
     <group ref={groupRef} position={pos}>
@@ -388,10 +406,16 @@ const LanternPost = ({ pos, phase }) => {
   );
 };
 
-const Lanterns = () => (
+const Lanterns = ({ signatureTime }) => (
   <>
     {LANTERN_DEFS.map((l, i) => (
-      <LanternPost key={`lantern-${i}`} pos={l.pos} phase={l.phase} />
+      <LanternPost
+        key={`lantern-${i}`}
+        pos={l.pos}
+        phase={l.phase}
+        dead={l.dead}
+        signatureTime={signatureTime}
+      />
     ))}
   </>
 );
@@ -399,7 +423,7 @@ const Lanterns = () => (
 // Year plaque kayu — penanda fisik di base tiap pohon dengan tahun
 // terukir, kerasa kayak memorial marker / milestone post. Plaque
 // di-tilt menghadap path supaya bisa dibaca dari camera.
-const YearPlaque = ({ tree }) => {
+const YearPlaque = ({ tree, cracked = false }) => {
   const side = Math.sign(tree.x); // -1 kiri, +1 kanan
   return (
     <group
@@ -411,20 +435,27 @@ const YearPlaque = ({ tree }) => {
         <cylinderGeometry args={[0.02, 0.025, 0.36, 6]} />
         <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
       </mesh>
-      {/* Mini plank */}
-      <mesh position={[0, 0.32, 0]}>
+      {/* Mini plank — kalau cracked, sedikit miring ke samping */}
+      <mesh position={[0, 0.32, 0]} rotation={[0, 0, cracked ? -0.12 : 0]}>
         <boxGeometry args={[0.4, 0.14, 0.03]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
       </mesh>
       {/* Tepi plank atas-bawah (frame kayu lebih gelap) */}
-      <mesh position={[0, 0.395, 0.018]}>
+      <mesh position={[0, 0.395, 0.018]} rotation={[0, 0, cracked ? -0.12 : 0]}>
         <boxGeometry args={[0.42, 0.025, 0.02]} />
         <meshStandardMaterial color="#3a2616" roughness={0.95} />
       </mesh>
-      <mesh position={[0, 0.245, 0.018]}>
+      <mesh position={[0, 0.245, 0.018]} rotation={[0, 0, cracked ? -0.12 : 0]}>
         <boxGeometry args={[0.42, 0.025, 0.02]} />
         <meshStandardMaterial color="#3a2616" roughness={0.95} />
       </mesh>
+      {/* Crack line — diagonal dark line nyilang plank */}
+      {cracked && (
+        <mesh position={[0.05, 0.31, 0.02]} rotation={[0, 0, 0.7]}>
+          <boxGeometry args={[0.005, 0.13, 0.005]} />
+          <meshStandardMaterial color="#1a0d05" roughness={1} />
+        </mesh>
+      )}
       {/* Tahun terukir */}
       <Html position={[0, 0.32, 0.025]} center distanceFactor={6} occlude={false}>
         <div style={{
@@ -436,16 +467,18 @@ const YearPlaque = ({ tree }) => {
           fontWeight: '600',
           letterSpacing: '0.5px',
           pointerEvents: 'none',
+          transform: cracked ? 'rotate(-7deg)' : undefined,
         }}>{tree.year}</div>
       </Html>
     </group>
   );
 };
 
+// Plaque ke-4 sengaja cracked — path storytelling subtle
 const YearPlaques = ({ trees }) => (
   <>
-    {trees.map((tree) => (
-      <YearPlaque key={`plaque-${tree.id}`} tree={tree} />
+    {trees.map((tree, i) => (
+      <YearPlaque key={`plaque-${tree.id}`} tree={tree} cracked={i === 3} />
     ))}
   </>
 );
@@ -549,12 +582,34 @@ const Owls = () => (
 // visible. Open to interpretation: bisa Eli muda berdiri menatap ke
 // arah camera (ke masa depan), atau just visitor lain. Subtle breathing
 // sway supaya kerasa "alive" tanpa explicit movement.
-const DistantFigure = () => {
+const DistantFigure = ({ signatureTime }) => {
   const groupRef = useRef();
+  const bodyMatRef = useRef();
+  const headMatRef = useRef();
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.position.y = Math.sin(t * 0.9) * 0.012;
+    // Signature moment glow — phase 2 (0.5..2.5s) figure menyala amber
+    let glow = 0;
+    if (signatureTime != null) {
+      const dt = t - signatureTime;
+      if (dt > 0.4 && dt < 2.6) {
+        const u = (dt - 0.4) / 2.2;
+        // Smooth ease-in/out: 0→1 in 0..0.2, hold 0.2..0.8, fade 0.8..1
+        if (u < 0.2) glow = u / 0.2;
+        else if (u < 0.8) glow = 1;
+        else glow = (1 - u) / 0.2;
+      }
+    }
+    if (bodyMatRef.current) {
+      bodyMatRef.current.opacity = 0.75 + glow * 0.25;
+      bodyMatRef.current.emissiveIntensity = glow * 1.4;
+    }
+    if (headMatRef.current) {
+      headMatRef.current.opacity = 0.75 + glow * 0.25;
+      headMatRef.current.emissiveIntensity = glow * 1.4;
+    }
   });
   return (
     <group ref={groupRef} position={[0, 0, -34]}>
@@ -562,7 +617,10 @@ const DistantFigure = () => {
       <mesh position={[0, 0.65, 0]}>
         <capsuleGeometry args={[0.16, 0.7, 4, 8]} />
         <meshStandardMaterial
+          ref={bodyMatRef}
           color="#0a0d18"
+          emissive="#ffaa50"
+          emissiveIntensity={0}
           roughness={1}
           transparent
           opacity={0.75}
@@ -572,7 +630,10 @@ const DistantFigure = () => {
       <mesh position={[0, 1.32, 0]}>
         <sphereGeometry args={[0.13, 12, 10]} />
         <meshStandardMaterial
+          ref={headMatRef}
           color="#0a0d18"
+          emissive="#ffaa50"
+          emissiveIntensity={0}
           roughness={1}
           transparent
           opacity={0.75}
@@ -710,6 +771,104 @@ const Rabbits = () => (
   </>
 );
 
+// Memory fragments — frasa puitis yang muncul samar dan fade
+// independent tiap N detik. Plus zoom proximity factor: lebih
+// kelihatan saat user zoom dekat ke scene. "Memory yang drift in
+// dan out" — hint poetic, jangan terlalu readable.
+const MEMORY_FRAGMENTS = [
+  { pos: [-1.5, 0.7, -7], text: 'panggung pertama', phase: 0.0, period: 11 },
+  { pos: [1.8, 0.8, -13], text: 'tangan kecil yang mengangkat', phase: 0.35, period: 13 },
+  { pos: [-1.2, 0.7, -19], text: 'rumah panggung', phase: 0.6, period: 10 },
+  { pos: [1.5, 0.8, -25], text: 'untuk yang menunggu', phase: 0.15, period: 12 },
+  { pos: [-1.8, 0.7, -30], text: 'tahun yang panjang', phase: 0.8, period: 14 },
+];
+
+const ORBIT_TARGET_ARR = ORBIT_TARGET; // alias supaya useFrame closure jelas
+
+const MemoryFragment = ({ pos, text, phase = 0, period = 10 }) => {
+  const divRef = useRef();
+  useFrame((state) => {
+    if (!divRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Pulse cycle — visible cuma 20% dari period, smooth fade in/out
+    const u = ((t / period) + phase) % 1;
+    let pulseOpacity = 0;
+    if (u < 0.1) pulseOpacity = (u / 0.1) * 0.5;
+    else if (u < 0.3) pulseOpacity = 0.5 - (u - 0.1) / 0.2 * 0.5;
+    // Zoom proximity — lebih dekat camera ke target = lebih visible
+    const cam = state.camera.position;
+    const dx = cam.x - ORBIT_TARGET_ARR[0];
+    const dy = cam.y - ORBIT_TARGET_ARR[1];
+    const dz = cam.z - ORBIT_TARGET_ARR[2];
+    const camDist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const normDist = Math.min(1, Math.max(0, (camDist - 12) / 16));
+    const zoomFactor = 0.4 + (1 - normDist) * 0.6;
+    divRef.current.style.opacity = String(pulseOpacity * zoomFactor);
+  });
+  return (
+    <Html position={pos} center distanceFactor={9} occlude={false}>
+      <div
+        ref={divRef}
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          fontSize: '11px',
+          color: '#fff8ea',
+          whiteSpace: 'nowrap',
+          opacity: 0,
+          pointerEvents: 'none',
+          textShadow: '0 0 8px rgba(255, 200, 100, 0.5)',
+          letterSpacing: '0.5px',
+        }}
+      >
+        {text}
+      </div>
+    </Html>
+  );
+};
+
+const MemoryFragments = () => (
+  <>
+    {MEMORY_FRAGMENTS.map((f, i) => (
+      <MemoryFragment key={`mem-${i}`} {...f} />
+    ))}
+  </>
+);
+
+// Footprints — bekas jejak kaki samar di tanah, kasih kesan "ada
+// yang pernah jalan duluan". Posisi alternating kiri/kanan sepanjang
+// path, pakai box flat tipis dengan tone gelap.
+const FOOTPRINT_DEFS = (() => {
+  const arr = [];
+  // 8 jejak, alternating side, dari z=-4 ke z=-30
+  for (let i = 0; i < 8; i++) {
+    const z = -4 - i * 3.6;
+    const x = (i % 2 === 0 ? -0.3 : 0.3) + (Math.random() - 0.5) * 0.2;
+    arr.push({ pos: [x, 0.005, z], rot: (Math.random() - 0.5) * 0.4 });
+  }
+  return arr;
+})();
+
+const Footprints = () => (
+  <>
+    {FOOTPRINT_DEFS.map((f, i) => (
+      <mesh
+        key={`step-${i}`}
+        position={f.pos}
+        rotation={[-Math.PI / 2, 0, f.rot]}
+      >
+        <planeGeometry args={[0.16, 0.28]} />
+        <meshStandardMaterial
+          color="#1a140e"
+          transparent
+          opacity={0.55}
+          roughness={1}
+        />
+      </mesh>
+    ))}
+  </>
+);
+
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
 // melayang. Hover lift + emissive glow, click → modal milestone.
 const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
@@ -831,6 +990,7 @@ const LorongScene = ({
   trees,
   hoveredTreeId,
   isMobile,
+  signatureTime,
   onTreeHover,
   onTreeOut,
   onTreeClick,
@@ -865,15 +1025,17 @@ const LorongScene = ({
       decay={2}
     />
     <Path />
-    <Lanterns />
+    <Footprints />
+    <Lanterns signatureTime={signatureTime} />
     <YearPlaques trees={trees} />
     <Owls />
     <Rabbits />
     {!isMobile && <Bats />}
-    <DistantFigure />
+    <DistantFigure signatureTime={signatureTime} />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 40 : 70} />
     <FallingLeaves count={isMobile ? 35 : 60} />
+    <MemoryFragments />
     {trees.map((tree) => (
       <YearTree
         key={tree.id}
@@ -1002,10 +1164,25 @@ const MilestoneOverlay = ({ tree, onClose }) => {
   );
 };
 
+// Sync R3F state.clock.elapsedTime ke ref di parent component supaya
+// click handler (yg di luar Canvas) bisa baca elapsed time saat trigger
+// signature event. Tanpa ini, signatureTime jadi di domain Date.now()
+// sementara useFrame di domain state.clock — campur 2 clock = ugly.
+const ClockSync = ({ clockRef }) => {
+  useFrame((state) => {
+    clockRef.current = state.clock.elapsedTime;
+  });
+  return null;
+};
+
 const TamanLorongPohonPage = () => {
   const isMobile = useIsMobile();
   const [hoveredTreeId, setHoveredTreeId] = useState(null);
   const [selectedTree, setSelectedTree] = useState(null);
+  // Signature moment: trigger saat user click tree[0] (era recent / closest
+  // ke camera). Lentera sync flicker 0.5..2s, distant figure glow 0.4..2.6s.
+  const [signatureTime, setSignatureTime] = useState(null);
+  const clockRef = useRef(0);
 
   // Map ELI_TIMELINE → tree positions di scene. Alternating kiri/kanan,
   // gap z = (PATH_END - PATH_START) / (count-1). Year color progressive.
@@ -1040,6 +1217,12 @@ const TamanLorongPohonPage = () => {
   const handleTreeClick = (tree) => {
     setSelectedTree(tree);
     setHoveredTreeId(null);
+    // Trigger signature moment kalau user click pohon era recent (idx 0)
+    if (trees.length > 0 && tree.id === trees[0].id) {
+      setSignatureTime(clockRef.current);
+      // Clear setelah 3.5s biar nggak jadi state stale
+      setTimeout(() => setSignatureTime(null), 3500);
+    }
   };
   const handleClose = () => setSelectedTree(null);
 
@@ -1064,10 +1247,12 @@ const TamanLorongPohonPage = () => {
               camera.lookAt(0, 0, -16);
             }}
           >
+            <ClockSync clockRef={clockRef} />
             <LorongScene
               trees={trees}
               hoveredTreeId={hoveredTreeId}
               isMobile={isMobile}
+              signatureTime={signatureTime}
               onTreeHover={handleTreeHover}
               onTreeOut={handleTreeOut}
               onTreeClick={handleTreeClick}
