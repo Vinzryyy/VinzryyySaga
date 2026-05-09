@@ -128,9 +128,10 @@ const TerataiBloom = ({ color = '#f4c8d8', scale = 1 }) => (
 );
 
 // Lily pad + teratai bloom + label wish. Hover: lift Y + emissive
-// glow di leaf disc + label brighter. Plus subtle "drift downstream"
-// — pad pelan-pelan bergerak ke +z, kalau lewat batas END_Z reset ke
-// START_Z. Mensimulasikan air sungai yang mengalir.
+// glow di leaf disc + label brighter + ripple ring expanding di
+// bawah pad. Plus subtle "drift downstream" — pad pelan-pelan
+// bergerak ke +z, kalau lewat batas END_Z reset ke START_Z.
+// Mensimulasikan air sungai yang mengalir.
 const FLOW_SPEED = 0.05; // unit per detik
 const FLOW_END_Z = 14;
 const FLOW_START_Z = -14;
@@ -138,9 +139,12 @@ const FLOW_START_Z = -14;
 const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
   const matRef = useRef();
+  const rippleRef = useRef();
+  const rippleMatRef = useRef();
   // Track drift z separately dari posisi awal pad — pad punya base
   // origin di pad.pos, drift di-akumulasi di useFrame.
   const driftZRef = useRef(0);
+  const hoverElapsedRef = useRef(0);
 
   useFrame((state, delta) => {
     if (!groupRef.current || !matRef.current) return;
@@ -169,6 +173,20 @@ const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => 
       targetEmissive,
       factor
     );
+
+    // Ripple animation — saat hovered, ring di bawah pad melebar &
+    // fade. Reset elapsed saat unhovered. Cycle 1.8 detik.
+    if (hovered) {
+      hoverElapsedRef.current += delta;
+    } else {
+      hoverElapsedRef.current = 0;
+    }
+    if (rippleRef.current && rippleMatRef.current) {
+      const t = (hoverElapsedRef.current % 1.8) / 1.8;
+      const scale = 0.6 + t * 1.8; // 0.6 → 2.4
+      rippleRef.current.scale.set(scale, scale, scale);
+      rippleMatRef.current.opacity = hovered ? (1 - t) * 0.5 : 0;
+    }
   });
 
   const padRadius = pad.isCenter ? 0.95 : 0.62;
@@ -192,6 +210,23 @@ const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => 
         onClick(pad);
       }}
     >
+      {/* Ripple ring di bawah pad — torus tipis di permukaan air,
+          melebar & fade saat pad hovered. Render before pad supaya
+          ring kelihatan keluar dari bawah pad, bukan nutup pad. */}
+      <mesh
+        ref={rippleRef}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.04, 0]}
+      >
+        <ringGeometry args={[0.7, 0.85, 32]} />
+        <meshBasicMaterial
+          ref={rippleMatRef}
+          color="#cfe0f0"
+          transparent
+          opacity={0}
+          depthWrite={false}
+        />
+      </mesh>
       {/* Daun teratai (lily pad disc) — hex cylinder rendah dengan
           warna hijau gelap (malam). Side surface catch light. */}
       <mesh>
@@ -307,6 +342,167 @@ const Fireflies = ({ count = 30 }) => {
     </points>
   );
 };
+
+// Bintang-bintang di sky dome — 200 partikel kecil scatter di range
+// y tinggi (15..28), x/z luas (±40). Static (no motion). Color
+// putih-biru lembut. Pakai BufferGeometry + Points, 1 draw call.
+// Twinkle effect via subtle opacity oscillation per partikel.
+const Starfield = ({ count = 200 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      // Hemisphere distribution — bintang lebih banyak di langit
+      // atas, jarang di horizon. Pakai sqrt(random) untuk denser
+      // di langit tinggi.
+      const r = 35 + Math.random() * 10;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(0.3 + Math.random() * 0.7); // 0.3..1
+      arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      arr[i * 3 + 1] = r * Math.cos(phi); // y always positive (up)
+      arr[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    return arr;
+  }, [count]);
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.18}
+        color="#e0eaf5"
+        transparent
+        opacity={0.85}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Bulan sebagai sphere visible di sky — emissive cool white-blue
+// supaya jadi point of light terang yang nge-cast aura warmth ke
+// scene. Posisi tinggi & sedikit miring biar nyambung sama spotlight
+// moonlight yang sudah ada.
+const Moon = () => (
+  <mesh position={[6, 22, -10]}>
+    <sphereGeometry args={[1.1, 24, 16]} />
+    <meshStandardMaterial
+      color="#f4f4ec"
+      emissive="#cfe0f0"
+      emissiveIntensity={1.2}
+      roughness={0.4}
+    />
+  </mesh>
+);
+
+// Lentera kayu kecil di tepi sungai — tiang vertikal + body lentera
+// box kecil + bola emissive di dalam + pointLight warm dengan range
+// terbatas. Lentera ngasih spot warm yang ngebreak monotony cool
+// moonlight, dan ngasih sense of "taman ditata manusia".
+const Lantern = ({ pos }) => (
+  <group position={pos}>
+    {/* Tiang */}
+    <mesh position={[0, 0.8, 0]}>
+      <cylinderGeometry args={[0.04, 0.06, 1.6, 6]} />
+      <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+    </mesh>
+    {/* Body lentera */}
+    <mesh position={[0, 1.65, 0]}>
+      <boxGeometry args={[0.28, 0.32, 0.28]} />
+      <meshStandardMaterial
+        color="#2a1d14"
+        roughness={0.9}
+        transparent
+        opacity={0.85}
+      />
+    </mesh>
+    {/* Atap lentera (piramida tipis) */}
+    <mesh position={[0, 1.86, 0]} rotation={[0, Math.PI / 4, 0]}>
+      <coneGeometry args={[0.22, 0.12, 4]} />
+      <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+    </mesh>
+    {/* Glow inside — bola kecil emissive warm */}
+    <mesh position={[0, 1.65, 0]}>
+      <sphereGeometry args={[0.1, 10, 8]} />
+      <meshStandardMaterial
+        color="#f4c870"
+        emissive="#f4c870"
+        emissiveIntensity={2.0}
+      />
+    </mesh>
+    {/* Pointlight warm dengan distance terbatas — ngasih spot ke
+        sekitar lentera, nggak nyampe ke seberang sungai. */}
+    <pointLight
+      position={[0, 1.65, 0]}
+      color="#f4c870"
+      intensity={0.7}
+      distance={4.5}
+      decay={1.8}
+    />
+  </group>
+);
+
+const LANTERN_POSITIONS = [
+  [-4.2, 0, -10],
+  [4.2, 0, -5],
+  [-4.2, 0, 2],
+  [4.2, 0, 9],
+];
+
+const Lanterns = () => (
+  <>
+    {LANTERN_POSITIONS.map((pos, i) => (
+      <Lantern key={`lantern-${i}`} pos={pos} />
+    ))}
+  </>
+);
+
+// Pohon kecil di banks — versi simpel dari CenterTree, ramping &
+// dark night green. Frame visual untuk scene + dimensionality. Posisi
+// scatter di kedua tepi, jauh dari sungai supaya nggak nutupin lily
+// pads.
+const BankTree = ({ pos, scale = 1 }) => (
+  <group position={pos} scale={scale}>
+    <mesh position={[0, 0.8, 0]}>
+      <cylinderGeometry args={[0.08, 0.13, 1.6, 8]} />
+      <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+    </mesh>
+    {/* Foliage 2 cluster slightly offset */}
+    <mesh position={[0, 1.85, 0]}>
+      <sphereGeometry args={[0.55, 12, 10]} />
+      <meshStandardMaterial color="#2d3f1f" roughness={0.8} />
+    </mesh>
+    <mesh position={[0.18, 2.05, 0.05]}>
+      <sphereGeometry args={[0.4, 12, 10]} />
+      <meshStandardMaterial color="#384a28" roughness={0.8} />
+    </mesh>
+  </group>
+);
+
+const BANK_TREE_POSITIONS = [
+  { pos: [-7.5, 0, -13], scale: 1.1 },
+  { pos: [-8.5, 0, -3], scale: 0.95 },
+  { pos: [-7.0, 0, 7], scale: 1.05 },
+  { pos: [8.0, 0, -8], scale: 1.0 },
+  { pos: [7.5, 0, 4], scale: 1.1 },
+  { pos: [8.8, 0, 12], scale: 0.9 },
+];
+
+const BankTrees = () => (
+  <>
+    {BANK_TREE_POSITIONS.map((t, i) => (
+      <BankTree key={`bank-tree-${i}`} pos={t.pos} scale={t.scale} />
+    ))}
+  </>
+);
 
 // Sungai kecil yang mengalir sepanjang z-axis — sempit (6 wide) tapi
 // panjang (32). Deep night blue dengan metalness sedikit + roughness
@@ -466,10 +662,14 @@ const TelagaScene = ({
       intensity={0.25}
       color="#f4d8a0"
     />
+    <Starfield count={200} />
+    <Moon />
     <Banks />
     <River />
     <RiverStones />
     <GrassTufts />
+    <Lanterns />
+    <BankTrees />
     {pads.map((pad) => (
       <LilyWishPad
         key={pad.id}
