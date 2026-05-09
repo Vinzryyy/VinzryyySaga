@@ -7,16 +7,19 @@
  *   active       — dolly selesai; "tap untuk masuk" muncul; click di
  *                  mana saja akan mulai transisi
  *   transitioning — tween 3 detik: saturation -1 → 0, vignette 0.7 →
- *                  0.3, fog far 28 → 60 (dunia "membuka"). Light
- *                  intensity naik tipis. Teks pembuka fade-out.
+ *                  0.3, fog far 28 → 60. Teks pembuka fade-out.
  *   done         — overlay "warna telah kembali" + tombol lanjut. Karena
  *                  denah museum (Fase 2) belum dibangun, tombolnya untuk
  *                  sekarang restart R0 atau kembali ke /. Setelah Fase
  *                  2 jadi, ganti jadi navigate ke /museum/denah.
  *
- * Postprocessing pakai ref-based mutation, bukan controlled prop —
- * supaya tween-nya di-update di useFrame langsung tanpa trigger React
- * re-render setiap frame (60 re-render/detik = wasteful).
+ * Catatan teknis: postprocessing pakai controlled props (saturation,
+ * darkness sebagai prop biasa), BUKAN ref-based mutation. @react-three/
+ * postprocessing v3 forward ref ke Effect instance yang punya circular
+ * reference ke EffectComposer parent — ngakibatin crash circular JSON
+ * saat Vite HMR / DevTools coba serialize. Tween-nya dijalanin di
+ * parent component pakai requestAnimationFrame + setState. Overhead
+ * 60 re-render/detik selama 3 detik = bounded, nggak bermasalah.
  *
  * Performance budget: target 60fps desktop, 30fps+ mobile. Kalau drop,
  * kandidat downgrade: kurangi DustParticles count, matiin antialias,
@@ -124,10 +127,15 @@ const DustParticles = ({ count = 300 }) => {
 // Ease-out cubic supaya gerakannya kerasa "berjalan" — cepat di awal,
 // melambat saat dekat gerbang. Saat dolly selesai, panggil
 // onDollyComplete supaya parent bisa pindah stage idle → active.
+//
+// resetTrigger: saat parent set ulang ke nilai baru, useEffect reset
+// elapsed counter — supaya restart dari "Ulangi R0" mulai dolly dari
+// awal lagi tanpa harus remount Canvas.
 const DollyCamera = ({
   startZ = 18,
   endZ = 6,
   duration = DOLLY_DURATION,
+  resetTrigger = 0,
   onDollyComplete,
 }) => {
   const { camera } = useThree();
@@ -135,9 +143,11 @@ const DollyCamera = ({
   const completedRef = useRef(false);
 
   useEffect(() => {
+    elapsedRef.current = 0;
+    completedRef.current = false;
     camera.position.set(0, 1.6, startZ);
     camera.lookAt(0, 2, 0);
-  }, [camera, startZ]);
+  }, [resetTrigger, camera, startZ]);
 
   useFrame((_, delta) => {
     elapsedRef.current = Math.min(elapsedRef.current + delta, duration);
@@ -156,90 +166,19 @@ const DollyCamera = ({
   return null;
 };
 
-// Mutasi langsung uniform fog scene berdasarkan stage. Kalau pakai
-// <fog attach=...> dengan args reactive, Three.js bikin instance baru
-// tiap perubahan — boros. Mutasi `.far` di useFrame jauh lebih murah.
-const FogTuner = ({ stage }) => {
+// Mutasi langsung scene.fog.far berdasarkan target nilai dari parent.
+// Pakai useFrame supaya konsisten dengan render loop, dan nggak perlu
+// recreate fog instance setiap perubahan (yang akan terjadi kalau
+// kita pakai args reactive di <fog attach="fog" args={[...]} />).
+const FogTuner = ({ targetFar }) => {
   const { scene } = useThree();
-  const elapsedRef = useRef(0);
-
-  useEffect(() => {
-    if (stage !== 'transitioning') elapsedRef.current = 0;
-  }, [stage]);
-
-  useFrame((_, delta) => {
-    if (!scene.fog) return;
-    if (stage === 'transitioning') {
-      elapsedRef.current += delta;
-      const t = Math.min(elapsedRef.current / TRANSITION_DURATION, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      scene.fog.far = 28 + eased * 32; // 28 → 60
-    } else if (stage === 'idle' || stage === 'active') {
-      scene.fog.far = 28;
-    } else if (stage === 'done') {
-      scene.fog.far = 60;
-    }
+  useFrame(() => {
+    if (scene.fog) scene.fog.far = targetFar;
   });
-
   return null;
 };
 
-// Tween postprocessing uniforms di useFrame langsung — tanpa re-render
-// React. Saat stage='transitioning', interpolate saturation -1→0 dan
-// vignette 0.7→0.3 dengan ease-out cubic. Panggil onComplete sekali
-// saat tween selesai.
-const TransitionEffects = ({ stage, onTransitionComplete }) => {
-  const hueSatRef = useRef();
-  const vignetteRef = useRef();
-  const elapsedRef = useRef(0);
-  const completedRef = useRef(false);
-
-  useEffect(() => {
-    if (stage !== 'transitioning') {
-      elapsedRef.current = 0;
-      completedRef.current = false;
-    }
-  }, [stage]);
-
-  useFrame((_, delta) => {
-    if (!hueSatRef.current) return;
-
-    if (stage === 'idle' || stage === 'active') {
-      // Locked grayscale + vignette gelap
-      hueSatRef.current.saturation = -1;
-      if (vignetteRef.current) vignetteRef.current.darkness = 0.7;
-    } else if (stage === 'transitioning') {
-      elapsedRef.current += delta;
-      const t = Math.min(elapsedRef.current / TRANSITION_DURATION, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      hueSatRef.current.saturation = -1 + eased; // -1 → 0
-      if (vignetteRef.current) {
-        vignetteRef.current.darkness = 0.7 - eased * 0.4; // 0.7 → 0.3
-      }
-      if (t >= 1 && !completedRef.current) {
-        completedRef.current = true;
-        onTransitionComplete?.();
-      }
-    } else if (stage === 'done') {
-      hueSatRef.current.saturation = 0;
-      if (vignetteRef.current) vignetteRef.current.darkness = 0.3;
-    }
-  });
-
-  return (
-    <EffectComposer>
-      <HueSaturation ref={hueSatRef} saturation={-1} />
-      <Vignette
-        ref={vignetteRef}
-        eskil={false}
-        offset={0.25}
-        darkness={0.7}
-      />
-    </EffectComposer>
-  );
-};
-
-const R0Scene = ({ stage, onDollyComplete }) => (
+const R0Scene = ({ fogFar, resetTrigger, onDollyComplete }) => (
   <>
     <fog attach="fog" args={['#0a0a0c', 8, 28]} />
     <color attach="background" args={['#0a0a0c']} />
@@ -250,13 +189,15 @@ const R0Scene = ({ stage, onDollyComplete }) => (
       angle={0.65}
       penumbra={0.6}
       distance={25}
-      target-position={[0, 0, 0]}
     />
     <Ground />
     <Gate />
     <DustParticles />
-    <DollyCamera onDollyComplete={onDollyComplete} />
-    <FogTuner stage={stage} />
+    <DollyCamera
+      resetTrigger={resetTrigger}
+      onDollyComplete={onDollyComplete}
+    />
+    <FogTuner targetFar={fogFar} />
   </>
 );
 
@@ -264,12 +205,13 @@ const R0Scene = ({ stage, onDollyComplete }) => (
 // trigger transisi (stage='transitioning' atau 'done'). Dipisah dari
 // Canvas (di HTML overlay) supaya sharp di semua DPR + pakai font
 // Fraunces yang udah self-hosted.
-const OpeningText = ({ stage }) => {
+const OpeningText = ({ stage, resetTrigger }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
+    setVisible(false);
     const t = setTimeout(() => setVisible(true), 1200);
     return () => clearTimeout(t);
-  }, []);
+  }, [resetTrigger]);
   const shouldShow =
     visible && (stage === 'idle' || stage === 'active');
   return (
@@ -315,13 +257,13 @@ const TapHint = ({ visible }) => (
 // Setelah Fase 2 jadi, ganti jadi auto-navigate ke /museum/denah.
 const ExitOverlay = ({ visible, onRestart }) => (
   <div
-    className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1500 ${
+    className={`absolute inset-0 flex items-center justify-center transition-opacity duration-[1500ms] ${
       visible
         ? 'opacity-100 pointer-events-auto'
         : 'opacity-0 pointer-events-none'
     }`}
   >
-    <div className="text-center max-w-md px-6 backdrop-blur-sm bg-black/30 rounded-2xl py-10 px-8 border border-white/10">
+    <div className="text-center max-w-md px-6 backdrop-blur-sm bg-black/30 rounded-2xl py-10 border border-white/10">
       <p
         className="text-white text-xl md:text-2xl leading-relaxed mb-2"
         style={{
@@ -336,7 +278,7 @@ const ExitOverlay = ({ visible, onRestart }) => (
         <br />
         Ruangan-ruangan berikutnya sedang dibangun.
       </p>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+      <div className="flex flex-col sm:flex-row gap-3 justify-center px-6">
         <button
           type="button"
           onClick={onRestart}
@@ -365,8 +307,54 @@ const MuseumPage = () => {
   // Stage state machine — drives transition + UI overlays. Lihat header
   // file untuk semantik tiap stage.
   const [stage, setStage] = useState('idle');
-  // Force re-mount Canvas saat restart supaya dolly elapsed reset bersih
-  const [resetKey, setResetKey] = useState(0);
+  // Counter yang naik tiap restart — komponen anak yang perlu reset
+  // local state-nya (DollyCamera, OpeningText) listen ke ini.
+  const [resetTrigger, setResetTrigger] = useState(0);
+
+  // Postprocessing values driven dari state — di-tween via rAF di
+  // useEffect saat stage='transitioning'. Bukan ref mutation karena
+  // postprocessing v3 ref-forward bikin circular JSON crash di HMR.
+  const [saturation, setSaturation] = useState(-1);
+  const [vignette, setVignette] = useState(0.7);
+  const [fogFar, setFogFar] = useState(28);
+
+  // Tween postprocessing values berdasar stage. Reset instan untuk idle/
+  // active, animate selama TRANSITION_DURATION untuk transitioning,
+  // hold di nilai akhir untuk done.
+  useEffect(() => {
+    if (stage === 'idle' || stage === 'active') {
+      setSaturation(-1);
+      setVignette(0.7);
+      setFogFar(28);
+      return undefined;
+    }
+    if (stage === 'done') {
+      setSaturation(0);
+      setVignette(0.3);
+      setFogFar(60);
+      return undefined;
+    }
+    if (stage !== 'transitioning') return undefined;
+
+    let raf;
+    let start;
+    const tick = (now) => {
+      if (start === undefined) start = now;
+      const elapsed = (now - start) / 1000;
+      const t = Math.min(elapsed / TRANSITION_DURATION, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setSaturation(-1 + eased);
+      setVignette(0.7 - eased * 0.4);
+      setFogFar(28 + eased * 32);
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setStage('done');
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [stage]);
 
   const handleDollyComplete = () => {
     setStage((s) => (s === 'idle' ? 'active' : s));
@@ -376,13 +364,9 @@ const MuseumPage = () => {
     if (stage === 'active') setStage('transitioning');
   };
 
-  const handleTransitionComplete = () => {
-    setStage((s) => (s === 'transitioning' ? 'done' : s));
-  };
-
   const handleRestart = () => {
     setStage('idle');
-    setResetKey((k) => k + 1);
+    setResetTrigger((c) => c + 1);
   };
 
   return (
@@ -400,22 +384,25 @@ const MuseumPage = () => {
       >
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            key={resetKey}
             camera={{ fov: 55, position: [0, 1.6, 18] }}
             dpr={[1, 2]}
             gl={{ antialias: true, powerPreference: 'high-performance' }}
             shadows={false}
           >
-            <R0Scene stage={stage} onDollyComplete={handleDollyComplete} />
-            <TransitionEffects
-              stage={stage}
-              onTransitionComplete={handleTransitionComplete}
+            <R0Scene
+              fogFar={fogFar}
+              resetTrigger={resetTrigger}
+              onDollyComplete={handleDollyComplete}
             />
+            <EffectComposer>
+              <HueSaturation saturation={saturation} />
+              <Vignette eskil={false} offset={0.25} darkness={vignette} />
+            </EffectComposer>
             <Stats />
           </Canvas>
         </Suspense>
 
-        <OpeningText stage={stage} />
+        <OpeningText stage={stage} resetTrigger={resetTrigger} />
         <TapHint visible={stage === 'active'} />
         <ExitOverlay visible={stage === 'done'} onRestart={handleRestart} />
 
