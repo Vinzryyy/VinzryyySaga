@@ -1,7 +1,7 @@
 /**
  * Taman Kebaikan — Petak R3: Telaga Harapan.
  *
- * Wish panel 3D — taman kota di tepi danau di malam hari. Tiap
+ * Wish panel 3D — taman kota di tepi danau di siang hari. Tiap
  * teratai mekar di danau = 1 wish dari fans (sumber: SITE_CONFIG.
  * wishes.seeds + live Firebase via subscribeToWishes).
  *
@@ -10,22 +10,22 @@
  * gravel sepanjang shore, dermaga kayu kecil yang menjulur ke air,
  * dan pohon-pohon di perimeter.
  *
- * Visual:
- *   - Danau lebar (14 wide × 28 long) deep night blue dengan reflection
- *   - Banks rumput keliling 4 sisi (warm-dark green)
+ * Visual (daytime — referensi: foto town park user):
+ *   - Sky: soft blue cerah (#bdd6ea) dengan light fog jauh
+ *   - Danau lebar (14 wide × 28 long) bright water blue dengan
+ *     reflection langit
+ *   - Banks rumput hijau cerah keliling 4 sisi
  *   - Wooden bench di shore -x menghadap air (visitor seating)
  *   - Gravel walking path sepanjang shore -x parallel air
  *   - Wooden dock kecil menjulur dari shore +x ke air
  *   - Batu-batu di tepi danau (boundary stones)
- *   - Rumput tufts + bunga liar scatter di banks
- *   - 8-12 pohon di perimeter (BankTrees) — frame visual & atmosphere
- *   - 4 lentera di sepanjang shore — warm pointlights breaking cool
- *     moonlight
- *   - 1-11 lily pad dengan teratai mekar (cone petals + stamen),
- *     color variasi pink/peach/cream/lavender
- *   - Pads gentle drift downstream (z motion) + bobs idle
- *   - Kunang-kunang warm-yellow drift di taman
- *   - Moonlight cool spotlight + warm fill + bulan visible + bintang
+ *   - Rumput tufts scatter di banks
+ *   - 12 pohon di perimeter (BankTrees) — bright green foliage
+ *   - 4 lentera di sepanjang shore — decoratif (no glow at daytime)
+ *   - Dust motes putih drift halus = particle highlight di sun beam
+ *   - 1-11 lily pad dengan teratai mekar pink/peach/cream/lavender
+ *   - Pads gentle drift downstream + bobs idle
+ *   - Bright sun directional dari atas warmer angle + ambient cerah
  *
  * Wish pertama (paling baru / featured) jadi teratai besar di tengah
  * danau; sisanya scatter di sekelilingnya dengan radius variasi.
@@ -293,43 +293,42 @@ const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => 
   );
 };
 
-// Kunang-kunang — partikel kecil dengan emissive warm-yellow yang
-// drift pelan di sekitar telaga. Posisi awal random, motion gentle
-// up-down + horizontal sway (sin wave per partikel). Reset jarang
-// karena range Y mereka cukup luas.
-const Fireflies = ({ count = 30 }) => {
+// Kelopak bunga jatuh — falling petal particles untuk daytime
+// atmosphere. Soft pink/cream warna, drift turun pelan dengan sway
+// horizontal tipis. Reset ke atas saat sampai air. Pakai
+// BufferGeometry 1 draw call.
+const FallingPetals = ({ count = 60 }) => {
   const ref = useRef();
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 4 + Math.random() * 6;
-      arr[i * 3] = Math.cos(angle) * radius;
-      arr[i * 3 + 1] = 0.3 + Math.random() * 2.5;
-      arr[i * 3 + 2] = Math.sin(angle) * radius;
+      arr[i * 3] = (Math.random() - 0.5) * 30;
+      arr[i * 3 + 1] = Math.random() * 14;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 30;
     }
     return arr;
   }, [count]);
 
-  // Phase offset per partikel — sin wave punya phase berbeda biar
-  // gerakan-nya nggak kelihatan kayak grid.
-  const phases = useMemo(() => {
-    const arr = new Float32Array(count);
+  const velocities = useMemo(() => {
+    const arr = new Float32Array(count * 2);
     for (let i = 0; i < count; i++) {
-      arr[i] = Math.random() * Math.PI * 2;
+      arr[i * 2] = -0.12 - Math.random() * 0.08;
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.04;
     }
     return arr;
   }, [count]);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
     if (!ref.current) return;
-    const t = state.clock.elapsedTime;
     const arr = ref.current.geometry.attributes.position.array;
     for (let i = 0; i < count; i++) {
-      const phase = phases[i];
-      // gentle sway: 1cm horizontal + 4cm vertical
-      arr[i * 3] += Math.sin(t * 0.4 + phase) * 0.005;
-      arr[i * 3 + 1] += Math.cos(t * 0.5 + phase * 1.3) * 0.012;
+      arr[i * 3] += velocities[i * 2 + 1] * delta * 60;
+      arr[i * 3 + 1] += velocities[i * 2] * delta;
+      if (arr[i * 3 + 1] < 0.3) {
+        arr[i * 3] = (Math.random() - 0.5) * 30;
+        arr[i * 3 + 1] = 12 + Math.random() * 4;
+        arr[i * 3 + 2] = (Math.random() - 0.5) * 30;
+      }
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
   });
@@ -345,10 +344,10 @@ const Fireflies = ({ count = 30 }) => {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.09}
-        color="#f4e8a0"
+        size={0.13}
+        color="#f4c8d8"
         transparent
-        opacity={0.85}
+        opacity={0.7}
         sizeAttenuation
         depthWrite={false}
       />
@@ -356,70 +355,44 @@ const Fireflies = ({ count = 30 }) => {
   );
 };
 
-// Bintang-bintang di sky dome — 200 partikel kecil scatter di range
-// y tinggi (15..28), x/z luas (±40). Static (no motion). Color
-// putih-biru lembut. Pakai BufferGeometry + Points, 1 draw call.
-// Twinkle effect via subtle opacity oscillation per partikel.
-const Starfield = ({ count = 200 }) => {
-  const ref = useRef();
-  const positions = useMemo(() => {
-    const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      // Hemisphere distribution — bintang lebih banyak di langit
-      // atas, jarang di horizon. Pakai sqrt(random) untuk denser
-      // di langit tinggi.
-      const r = 35 + Math.random() * 10;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(0.3 + Math.random() * 0.7); // 0.3..1
-      arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      arr[i * 3 + 1] = r * Math.cos(phi); // y always positive (up)
-      arr[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-    }
-    return arr;
-  }, [count]);
-
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          array={positions}
-          count={count}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.18}
-        color="#e0eaf5"
-        transparent
-        opacity={0.85}
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
-  );
-};
-
-// Bulan sebagai sphere visible di sky — emissive cool white-blue
-// supaya jadi point of light terang yang nge-cast aura warmth ke
-// scene. Posisi tinggi & sedikit miring biar nyambung sama spotlight
-// moonlight yang sudah ada.
-const Moon = () => (
-  <mesh position={[6, 22, -10]}>
-    <sphereGeometry args={[1.1, 24, 16]} />
-    <meshStandardMaterial
-      color="#f4f4ec"
-      emissive="#cfe0f0"
-      emissiveIntensity={1.2}
-      roughness={0.4}
-    />
-  </mesh>
+// Awan-awan kecil di langit — 5 cloud puff sebagai sphere putih
+// dengan slight emissive warmth. Posisi tinggi (y=15..22) dan jauh
+// (z=-25..15). Rotasi per cloud untuk variasi shape, scale 1-2x.
+// Kasih sense of "langit ada isi", bukan flat color.
+const CLOUD_POSITIONS = [
+  { pos: [-10, 18, -22], scale: [2.2, 1.0, 1.5] },
+  { pos: [12, 20, -18], scale: [2.0, 0.9, 1.6] },
+  { pos: [-2, 22, -28], scale: [2.5, 1.1, 1.8] },
+  { pos: [18, 17, 0], scale: [1.8, 0.9, 1.4] },
+  { pos: [-18, 19, 5], scale: [2.0, 1.0, 1.5] },
+];
+const Cloud = ({ pos, scale }) => (
+  <group position={pos} scale={scale}>
+    <mesh>
+      <sphereGeometry args={[1.5, 12, 10]} />
+      <meshStandardMaterial color="#ffffff" roughness={1} />
+    </mesh>
+    <mesh position={[1.0, 0.1, 0.2]}>
+      <sphereGeometry args={[1.1, 12, 10]} />
+      <meshStandardMaterial color="#ffffff" roughness={1} />
+    </mesh>
+    <mesh position={[-0.9, -0.1, 0.1]}>
+      <sphereGeometry args={[1.0, 12, 10]} />
+      <meshStandardMaterial color="#ffffff" roughness={1} />
+    </mesh>
+  </group>
+);
+const Clouds = () => (
+  <>
+    {CLOUD_POSITIONS.map((c, i) => (
+      <Cloud key={`cloud-${i}`} pos={c.pos} scale={c.scale} />
+    ))}
+  </>
 );
 
 // Lentera kayu kecil di tepi sungai — tiang vertikal + body lentera
-// box kecil + bola emissive di dalam + pointLight warm dengan range
-// terbatas. Lentera ngasih spot warm yang ngebreak monotony cool
-// moonlight, dan ngasih sense of "taman ditata manusia".
+// box + atap. Daytime mode: nggak ada glow + nggak ada pointlight
+// (lampu kan mati siang hari). Tetap berdiri sebagai dekorasi taman.
 const Lantern = ({ pos }) => (
   <group position={pos}>
     {/* Tiang */}
@@ -430,36 +403,13 @@ const Lantern = ({ pos }) => (
     {/* Body lentera */}
     <mesh position={[0, 1.65, 0]}>
       <boxGeometry args={[0.28, 0.32, 0.28]} />
-      <meshStandardMaterial
-        color="#2a1d14"
-        roughness={0.9}
-        transparent
-        opacity={0.85}
-      />
+      <meshStandardMaterial color="#2a1d14" roughness={0.9} />
     </mesh>
     {/* Atap lentera (piramida tipis) */}
     <mesh position={[0, 1.86, 0]} rotation={[0, Math.PI / 4, 0]}>
       <coneGeometry args={[0.22, 0.12, 4]} />
       <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
     </mesh>
-    {/* Glow inside — bola kecil emissive warm */}
-    <mesh position={[0, 1.65, 0]}>
-      <sphereGeometry args={[0.1, 10, 8]} />
-      <meshStandardMaterial
-        color="#f4c870"
-        emissive="#f4c870"
-        emissiveIntensity={2.0}
-      />
-    </mesh>
-    {/* Pointlight warm dengan distance terbatas — ngasih spot ke
-        sekitar lentera, nggak nyampe ke seberang sungai. */}
-    <pointLight
-      position={[0, 1.65, 0]}
-      color="#f4c870"
-      intensity={0.7}
-      distance={4.5}
-      decay={1.8}
-    />
   </group>
 );
 
@@ -488,16 +438,16 @@ const BankTree = ({ pos, scale = 1 }) => (
   <group position={pos} scale={scale}>
     <mesh position={[0, 0.8, 0]}>
       <cylinderGeometry args={[0.08, 0.13, 1.6, 8]} />
-      <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+      <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
     </mesh>
-    {/* Foliage 2 cluster slightly offset */}
+    {/* Foliage 2 cluster bright green untuk daytime */}
     <mesh position={[0, 1.85, 0]}>
       <sphereGeometry args={[0.55, 12, 10]} />
-      <meshStandardMaterial color="#2d3f1f" roughness={0.8} />
+      <meshStandardMaterial color="#5a8045" roughness={0.8} />
     </mesh>
     <mesh position={[0.18, 2.05, 0.05]}>
       <sphereGeometry args={[0.4, 12, 10]} />
-      <meshStandardMaterial color="#384a28" roughness={0.8} />
+      <meshStandardMaterial color="#6e9358" roughness={0.8} />
     </mesh>
   </group>
 );
@@ -539,9 +489,9 @@ const River = () => (
   <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
     <planeGeometry args={[RIVER_WIDTH, RIVER_LENGTH]} />
     <meshStandardMaterial
-      color="#0d1f3a"
-      roughness={0.5}
-      metalness={0.45}
+      color="#5a8aaf"
+      roughness={0.4}
+      metalness={0.3}
     />
   </mesh>
 );
@@ -552,10 +502,10 @@ const River = () => (
 // di atas water level.
 const Banks = () => (
   <>
-    {/* Lapangan utama — frame visual luar */}
+    {/* Lapangan utama — frame visual luar, bright grass green */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.07, 0]}>
       <planeGeometry args={[70, 70]} />
-      <meshStandardMaterial color="#1f2a1a" roughness={1} />
+      <meshStandardMaterial color="#5a8045" roughness={1} />
     </mesh>
     {/* Bank kiri (-x) — lebih lebar karena di sini ada bench + path */}
     <mesh
@@ -563,7 +513,7 @@ const Banks = () => (
       position={[-(RIVER_WIDTH / 2 + 5), -0.04, 0]}
     >
       <planeGeometry args={[10, RIVER_LENGTH + 2]} />
-      <meshStandardMaterial color="#2a3525" roughness={1} />
+      <meshStandardMaterial color="#6a9050" roughness={1} />
     </mesh>
     {/* Bank kanan (+x) — sini ada dock */}
     <mesh
@@ -571,7 +521,7 @@ const Banks = () => (
       position={[RIVER_WIDTH / 2 + 5, -0.04, 0]}
     >
       <planeGeometry args={[10, RIVER_LENGTH + 2]} />
-      <meshStandardMaterial color="#2a3525" roughness={1} />
+      <meshStandardMaterial color="#6a9050" roughness={1} />
     </mesh>
     {/* Bank atas (-z) */}
     <mesh
@@ -579,7 +529,7 @@ const Banks = () => (
       position={[0, -0.04, -(RIVER_LENGTH / 2 + 4)]}
     >
       <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
-      <meshStandardMaterial color="#2a3525" roughness={1} />
+      <meshStandardMaterial color="#6a9050" roughness={1} />
     </mesh>
     {/* Bank bawah (+z) */}
     <mesh
@@ -587,7 +537,7 @@ const Banks = () => (
       position={[0, -0.04, RIVER_LENGTH / 2 + 4]}
     >
       <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
-      <meshStandardMaterial color="#2a3525" roughness={1} />
+      <meshStandardMaterial color="#6a9050" roughness={1} />
     </mesh>
   </>
 );
@@ -741,23 +691,23 @@ const RiverStones = () => (
 // kasih texture ke lapangan. Posisi deterministik per index.
 const TUFT_POSITIONS = [
   // Bank kiri — skip area path (x=-8.5..-7.7) dan bench (-9, z=-2)
-  { pos: [-9.5, 0, -11], color: '#3a4d2a' },
-  { pos: [-10.5, 0, -6], color: '#445537' },
-  { pos: [-9.8, 0, 3], color: '#3a4d2a' },
-  { pos: [-10.2, 0, 9], color: '#445537' },
-  { pos: [-9.0, 0, 13], color: '#384a28' },
+  { pos: [-9.5, 0, -11], color: '#5a8045' },
+  { pos: [-10.5, 0, -6], color: '#6e9358' },
+  { pos: [-9.8, 0, 3], color: '#5a8045' },
+  { pos: [-10.2, 0, 9], color: '#6e9358' },
+  { pos: [-9.0, 0, 13], color: '#4f7438' },
   // Bank kanan — skip dock area (z=4)
-  { pos: [9.5, 0, -13], color: '#445537' },
-  { pos: [10.0, 0, -8], color: '#3a4d2a' },
-  { pos: [9.8, 0, -2], color: '#384a28' },
-  { pos: [10.5, 0, 9], color: '#3a4d2a' },
-  { pos: [9.0, 0, 14], color: '#445537' },
+  { pos: [9.5, 0, -13], color: '#6e9358' },
+  { pos: [10.0, 0, -8], color: '#5a8045' },
+  { pos: [9.8, 0, -2], color: '#4f7438' },
+  { pos: [10.5, 0, 9], color: '#5a8045' },
+  { pos: [9.0, 0, 14], color: '#6e9358' },
   // Bank atas (-z)
-  { pos: [-2, 0, -16], color: '#3a4d2a' },
-  { pos: [4, 0, -17], color: '#445537' },
+  { pos: [-2, 0, -16], color: '#5a8045' },
+  { pos: [4, 0, -17], color: '#6e9358' },
   // Bank bawah (+z)
-  { pos: [-3, 0, 16.5], color: '#384a28' },
-  { pos: [2, 0, 17], color: '#3a4d2a' },
+  { pos: [-3, 0, 16.5], color: '#4f7438' },
+  { pos: [2, 0, 17], color: '#5a8045' },
 ];
 
 const GrassTuft = ({ pos, color }) => (
@@ -793,28 +743,25 @@ const TelagaScene = ({
   onPadClick,
 }) => (
   <>
-    <fog attach="fog" args={['#0a1320', 14, 38]} />
-    <color attach="background" args={['#0a1320']} />
-    <ambientLight intensity={0.32} color="#a8c5e0" />
-    {/* Moonlight — cool spotlight dari atas + sedikit miring,
-        sumber utama "cahaya" telaga. */}
-    <spotLight
-      position={[2, 16, 2]}
-      target-position={[0, 0, 0]}
-      intensity={1.2}
-      angle={0.7}
-      penumbra={0.7}
-      color="#cfe0f0"
-      distance={30}
-    />
-    {/* Warm fill dari low angle — tribute untuk fireflies */}
+    {/* Light fog jauh — kerasa kayak haze siang hari di kejauhan,
+        bukan dense night fog */}
+    <fog attach="fog" args={['#bdd6ea', 25, 65]} />
+    <color attach="background" args={['#bdd6ea']} />
+    {/* Bright daytime ambient */}
+    <ambientLight intensity={0.85} color="#ffffff" />
+    {/* Sun directional dari high angle warm white */}
     <directionalLight
-      position={[-4, 2, -3]}
-      intensity={0.25}
-      color="#f4d8a0"
+      position={[10, 18, 6]}
+      intensity={1.4}
+      color="#fff4dc"
     />
-    <Starfield count={200} />
-    <Moon />
+    {/* Sky bounce fill — soft cool light dari arah berlawanan */}
+    <directionalLight
+      position={[-6, 8, -4]}
+      intensity={0.45}
+      color="#cfe0f0"
+    />
+    <Clouds />
     <Banks />
     <WalkPath />
     <River />
@@ -824,6 +771,7 @@ const TelagaScene = ({
     <Dock />
     <Lanterns />
     <BankTrees />
+    <FallingPetals count={60} />
     {pads.map((pad) => (
       <LilyWishPad
         key={pad.id}
@@ -834,7 +782,6 @@ const TelagaScene = ({
         onClick={onPadClick}
       />
     ))}
-    <Fireflies count={30} />
     <OrbitControls
       target={[0, 0, 0]}
       enableZoom
@@ -960,15 +907,15 @@ const WishOverlay = ({ pad, onClose }) => {
 // Palet teratai bloom — variasi pink/peach/cream/lavender supaya
 // telaga kerasa kayak ladang teratai mekar, bukan stamping.
 const BLOOM_COLORS = [
-  '#f4c8d8', // soft pink
-  '#f4d8c0', // peach cream
-  '#f0e0d4', // warm cream
-  '#e8c8e0', // lavender pink
-  '#f4b8c4', // dusty rose
-  '#e8d8c0', // sand cream
+  '#f4a8c0', // pink
+  '#f4c890', // peach
+  '#f5e0c0', // warm cream
+  '#d4a8e0', // lavender
+  '#f48ba0', // dusty rose
+  '#f4d870', // sunny yellow
 ];
-// Daun teratai — variasi hijau gelap (malam) dengan slight tonal shift
-const LEAF_COLORS = ['#3a4d2a', '#2d3f1f', '#445537', '#384a28'];
+// Daun teratai — variasi hijau cerah (siang) untuk match daytime mood
+const LEAF_COLORS = ['#5a8045', '#6e9358', '#4f7438', '#65884d'];
 
 // Ambil daftar wishes — merge seeds + Firebase (kalau ada). Sort
 // newest-first by date, take top N supaya pad nggak crowded. Satu
