@@ -1047,107 +1047,116 @@ const JumpingFishes = () => (
   </>
 );
 
-// Kapal kertas (paper boat) — origami-like dengan 2 plane segitiga
-// yang di-tilt jadi shape kapal. Subtle bob + slow drift downstream
-// (mirror pattern lily pads). 3 kapal kertas drifting di air, fungsi
-// thematic untuk wish wall — "harapan yang hanyut".
+// Burung merpati lagi makan — pigeon flock di sekitar picnic table
+// (tempat manusia jatuhin remah). Body ellipsoid abu-abu + sayap gelap
+// + paruh + kaki orange. Animasi: head pecking — group head berputar
+// di base of neck (rotation.z) supaya beak swing turun & naik.
 //
-// Geometry custom (shared antar semua boat instance untuk efisiensi):
-// - Hull: canoe shape via 6 vertex (bow top peak, stern top peak,
-//   left/right waterline, bow/stern waterline) → 8 triangle (2 wall
-//   atas + 4 slope ujung + 2 bottom). Bentuknya recognizable sebagai
-//   perahu kertas — bow & stern lancip naik ke atas, tengah lebar.
-// - Sail peak: 1 triangle perpendicular ke long axis di tengah hull,
-//   mirip lipatan kertas yang naik ke atas (signature origami fold).
-const ORIGAMI_HULL_GEOM = (() => {
-  const geom = new THREE.BufferGeometry();
-  const verts = new Float32Array([
-    0, 0.20, -0.32,   // 0: bow top peak (lancip naik)
-    0, 0.20, 0.32,    // 1: stern top peak (lancip naik)
-    -0.16, 0, 0,      // 2: left middle (waterline)
-    0.16, 0, 0,       // 3: right middle (waterline)
-    0, 0, -0.32,      // 4: bow waterline
-    0, 0, 0.32,       // 5: stern waterline
-  ]);
-  geom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
-  geom.setIndex([
-    0, 1, 3,   // right upper wall (ridge bow-stern → right edge)
-    0, 2, 1,   // left upper wall
-    0, 3, 4,   // bow right slope (ke bow waterline)
-    0, 4, 2,   // bow left slope
-    1, 5, 3,   // stern right slope
-    1, 2, 5,   // stern left slope
-    4, 3, 5,   // bottom right
-    4, 5, 2,   // bottom left
-  ]);
-  geom.computeVertexNormals();
-  return geom;
-})();
-
-const ORIGAMI_SAIL_GEOM = (() => {
-  const geom = new THREE.BufferGeometry();
-  const verts = new Float32Array([
-    -0.12, 0.05, 0,   // left base
-    0.12, 0.05, 0,    // right base
-    0, 0.32, 0,       // peak (lebih tinggi dari hull ridge 0.20)
-  ]);
-  geom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
-  geom.setIndex([0, 1, 2]);
-  geom.computeVertexNormals();
-  return geom;
-})();
-
-const PaperBoat = ({ def }) => {
-  const groupRef = useRef();
-  const driftZRef = useRef(0);
-  useFrame((state, delta) => {
-    if (!groupRef.current) return;
-    driftZRef.current += 0.02 * delta;
-    let z = def.start[2] + driftZRef.current;
-    if (z > 13) {
-      driftZRef.current -= 26;
-      z = def.start[2] + driftZRef.current;
-    }
+// Body axis lokal: head di +x, tail di -x. Outer rotation.y = facing.
+// Body lifted y=0.13 supaya feet (cylinder length 0.08 di y=-0.10)
+// nempel di ground.
+const Pigeon = ({ def }) => {
+  const headRef = useRef();
+  useFrame((state) => {
+    if (!headRef.current) return;
     const t = state.clock.elapsedTime;
-    groupRef.current.position.x = def.start[0] + Math.sin(t * 0.5 + def.phase) * 0.08;
-    groupRef.current.position.y = 0.06 + Math.sin(t * 0.8 + def.phase) * 0.025;
-    groupRef.current.position.z = z;
-    groupRef.current.rotation.z = Math.sin(t * 0.6 + def.phase) * 0.06;
-    // Slight yaw drift — perahu nggak lurus banget (def.yaw base + osilasi)
-    groupRef.current.rotation.y = (def.yaw || 0) + Math.sin(t * 0.4 + def.phase) * 0.04;
+    const localT = (t + def.offset) % def.cycle;
+    let pitch = 0;
+    if (localT < def.peckDuration) {
+      // Sin arc — head nukik turun lalu naik (peak rotation di tengah)
+      const u = localT / def.peckDuration;
+      pitch = Math.sin(u * Math.PI) * 1.3; // peak ~74° pitch down
+    }
+    headRef.current.rotation.z = -pitch;
   });
+  const bodyColor = def.color || '#8a8a92';
   return (
-    <group ref={groupRef}>
-      {/* Hull canoe shape — 8 triangle, double-sided */}
-      <mesh geometry={ORIGAMI_HULL_GEOM} castShadow>
-        <meshStandardMaterial
-          color="#fff8ea"
-          roughness={0.85}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      {/* Center sail peak — lipatan kertas ke atas, sedikit lebih warm */}
-      <mesh geometry={ORIGAMI_SAIL_GEOM}>
-        <meshStandardMaterial
-          color="#f4ecd8"
-          roughness={0.9}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+    <group position={def.pos} rotation={[0, def.facing, 0]}>
+      <group position={[0, 0.13, 0]}>
+        {/* Body — ellipsoid abu */}
+        <mesh scale={[0.18, 0.13, 0.13]} castShadow>
+          <sphereGeometry args={[1, 14, 10]} />
+          <meshStandardMaterial color={bodyColor} roughness={0.85} />
+        </mesh>
+        {/* Sayap kiri (-z) — slightly darker, tucked di sisi body */}
+        <mesh
+          position={[-0.02, 0.04, -0.10]}
+          scale={[0.16, 0.09, 0.07]}
+          rotation={[0, 0, 0.1]}
+        >
+          <sphereGeometry args={[1, 10, 8]} />
+          <meshStandardMaterial color="#5a5a64" roughness={0.85} />
+        </mesh>
+        {/* Sayap kanan (+z) */}
+        <mesh
+          position={[-0.02, 0.04, 0.10]}
+          scale={[0.16, 0.09, 0.07]}
+          rotation={[0, 0, 0.1]}
+        >
+          <sphereGeometry args={[1, 10, 8]} />
+          <meshStandardMaterial color="#5a5a64" roughness={0.85} />
+        </mesh>
+        {/* Tail — cone segitiga miring ke atas dikit di belakang */}
+        <mesh position={[-0.20, 0.04, 0]} rotation={[0, 0, 1.4]} castShadow>
+          <coneGeometry args={[0.06, 0.14, 4]} />
+          <meshStandardMaterial color="#4a4a52" roughness={0.85} />
+        </mesh>
+        {/* Head group — pivot di base of neck untuk peck rotation */}
+        <group ref={headRef} position={[0.14, 0.04, 0]}>
+          {/* Neck — silinder pendek miring ke depan-atas */}
+          <mesh position={[0.03, 0.05, 0]} rotation={[0, 0, -0.6]}>
+            <cylinderGeometry args={[0.035, 0.045, 0.10, 8]} />
+            <meshStandardMaterial color={bodyColor} roughness={0.85} />
+          </mesh>
+          {/* Kepala */}
+          <mesh position={[0.08, 0.10, 0]} castShadow>
+            <sphereGeometry args={[0.055, 12, 10]} />
+            <meshStandardMaterial color={bodyColor} roughness={0.85} />
+          </mesh>
+          {/* Paruh — cone kecil oranye-cokelat */}
+          <mesh position={[0.13, 0.09, 0]} rotation={[0, 0, -Math.PI / 2]}>
+            <coneGeometry args={[0.015, 0.045, 6]} />
+            <meshStandardMaterial color="#3a2618" roughness={0.7} />
+          </mesh>
+          {/* Mata kiri & kanan */}
+          <mesh position={[0.10, 0.115, 0.04]}>
+            <sphereGeometry args={[0.011, 6, 6]} />
+            <meshStandardMaterial color="#1a0e08" />
+          </mesh>
+          <mesh position={[0.10, 0.115, -0.04]}>
+            <sphereGeometry args={[0.011, 6, 6]} />
+            <meshStandardMaterial color="#1a0e08" />
+          </mesh>
+        </group>
+        {/* Kaki — 2 silinder oranye tipis, panjang 0.08 nempel ke ground */}
+        <mesh position={[0.02, -0.10, 0.04]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.08, 6]} />
+          <meshStandardMaterial color="#d4775a" roughness={0.6} />
+        </mesh>
+        <mesh position={[0.02, -0.10, -0.04]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.08, 6]} />
+          <meshStandardMaterial color="#d4775a" roughness={0.6} />
+        </mesh>
+      </group>
     </group>
   );
 };
 
-const PAPER_BOAT_DEFS = [
-  { start: [-2.2, 0, -8], phase: 0, yaw: 0.15 },
-  { start: [2.5, 0, 0], phase: 2.0, yaw: -0.2 },
-  { start: [-1.0, 0, 7], phase: 4.0, yaw: 0.08 },
+// Cluster di sekitar picnic table (world (10, 0, 7)) — pigeon emang
+// suka kumpul di tempat orang piknik buat dapet remah. Cycle dan
+// offset di-stagger supaya nggak peck serempak. 1 burung dengan tone
+// lebih gelap untuk variety.
+const PIGEON_DEFS = [
+  { pos: [9.0, 0, 6.3], facing: -0.5, cycle: 4.2, offset: 0, peckDuration: 1.0 },
+  { pos: [10.6, 0, 8.2], facing: 2.4, cycle: 5.0, offset: 1.5, peckDuration: 1.1, color: '#7a7a85' },
+  { pos: [9.5, 0, 8.4], facing: -1.8, cycle: 4.7, offset: 3.0, peckDuration: 0.95 },
+  { pos: [11.1, 0, 6.4], facing: 1.5, cycle: 4.5, offset: 2.2, peckDuration: 1.05, color: '#92928e' },
 ];
 
-const PaperBoats = () => (
+const Pigeons = () => (
   <>
-    {PAPER_BOAT_DEFS.map((def, i) => (
-      <PaperBoat key={`boat-${i}`} def={def} />
+    {PIGEON_DEFS.map((def, i) => (
+      <Pigeon key={`pigeon-${i}`} def={def} />
     ))}
   </>
 );
@@ -2601,7 +2610,7 @@ const TelagaScene = ({
     <BankTrees />
     <Ducks />
     <JumpingFishes />
-    <PaperBoats />
+    <Pigeons />
     <Butterflies />
     <Dragonflies />
     <Fireflies count={isMobile ? 8 : 14} />
