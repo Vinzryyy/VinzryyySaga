@@ -45,11 +45,17 @@ const Page26 = lazy(() => import('./pages/Page26'));
 // kembalikan Route, dan revert hide di siteConfig nav + Page26 footer.
 // const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
-// Museum Kebaikan — fase 1 (R0) dan fase 2 (Denah). Lazy-loaded supaya
-// bundle Three.js + R3F (~250KB gzipped) hanya di-fetch saat user buka
-// rute /museum/*, nggak nambah berat first-paint halaman lain.
-const MuseumPage = lazy(() => import('./pages/Museum'));
-const MuseumDenahPage = lazy(() => import('./pages/MuseumDenah'));
+// Taman Kebaikan — fase 1 (Padang Tandus / R0 entrance) dan fase 2
+// (Peta Taman / hub denah). Lazy-loaded supaya bundle Three.js + R3F
+// (~250KB gzipped) hanya di-fetch saat user buka rute /taman/*, nggak
+// nambah berat first-paint halaman lain. Sebelumnya bernama "Museum
+// Kebaikan" — di-rename ke Taman supaya konsisten sama identitas
+// Armeniaca (= Prunus armeniaca, pohon aprikot) dan tone seitansai
+// (= perayaan ulang tahun yang tumbuh, bukan monumen perpisahan).
+// Route /museum/* di-redirect ke /taman/* untuk backward-compat link
+// yang udah pernah di-share.
+const TamanPage = lazy(() => import('./pages/Taman'));
+const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -115,8 +121,14 @@ function AppShell() {
                 pre-announce — keeps any pre-shared links from 404'ing. */}
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
             <Route path="/vivo" element={<VivoPage />} />
-            <Route path="/museum" element={<MuseumPage />} />
-            <Route path="/museum/denah" element={<MuseumDenahPage />} />
+            <Route path="/taman" element={<TamanPage />} />
+            <Route path="/taman/peta" element={<TamanPetaPage />} />
+            {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
+            <Route path="/museum" element={<Navigate to="/taman" replace />} />
+            <Route
+              path="/museum/denah"
+              element={<Navigate to="/taman/peta" replace />}
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

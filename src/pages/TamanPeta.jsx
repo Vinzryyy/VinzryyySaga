@@ -1,25 +1,29 @@
 /**
- * Museum Kebaikan — Fase 2, Denah Museum.
+ * Taman Kebaikan — Fase 2, Peta Taman.
  *
- * Hub navigasi setelah pengunjung lewat R0 (World Without Kindness).
- * Layout: 6 ruangan low-poly disusun heksagonal mengelilingi pohon
- * aprikot di tengah. Kamera isometrik (perspektif sudut tinggi)
- * supaya kerasa "memandang denah dari atas" — referensi visual:
- * Monument Valley, Florence.
+ * Hub navigasi setelah pengunjung lewat Padang Tandus (Taman.jsx, R0).
+ * Layout: 6 petak kebun low-poly disusun heksagonal mengelilingi pohon
+ * aprikot di tengah. Kamera isometrik (perspektif sudut tinggi) supaya
+ * kerasa "memandang peta taman dari atas" — referensi visual: Monument
+ * Valley, Florence.
  *
- * Round 2A: scene statis, label drei Html melayang di tiap ruangan.
- * Round 2B: hover lifts box + emissive glow + label highlights;
- *   click buka overlay info ruangan; cursor pointer saat hover.
- * Round 2C (file ini): kamera fly-in 2.5 detik dari posisi rendah
- *   ke isometrik saat halaman mount (kerasa "muncul" dari R0).
- *   OrbitControls limited (rotate horizontal terbatas, zoom clamp,
- *   no pan) aktif setelah fly-in selesai. Progress markers — tiap
- *   kali user buka overlay ruangan, ID ruangan disimpan di
- *   localStorage; label dapet checkmark "✓" untuk yang udah dilihat.
+ * Sebelumnya bernama Denah Museum (6 ruangan). Di-rebrand ke Taman
+ * supaya konsisten sama identitas Armeniaca (= Prunus armeniaca, pohon
+ * aprikot) dan tone seitansai (= perayaan ulang tahun yang tumbuh).
+ * Konsep visual: shape petak rounded cylinder hexagonal (gundukan
+ * rumput, bukan box museum) + palette twilight evening + grass green.
  *
- * Color palette: warm aprikot tones (sesuai identitas Armeniaca).
- * Background: dark-warm, bukan murni hitam — supaya kerasa "rumah",
- * bukan "void".
+ * Fitur (carry-over dari Denah Museum):
+ * - Kamera fly-in 2.5 detik dari posisi rendah ke isometrik saat
+ *   halaman mount (kerasa "bangkit" dari Padang Tandus)
+ * - OrbitControls limited (rotate horizontal terbatas, vertikal
+ *   45°-72°, zoom 10-20, no pan) aktif setelah fly-in selesai
+ * - Hover lift + emissive glow + label highlights
+ * - Click → overlay info petak dengan blur backdrop
+ * - Progress markers via localStorage: petak yang udah dibuka
+ *   overlay-nya dapet checkmark ✓ + counter footer. Key 'taman-petak-
+ *   previewed' (post-rebrand); key legacy 'museum-rooms-previewed'
+ *   di-merge sekali waktu init supaya progress user nggak hilang.
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
@@ -44,17 +48,23 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-// localStorage key untuk track ruangan yang udah dibuka overlay-nya.
-// Set of room IDs (string[]) di-serialize ke JSON. Reset cuma kalau
-// user clear storage manual atau pindah profile.
-const PREVIEWED_KEY = 'museum-rooms-previewed';
+// localStorage key untuk track petak yang udah dibuka overlay-nya.
+// Set of petak IDs (string[]) di-serialize ke JSON. Key legacy
+// dari era 'Museum Kebaikan' di-merge sekali saat init supaya
+// progress user yang udah jelajahin sebelum rebrand nggak hilang.
+const PREVIEWED_KEY = 'taman-petak-previewed';
+const LEGACY_PREVIEWED_KEY = 'museum-rooms-previewed';
 
 const readPreviewed = () => {
   try {
     const raw = localStorage.getItem(PREVIEWED_KEY);
-    if (!raw) return new Set();
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? new Set(parsed) : new Set();
+    const legacyRaw = localStorage.getItem(LEGACY_PREVIEWED_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    const legacyParsed = legacyRaw ? JSON.parse(legacyRaw) : [];
+    return new Set([
+      ...(Array.isArray(parsed) ? parsed : []),
+      ...(Array.isArray(legacyParsed) ? legacyParsed : []),
+    ]);
   } catch {
     return new Set();
   }
@@ -77,60 +87,65 @@ const FLY_IN_DURATION = 2.5;
 const ORBIT_TARGET = [0, 1, 0];
 
 const HEX_RADIUS = 5;
-const ROOMS = [
+// 6 petak taman, posisi heksagonal di sekeliling pohon aprikot.
+// Setiap petak punya tema garden yang sesuai isinya. ID 'r1'-'r6'
+// dipertahankan supaya progress lama di localStorage (key legacy
+// 'museum-rooms-previewed') tetap kepake — ID konsisten, nama yang
+// berubah.
+const PETAK = [
   {
     id: 'r1',
-    name: 'Lorong Waktu',
-    desc: 'Timeline perjalanan',
+    name: 'Lorong Pohon Tahun',
+    desc: 'Jalur tahun demi tahun',
     longDesc:
-      'Koridor panjang dengan frame-frame milestone karier Eli — debut, single, theater, generasi.',
+      'Jalur dengan pohon-pohon yang tumbuh tahun demi tahun — debut, single pertama, theater, generasi. Tiap pohon = milestone perjalanan Eli.',
     angle: 270,
-    color: '#d4a574',
+    color: '#7a9d5e',
   },
   {
     id: 'r2',
-    name: 'Galeri Fan Projects',
-    desc: 'Karya penggemar',
+    name: 'Petak Karya',
+    desc: 'Kebun karya penggemar',
     longDesc:
-      'Ruang terbuka berisi karya-karya kontribusi penggemar: video, web, poster, dan lainnya.',
+      'Plot kebun berisi karya-karya kontribusi penggemar: video, web, poster, dan lainnya — tumbuh seperti tanaman di pekarangan.',
     angle: 330,
-    color: '#c8956a',
+    color: '#94b878',
   },
   {
     id: 'r3',
-    name: 'Ruang Quotes',
-    desc: 'Kata-kata Eli',
+    name: 'Kolam Kata',
+    desc: 'Kutipan mengambang',
     longDesc:
-      'Kutipan dari jikoshoukai, interview, dan tweet pilihan — melayang di ruang gelap.',
+      'Kolam teratai dengan kata-kata Eli mengambang di permukaan — kutipan dari jikoshoukai, interview, dan tweet pilihan.',
     angle: 30,
-    color: '#b88060',
+    color: '#86a868',
   },
   {
     id: 'r4',
-    name: 'Arsip Kebaikan',
-    desc: 'Sejarah charity',
+    name: 'Kebun Kebaikan',
+    desc: 'Aksi nyata yang tumbuh',
     longDesc:
-      'Galeri Kebaikan + program donasi + kunjungan komunitas — dokumentasi dampak nyata.',
+      'Padang yang dipenuhi tanaman dari setiap aksi kebaikan — Galeri Kebaikan, program donasi, kunjungan komunitas. Tiap kebaikan menumbuhkan satu tunas.',
     angle: 90,
-    color: '#a87055',
+    color: '#a8b870',
   },
   {
     id: 'r5',
-    name: 'Ruang Fanart',
-    desc: 'Karya seni',
+    name: 'Padang Lukis',
+    desc: 'Ladang fanart',
     longDesc:
-      'Klasik gallery hall — lukisan, ilustrasi, dan sculpture digital dari komunitas.',
+      'Ladang dengan lukisan-lukisan berdiri seperti bunga — fanart, ilustrasi, dan karya seni dari komunitas.',
     angle: 150,
-    color: '#b88060',
+    color: '#94b878',
   },
   {
     id: 'r6',
-    name: 'Taman Akhir',
+    name: 'Padang Aprikot',
     desc: 'Pohon + Langit Harapan',
     longDesc:
-      'Climax museum: Pohon Kebaikan dalam mode malam, langit bertabur bintang dari kontributor.',
+      'Petak akhir taman: pohon aprikot besar di tengah orchard, langit malam bertabur bintang — tiap bintang adalah kontributor kebaikan.',
     angle: 210,
-    color: '#c8956a',
+    color: '#e8a87c',
   },
 ];
 
@@ -173,16 +188,18 @@ const FlyInCamera = ({ onComplete, duration = FLY_IN_DURATION }) => {
   return null;
 };
 
-// Box ruangan dengan hover lift + emissive glow + click handler.
-// Hover/click di-deteksi via R3F pointer events. Animasi hover (lift Y
-// + emissive intensity) di-lerp di useFrame supaya halus, bukan jump
-// instan. clamp factor delta*8 ngasih spring-feel ringan.
+// Petak kebun dengan hover lift + emissive glow + click handler.
+// Shape: cylinder hexagonal pendek dengan top radius sedikit lebih
+// kecil dari bottom — kerasa kayak gundukan rumput dengan pinggiran
+// tanah, bukan box museum. Hover/click di-deteksi via R3F pointer
+// events. Animasi hover di-lerp di useFrame (factor delta×8) untuk
+// spring-feel ringan.
 //
-// previewed: ruangan udah pernah di-click & overlay-nya dibuka. Visual
-// markernya: ✓ kecil di sebelah nama ruangan + label warna sedikit
+// previewed: petak udah pernah di-click & overlay-nya dibuka. Visual
+// markernya: ✓ kecil di sebelah nama petak + label warna sedikit
 // lebih cerah default (nggak perlu hover).
-const RoomBox = ({
-  room,
+const PetakPlot = ({
+  petak,
   hovered,
   previewed,
   onPointerOver,
@@ -191,7 +208,7 @@ const RoomBox = ({
 }) => {
   const groupRef = useRef();
   const matRef = useRef();
-  const [x, z] = polarToXZ(room.angle, HEX_RADIUS);
+  const [x, z] = polarToXZ(petak.angle, HEX_RADIUS);
 
   useFrame((_, delta) => {
     if (!groupRef.current || !matRef.current) return;
@@ -216,26 +233,26 @@ const RoomBox = ({
       position={[x, 0.25, z]}
       onPointerOver={(e) => {
         e.stopPropagation();
-        onPointerOver(room.id);
+        onPointerOver(petak.id);
       }}
       onPointerOut={(e) => {
         e.stopPropagation();
-        onPointerOut(room.id);
+        onPointerOut(petak.id);
       }}
       onClick={(e) => {
         e.stopPropagation();
-        onClick(room);
+        onClick(petak);
       }}
     >
       <mesh>
-        <boxGeometry args={[2.6, 0.5, 2.6]} />
+        <cylinderGeometry args={[1.3, 1.45, 0.5, 6]} />
         <meshStandardMaterial
           ref={matRef}
-          color={room.color}
-          emissive={room.color}
+          color={petak.color}
+          emissive={petak.color}
           emissiveIntensity={0}
-          roughness={0.7}
-          metalness={0.05}
+          roughness={0.85}
+          metalness={0.0}
         />
       </mesh>
       <Html
@@ -261,14 +278,14 @@ const RoomBox = ({
             {previewed && (
               <span className="text-[9px] text-emerald-300/85">✓</span>
             )}
-            {room.name}
+            {petak.name}
           </div>
           <div
             className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
               hovered ? 'text-white/85' : 'text-white/55'
             }`}
           >
-            {room.desc}
+            {petak.desc}
           </div>
         </div>
       </Html>
@@ -350,41 +367,41 @@ const DenahFloor = () => (
   </>
 );
 
-const DenahScene = ({
-  hoveredRoomId,
-  previewedRooms,
+const TamanScene = ({
+  hoveredPetakId,
+  previewedPetak,
   flyInActive,
   onFlyInComplete,
-  onRoomHover,
-  onRoomOut,
-  onRoomClick,
+  onPetakHover,
+  onPetakOut,
+  onPetakClick,
 }) => {
   return (
     <>
-      <fog attach="fog" args={['#1a1310', 12, 35]} />
-      <color attach="background" args={['#1a1310']} />
-      <ambientLight intensity={0.5} />
+      <fog attach="fog" args={['#1c1f2a', 12, 35]} />
+      <color attach="background" args={['#1c1f2a']} />
+      <ambientLight intensity={0.55} />
       <directionalLight
         position={[8, 12, 6]}
-        intensity={1.4}
+        intensity={1.3}
         color="#ffd9a8"
       />
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={0.4}
+        intensity={0.5}
         color="#a8c5e0"
       />
-      <DenahFloor />
+      <TamanFloor />
       <CenterTree />
-      {ROOMS.map((room) => (
-        <RoomBox
-          key={room.id}
-          room={room}
-          hovered={hoveredRoomId === room.id}
-          previewed={previewedRooms.has(room.id)}
-          onPointerOver={onRoomHover}
-          onPointerOut={onRoomOut}
-          onClick={onRoomClick}
+      {PETAK.map((petak) => (
+        <PetakPlot
+          key={petak.id}
+          petak={petak}
+          hovered={hoveredPetakId === petak.id}
+          previewed={previewedPetak.has(petak.id)}
+          onPointerOver={onPetakHover}
+          onPointerOut={onPetakOut}
+          onClick={onPetakClick}
         />
       ))}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
@@ -414,11 +431,11 @@ const DenahScene = ({
 
 const SceneFallback = () => (
   <div className="absolute inset-0 grid place-items-center bg-black text-white/50 text-sm">
-    Memuat denah museum...
+    Memuat peta taman...
   </div>
 );
 
-const DenahHeader = () => (
+const TamanHeader = () => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-5">
     <div className="pointer-events-auto">
       <Link
@@ -435,23 +452,23 @@ const DenahHeader = () => (
         fontStyle: 'italic',
       }}
     >
-      Denah Museum Kebaikan
+      Peta Taman Kebaikan
     </div>
     <div className="pointer-events-auto">
       <Link
-        to="/museum"
+        to="/taman"
         className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
       >
-        Ulangi R0 →
+        Ulangi gerbang →
       </Link>
     </div>
   </div>
 );
 
-const DenahFooter = ({ hoveredRoomId, flyInActive, previewedCount }) => {
+const TamanFooter = ({ hoveredPetakId, flyInActive, previewedCount }) => {
   let hint;
-  if (flyInActive) hint = 'Memasuki denah museum...';
-  else if (hoveredRoomId) hint = 'Klik untuk lihat detail ruangan';
+  if (flyInActive) hint = 'Memasuki taman...';
+  else if (hoveredPetakId) hint = 'Klik untuk lihat detail petak';
   else hint = 'Klik & seret untuk berputar · Scroll untuk zoom';
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
@@ -459,40 +476,39 @@ const DenahFooter = ({ hoveredRoomId, flyInActive, previewedCount }) => {
         {hint}
       </div>
       <div className="text-white/30 text-[10px] mt-1.5 tracking-wide">
-        {previewedCount} dari {ROOMS.length} ruangan dijelajahi
+        {previewedCount} dari {PETAK.length} petak dijelajahi
       </div>
     </div>
   );
 };
 
-// Modal info ruangan saat di-click. Karena ruangan sebenarnya belum
+// Modal info petak saat di-click. Karena petak sebenarnya belum
 // dibangun (Fase 3), overlay ini sementara nampilin deskripsi + CTA
-// "Akan dirilis di Fase 3". Setelah ruangan jadi, ganti CTA jadi
-// "Masuk ruangan →" yang navigate ke route ruangan.
-const RoomDetailOverlay = ({ room, onClose }) => {
-  // Lock body scroll saat overlay buka
+// "Akan dirilis di Fase 3". Setelah petak jadi, ganti CTA jadi
+// "Masuk petak →" yang navigate ke route petak.
+const PetakDetailOverlay = ({ petak, onClose }) => {
   useEffect(() => {
-    if (!room) return undefined;
+    if (!petak) return undefined;
     const orig = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = orig;
     };
-  }, [room]);
+  }, [petak]);
 
-  if (!room) return null;
+  if (!petak) return null;
   return (
     <div
-      className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md animate-[fadeIn_300ms_ease-out]"
+      className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md"
       onClick={onClose}
       style={{ animation: 'fadeIn 300ms ease-out' }}
     >
       <div
-        className="bg-[#1a1310]/95 border border-white/15 rounded-2xl px-8 py-9 max-w-md mx-6 text-center"
+        className="bg-[#1c1f2a]/95 border border-white/15 rounded-2xl px-8 py-9 max-w-md mx-6 text-center"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-2 text-white/50 text-[10px] uppercase tracking-[0.25em]">
-          {room.id.toUpperCase()}
+          {petak.id.toUpperCase()}
         </div>
         <h2
           className="text-white text-2xl mb-3 leading-tight"
@@ -501,18 +517,18 @@ const RoomDetailOverlay = ({ room, onClose }) => {
             fontStyle: 'italic',
           }}
         >
-          {room.name}
+          {petak.name}
         </h2>
         <p className="text-white/70 text-sm leading-relaxed mb-6">
-          {room.longDesc}
+          {petak.longDesc}
         </p>
         <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 mb-6">
           <p className="text-white/55 text-xs leading-relaxed">
-            Ruangan ini sedang dalam pembangunan.
+            Petak ini sedang dalam pertumbuhan.
             <br />
             Akan dirilis di{' '}
-            <span className="text-white/85">Fase 3</span> — build
-            out ruangan satu per satu.
+            <span className="text-white/85">Fase 3</span> — kami
+            tanam petak satu per satu.
           </p>
         </div>
         <button
@@ -520,63 +536,61 @@ const RoomDetailOverlay = ({ room, onClose }) => {
           onClick={onClose}
           className="px-6 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
         >
-          Kembali ke denah
+          Kembali ke peta taman
         </button>
       </div>
     </div>
   );
 };
 
-const MuseumDenahPage = () => {
+const TamanPetaPage = () => {
   const isMobile = useIsMobile();
-  const [hoveredRoomId, setHoveredRoomId] = useState(null);
-  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [hoveredPetakId, setHoveredPetakId] = useState(null);
+  const [selectedPetak, setSelectedPetak] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
-  // Set of room IDs yang udah dibuka overlay-nya. Init dari localStorage.
-  const [previewedRooms, setPreviewedRooms] = useState(() => readPreviewed());
+  // Set of petak IDs yang udah dibuka overlay-nya. Init dari
+  // localStorage (merge new + legacy keys).
+  const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
 
-  // Cursor pointer saat hover ruangan, normal saat tidak. Di-cleanup
-  // ke 'auto' kalau component unmount. Saat fly-in jalan, lock cursor
-  // ke default supaya user nggak salah kira bisa interact.
   useEffect(() => {
     document.body.style.cursor =
-      !flyInActive && hoveredRoomId ? 'pointer' : 'auto';
+      !flyInActive && hoveredPetakId ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hoveredRoomId, flyInActive]);
+  }, [hoveredPetakId, flyInActive]);
 
   const handleFlyInComplete = () => setFlyInActive(false);
 
-  const handleRoomHover = (roomId) => {
+  const handlePetakHover = (petakId) => {
     if (flyInActive) return;
-    setHoveredRoomId(roomId);
+    setHoveredPetakId(petakId);
   };
-  const handleRoomOut = (roomId) => {
-    setHoveredRoomId((current) => (current === roomId ? null : current));
+  const handlePetakOut = (petakId) => {
+    setHoveredPetakId((current) => (current === petakId ? null : current));
   };
-  const handleRoomClick = (room) => {
+  const handlePetakClick = (petak) => {
     if (flyInActive) return;
-    setSelectedRoom(room);
-    setHoveredRoomId(null);
-    setPreviewedRooms((prev) => {
-      if (prev.has(room.id)) return prev;
+    setSelectedPetak(petak);
+    setHoveredPetakId(null);
+    setPreviewedPetak((prev) => {
+      if (prev.has(petak.id)) return prev;
       const next = new Set(prev);
-      next.add(room.id);
+      next.add(petak.id);
       writePreviewed(next);
       return next;
     });
   };
-  const handleCloseOverlay = () => setSelectedRoom(null);
+  const handleCloseOverlay = () => setSelectedPetak(null);
 
   return (
     <>
       <Seo
-        title="Denah Museum"
-        description="Denah Museum Kebaikan — pilih ruangan untuk dijelajahi."
-        path="/museum/denah"
+        title="Peta Taman"
+        description="Peta Taman Kebaikan — pilih petak untuk dijelajahi."
+        path="/taman/peta"
       />
-      <div className="relative w-full h-screen bg-[#1a1310] overflow-hidden select-none">
+      <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 38, position: [9, 11, 9] }}
@@ -590,27 +604,27 @@ const MuseumDenahPage = () => {
               camera.lookAt(0, 0, 0);
             }}
           >
-            <DenahScene
-              hoveredRoomId={hoveredRoomId}
-              previewedRooms={previewedRooms}
+            <TamanScene
+              hoveredPetakId={hoveredPetakId}
+              previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               onFlyInComplete={handleFlyInComplete}
-              onRoomHover={handleRoomHover}
-              onRoomOut={handleRoomOut}
-              onRoomClick={handleRoomClick}
+              onPetakHover={handlePetakHover}
+              onPetakOut={handlePetakOut}
+              onPetakClick={handlePetakClick}
             />
             {import.meta.env.DEV && <Stats />}
           </Canvas>
         </Suspense>
 
-        <DenahHeader />
-        <DenahFooter
-          hoveredRoomId={hoveredRoomId}
+        <TamanHeader />
+        <TamanFooter
+          hoveredPetakId={hoveredPetakId}
           flyInActive={flyInActive}
-          previewedCount={previewedRooms.size}
+          previewedCount={previewedPetak.size}
         />
-        <RoomDetailOverlay
-          room={selectedRoom}
+        <PetakDetailOverlay
+          petak={selectedPetak}
           onClose={handleCloseOverlay}
         />
       </div>
@@ -618,4 +632,4 @@ const MuseumDenahPage = () => {
   );
 };
 
-export default MuseumDenahPage;
+export default TamanPetaPage;

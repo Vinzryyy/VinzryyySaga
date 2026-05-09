@@ -1,5 +1,10 @@
 /**
- * Museum Kebaikan — Fase 1, R0 "World Without Kindness".
+ * Taman Kebaikan — Fase 1, R0 "Padang Tandus" (Land Without Kindness).
+ *
+ * Pintu masuk Taman Kebaikan. Dunia di sini terasa kering & sunyi —
+ * sebelum kebaikan tumbuh, hanya ada padang tandus. Saat user
+ * melangkah masuk, warna & kehidupan kembali, dan mereka memasuki
+ * peta taman untuk memilih petak yang akan dijelajahi.
  *
  * State machine ruangan ini ada 4 stage:
  *   idle         — kamera dolly maju, teks pembuka fade-in, dunia
@@ -8,10 +13,8 @@
  *                  mana saja akan mulai transisi
  *   transitioning — tween 3 detik: saturation -1 → 0, vignette 0.7 →
  *                  0.3, fog far 28 → 60. Teks pembuka fade-out.
- *   done         — overlay "warna telah kembali" + tombol lanjut. Karena
- *                  denah museum (Fase 2) belum dibangun, tombolnya untuk
- *                  sekarang restart R0 atau kembali ke /. Setelah Fase
- *                  2 jadi, ganti jadi navigate ke /museum/denah.
+ *   done         — overlay "kehidupan telah kembali" + tombol lanjut
+ *                  ke /taman/peta (peta taman) atau ulangi/keluar.
  *
  * Catatan teknis: postprocessing pakai controlled props (saturation,
  * darkness sebagai prop biasa), BUKAN ref-based mutation. @react-three/
@@ -58,8 +61,8 @@ const TRANSITION_DURATION = 3.0; // detik
 const DOLLY_DURATION = 12.0;
 
 // Gerbang taman di kejauhan — 2 pilar + balok atas. Sengaja minimalist
-// supaya jadi siluet, bukan struktur detail. Detail muncul di R6 (taman
-// akhir) saat warna kembali.
+// supaya jadi siluet, bukan struktur detail. Detail muncul di Padang
+// Aprikot (petak akhir) saat warna kembali.
 const Gate = () => (
   <group position={[0, 0, 0]}>
     <mesh position={[-2.2, 2, 0]}>
@@ -250,7 +253,7 @@ const OpeningText = ({ stage, resetTrigger }) => {
             fontStyle: 'italic',
           }}
         >
-          Sebelum kebaikan, dunia hanya bayangan.
+          Sebelum kebaikan, padang ini hanya bayangan.
         </p>
       </div>
     </div>
@@ -267,7 +270,7 @@ const TapHint = ({ visible }) => (
   >
     <div className="flex flex-col items-center gap-3 animate-pulse">
       <div className="text-white/70 text-sm tracking-[0.3em] uppercase">
-        Tap untuk melangkah masuk
+        Tap untuk masuk taman
       </div>
       <div className="w-px h-8 bg-white/40" />
     </div>
@@ -293,19 +296,19 @@ const ExitOverlay = ({ visible, onRestart }) => (
           fontStyle: 'italic',
         }}
       >
-        Warna telah kembali.
+        Kehidupan telah kembali.
       </p>
       <p className="text-white/60 text-sm leading-relaxed mb-8">
-        Pintu masuk Museum Kebaikan telah terbuka.
+        Gerbang Taman Kebaikan telah terbuka.
         <br />
-        Pilih ruangan untuk dijelajahi.
+        Pilih petak untuk dijelajahi.
       </p>
       <div className="flex flex-col gap-3 justify-center px-6">
         <Link
-          to="/museum/denah"
+          to="/taman/peta"
           className="px-5 py-3 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition"
         >
-          Masuk Denah Museum →
+          Masuk Peta Taman →
         </Link>
         <div className="flex gap-3 justify-center">
           <button
@@ -313,7 +316,7 @@ const ExitOverlay = ({ visible, onRestart }) => (
             onClick={onRestart}
             className="px-4 py-2 rounded-full border border-white/30 text-white/70 text-xs hover:bg-white/10 transition"
           >
-            Ulangi R0
+            Ulangi gerbang
           </button>
           <Link
             to="/"
@@ -419,9 +422,9 @@ const MuseumPage = () => {
   return (
     <>
       <Seo
-        title="Museum Kebaikan"
-        description="Pengalaman museum digital — perjalanan kebaikan, kenangan, dan harapan."
-        path="/museum"
+        title="Taman Kebaikan"
+        description="Pengalaman taman digital — perjalanan kebaikan, kenangan, dan harapan yang tumbuh."
+        path="/taman"
       />
       <div
         className="relative w-full h-screen bg-black overflow-hidden cursor-pointer select-none"
@@ -464,7 +467,7 @@ const MuseumPage = () => {
         <ExitOverlay visible={stage === 'done'} onRestart={handleRestart} />
 
         <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">
-          Fase 1 · R0 — World Without Kindness · stage: {stage}
+          Padang Tandus · stage: {stage}
         </div>
       </div>
     </>

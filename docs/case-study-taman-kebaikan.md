@@ -1,8 +1,8 @@
-# Museum Kebaikan
+# Taman Kebaikan
 
-**Interactive 3D web experience untuk seitansai (birthday celebration) project Eli JKT48.**
+**Interactive 3D web experience untuk seitansai (perayaan ulang tahun) project Eli JKT48.**
 
-Sebuah museum digital yang dibangun dari scratch — perjalanan dari "dunia tanpa kebaikan" (grayscale) menuju "taman kebaikan kolektif" (langit bertabur kontributor) — sebagai persembahan ulang tahun, dipublikasi oleh **Armeniaca**.
+Sebuah taman digital yang dibangun dari scratch — perjalanan dari "padang tandus" (sebelum kebaikan) menuju "taman kebaikan kolektif" (langit bertabur kontributor) — sebagai persembahan ulang tahun, dipublikasi oleh **Armeniaca**.
 
 ---
 
@@ -12,11 +12,11 @@ Sebuah museum digital yang dibangun dari scratch — perjalanan dari "dunia tanp
 |---|---|
 | **Bentuk** | Web experience interaktif, full 3D |
 | **Stack** | React 19 · Three.js · react-three-fiber · Tailwind 4 · Firebase |
-| **Status saat ini** | Fase 0–2 selesai (foundation, R0, denah hub) |
+| **Status saat ini** | Fase 0–2 selesai (foundation, padang tandus, peta taman) |
 | **Target rilis** | Fase 3+ menyusul, climax di seitansai Eli |
 | **Bundle 3D** | 240 KB gzipped (lazy-loaded, satu kali fetch) |
 | **Performance** | 60 fps desktop, 30+ fps mobile dengan auto-downscale |
-| **Builder** | Solo developer · 4 fase, 6 commit terdokumentasi |
+| **Builder** | Solo developer · 4 fase, 10+ commit terdokumentasi |
 
 ---
 
@@ -24,17 +24,17 @@ Sebuah museum digital yang dibangun dari scratch — perjalanan dari "dunia tanp
 
 Eli adalah member JKT48 yang akan merayakan **seitansai** (perayaan ulang tahun fans-driven, dari kanji 生誕祭 = "festival kelahiran"). Sudah ada arsip statis di [armeniaca.online](https://armeniaca.online) — gallery, profile, schedule, wishes wall. Tapi arsip biasa terasa terputus: galeri di satu halaman, charity di halaman lain, quotes di tempat ketiga.
 
-**Museum Kebaikan** dirancang sebagai **wadah naratif** yang menyatukan semua serpihan itu jadi satu perjalanan — sebuah hadiah ulang tahun yang berbentuk pengalaman, bukan sekadar postingan. Pengunjung tidak browsing menu — mereka **berjalan masuk** ke ruangan demi ruangan.
+**Taman Kebaikan** dirancang sebagai **wadah naratif** yang menyatukan semua serpihan itu jadi satu perjalanan — sebuah hadiah ulang tahun yang berbentuk pengalaman, bukan sekadar postingan. Pengunjung tidak browsing menu — mereka **berjalan masuk** ke taman dan menjelajahi petak demi petak.
 
 Konsep narasi yang dipilih:
 
-> Dunia mulai dari abu-abu (sebelum Eli, sebelum kebaikan).
-> Pengunjung melangkah masuk → warna pelan-pelan kembali.
-> Mereka memasuki denah museum, memilih ruangan untuk dijelajahi.
-> Setiap ruangan = aspek berbeda dari kebaikan Eli & komunitas.
-> Ruangan akhir: pohon kebaikan dengan langit bertabur bintang — tiap bintang adalah kontributor.
+> Padang mulai dari abu-abu (sebelum Eli, sebelum kebaikan).
+> Pengunjung melangkah masuk → kehidupan & warna pelan-pelan kembali.
+> Mereka memasuki peta taman, memilih petak untuk dijelajahi.
+> Setiap petak = aspek berbeda dari kebaikan Eli & komunitas.
+> Petak akhir: pohon aprikot dengan langit bertabur bintang — tiap bintang adalah kontributor.
 
-Karena seitansai = perayaan **ulang tahun** (bukan farewell), tone-nya hangat & kontinu: museum ini bukan monumen perpisahan, tapi **arsip hidup** yang akan terus tumbuh tahun demi tahun.
+Karena seitansai = perayaan **ulang tahun** (bukan farewell), tone-nya hangat & kontinu: taman ini bukan monumen perpisahan, tapi **arsip hidup** yang akan terus tumbuh tahun demi tahun. Metafor taman dipilih sengaja — selaras dengan identitas Armeniaca (= *Prunus armeniaca*, pohon aprikot) dan dengan **Pohon Kebaikan** yang sudah hidup di project ini sebagai modul lain.
 
 ---
 
@@ -53,23 +53,23 @@ Pertimbangan awal: pakai Unity WebGL. Setelah audit honest:
 | GSAP integration | Awkward | Native |
 | Cocok untuk: | Game AAA, VR/AR, simulasi | Narrative web, motion design |
 
-Three.js menang di setiap axis kecuali fidelity AAA — yang **bukan** kebutuhan museum naratif.
+Three.js menang di setiap axis kecuali fidelity AAA — yang **bukan** kebutuhan taman naratif.
 
 ### Stylized, bukan Photorealistic
 
-Visual reference: **Monument Valley · Florence · Journey**. Geometric, low-poly, atmospheric, warna pastel-aprikot. Aprikot bukan kebetulan — Armeniaca berasal dari nama Latin *Prunus armeniaca* (aprikot).
+Visual reference: **Monument Valley · Florence · Journey**. Geometric, low-poly, atmospheric, warna pastel-aprikot dan twilight evening. Aprikot bukan kebetulan — Armeniaca berasal dari nama Latin *Prunus armeniaca* (aprikot).
 
 Konsekuensi positif: scene bisa di-construct sepenuhnya dari kode (primitive shapes), tidak butuh asset 3D mahal, render lebih ringan, dan visual tetap punya identitas yang konsisten.
 
-### Map + Rooms (Hybrid Architecture)
+### Map + Plots (Hybrid Architecture)
 
-Tiga opsi yang dievaluasi untuk struktur museum:
+Tiga opsi yang dievaluasi untuk struktur taman:
 
-- **A · Scroll-driven linear** (1 halaman panjang, scroll = ruang berikutnya) — terlalu "long article", kurang museum
-- **B · Map + Rooms hybrid** (denah sebagai hub, ruangan sebagai halaman) — sweet spot
+- **A · Scroll-driven linear** (1 halaman panjang, scroll = petak berikutnya) — terlalu "long article"
+- **B · Map + Plots hybrid** (peta sebagai hub, petak sebagai halaman) — sweet spot
 - **C · Cinematic step-based** (slideshow full-screen) — paling powerful, paling rentan ditinggal
 
-Dipilih **B**: denah menjadi *hub navigation* yang re-use mental model "Peta Filosofi Pohon Kebaikan" yang sudah dibangun sebelumnya di project ini. Pengunjung familiar dengan pattern; tinggal naik skala dari 10 node ke 6 ruangan.
+Dipilih **B**: peta menjadi *hub navigation* yang re-use mental model "Peta Filosofi Pohon Kebaikan" yang sudah dibangun sebelumnya di project ini. Pengunjung familiar dengan pattern; tinggal naik skala dari 10 node ke 6 petak.
 
 ---
 
@@ -80,57 +80,59 @@ Dipilih **B**: denah menjadi *hub navigation* yang re-use mental model "Peta Fil
 Validasi stack jalan di mesin target sebelum bangun apa pun yang serius.
 
 - Install: `three`, `@react-three/fiber`, `@react-three/drei`, `@react-three/postprocessing`, `leva`
-- Route `/museum` dengan Canvas full-screen
+- Route `/taman` dengan Canvas full-screen
 - Lighting baseline + 1 cube test + Stats overlay (DEV-only)
-- Lazy-loaded chunk: `Museum-*.js` 246 KB gzipped — hanya di-fetch saat user buka rute museum, **tidak menambah** first-paint halaman lain
+- Lazy-loaded chunk: `Taman-*.js` ~250 KB gzipped — hanya di-fetch saat user buka rute taman, **tidak menambah** first-paint halaman lain
 
 **Output**: stack proven, performance budget tercapai, build pipeline solid.
 
-### Fase 1 — R0 "World Without Kindness" (Pintu Masuk)
+### Fase 1 — "Padang Tandus" (Pintu Masuk)
 
-Ruangan pertama, set tone untuk seluruh experience.
+Petak pertama, set tone untuk seluruh experience.
 
 **Visual**:
-- Fog gelap, dunia abu-abu, vignette tinggi
+- Fog gelap, padang abu-abu, vignette tinggi
 - Gerbang minimal (2 pilar + balok) di kejauhan
 - Partikel debu drift pelan ke atas (300 partikel, BufferGeometry, 1 draw call)
 - Spotlight redup tunggal dari atas
 
 **Interaksi**:
 - Camera **auto-dolly** maju selama 12 detik dengan ease-out cubic — kerasa "berjalan" ke gerbang
-- Teks pembuka *"Sebelum kebaikan, dunia hanya bayangan."* (Fraunces italic) fade-in setelah 1.2 s
-- Setelah dolly selesai, hint "Tap untuk melangkah masuk" muncul
+- Teks pembuka *"Sebelum kebaikan, padang ini hanya bayangan."* (Fraunces italic) fade-in setelah 1.2 s
+- Setelah dolly selesai, hint "Tap untuk masuk taman" muncul
 - User tap → **transisi 3 detik**: saturation -1 → 0, vignette 0.7 → 0.3, fog far 28 → 60, **Bloom puncak** di tengah (sin πt × 1.5) lalu reda — kerasa kayak cahaya menyembur saat warna kembali
 
 **State machine**: 4 stage (`idle` → `active` → `transitioning` → `done`).
 
-### Fase 2 — Denah Museum
+### Fase 2 — Peta Taman
 
-Hub navigasi setelah pengunjung melewati R0.
+Hub navigasi setelah pengunjung melewati Padang Tandus.
 
-**Layout**: 6 ruangan low-poly disusun heksagonal mengelilingi pohon aprikot di tengah:
+**Layout**: 6 petak kebun low-poly disusun heksagonal mengelilingi pohon aprikot di tengah:
 
 ```
-                Lorong Waktu
+                Lorong Pohon Tahun
                     (timeline)
                        ·
-          Taman Akhir       Galeri Fan
+       Padang Aprikot           Petak Karya
               ·         🌳        ·          (pohon di tengah,
                    (apricot)                  sway pelan + 6 buah)
               ·                  ·
-          Ruang Fanart       Ruang Quotes
+        Padang Lukis             Kolam Kata
                        ·
-                Arsip Kebaikan
+                Kebun Kebaikan
                   (charity)
 ```
 
 **Polish detail**:
-- **Camera fly-in 2.5 detik** dari posisi rendah `(0,1,0)` ke isometrik `(9,11,9)` saat halaman mount — kerasa "bangkit" dari R0
+- **Camera fly-in 2.5 detik** dari posisi rendah `(0,1,0)` ke isometrik `(9,11,9)` saat halaman mount — kerasa "bangkit" dari Padang Tandus
 - **OrbitControls limited**: rotate horizontal bebas, vertikal terkunci 45°–72° (anti-flip), zoom 10–20 unit, no pan
-- **Hover lift + emissive glow** di tiap ruangan (lerp factor delta×8 untuk spring-feel)
-- **Click → modal info ruangan** dengan blur backdrop
-- **Progress markers**: tiap ruangan yang udah dibuka overlay-nya disimpan di `localStorage` → label dapet ✓ emerald + counter footer "X dari 6 ruangan dijelajahi"
+- **Hover lift + emissive glow** di tiap petak (lerp factor delta×8 untuk spring-feel)
+- **Click → modal info petak** dengan blur backdrop
+- **Progress markers**: tiap petak yang udah dibuka overlay-nya disimpan di `localStorage` → label dapet ✓ emerald + counter footer "X dari 6 petak dijelajahi"
 - **Apricot tree center**: 4 cluster foliage variasi hijau + 6 buah aprikot dengan emissive 0.15 (tribut visual ke nama Armeniaca)
+- **Shape petak**: cylinder hexagonal pendek (gundukan rumput) dengan palette grass green, bukan box museum
+- **Background**: twilight evening blue-warm (`#1c1f2a`) — taman di waktu senja, bukan dark museum hall
 
 ---
 
@@ -172,14 +174,14 @@ Trade-off: 60 React re-render/detik selama 3 detik = 180 re-render — bounded, 
 Three.js + R3F + drei + postprocessing = ~240 KB gzipped. Beban itu tidak boleh masuk first-paint halaman lain.
 
 ```jsx
-const MuseumPage = lazy(() => import('./pages/Museum'));
-const MuseumDenahPage = lazy(() => import('./pages/MuseumDenah'));
+const TamanPage = lazy(() => import('./pages/Taman'));
+const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
 
-<Route path="/museum" element={<MuseumPage />} />
-<Route path="/museum/denah" element={<MuseumDenahPage />} />
+<Route path="/taman" element={<TamanPage />} />
+<Route path="/taman/peta" element={<TamanPetaPage />} />
 ```
 
-Vite/Rollup auto-split: 3D vendor chunk shared antara `/museum` & `/museum/denah`, lazy-loaded saat user buka rute pertama. Halaman lain (Home, Profile, Wishes, dst) **zero** dampak bundle.
+Vite/Rollup auto-split: 3D vendor chunk shared antara `/taman` & `/taman/peta`, lazy-loaded saat user buka rute pertama. Halaman lain (Home, Profile, Wishes, dst) **zero** dampak bundle.
 
 ### 3. Mobile Downscale Strategy
 
@@ -207,11 +209,11 @@ const useIsMobile = () => {
 </Canvas>
 ```
 
-Hasilnya: HP entry-level (~Snapdragon 6-series) bisa render R0 di 30+ fps stabil tanpa kompromi visual yang noticeable.
+Hasilnya: HP entry-level (~Snapdragon 6-series) bisa render Padang Tandus di 30+ fps stabil tanpa kompromi visual yang noticeable.
 
 ### 4. Stage Machine Pattern
 
-Tiap layer di R0 (kamera dolly, fog, postprocessing, UI overlay, progress tracking) didorong oleh **single source of truth** — `stage` state. Komponen anak listen ke prop `stage` dan respond sendiri.
+Tiap layer di Padang Tandus (kamera dolly, fog, postprocessing, UI overlay, progress tracking) didorong oleh **single source of truth** — `stage` state. Komponen anak listen ke prop `stage` dan respond sendiri.
 
 ```jsx
 const [stage, setStage] = useState('idle');
@@ -234,15 +236,42 @@ Pattern ini memudahkan:
 - **Reasoning**: setiap stage punya behavior eksplisit, bukan tersebar di banyak boolean
 - **Testing future**: bisa unit-test transisi state-by-state tanpa harus render Canvas
 
+### 5. Backward-Compat Routing & Storage Migration
+
+Project ini sebelumnya bernama **Museum Kebaikan** dan di-rebrand ke **Taman Kebaikan** mid-build. Dua hal yang penting di-handle gracefully:
+
+**1. Old shared links (e.g. `/museum/denah`)** — di-redirect ke route baru via `<Navigate>`, jadi link di X / DM / Discord yang udah pernah di-share nggak 404.
+
+```jsx
+<Route path="/museum" element={<Navigate to="/taman" replace />} />
+<Route path="/museum/denah" element={<Navigate to="/taman/peta" replace />} />
+```
+
+**2. localStorage progress** — user yang udah jelajahin sebelum rebrand punya progress di key `museum-rooms-previewed`. Read function di-update untuk **merge** legacy + new keys, jadi progress mereka nggak hilang:
+
+```jsx
+const PREVIEWED_KEY = 'taman-petak-previewed';
+const LEGACY_PREVIEWED_KEY = 'museum-rooms-previewed';
+
+const readPreviewed = () => {
+  const raw = localStorage.getItem(PREVIEWED_KEY);
+  const legacyRaw = localStorage.getItem(LEGACY_PREVIEWED_KEY);
+  // ...
+  return new Set([...current, ...legacy]);
+};
+```
+
+Detail kecil yang menunjukkan: **rebrand tidak harus berarti memutuskan kontinuitas pengguna**.
+
 ---
 
 ## Performance & Quality Metrics
 
 | Metric | Value |
 |---|---|
-| First-paint (halaman lain di site) | **Zero impact** dari museum |
-| Museum bundle (lazy) | **240 KB gzipped** (3D vendor, shared antara /museum & /museum/denah) |
-| Per-page chunk Museum/Denah | **< 30 KB tambahan** masing-masing |
+| First-paint (halaman lain di site) | **Zero impact** dari taman |
+| Taman bundle (lazy) | **240 KB gzipped** (3D vendor, shared antara /taman & /taman/peta) |
+| Per-page chunk Taman/TamanPeta | **< 30 KB tambahan** masing-masing |
 | Target FPS desktop | **60** (validasi Stats overlay di dev) |
 | Target FPS mobile | **30+** (dengan auto-downscale) |
 | Build time | **~16–20 detik** full project |
@@ -255,8 +284,8 @@ Pattern ini memudahkan:
 
 | Fase | Lingkup | Estimasi |
 |---|---|---|
-| **3** | Build R1–R6 ruangan satu per satu (vertical slice dulu, lalu replikasi pattern) | 3–4 minggu |
-| **4** | Polish + integrasi Firebase (real-time bintang, fanart submission, ambient sound) | 1–2 minggu |
+| **3** | Build 6 petak satu per satu (vertical slice dulu, lalu replikasi pattern) | 3–4 minggu |
+| **4** | Polish + integrasi Firebase (real-time bintang di Padang Aprikot, fanart submission, ambient sound) | 1–2 minggu |
 | **5** | Soft launch ke fans terkurasi → kumpulin feedback → iterasi | open-ended |
 
 Total dari sekarang ke launch: **5–6 minggu** kalau full-time.
@@ -275,7 +304,7 @@ Kalau project seperti ini di-quote ke vendor:
 | Agency project-based | — | **Rp 80–250 jt** |
 | Kategori "narrative web experience" (Active Theory tier) | — | USD 30k–150k |
 
-Ini bukan asal angka — itu adalah harga riil pasar untuk *interactive web museum dengan integrated data, gamification, dan responsive 3D* di 2026.
+Ini bukan asal angka — itu adalah harga riil pasar untuk *interactive web experience dengan integrated data, gamification, dan responsive 3D* di 2026.
 
 ---
 
@@ -284,7 +313,7 @@ Ini bukan asal angka — itu adalah harga riil pasar untuk *interactive web muse
 Dibangun oleh **Malvin Evano** sebagai bagian dari **Armeniaca** — independent visual archive untuk Eli JKT48.
 
 - Repo: `github.com/Vinzryyy/VinzryyySaga`
-- Live: [armeniaca.online/museum](https://armeniaca.online/museum)
+- Live: [armeniaca.online/taman](https://armeniaca.online/taman)
 - Twitter: [@armeniaca15](https://twitter.com/armeniaca15)
 - Email: malvinevano87@gmail.com
 
@@ -292,4 +321,4 @@ Tertarik diskusi tentang interactive web experience, narrative-driven product, a
 
 ---
 
-*Last updated: 2026-05-09 · Fase 0–2 complete · Fase 3 in planning*
+*Last updated: 2026-05-09 · Fase 0–2 complete (rebrand Museum → Taman) · Fase 3 in planning*
