@@ -412,6 +412,128 @@ const YearPlaques = ({ trees }) => (
   </>
 );
 
+// Burung hantu nemplok di pohon — quiet life signal di lorong malam.
+// Body static, cuma kepala rotate slow (left-right) supaya kerasa
+// alert tapi tetep tenang. Mata kuning emissive jadi focal point —
+// sepasang titik kuning yang gerak pelan di antara pohon-pohon.
+const Owl = ({ pos, headPhase = 0 }) => {
+  const headRef = useRef();
+  useFrame((state) => {
+    if (!headRef.current) return;
+    const t = state.clock.elapsedTime;
+    headRef.current.rotation.y = Math.sin(t * 0.4 + headPhase) * 0.55;
+  });
+  return (
+    <group position={pos}>
+      {/* Body — ellipsoid coklat gelap */}
+      <mesh scale={[0.18, 0.22, 0.16]}>
+        <sphereGeometry args={[1, 12, 10]} />
+        <meshStandardMaterial color="#3a2818" roughness={0.85} />
+      </mesh>
+      {/* Head group — rotate slow */}
+      <group ref={headRef} position={[0, 0.22, 0]}>
+        <mesh>
+          <sphereGeometry args={[0.16, 14, 12]} />
+          <meshStandardMaterial color="#4a3220" roughness={0.85} />
+        </mesh>
+        {/* Mata — kuning emissive sebagai focal point malam */}
+        <mesh position={[0.06, 0.03, 0.13]}>
+          <sphereGeometry args={[0.04, 8, 8]} />
+          <meshStandardMaterial
+            color="#fae650"
+            emissive="#fae650"
+            emissiveIntensity={1.1}
+          />
+        </mesh>
+        <mesh position={[-0.06, 0.03, 0.13]}>
+          <sphereGeometry args={[0.04, 8, 8]} />
+          <meshStandardMaterial
+            color="#fae650"
+            emissive="#fae650"
+            emissiveIntensity={1.1}
+          />
+        </mesh>
+        {/* Pupil hitam */}
+        <mesh position={[0.06, 0.03, 0.16]}>
+          <sphereGeometry args={[0.018, 6, 6]} />
+          <meshStandardMaterial color="#000" />
+        </mesh>
+        <mesh position={[-0.06, 0.03, 0.16]}>
+          <sphereGeometry args={[0.018, 6, 6]} />
+          <meshStandardMaterial color="#000" />
+        </mesh>
+        {/* Paruh */}
+        <mesh position={[0, -0.03, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.022, 0.06, 4]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.85} />
+        </mesh>
+      </group>
+      {/* Sayap kiri — tucked di sisi body */}
+      <mesh position={[-0.15, 0, 0]} rotation={[0, 0, 0.2]} scale={[0.5, 0.8, 0.4]}>
+        <sphereGeometry args={[0.13, 10, 8]} />
+        <meshStandardMaterial color="#2a1e10" roughness={0.85} />
+      </mesh>
+      {/* Sayap kanan */}
+      <mesh position={[0.15, 0, 0]} rotation={[0, 0, -0.2]} scale={[0.5, 0.8, 0.4]}>
+        <sphereGeometry args={[0.13, 10, 8]} />
+        <meshStandardMaterial color="#2a1e10" roughness={0.85} />
+      </mesh>
+      {/* Tail kecil di belakang */}
+      <mesh position={[0, -0.10, -0.14]} rotation={[Math.PI / 4, 0, 0]}>
+        <coneGeometry args={[0.06, 0.14, 4]} />
+        <meshStandardMaterial color="#3a2818" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// 2 owls — 1 di pohon awal-tengah (debut era), 1 di pohon akhir-tengah
+// (recent era). Posisi y=2.05 = di atas foliage cluster (foliage center
+// y=1.5, radius 0.6, top y=2.1).
+const Owls = () => (
+  <>
+    <Owl pos={[-2.6, 2.05, -8.67]} headPhase={0} />
+    <Owl pos={[2.6, 2.05, -25.33]} headPhase={1.8} />
+  </>
+);
+
+// Siluet figur di kejauhan ujung lorong — heavily fogged, barely
+// visible. Open to interpretation: bisa Eli muda berdiri menatap ke
+// arah camera (ke masa depan), atau just visitor lain. Subtle breathing
+// sway supaya kerasa "alive" tanpa explicit movement.
+const DistantFigure = () => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.position.y = Math.sin(t * 0.9) * 0.012;
+  });
+  return (
+    <group ref={groupRef} position={[0, 0, -34]}>
+      {/* Body — capsule tinggi sebagai siluet */}
+      <mesh position={[0, 0.65, 0]}>
+        <capsuleGeometry args={[0.16, 0.7, 4, 8]} />
+        <meshStandardMaterial
+          color="#0a0d18"
+          roughness={1}
+          transparent
+          opacity={0.75}
+        />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 1.32, 0]}>
+        <sphereGeometry args={[0.13, 12, 10]} />
+        <meshStandardMaterial
+          color="#0a0d18"
+          roughness={1}
+          transparent
+          opacity={0.75}
+        />
+      </mesh>
+    </group>
+  );
+};
+
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
 // melayang. Hover lift + emissive glow, click → modal milestone.
 const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
@@ -539,6 +661,8 @@ const LorongScene = ({
     <Path />
     <Lanterns />
     <YearPlaques trees={trees} />
+    <Owls />
+    <DistantFigure />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 40 : 70} />
     <FallingLeaves count={isMobile ? 35 : 60} />
