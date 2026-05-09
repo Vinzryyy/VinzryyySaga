@@ -162,7 +162,11 @@ const TerataiBloom = ({ color = '#f4c8d8', scale = 1 }) => (
 // danau lebih lebar (lebih ada area untuk bergerak).
 const FLOW_SPEED = 0.03; // unit per detik
 const FLOW_END_Z = 12;
-const FLOW_START_Z = -12;
+// FLOW_START_Z = -10.5 supaya pad nggak masuk ke area bridge (z=-12.5
+// dengan width 1.6 → bridge plank z=-13.3..-11.7). Pad center radius
+// max 0.95, jadi pad di z=-10.5 extend ke z=-11.45 — masih 0.25u
+// south of bridge front. Wrap distance = 22.5 (dulu 24).
+const FLOW_START_Z = -10.5;
 
 const LilyWishPad = ({ pad, hovered, hideLabel, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
@@ -380,15 +384,18 @@ const FallingPetals = ({ count = 60 }) => {
 // Points untuk efisiensi (1 draw call utk 100 partikel besar).
 const GroundMist = ({ count = 100 }) => {
   const ref = useRef();
-  const positions = useMemo(() => {
+  // Base positions — partikel oscillate di sekitar nilai ini, BUKAN
+  // accumulate += per frame (yang dulu bisa bikin Y drift unbounded
+  // dan akhirnya tembus ke bawah ground / atau terbang ke atas).
+  const basePositions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // Distribusi di ring perimeter — radius 16..32 (di luar danau
-      // yang max 14, tapi sebelum hills di z=-33+)
       const angle = Math.random() * Math.PI * 2;
       const radius = 16 + Math.random() * 16;
       arr[i * 3] = Math.cos(angle) * radius;
-      arr[i * 3 + 1] = 0.4 + Math.random() * 2.5; // low Y, ground level
+      // Raised: y=1.1..3.1 supaya sprite size 1.6 (bottom y - 0.8)
+      // tetap di atas ground (lowest bottom = 0.3).
+      arr[i * 3 + 1] = 1.1 + Math.random() * 2.0;
       arr[i * 3 + 2] = Math.sin(angle) * radius;
     }
     return arr;
@@ -409,10 +416,11 @@ const GroundMist = ({ count = 100 }) => {
     const arr = ref.current.geometry.attributes.position.array;
     for (let i = 0; i < count; i++) {
       const phase = phases[i];
-      // Slow horizontal drift + slight vertical bob
-      arr[i * 3] += Math.sin(t * 0.15 + phase) * 0.008;
-      arr[i * 3 + 1] += Math.cos(t * 0.18 + phase * 1.3) * 0.005;
-      arr[i * 3 + 2] += Math.cos(t * 0.13 + phase) * 0.008;
+      // Absolute oscillation di sekitar base position — bounded, nggak
+      // accumulate. Y amplitude 0.15 supaya tetap di atas ground.
+      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.15 + phase) * 0.4;
+      arr[i * 3 + 1] = basePositions[i * 3 + 1] + Math.cos(t * 0.18 + phase * 1.3) * 0.15;
+      arr[i * 3 + 2] = basePositions[i * 3 + 2] + Math.cos(t * 0.13 + phase) * 0.4;
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
   });
@@ -422,16 +430,16 @@ const GroundMist = ({ count = 100 }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          array={positions}
+          array={basePositions.slice()}
           count={count}
           itemSize={3}
         />
       </bufferGeometry>
       <pointsMaterial
-        size={4.5}
+        size={1.6}
         color="#dcd5c8"
         transparent
-        opacity={0.32}
+        opacity={0.42}
         sizeAttenuation
         depthWrite={false}
       />
@@ -2801,7 +2809,10 @@ const buildPads = (wishes) => {
   if (!wishes.length) return [];
   const items = [];
   const xMax = RIVER_WIDTH / 2 - 1.6;
-  const zMax = RIVER_LENGTH / 2 - 2;
+  // Asymmetric: south boundary normal 12, north boundary -10.5 untuk
+  // avoid bridge area (bridge z=-12.5 ± 0.8, pad radius up to 0.95).
+  const zMaxSouth = RIVER_LENGTH / 2 - 2;
+  const zMaxNorth = 10.5;
 
   // Center wish — teratai besar di z=0
   const center = wishes[0];
@@ -2835,9 +2846,9 @@ const buildPads = (wishes) => {
     if (dockBlock) {
       x = -Math.abs(x); // mirror ke kiri
     }
-    // Clamp ke water bounds
+    // Clamp ke water bounds (asymmetric z untuk hindari bridge di -z)
     x = Math.max(-xMax, Math.min(xMax, x));
-    z = Math.max(-zMax, Math.min(zMax, z));
+    z = Math.max(-zMaxNorth, Math.min(zMaxSouth, z));
     const tilt = ((i * 73) % 360) * (Math.PI / 180);
     items.push({
       id: `pad-${w.id || `seed-${i}`}-${i}`,
