@@ -45,6 +45,10 @@ const Page26 = lazy(() => import('./pages/Page26'));
 // kembalikan Route, dan revert hide di siteConfig nav + Page26 footer.
 // const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
+// Museum Kebaikan — fase 0 (foundation test). Lazy-loaded supaya bundle
+// Three.js + R3F (~250KB gzipped) hanya di-fetch saat user buka /museum,
+// nggak nambah berat first-paint halaman lain.
+const MuseumPage = lazy(() => import('./pages/Museum'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -110,6 +114,7 @@ function AppShell() {
                 pre-announce — keeps any pre-shared links from 404'ing. */}
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
             <Route path="/vivo" element={<VivoPage />} />
+            <Route path="/museum" element={<MuseumPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
