@@ -1049,9 +1049,9 @@ const FISH_DEFS = [
   { pos: [-0.5, 0, 9], cycle: 17, offset: 10, jumpDuration: 0.95, facing: 1.1 },
 ];
 
-const JumpingFishes = () => (
+const JumpingFishes = ({ count }) => (
   <>
-    {FISH_DEFS.map((def, i) => (
+    {FISH_DEFS.slice(0, count ?? FISH_DEFS.length).map((def, i) => (
       <JumpingFish key={`fish-${i}`} def={def} />
     ))}
   </>
@@ -1163,9 +1163,9 @@ const PIGEON_DEFS = [
   { pos: [11.1, 0, 6.4], facing: 1.5, cycle: 4.5, offset: 2.2, peckDuration: 1.05, color: '#92928e' },
 ];
 
-const Pigeons = () => (
+const Pigeons = ({ count }) => (
   <>
-    {PIGEON_DEFS.map((def, i) => (
+    {PIGEON_DEFS.slice(0, count ?? PIGEON_DEFS.length).map((def, i) => (
       <Pigeon key={`pigeon-${i}`} def={def} />
     ))}
   </>
@@ -1451,20 +1451,24 @@ const Bike = ({ position, rotation = [0, 0, 0], color = '#c4544c' }) => {
   );
 };
 
-const BikeParking = () => (
+const BikeParking = ({ bikeCount = 2 }) => (
   <>
     <BikeRack />
-    {/* 2 sepeda leaning ke hoop, slight tilt + slightly behind rack */}
-    <Bike
-      position={[11.4, 0, -7.5]}
-      rotation={[0.12, Math.PI / 2, 0]}
-      color="#c44a3e"
-    />
-    <Bike
-      position={[11.4, 0, -6.5]}
-      rotation={[0.12, Math.PI / 2, 0]}
-      color="#4a78b8"
-    />
+    {/* Sepeda leaning ke hoop, slight tilt + slightly behind rack */}
+    {bikeCount >= 1 && (
+      <Bike
+        position={[11.4, 0, -7.5]}
+        rotation={[0.12, Math.PI / 2, 0]}
+        color="#c44a3e"
+      />
+    )}
+    {bikeCount >= 2 && (
+      <Bike
+        position={[11.4, 0, -6.5]}
+        rotation={[0.12, Math.PI / 2, 0]}
+        color="#4a78b8"
+      />
+    )}
   </>
 );
 
@@ -1533,9 +1537,9 @@ const BUTTERFLY_DEFS = [
   { home: [4, 0.6, 16], color: '#f4a8c0', phase: 1.2 },
 ];
 
-const Butterflies = () => (
+const Butterflies = ({ count }) => (
   <>
-    {BUTTERFLY_DEFS.map((def, i) => (
+    {BUTTERFLY_DEFS.slice(0, count ?? BUTTERFLY_DEFS.length).map((def, i) => (
       <Butterfly key={`butterfly-${i}`} {...def} />
     ))}
   </>
@@ -1637,9 +1641,9 @@ const DRAGONFLY_DEFS = [
   { home: [0, 1.0, -8], phase: 4.0 },
 ];
 
-const Dragonflies = () => (
+const Dragonflies = ({ count }) => (
   <>
-    {DRAGONFLY_DEFS.map((def, i) => (
+    {DRAGONFLY_DEFS.slice(0, count ?? DRAGONFLY_DEFS.length).map((def, i) => (
       <Dragonfly key={`dragonfly-${i}`} {...def} />
     ))}
   </>
@@ -1766,7 +1770,9 @@ const Mushrooms = () => (
       <group key={`mushroom-cluster-${i}`} position={cluster.pos}>
         {Array.from({ length: cluster.count }).map((_, j) => {
           const angle = (j / cluster.count) * Math.PI * 2 + i;
-          const r = 0.18 + (j * 13) % 10 / 100;
+          // Variation 0.18..0.42 (sebelumnya cuma 0.18..0.24 — operator
+          // precedence bikin pembagian /100 dominate).
+          const r = 0.18 + ((j * 13) % 10) * 0.04;
           return (
             <group
               key={j}
@@ -1968,9 +1974,9 @@ const BANK_TREE_POSITIONS = [
   { pos: [9, 0, 17.5], scale: 0.9 },
 ];
 
-const BankTrees = () => (
+const BankTrees = ({ count }) => (
   <>
-    {BANK_TREE_POSITIONS.map((t, i) => (
+    {BANK_TREE_POSITIONS.slice(0, count ?? BANK_TREE_POSITIONS.length).map((t, i) => (
       <BankTree key={`bank-tree-${i}`} pos={t.pos} scale={t.scale} />
     ))}
   </>
@@ -2611,19 +2617,19 @@ const TelagaScene = ({
     <Bridge />
     <SignPost />
     <PicnicTable />
-    <BikeParking />
+    <BikeParking bikeCount={isMobile ? 1 : 2} />
     <Cattails />
     <Wildflowers />
     <Sunflowers />
     <Mushrooms />
     <Bushes />
     <Lanterns />
-    <BankTrees />
+    <BankTrees count={isMobile ? 8 : 12} />
     <Ducks />
-    <JumpingFishes />
-    <Pigeons />
-    <Butterflies />
-    <Dragonflies />
+    <JumpingFishes count={isMobile ? 2 : 3} />
+    <Pigeons count={isMobile ? 2 : 4} />
+    <Butterflies count={isMobile ? 3 : 6} />
+    <Dragonflies count={isMobile ? 2 : 3} />
     <Fireflies count={isMobile ? 8 : 14} />
     <FallingPetals count={isMobile ? 60 : 120} />
     <GroundMist count={isMobile ? 60 : 100} />
