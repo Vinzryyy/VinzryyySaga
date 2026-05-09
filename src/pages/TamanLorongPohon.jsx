@@ -74,6 +74,28 @@ const CORRIDOR_Z_MIN = PATH_END_Z - 2;
 const CORRIDOR_Z_MAX = PATH_START_Z + 2;
 const CORRIDOR_Z_LEN = CORRIDOR_Z_MAX - CORRIDOR_Z_MIN;
 
+// Sistem angin global — semua component subscribe untuk dapat sway/drift
+// yang sinkron antar elemen scene. getWind(t) return:
+//   - sway: oscillation continuous halus (Math.sin combo)
+//   - gust: spike periodic tiap WIND_GUST_PERIOD detik, active 30%
+//     dari period (parabolic shape supaya smooth peak)
+//   - total: sway + gust untuk konsumsi default
+//
+// Component bisa baca total untuk basic sway, atau gust khusus untuk
+// rare effect (e.g., owl mata kedip cuma saat gust, leaves jatuh lebih
+// banyak saat gust).
+const WIND_GUST_PERIOD = 16; // detik antar gust event
+const getWind = (t, phaseOffset = 0) => {
+  const tt = t + phaseOffset;
+  const sway = Math.sin(tt * 0.3) * 0.6 + Math.sin(tt * 0.7) * 0.3;
+  const gustPhase = ((tt % WIND_GUST_PERIOD) + WIND_GUST_PERIOD) % WIND_GUST_PERIOD;
+  const gustU = gustPhase / WIND_GUST_PERIOD;
+  const gust = gustU > 0.4 && gustU < 0.7
+    ? Math.sin((gustU - 0.4) / 0.3 * Math.PI) * 1.5
+    : 0;
+  return { sway, gust, total: sway + gust };
+};
+
 // Kunang-kunang — bola kecil emissive kuning-oranye dengan flicker
 // pulse + drift orbital di sekitar home position. Twilight = perfect
 // fit — bloom-less scene jadi emissive intensity bisa lebih kuat tanpa
@@ -84,13 +106,17 @@ const Firefly = ({ def }) => {
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime;
-    ref.current.position.x = def.home[0] + Math.sin(t * 0.4 + def.phase) * 0.6;
+    const wind = getWind(t);
+    ref.current.position.x =
+      def.home[0] + Math.sin(t * 0.4 + def.phase) * 0.6 + wind.total * 0.25;
     ref.current.position.y = def.home[1] + Math.cos(t * 0.5 + def.phase) * 0.25;
     ref.current.position.z =
       def.home[2] + Math.cos(t * 0.35 + def.phase * 1.3) * 0.6;
     if (matRef.current) {
       const pulse = 0.5 + 0.5 * Math.sin(t * def.flicker + def.phase * 2);
-      matRef.current.emissiveIntensity = 0.6 + pulse * 1.8;
+      // Saat gust kuat, fireflies sebagian "ketiup" dim sebentar
+      const gustDim = Math.max(0, Math.abs(wind.gust) - 0.5) * 0.5;
+      matRef.current.emissiveIntensity = (0.6 + pulse * 1.8) * (1 - gustDim);
     }
   });
   return (
@@ -156,10 +182,11 @@ const GroundMist = ({ count = 70 }) => {
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime;
+    const wind = getWind(t);
     const arr = ref.current.geometry.attributes.position.array;
     for (let i = 0; i < count; i++) {
       const phase = phases[i];
-      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.15 + phase) * 0.4;
+      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.15 + phase) * 0.4 + wind.total * 0.5;
       arr[i * 3 + 1] = basePositions[i * 3 + 1] + Math.cos(t * 0.18 + phase * 1.3) * 0.12;
       arr[i * 3 + 2] = basePositions[i * 3 + 2] + Math.cos(t * 0.13 + phase) * 0.4;
     }
@@ -233,11 +260,14 @@ const FallingLeaves = ({ count = 60 }) => {
     return arr;
   }, [count]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const wind = getWind(t);
     const arr = ref.current.geometry.attributes.position.array;
     for (let i = 0; i < count; i++) {
-      arr[i * 3] += velocities[i * 2 + 1] * delta * 60;
+      // Wind push horizontal (dominan dari gust event)
+      arr[i * 3] += velocities[i * 2 + 1] * delta * 60 + wind.total * 0.045;
       arr[i * 3 + 1] += velocities[i * 2] * delta;
       if (arr[i * 3 + 1] < 0.2) {
         arr[i * 3] = (Math.random() - 0.5) * (CORRIDOR_X_HALF * 2 + 4);
@@ -296,16 +326,24 @@ const LANTERN_DEFS = [
 const LanternPost = ({ pos, phase }) => {
   const lightRef = useRef();
   const matRef = useRef();
+  const groupRef = useRef();
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     const slow = Math.sin(t * 0.7 + phase * 1.4) * 0.18;
     const fast = Math.sin(t * 8 + phase) * 0.05;
-    const factor = 1 + slow + fast;
+    // Saat gust, flicker drop tajam (api ketiup angin)
+    const wind = getWind(t, phase * 1.7);
+    const gustDip = Math.max(0, Math.abs(wind.gust) - 0.4) * 0.35;
+    const factor = (1 + slow + fast) * (1 - gustDip);
     if (lightRef.current) lightRef.current.intensity = 1.6 * factor;
     if (matRef.current) matRef.current.emissiveIntensity = 1.2 * factor;
+    // Pole sway pelan — subtle, lentera kayu memang nggak goyang banyak
+    if (groupRef.current) {
+      groupRef.current.rotation.z = wind.total * 0.012;
+    }
   });
   return (
-    <group position={pos}>
+    <group ref={groupRef} position={pos}>
       {/* Tiang kayu */}
       <mesh position={[0, 0.9, 0]}>
         <cylinderGeometry args={[0.05, 0.07, 1.8, 6]} />
@@ -418,10 +456,18 @@ const YearPlaques = ({ trees }) => (
 // sepasang titik kuning yang gerak pelan di antara pohon-pohon.
 const Owl = ({ pos, headPhase = 0 }) => {
   const headRef = useRef();
+  const eye1Ref = useRef();
+  const eye2Ref = useRef();
   useFrame((state) => {
     if (!headRef.current) return;
     const t = state.clock.elapsedTime;
     headRef.current.rotation.y = Math.sin(t * 0.4 + headPhase) * 0.55;
+    // Mata kedip saat gust angin — emissive turun briefly
+    const wind = getWind(t, headPhase);
+    const blink = Math.max(0, Math.abs(wind.gust) - 0.6) * 0.7;
+    const eyeIntensity = 1.1 - blink;
+    if (eye1Ref.current) eye1Ref.current.emissiveIntensity = eyeIntensity;
+    if (eye2Ref.current) eye2Ref.current.emissiveIntensity = eyeIntensity;
   });
   return (
     <group position={pos}>
@@ -440,6 +486,7 @@ const Owl = ({ pos, headPhase = 0 }) => {
         <mesh position={[0.06, 0.03, 0.13]}>
           <sphereGeometry args={[0.04, 8, 8]} />
           <meshStandardMaterial
+            ref={eye1Ref}
             color="#fae650"
             emissive="#fae650"
             emissiveIntensity={1.1}
@@ -448,6 +495,7 @@ const Owl = ({ pos, headPhase = 0 }) => {
         <mesh position={[-0.06, 0.03, 0.13]}>
           <sphereGeometry args={[0.04, 8, 8]} />
           <meshStandardMaterial
+            ref={eye2Ref}
             color="#fae650"
             emissive="#fae650"
             emissiveIntensity={1.1}
@@ -666,10 +714,15 @@ const Rabbits = () => (
 // melayang. Hover lift + emissive glow, click → modal milestone.
 const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
+  const foliageRef = useRef();
   const matRef = useRef();
+  // Per-tree wind phase deterministik dari posisi — supaya pohon-pohon
+  // nggak sway in sync (tiap tree gerak dengan offset beda)
+  const windPhase = tree.x * 0.27 + tree.z * 0.13;
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!groupRef.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
     const targetY = hovered ? 0.25 : 0;
     const targetEmissive = hovered ? 0.4 : 0;
     const factor = Math.min(delta * 8, 1);
@@ -683,6 +736,13 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
       targetEmissive,
       factor
     );
+    // Foliage sway — pivot di trunk top (group origin di y=1.2),
+    // rotation Z bikin foliage swing kiri-kanan match wind direction
+    if (foliageRef.current) {
+      const wind = getWind(t, windPhase);
+      foliageRef.current.rotation.z = wind.total * 0.045;
+      foliageRef.current.rotation.x = wind.total * 0.025;
+    }
   });
 
   return (
@@ -702,22 +762,25 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
         onClick(tree);
       }}
     >
-      {/* Trunk */}
+      {/* Trunk — static (nggak sway, supaya pohon nggak kelihatan loyo) */}
       <mesh position={[0, 0.6, 0]}>
         <cylinderGeometry args={[0.08, 0.13, 1.2, 8]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
       </mesh>
-      {/* Foliage cluster — 1 sphere per tree (V1, simpler than center tree) */}
-      <mesh position={[0, 1.5, 0]}>
-        <sphereGeometry args={[0.6, 14, 10]} />
-        <meshStandardMaterial
-          ref={matRef}
-          color={tree.color}
-          emissive={tree.color}
-          emissiveIntensity={0}
-          roughness={0.75}
-        />
-      </mesh>
+      {/* Foliage assembly — pivot di trunk top (y=1.2) supaya rotasi
+          jadi swing dari pangkal foliage, bukan rotate di tengah */}
+      <group ref={foliageRef} position={[0, 1.2, 0]}>
+        <mesh position={[0, 0.3, 0]}>
+          <sphereGeometry args={[0.6, 14, 10]} />
+          <meshStandardMaterial
+            ref={matRef}
+            color={tree.color}
+            emissive={tree.color}
+            emissiveIntensity={0}
+            roughness={0.75}
+          />
+        </mesh>
+      </group>
       {/* Year label */}
       <Html position={[0, 2.3, 0]} center distanceFactor={10}>
         <div
@@ -775,16 +838,31 @@ const LorongScene = ({
   <>
     <fog attach="fog" args={['#1c1f2a', 14, 45]} />
     <color attach="background" args={['#1c1f2a']} />
-    <ambientLight intensity={0.55} />
+    <ambientLight intensity={0.5} />
+    {/* Sunset key light — warm dari upper-front */}
     <directionalLight
       position={[6, 12, 4]}
-      intensity={1.3}
+      intensity={1.2}
       color="#ffd9a8"
     />
+    {/* Moon rim light — cool blue dari upper-back-left, kasih rim
+        lighting di edge objek + silhouette pop. Posisi z=-25 supaya
+        cahaya datang dari ujung lorong (backlight terhadap camera). */}
     <directionalLight
-      position={[-4, 8, -8]}
-      intensity={0.4}
-      color="#a8c5e0"
+      position={[-8, 14, -25]}
+      intensity={0.75}
+      color="#8aa8d8"
+    />
+    {/* Horizon glow di ujung path — point light warm amber yang
+        scatter di fog, kasih kesan "ada sesuatu di ujung" yang nge-pull
+        user untuk lihat lebih jauh. DistantFigure jadi silhouetted
+        terhadap glow ini. */}
+    <pointLight
+      position={[0, 2.5, -33]}
+      intensity={2.0}
+      color="#ffaa50"
+      distance={12}
+      decay={2}
     />
     <Path />
     <Lanterns />
