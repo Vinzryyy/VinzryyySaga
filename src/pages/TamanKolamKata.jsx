@@ -1,25 +1,31 @@
 /**
- * Taman Kebaikan — Petak R3: Telaga Harapan (sebelumnya Kolam Kata).
+ * Taman Kebaikan — Petak R3: Telaga Harapan.
  *
- * Wish panel 3D — telaga malam dengan bunga teratai mengambang. Tiap
- * teratai = 1 wish dari fans (sumber: siteConfig.wishes.seeds + live
- * Firebase via subscribeToWishes). Visual:
- *   - Permukaan air deep night blue dengan reflection
- *   - 1-11 lily pad dengan bunga teratai mekar di atasnya (cone
- *     petals + center stamen). Color teratai variasi pink/peach/
- *     cream untuk kerasa kayak ladang teratai bukan stamping
- *   - Kunang-kunang melayang di sekitar telaga (warm yellow particles)
+ * Wish panel 3D — taman di pinggir sungai kecil di malam hari. Tiap
+ * teratai mekar di sungai = 1 wish dari fans (sumber: SITE_CONFIG.
+ * wishes.seeds + live Firebase via subscribeToWishes). Setting taman
+ * intim, bukan telaga lebar — lily pads disusun linear di sepanjang
+ * aliran sungai dengan scatter horizontal kecil.
+ *
+ * Visual:
+ *   - Sungai sempit memanjang (6 wide × 28 long) sepanjang z-axis,
+ *     deep night blue dengan reflection
+ *   - Banks rumput di kedua sisi sungai (warm-dark green)
+ *   - Batu-batu kecil scatter di tepi sungai (river stones)
+ *   - Rumput tufts scatter di taman (cone meshes pendek)
+ *   - 1-11 lily pad dengan bunga teratai mekar (cone petals + stamen).
+ *     Color teratai variasi pink/peach/cream untuk kerasa kayak ladang
+ *   - Pads gentle drift downstream (subtle z motion) + bobs naik turun
+ *   - Kunang-kunang warm-yellow drift di taman
  *   - Moonlight cool spotlight dari atas + warm fill dari fireflies
- *   - Pad bobbing pelan dengan phase berbeda per lily
  *
- * Wish pertama (paling baru / featured) ditempatkan di center sebagai
- * teratai besar; sisanya scatter di sekelilingnya pada radius variasi.
- * Fallback: kalau cuma seed Armeniaca yang ada, dia jadi center, sisa
- * pad disembunyiin biar nggak kerasa kosong.
+ * Wish pertama (paling baru / featured) ditempatkan di center sungai
+ * sebagai teratai besar; sisanya distribusi linear sepanjang sungai
+ * dengan x-offset variasi.
  *
  * Click pad → modal full wish (nama Fraunces italic + handle +
- * message + tanggal). Layout modal sengaja lebih intim dari Quote
- * overlay — text lebih besar, ada quote-mark dekoratif, padding lega.
+ * message + tanggal). Layout modal sengaja lebih intim — text lebih
+ * besar, ada quote-mark dekoratif, padding lega.
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
@@ -122,13 +128,31 @@ const TerataiBloom = ({ color = '#f4c8d8', scale = 1 }) => (
 );
 
 // Lily pad + teratai bloom + label wish. Hover: lift Y + emissive
-// glow di leaf disc + label brighter.
+// glow di leaf disc + label brighter. Plus subtle "drift downstream"
+// — pad pelan-pelan bergerak ke +z, kalau lewat batas END_Z reset ke
+// START_Z. Mensimulasikan air sungai yang mengalir.
+const FLOW_SPEED = 0.05; // unit per detik
+const FLOW_END_Z = 14;
+const FLOW_START_Z = -14;
+
 const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
   const matRef = useRef();
+  // Track drift z separately dari posisi awal pad — pad punya base
+  // origin di pad.pos, drift di-akumulasi di useFrame.
+  const driftZRef = useRef(0);
 
   useFrame((state, delta) => {
     if (!groupRef.current || !matRef.current) return;
+    // Drift downstream — pelan-pelan ke +z. Reset kalau lewat batas.
+    driftZRef.current += FLOW_SPEED * delta;
+    let zPos = pad.pos[2] + driftZRef.current;
+    if (zPos > FLOW_END_Z) {
+      // Wrap ke awal sungai
+      driftZRef.current -= FLOW_END_Z - FLOW_START_Z;
+      zPos = pad.pos[2] + driftZRef.current;
+    }
+
     const idleY = Math.sin(state.clock.elapsedTime * 0.55 + pad.phase) * 0.05;
     const targetY = (hovered ? 0.2 : 0) + idleY;
     const targetEmissive = hovered ? 0.4 : 0.06;
@@ -138,6 +162,8 @@ const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => 
       targetY,
       factor
     );
+    groupRef.current.position.x = pad.pos[0];
+    groupRef.current.position.z = zPos;
     matRef.current.emissiveIntensity = lerp(
       matRef.current.emissiveIntensity,
       targetEmissive,
@@ -282,12 +308,15 @@ const Fireflies = ({ count = 30 }) => {
   );
 };
 
-// Permukaan air telaga — deep night blue dengan metalness sedikit +
-// roughness moderate untuk subtle reflection. Static (no shader wave)
-// untuk performa — bisa di-upgrade nanti kalau perlu.
-const Water = () => (
+// Sungai kecil yang mengalir sepanjang z-axis — sempit (6 wide) tapi
+// panjang (32). Deep night blue dengan metalness sedikit + roughness
+// moderate untuk subtle reflection. Static (no shader wave) untuk
+// performa — bisa di-upgrade nanti kalau perlu.
+const RIVER_WIDTH = 5.5;
+const RIVER_LENGTH = 32;
+const River = () => (
   <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
-    <planeGeometry args={[28, 28]} />
+    <planeGeometry args={[RIVER_WIDTH, RIVER_LENGTH]} />
     <meshStandardMaterial
       color="#0d1f3a"
       roughness={0.5}
@@ -296,12 +325,117 @@ const Water = () => (
   </mesh>
 );
 
-// Tepi lapangan — frame visual agar telaga nggak floating in void
-const Edge = () => (
-  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.06, 0]}>
-    <planeGeometry args={[60, 60]} />
-    <meshStandardMaterial color="#0a1320" roughness={1} />
-  </mesh>
+// Banks (tepi sungai) + lapangan taman — 2 plane besar di kiri dan
+// kanan sungai dengan grass-color malam. Warna sengaja warm-dark green
+// (bukan pure black) supaya pinggir sungai kelihatan, bukan absorbed
+// ke background.
+const Banks = () => (
+  <>
+    {/* Lapangan utama — frame visual agar sungai nggak floating */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.06, 0]}>
+      <planeGeometry args={[60, 60]} />
+      <meshStandardMaterial color="#1f2a1a" roughness={1} />
+    </mesh>
+    {/* Bank kiri — slightly lifted ke atas air supaya kerasa kayak
+        tepi sungai yang sedikit ke atas, bukan flat */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[-(RIVER_WIDTH / 2 + 4), -0.045, 0]}
+    >
+      <planeGeometry args={[8, RIVER_LENGTH]} />
+      <meshStandardMaterial color="#2a3525" roughness={1} />
+    </mesh>
+    {/* Bank kanan */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[RIVER_WIDTH / 2 + 4, -0.045, 0]}
+    >
+      <planeGeometry args={[8, RIVER_LENGTH]} />
+      <meshStandardMaterial color="#2a3525" roughness={1} />
+    </mesh>
+  </>
+);
+
+// Batu-batu kecil di tepi sungai — irregular box meshes dengan tone
+// warm-gray, scatter di kedua tepi sungai sepanjang aliran. Posisi
+// deterministik via index supaya konsisten antar render.
+const STONE_POSITIONS = [
+  // Kiri sungai
+  { pos: [-3.0, 0.0, -10], scale: [0.4, 0.25, 0.35], rot: 0.3 },
+  { pos: [-3.2, 0.0, -4], scale: [0.5, 0.3, 0.45], rot: 0.7 },
+  { pos: [-2.95, 0.0, 2], scale: [0.35, 0.22, 0.3], rot: 1.1 },
+  { pos: [-3.1, 0.0, 8], scale: [0.45, 0.28, 0.4], rot: 0.4 },
+  { pos: [-2.9, 0.0, 13], scale: [0.3, 0.2, 0.28], rot: 0.9 },
+  // Kanan sungai
+  { pos: [3.0, 0.0, -12], scale: [0.4, 0.26, 0.38], rot: 0.5 },
+  { pos: [3.15, 0.0, -6], scale: [0.5, 0.3, 0.42], rot: 1.0 },
+  { pos: [2.95, 0.0, 0], scale: [0.35, 0.23, 0.32], rot: 0.6 },
+  { pos: [3.1, 0.0, 5], scale: [0.42, 0.27, 0.38], rot: 1.2 },
+  { pos: [3.0, 0.0, 11], scale: [0.38, 0.25, 0.35], rot: 0.3 },
+];
+const RiverStones = () => (
+  <>
+    {STONE_POSITIONS.map((s, i) => (
+      <mesh
+        key={`stone-${i}`}
+        position={s.pos}
+        rotation={[0, s.rot, 0]}
+        scale={s.scale}
+      >
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          color="#4a4540"
+          roughness={0.95}
+          metalness={0.05}
+        />
+      </mesh>
+    ))}
+  </>
+);
+
+// Rumput tufts scatter di taman — small cone groups (3 cone per tuft)
+// dengan tone hijau lebih cerah dari banks, supaya catch light dan
+// kasih texture ke lapangan. Posisi deterministik per index.
+const TUFT_POSITIONS = [
+  // Kiri (x negative)
+  { pos: [-5.5, 0, -11], color: '#3a4d2a' },
+  { pos: [-7.0, 0, -7], color: '#445537' },
+  { pos: [-6.2, 0, -2], color: '#3a4d2a' },
+  { pos: [-7.5, 0, 4], color: '#445537' },
+  { pos: [-5.8, 0, 9], color: '#384a28' },
+  { pos: [-6.8, 0, 13], color: '#3a4d2a' },
+  // Kanan (x positive)
+  { pos: [5.6, 0, -13], color: '#445537' },
+  { pos: [7.0, 0, -8], color: '#3a4d2a' },
+  { pos: [6.2, 0, -3], color: '#384a28' },
+  { pos: [7.5, 0, 3], color: '#3a4d2a' },
+  { pos: [5.5, 0, 8], color: '#445537' },
+  { pos: [6.9, 0, 14], color: '#3a4d2a' },
+];
+
+const GrassTuft = ({ pos, color }) => (
+  <group position={pos}>
+    <mesh position={[0, 0.12, 0]}>
+      <coneGeometry args={[0.06, 0.24, 4]} />
+      <meshStandardMaterial color={color} roughness={0.9} />
+    </mesh>
+    <mesh position={[0.08, 0.1, 0.04]} rotation={[0.1, 0.5, 0.1]}>
+      <coneGeometry args={[0.05, 0.2, 4]} />
+      <meshStandardMaterial color={color} roughness={0.9} />
+    </mesh>
+    <mesh position={[-0.07, 0.08, 0.05]} rotation={[-0.05, -0.4, -0.15]}>
+      <coneGeometry args={[0.045, 0.18, 4]} />
+      <meshStandardMaterial color={color} roughness={0.9} />
+    </mesh>
+  </group>
+);
+
+const GrassTufts = () => (
+  <>
+    {TUFT_POSITIONS.map((t, i) => (
+      <GrassTuft key={`tuft-${i}`} pos={t.pos} color={t.color} />
+    ))}
+  </>
 );
 
 const TelagaScene = ({
@@ -332,8 +466,10 @@ const TelagaScene = ({
       intensity={0.25}
       color="#f4d8a0"
     />
-    <Edge />
-    <Water />
+    <Banks />
+    <River />
+    <RiverStones />
+    <GrassTufts />
     {pads.map((pad) => (
       <LilyWishPad
         key={pad.id}
@@ -349,10 +485,10 @@ const TelagaScene = ({
       target={[0, 0, 0]}
       enableZoom
       minDistance={10}
-      maxDistance={22}
+      maxDistance={26}
       enablePan={false}
       minPolarAngle={Math.PI / 4.5}
-      maxPolarAngle={Math.PI / 2.5}
+      maxPolarAngle={Math.PI / 2.4}
       enableDamping
       dampingFactor={0.08}
       rotateSpeed={0.4}
@@ -398,8 +534,8 @@ const TelagaHeader = () => (
 
 const TelagaFooter = ({ hoveredPadId, totalPads }) => {
   const hint = hoveredPadId
-    ? 'Klik teratai untuk baca lengkap'
-    : `${totalPads} harapan mengambang · drag untuk berputar`;
+    ? 'Klik teratai untuk baca harapan'
+    : `${totalPads} teratai mengalir di sungai · drag untuk berputar`;
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[10px] uppercase tracking-[0.2em] text-center">
       {hint}
@@ -460,7 +596,7 @@ const WishOverlay = ({ pad, onClose }) => {
           onClick={onClose}
           className="w-full px-5 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
         >
-          Kembali ke telaga
+          Kembali ke sungai
         </button>
       </div>
     </div>
@@ -502,12 +638,19 @@ const buildWishList = (firebaseWishes, seeds, limit = 11) => {
   return unique.slice(0, limit);
 };
 
-// Convert wish list → pad layout. 1 center + sisanya scatter heksagonal
-// di radius variasi. Posisi/warna deterministik berdasar index.
+// Convert wish list → pad layout. Posisi linear sepanjang sungai
+// dengan x-offset variasi alternating. 1 center pad di z=0 (teratai
+// besar). Sisanya distribusi merata di range FLOW_START_Z..FLOW_END_Z
+// dengan x dalam range RIVER_WIDTH/3 supaya lily nggak nempel ke tepi.
+//
+// Posisi z di-spread merata sehingga drift downstream nggak bikin pad
+// menumpuk di satu titik (gap stabil antar pad seiring waktu).
 const buildPads = (wishes) => {
   if (!wishes.length) return [];
   const items = [];
-  // Center wish — teratai besar
+  const xRange = RIVER_WIDTH / 3.5; // ±xRange jadi range x lily
+
+  // Center wish — teratai besar di z=0
   const center = wishes[0];
   items.push({
     id: `pad-${center.id || 'seed-0'}-c`,
@@ -522,11 +665,22 @@ const buildPads = (wishes) => {
     tilt: 0,
     phase: 0,
   });
-  // Surrounding wishes — scatter heksagonal
+
+  // Surrounding wishes — distribusi linear sepanjang sungai. Z range
+  // FLOW_START_Z..FLOW_END_Z dibagi rata dikurangin slot center.
   const others = wishes.slice(1);
+  if (others.length === 0) return items;
+  const totalRange = FLOW_END_Z - FLOW_START_Z;
+  const slotSize = totalRange / (others.length + 1);
   others.forEach((w, i) => {
-    const angle = (i / Math.max(others.length, 6)) * Math.PI * 2 + 0.4;
-    const radius = 4 + (i % 3) * 0.7;
+    // Posisi z dari FLOW_START_Z + slotSize*(i+1), tapi skip slot
+    // yang dekat z=0 (jangan tabrakan dengan center pad).
+    let z = FLOW_START_Z + slotSize * (i + 0.5);
+    if (Math.abs(z) < 1.5) z += z >= 0 ? 1.5 : -1.5; // dorong jauhin center
+    // X-offset alternating dengan variasi kecil — natural scatter
+    const xSide = i % 2 === 0 ? -1 : 1;
+    const xVar = ((i * 17) % 100) / 100; // 0..1 deterministik
+    const x = xSide * xRange * (0.4 + xVar * 0.6);
     const tilt = ((i * 73) % 360) * (Math.PI / 180);
     items.push({
       id: `pad-${w.id || `seed-${i}`}-${i}`,
@@ -535,7 +689,7 @@ const buildPads = (wishes) => {
       message: w.message || '',
       date: w.date || '',
       isCenter: false,
-      pos: [Math.cos(angle) * radius, 0, Math.sin(angle) * radius],
+      pos: [x, 0, z],
       leafColor: LEAF_COLORS[(i + 1) % LEAF_COLORS.length],
       bloomColor: BLOOM_COLORS[(i + 1) % BLOOM_COLORS.length],
       tilt,
@@ -593,7 +747,7 @@ const TamanKolamKataPage = () => {
       <div className="relative w-full h-screen bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 40, position: [8, 9, 8] }}
+            camera={{ fov: 42, position: [11, 8, 5] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
