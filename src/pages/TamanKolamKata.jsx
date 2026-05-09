@@ -853,8 +853,11 @@ const Duck = ({ def }) => {
     groupRef.current.position.z = def.home[2] + Math.sin(angle) * 1.2;
     // Bob naik-turun — air gentle motion
     groupRef.current.position.y = 0.05 + Math.sin(t * 1.4 + def.phase) * 0.03;
-    // Rotation Y — bebek ngadap ke arah swim direction
-    groupRef.current.rotation.y = -angle + Math.PI / 2;
+    // Rotation Y — bebek ngadap ke arah swim direction. Body axis lokal
+    // di +x (kepala di +x), velocity tangent circle di (-sin(angle),
+    // cos(angle)). Solve: rotation.y = -angle - π/2 supaya kepala
+    // align dengan velocity (sebelumnya +π/2 = mundur 180°).
+    groupRef.current.rotation.y = -angle - Math.PI / 2;
   });
   return (
     <group ref={groupRef}>
@@ -1239,6 +1242,154 @@ const PicnicTable = () => (
       <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
     </mesh>
   </group>
+);
+
+// Bike rack — 2 hoop inverted-U dari pipe metal di base concrete plate.
+// Posisi di +x bank dekat picnic table (thematic: orang parkir lalu
+// piknik). Long axis sejajar Z-axis. Lebar hoop ~0.5, tinggi ~0.6.
+const RACK_HOOP_OFFSETS = [-0.5, 0.5];
+
+const BikeRack = () => (
+  <group position={[11.5, 0, -7]}>
+    {/* Base concrete plate */}
+    <mesh position={[0, 0.015, 0]} receiveShadow>
+      <boxGeometry args={[0.7, 0.03, 1.5]} />
+      <meshStandardMaterial color="#9a9690" roughness={0.95} />
+    </mesh>
+    {RACK_HOOP_OFFSETS.map((dz, i) => (
+      <group key={`hoop-${i}`} position={[0, 0, dz]}>
+        {/* Post kiri */}
+        <mesh position={[-0.22, 0.3, 0]} castShadow>
+          <cylinderGeometry args={[0.022, 0.022, 0.6, 10]} />
+          <meshStandardMaterial color="#3a3530" roughness={0.4} metalness={0.7} />
+        </mesh>
+        {/* Post kanan */}
+        <mesh position={[0.22, 0.3, 0]} castShadow>
+          <cylinderGeometry args={[0.022, 0.022, 0.6, 10]} />
+          <meshStandardMaterial color="#3a3530" roughness={0.4} metalness={0.7} />
+        </mesh>
+        {/* Top bar horizontal antara 2 post */}
+        <mesh position={[0, 0.6, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.022, 0.022, 0.44, 10]} />
+          <meshStandardMaterial color="#3a3530" roughness={0.4} metalness={0.7} />
+        </mesh>
+        {/* Curve kiri (1/4 torus) */}
+        <mesh position={[-0.22, 0.6, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.022, 0.022, 6, 6, Math.PI / 2]} />
+          <meshStandardMaterial color="#3a3530" roughness={0.4} metalness={0.7} />
+        </mesh>
+      </group>
+    ))}
+  </group>
+);
+
+// Helper: tube cylinder antara 2 titik di plane XY (z=0 untuk semua).
+// Hitung center, length, rotation.z dari delta. Cylinder default
+// orient ke +y, jadi rotation.z = -atan2(dx, dy) supaya axis align
+// ke vector b-a.
+const tube = (a, b, color, radius = 0.018) => {
+  const cx = (a[0] + b[0]) / 2;
+  const cy = (a[1] + b[1]) / 2;
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const angle = -Math.atan2(dx, dy);
+  return (
+    <mesh position={[cx, cy, 0]} rotation={[0, 0, angle]} castShadow>
+      <cylinderGeometry args={[radius, radius, len, 8]} />
+      <meshStandardMaterial color={color} roughness={0.5} metalness={0.3} />
+    </mesh>
+  );
+};
+
+// Sepeda low-poly — frame planar di plane XY (lebih gampang anchor
+// node). Wheels = torus vertikal facing ke +/-z. Frame: top tube,
+// down tube, seat tube, chain stays, seat stays, fork. Plus seat,
+// handlebar, pedal kecil.
+const Bike = ({ position, rotation = [0, 0, 0], color = '#c4544c' }) => {
+  const BB = [0, 0.22, 0]; // bottom bracket
+  const seatTop = [-0.12, 0.55, 0];
+  const headTop = [0.28, 0.55, 0];
+  const wheelBack = [-0.28, 0.20, 0];
+  const wheelFront = [0.28, 0.20, 0];
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Wheels */}
+      {[wheelBack, wheelFront].map((w, i) => (
+        <group key={`w-${i}`} position={w}>
+          <mesh rotation={[0, Math.PI / 2, 0]}>
+            <torusGeometry args={[0.18, 0.018, 5, 18]} />
+            <meshStandardMaterial color="#1a1a1a" roughness={0.7} />
+          </mesh>
+          {/* Hub */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.05, 8]} />
+            <meshStandardMaterial
+              color="#7a7a7a"
+              roughness={0.4}
+              metalness={0.7}
+            />
+          </mesh>
+          {/* Spokes — 2 pasang silang tipis */}
+          <mesh rotation={[0, Math.PI / 2, 0]}>
+            <cylinderGeometry args={[0.005, 0.005, 0.34, 4]} />
+            <meshStandardMaterial color="#9a9a9a" roughness={0.4} metalness={0.6} />
+          </mesh>
+          <mesh rotation={[0, Math.PI / 2, Math.PI / 2]}>
+            <cylinderGeometry args={[0.005, 0.005, 0.34, 4]} />
+            <meshStandardMaterial color="#9a9a9a" roughness={0.4} metalness={0.6} />
+          </mesh>
+        </group>
+      ))}
+      {/* Frame tubes */}
+      {tube(seatTop, headTop, color)}
+      {tube(BB, headTop, color)}
+      {tube(BB, seatTop, color)}
+      {tube(BB, wheelBack, color, 0.014)}
+      {tube(seatTop, wheelBack, color, 0.014)}
+      {tube(headTop, wheelFront, color, 0.014)}
+      {/* Seat */}
+      <mesh position={[-0.14, 0.59, 0]} rotation={[0, 0, -0.1]} castShadow>
+        <boxGeometry args={[0.16, 0.025, 0.06]} />
+        <meshStandardMaterial color="#1a1410" roughness={0.85} />
+      </mesh>
+      {/* Handlebar — perpendicular ke frame */}
+      <mesh
+        position={[0.28, 0.62, 0]}
+        rotation={[Math.PI / 2, 0, 0]}
+        castShadow
+      >
+        <cylinderGeometry args={[0.012, 0.012, 0.28, 8]} />
+        <meshStandardMaterial color="#2a2218" roughness={0.7} />
+      </mesh>
+      {/* Pedal kiri/kanan kecil di BB */}
+      <mesh position={[0, 0.20, 0.06]}>
+        <boxGeometry args={[0.06, 0.012, 0.025]} />
+        <meshStandardMaterial color="#1a1410" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.24, -0.06]}>
+        <boxGeometry args={[0.06, 0.012, 0.025]} />
+        <meshStandardMaterial color="#1a1410" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+const BikeParking = () => (
+  <>
+    <BikeRack />
+    {/* 2 sepeda leaning ke hoop, slight tilt + slightly behind rack */}
+    <Bike
+      position={[11.4, 0, -7.5]}
+      rotation={[0.12, Math.PI / 2, 0]}
+      color="#c44a3e"
+    />
+    <Bike
+      position={[11.4, 0, -6.5]}
+      rotation={[0.12, Math.PI / 2, 0]}
+      color="#4a78b8"
+    />
+  </>
 );
 
 // Kupu-kupu di sekitar bunga — 2 plane wings doublesided + body kecil.
@@ -2194,6 +2345,8 @@ const isBlockedForGrass = (x, z) => {
   if (z > -13.2 && z < -11.8 && Math.abs(x) < 7.5) return true;
   // Sign post area
   if (x > -10.0 && x < -8.5 && z > -12.7 && z < -11.3) return true;
+  // Bike parking — base plate + sepeda di +x bank, z=-7
+  if (x > 10.9 && x < 12.1 && z > -7.9 && z < -6.1) return true;
   return false;
 };
 
@@ -2380,6 +2533,7 @@ const TelagaScene = ({
     <Bridge />
     <SignPost />
     <PicnicTable />
+    <BikeParking />
     <Cattails />
     <Wildflowers />
     <Sunflowers />
