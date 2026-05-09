@@ -46,7 +46,12 @@ import {
   Sky,
   Stats,
 } from '@react-three/drei';
-import { EffectComposer, ToneMapping } from '@react-three/postprocessing';
+import {
+  Bloom,
+  EffectComposer,
+  ToneMapping,
+  Vignette,
+} from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
@@ -321,8 +326,9 @@ const FallingPetals = ({ count = 60 }) => {
   const velocities = useMemo(() => {
     const arr = new Float32Array(count * 2);
     for (let i = 0; i < count; i++) {
-      arr[i * 2] = -0.12 - Math.random() * 0.08;
-      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.04;
+      // Slower fall — golden hour tempo lebih kontemplatif
+      arr[i * 2] = -0.07 - Math.random() * 0.05;
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.03;
     }
     return arr;
   }, [count]);
@@ -353,10 +359,10 @@ const FallingPetals = ({ count = 60 }) => {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.13}
-        color="#f4c8d8"
+        size={0.14}
+        color="#f4c4b8"
         transparent
-        opacity={0.7}
+        opacity={0.75}
         sizeAttenuation
         depthWrite={false}
       />
@@ -1339,52 +1345,51 @@ const TelagaScene = ({
   onPadClick,
 }) => (
   <>
-    {/* Procedural sky — drei Sky shader pakai atmospheric scattering.
-        Sun position config jadi sumber kalkulasi warna langit. Posisi
-        x=10 z=-2 selaras dengan directionalLight sun. Inclination 0.49
-        ≈ siang siang sekitar jam 10-2 (matahari tinggi). */}
+    {/* Golden hour sky — sun di posisi rendah (y=4), inclination
+        tinggi → matahari di horizon. Rayleigh 4 + turbidity 12 ngasih
+        scatter warm orange-pink yang khas afternoon. mieCoefficient
+        sedikit dinaikkan untuk haze emas yang denser. */}
     <Sky
       distance={450000}
-      sunPosition={[10, 18, -2]}
-      inclination={0.49}
-      azimuth={0.25}
-      mieCoefficient={0.005}
-      mieDirectionalG={0.85}
-      rayleigh={2.5}
-      turbidity={6}
+      sunPosition={[8, 4, 4]}
+      inclination={0.6}
+      azimuth={0.28}
+      mieCoefficient={0.008}
+      mieDirectionalG={0.92}
+      rayleigh={4}
+      turbidity={12}
     />
-    {/* IBL via Environment preset 'park' — HDR environment map ngasih
-        ambient lighting + reflection dari "park" scene generic. Bikin
-        material reflective (water, lily pad) jadi authentic. background
-        false = sky di-handle terpisah. Mobile skip untuk save bandwidth
-        + GPU. */}
-    {!isMobile && <Environment preset="park" background={false} />}
-    {/* Light fog jauh — match warna haze sky */}
-    <fog attach="fog" args={['#bdd6ea', 25, 70]} />
-    {/* Reduced ambient — IBL sekarang nge-handle banyak ambient.
-        Mobile fallback ambient lebih tinggi karena no IBL. */}
-    <ambientLight intensity={isMobile ? 0.7 : 0.4} color="#ffffff" />
-    {/* Sun directional — castShadow enabled. Shadow camera frustum
-        di-set sesuai scene size supaya shadow nggak kepotong. */}
+    {/* IBL via Environment preset 'sunset' — HDR golden hour scene
+        ngasih warm ambient + reflection. Match sun position. */}
+    {!isMobile && <Environment preset="sunset" background={false} />}
+    {/* Warm haze fog — match golden hour palette */}
+    <fog attach="fog" args={['#e8c8a8', 28, 75]} />
+    {/* Warm ambient (sunset bounce) */}
+    <ambientLight intensity={isMobile ? 0.65 : 0.35} color="#ffe0b8" />
+    {/* Sun directional — golden hour: low angle, warm orange tone,
+        long shadows. shadow-mapSize 2048 untuk shadow yang lebih
+        crisp pas low angle. */}
     <directionalLight
-      position={[10, 18, -2]}
-      intensity={1.6}
-      color="#fff4dc"
+      position={[8, 5, 4]}
+      intensity={1.8}
+      color="#ffb878"
       castShadow
-      shadow-mapSize={[1024, 1024]}
+      shadow-mapSize={[2048, 2048]}
       shadow-camera-left={-25}
       shadow-camera-right={25}
       shadow-camera-top={25}
       shadow-camera-bottom={-25}
       shadow-camera-near={0.5}
-      shadow-camera-far={50}
+      shadow-camera-far={60}
       shadow-bias={-0.0005}
     />
-    {/* Sky bounce fill */}
+    {/* Sky fill — cool blue dari arah berlawanan, simulasi sky bounce
+        light yang ngebreak warm dominant supaya kulit/permukaan
+        nggak full orange */}
     <directionalLight
-      position={[-6, 8, -4]}
-      intensity={0.35}
-      color="#cfe0f0"
+      position={[-6, 6, -4]}
+      intensity={0.3}
+      color="#a8c5e8"
     />
     <DistantHills />
     <Clouds />
@@ -1406,7 +1411,7 @@ const TelagaScene = ({
     <BankTrees />
     <Ducks />
     <PaperBoats />
-    <FallingPetals count={60} />
+    <FallingPetals count={isMobile ? 60 : 120} />
     {pads.map((pad) => (
       <LilyWishPad
         key={pad.id}
@@ -1428,6 +1433,8 @@ const TelagaScene = ({
       enableDamping
       dampingFactor={0.08}
       rotateSpeed={0.4}
+      autoRotate
+      autoRotateSpeed={0.25}
     />
   </>
 );
@@ -1710,6 +1717,17 @@ const TamanKolamKataPage = () => {
             />
             {!isMobile && (
               <EffectComposer>
+                {/* Bloom — soft glow di bright elements (lily stamen,
+                    sun reflection, paper boat sail). Threshold 0.7
+                    biar cuma highlight yang glow, bukan whole scene. */}
+                <Bloom
+                  intensity={0.6}
+                  luminanceThreshold={0.7}
+                  luminanceSmoothing={0.4}
+                  mipmapBlur
+                />
+                {/* Soft vignette untuk fokus mata ke tengah */}
+                <Vignette eskil={false} offset={0.35} darkness={0.4} />
                 <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
               </EffectComposer>
             )}
