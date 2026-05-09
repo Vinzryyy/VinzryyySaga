@@ -1353,6 +1353,188 @@ const Mushrooms = () => (
   </>
 );
 
+// Stone monument di end-of-path z=-32 — tujuan emosional saat user
+// jalan sampai ujung lorong di FPV. Engraving puitis. DistantFigure
+// (z=-34) berdiri SETELAH monument — viewer baca monument dulu, lalu
+// liat siluet figure beyond it.
+const StoneMonument = () => (
+  <group position={[0, 0, -32]}>
+    {/* Base block — wider stone foundation */}
+    <mesh position={[0, 0.2, 0]} castShadow>
+      <boxGeometry args={[1.5, 0.4, 0.6]} />
+      <meshStandardMaterial color="#3a3530" roughness={0.95} />
+    </mesh>
+    {/* Vertical slab (main body) */}
+    <mesh position={[0, 1.2, 0]} castShadow>
+      <boxGeometry args={[1.0, 1.6, 0.18]} />
+      <meshStandardMaterial color="#4a4540" roughness={0.92} />
+    </mesh>
+    {/* Curved arch top — half cylinder */}
+    <mesh position={[0, 2.0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.5, 0.5, 0.18, 16, 1, false, 0, Math.PI]} />
+      <meshStandardMaterial color="#4a4540" roughness={0.92} />
+    </mesh>
+    {/* Engraving Html — text terukir di slab */}
+    <Html
+      position={[0, 1.4, 0.10]}
+      center
+      distanceFactor={5.5}
+      occlude={false}
+      transform
+      rotation={[0, 0, 0]}
+    >
+      <div
+        className="text-center pointer-events-none select-none whitespace-nowrap"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          fontSize: '11px',
+          color: '#1a0d05',
+          fontWeight: 500,
+          lineHeight: '1.4',
+          letterSpacing: '0.04em',
+          textShadow: '0 0 1px rgba(180, 150, 100, 0.3)',
+        }}
+      >
+        Untuk yang menunggu
+        <br />
+        di ujung lorong
+      </div>
+    </Html>
+    {/* Subtle moss growth at base — small dark green patches */}
+    <mesh position={[-0.5, 0.42, 0.28]} rotation={[-Math.PI / 2, 0, 0.4]}>
+      <planeGeometry args={[0.18, 0.12]} />
+      <meshStandardMaterial color="#2a3a20" roughness={1} side={THREE.DoubleSide} />
+    </mesh>
+    <mesh position={[0.45, 0.42, 0.28]} rotation={[-Math.PI / 2, 0, -0.5]}>
+      <planeGeometry args={[0.16, 0.10]} />
+      <meshStandardMaterial color="#2a3a20" roughness={1} side={THREE.DoubleSide} />
+    </mesh>
+  </group>
+);
+
+// Tree-specific decorations — bikin tiap pohon-tahun distinct, bukan
+// copy-paste. 5 types didistribusi ke 10 trees by index. Position
+// relative ke tree group, side = sign(tree.x) untuk path-facing.
+const TREE_DECORATION_TYPES = [
+  'blossom', // tree[0] — era recent celebration
+  'lampion', // tree[1]
+  'ribbon', // tree[2]
+  'nest', // tree[3]
+  'plate', // tree[4]
+  'lampion', // tree[5]
+  'ribbon', // tree[6]
+  'blossom', // tree[7]
+  'nest', // tree[8]
+  'plate', // tree[9] — debut era marker
+];
+
+const TreeDecoration = ({ type, side }) => {
+  switch (type) {
+    case 'blossom':
+      return (
+        <group position={[-side * 0.55, 2.7, 0.55]}>
+          <mesh>
+            <sphereGeometry args={[0.16, 12, 10]} />
+            <meshStandardMaterial
+              color="#f4b8c8"
+              emissive="#f4b8c8"
+              emissiveIntensity={0.35}
+              roughness={0.6}
+            />
+          </mesh>
+          {/* Bigger halo di sekitar blossom — glow soft */}
+          <mesh>
+            <sphereGeometry args={[0.24, 10, 8]} />
+            <meshBasicMaterial
+              color="#f4b8c8"
+              transparent
+              opacity={0.18}
+              depthWrite={false}
+            />
+          </mesh>
+        </group>
+      );
+    case 'lampion':
+      return (
+        <group position={[-side * 0.5, 2.0, 0.45]}>
+          {/* String menggantung dari foliage */}
+          <mesh position={[0, 0.42, 0]}>
+            <cylinderGeometry args={[0.005, 0.005, 0.7, 4]} />
+            <meshStandardMaterial color="#5a4530" />
+          </mesh>
+          {/* Lampion body — sphere oranye glowing */}
+          <mesh>
+            <sphereGeometry args={[0.10, 12, 10]} />
+            <meshStandardMaterial
+              color="#d8745a"
+              emissive="#ff8848"
+              emissiveIntensity={0.55}
+              roughness={0.7}
+            />
+          </mesh>
+          {/* Rope tail di bawah */}
+          <mesh position={[0, -0.13, 0]}>
+            <cylinderGeometry args={[0.004, 0.004, 0.08, 4]} />
+            <meshStandardMaterial color="#5a4530" />
+          </mesh>
+        </group>
+      );
+    case 'ribbon':
+      return (
+        <mesh position={[0, 1.0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.13, 0.025, 6, 16]} />
+          <meshStandardMaterial color="#c44a3e" roughness={0.85} />
+        </mesh>
+      );
+    case 'nest':
+      return (
+        <group position={[-side * 0.45, 3.45, 0.2]}>
+          {/* Nest dome */}
+          <mesh>
+            <sphereGeometry args={[0.10, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+            <meshStandardMaterial color="#5a4530" roughness={0.95} />
+          </mesh>
+          {/* Inner rim */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.075, 0.012, 5, 12]} />
+            <meshStandardMaterial color="#3a2c1c" roughness={1} />
+          </mesh>
+        </group>
+      );
+    case 'plate':
+      return (
+        <group position={[0, 1.4, 0.18]}>
+          {/* Plank wood vertical attached to trunk */}
+          <mesh>
+            <boxGeometry args={[0.32, 0.20, 0.025]} />
+            <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
+          </mesh>
+          {/* Border darker */}
+          <mesh position={[0, 0.115, 0.014]}>
+            <boxGeometry args={[0.34, 0.018, 0.018]} />
+            <meshStandardMaterial color="#3a2616" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, -0.115, 0.014]}>
+            <boxGeometry args={[0.34, 0.018, 0.018]} />
+            <meshStandardMaterial color="#3a2616" roughness={0.95} />
+          </mesh>
+          {/* Small nail dots */}
+          <mesh position={[-0.13, 0.07, 0.018]}>
+            <sphereGeometry args={[0.008, 6, 6]} />
+            <meshStandardMaterial color="#2a2018" metalness={0.6} roughness={0.4} />
+          </mesh>
+          <mesh position={[0.13, 0.07, 0.018]}>
+            <sphereGeometry args={[0.008, 6, 6]} />
+            <meshStandardMaterial color="#2a2018" metalness={0.6} roughness={0.4} />
+          </mesh>
+        </group>
+      );
+    default:
+      return null;
+  }
+};
+
 // Bangku kayu tua — weathered, di-side path antara owl dan rabbit
 // (z=-15 right side, opposite rabbit di kiri). Dengan 2 daun gugur
 // settle di seat — kasih kesan "udah lama nggak diduduki".
@@ -1561,7 +1743,7 @@ const Puddle = ({ isMobile }) => (
 
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
 // melayang. Hover lift + emissive glow, click → modal milestone.
-const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
+const YearTree = ({ tree, idx, hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
   const foliageRef = useRef();
   const matRef = useRef();
@@ -1633,6 +1815,11 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
           />
         </mesh>
       </group>
+      {/* Tree-specific decoration — different per tree by idx */}
+      <TreeDecoration
+        type={TREE_DECORATION_TYPES[idx % TREE_DECORATION_TYPES.length]}
+        side={Math.sign(tree.x)}
+      />
       {/* Year label — Fraunces italic memorial style + separator line.
           Naik ke 4.0 supaya tetap di atas foliage 3.65 */}
       <Html position={[0, 4.0, 0]} center distanceFactor={10}>
@@ -2144,6 +2331,7 @@ const LorongScene = ({
     <OldBench />
     <TreeSwing />
     <WindChime />
+    <StoneMonument />
     <Lanterns signatureTime={signatureTime} />
     <YearPlaques trees={trees} />
     <Owls />
@@ -2155,10 +2343,11 @@ const LorongScene = ({
     {!isMobile && <MistPools />}
     <FallingLeaves count={isMobile ? 35 : 60} />
     <MemoryFragments />
-    {trees.map((tree) => (
+    {trees.map((tree, idx) => (
       <YearTree
         key={tree.id}
         tree={tree}
+        idx={idx}
         hovered={hoveredTreeId === tree.id}
         onPointerOver={onTreeHover}
         onPointerOut={onTreeOut}
