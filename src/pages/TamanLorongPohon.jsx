@@ -243,7 +243,7 @@ const GroundMist = ({ count = 70 }) => {
         size={1.4}
         color="#9aa5b8"
         transparent
-        opacity={0.38}
+        opacity={0.24}
         sizeAttenuation
         depthWrite={false}
       />
@@ -255,10 +255,10 @@ const GroundMist = ({ count = 70 }) => {
 // bukan tengah. Kasih kesan "ada ruang" di sekitar lorong, bukan flat
 // world. Distribusi alternating side sepanjang path z.
 const MIST_POOL_DEFS = [
-  { pos: [-7, 0, -7], radius: 3.5, count: 22 },
-  { pos: [7, 0, -13], radius: 4.0, count: 26 },
-  { pos: [-8, 0, -20], radius: 3.8, count: 24 },
-  { pos: [7.5, 0, -27], radius: 3.6, count: 22 },
+  { pos: [-7, 0, -7], radius: 3.5, count: 14 },
+  { pos: [7, 0, -13], radius: 4.0, count: 16 },
+  { pos: [-8, 0, -20], radius: 3.8, count: 15 },
+  { pos: [7.5, 0, -27], radius: 3.6, count: 14 },
 ];
 
 const MistPool = ({ pos, radius, count }) => {
@@ -315,7 +315,7 @@ const MistPool = ({ pos, radius, count }) => {
         size={2.6}
         color="#adb6cc"
         transparent
-        opacity={0.32}
+        opacity={0.22}
         sizeAttenuation
         depthWrite={false}
       />
@@ -2151,7 +2151,7 @@ const LorongScene = ({
     {!isMobile && <Bats />}
     <DistantFigure signatureTime={signatureTime} />
     <Fireflies count={isMobile ? 9 : 16} />
-    <GroundMist count={isMobile ? 40 : 70} />
+    <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}
     <FallingLeaves count={isMobile ? 35 : 60} />
     <MemoryFragments />
