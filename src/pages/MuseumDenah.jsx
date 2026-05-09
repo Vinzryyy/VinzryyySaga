@@ -7,41 +7,41 @@
  * supaya kerasa "memandang denah dari atas" — referensi visual:
  * Monument Valley, Florence.
  *
- * Round 2A (file ini): scene statis. Ruangan = box berwarna dengan
- * label HTML melayang di atasnya. Belum ada hover/click — itu di
- * 2B. Belum ada kamera fly-in dari R0 — itu di 2C.
+ * Round 2A: scene statis, label drei Html melayang di tiap ruangan.
+ * Round 2B (file ini): hover lifts box + emissive glow + label
+ *   highlights; click buka overlay info ruangan dengan pesan "akan
+ *   dirilis di Fase 3"; cursor pointer saat hover.
+ * Round 2C nanti: kamera fly-in dari R0 → Denah, OrbitControls
+ *   terbatas, progress markers (R1 ✓, dst).
  *
  * Color palette: warm aprikot tones (sesuai identitas Armeniaca).
  * Background: dark-warm, bukan murni hitam — supaya kerasa "rumah",
  * bukan "void".
- *
- * Pohon di tengah = placeholder primitif (cylinder trunk + sphere
- * foliage). Akan diganti dengan model proper di Round 2C atau
- * sekalian saat bangun R6 Taman Akhir.
  */
 
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Html, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
 
-// 6 ruangan museum, posisi heksagonal di sekeliling pohon (origin).
-// Distance 5 unit dari pusat. Angle dalam derajat dengan konvensi
-// 270° = utara (ke -z), searah jarum jam.
 const HEX_RADIUS = 5;
 const ROOMS = [
   {
     id: 'r1',
     name: 'Lorong Waktu',
     desc: 'Timeline perjalanan',
-    angle: 270, // utara
+    longDesc:
+      'Koridor panjang dengan frame-frame milestone karier Eli — debut, single, theater, generasi.',
+    angle: 270,
     color: '#d4a574',
   },
   {
     id: 'r2',
     name: 'Galeri Fan Projects',
     desc: 'Karya penggemar',
+    longDesc:
+      'Ruang terbuka berisi karya-karya kontribusi penggemar: video, web, poster, dan lainnya.',
     angle: 330,
     color: '#c8956a',
   },
@@ -49,6 +49,8 @@ const ROOMS = [
     id: 'r3',
     name: 'Ruang Quotes',
     desc: 'Kata-kata Eli',
+    longDesc:
+      'Kutipan dari jikoshoukai, interview, dan tweet pilihan — melayang di ruang gelap.',
     angle: 30,
     color: '#b88060',
   },
@@ -56,13 +58,17 @@ const ROOMS = [
     id: 'r4',
     name: 'Arsip Kebaikan',
     desc: 'Sejarah charity',
-    angle: 90, // selatan
+    longDesc:
+      'Galeri Kebaikan + program donasi + kunjungan komunitas — dokumentasi dampak nyata.',
+    angle: 90,
     color: '#a87055',
   },
   {
     id: 'r5',
     name: 'Ruang Fanart',
     desc: 'Karya seni',
+    longDesc:
+      'Klasik gallery hall — lukisan, ilustrasi, dan sculpture digital dari komunitas.',
     angle: 150,
     color: '#b88060',
   },
@@ -70,6 +76,8 @@ const ROOMS = [
     id: 'r6',
     name: 'Taman Akhir',
     desc: 'Pohon + Langit Harapan',
+    longDesc:
+      'Climax museum: Pohon Kebaikan dalam mode malam, langit bertabur bintang dari kontributor.',
     angle: 210,
     color: '#c8956a',
   },
@@ -80,18 +88,58 @@ const polarToXZ = (angleDeg, radius) => {
   return [Math.cos(rad) * radius, Math.sin(rad) * radius];
 };
 
-// Box ruangan dengan label HTML melayang di atas. Box-nya pake
-// dimensi 2.6×0.5×2.6 — flat-ish supaya kerasa kayak "sel di denah",
-// bukan kotak penuh. Label pake drei Html non-transform mode (anchored
-// ke 3D point tapi render di DOM, jadi text tetap sharp di semua DPR).
-const RoomBox = ({ room }) => {
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// Box ruangan dengan hover lift + emissive glow + click handler.
+// Hover/click di-deteksi via R3F pointer events. Animasi hover (lift Y
+// + emissive intensity) di-lerp di useFrame supaya halus, bukan jump
+// instan. clamp factor delta*8 ngasih spring-feel ringan.
+const RoomBox = ({ room, hovered, onPointerOver, onPointerOut, onClick }) => {
+  const groupRef = useRef();
+  const matRef = useRef();
   const [x, z] = polarToXZ(room.angle, HEX_RADIUS);
+
+  useFrame((_, delta) => {
+    if (!groupRef.current || !matRef.current) return;
+    const targetY = hovered ? 0.55 : 0.25;
+    const targetEmissive = hovered ? 0.45 : 0;
+    const factor = Math.min(delta * 8, 1);
+    groupRef.current.position.y = lerp(
+      groupRef.current.position.y,
+      targetY,
+      factor
+    );
+    matRef.current.emissiveIntensity = lerp(
+      matRef.current.emissiveIntensity,
+      targetEmissive,
+      factor
+    );
+  });
+
   return (
-    <group position={[x, 0.25, z]}>
+    <group
+      ref={groupRef}
+      position={[x, 0.25, z]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver(room.id);
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut(room.id);
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(room);
+      }}
+    >
       <mesh>
         <boxGeometry args={[2.6, 0.5, 2.6]} />
         <meshStandardMaterial
+          ref={matRef}
           color={room.color}
+          emissive={room.color}
+          emissiveIntensity={0}
           roughness={0.7}
           metalness={0.05}
         />
@@ -102,11 +150,23 @@ const RoomBox = ({ room }) => {
         distanceFactor={10}
         occlude={false}
       >
-        <div className="text-center pointer-events-none select-none whitespace-nowrap">
-          <div className="text-white text-[11px] font-medium tracking-wide">
+        <div
+          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+            hovered ? '-translate-y-1' : ''
+          }`}
+        >
+          <div
+            className={`text-[11px] font-medium tracking-wide transition-colors ${
+              hovered ? 'text-white' : 'text-white/85'
+            }`}
+          >
             {room.name}
           </div>
-          <div className="text-white/55 text-[9px] mt-0.5 uppercase tracking-[0.15em]">
+          <div
+            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              hovered ? 'text-white/85' : 'text-white/55'
+            }`}
+          >
             {room.desc}
           </div>
         </div>
@@ -115,11 +175,8 @@ const RoomBox = ({ room }) => {
   );
 };
 
-// Pohon aprikot placeholder: trunk silinder + 2 sphere foliage tumpuk.
-// Animasi sway pelan supaya nggak kerasa mati. Akan diganti dengan
-// model proper di Round 2C.
 const CenterTree = () => {
-  const groupRef = React.useRef();
+  const groupRef = useRef();
   useFrame((state) => {
     if (!groupRef.current) return;
     groupRef.current.rotation.y =
@@ -147,9 +204,6 @@ const CenterTree = () => {
   );
 };
 
-// Lantai denah — plane besar warna warm dengan grid sangat tipis,
-// disco-style untuk kasih sense of scale. Grid tone hampir nyatu sama
-// background, fungsinya cuma jadi guide visual.
 const DenahFloor = () => (
   <>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
@@ -163,7 +217,12 @@ const DenahFloor = () => (
   </>
 );
 
-const DenahScene = () => {
+const DenahScene = ({
+  hoveredRoomId,
+  onRoomHover,
+  onRoomOut,
+  onRoomClick,
+}) => {
   return (
     <>
       <fog attach="fog" args={['#1a1310', 12, 35]} />
@@ -182,7 +241,14 @@ const DenahScene = () => {
       <DenahFloor />
       <CenterTree />
       {ROOMS.map((room) => (
-        <RoomBox key={room.id} room={room} />
+        <RoomBox
+          key={room.id}
+          room={room}
+          hovered={hoveredRoomId === room.id}
+          onPointerOver={onRoomHover}
+          onPointerOut={onRoomOut}
+          onClick={onRoomClick}
+        />
       ))}
     </>
   );
@@ -194,9 +260,6 @@ const SceneFallback = () => (
   </div>
 );
 
-// Top bar mini buat navigasi keluar denah. Sengaja minimalis biar
-// nggak nyaingin scene-nya. Kembali ke /museum = restart R0; kembali
-// ke / = keluar museum sepenuhnya.
 const DenahHeader = () => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-5">
     <div className="pointer-events-auto">
@@ -227,17 +290,105 @@ const DenahHeader = () => (
   </div>
 );
 
-const DenahFooter = () => (
-  <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/35 text-[10px] uppercase tracking-[0.2em] text-center">
-    Fase 2 Round A · Denah Statis
-    <br />
-    <span className="text-white/25 normal-case tracking-normal text-[10px] mt-1 inline-block">
-      (interaksi hover/click di Round 2B)
-    </span>
-  </div>
-);
+const DenahFooter = ({ hoveredRoomId }) => {
+  const hint = hoveredRoomId
+    ? 'Klik untuk lihat detail ruangan'
+    : 'Arahkan kursor ke ruangan';
+  return (
+    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[10px] uppercase tracking-[0.2em] text-center transition-opacity">
+      {hint}
+    </div>
+  );
+};
+
+// Modal info ruangan saat di-click. Karena ruangan sebenarnya belum
+// dibangun (Fase 3), overlay ini sementara nampilin deskripsi + CTA
+// "Akan dirilis di Fase 3". Setelah ruangan jadi, ganti CTA jadi
+// "Masuk ruangan →" yang navigate ke route ruangan.
+const RoomDetailOverlay = ({ room, onClose }) => {
+  // Lock body scroll saat overlay buka
+  useEffect(() => {
+    if (!room) return undefined;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = orig;
+    };
+  }, [room]);
+
+  if (!room) return null;
+  return (
+    <div
+      className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md animate-[fadeIn_300ms_ease-out]"
+      onClick={onClose}
+      style={{ animation: 'fadeIn 300ms ease-out' }}
+    >
+      <div
+        className="bg-[#1a1310]/95 border border-white/15 rounded-2xl px-8 py-9 max-w-md mx-6 text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-2 text-white/50 text-[10px] uppercase tracking-[0.25em]">
+          {room.id.toUpperCase()}
+        </div>
+        <h2
+          className="text-white text-2xl mb-3 leading-tight"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+          }}
+        >
+          {room.name}
+        </h2>
+        <p className="text-white/70 text-sm leading-relaxed mb-6">
+          {room.longDesc}
+        </p>
+        <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 mb-6">
+          <p className="text-white/55 text-xs leading-relaxed">
+            Ruangan ini sedang dalam pembangunan.
+            <br />
+            Akan dirilis di{' '}
+            <span className="text-white/85">Fase 3</span> — build
+            out ruangan satu per satu.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-6 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
+        >
+          Kembali ke denah
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const MuseumDenahPage = () => {
+  const [hoveredRoomId, setHoveredRoomId] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+
+  // Cursor pointer saat hover ruangan, normal saat tidak. Di-cleanup
+  // ke 'auto' kalau component unmount.
+  useEffect(() => {
+    document.body.style.cursor = hoveredRoomId ? 'pointer' : 'auto';
+    return () => {
+      document.body.style.cursor = 'auto';
+    };
+  }, [hoveredRoomId]);
+
+  const handleRoomHover = (roomId) => setHoveredRoomId(roomId);
+  const handleRoomOut = (roomId) => {
+    // Hanya clear kalau yang keluar adalah ruangan yang sedang
+    // hovered (defensive — kadang event leave fire belakangan dari
+    // event enter di ruangan lain).
+    setHoveredRoomId((current) => (current === roomId ? null : current));
+  };
+  const handleRoomClick = (room) => {
+    setSelectedRoom(room);
+    setHoveredRoomId(null); // reset hover state saat overlay buka
+  };
+  const handleCloseOverlay = () => setSelectedRoom(null);
+
   return (
     <>
       <Seo
@@ -256,13 +407,22 @@ const MuseumDenahPage = () => {
               camera.lookAt(0, 0, 0);
             }}
           >
-            <DenahScene />
+            <DenahScene
+              hoveredRoomId={hoveredRoomId}
+              onRoomHover={handleRoomHover}
+              onRoomOut={handleRoomOut}
+              onRoomClick={handleRoomClick}
+            />
             <Stats />
           </Canvas>
         </Suspense>
 
         <DenahHeader />
-        <DenahFooter />
+        <DenahFooter hoveredRoomId={hoveredRoomId} />
+        <RoomDetailOverlay
+          room={selectedRoom}
+          onClose={handleCloseOverlay}
+        />
       </div>
     </>
   );
