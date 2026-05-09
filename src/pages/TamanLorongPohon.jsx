@@ -23,7 +23,13 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html, OrbitControls, PointerLockControls, Stats } from '@react-three/drei';
+import {
+  Html,
+  MeshReflectorMaterial,
+  OrbitControls,
+  PointerLockControls,
+  Stats,
+} from '@react-three/drei';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 // Note: r3/utils.js berisi shared util taman (useIsMobile, lerp, dll).
@@ -988,6 +994,212 @@ const Footprints = () => (
   </>
 );
 
+// Bangku kayu tua — weathered, di-side path antara owl dan rabbit
+// (z=-15 right side, opposite rabbit di kiri). Dengan 2 daun gugur
+// settle di seat — kasih kesan "udah lama nggak diduduki".
+const OldBench = () => (
+  <group position={[3.0, 0, -15]} rotation={[0, -Math.PI / 2.4, 0]}>
+    {/* Seat plank */}
+    <mesh position={[0, 0.4, 0]} castShadow>
+      <boxGeometry args={[1.4, 0.05, 0.36]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Backrest */}
+    <mesh position={[0, 0.66, -0.16]} castShadow>
+      <boxGeometry args={[1.4, 0.45, 0.05]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Legs kiri-kanan */}
+    <mesh position={[-0.55, 0.2, 0]}>
+      <boxGeometry args={[0.07, 0.4, 0.28]} />
+      <meshStandardMaterial color="#2a1d10" roughness={1} />
+    </mesh>
+    <mesh position={[0.55, 0.2, 0]}>
+      <boxGeometry args={[0.07, 0.4, 0.28]} />
+      <meshStandardMaterial color="#2a1d10" roughness={1} />
+    </mesh>
+    {/* Sandaran tangan */}
+    <mesh position={[-0.68, 0.5, 0]}>
+      <boxGeometry args={[0.07, 0.22, 0.36]} />
+      <meshStandardMaterial color="#2a1d10" roughness={1} />
+    </mesh>
+    <mesh position={[0.68, 0.5, 0]}>
+      <boxGeometry args={[0.07, 0.22, 0.36]} />
+      <meshStandardMaterial color="#2a1d10" roughness={1} />
+    </mesh>
+    {/* Daun gugur di seat — kerasa "udah lama nggak diduduki" */}
+    <mesh position={[-0.3, 0.43, 0.05]} rotation={[-Math.PI / 2, 0, 0.3]}>
+      <planeGeometry args={[0.14, 0.10]} />
+      <meshStandardMaterial
+        color="#7a4828"
+        transparent
+        opacity={0.85}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    <mesh position={[0.4, 0.43, -0.08]} rotation={[-Math.PI / 2, 0, -0.5]}>
+      <planeGeometry args={[0.16, 0.12]} />
+      <meshStandardMaterial
+        color="#a06430"
+        transparent
+        opacity={0.85}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  </group>
+);
+
+// Ayunan pohon — branch horizontal dari foliage tree[5] (z≈-18.67,
+// x=2.6) cantilever toward path. Swing assembly hanging dari branch
+// tip dengan 2 rope + plank seat. Pendulum motion sync dengan wind
+// (rotation.x dari wind.total).
+const TreeSwing = () => {
+  const swingRef = useRef();
+  const windPhase = -18.67 * 0.13 + 1.0;
+  useFrame((state) => {
+    if (!swingRef.current) return;
+    const t = state.clock.elapsedTime;
+    const wind = getWind(t, windPhase);
+    // Pendulum forward-back (rotation X) + idle drift
+    swingRef.current.rotation.x = wind.total * 0.12 + Math.sin(t * 0.6) * 0.04;
+  });
+  return (
+    <>
+      {/* Branch horizontal cantilever dari foliage tree[5] ke arah path */}
+      <mesh position={[1.95, 2.0, -18.67]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.07, 1.3, 6]} />
+        <meshStandardMaterial color="#3a2818" roughness={1} />
+      </mesh>
+      {/* Swing pivot di tip cabang (1.3, 2.0, -18.67) */}
+      <group position={[1.3, 2.0, -18.67]}>
+        <group ref={swingRef}>
+          {/* 2 rope hanging — 1.7 panjang ke plank height */}
+          <mesh position={[-0.16, -0.85, 0]}>
+            <cylinderGeometry args={[0.012, 0.012, 1.7, 6]} />
+            <meshStandardMaterial color="#5a4530" roughness={1} />
+          </mesh>
+          <mesh position={[0.16, -0.85, 0]}>
+            <cylinderGeometry args={[0.012, 0.012, 1.7, 6]} />
+            <meshStandardMaterial color="#5a4530" roughness={1} />
+          </mesh>
+          {/* Plank seat */}
+          <mesh position={[0, -1.72, 0]} castShadow>
+            <boxGeometry args={[0.42, 0.04, 0.15]} />
+            <meshStandardMaterial color="#4a3220" roughness={0.9} />
+          </mesh>
+        </group>
+      </group>
+    </>
+  );
+};
+
+// Wind chime — branch dari tree[2] (z≈-8.67, x=-2.6) cantilever
+// toward path. Chime assembly: top wood disc + 5 metal tubes hang dari
+// strings + center clapper sphere. Group sway via rotation Z+X dari
+// wind, kasih kesan "tubes tinkling kena angin".
+const CHIME_TUBE_LENGTHS = [0.30, 0.25, 0.32, 0.27, 0.28];
+const CHIME_TUBE_X = [-0.06, -0.03, 0, 0.03, 0.06];
+
+const WindChime = () => {
+  const groupRef = useRef();
+  const windPhase = -8.67 * 0.13 + 2.0;
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const wind = getWind(t, windPhase);
+    // Sway 2 axis — chime swings sideways (Z) lebih dominant, slight forward (X)
+    groupRef.current.rotation.z = wind.total * 0.08;
+    groupRef.current.rotation.x = wind.sway * 0.04;
+  });
+  return (
+    <>
+      {/* Branch horizontal dari foliage tree[2] keluar ke arah path (kanan) */}
+      <mesh position={[-1.95, 2.1, -8.67]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.04, 0.06, 1.0, 6]} />
+        <meshStandardMaterial color="#3a2818" roughness={1} />
+      </mesh>
+      {/* Chime pivot di tip cabang (-1.45, 2.1, -8.67) */}
+      <group position={[-1.45, 2.1, -8.67]}>
+        <group ref={groupRef}>
+          {/* String dari branch ke top disc */}
+          <mesh position={[0, -0.18, 0]}>
+            <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
+            <meshStandardMaterial color="#5a4530" roughness={1} />
+          </mesh>
+          {/* Top wooden disc */}
+          <mesh position={[0, -0.36, 0]}>
+            <cylinderGeometry args={[0.10, 0.10, 0.025, 12]} />
+            <meshStandardMaterial color="#3a2818" roughness={0.9} />
+          </mesh>
+          {/* 5 chime tubes — metal silver sedikit emissive */}
+          {CHIME_TUBE_X.map((dx, i) => {
+            const len = CHIME_TUBE_LENGTHS[i];
+            return (
+              <group key={`tube-${i}`}>
+                {/* String tube ke disc */}
+                <mesh position={[dx, -0.45, 0]}>
+                  <cylinderGeometry args={[0.003, 0.003, 0.15, 4]} />
+                  <meshStandardMaterial color="#5a4530" roughness={1} />
+                </mesh>
+                {/* Metal tube */}
+                <mesh position={[dx, -0.55 - len / 2, 0]}>
+                  <cylinderGeometry args={[0.013, 0.013, len, 8]} />
+                  <meshStandardMaterial
+                    color="#bcbcad"
+                    roughness={0.35}
+                    metalness={0.7}
+                    emissive="#bcbcad"
+                    emissiveIntensity={0.08}
+                  />
+                </mesh>
+              </group>
+            );
+          })}
+          {/* Center clapper — kecil bulat di antara tubes */}
+          <mesh position={[0, -0.78, 0.04]}>
+            <sphereGeometry args={[0.025, 8, 6]} />
+            <meshStandardMaterial color="#5a4530" roughness={0.9} />
+          </mesh>
+        </group>
+      </group>
+    </>
+  );
+};
+
+// Puddle — small water reflection di path, refleksi langit/moon/stars
+// kasih extra magic ke twilight scene. MeshReflectorMaterial mahal di
+// GPU, fallback plain material di mobile.
+const Puddle = ({ isMobile }) => (
+  <mesh
+    rotation={[-Math.PI / 2, 0, 0]}
+    position={[0.4, 0.005, -12]}
+    receiveShadow
+  >
+    <circleGeometry args={[0.75, 24]} />
+    {isMobile ? (
+      <meshStandardMaterial
+        color="#1a1f2e"
+        roughness={0.5}
+        metalness={0.3}
+      />
+    ) : (
+      <MeshReflectorMaterial
+        blur={[400, 200]}
+        resolution={256}
+        mixBlur={1.5}
+        mixStrength={6}
+        roughness={0.65}
+        depthScale={0.3}
+        minDepthThreshold={0.3}
+        maxDepthThreshold={1.0}
+        color="#0c1020"
+        metalness={0.05}
+        mirror={0.45}
+      />
+    )}
+  </mesh>
+);
+
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
 // melayang. Hover lift + emissive glow, click → modal milestone.
 const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
@@ -1446,10 +1658,14 @@ const LorongScene = ({
     <Footprints />
     <PathEdgeStones />
     <SettledLeaves />
+    <Puddle isMobile={isMobile} />
     <DistantForest />
     <Stars />
     <Moon />
     <ShootingStar />
+    <OldBench />
+    <TreeSwing />
+    <WindChime />
     <Lanterns signatureTime={signatureTime} />
     <YearPlaques trees={trees} />
     <Owls />
