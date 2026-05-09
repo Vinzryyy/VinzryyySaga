@@ -1841,13 +1841,18 @@ const FPVMovement = ({ enabled }) => {
     };
   }, [enabled]);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!enabled) return;
     const speed = 3.5 * delta;
     camera.getWorldDirection(FPV_FORWARD);
     FPV_FORWARD.y = 0;
     FPV_FORWARD.normalize();
     FPV_RIGHT.crossVectors(FPV_FORWARD, camera.up).normalize();
+    const moving =
+      keysRef.current.w ||
+      keysRef.current.s ||
+      keysRef.current.a ||
+      keysRef.current.d;
     if (keysRef.current.w) camera.position.addScaledVector(FPV_FORWARD, speed);
     if (keysRef.current.s) camera.position.addScaledVector(FPV_FORWARD, -speed);
     if (keysRef.current.a) camera.position.addScaledVector(FPV_RIGHT, -speed);
@@ -1855,7 +1860,13 @@ const FPVMovement = ({ enabled }) => {
     // Boundary — keep dalam corridor + sedikit outside, di luar path end
     camera.position.x = Math.max(-4.5, Math.min(4.5, camera.position.x));
     camera.position.z = Math.max(-32, Math.min(0, camera.position.z));
-    camera.position.y = 1.6;
+    // Camera Y breathing: idle = subtle 1.6 ± 0.012, walking = sedikit
+    // lebih besar (head bob ritmis ngikut langkah). Frequency walking
+    // 2.4 (lebih cepat) vs idle 1.2 (lebih tenang).
+    const t = state.clock.elapsedTime;
+    const bobAmp = moving ? 0.025 : 0.012;
+    const bobFreq = moving ? 2.4 : 1.2;
+    camera.position.y = 1.6 + Math.sin(t * bobFreq) * bobAmp;
   });
   return null;
 };
@@ -1938,7 +1949,9 @@ const LorongScene = ({
       />
     ))}
     <CameraSync viewMode={viewMode} />
-    {/* Orbit mode: elevated 3/4 view dengan rotate + zoom limit */}
+    {/* Orbit mode: elevated 3/4 view + autoRotate slow (cinematic drift)
+        + manual rotate/zoom limit. autoRotate stop saat user manual
+        interact (built-in OrbitControls behavior). */}
     {viewMode === 'orbit' && (
       <OrbitControls
         target={ORBIT_TARGET}
@@ -1951,6 +1964,8 @@ const LorongScene = ({
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.4}
+        autoRotate
+        autoRotateSpeed={0.15}
       />
     )}
     {/* FPV mode: PointerLockControls (mouse look) + WASD movement */}
