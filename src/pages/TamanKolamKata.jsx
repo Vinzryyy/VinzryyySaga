@@ -1031,7 +1031,10 @@ const JumpingFish = ({ def }) => {
 };
 
 const FISH_DEFS = [
-  { pos: [-2.5, 0, -6], cycle: 12, offset: 0, jumpDuration: 0.85, facing: 0.3 },
+  // Fish #1 dipindah dari (-2.5, -6) — terlalu dekat duck #1 swim circle
+  // (home -3.5,-7 radius 1.2; closest approach cuma 0.21u → splash ring
+  // engulf duck). Sekarang di area kosong z=-10.
+  { pos: [-2, 0, -10], cycle: 12, offset: 0, jumpDuration: 0.85, facing: 0.3 },
   { pos: [3.2, 0, 1.5], cycle: 15, offset: 5.5, jumpDuration: 0.9, facing: -0.4 },
   { pos: [-0.5, 0, 9], cycle: 17, offset: 10, jumpDuration: 0.95, facing: 1.1 },
 ];
@@ -1679,7 +1682,8 @@ const MUSHROOM_CLUSTERS = [
   { pos: [-8.5, 0, -10], count: 3 },
   { pos: [9.5, 0, -12], count: 2 },
   { pos: [-9.5, 0, 9], count: 3 },
-  { pos: [11.5, 0, -7], count: 2 },
+  // Pindah dari [11.5, 0, -7] (overlap BikeParking) ke bank kiri kosong
+  { pos: [-11.5, 0, -5], count: 2 },
   { pos: [-3, 0, -14], count: 2 },
 ];
 
