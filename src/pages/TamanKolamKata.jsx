@@ -355,6 +355,272 @@ const FallingPetals = ({ count = 60 }) => {
   );
 };
 
+// Bukit jauh sebagai silhouette — 3 layer ridge di horizon untuk kasih
+// atmospheric depth & sense of wider world. Pakai box geometry rendah
+// dengan tone hijau-biru desaturated (atmospheric haze). Layer paling
+// jauh = paling samar (lebih biru), paling depan = lebih hijau.
+const DistantHills = () => (
+  <>
+    {/* Layer paling jauh */}
+    <mesh position={[-20, 1.5, -55]}>
+      <boxGeometry args={[60, 4, 1]} />
+      <meshStandardMaterial color="#9aaab5" roughness={1} />
+    </mesh>
+    <mesh position={[15, 2.0, -52]}>
+      <boxGeometry args={[40, 5, 1]} />
+      <meshStandardMaterial color="#9aaab5" roughness={1} />
+    </mesh>
+    {/* Layer tengah */}
+    <mesh position={[-5, 1.8, -45]}>
+      <boxGeometry args={[35, 4.5, 1]} />
+      <meshStandardMaterial color="#7d9583" roughness={1} />
+    </mesh>
+    <mesh position={[20, 1.5, -42]}>
+      <boxGeometry args={[28, 4, 1]} />
+      <meshStandardMaterial color="#7d9583" roughness={1} />
+    </mesh>
+    {/* Layer paling depan — lebih hijau, lebih kelihatan detail */}
+    <mesh position={[-15, 1.2, -35]}>
+      <boxGeometry args={[25, 3.5, 1]} />
+      <meshStandardMaterial color="#5a7a55" roughness={1} />
+    </mesh>
+    <mesh position={[10, 1.0, -33]}>
+      <boxGeometry args={[20, 3.0, 1]} />
+      <meshStandardMaterial color="#5a7a55" roughness={1} />
+    </mesh>
+  </>
+);
+
+// Cattails (rumput air / typha) — tanaman ikonik tepi danau. Stem
+// tinggi tipis hijau + cattail head silinder coklat di atas. 4
+// cluster di water edge dengan 5 cattails per cluster.
+const CattailCluster = ({ pos }) => {
+  const stems = useMemo(() => {
+    const arr = [];
+    const count = 5;
+    for (let i = 0; i < count; i++) {
+      const offset = (i - 2) * 0.15;
+      const sideOffset = ((i * 17) % 100) / 100 - 0.5;
+      const height = 1.2 + ((i * 13) % 100) / 200;
+      arr.push({
+        x: offset,
+        z: sideOffset * 0.3,
+        height,
+      });
+    }
+    return arr;
+  }, []);
+
+  return (
+    <group position={pos}>
+      {stems.map((s, i) => (
+        <group key={i} position={[s.x, 0, s.z]}>
+          {/* Stem */}
+          <mesh position={[0, s.height / 2, 0]}>
+            <cylinderGeometry args={[0.018, 0.022, s.height, 5]} />
+            <meshStandardMaterial color="#5a8045" roughness={1} />
+          </mesh>
+          {/* Cattail head */}
+          <mesh position={[0, s.height - 0.05, 0]}>
+            <cylinderGeometry args={[0.06, 0.06, 0.28, 6]} />
+            <meshStandardMaterial color="#6a3e1f" roughness={0.95} />
+          </mesh>
+          {/* Tip stem above head */}
+          <mesh position={[0, s.height + 0.18, 0]}>
+            <cylinderGeometry args={[0.012, 0.018, 0.14, 5]} />
+            <meshStandardMaterial color="#5a8045" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+};
+
+const CATTAIL_POSITIONS = [
+  // Tepi kiri danau (skip area bench/dock/path)
+  [-7.0, 0, -12],
+  [-7.0, 0, 11],
+  // Tepi kanan
+  [7.0, 0, -10],
+  [7.0, 0, -1],
+  // Tepi atas/bawah
+  [-2, 0, -13.5],
+  [3, 0, 13.5],
+];
+
+const Cattails = () => (
+  <>
+    {CATTAIL_POSITIONS.map((pos, i) => (
+      <CattailCluster key={`cattail-${i}`} pos={pos} />
+    ))}
+  </>
+);
+
+// Wildflowers — bunga liar kecil scatter di grass area. Sphere kecil
+// dengan warna variasi (yellow daisy, white, pink, blue, purple) +
+// sedikit emissive untuk pop. Pakai Points untuk efisiensi visual,
+// tapi karena warna variasi per bunga harus pakai vertex colors —
+// untuk simplicity pakai mesh kecil (~50 mesh, manageable).
+const WILDFLOWER_COLORS = [
+  '#f4d870', // dandelion yellow
+  '#ffffff', // white daisy
+  '#e89bb8', // pink wildflower
+  '#9bb8e8', // blue wildflower
+  '#c89be8', // purple wildflower
+  '#f4a570', // soft orange
+];
+
+const WILDFLOWER_POSITIONS = (() => {
+  const items = [];
+  // Scatter di banks (avoid path -x dan dock area +x z=4)
+  // Bank kiri (di luar path)
+  for (let i = 0; i < 14; i++) {
+    const x = -10 - ((i * 17) % 50) / 50 * 6;
+    const z = -12 + (i * 2.0);
+    items.push({ pos: [x, 0.04, z], colorIdx: (i * 3) % WILDFLOWER_COLORS.length });
+  }
+  // Bank kanan (di luar dock)
+  for (let i = 0; i < 14; i++) {
+    const x = 10 + ((i * 23) % 50) / 50 * 6;
+    const z = -12 + (i * 2.0);
+    items.push({ pos: [x, 0.04, z], colorIdx: (i * 5 + 1) % WILDFLOWER_COLORS.length });
+  }
+  // Bank atas (-z)
+  for (let i = 0; i < 8; i++) {
+    const x = -8 + (i * 2.2);
+    const z = -16 - ((i * 13) % 30) / 30 * 3;
+    items.push({ pos: [x, 0.04, z], colorIdx: (i * 7 + 2) % WILDFLOWER_COLORS.length });
+  }
+  // Bank bawah (+z)
+  for (let i = 0; i < 8; i++) {
+    const x = -8 + (i * 2.2);
+    const z = 16 + ((i * 11) % 30) / 30 * 3;
+    items.push({ pos: [x, 0.04, z], colorIdx: (i * 5 + 3) % WILDFLOWER_COLORS.length });
+  }
+  return items;
+})();
+
+const Wildflowers = () => (
+  <>
+    {WILDFLOWER_POSITIONS.map((f, i) => (
+      <mesh key={`flower-${i}`} position={f.pos}>
+        <sphereGeometry args={[0.07, 8, 6]} />
+        <meshStandardMaterial
+          color={WILDFLOWER_COLORS[f.colorIdx]}
+          emissive={WILDFLOWER_COLORS[f.colorIdx]}
+          emissiveIntensity={0.15}
+          roughness={0.6}
+        />
+      </mesh>
+    ))}
+  </>
+);
+
+// Wooden bridge — jembatan kayu kecil melintasi salah satu ujung
+// danau (di z = -12.5, dekat ujung utara). Span x dari -7 ke 7 (lebar
+// danau + sedikit overlap ke banks). Floor plank + 2 railing kiri/
+// kanan + railing posts (4 di tiap side).
+const BRIDGE_Z = -12.5;
+const BRIDGE_SPAN = 16;
+
+const Bridge = () => {
+  const posts = [];
+  // 5 posts kiri-kanan masing-masing
+  for (let i = 0; i < 5; i++) {
+    const x = -BRIDGE_SPAN / 2 + 0.5 + (BRIDGE_SPAN - 1) * (i / 4);
+    posts.push({ x, side: -1 }); // kiri railing
+    posts.push({ x, side: 1 }); // kanan railing
+  }
+  return (
+    <group position={[0, 0, BRIDGE_Z]}>
+      {/* Floor (plank) */}
+      <mesh position={[0, 0.15, 0]}>
+        <boxGeometry args={[BRIDGE_SPAN, 0.1, 1.6]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.9} />
+      </mesh>
+      {/* Plank lines on top — dekoratif horizontal */}
+      <mesh position={[0, 0.21, -0.5]}>
+        <boxGeometry args={[BRIDGE_SPAN - 0.2, 0.005, 0.05]} />
+        <meshStandardMaterial color="#3a2616" roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.21, 0]}>
+        <boxGeometry args={[BRIDGE_SPAN - 0.2, 0.005, 0.05]} />
+        <meshStandardMaterial color="#3a2616" roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.21, 0.5]}>
+        <boxGeometry args={[BRIDGE_SPAN - 0.2, 0.005, 0.05]} />
+        <meshStandardMaterial color="#3a2616" roughness={1} />
+      </mesh>
+      {/* Railing kiri & kanan — 2 horizontal rail */}
+      <mesh position={[0, 0.7, -0.75]}>
+        <boxGeometry args={[BRIDGE_SPAN, 0.06, 0.06]} />
+        <meshStandardMaterial color="#4a3826" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 0.7, 0.75]}>
+        <boxGeometry args={[BRIDGE_SPAN, 0.06, 0.06]} />
+        <meshStandardMaterial color="#4a3826" roughness={0.9} />
+      </mesh>
+      {/* Vertical posts */}
+      {posts.map((p, i) => (
+        <mesh
+          key={`post-${i}`}
+          position={[p.x, 0.45, p.side * 0.75]}
+        >
+          <boxGeometry args={[0.08, 0.6, 0.08]} />
+          <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// Burung-burung di langit — simple silhouette (V-shape via 2 cone)
+// drifting horizontal. 3 burung dengan posisi & speed berbeda. Animasi
+// sederhana di useFrame: x position drift + sedikit y oscillation.
+const BIRD_DEFS = [
+  { startX: -25, y: 14, z: -20, speed: 1.2, phase: 0 },
+  { startX: -30, y: 12, z: -25, speed: 0.9, phase: 1.5 },
+  { startX: -20, y: 16, z: -18, speed: 1.5, phase: 0.8 },
+];
+
+const Bird = ({ def }) => {
+  const groupRef = useRef();
+  const xRef = useRef(def.startX);
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    xRef.current += def.speed * delta;
+    if (xRef.current > 30) xRef.current = -30;
+    const yBob = Math.sin(state.clock.elapsedTime * 0.8 + def.phase) * 0.3;
+    groupRef.current.position.x = xRef.current;
+    groupRef.current.position.y = def.y + yBob;
+    groupRef.current.position.z = def.z;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Wing kiri */}
+      <mesh rotation={[0, 0, 0.6]}>
+        <coneGeometry args={[0.25, 0.5, 4]} />
+        <meshStandardMaterial color="#2a1f15" roughness={1} />
+      </mesh>
+      {/* Wing kanan */}
+      <mesh rotation={[0, 0, -0.6]}>
+        <coneGeometry args={[0.25, 0.5, 4]} />
+        <meshStandardMaterial color="#2a1f15" roughness={1} />
+      </mesh>
+    </group>
+  );
+};
+
+const Birds = () => (
+  <>
+    {BIRD_DEFS.map((def, i) => (
+      <Bird key={`bird-${i}`} def={def} />
+    ))}
+  </>
+);
+
 // Awan-awan kecil di langit — 5 cloud puff sebagai sphere putih
 // dengan slight emissive warmth. Posisi tinggi (y=15..22) dan jauh
 // (z=-25..15). Rotasi per cloud untuk variasi shape, scale 1-2x.
@@ -761,7 +1027,9 @@ const TelagaScene = ({
       intensity={0.45}
       color="#cfe0f0"
     />
+    <DistantHills />
     <Clouds />
+    <Birds />
     <Banks />
     <WalkPath />
     <River />
@@ -769,6 +1037,9 @@ const TelagaScene = ({
     <GrassTufts />
     <Bench />
     <Dock />
+    <Bridge />
+    <Cattails />
+    <Wildflowers />
     <Lanterns />
     <BankTrees />
     <FallingPetals count={60} />
