@@ -269,7 +269,12 @@ const MistPool = ({ pos, radius, count }) => {
       const angle = Math.random() * Math.PI * 2;
       const r = Math.random() * radius;
       arr[i * 3] = pos[0] + Math.cos(angle) * r;
-      arr[i * 3 + 1] = 0.7 + Math.random() * 1.4; // bottom range 0.0-2.1
+      // Multi-Y layer distribution untuk volumetric feel:
+      // 50% low (0.2-0.8), 35% mid (0.8-1.6), 15% high (1.6-2.4)
+      const layerR = Math.random();
+      if (layerR < 0.5) arr[i * 3 + 1] = 0.2 + Math.random() * 0.6;
+      else if (layerR < 0.85) arr[i * 3 + 1] = 0.8 + Math.random() * 0.8;
+      else arr[i * 3 + 1] = 1.6 + Math.random() * 0.8;
       arr[i * 3 + 2] = pos[2] + Math.sin(angle) * r;
     }
     return arr;
@@ -286,9 +291,10 @@ const MistPool = ({ pos, radius, count }) => {
     const arr = ref.current.geometry.attributes.position.array;
     for (let i = 0; i < count; i++) {
       const phase = phases[i];
-      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.18 + phase) * 0.5 + wind.total * 0.4;
-      arr[i * 3 + 1] = basePositions[i * 3 + 1] + Math.cos(t * 0.2 + phase * 1.3) * 0.1;
-      arr[i * 3 + 2] = basePositions[i * 3 + 2] + Math.cos(t * 0.16 + phase) * 0.5;
+      // Slower drifting — amplitude lebih kecil, frequency lebih rendah
+      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.12 + phase) * 0.35 + wind.total * 0.32;
+      arr[i * 3 + 1] = basePositions[i * 3 + 1] + Math.cos(t * 0.14 + phase * 1.3) * 0.08;
+      arr[i * 3 + 2] = basePositions[i * 3 + 2] + Math.cos(t * 0.10 + phase) * 0.35;
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
   });
@@ -302,11 +308,14 @@ const MistPool = ({ pos, radius, count }) => {
           itemSize={3}
         />
       </bufferGeometry>
+      {/* Particles lebih besar + softer (size 2.6 was 1.8) untuk
+          volumetric feel. Color slightly bluish-purple #adb6cc match
+          twilight palette */}
       <pointsMaterial
-        size={1.8}
-        color="#a8b0c4"
+        size={2.6}
+        color="#adb6cc"
         transparent
-        opacity={0.4}
+        opacity={0.32}
         sizeAttenuation
         depthWrite={false}
       />
@@ -1021,17 +1030,34 @@ const MemoryFragments = () => (
 // dengan delay staggered, tumbling rotation, fade in/out per-leaf.
 // Replace shooting star yang kelihatan kayak kotak putih dari
 // beberapa angle.
-const FLYING_LEAF_COUNT = 12;
+// Flying leaves dengan motion realistis — bukan straight trajectory.
+// Tiap leaf punya:
+// - Swirl orbit: motion circular kecil di sekitar drift path (kayak
+//   daun ketiup angin, miring2 ke samping)
+// - Fall speed variation: per-leaf speedFactor (heavy leaves fall
+//   faster) — leaves nggak tiba di tujuan bareng
+// - Per-leaf rotation 3 axis (X, Y, Z) bukan cuma 2
+// - Trajectory horizontal X drift bervariasi (subtle curve)
+const FLYING_LEAF_COUNT = 14;
 const FLYING_LEAF_DEFS = Array.from({ length: FLYING_LEAF_COUNT }, () => ({
-  offsetX: (Math.random() - 0.5) * 1.4,
-  offsetY: (Math.random() - 0.5) * 1.6,
-  offsetZ: (Math.random() - 0.5) * 1.6,
-  rotSpeedX: 1.2 + Math.random() * 2.5,
-  rotSpeedZ: 0.8 + Math.random() * 2.0,
+  offsetX: (Math.random() - 0.5) * 2.0,
+  offsetY: (Math.random() - 0.5) * 1.8,
+  offsetZ: (Math.random() - 0.5) * 2.2,
+  rotSpeedX: 1.5 + Math.random() * 2.8,
+  rotSpeedY: 0.6 + Math.random() * 1.4,
+  rotSpeedZ: 1.0 + Math.random() * 2.2,
   rotPhase: Math.random() * Math.PI * 2,
-  delay: Math.random() * 0.5,
+  delay: Math.random() * 0.7,
   colorIdx: Math.floor(Math.random() * AUTUMN_LEAF_COLORS.length),
-  scale: 0.6 + Math.random() * 0.7,
+  scale: 0.6 + Math.random() * 0.8,
+  // Swirl: orbit kecil di sekitar drift path (radius 0.2-0.6 unit)
+  swirlRadius: 0.18 + Math.random() * 0.42,
+  swirlFreq: 1.5 + Math.random() * 1.5,
+  swirlPhase: Math.random() * Math.PI * 2,
+  // Fall speed factor: 0.85-1.2 — beberapa leaves fall lebih cepat
+  speedFactor: 0.85 + Math.random() * 0.4,
+  // Curve bias di X drift untuk natural variation
+  curveBias: (Math.random() - 0.5) * 0.6,
 }));
 
 const FlyingLeavesGust = () => {
@@ -1048,40 +1074,52 @@ const FlyingLeavesGust = () => {
     }
     if (!stateRef.current.active) return;
     const totalDt = t - stateRef.current.t0;
-    const LIFECYCLE = 2.6; // detik per-leaf
-    const MAX_DELAY = 0.5;
-    let allDone = true;
+    const BASE_LIFECYCLE = 2.8;
+    const MAX_DELAY = 0.7;
+    let activeAny = false;
     FLYING_LEAF_DEFS.forEach((leaf, i) => {
       const m = refs.current[i];
       if (!m) return;
-      const dt = totalDt - leaf.delay;
+      const dt = (totalDt - leaf.delay) * leaf.speedFactor;
+      const lifecycleEnd = BASE_LIFECYCLE * leaf.speedFactor;
       if (dt < 0) {
         m.visible = false;
-        allDone = false;
+        activeAny = true;
         return;
       }
-      if (dt > LIFECYCLE) {
+      if (dt > BASE_LIFECYCLE) {
         m.visible = false;
         return;
       }
-      allDone = false;
-      const u = dt / LIFECYCLE;
-      // Trajectory: enter (12, 6, -10) → exit (-12, 0.5, -25),
-      // dengan small arc sin(u*π)*1.2 ke atas (kayak ditiup angin)
-      m.position.x = 12 - u * 24 + leaf.offsetX;
-      m.position.y = 6 - u * 5.5 + Math.sin(u * Math.PI) * 1.0 + leaf.offsetY;
-      m.position.z = -10 - u * 15 + leaf.offsetZ;
-      // Tumble rotation continuous
+      activeAny = true;
+      const u = dt / BASE_LIFECYCLE;
+      // Base trajectory enter (12, 6, -10) → exit (-12, 0.5, -25)
+      const baseX = 12 - u * 24;
+      const baseY = 6 - u * 5.5 + Math.sin(u * Math.PI) * 0.9;
+      const baseZ = -10 - u * 15;
+      // Curve bias di X (subtle horizontal curve)
+      const curveX = leaf.curveBias * Math.sin(u * Math.PI);
+      // Swirl orbit di sekitar drift path
+      const swirlT = t * leaf.swirlFreq + leaf.swirlPhase;
+      const swirlX = Math.sin(swirlT) * leaf.swirlRadius;
+      const swirlY = Math.cos(swirlT * 0.8) * leaf.swirlRadius * 0.5;
+      const swirlZ = Math.cos(swirlT) * leaf.swirlRadius * 0.7;
+      m.position.x = baseX + leaf.offsetX + curveX + swirlX;
+      m.position.y = baseY + leaf.offsetY + swirlY;
+      m.position.z = baseZ + leaf.offsetZ + swirlZ;
+      // Tumble 3 axis — bikin leaf flip bener-bener kayak ditiup angin
       m.rotation.x = t * leaf.rotSpeedX + leaf.rotPhase;
+      m.rotation.y = t * leaf.rotSpeedY + leaf.rotPhase;
       m.rotation.z = t * leaf.rotSpeedZ + leaf.rotPhase;
       m.visible = true;
-      // Fade in/out
+      // Fade in/out (curve longer hold)
       if (m.material) {
-        const opacity = u < 0.12 ? u / 0.12 : u > 0.85 ? (1 - u) / 0.15 : 1;
+        const opacity =
+          u < 0.10 ? u / 0.10 : u > 0.88 ? (1 - u) / 0.12 : 1;
         m.material.opacity = opacity * 0.92;
       }
     });
-    if (allDone || totalDt > LIFECYCLE + MAX_DELAY + 0.3) {
+    if (!activeAny || totalDt > BASE_LIFECYCLE + MAX_DELAY + 0.3) {
       stateRef.current = {
         active: false,
         t0: 0,
@@ -1103,7 +1141,9 @@ const FlyingLeavesGust = () => {
           visible={false}
           scale={leaf.scale}
         >
-          <planeGeometry args={[0.18, 0.13]} />
+          {/* Plane lebih elongated 0.24x0.10 (was 0.18x0.13) — lebih
+              kayak shape daun real, bukan kotak */}
+          <planeGeometry args={[0.24, 0.10]} />
           <meshStandardMaterial
             color={AUTUMN_LEAF_COLORS[leaf.colorIdx]}
             transparent
