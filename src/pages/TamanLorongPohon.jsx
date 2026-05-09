@@ -744,13 +744,15 @@ const Owl = ({ pos, headPhase = 0 }) => {
   );
 };
 
-// 2 owls perched di canopy — y=3.4 (foliage center 2.7, radius 0.95,
-// top 3.65 → owl di area atas foliage). 1 di pohon era debut, 1 di
-// pohon era recent.
+// 2 owls perched di canopy edge — y=4.0 (foliage top 3.65, owl body
+// extends 0.22 down → bottom y=3.78, jelas di atas foliage). X
+// offset toward path supaya owl perched di tepi foliage menghadap
+// lorong, nggak ketutupan dari camera angle. 1 di pohon era debut,
+// 1 di pohon era recent.
 const Owls = () => (
   <>
-    <Owl pos={[-2.6, 3.4, -8.67]} headPhase={0} />
-    <Owl pos={[2.6, 3.4, -25.33]} headPhase={1.8} />
+    <Owl pos={[-2.2, 4.0, -8.67]} headPhase={0} />
+    <Owl pos={[2.2, 4.0, -25.33]} headPhase={1.8} />
   </>
 );
 
