@@ -1,5 +1,5 @@
 /**
- * Taman Kebaikan — Petak R1: Lorong Pohon Tahun.
+ * Taman Kebaikan — Petak R1: Pohon-Pohon yang Mengingat.
  *
  * Petak pertama di /taman/peta yang punya isi konkret. Konsep:
  * jalur dengan pohon-pohon yang tumbuh seiring tahun, tiap pohon =
@@ -30,6 +30,13 @@ import {
   PointerLockControls,
   Stats,
 } from '@react-three/drei';
+import {
+  Bloom,
+  EffectComposer,
+  ToneMapping,
+  Vignette,
+} from '@react-three/postprocessing';
+import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 // Note: r3/utils.js berisi shared util taman (useIsMobile, lerp, dll).
@@ -243,6 +250,75 @@ const GroundMist = ({ count = 70 }) => {
     </points>
   );
 };
+
+// Mist pool — concentrated mist patches di posisi tertentu (low spots
+// di lorong) untuk variasi density. Lebih thick dari GroundMist
+// background, kasih atmospheric zones.
+const MIST_POOL_DEFS = [
+  { pos: [0, 0, -12], radius: 4.5, count: 28 },
+  { pos: [0, 0, -24], radius: 5.5, count: 32 },
+];
+
+const MistPool = ({ pos, radius, count }) => {
+  const ref = useRef();
+  const basePositions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.random() * radius;
+      arr[i * 3] = pos[0] + Math.cos(angle) * r;
+      arr[i * 3 + 1] = 0.7 + Math.random() * 1.4; // bottom range 0.0-2.1
+      arr[i * 3 + 2] = pos[2] + Math.sin(angle) * r;
+    }
+    return arr;
+  }, [pos, radius, count]);
+  const phases = useMemo(() => {
+    const arr = new Float32Array(count);
+    for (let i = 0; i < count; i++) arr[i] = Math.random() * Math.PI * 2;
+    return arr;
+  }, [count]);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const wind = getWind(t);
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      const phase = phases[i];
+      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.18 + phase) * 0.5 + wind.total * 0.4;
+      arr[i * 3 + 1] = basePositions[i * 3 + 1] + Math.cos(t * 0.2 + phase * 1.3) * 0.1;
+      arr[i * 3 + 2] = basePositions[i * 3 + 2] + Math.cos(t * 0.16 + phase) * 0.5;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={basePositions.slice()}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={1.8}
+        color="#a8b0c4"
+        transparent
+        opacity={0.4}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+const MistPools = () => (
+  <>
+    {MIST_POOL_DEFS.map((p, i) => (
+      <MistPool key={`mistpool-${i}`} {...p} />
+    ))}
+  </>
+);
 
 // Daun gugur — tone autumn (orange/amber/rust/gold) drift turun pelan
 // dari atas pohon. Cycle: fall sampai z ground, reset ke atas. Memory
@@ -518,7 +594,7 @@ const YearPlaques = ({ trees }) => (
 // sepasang titik kuning yang gerak pelan di antara pohon-pohon.
 const Owl = ({ pos, headPhase = 0 }) => {
   const headRef = useRef();
-  const eye1Ref = useRef();
+  const eye1Ref = useRef(); // mesh ref — pakai .material untuk emissive
   const eye2Ref = useRef();
   // Rare alert event — owl tiba-tiba snap kepala 90° ke samping, hold,
   // kembali normal. Trigger interval random 60-120s per owl (phase
@@ -541,7 +617,6 @@ const Owl = ({ pos, headPhase = 0 }) => {
     if (alertRef.current.active) {
       const dt = t - alertRef.current.t0;
       if (dt < 2.4) {
-        // Snap → hold → snap back
         if (dt < 0.25) headAngle = (dt / 0.25) * 1.4;
         else if (dt < 1.8) headAngle = 1.4;
         else headAngle = 1.4 - ((dt - 1.8) / 0.6) * 1.4;
@@ -554,12 +629,44 @@ const Owl = ({ pos, headPhase = 0 }) => {
       }
     }
     headRef.current.rotation.y = headAngle;
+    // Eye tracking — saat camera dekat, eyes shift toward camera
+    const cam = state.camera.position;
+    const dx = cam.x - pos[0];
+    const dy = cam.y - pos[1];
+    const dz = cam.z - pos[2];
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const tracking = Math.max(0, Math.min(1, (8 - dist) / 4));
+    let eyeBaseX = 0;
+    let eyeBaseZ = 0.13;
+    let eyeBaseY = 0.03;
+    if (tracking > 0) {
+      // Camera direction projected ke head local frame (XZ plane only).
+      // Head Y rotation = headAngle. Inverse rotate camera direction ke
+      // local space.
+      const camAngleWorld = Math.atan2(dx, dz); // angle dari +z di world XZ
+      const localCamAngle = camAngleWorld - headAngle;
+      const shift = tracking * 0.013;
+      eyeBaseX = Math.sin(localCamAngle) * shift;
+      eyeBaseZ = 0.13 + Math.cos(localCamAngle) * shift * 0.4;
+      eyeBaseY = 0.03 + Math.max(-0.5, Math.min(0.5, dy / Math.max(dist, 0.01))) * shift * 0.6;
+    }
+    if (eye1Ref.current) {
+      eye1Ref.current.position.x = 0.06 + eyeBaseX;
+      eye1Ref.current.position.y = eyeBaseY;
+      eye1Ref.current.position.z = eyeBaseZ;
+    }
+    if (eye2Ref.current) {
+      eye2Ref.current.position.x = -0.06 + eyeBaseX;
+      eye2Ref.current.position.y = eyeBaseY;
+      eye2Ref.current.position.z = eyeBaseZ;
+    }
     // Mata kedip saat gust + dim juga saat alert
     const blink = Math.max(0, Math.abs(wind.gust) - 0.6) * 0.7;
-    const alertBoost = alertRef.current.active ? 0.3 : 0; // sedikit lebih bright saat alert
-    const eyeIntensity = 1.1 + alertBoost - blink;
-    if (eye1Ref.current) eye1Ref.current.emissiveIntensity = eyeIntensity;
-    if (eye2Ref.current) eye2Ref.current.emissiveIntensity = eyeIntensity;
+    const alertBoost = alertRef.current.active ? 0.3 : 0;
+    const trackBoost = tracking * 0.2;
+    const eyeIntensity = 1.1 + alertBoost + trackBoost - blink;
+    if (eye1Ref.current) eye1Ref.current.material.emissiveIntensity = eyeIntensity;
+    if (eye2Ref.current) eye2Ref.current.material.emissiveIntensity = eyeIntensity;
   });
   return (
     <group position={pos}>
@@ -574,20 +681,19 @@ const Owl = ({ pos, headPhase = 0 }) => {
           <sphereGeometry args={[0.16, 14, 12]} />
           <meshStandardMaterial color="#4a3220" roughness={0.85} />
         </mesh>
-        {/* Mata — kuning emissive sebagai focal point malam */}
-        <mesh position={[0.06, 0.03, 0.13]}>
+        {/* Mata — kuning emissive sebagai focal point malam. Ref di
+            mesh (bukan material) supaya bisa shift posisi ke camera */}
+        <mesh ref={eye1Ref} position={[0.06, 0.03, 0.13]}>
           <sphereGeometry args={[0.04, 8, 8]} />
           <meshStandardMaterial
-            ref={eye1Ref}
             color="#fae650"
             emissive="#fae650"
             emissiveIntensity={1.1}
           />
         </mesh>
-        <mesh position={[-0.06, 0.03, 0.13]}>
+        <mesh ref={eye2Ref} position={[-0.06, 0.03, 0.13]}>
           <sphereGeometry args={[0.04, 8, 8]} />
           <meshStandardMaterial
-            ref={eye2Ref}
             color="#fae650"
             emissive="#fae650"
             emissiveIntensity={1.1}
@@ -846,9 +952,13 @@ const Rabbits = () => (
 // dan out" — hint poetic, jangan terlalu readable.
 const MEMORY_FRAGMENTS = [
   { pos: [-1.5, 0.7, -7], text: 'panggung pertama', phase: 0.0, period: 11 },
+  { pos: [2.0, 0.8, -10], text: 'sorot lampu', phase: 0.45, period: 13 },
   { pos: [1.8, 0.8, -13], text: 'tangan kecil yang mengangkat', phase: 0.35, period: 13 },
+  { pos: [-2.0, 0.7, -16], text: 'mata yang basah', phase: 0.7, period: 12 },
   { pos: [-1.2, 0.7, -19], text: 'rumah panggung', phase: 0.6, period: 10 },
+  { pos: [2.2, 0.8, -22], text: 'lagu yang kau hapal', phase: 0.2, period: 14 },
   { pos: [1.5, 0.8, -25], text: 'untuk yang menunggu', phase: 0.15, period: 12 },
+  { pos: [-1.8, 0.8, -28], text: 'apa kabar di sana', phase: 0.55, period: 11 },
   { pos: [-1.8, 0.7, -30], text: 'tahun yang panjang', phase: 0.8, period: 14 },
 ];
 
@@ -1433,7 +1543,8 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
           />
         </mesh>
       </group>
-      {/* Year label — naik ke 4.0 (was 2.3) supaya tetap di atas foliage */}
+      {/* Year label — Fraunces italic memorial style + separator line.
+          Naik ke 4.0 supaya tetap di atas foliage 3.65 */}
       <Html position={[0, 4.0, 0]} center distanceFactor={10}>
         <div
           className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
@@ -1441,15 +1552,31 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
           }`}
         >
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors ${
-              hovered ? 'text-white' : 'text-white/85'
+            className={`transition-colors leading-none ${
+              hovered ? 'text-white' : 'text-white/90'
             }`}
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: '22px',
+              letterSpacing: '0.02em',
+              textShadow: hovered
+                ? '0 0 16px rgba(255, 220, 160, 0.5)'
+                : '0 0 8px rgba(0, 0, 0, 0.4)',
+            }}
           >
             {tree.year}
           </div>
+          {/* Separator line subtle */}
           <div
-            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
-              hovered ? 'text-white/80' : 'text-white/50'
+            className={`mx-auto my-1.5 h-px transition-all ${
+              hovered ? 'w-6 bg-white/55' : 'w-4 bg-white/30'
+            }`}
+          />
+          <div
+            className={`text-[9px] uppercase tracking-[0.28em] transition-colors ${
+              hovered ? 'text-white/85' : 'text-white/55'
             }`}
           >
             {tree.badge}
@@ -1789,26 +1916,24 @@ const PathEdgeStones = () => (
   </>
 );
 
-// Sync camera position saat user toggle viewMode antara 'orbit' dan
-// 'fpv'. Orbit = elevated 3/4 view (good overview), FPV = eye-level
-// walk (immersive). Direct camera.position.set + lookAt karena di
-// dalam Canvas (akses useThree).
-const CameraSync = ({ viewMode }) => {
+// Sync camera saat user toggle viewMode. Smooth lerp transition over
+// ~1.2s sambil controls (Orbit/PointerLock) di-disable di luar — flag
+// `transitioning` di parent. Setelah transition selesai, controls
+// diambil alih.
+const CAMERA_TARGETS = {
+  orbit: { pos: new THREE.Vector3(7, 9, 4), look: new THREE.Vector3(0, 0, -16) },
+  fpv: { pos: new THREE.Vector3(0, 1.6, 0), look: new THREE.Vector3(0, 1.6, -10) },
+};
+
+const CameraSync = ({ viewMode, transitioning }) => {
   const { camera } = useThree();
-  const prevModeRef = useRef(viewMode);
-  useEffect(() => {
-    if (prevModeRef.current === viewMode) return;
-    if (viewMode === 'fpv') {
-      // Spawn di awal lorong, eye level 1.6, hadap ke ujung path (-z)
-      camera.position.set(0, 1.6, 0);
-      camera.lookAt(0, 1.6, -10);
-    } else {
-      // Reset ke orbit angle awal
-      camera.position.set(7, 9, 4);
-      camera.lookAt(0, 0, -16);
-    }
-    prevModeRef.current = viewMode;
-  }, [viewMode, camera]);
+  useFrame((_, delta) => {
+    if (!transitioning) return;
+    const target = CAMERA_TARGETS[viewMode] || CAMERA_TARGETS.orbit;
+    const factor = Math.min(delta * 4.5, 1);
+    camera.position.lerp(target.pos, factor);
+    camera.lookAt(target.look);
+  });
   return null;
 };
 
@@ -1877,6 +2002,7 @@ const LorongScene = ({
   isMobile,
   signatureTime,
   viewMode,
+  transitioning,
   onTreeHover,
   onTreeOut,
   onTreeClick,
@@ -1936,6 +2062,7 @@ const LorongScene = ({
     <DistantFigure signatureTime={signatureTime} />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 40 : 70} />
+    {!isMobile && <MistPools />}
     <FallingLeaves count={isMobile ? 35 : 60} />
     <MemoryFragments />
     {trees.map((tree) => (
@@ -1948,11 +2075,10 @@ const LorongScene = ({
         onClick={onTreeClick}
       />
     ))}
-    <CameraSync viewMode={viewMode} />
-    {/* Orbit mode: elevated 3/4 view + autoRotate slow (cinematic drift)
-        + manual rotate/zoom limit. autoRotate stop saat user manual
-        interact (built-in OrbitControls behavior). */}
-    {viewMode === 'orbit' && (
+    <CameraSync viewMode={viewMode} transitioning={transitioning} />
+    {/* Controls cuma render setelah transition selesai supaya nggak
+        fight dgn lerp. Saat transitioning=true, no control aktif. */}
+    {!transitioning && viewMode === 'orbit' && (
       <OrbitControls
         target={ORBIT_TARGET}
         enableZoom
@@ -1968,8 +2094,7 @@ const LorongScene = ({
         autoRotateSpeed={0.15}
       />
     )}
-    {/* FPV mode: PointerLockControls (mouse look) + WASD movement */}
-    {viewMode === 'fpv' && (
+    {!transitioning && viewMode === 'fpv' && (
       <>
         <PointerLockControls />
         <FPVMovement enabled />
@@ -2001,7 +2126,7 @@ const LorongHeader = () => (
         fontStyle: 'italic',
       }}
     >
-      Lorong Pohon Tahun
+      Pohon-Pohon yang Mengingat
     </div>
     <div className="pointer-events-auto">
       <Link
@@ -2053,7 +2178,7 @@ const IntroTitle = () => {
             textShadow: '0 0 40px rgba(255, 220, 160, 0.15)',
           }}
         >
-          Lorong Pohon Tahun
+          Pohon-Pohon yang Mengingat
         </h1>
         <div
           className="text-white/65 text-[13px]"
@@ -2156,6 +2281,14 @@ const TamanLorongPohonPage = () => {
   // View mode: 'orbit' = elevated 3/4 default, 'fpv' = first-person walk.
   // Mobile sembunyi-in toggle (PointerLockControls nggak support touch).
   const [viewMode, setViewMode] = useState('orbit');
+  // Transitioning flag — set true saat toggle, controls dihapus, camera
+  // lerp via CameraSync, set false setelah ~1.2s (transition done).
+  const [transitioning, setTransitioning] = useState(false);
+  const toggleViewMode = () => {
+    setTransitioning(true);
+    setViewMode((m) => (m === 'orbit' ? 'fpv' : 'orbit'));
+    setTimeout(() => setTransitioning(false), 1200);
+  };
 
   // Map ELI_TIMELINE → tree positions di scene. Alternating kiri/kanan,
   // gap z = (PATH_END - PATH_START) / (count-1). Year color progressive.
@@ -2202,7 +2335,7 @@ const TamanLorongPohonPage = () => {
   return (
     <>
       <Seo
-        title="Lorong Pohon Tahun"
+        title="Pohon-Pohon yang Mengingat"
         description="Tahun demi tahun perjalanan Eli — milestone karier dari debut sampai sekarang, dalam bentuk pohon-pohon di sebuah lorong."
         path="/taman/r1"
       />
@@ -2227,10 +2360,29 @@ const TamanLorongPohonPage = () => {
               isMobile={isMobile}
               signatureTime={signatureTime}
               viewMode={viewMode}
+              transitioning={transitioning}
               onTreeHover={handleTreeHover}
               onTreeOut={handleTreeOut}
               onTreeClick={handleTreeClick}
             />
+            {!isMobile && (
+              <EffectComposer>
+                {/* Bloom subtle — threshold tinggi 0.85 supaya cuma
+                    highlight ekstrem (lentera, mata owl, moon, star
+                    highlights) yang glow. Intensity 0.4 biar nggak
+                    mendominasi. */}
+                <Bloom
+                  intensity={0.4}
+                  luminanceThreshold={0.85}
+                  luminanceSmoothing={0.35}
+                  mipmapBlur
+                />
+                {/* Vignette darken edges untuk cinematic feel */}
+                <Vignette eskil={false} offset={0.35} darkness={0.5} />
+                {/* ACES tonemapping — film-grade color response */}
+                <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+              </EffectComposer>
+            )}
             {import.meta.env.DEV && <Stats />}
           </Canvas>
         </Suspense>
@@ -2243,10 +2395,9 @@ const TamanLorongPohonPage = () => {
         {!isMobile && (
           <button
             type="button"
-            onClick={() =>
-              setViewMode((m) => (m === 'orbit' ? 'fpv' : 'orbit'))
-            }
-            className="pointer-events-auto absolute bottom-6 right-6 z-20 px-4 py-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition"
+            onClick={toggleViewMode}
+            disabled={transitioning}
+            className="pointer-events-auto absolute bottom-6 right-6 z-20 px-4 py-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {viewMode === 'orbit' ? 'Masuk berjalan' : 'Keluar berjalan'}
           </button>
