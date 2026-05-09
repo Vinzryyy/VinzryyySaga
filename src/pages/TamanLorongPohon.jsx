@@ -627,13 +627,13 @@ const Owl = ({ pos, headPhase = 0 }) => {
   );
 };
 
-// 2 owls — 1 di pohon awal-tengah (debut era), 1 di pohon akhir-tengah
-// (recent era). Posisi y=2.05 = di atas foliage cluster (foliage center
-// y=1.5, radius 0.6, top y=2.1).
+// 2 owls perched di canopy — y=3.4 (foliage center 2.7, radius 0.95,
+// top 3.65 → owl di area atas foliage). 1 di pohon era debut, 1 di
+// pohon era recent.
 const Owls = () => (
   <>
-    <Owl pos={[-2.6, 2.05, -8.67]} headPhase={0} />
-    <Owl pos={[2.6, 2.05, -25.33]} headPhase={1.8} />
+    <Owl pos={[-2.6, 3.4, -8.67]} headPhase={0} />
+    <Owl pos={[2.6, 3.4, -25.33]} headPhase={1.8} />
   </>
 );
 
@@ -994,6 +994,165 @@ const Footprints = () => (
   </>
 );
 
+// Side trees — filler trees di sides path supaya scene lebih ramai &
+// kerasa kayak hutan beneran. Single useFrame iterate semua refs untuk
+// sway (efisien — 1 callback vs N). Tone foliage match palette gelap
+// twilight, scale variasi 0.7-1.4.
+const SIDE_TREE_COLORS = ['#3a4828', '#4a5a30', '#2c3a20', '#3e4a2c'];
+const SIDE_TREE_DEFS = (() => {
+  const arr = [];
+  // Both sides path, generate procedural deterministic via seeded variations
+  const seedAt = (i, m) => ((i * 17 + m * 7) % 100) / 100;
+  for (let i = 0; i < 8; i++) {
+    const baseZ = -3 - i * 3.7;
+    // Left side
+    arr.push({
+      pos: [
+        -5 - seedAt(i, 0) * 4,
+        0,
+        baseZ + (seedAt(i, 1) - 0.5) * 1.8,
+      ],
+      scale: 0.8 + seedAt(i, 2) * 0.6,
+      hueIdx: i % 4,
+    });
+    // Right side
+    arr.push({
+      pos: [
+        5 + seedAt(i, 3) * 4,
+        0,
+        baseZ + (seedAt(i, 4) - 0.5) * 1.8 + 1.0,
+      ],
+      scale: 0.8 + seedAt(i, 5) * 0.6,
+      hueIdx: (i + 1) % 4,
+    });
+  }
+  return arr;
+})();
+
+const SideTrees = () => {
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    SIDE_TREE_DEFS.forEach((tree, i) => {
+      const r = refs.current[i];
+      if (!r) return;
+      const wind = getWind(t, tree.pos[0] * 0.27 + tree.pos[2] * 0.13);
+      r.rotation.z = wind.total * 0.04;
+      r.rotation.x = wind.total * 0.02;
+    });
+  });
+  return (
+    <>
+      {SIDE_TREE_DEFS.map((tree, i) => (
+        <group key={`side-${i}`} position={tree.pos} scale={tree.scale}>
+          {/* Trunk */}
+          <mesh position={[0, 0.85, 0]}>
+            <cylinderGeometry args={[0.07, 0.12, 1.7, 6]} />
+            <meshStandardMaterial color="#3a2818" roughness={1} />
+          </mesh>
+          {/* Foliage — 1 sphere dengan sway via parent group ref */}
+          <group
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            position={[0, 1.7, 0]}
+          >
+            <mesh position={[0, 0.45, 0]}>
+              <sphereGeometry args={[0.7, 12, 8]} />
+              <meshStandardMaterial
+                color={SIDE_TREE_COLORS[tree.hueIdx]}
+                roughness={1}
+              />
+            </mesh>
+          </group>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// Bushes — small dark green clusters scattered di sides path. Tone
+// match twilight forest (gelap, sedikit kebiruan). Static.
+const BUSH_DEFS = [
+  { pos: [-4.5, 0, -5], scale: 0.7 },
+  { pos: [4.6, 0, -8], scale: 0.6 },
+  { pos: [-5.5, 0, -12], scale: 0.8 },
+  { pos: [5.3, 0, -16], scale: 0.7 },
+  { pos: [-4.2, 0, -22], scale: 0.65 },
+  { pos: [4.8, 0, -26], scale: 0.75 },
+  { pos: [-5.0, 0, -30], scale: 0.7 },
+];
+
+const Bush = ({ pos, scale }) => (
+  <group position={pos} scale={scale}>
+    <mesh position={[0, 0.3, 0]}>
+      <sphereGeometry args={[0.4, 10, 8]} />
+      <meshStandardMaterial color="#3a4828" roughness={1} />
+    </mesh>
+    <mesh position={[0.25, 0.25, 0.08]}>
+      <sphereGeometry args={[0.3, 10, 8]} />
+      <meshStandardMaterial color="#2e3a20" roughness={1} />
+    </mesh>
+    <mesh position={[-0.2, 0.27, 0.05]}>
+      <sphereGeometry args={[0.32, 10, 8]} />
+      <meshStandardMaterial color="#3a4828" roughness={1} />
+    </mesh>
+  </group>
+);
+
+const Bushes = () => (
+  <>
+    {BUSH_DEFS.map((b, i) => (
+      <Bush key={`bush-${i}`} pos={b.pos} scale={b.scale} />
+    ))}
+  </>
+);
+
+// Mushroom autumn forest — 3 cluster subtle dengan tone brown-amber
+// (bukan red fairy tale supaya match contemplative twilight mood).
+const MUSHROOM_CLUSTERS_R1 = [
+  [-4.8, 0, -10],
+  [5.5, 0, -20],
+  [-5.2, 0, -28],
+];
+
+const MushroomCluster = ({ pos }) => (
+  <group position={pos}>
+    {[0, 1, 2].map((i) => {
+      const angle = i * 2.1;
+      const scale = 0.7 + i * 0.12;
+      return (
+        <group
+          key={`m-${i}`}
+          position={[Math.cos(angle) * 0.18, 0, Math.sin(angle) * 0.18]}
+          scale={scale}
+        >
+          {/* Stem */}
+          <mesh position={[0, 0.06, 0]}>
+            <cylinderGeometry args={[0.02, 0.03, 0.12, 6]} />
+            <meshStandardMaterial color="#d8c8b0" roughness={0.85} />
+          </mesh>
+          {/* Cap dome — brown-amber tone (autumn forest) */}
+          <mesh position={[0, 0.13, 0]}>
+            <sphereGeometry
+              args={[0.08, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]}
+            />
+            <meshStandardMaterial color="#7a4828" roughness={0.85} />
+          </mesh>
+        </group>
+      );
+    })}
+  </group>
+);
+
+const Mushrooms = () => (
+  <>
+    {MUSHROOM_CLUSTERS_R1.map((pos, i) => (
+      <MushroomCluster key={`mush-${i}`} pos={pos} />
+    ))}
+  </>
+);
+
 // Bangku kayu tua — weathered, di-side path antara owl dan rabbit
 // (z=-15 right side, opposite rabbit di kiri). Dengan 2 daun gugur
 // settle di seat — kasih kesan "udah lama nggak diduduki".
@@ -1065,25 +1224,25 @@ const TreeSwing = () => {
   });
   return (
     <>
-      {/* Branch horizontal cantilever dari foliage tree[5] ke arah path */}
-      <mesh position={[1.95, 2.0, -18.67]} rotation={[0, 0, Math.PI / 2]}>
+      {/* Branch horizontal di foliage tree[5] (y=2.7 = foliage center) */}
+      <mesh position={[1.95, 2.7, -18.67]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.05, 0.07, 1.3, 6]} />
         <meshStandardMaterial color="#3a2818" roughness={1} />
       </mesh>
-      {/* Swing pivot di tip cabang (1.3, 2.0, -18.67) */}
-      <group position={[1.3, 2.0, -18.67]}>
+      {/* Swing pivot di tip cabang (1.3, 2.7, -18.67), rope 2.1 ke plank */}
+      <group position={[1.3, 2.7, -18.67]}>
         <group ref={swingRef}>
-          {/* 2 rope hanging — 1.7 panjang ke plank height */}
-          <mesh position={[-0.16, -0.85, 0]}>
-            <cylinderGeometry args={[0.012, 0.012, 1.7, 6]} />
+          {/* 2 rope hanging — 2.1 panjang */}
+          <mesh position={[-0.16, -1.05, 0]}>
+            <cylinderGeometry args={[0.012, 0.012, 2.1, 6]} />
             <meshStandardMaterial color="#5a4530" roughness={1} />
           </mesh>
-          <mesh position={[0.16, -0.85, 0]}>
-            <cylinderGeometry args={[0.012, 0.012, 1.7, 6]} />
+          <mesh position={[0.16, -1.05, 0]}>
+            <cylinderGeometry args={[0.012, 0.012, 2.1, 6]} />
             <meshStandardMaterial color="#5a4530" roughness={1} />
           </mesh>
-          {/* Plank seat */}
-          <mesh position={[0, -1.72, 0]} castShadow>
+          {/* Plank seat — di y=0.6 world (rest level) */}
+          <mesh position={[0, -2.12, 0]} castShadow>
             <boxGeometry args={[0.42, 0.04, 0.15]} />
             <meshStandardMaterial color="#4a3220" roughness={0.9} />
           </mesh>
@@ -1113,13 +1272,13 @@ const WindChime = () => {
   });
   return (
     <>
-      {/* Branch horizontal dari foliage tree[2] keluar ke arah path (kanan) */}
-      <mesh position={[-1.95, 2.1, -8.67]} rotation={[0, 0, Math.PI / 2]}>
+      {/* Branch horizontal di foliage tree[2] (y=2.85 sedikit upper foliage) */}
+      <mesh position={[-1.95, 2.85, -8.67]} rotation={[0, 0, Math.PI / 2]}>
         <cylinderGeometry args={[0.04, 0.06, 1.0, 6]} />
         <meshStandardMaterial color="#3a2818" roughness={1} />
       </mesh>
-      {/* Chime pivot di tip cabang (-1.45, 2.1, -8.67) */}
-      <group position={[-1.45, 2.1, -8.67]}>
+      {/* Chime pivot di tip cabang (-1.45, 2.85, -8.67) */}
+      <group position={[-1.45, 2.85, -8.67]}>
         <group ref={groupRef}>
           {/* String dari branch ke top disc */}
           <mesh position={[0, -0.18, 0]}>
@@ -1252,16 +1411,19 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
         onClick(tree);
       }}
     >
-      {/* Trunk — static (nggak sway, supaya pohon nggak kelihatan loyo) */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.08, 0.13, 1.2, 8]} />
+      {/* Trunk — static (nggak sway). Lebih tinggi dan tebal: 2.2 unit
+          height (was 1.2), radius 0.10/0.15 (was 0.08/0.13) supaya
+          proporsi tetap match */}
+      <mesh position={[0, 1.1, 0]}>
+        <cylinderGeometry args={[0.10, 0.15, 2.2, 8]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
       </mesh>
-      {/* Foliage assembly — pivot di trunk top (y=1.2) supaya rotasi
-          jadi swing dari pangkal foliage, bukan rotate di tengah */}
-      <group ref={foliageRef} position={[0, 1.2, 0]}>
-        <mesh position={[0, 0.3, 0]}>
-          <sphereGeometry args={[0.6, 14, 10]} />
+      {/* Foliage assembly — pivot di trunk top (y=2.2). Foliage radius
+          0.95 (was 0.6), inner offset y=0.5 → center y world 2.7,
+          top y 3.65. Canopy feel di FPV (eye level 1.6 lewat di bawah) */}
+      <group ref={foliageRef} position={[0, 2.2, 0]}>
+        <mesh position={[0, 0.5, 0]}>
+          <sphereGeometry args={[0.95, 14, 10]} />
           <meshStandardMaterial
             ref={matRef}
             color={tree.color}
@@ -1271,8 +1433,8 @@ const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
           />
         </mesh>
       </group>
-      {/* Year label */}
-      <Html position={[0, 2.3, 0]} center distanceFactor={10}>
+      {/* Year label — naik ke 4.0 (was 2.3) supaya tetap di atas foliage */}
+      <Html position={[0, 4.0, 0]} center distanceFactor={10}>
         <div
           className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
             hovered ? '-translate-y-1' : ''
@@ -1660,6 +1822,9 @@ const LorongScene = ({
     <SettledLeaves />
     <Puddle isMobile={isMobile} />
     <DistantForest />
+    <SideTrees />
+    <Bushes />
+    <Mushrooms />
     <Stars />
     <Moon />
     <ShootingStar />
