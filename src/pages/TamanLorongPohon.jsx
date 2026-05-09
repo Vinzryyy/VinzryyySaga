@@ -96,6 +96,19 @@ const getWind = (t, phaseOffset = 0) => {
   return { sway, gust, total: sway + gust };
 };
 
+// Firefly blackout — semua kunang-kunang dim bareng tiap ~75 detik.
+// Active window 1.5% dari period (~1.1s), parabolic dim. Atmospheric
+// blip — kayak "scene tahan napas sejenak".
+const FIREFLY_BLACKOUT_PERIOD = 75;
+const getFireflyBlackout = (t) => {
+  const u = ((t % FIREFLY_BLACKOUT_PERIOD) + FIREFLY_BLACKOUT_PERIOD) % FIREFLY_BLACKOUT_PERIOD / FIREFLY_BLACKOUT_PERIOD;
+  if (u > 0.985 && u < 1.0) {
+    const dim = (u - 0.985) / 0.015;
+    return Math.sin(dim * Math.PI);
+  }
+  return 0;
+};
+
 // Kunang-kunang — bola kecil emissive kuning-oranye dengan flicker
 // pulse + drift orbital di sekitar home position. Twilight = perfect
 // fit — bloom-less scene jadi emissive intensity bisa lebih kuat tanpa
@@ -107,16 +120,25 @@ const Firefly = ({ def }) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime;
     const wind = getWind(t);
+    // Reactive retreat — push pelan menjauh dari camera saat dekat
+    const cam = state.camera.position;
+    const dxc = def.home[0] - cam.x;
+    const dyc = def.home[1] - cam.y;
+    const dzc = def.home[2] - cam.z;
+    const distC = Math.sqrt(dxc * dxc + dyc * dyc + dzc * dzc);
+    const retreat = Math.max(0, Math.min(1, (14 - distC) / 5));
+    const rx = (dxc / Math.max(distC, 0.01)) * retreat * 0.6;
+    const rz = (dzc / Math.max(distC, 0.01)) * retreat * 0.6;
     ref.current.position.x =
-      def.home[0] + Math.sin(t * 0.4 + def.phase) * 0.6 + wind.total * 0.25;
+      def.home[0] + Math.sin(t * 0.4 + def.phase) * 0.6 + wind.total * 0.25 + rx;
     ref.current.position.y = def.home[1] + Math.cos(t * 0.5 + def.phase) * 0.25;
     ref.current.position.z =
-      def.home[2] + Math.cos(t * 0.35 + def.phase * 1.3) * 0.6;
+      def.home[2] + Math.cos(t * 0.35 + def.phase * 1.3) * 0.6 + rz;
     if (matRef.current) {
       const pulse = 0.5 + 0.5 * Math.sin(t * def.flicker + def.phase * 2);
-      // Saat gust kuat, fireflies sebagian "ketiup" dim sebentar
       const gustDim = Math.max(0, Math.abs(wind.gust) - 0.5) * 0.5;
-      matRef.current.emissiveIntensity = (0.6 + pulse * 1.8) * (1 - gustDim);
+      const blackout = getFireflyBlackout(t);
+      matRef.current.emissiveIntensity = (0.6 + pulse * 1.8) * (1 - gustDim) * (1 - blackout * 0.95);
     }
   });
   return (
@@ -491,14 +513,44 @@ const Owl = ({ pos, headPhase = 0 }) => {
   const headRef = useRef();
   const eye1Ref = useRef();
   const eye2Ref = useRef();
+  // Rare alert event — owl tiba-tiba snap kepala 90° ke samping, hold,
+  // kembali normal. Trigger interval random 60-120s per owl (phase
+  // beda jadi 2 owl nggak alert bareng).
+  const alertRef = useRef({
+    active: false,
+    t0: 0,
+    next: 60 + Math.random() * 60 + headPhase * 5,
+  });
   useFrame((state) => {
     if (!headRef.current) return;
     const t = state.clock.elapsedTime;
-    headRef.current.rotation.y = Math.sin(t * 0.4 + headPhase) * 0.55;
-    // Mata kedip saat gust angin — emissive turun briefly
     const wind = getWind(t, headPhase);
+    // Default head sway
+    let headAngle = Math.sin(t * 0.4 + headPhase) * 0.55;
+    // Alert event override
+    if (!alertRef.current.active && t > alertRef.current.next) {
+      alertRef.current = { active: true, t0: t, next: 0 };
+    }
+    if (alertRef.current.active) {
+      const dt = t - alertRef.current.t0;
+      if (dt < 2.4) {
+        // Snap → hold → snap back
+        if (dt < 0.25) headAngle = (dt / 0.25) * 1.4;
+        else if (dt < 1.8) headAngle = 1.4;
+        else headAngle = 1.4 - ((dt - 1.8) / 0.6) * 1.4;
+      } else {
+        alertRef.current = {
+          active: false,
+          t0: 0,
+          next: t + 60 + Math.random() * 60,
+        };
+      }
+    }
+    headRef.current.rotation.y = headAngle;
+    // Mata kedip saat gust + dim juga saat alert
     const blink = Math.max(0, Math.abs(wind.gust) - 0.6) * 0.7;
-    const eyeIntensity = 1.1 - blink;
+    const alertBoost = alertRef.current.active ? 0.3 : 0; // sedikit lebih bright saat alert
+    const eyeIntensity = 1.1 + alertBoost - blink;
     if (eye1Ref.current) eye1Ref.current.emissiveIntensity = eyeIntensity;
     if (eye2Ref.current) eye2Ref.current.emissiveIntensity = eyeIntensity;
   });
@@ -705,7 +757,17 @@ const Rabbit = ({ pos }) => {
   useFrame((state) => {
     if (!headRef.current) return;
     const t = state.clock.elapsedTime;
-    headRef.current.rotation.y = Math.sin(t * 0.8) * 0.4;
+    // Reactive freeze — saat camera dekat, head stop bergerak (alert/freeze).
+    // Threshold 10 unit, smooth ramp dari 10..6 unit.
+    const cam = state.camera.position;
+    const dx = cam.x - pos[0];
+    const dy = cam.y - pos[1];
+    const dz = cam.z - pos[2];
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const alertness = Math.max(0, Math.min(1, (10 - dist) / 4));
+    // Normal head amplitude 0.4, alert reduces ke 0.06 (almost frozen)
+    const amp = 0.4 * (1 - alertness * 0.85);
+    headRef.current.rotation.y = Math.sin(t * 0.8) * amp;
   });
   return (
     <group position={pos}>
@@ -834,6 +896,62 @@ const MemoryFragments = () => (
     ))}
   </>
 );
+
+// Shooting star — rare event langit, streak putih melintas dari
+// upper-right ke lower-left tiap 90-180 detik. Plane elongated dengan
+// emissive material. Lifecycle 1.4s: fade in → travel → fade out.
+const ShootingStar = () => {
+  const meshRef = useRef();
+  const matRef = useRef();
+  const stateRef = useRef({
+    active: false,
+    t0: 0,
+    next: 30 + Math.random() * 60,
+  });
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (!stateRef.current.active && t > stateRef.current.next) {
+      stateRef.current = { active: true, t0: t, next: 0 };
+    }
+    if (stateRef.current.active && meshRef.current && matRef.current) {
+      const dt = t - stateRef.current.t0;
+      if (dt < 1.4) {
+        const u = dt / 1.4;
+        meshRef.current.position.x = 15 - u * 30;
+        meshRef.current.position.y = 14 - u * 8;
+        meshRef.current.position.z = -12;
+        meshRef.current.visible = true;
+        const opacity = u < 0.15
+          ? u / 0.15
+          : u > 0.85
+          ? (1 - u) / 0.15
+          : 1;
+        matRef.current.opacity = opacity;
+      } else {
+        stateRef.current = {
+          active: false,
+          t0: 0,
+          next: t + 90 + Math.random() * 90,
+        };
+        meshRef.current.visible = false;
+      }
+    }
+  });
+  return (
+    <mesh ref={meshRef} visible={false} rotation={[0, 0, -0.26]}>
+      <planeGeometry args={[2.5, 0.05]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#ffffff"
+        emissive="#ffffff"
+        emissiveIntensity={2.2}
+        transparent
+        opacity={0}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
 
 // Footprints — bekas jejak kaki samar di tanah, kasih kesan "ada
 // yang pernah jalan duluan". Posisi alternating kiri/kanan sepanjang
@@ -1026,6 +1144,7 @@ const LorongScene = ({
     />
     <Path />
     <Footprints />
+    <ShootingStar />
     <Lanterns signatureTime={signatureTime} />
     <YearPlaques trees={trees} />
     <Owls />
