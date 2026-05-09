@@ -523,44 +523,86 @@ const DistantHills = () => (
   </>
 );
 
-// Cattails (rumput air / typha) — tanaman ikonik tepi danau. Stem
-// tinggi tipis hijau + cattail head silinder coklat di atas. 4
-// cluster di water edge dengan 5 cattails per cluster.
+// Cattails (rumput air / typha) — tanaman ikonik tepi danau.
+// Redesign: kombinasi blade leaves (daun pita panjang flat) di base
+// + 1-2 main stem dengan cattail head proportional di atas. Lebih
+// realistis dari versi lama yang cuma 5 silinder seragam.
+//
+// Blade leaves: planeGeometry vertical pakai side={2} doublesided,
+// di-rotate ke arah berbeda biar fanning out kayak rumput beneran.
+// Heights variasi acak per blade.
+//
+// Stems: lebih tipis (radius 0.012 vs 0.018 dulu), head lebih kecil
+// (radius 0.04 vs 0.06, height 0.22 vs 0.28). Proporsi-nya match
+// real cattail flora di lake.
+//
+// Posisi blades + stems + heights ALL randomized per mount —
+// useMemo([]) jalan sekali per cluster mount, jadi tiap refresh
+// scene punya cattail layout yang unik tapi tetap natural.
 const CattailCluster = ({ pos }) => {
-  const stems = useMemo(() => {
+  const blades = useMemo(() => {
+    const count = 5 + Math.floor(Math.random() * 3); // 5-7 blades
     const arr = [];
-    const count = 5;
     for (let i = 0; i < count; i++) {
-      const offset = (i - 2) * 0.15;
-      const sideOffset = ((i * 17) % 100) / 100 - 0.5;
-      const height = 1.2 + ((i * 13) % 100) / 200;
+      const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+      const r = 0.08 + Math.random() * 0.12;
+      const height = 0.9 + Math.random() * 0.5;
       arr.push({
-        x: offset,
-        z: sideOffset * 0.3,
+        x: Math.cos(angle) * r,
+        z: Math.sin(angle) * r,
         height,
+        rotation: angle + Math.random() * 0.5,
+        // Slight outward lean for natural fanning
+        tiltX: (Math.random() - 0.5) * 0.25,
+        tiltZ: (Math.random() - 0.5) * 0.25,
       });
     }
     return arr;
   }, []);
 
+  const stems = useMemo(() => {
+    const count = 1 + Math.floor(Math.random() * 2); // 1-2 stems
+    return Array.from({ length: count }, () => ({
+      x: (Math.random() - 0.5) * 0.18,
+      z: (Math.random() - 0.5) * 0.18,
+      height: 1.3 + Math.random() * 0.4, // 1.3-1.7
+    }));
+  }, []);
+
   return (
     <group position={pos}>
+      {/* Blade leaves — flat plane vertical, fanning out */}
+      {blades.map((b, i) => (
+        <mesh
+          key={`blade-${i}`}
+          position={[b.x, b.height / 2, b.z]}
+          rotation={[b.tiltX, b.rotation, b.tiltZ]}
+        >
+          <planeGeometry args={[0.05, b.height]} />
+          <meshStandardMaterial
+            color="#5a8045"
+            side={2}
+            roughness={0.95}
+          />
+        </mesh>
+      ))}
+      {/* Stems with cattail head — lebih proportional */}
       {stems.map((s, i) => (
-        <group key={i} position={[s.x, 0, s.z]}>
-          {/* Stem */}
+        <group key={`stem-${i}`} position={[s.x, 0, s.z]}>
+          {/* Stem tipis */}
           <mesh position={[0, s.height / 2, 0]}>
-            <cylinderGeometry args={[0.018, 0.022, s.height, 5]} />
-            <meshStandardMaterial color="#5a8045" roughness={1} />
+            <cylinderGeometry args={[0.012, 0.015, s.height, 6]} />
+            <meshStandardMaterial color="#6a8050" roughness={1} />
           </mesh>
-          {/* Cattail head */}
-          <mesh position={[0, s.height - 0.05, 0]}>
-            <cylinderGeometry args={[0.06, 0.06, 0.28, 6]} />
-            <meshStandardMaterial color="#6a3e1f" roughness={0.95} />
+          {/* Cattail head — sausage-shape proportional */}
+          <mesh position={[0, s.height + 0.11, 0]}>
+            <cylinderGeometry args={[0.04, 0.04, 0.22, 10]} />
+            <meshStandardMaterial color="#5a3a1f" roughness={0.95} />
           </mesh>
-          {/* Tip stem above head */}
-          <mesh position={[0, s.height + 0.18, 0]}>
-            <cylinderGeometry args={[0.012, 0.018, 0.14, 5]} />
-            <meshStandardMaterial color="#5a8045" roughness={1} />
+          {/* Tip kecil di atas head */}
+          <mesh position={[0, s.height + 0.27, 0]}>
+            <cylinderGeometry args={[0.005, 0.01, 0.1, 4]} />
+            <meshStandardMaterial color="#6a8050" roughness={1} />
           </mesh>
         </group>
       ))}
@@ -602,62 +644,66 @@ const WILDFLOWER_COLORS = [
   '#f4a570', // soft orange
 ];
 
-const WILDFLOWER_POSITIONS = (() => {
-  const items = [];
-  // Bank kiri (di luar path) — 24 bunga
-  for (let i = 0; i < 24; i++) {
-    const x = -10 - ((i * 17) % 70) / 70 * 7;
-    const z = -13 + (i * 1.15);
-    items.push({
-      pos: [x, 0.04, z],
-      colorIdx: (i * 3) % WILDFLOWER_COLORS.length,
-    });
-  }
-  // Bank kanan (di luar dock) — 24 bunga
-  for (let i = 0; i < 24; i++) {
-    const x = 10 + ((i * 23) % 70) / 70 * 7;
-    const z = -13 + (i * 1.15);
-    items.push({
-      pos: [x, 0.04, z],
-      colorIdx: (i * 5 + 1) % WILDFLOWER_COLORS.length,
-    });
-  }
-  // Bank atas (-z) — 14 bunga
-  for (let i = 0; i < 14; i++) {
-    const x = -9 + (i * 1.4);
-    const z = -16 - ((i * 13) % 50) / 50 * 4;
-    items.push({
-      pos: [x, 0.04, z],
-      colorIdx: (i * 7 + 2) % WILDFLOWER_COLORS.length,
-    });
-  }
-  // Bank bawah (+z) — 14 bunga
-  for (let i = 0; i < 14; i++) {
-    const x = -9 + (i * 1.4);
-    const z = 16 + ((i * 11) % 50) / 50 * 4;
-    items.push({
-      pos: [x, 0.04, z],
-      colorIdx: (i * 5 + 3) % WILDFLOWER_COLORS.length,
-    });
-  }
-  return items;
-})();
+// Wildflowers di-randomize per mount — useMemo([]) regenerate setiap
+// kali user load /taman/r3, jadi taman kerasa berubah-ubah tiap visit.
+// Posisi acak di band sekitar tepi danau (avoid playable zones), color
+// dipilih random dari palette, size variasi dikit.
+const Wildflowers = () => {
+  const flowers = useMemo(() => {
+    const items = [];
+    // Bank kiri — band x=-15 to -8.5, skip path area
+    for (let i = 0; i < 28; i++) {
+      const x = -8.5 - Math.random() * 6.5;
+      const z = -16 + Math.random() * 32;
+      const colorIdx = Math.floor(Math.random() * WILDFLOWER_COLORS.length);
+      const size = 0.06 + Math.random() * 0.025;
+      items.push({ pos: [x, size, z], colorIdx, size });
+    }
+    // Bank kanan — band x=8.5 to 15, skip dock area (z=2..6)
+    for (let i = 0; i < 28; i++) {
+      let z = -16 + Math.random() * 32;
+      // Avoid dock z range with retry
+      if (z > 2 && z < 6) z = z > 4 ? 6.2 : 1.8;
+      const x = 8.5 + Math.random() * 6.5;
+      const colorIdx = Math.floor(Math.random() * WILDFLOWER_COLORS.length);
+      const size = 0.06 + Math.random() * 0.025;
+      items.push({ pos: [x, size, z], colorIdx, size });
+    }
+    // Bank atas (-z) — band z<-16
+    for (let i = 0; i < 16; i++) {
+      const x = -10 + Math.random() * 20;
+      const z = -16 - Math.random() * 4;
+      const colorIdx = Math.floor(Math.random() * WILDFLOWER_COLORS.length);
+      const size = 0.06 + Math.random() * 0.025;
+      items.push({ pos: [x, size, z], colorIdx, size });
+    }
+    // Bank bawah (+z)
+    for (let i = 0; i < 16; i++) {
+      const x = -10 + Math.random() * 20;
+      const z = 16 + Math.random() * 4;
+      const colorIdx = Math.floor(Math.random() * WILDFLOWER_COLORS.length);
+      const size = 0.06 + Math.random() * 0.025;
+      items.push({ pos: [x, size, z], colorIdx, size });
+    }
+    return items;
+  }, []);
 
-const Wildflowers = () => (
-  <>
-    {WILDFLOWER_POSITIONS.map((f, i) => (
-      <mesh key={`flower-${i}`} position={f.pos}>
-        <sphereGeometry args={[0.07, 8, 6]} />
-        <meshStandardMaterial
-          color={WILDFLOWER_COLORS[f.colorIdx]}
-          emissive={WILDFLOWER_COLORS[f.colorIdx]}
-          emissiveIntensity={0.15}
-          roughness={0.6}
-        />
-      </mesh>
-    ))}
-  </>
-);
+  return (
+    <>
+      {flowers.map((f, i) => (
+        <mesh key={`flower-${i}`} position={f.pos}>
+          <sphereGeometry args={[f.size, 8, 6]} />
+          <meshStandardMaterial
+            color={WILDFLOWER_COLORS[f.colorIdx]}
+            emissive={WILDFLOWER_COLORS[f.colorIdx]}
+            emissiveIntensity={0.15}
+            roughness={0.6}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
 
 // Wooden bridge — jembatan kayu kecil melintasi salah satu ujung
 // danau (di z = -12.5, dekat ujung utara). Span x dari -7 ke 7 (lebar
