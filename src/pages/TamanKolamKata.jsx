@@ -38,7 +38,16 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Html, OrbitControls, Stats } from '@react-three/drei';
+import {
+  Environment,
+  Html,
+  MeshReflectorMaterial,
+  OrbitControls,
+  Sky,
+  Stats,
+} from '@react-three/drei';
+import { EffectComposer, ToneMapping } from '@react-three/postprocessing';
+import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import { SITE_CONFIG } from '../config/siteConfig';
@@ -534,7 +543,7 @@ const Bridge = () => {
   return (
     <group position={[0, 0, BRIDGE_Z]}>
       {/* Floor (plank) */}
-      <mesh position={[0, 0.15, 0]}>
+      <mesh position={[0, 0.15, 0]} castShadow>
         <boxGeometry args={[BRIDGE_SPAN, 0.1, 1.6]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.9} />
       </mesh>
@@ -700,23 +709,45 @@ const Lanterns = () => (
 // dark night green. Frame visual untuk scene + dimensionality. Posisi
 // scatter di kedua tepi, jauh dari sungai supaya nggak nutupin lily
 // pads.
-const BankTree = ({ pos, scale = 1 }) => (
-  <group position={pos} scale={scale}>
-    <mesh position={[0, 0.8, 0]}>
-      <cylinderGeometry args={[0.08, 0.13, 1.6, 8]} />
-      <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
-    </mesh>
-    {/* Foliage 2 cluster bright green untuk daytime */}
-    <mesh position={[0, 1.85, 0]}>
-      <sphereGeometry args={[0.55, 12, 10]} />
-      <meshStandardMaterial color="#5a8045" roughness={0.8} />
-    </mesh>
-    <mesh position={[0.18, 2.05, 0.05]}>
-      <sphereGeometry args={[0.4, 12, 10]} />
-      <meshStandardMaterial color="#6e9358" roughness={0.8} />
-    </mesh>
-  </group>
-);
+// BankTree dengan tree sway + shadow casting. Sway dijalanin via
+// useFrame: foliage group rotation Y di-osilasi sin wave halus dengan
+// phase berbeda per tree (deterministik dari posisi). Cast shadow ke
+// banks supaya kerasa solid.
+const BankTree = ({ pos, scale = 1 }) => {
+  const foliageRef = useRef();
+  // Phase deterministik dari position — supaya 2 tree dengan posisi
+  // sama selalu sync, tapi tree berbeda nggak.
+  const phase = (pos[0] + pos[2]) * 0.3;
+
+  useFrame((state) => {
+    if (!foliageRef.current) return;
+    const t = state.clock.elapsedTime;
+    foliageRef.current.rotation.z = Math.sin(t * 0.6 + phase) * 0.025;
+    foliageRef.current.rotation.x = Math.cos(t * 0.5 + phase) * 0.02;
+  });
+
+  return (
+    <group position={pos} scale={scale}>
+      <mesh position={[0, 0.8, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.13, 1.6, 8]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+      </mesh>
+      {/* Foliage group — sway via parent rotation di useFrame.
+          Anchor rotation di base pohon (y=0) supaya pohon "goyang"
+          di atasnya, bukan rotate di tengah. */}
+      <group ref={foliageRef} position={[0, 1.6, 0]}>
+        <mesh position={[0, 0.25, 0]} castShadow>
+          <sphereGeometry args={[0.55, 12, 10]} />
+          <meshStandardMaterial color="#5a8045" roughness={0.8} />
+        </mesh>
+        <mesh position={[0.18, 0.45, 0.05]} castShadow>
+          <sphereGeometry args={[0.4, 12, 10]} />
+          <meshStandardMaterial color="#6e9358" roughness={0.8} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
 
 // Pohon di perimeter danau — 4 sisi. Posisi nge-frame scene tanpa
 // nutupin lily pads atau bench/dock area.
@@ -751,14 +782,35 @@ const BankTrees = () => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
-const River = () => (
-  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
+// Permukaan air pakai MeshReflectorMaterial dari drei — beneran
+// mantulin pohon, langit, awan. Blur 300/100 untuk soft reflection,
+// mixStrength 35 untuk balance antara reflection vs base color.
+// Mobile fallback: plain meshStandardMaterial (reflector mahal di GPU
+// terbatas).
+const River = ({ isMobile = false }) => (
+  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
     <planeGeometry args={[RIVER_WIDTH, RIVER_LENGTH]} />
-    <meshStandardMaterial
-      color="#5a8aaf"
-      roughness={0.4}
-      metalness={0.3}
-    />
+    {isMobile ? (
+      <meshStandardMaterial
+        color="#5a8aaf"
+        roughness={0.4}
+        metalness={0.3}
+      />
+    ) : (
+      <MeshReflectorMaterial
+        blur={[300, 100]}
+        resolution={512}
+        mixBlur={1}
+        mixStrength={35}
+        roughness={0.4}
+        depthScale={1.0}
+        minDepthThreshold={0.4}
+        maxDepthThreshold={1.4}
+        color="#5a8aaf"
+        metalness={0.3}
+        mirror={0.5}
+      />
+    )}
   </mesh>
 );
 
@@ -769,7 +821,11 @@ const River = () => (
 const Banks = () => (
   <>
     {/* Lapangan utama — frame visual luar, bright grass green */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.07, 0]}>
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.07, 0]}
+      receiveShadow
+    >
       <planeGeometry args={[70, 70]} />
       <meshStandardMaterial color="#5a8045" roughness={1} />
     </mesh>
@@ -777,6 +833,7 @@ const Banks = () => (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[-(RIVER_WIDTH / 2 + 5), -0.04, 0]}
+      receiveShadow
     >
       <planeGeometry args={[10, RIVER_LENGTH + 2]} />
       <meshStandardMaterial color="#6a9050" roughness={1} />
@@ -785,6 +842,7 @@ const Banks = () => (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[RIVER_WIDTH / 2 + 5, -0.04, 0]}
+      receiveShadow
     >
       <planeGeometry args={[10, RIVER_LENGTH + 2]} />
       <meshStandardMaterial color="#6a9050" roughness={1} />
@@ -793,6 +851,7 @@ const Banks = () => (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, -0.04, -(RIVER_LENGTH / 2 + 4)]}
+      receiveShadow
     >
       <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
       <meshStandardMaterial color="#6a9050" roughness={1} />
@@ -801,6 +860,7 @@ const Banks = () => (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, -0.04, RIVER_LENGTH / 2 + 4]}
+      receiveShadow
     >
       <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
       <meshStandardMaterial color="#6a9050" roughness={1} />
@@ -828,12 +888,12 @@ const WalkPath = () => (
 const Bench = () => (
   <group position={[-(RIVER_WIDTH / 2 + 2.5), 0, -2]} rotation={[0, Math.PI / 2, 0]}>
     {/* Tempat duduk (seat plank) */}
-    <mesh position={[0, 0.45, 0]}>
+    <mesh position={[0, 0.45, 0]} castShadow>
       <boxGeometry args={[1.6, 0.06, 0.4]} />
       <meshStandardMaterial color="#4a3a26" roughness={0.85} />
     </mesh>
     {/* Sandaran (back rest) */}
-    <mesh position={[0, 0.75, -0.18]}>
+    <mesh position={[0, 0.75, -0.18]} castShadow>
       <boxGeometry args={[1.6, 0.5, 0.06]} />
       <meshStandardMaterial color="#4a3a26" roughness={0.85} />
     </mesh>
@@ -870,7 +930,7 @@ const Dock = () => {
   return (
     <group position={[0, 0, 4]}>
       {/* Platform kayu — 1 plane datar */}
-      <mesh position={[baseX - PLANK_LENGTH / 2, 0.04, 0]}>
+      <mesh position={[baseX - PLANK_LENGTH / 2, 0.04, 0]} castShadow>
         <boxGeometry args={[PLANK_LENGTH, 0.08, PLANK_WIDTH]} />
         <meshStandardMaterial color="#4a3826" roughness={0.85} />
       </mesh>
@@ -1004,27 +1064,57 @@ const GrassTufts = () => (
 const TelagaScene = ({
   pads,
   hoveredPadId,
+  isMobile,
   onPadHover,
   onPadOut,
   onPadClick,
 }) => (
   <>
-    {/* Light fog jauh — kerasa kayak haze siang hari di kejauhan,
-        bukan dense night fog */}
-    <fog attach="fog" args={['#bdd6ea', 25, 65]} />
-    <color attach="background" args={['#bdd6ea']} />
-    {/* Bright daytime ambient */}
-    <ambientLight intensity={0.85} color="#ffffff" />
-    {/* Sun directional dari high angle warm white */}
-    <directionalLight
-      position={[10, 18, 6]}
-      intensity={1.4}
-      color="#fff4dc"
+    {/* Procedural sky — drei Sky shader pakai atmospheric scattering.
+        Sun position config jadi sumber kalkulasi warna langit. Posisi
+        x=10 z=-2 selaras dengan directionalLight sun. Inclination 0.49
+        ≈ siang siang sekitar jam 10-2 (matahari tinggi). */}
+    <Sky
+      distance={450000}
+      sunPosition={[10, 18, -2]}
+      inclination={0.49}
+      azimuth={0.25}
+      mieCoefficient={0.005}
+      mieDirectionalG={0.85}
+      rayleigh={2.5}
+      turbidity={6}
     />
-    {/* Sky bounce fill — soft cool light dari arah berlawanan */}
+    {/* IBL via Environment preset 'park' — HDR environment map ngasih
+        ambient lighting + reflection dari "park" scene generic. Bikin
+        material reflective (water, lily pad) jadi authentic. background
+        false = sky di-handle terpisah. Mobile skip untuk save bandwidth
+        + GPU. */}
+    {!isMobile && <Environment preset="park" background={false} />}
+    {/* Light fog jauh — match warna haze sky */}
+    <fog attach="fog" args={['#bdd6ea', 25, 70]} />
+    {/* Reduced ambient — IBL sekarang nge-handle banyak ambient.
+        Mobile fallback ambient lebih tinggi karena no IBL. */}
+    <ambientLight intensity={isMobile ? 0.7 : 0.4} color="#ffffff" />
+    {/* Sun directional — castShadow enabled. Shadow camera frustum
+        di-set sesuai scene size supaya shadow nggak kepotong. */}
+    <directionalLight
+      position={[10, 18, -2]}
+      intensity={1.6}
+      color="#fff4dc"
+      castShadow
+      shadow-mapSize={[1024, 1024]}
+      shadow-camera-left={-25}
+      shadow-camera-right={25}
+      shadow-camera-top={25}
+      shadow-camera-bottom={-25}
+      shadow-camera-near={0.5}
+      shadow-camera-far={50}
+      shadow-bias={-0.0005}
+    />
+    {/* Sky bounce fill */}
     <directionalLight
       position={[-6, 8, -4]}
-      intensity={0.45}
+      intensity={0.35}
       color="#cfe0f0"
     />
     <DistantHills />
@@ -1032,7 +1122,7 @@ const TelagaScene = ({
     <Birds />
     <Banks />
     <WalkPath />
-    <River />
+    <River isMobile={isMobile} />
     <RiverStones />
     <GrassTufts />
     <Bench />
@@ -1331,7 +1421,7 @@ const TamanKolamKataPage = () => {
               antialias: !isMobile,
               powerPreference: 'high-performance',
             }}
-            shadows={false}
+            shadows={!isMobile}
             onCreated={({ camera }) => {
               camera.lookAt(0, 0, 0);
             }}
@@ -1339,10 +1429,16 @@ const TamanKolamKataPage = () => {
             <TelagaScene
               pads={pads}
               hoveredPadId={hoveredPadId}
+              isMobile={isMobile}
               onPadHover={handlePadHover}
               onPadOut={handlePadOut}
               onPadClick={handlePadClick}
             />
+            {!isMobile && (
+              <EffectComposer>
+                <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+              </EffectComposer>
+            )}
             {import.meta.env.DEV && <Stats />}
           </Canvas>
         </Suspense>
