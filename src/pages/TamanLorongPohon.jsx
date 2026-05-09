@@ -615,6 +615,14 @@ const Owl = ({ pos, headPhase = 0, signatureEvent }) => {
     t0: 0,
     next: 60 + Math.random() * 60 + headPhase * 5,
   });
+  // Click "noticed" — saat user click owl, head turn ke camera + eyes
+  // boost 1.8s. triggered flag di-set di click handler, useFrame
+  // pickup di tick berikutnya untuk activate dgn t0 valid.
+  const noticedRef = useRef({ triggered: false, active: false, t0: 0 });
+  const handleClick = (e) => {
+    e.stopPropagation();
+    noticedRef.current.triggered = true;
+  };
   useFrame((state) => {
     if (!headRef.current) return;
     const t = state.clock.elapsedTime;
@@ -639,14 +647,40 @@ const Owl = ({ pos, headPhase = 0, signatureEvent }) => {
         };
       }
     }
+    // Pickup noticed trigger — set t0 di tick berikutnya
+    if (noticedRef.current.triggered && !noticedRef.current.active) {
+      noticedRef.current = { triggered: false, active: true, t0: t };
+    }
+    // Compute camera angle untuk head turn (used by both tracking and noticed)
+    const camWorld = state.camera.position;
+    const dxw = camWorld.x - pos[0];
+    const dzw = camWorld.z - pos[2];
+    const camAngleWorld = Math.atan2(dxw, dzw);
+    if (noticedRef.current.active) {
+      const dt = t - noticedRef.current.t0;
+      if (dt < 1.8) {
+        // Lerp head dari current ke camera angle, hold, return
+        let blend = 0;
+        if (dt < 0.3) blend = dt / 0.3;
+        else if (dt < 1.4) blend = 1;
+        else blend = (1.8 - dt) / 0.4;
+        // Clamp camera angle ke range [-1.2, 1.2] supaya nggak rotate full
+        const clampedAngle = Math.max(-1.2, Math.min(1.2, camAngleWorld));
+        headAngle = headAngle * (1 - blend) + clampedAngle * blend;
+      } else {
+        noticedRef.current.active = false;
+      }
+    }
     headRef.current.rotation.y = headAngle;
-    // Eye tracking — saat camera dekat, eyes shift toward camera
+    // Eye tracking — saat camera dekat, eyes shift toward camera.
+    // Force tracking=1 saat noticed active (force eyes lock on user)
     const cam = state.camera.position;
     const dx = cam.x - pos[0];
     const dy = cam.y - pos[1];
     const dz = cam.z - pos[2];
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-    const tracking = Math.max(0, Math.min(1, (8 - dist) / 4));
+    let tracking = Math.max(0, Math.min(1, (8 - dist) / 4));
+    if (noticedRef.current.active) tracking = 1;
     let eyeBaseX = 0;
     let eyeBaseZ = 0.13;
     let eyeBaseY = 0.03;
@@ -686,12 +720,25 @@ const Owl = ({ pos, headPhase = 0, signatureEvent }) => {
         sigDim = blinkCycle * 0.5; // -0.5..0.5 oscillation
       }
     }
-    const eyeIntensity = 1.1 + alertBoost + trackBoost - blink + sigDim;
+    // Noticed boost — eyes max bright saat owl aware of user
+    const noticedBoost = noticedRef.current.active ? 0.8 : 0;
+    const eyeIntensity = 1.1 + alertBoost + trackBoost - blink + sigDim + noticedBoost;
     if (eye1Ref.current) eye1Ref.current.material.emissiveIntensity = eyeIntensity;
     if (eye2Ref.current) eye2Ref.current.material.emissiveIntensity = eyeIntensity;
   });
   return (
-    <group position={pos}>
+    <group
+      position={pos}
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'auto';
+      }}
+    >
       {/* Body — ellipsoid coklat gelap */}
       <mesh scale={[0.18, 0.22, 0.16]}>
         <sphereGeometry args={[1, 12, 10]} />
@@ -2417,9 +2464,47 @@ const LorongScene = ({
   </>
 );
 
+// Themed loading fallback — gradient senja palette dengan subtle
+// shimmer line yang slide. Lebih tematik dari plain text.
 const SceneFallback = () => (
-  <div className="absolute inset-0 grid place-items-center bg-[#1c1f2a] text-white/50 text-sm">
-    Memuat lorong pohon tahun...
+  <div
+    className="absolute inset-0 grid place-items-center overflow-hidden"
+    style={{
+      background:
+        'linear-gradient(180deg, #0a0d18 0%, #1f2335 40%, #2a1f2a 70%, #3a2820 100%)',
+    }}
+  >
+    {/* Shimmer line — gradient horizontal yang slide via CSS animation */}
+    <div
+      className="absolute inset-x-0 h-px top-1/2 opacity-60"
+      style={{
+        background:
+          'linear-gradient(90deg, transparent, rgba(255,200,140,0.5), transparent)',
+        animation: 'lorongShimmer 2.4s ease-in-out infinite',
+      }}
+    />
+    <style>{`
+      @keyframes lorongShimmer {
+        0%, 100% { transform: translateX(-30%); opacity: 0.3; }
+        50% { transform: translateX(30%); opacity: 0.7; }
+      }
+    `}</style>
+    <div className="relative text-center -translate-y-2">
+      <div className="text-white/55 text-[9px] uppercase tracking-[0.55em] mb-3">
+        R1 · Petak Pertama
+      </div>
+      <div
+        className="text-white/85 text-2xl"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          fontWeight: 300,
+          letterSpacing: '0.01em',
+        }}
+      >
+        Menyusuri lorong...
+      </div>
+    </div>
   </div>
 );
 
@@ -2510,6 +2595,50 @@ const IntroTitle = () => {
           >
             Sepuluh tahun, satu lorong, satu senja yang panjang.
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Tutorial hint — muncul setelah intro fade out, kasih tahu user
+// soal mode berjalan. Auto-fade after ~6s. Skip di mobile (FPV
+// desktop only).
+const TutorialHint = ({ isMobile }) => {
+  const [visible, setVisible] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  useEffect(() => {
+    if (isMobile) return undefined;
+    // Tunggu intro selesai (~7.8s), lalu show 6s
+    const t1 = setTimeout(() => setVisible(true), 8200);
+    const t2 = setTimeout(() => setVisible(false), 14500);
+    const t3 = setTimeout(() => setRemoved(true), 16500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [isMobile]);
+  if (removed || isMobile) return null;
+  return (
+    <div
+      className={`pointer-events-none absolute bottom-24 right-6 z-20 max-w-[260px] transition-opacity duration-1000 ease-out ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div className="rounded-md border border-white/15 bg-[#0a0d18]/80 backdrop-blur-md px-4 py-3 shadow-xl">
+        <div className="text-white/55 text-[8px] uppercase tracking-[0.4em] mb-1.5">
+          Tip
+        </div>
+        <div
+          className="text-white/85 text-[12px] leading-relaxed"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+          }}
+        >
+          Coba "mode berjalan" untuk pengalaman immersive — jalan di
+          antara pohon-pohon dengan WASD.
         </div>
       </div>
     </div>
@@ -2717,6 +2846,7 @@ const TamanLorongPohonPage = () => {
         </Suspense>
 
         <IntroTitle />
+        <TutorialHint isMobile={isMobile} />
         <LorongHeader />
         <LorongFooter hoveredTreeId={hoveredTreeId} />
         {/* FPV toggle — desktop only (PointerLockControls butuh mouse).
