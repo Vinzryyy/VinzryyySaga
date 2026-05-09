@@ -188,6 +188,61 @@ const FlyInCamera = ({ onComplete, duration = FLY_IN_DURATION }) => {
   return null;
 };
 
+// Bunga-bunga kecil tersebar di sekitar tiap petak — visual hint
+// "kebun yang hidup" di sela-sela petak utama. Posisi & warna
+// deterministik per petak ID supaya konsisten antar render. Disclaim:
+// bukan child dari group PetakPlot supaya nggak ikut ke-lift saat
+// petak hovered (kelopak tetap nempel di tanah, petak yang naik).
+const FLOWER_COLORS = [
+  '#f4a8c0', // pink
+  '#f4c870', // yellow
+  '#f0f0e8', // white
+  '#a890c8', // lavender
+  '#d68aa8', // pink-rose
+  '#fae0a0', // soft yellow
+];
+
+const PetakFlowers = ({ petak, count = 7 }) => {
+  const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+  const seedNum = parseInt(petak.id.replace('r', ''), 10) || 1;
+  const flowers = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      // Deterministic pseudo-random pakai mix prime kecil — output
+      // tetep sama tiap render tanpa bawa lib hash.
+      const noise1 = ((seedNum * 17 + i * 23) % 360) * (Math.PI / 180);
+      const noise2 = ((seedNum * 31 + i * 13) % 100) / 100;
+      const radius = 1.7 + noise2 * 0.5; // 1.7–2.2 dari pusat petak
+      const fx = px + Math.cos(noise1) * radius;
+      const fz = pz + Math.sin(noise1) * radius;
+      const colorIdx = (seedNum + i * 3) % FLOWER_COLORS.length;
+      const size = 0.07 + ((seedNum + i) % 4) * 0.012; // 0.07–0.106
+      arr.push({
+        pos: [fx, size, fz],
+        color: FLOWER_COLORS[colorIdx],
+        size,
+      });
+    }
+    return arr;
+  }, [petak.id, px, pz, seedNum, count]);
+
+  return (
+    <>
+      {flowers.map((f, i) => (
+        <mesh key={`${petak.id}-flower-${i}`} position={f.pos}>
+          <sphereGeometry args={[f.size, 8, 6]} />
+          <meshStandardMaterial
+            color={f.color}
+            emissive={f.color}
+            emissiveIntensity={0.12}
+            roughness={0.5}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // Petak kebun dengan hover lift + emissive glow + click handler.
 // Shape: cylinder hexagonal pendek dengan top radius sedikit lebih
 // kecil dari bottom — kerasa kayak gundukan rumput dengan pinggiran
@@ -407,6 +462,12 @@ const TamanScene = ({
           onPointerOut={onPetakOut}
           onClick={onPetakClick}
         />
+      ))}
+      {/* Bunga-bunga kecil di sekitar tiap petak. Render terpisah dari
+          PetakPlot supaya posisinya tetap di tanah saat petak lift
+          karena hover. */}
+      {PETAK.map((petak) => (
+        <PetakFlowers key={`${petak.id}-flowers`} petak={petak} />
       ))}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*

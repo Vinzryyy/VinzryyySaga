@@ -1,18 +1,27 @@
 /**
- * Taman Kebaikan — Fase 1, R0 "Padang Tandus" (Land Without Kindness).
+ * Taman Kebaikan — Fase 1, R0 "Padang Tandus".
  *
- * Pintu masuk Taman Kebaikan. Dunia di sini terasa kering & sunyi —
- * sebelum kebaikan tumbuh, hanya ada padang tandus. Saat user
- * melangkah masuk, warna & kehidupan kembali, dan mereka memasuki
- * peta taman untuk memilih petak yang akan dijelajahi.
+ * Pintu masuk Taman Kebaikan. Dunia di sini terasa kering & terik —
+ * sebelum kebaikan tumbuh, hanya ada padang yang gersang dengan
+ * langit sore yang berdebu. Saat user melangkah masuk, panas mereda,
+ * suhu turun, dan langit pelan-pelan jadi senja taman.
+ *
+ * Mood shift bukan grayscale → color (kayak konsep museum awal),
+ * tapi heat → cool. Drought → spring. Visual axes yang berubah saat
+ * transisi:
+ *   - Background & fog: warm hazy orange-brown (#5a3a25) → cool
+ *     twilight blue-warm (#1c1f2a, match /taman/peta)
+ *   - Vignette darkness: 0.7 → 0.3 (claustrofobia mereda)
+ *   - Fog far: 28 → 60 (jarak pandang membuka)
+ *   - Bloom intensity: peak sin πt × 1.5 di tengah → settle 0.4
+ *     (cahaya menyembur sebagai catharsis)
  *
  * State machine ruangan ini ada 4 stage:
- *   idle         — kamera dolly maju, teks pembuka fade-in, dunia
- *                  grayscale total, belum bisa di-click
+ *   idle         — kamera dolly maju, teks pembuka fade-in, padang
+ *                  warm hazy, belum bisa di-click
  *   active       — dolly selesai; "tap untuk masuk" muncul; click di
  *                  mana saja akan mulai transisi
- *   transitioning — tween 3 detik: saturation -1 → 0, vignette 0.7 →
- *                  0.3, fog far 28 → 60. Teks pembuka fade-out.
+ *   transitioning — tween 3 detik di semua axes di atas
  *   done         — overlay "kehidupan telah kembali" + tombol lanjut
  *                  ke /taman/peta (peta taman) atau ulangi/keluar.
  *
@@ -60,37 +69,65 @@ const useIsMobile = () => {
 const TRANSITION_DURATION = 3.0; // detik
 const DOLLY_DURATION = 12.0;
 
+// Palette Padang Tandus.
+// IDLE/ACTIVE: warm hazy drought tone — kerasa kayak senja kemarau yang
+// panjang, berdebu, sunyi.
+// DONE: cool twilight — match palette /taman/peta supaya transisi
+// halaman ke ranah peta taman kerasa kontinu visualnya.
+const BG_DROUGHT = '#5a3a25';
+const BG_TWILIGHT = '#1c1f2a';
+const GROUND_COLOR = '#3a2a1a'; // cracked-dirt tone, statis
+const GATE_COLOR = '#1f1814'; // weathered dark warm
+
+// Lerp dua warna hex per channel — dipake untuk transisi bg/fog color
+// di useEffect tick. Lebih murah dari instansiate THREE.Color tiap frame.
+const lerpHex = (a, b, t) => {
+  const av = parseInt(a.slice(1), 16);
+  const bv = parseInt(b.slice(1), 16);
+  const ar = (av >> 16) & 0xff;
+  const ag = (av >> 8) & 0xff;
+  const ab = av & 0xff;
+  const br = (bv >> 16) & 0xff;
+  const bg = (bv >> 8) & 0xff;
+  const bb = bv & 0xff;
+  const r = Math.round(ar + (br - ar) * t);
+  const g = Math.round(ag + (bg - ag) * t);
+  const bl = Math.round(ab + (bb - ab) * t);
+  return `#${((r << 16) | (g << 8) | bl).toString(16).padStart(6, '0')}`;
+};
+
 // Gerbang taman di kejauhan — 2 pilar + balok atas. Sengaja minimalist
-// supaya jadi siluet, bukan struktur detail. Detail muncul di Padang
+// supaya jadi siluet, bukan struktur detail. Tone weathered dark warm
+// (kayak kayu yang udah lama kena kemarau). Detail muncul di Padang
 // Aprikot (petak akhir) saat warna kembali.
 const Gate = () => (
   <group position={[0, 0, 0]}>
     <mesh position={[-2.2, 2, 0]}>
       <boxGeometry args={[0.4, 4, 0.4]} />
-      <meshStandardMaterial color="#15151a" roughness={0.9} />
+      <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
     </mesh>
     <mesh position={[2.2, 2, 0]}>
       <boxGeometry args={[0.4, 4, 0.4]} />
-      <meshStandardMaterial color="#15151a" roughness={0.9} />
+      <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
     </mesh>
     <mesh position={[0, 4.2, 0]}>
       <boxGeometry args={[4.8, 0.4, 0.4]} />
-      <meshStandardMaterial color="#15151a" roughness={0.9} />
+      <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
     </mesh>
   </group>
 );
 
-// Lantai dasar + grid tipis untuk persepsi skala. Grid sengaja warnanya
-// dekat sama background — kelihatan cuma dari sudut tertentu, biar
-// nggak mendominasi mood "kosong".
+// Lantai dasar — tanah retak gersang. Grid tipis sebagai persepsi
+// skala, warnanya dekat sama tanah biar nggak mendominasi mood
+// "kosong & kering".
 const Ground = () => (
   <>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[80, 80]} />
-      <meshStandardMaterial color="#0c0c10" roughness={1} />
+      <meshStandardMaterial color={GROUND_COLOR} roughness={1} />
     </mesh>
     <gridHelper
-      args={[80, 80, '#1c1c22', '#15151a']}
+      args={[80, 80, '#4a3525', '#3a2a1a']}
       position={[0, 0.005, 0]}
     />
   </>
@@ -133,7 +170,7 @@ const DustParticles = ({ count = 300 }) => {
       </bufferGeometry>
       <pointsMaterial
         size={0.06}
-        color="#aaaaaa"
+        color="#d4b07a"
         transparent
         opacity={0.45}
         sizeAttenuation
@@ -186,34 +223,53 @@ const DollyCamera = ({
   return null;
 };
 
-// Mutasi langsung scene.fog.far berdasarkan target nilai dari parent.
-// Pakai useFrame supaya konsisten dengan render loop, dan nggak perlu
-// recreate fog instance setiap perubahan (yang akan terjadi kalau
-// kita pakai args reactive di <fog attach="fog" args={[...]} />).
-const FogTuner = ({ targetFar }) => {
+// Mutasi langsung scene.fog.far + fog.color + scene.background warna
+// berdasarkan target dari parent. Pakai useFrame supaya konsisten
+// dengan render loop, dan nggak recreate fog instance tiap state
+// change (yang akan terjadi kalau kita pakai args reactive di
+// <fog attach="fog" args={[...]} />). Tween color via lerpHex di
+// parent → string, lalu di sini set ke Color object lewat .set().
+const FogTuner = ({ targetFar, targetColor }) => {
   const { scene } = useThree();
   useFrame(() => {
-    if (scene.fog) scene.fog.far = targetFar;
+    if (scene.fog) {
+      scene.fog.far = targetFar;
+      if (targetColor) scene.fog.color.set(targetColor);
+    }
+    if (scene.background && scene.background.set && targetColor) {
+      scene.background.set(targetColor);
+    }
   });
   return null;
 };
 
 const R0Scene = ({
   fogFar,
+  fogColor,
   resetTrigger,
   particleCount = 300,
   onDollyComplete,
 }) => (
   <>
-    <fog attach="fog" args={['#0a0a0c', 8, 28]} />
-    <color attach="background" args={['#0a0a0c']} />
-    <ambientLight intensity={0.18} />
-    <spotLight
-      position={[0, 12, 4]}
-      intensity={1.4}
-      angle={0.65}
-      penumbra={0.6}
-      distance={25}
+    {/* args[0] = warna initial saja — actual color di-mutate per frame
+        oleh FogTuner. Kasih default warm drought biar mount frame
+        pertama kelihatan benar sebelum useFrame jalan. */}
+    <fog attach="fog" args={[BG_DROUGHT, 8, 28]} />
+    <color attach="background" args={[BG_DROUGHT]} />
+    <ambientLight intensity={0.32} color="#ffe0b8" />
+    {/* Sun-like directional dari sudut rendah — kerasa kayak matahari
+        sore terik di kemarau panjang. Tone hangat-orange. */}
+    <directionalLight
+      position={[6, 5, 3]}
+      intensity={1.5}
+      color="#ffc070"
+    />
+    {/* Soft fill dari arah berlawanan supaya scene nggak black-pitch
+        di sisi shadow. Tone slightly cooler untuk variasi. */}
+    <directionalLight
+      position={[-4, 6, -2]}
+      intensity={0.3}
+      color="#a8a0c0"
     />
     <Ground />
     <Gate />
@@ -222,7 +278,7 @@ const R0Scene = ({
       resetTrigger={resetTrigger}
       onDollyComplete={onDollyComplete}
     />
-    <FogTuner targetFar={fogFar} />
+    <FogTuner targetFar={fogFar} targetColor={fogColor} />
   </>
 );
 
@@ -348,13 +404,21 @@ const MuseumPage = () => {
   // Postprocessing values driven dari state — di-tween via rAF di
   // useEffect saat stage='transitioning'. Bukan ref mutation karena
   // postprocessing v3 ref-forward bikin circular JSON crash di HMR.
-  const [saturation, setSaturation] = useState(-1);
+  //
+  // Saturation tween-nya cuma -0.3 → 0 (drought hazy, bukan grayscale
+  // total). Tujuannya kasih sedikit dust-haze feel di idle, lalu
+  // saturasi pulih saat transisi.
+  const [saturation, setSaturation] = useState(-0.3);
   const [vignette, setVignette] = useState(0.7);
   const [fogFar, setFogFar] = useState(28);
   // Bloom intensity tween: 0 (idle) → peak 1.5 di tengah transisi (saat
   // warna paling baru bersinar) → settle 0.4 (done). Dipake untuk
-  // ngasih efek "cahaya menyembur" saat warna kembali ke dunia.
+  // ngasih efek "cahaya menyembur" saat heat mereda jadi senja.
   const [bloom, setBloom] = useState(0);
+  // Warna fog & background — di-tween dari drought warm hazy ke twilight
+  // cool. Ini yang ngasih dramatic shift "kemarau → senja". Diterusin
+  // ke FogTuner yang mutate scene.fog.color & scene.background per frame.
+  const [bgColor, setBgColor] = useState(BG_DROUGHT);
 
   // Tween postprocessing values berdasar stage. Reset instan untuk idle/
   // active, animate selama TRANSITION_DURATION untuk transitioning,
@@ -366,10 +430,11 @@ const MuseumPage = () => {
   // istirahat saat transisi selesai.
   useEffect(() => {
     if (stage === 'idle' || stage === 'active') {
-      setSaturation(-1);
+      setSaturation(-0.3);
       setVignette(0.7);
       setFogFar(28);
       setBloom(0);
+      setBgColor(BG_DROUGHT);
       return undefined;
     }
     if (stage === 'done') {
@@ -377,6 +442,7 @@ const MuseumPage = () => {
       setVignette(0.3);
       setFogFar(60);
       setBloom(0.4);
+      setBgColor(BG_TWILIGHT);
       return undefined;
     }
     if (stage !== 'transitioning') return undefined;
@@ -388,11 +454,12 @@ const MuseumPage = () => {
       const elapsed = (now - start) / 1000;
       const t = Math.min(elapsed / TRANSITION_DURATION, 1);
       const eased = 1 - Math.pow(1 - t, 3);
-      setSaturation(-1 + eased);
+      setSaturation(-0.3 + eased * 0.3);
       setVignette(0.7 - eased * 0.4);
       setFogFar(28 + eased * 32);
+      setBgColor(lerpHex(BG_DROUGHT, BG_TWILIGHT, eased));
       // Bloom puncak di t=0.5, turun ke 0.4 di t=1. Ngasih "flash"
-      // saat warna paling deras balik.
+      // saat heat mereda jadi senja.
       const bloomPeak = Math.sin(t * Math.PI) * 1.5;
       const bloomSettle = 0.4 * t;
       setBloom(Math.max(bloomPeak, bloomSettle));
@@ -427,10 +494,11 @@ const MuseumPage = () => {
         path="/taman"
       />
       <div
-        className="relative w-full h-screen bg-black overflow-hidden cursor-pointer select-none"
+        className="relative w-full h-screen overflow-hidden cursor-pointer select-none"
         onClick={handleClick}
         role="button"
         tabIndex={0}
+        style={{ backgroundColor: bgColor }}
       >
         <Suspense fallback={<SceneFallback />}>
           <Canvas
@@ -444,6 +512,7 @@ const MuseumPage = () => {
           >
             <R0Scene
               fogFar={fogFar}
+              fogColor={bgColor}
               resetTrigger={resetTrigger}
               particleCount={isMobile ? 100 : 300}
               onDollyComplete={handleDollyComplete}
