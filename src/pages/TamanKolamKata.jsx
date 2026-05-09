@@ -1062,28 +1062,40 @@ const BankTrees = () => (
 // mixStrength 35 untuk balance antara reflection vs base color.
 // Mobile fallback: plain meshStandardMaterial (reflector mahal di GPU
 // terbatas).
+// Permukaan air: subtle reflection, BUKAN chrome mirror. Real water
+// punya base color biru kuat + soft reflection scattered. Settings
+// di-tune supaya warna air (deep teal-blue) keras dominan, refleksi
+// langit/pohon cuma sentuhan tipis di permukaan — bukan mirror.
+//
+// Key params:
+// - mirror 0.2 (was 0.5): refleksi subtle, base color tetap kebaca
+// - mixStrength 8 (was 35): reflection ngebagusin warna, nggak nutupin
+// - blur [800, 300]: refleksi sangat soft (kayak water dengan riak)
+// - color #2d5470 (deep teal): base warna air yang tenang & dalam
+// - roughness 0.85: matte permukaan air (bukan glassy)
+// - metalness 0.05 (was 0.3): non-metalik
 const River = ({ isMobile = false }) => (
   <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]} receiveShadow>
     <planeGeometry args={[RIVER_WIDTH, RIVER_LENGTH]} />
     {isMobile ? (
       <meshStandardMaterial
-        color="#5a8aaf"
-        roughness={0.4}
-        metalness={0.3}
+        color="#3a6485"
+        roughness={0.7}
+        metalness={0.1}
       />
     ) : (
       <MeshReflectorMaterial
-        blur={[300, 100]}
+        blur={[800, 300]}
         resolution={512}
-        mixBlur={1}
-        mixStrength={35}
-        roughness={0.4}
-        depthScale={1.0}
-        minDepthThreshold={0.4}
-        maxDepthThreshold={1.4}
-        color="#5a8aaf"
-        metalness={0.3}
-        mirror={0.5}
+        mixBlur={2}
+        mixStrength={8}
+        roughness={0.85}
+        depthScale={0.4}
+        minDepthThreshold={0.3}
+        maxDepthThreshold={1.0}
+        color="#2d5470"
+        metalness={0.05}
+        mirror={0.2}
       />
     )}
   </mesh>
@@ -1345,34 +1357,32 @@ const TelagaScene = ({
   onPadClick,
 }) => (
   <>
-    {/* Golden hour sky — sun di posisi rendah (y=4), inclination
-        tinggi → matahari di horizon. Rayleigh 4 + turbidity 12 ngasih
-        scatter warm orange-pink yang khas afternoon. mieCoefficient
-        sedikit dinaikkan untuk haze emas yang denser. */}
+    {/* Late afternoon sky — sun masih cukup tinggi tapi udah miring,
+        warm undertone. Rayleigh & turbidity moderate supaya nggak
+        over-hazy/washed out. */}
     <Sky
       distance={450000}
-      sunPosition={[8, 4, 4]}
-      inclination={0.6}
+      sunPosition={[8, 8, 4]}
+      inclination={0.52}
       azimuth={0.28}
-      mieCoefficient={0.008}
-      mieDirectionalG={0.92}
-      rayleigh={4}
-      turbidity={12}
+      mieCoefficient={0.005}
+      mieDirectionalG={0.88}
+      rayleigh={2.8}
+      turbidity={7}
     />
-    {/* IBL via Environment preset 'sunset' — HDR golden hour scene
-        ngasih warm ambient + reflection. Match sun position. */}
-    {!isMobile && <Environment preset="sunset" background={false} />}
-    {/* Warm haze fog — match golden hour palette */}
-    <fog attach="fog" args={['#e8c8a8', 28, 75]} />
-    {/* Warm ambient (sunset bounce) */}
-    <ambientLight intensity={isMobile ? 0.65 : 0.35} color="#ffe0b8" />
-    {/* Sun directional — golden hour: low angle, warm orange tone,
-        long shadows. shadow-mapSize 2048 untuk shadow yang lebih
-        crisp pas low angle. */}
+    {/* IBL preset 'park' (lebih netral) bukan 'sunset' (over-warm).
+        Match late afternoon, bukan extreme golden hour. */}
+    {!isMobile && <Environment preset="park" background={false} />}
+    {/* Light haze fog — slightly warm tapi tidak orange */}
+    <fog attach="fog" args={['#cdd8e2', 28, 75]} />
+    {/* Ambient netral hangat */}
+    <ambientLight intensity={isMobile ? 0.7 : 0.5} color="#ffeed8" />
+    {/* Sun directional — late afternoon: tinggi cukup untuk
+        illuminate scene, warm tone ringan. */}
     <directionalLight
-      position={[8, 5, 4]}
-      intensity={1.8}
-      color="#ffb878"
+      position={[8, 12, 4]}
+      intensity={1.4}
+      color="#ffe0b8"
       castShadow
       shadow-mapSize={[2048, 2048]}
       shadow-camera-left={-25}
@@ -1383,13 +1393,11 @@ const TelagaScene = ({
       shadow-camera-far={60}
       shadow-bias={-0.0005}
     />
-    {/* Sky fill — cool blue dari arah berlawanan, simulasi sky bounce
-        light yang ngebreak warm dominant supaya kulit/permukaan
-        nggak full orange */}
+    {/* Sky fill — cool blue dari arah berlawanan untuk balance */}
     <directionalLight
       position={[-6, 6, -4]}
-      intensity={0.3}
-      color="#a8c5e8"
+      intensity={0.4}
+      color="#b8d0e8"
     />
     <DistantHills />
     <Clouds />
@@ -1717,17 +1725,17 @@ const TamanKolamKataPage = () => {
             />
             {!isMobile && (
               <EffectComposer>
-                {/* Bloom — soft glow di bright elements (lily stamen,
-                    sun reflection, paper boat sail). Threshold 0.7
-                    biar cuma highlight yang glow, bukan whole scene. */}
+                {/* Bloom yang JAUH lebih subtle — threshold tinggi 0.95
+                    biar cuma highlight ekstrem (specular sun) yang
+                    glow, intensity 0.25 biar nggak mendominasi. */}
                 <Bloom
-                  intensity={0.6}
-                  luminanceThreshold={0.7}
-                  luminanceSmoothing={0.4}
+                  intensity={0.25}
+                  luminanceThreshold={0.95}
+                  luminanceSmoothing={0.3}
                   mipmapBlur
                 />
-                {/* Soft vignette untuk fokus mata ke tengah */}
-                <Vignette eskil={false} offset={0.35} darkness={0.4} />
+                {/* Soft vignette tipis */}
+                <Vignette eskil={false} offset={0.4} darkness={0.3} />
                 <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
               </EffectComposer>
             )}
