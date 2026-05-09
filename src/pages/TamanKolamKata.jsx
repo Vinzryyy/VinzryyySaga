@@ -370,6 +370,123 @@ const FallingPetals = ({ count = 60 }) => {
   );
 };
 
+// Ground mist — partikel asap rendah di ring perimeter (radius 16-30
+// dari center). Bikin sense "world fades into mist" untuk area di luar
+// playable scope. Posisi awal random di ring, motion gentle drift.
+// Color cream-warm match ambient palette. Pakai BufferGeometry +
+// Points untuk efisiensi (1 draw call utk 100 partikel besar).
+const GroundMist = ({ count = 100 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      // Distribusi di ring perimeter — radius 16..32 (di luar danau
+      // yang max 14, tapi sebelum hills di z=-33+)
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 16 + Math.random() * 16;
+      arr[i * 3] = Math.cos(angle) * radius;
+      arr[i * 3 + 1] = 0.4 + Math.random() * 2.5; // low Y, ground level
+      arr[i * 3 + 2] = Math.sin(angle) * radius;
+    }
+    return arr;
+  }, [count]);
+
+  // Phase per partikel untuk drift natural (nggak grid-like)
+  const phases = useMemo(() => {
+    const arr = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      arr[i] = Math.random() * Math.PI * 2;
+    }
+    return arr;
+  }, [count]);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      const phase = phases[i];
+      // Slow horizontal drift + slight vertical bob
+      arr[i * 3] += Math.sin(t * 0.15 + phase) * 0.008;
+      arr[i * 3 + 1] += Math.cos(t * 0.18 + phase * 1.3) * 0.005;
+      arr[i * 3 + 2] += Math.cos(t * 0.13 + phase) * 0.008;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={4.5}
+        color="#dcd5c8"
+        transparent
+        opacity={0.32}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Distant tree line — pohon-pohon di radius jauh (20-32 dari center)
+// dengan scale lebih kecil + color desaturated untuk simulate
+// atmospheric perspective. Bikin layer background depth — ada
+// "forest" beyond playable area. Posisi deterministik via index.
+const DISTANT_TREES = [
+  // Ring jauh — keliling perimeter
+  { pos: [-22, 0, -8], scale: 0.7, hue: 0 },
+  { pos: [-25, 0, 4], scale: 0.6, hue: 1 },
+  { pos: [-20, 0, 14], scale: 0.65, hue: 0 },
+  { pos: [-15, 0, 22], scale: 0.55, hue: 1 },
+  { pos: [-3, 0, 25], scale: 0.6, hue: 0 },
+  { pos: [10, 0, 23], scale: 0.65, hue: 1 },
+  { pos: [22, 0, 18], scale: 0.7, hue: 0 },
+  { pos: [26, 0, 5], scale: 0.6, hue: 1 },
+  { pos: [24, 0, -8], scale: 0.65, hue: 0 },
+  { pos: [20, 0, -20], scale: 0.7, hue: 1 },
+  { pos: [8, 0, -25], scale: 0.6, hue: 0 },
+  { pos: [-5, 0, -27], scale: 0.65, hue: 1 },
+  { pos: [-15, 0, -23], scale: 0.7, hue: 0 },
+  { pos: [-26, 0, -16], scale: 0.55, hue: 1 },
+];
+
+const DistantTreeLine = () => (
+  <>
+    {DISTANT_TREES.map((t, i) => (
+      <group key={`distant-tree-${i}`} position={t.pos} scale={t.scale}>
+        {/* Trunk — slightly faded */}
+        <mesh position={[0, 0.8, 0]}>
+          <cylinderGeometry args={[0.08, 0.13, 1.6, 6]} />
+          <meshStandardMaterial color="#8a7060" roughness={1} />
+        </mesh>
+        {/* Foliage desaturated — atmospheric haze */}
+        <mesh position={[0, 1.85, 0]}>
+          <sphereGeometry args={[0.55, 10, 8]} />
+          <meshStandardMaterial
+            color={t.hue === 0 ? '#88a482' : '#7a9078'}
+            roughness={0.9}
+          />
+        </mesh>
+        <mesh position={[0.18, 2.05, 0.05]}>
+          <sphereGeometry args={[0.4, 10, 8]} />
+          <meshStandardMaterial
+            color={t.hue === 0 ? '#92ae8c' : '#7e9580'}
+            roughness={0.9}
+          />
+        </mesh>
+      </group>
+    ))}
+  </>
+);
+
 // Bukit jauh sebagai silhouette — 3 layer ridge di horizon untuk kasih
 // atmospheric depth & sense of wider world. Pakai box geometry rendah
 // dengan tone hijau-biru desaturated (atmospheric haze). Layer paling
@@ -1373,8 +1490,10 @@ const TelagaScene = ({
     {/* IBL preset 'park' (lebih netral) bukan 'sunset' (over-warm).
         Match late afternoon, bukan extreme golden hour. */}
     {!isMobile && <Environment preset="park" background={false} />}
-    {/* Light haze fog — slightly warm tapi tidak orange */}
-    <fog attach="fog" args={['#cdd8e2', 28, 75]} />
+    {/* Fog lebih dense — distant elements fade ke haze, kasih sense
+        atmospheric depth & "world has limits". Far 55 (was 75) bikin
+        ground mist + distant trees + hills nyatu di horizon haze. */}
+    <fog attach="fog" args={['#cdd8e2', 22, 55]} />
     {/* Ambient netral hangat */}
     <ambientLight intensity={isMobile ? 0.7 : 0.5} color="#ffeed8" />
     {/* Sun directional — late afternoon: tinggi cukup untuk
@@ -1400,6 +1519,7 @@ const TelagaScene = ({
       color="#b8d0e8"
     />
     <DistantHills />
+    <DistantTreeLine />
     <Clouds />
     <Birds />
     <Banks />
@@ -1420,6 +1540,7 @@ const TelagaScene = ({
     <Ducks />
     <PaperBoats />
     <FallingPetals count={isMobile ? 60 : 120} />
+    <GroundMist count={isMobile ? 60 : 100} />
     {pads.map((pad) => (
       <LilyWishPad
         key={pad.id}
