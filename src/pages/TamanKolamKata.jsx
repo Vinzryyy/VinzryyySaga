@@ -35,8 +35,9 @@
  * besar, ada quote-mark dekoratif, padding lega.
  */
 
-import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
   Environment,
@@ -1795,20 +1796,20 @@ const River = ({ isMobile = false }) => (
   </mesh>
 );
 
-// Banks rumput keliling 4 sisi danau + lapangan taman luar. Warna
-// warm-dark green supaya tepi terlihat dari background. Banks agak
-// lebih elevated dari air = kerasa kayak shoreline yang sedikit
-// di atas water level.
+// Banks rumput keliling 4 sisi danau + lapangan taman luar. Tone
+// earthy-green (slightly desaturated) — biar dense grass blades di
+// atasnya yang ngasih warna utama, plane bawah cuma jadi base supaya
+// nggak ada gap. Tiap bank tone sedikit beda untuk break uniformity.
 const Banks = () => (
   <>
-    {/* Lapangan utama — frame visual luar, bright grass green */}
+    {/* Lapangan utama — frame visual luar, base earthy green */}
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, -0.07, 0]}
       receiveShadow
     >
       <planeGeometry args={[70, 70]} />
-      <meshStandardMaterial color="#5a8045" roughness={1} />
+      <meshStandardMaterial color="#536d3f" roughness={1} />
     </mesh>
     {/* Bank kiri (-x) — lebih lebar karena di sini ada bench + path */}
     <mesh
@@ -1817,7 +1818,7 @@ const Banks = () => (
       receiveShadow
     >
       <planeGeometry args={[10, RIVER_LENGTH + 2]} />
-      <meshStandardMaterial color="#6a9050" roughness={1} />
+      <meshStandardMaterial color="#5e7a48" roughness={1} />
     </mesh>
     {/* Bank kanan (+x) — sini ada dock */}
     <mesh
@@ -1826,7 +1827,7 @@ const Banks = () => (
       receiveShadow
     >
       <planeGeometry args={[10, RIVER_LENGTH + 2]} />
-      <meshStandardMaterial color="#6a9050" roughness={1} />
+      <meshStandardMaterial color="#587343" roughness={1} />
     </mesh>
     {/* Bank atas (-z) */}
     <mesh
@@ -1835,7 +1836,7 @@ const Banks = () => (
       receiveShadow
     >
       <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
-      <meshStandardMaterial color="#6a9050" roughness={1} />
+      <meshStandardMaterial color="#5b7846" roughness={1} />
     </mesh>
     {/* Bank bawah (+z) */}
     <mesh
@@ -1844,7 +1845,7 @@ const Banks = () => (
       receiveShadow
     >
       <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
-      <meshStandardMaterial color="#6a9050" roughness={1} />
+      <meshStandardMaterial color="#557243" roughness={1} />
     </mesh>
   </>
 );
@@ -2152,6 +2153,163 @@ const GrassTufts = () => (
   </>
 );
 
+// Geometry custom: triangle blade — base 0.05 di y=0, tip lancip di
+// y=1. Vertical default. Pakai geometry shared antar instance.
+const GRASS_BLADE_GEOM = (() => {
+  const geom = new THREE.BufferGeometry();
+  const verts = new Float32Array([
+    -0.025, 0, 0,
+    0.025, 0, 0,
+    0, 1, 0,
+  ]);
+  geom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geom.setIndex([0, 1, 2]);
+  geom.computeVertexNormals();
+  return geom;
+})();
+
+const GRASS_BLADE_COLORS = [
+  new THREE.Color('#5a7a40'),
+  new THREE.Color('#6e8f4e'),
+  new THREE.Color('#48663a'),
+  new THREE.Color('#7a9a5c'),
+  new THREE.Color('#8aa86a'),
+];
+
+// Tentukan apakah titik (x,z) berada di area yang harus skip:
+// air, walking path, dock platform, bench, picnic table, bridge.
+// Semua landmark coords harus konsisten dengan komponen masing2.
+const isBlockedForGrass = (x, z) => {
+  // Water rectangle (ada margin tipis untuk shoreline blades)
+  if (Math.abs(x) < RIVER_WIDTH / 2 - 0.1 && Math.abs(z) < RIVER_LENGTH / 2 - 0.1) return true;
+  // Walking path (sepanjang -x bank)
+  if (x > -10.5 && x < -7.8 && Math.abs(z) < 14) return true;
+  // Dock platform (+x, z=4 area)
+  if (x > 7.0 && x < 11.0 && z > 1.5 && z < 6.5) return true;
+  // Bench area
+  if (x > -10.5 && x < -8.5 && z > -3.2 && z < -0.8) return true;
+  // Picnic table area
+  if (x > 8.8 && x < 11.2 && z > 5.8 && z < 8.3) return true;
+  // Bridge planks area (z=-12.5, span x=-7..7)
+  if (z > -13.2 && z < -11.8 && Math.abs(x) < 7.5) return true;
+  // Sign post area
+  if (x > -10.0 && x < -8.5 && z > -12.7 && z < -11.3) return true;
+  return false;
+};
+
+// Generate posisi blade rumput pada grid jittered + filter landmark.
+// densityScale lebih besar = grid lebih rapat = lebih banyak blade.
+const generateGrassBlades = (densityScale = 1) => {
+  const cellSize = 0.42 / densityScale;
+  const halfExtent = 17;
+  const blades = [];
+  for (let x = -halfExtent; x <= halfExtent; x += cellSize) {
+    for (let z = -halfExtent; z <= halfExtent; z += cellSize) {
+      // 70% chance per cell — biar nggak rigid grid pattern
+      if (Math.random() > 0.72) continue;
+      const jx = x + (Math.random() - 0.5) * cellSize * 0.95;
+      const jz = z + (Math.random() - 0.5) * cellSize * 0.95;
+      if (isBlockedForGrass(jx, jz)) continue;
+      // Outside playable circle skip
+      if (Math.hypot(jx, jz) > halfExtent) continue;
+      blades.push({
+        x: jx,
+        z: jz,
+        height: 0.14 + Math.random() * 0.22,
+        yaw: Math.random() * Math.PI,
+        tiltX: (Math.random() - 0.5) * 0.45,
+        tiltZ: (Math.random() - 0.5) * 0.45,
+        colorIdx: Math.floor(Math.random() * GRASS_BLADE_COLORS.length),
+      });
+    }
+  }
+  return blades;
+};
+
+// Instanced grass blades — render ribuan blade dengan 1 draw call.
+// Tiap blade punya posisi/rotasi/scale sendiri via matrix per-instance.
+// Color variation via instanceColor attribute (5 hijau tone).
+const GrassBlades = ({ densityScale = 1 }) => {
+  const meshRef = useRef();
+  const blades = useMemo(() => generateGrassBlades(densityScale), [densityScale]);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const colorArray = useMemo(() => {
+    const arr = new Float32Array(blades.length * 3);
+    blades.forEach((b, i) => {
+      const c = GRASS_BLADE_COLORS[b.colorIdx];
+      arr[i * 3] = c.r;
+      arr[i * 3 + 1] = c.g;
+      arr[i * 3 + 2] = c.b;
+    });
+    return arr;
+  }, [blades]);
+
+  useLayoutEffect(() => {
+    if (!meshRef.current) return;
+    blades.forEach((b, i) => {
+      dummy.position.set(b.x, 0, b.z);
+      dummy.rotation.set(b.tiltX, b.yaw, b.tiltZ);
+      dummy.scale.set(1, b.height, 1);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    });
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, [blades, dummy]);
+
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[GRASS_BLADE_GEOM, undefined, blades.length]}
+      receiveShadow
+    >
+      <meshStandardMaterial
+        side={THREE.DoubleSide}
+        roughness={0.95}
+        vertexColors={false}
+      />
+      <instancedBufferAttribute
+        attach="instanceColor"
+        args={[colorArray, 3]}
+      />
+    </instancedMesh>
+  );
+};
+
+// Patches tanah lebih gelap/cerah untuk pecahin uniform green plane —
+// lingkaran datar dengan tone variasi. Posisi deterministik.
+const GROUND_PATCH_DEFS = [
+  { pos: [-9, -0.035, -10], r: 1.6, color: '#5a7a45' },
+  { pos: [-12, -0.035, 2], r: 2.0, color: '#4f6c3c' },
+  { pos: [-10, -0.035, 8], r: 1.4, color: '#6e9358' },
+  { pos: [-13, -0.035, -4], r: 1.8, color: '#557240' },
+  { pos: [10, -0.035, -10], r: 1.6, color: '#4f6c3c' },
+  { pos: [12, -0.035, -2], r: 1.5, color: '#6e9358' },
+  { pos: [13, -0.035, 8], r: 1.7, color: '#5a7a45' },
+  { pos: [11, -0.035, 12], r: 1.4, color: '#557240' },
+  { pos: [-2, -0.035, -16], r: 1.8, color: '#5a7a45' },
+  { pos: [5, -0.035, -16.5], r: 1.5, color: '#4f6c3c' },
+  { pos: [-5, -0.035, 16.5], r: 1.6, color: '#6e9358' },
+  { pos: [3, -0.035, 17], r: 1.5, color: '#557240' },
+  { pos: [-9, -0.035, 13], r: 1.3, color: '#5a7a45' },
+  { pos: [9, -0.035, -14], r: 1.4, color: '#6e9358' },
+];
+
+const GroundPatches = () => (
+  <>
+    {GROUND_PATCH_DEFS.map((p, i) => (
+      <mesh
+        key={`patch-${i}`}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={p.pos}
+        receiveShadow
+      >
+        <circleGeometry args={[p.r, 16]} />
+        <meshStandardMaterial color={p.color} roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
 const TelagaScene = ({
   pads,
   hoveredPadId,
@@ -2210,10 +2368,12 @@ const TelagaScene = ({
     <Clouds />
     <Birds />
     <Banks />
+    <GroundPatches />
     <WalkPath />
     <River isMobile={isMobile} />
     <RiverStones />
     <GrassTufts />
+    <GrassBlades densityScale={isMobile ? 0.5 : 1} />
     <Bench />
     <BenchVisitor />
     <Dock />
