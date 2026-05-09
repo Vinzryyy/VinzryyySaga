@@ -583,6 +583,275 @@ const Bridge = () => {
   );
 };
 
+// Bebek berenang di danau — body sphere + leher panjang + kepala kecil
+// + paruh oranye. Animasi: bob halus + slight rotasi Y untuk look-around
+// + drift di permukaan air. Tiap bebek punya "patrol path" sendiri
+// (lingkaran kecil di sekitar posisi awal).
+const Duck = ({ def }) => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Drift dalam lingkaran kecil — radius 1.2 dari home position
+    const angle = t * def.speed + def.phase;
+    groupRef.current.position.x = def.home[0] + Math.cos(angle) * 1.2;
+    groupRef.current.position.z = def.home[2] + Math.sin(angle) * 1.2;
+    // Bob naik-turun — air gentle motion
+    groupRef.current.position.y = 0.05 + Math.sin(t * 1.4 + def.phase) * 0.03;
+    // Rotation Y — bebek ngadap ke arah swim direction
+    groupRef.current.rotation.y = -angle + Math.PI / 2;
+  });
+  return (
+    <group ref={groupRef}>
+      {/* Body — sphere putih/cream sedikit elongated */}
+      <mesh scale={[1.1, 0.7, 0.85]}>
+        <sphereGeometry args={[0.22, 14, 10]} />
+        <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+      </mesh>
+      {/* Tail kecil */}
+      <mesh position={[-0.22, 0.05, 0]} rotation={[0, 0, 0.3]}>
+        <coneGeometry args={[0.08, 0.15, 6]} />
+        <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+      </mesh>
+      {/* Leher — silinder pendek miring */}
+      <mesh position={[0.18, 0.18, 0]} rotation={[0, 0, -0.3]}>
+        <cylinderGeometry args={[0.07, 0.08, 0.22, 8]} />
+        <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+      </mesh>
+      {/* Kepala — sphere kecil di atas leher */}
+      <mesh position={[0.27, 0.3, 0]}>
+        <sphereGeometry args={[0.1, 12, 10]} />
+        <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+      </mesh>
+      {/* Paruh — cone oranye kecil */}
+      <mesh position={[0.36, 0.28, 0]} rotation={[0, 0, -Math.PI / 2]}>
+        <coneGeometry args={[0.04, 0.1, 6]} />
+        <meshStandardMaterial color="#e89858" roughness={0.7} />
+      </mesh>
+      {/* Mata — sphere hitam tipis */}
+      <mesh position={[0.32, 0.33, 0.07]}>
+        <sphereGeometry args={[0.018, 6, 6]} />
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+    </group>
+  );
+};
+
+const DUCK_DEFS = [
+  { home: [-3.5, 0, -7], speed: 0.18, phase: 0 },
+  { home: [3.5, 0, -3], speed: 0.15, phase: 1.2 },
+  { home: [-2, 0, 5], speed: 0.2, phase: 2.5 },
+  { home: [4, 0, 8], speed: 0.16, phase: 0.8 },
+];
+
+const Ducks = () => (
+  <>
+    {DUCK_DEFS.map((def, i) => (
+      <Duck key={`duck-${i}`} def={def} />
+    ))}
+  </>
+);
+
+// Kapal kertas (paper boat) — origami-like dengan 2 plane segitiga
+// yang di-tilt jadi shape kapal. Subtle bob + slow drift downstream
+// (mirror pattern lily pads). 3 kapal kertas drifting di air, fungsi
+// thematic untuk wish wall — "harapan yang hanyut".
+const PaperBoat = ({ def }) => {
+  const groupRef = useRef();
+  const driftZRef = useRef(0);
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    driftZRef.current += 0.02 * delta;
+    let z = def.start[2] + driftZRef.current;
+    if (z > 13) {
+      driftZRef.current -= 26;
+      z = def.start[2] + driftZRef.current;
+    }
+    const t = state.clock.elapsedTime;
+    groupRef.current.position.x = def.start[0] + Math.sin(t * 0.5 + def.phase) * 0.08;
+    groupRef.current.position.y = 0.06 + Math.sin(t * 0.8 + def.phase) * 0.025;
+    groupRef.current.position.z = z;
+    groupRef.current.rotation.z = Math.sin(t * 0.6 + def.phase) * 0.06;
+  });
+  return (
+    <group ref={groupRef}>
+      {/* Hull bawah — 2 segitiga miring kebawah membentuk V */}
+      <mesh rotation={[Math.PI / 2.6, 0, 0]} position={[0, 0, 0]}>
+        <coneGeometry args={[0.18, 0.4, 4]} />
+        <meshStandardMaterial color="#f4ecd8" roughness={0.9} />
+      </mesh>
+      {/* Sail/atap segitiga — vertical dari tengah hull */}
+      <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.18, 0]}>
+        <coneGeometry args={[0.16, 0.3, 4]} />
+        <meshStandardMaterial color="#fff8ea" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+const PAPER_BOAT_DEFS = [
+  { start: [-2.2, 0, -8], phase: 0 },
+  { start: [2.5, 0, 0], phase: 2.0 },
+  { start: [-1.0, 0, 7], phase: 4.0 },
+];
+
+const PaperBoats = () => (
+  <>
+    {PAPER_BOAT_DEFS.map((def, i) => (
+      <PaperBoat key={`boat-${i}`} def={def} />
+    ))}
+  </>
+);
+
+// Bush / semak — sphere klaster low yang ngisi gap di antara
+// pohon-pohon. Lebih bulat dan rendah dari tree, fungsi sebagai
+// volume vegetation tambahan. Color match BankTree foliage.
+const Bush = ({ pos, scale = 1 }) => (
+  <group position={pos} scale={scale}>
+    <mesh position={[0, 0.3, 0]} castShadow>
+      <sphereGeometry args={[0.45, 12, 10]} />
+      <meshStandardMaterial color="#5a8045" roughness={0.85} />
+    </mesh>
+    <mesh position={[0.3, 0.25, 0.1]} castShadow>
+      <sphereGeometry args={[0.32, 12, 10]} />
+      <meshStandardMaterial color="#6e9358" roughness={0.85} />
+    </mesh>
+    <mesh position={[-0.25, 0.28, 0.05]} castShadow>
+      <sphereGeometry args={[0.36, 12, 10]} />
+      <meshStandardMaterial color="#4f7438" roughness={0.85} />
+    </mesh>
+  </group>
+);
+
+const BUSH_POSITIONS = [
+  // Bank kiri
+  { pos: [-9.0, 0, -8], scale: 0.9 },
+  { pos: [-10.5, 0, 0], scale: 1.0 },
+  { pos: [-9.5, 0, 6], scale: 0.85 },
+  { pos: [-10.0, 0, 12], scale: 0.95 },
+  // Bank kanan
+  { pos: [10.0, 0, -10], scale: 1.0 },
+  { pos: [9.5, 0, -3], scale: 0.9 },
+  { pos: [10.5, 0, 7], scale: 1.0 },
+  { pos: [9.8, 0, 13], scale: 0.85 },
+  // Bank atas
+  { pos: [-5, 0, -16], scale: 0.95 },
+  { pos: [6, 0, -17], scale: 0.9 },
+  // Bank bawah
+  { pos: [-6, 0, 17], scale: 0.95 },
+  { pos: [5, 0, 16.5], scale: 1.0 },
+];
+
+const Bushes = () => (
+  <>
+    {BUSH_POSITIONS.map((b, i) => (
+      <Bush key={`bush-${i}`} pos={b.pos} scale={b.scale} />
+    ))}
+  </>
+);
+
+// Sign post di path entrance — tiang kayu + plank horizontal dengan
+// teks "Telaga Harapan" via drei Html. Posisi di awal path supaya
+// kelihatan kayak welcome sign. Warna kayu match bench/dock/bridge.
+const SignPost = () => (
+  <group position={[-(RIVER_WIDTH / 2 + 1.5), 0, -12]}>
+    {/* Tiang */}
+    <mesh position={[0, 0.7, 0]} castShadow>
+      <cylinderGeometry args={[0.06, 0.08, 1.4, 6]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+    {/* Plank papan horizontal */}
+    <mesh position={[0, 1.15, 0]} castShadow>
+      <boxGeometry args={[0.9, 0.32, 0.06]} />
+      <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
+    </mesh>
+    {/* Tepi plank — frame kayu lebih gelap */}
+    <mesh position={[0, 1.32, 0.03]}>
+      <boxGeometry args={[0.92, 0.04, 0.03]} />
+      <meshStandardMaterial color="#3a2616" roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 0.98, 0.03]}>
+      <boxGeometry args={[0.92, 0.04, 0.03]} />
+      <meshStandardMaterial color="#3a2616" roughness={0.95} />
+    </mesh>
+    <Html
+      position={[0, 1.15, 0.04]}
+      center
+      distanceFactor={6}
+      occlude={false}
+    >
+      <div
+        className="text-center pointer-events-none select-none whitespace-nowrap"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+        }}
+      >
+        <div className="text-[10px] text-[#3a2616] font-medium">
+          Telaga Harapan
+        </div>
+      </div>
+    </Html>
+  </group>
+);
+
+// Picnic table — meja kayu rectangular + 2 bench panjang di kiri/kanan.
+// Posisi di bank kanan jauh dari dock & banks edge supaya kerasa human
+// presence yang authentic.
+const PicnicTable = () => (
+  <group position={[10, 0, 7]} rotation={[0, -0.4, 0]}>
+    {/* Meja top */}
+    <mesh position={[0, 0.62, 0]} castShadow>
+      <boxGeometry args={[1.6, 0.06, 0.7]} />
+      <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
+    </mesh>
+    {/* Plank lines on top */}
+    <mesh position={[0, 0.66, -0.18]}>
+      <boxGeometry args={[1.55, 0.005, 0.04]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    <mesh position={[0, 0.66, 0.18]}>
+      <boxGeometry args={[1.55, 0.005, 0.04]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    {/* Meja kaki — 2 X-shaped support */}
+    <mesh position={[-0.7, 0.32, 0]} rotation={[0, 0, 0.3]}>
+      <boxGeometry args={[0.06, 0.7, 0.6]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.7, 0.32, 0]} rotation={[0, 0, -0.3]}>
+      <boxGeometry args={[0.06, 0.7, 0.6]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+    {/* Bench depan */}
+    <mesh position={[0, 0.36, 0.62]} castShadow>
+      <boxGeometry args={[1.6, 0.06, 0.3]} />
+      <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
+    </mesh>
+    <mesh position={[-0.7, 0.18, 0.62]}>
+      <boxGeometry args={[0.06, 0.4, 0.25]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.7, 0.18, 0.62]}>
+      <boxGeometry args={[0.06, 0.4, 0.25]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+    {/* Bench belakang */}
+    <mesh position={[0, 0.36, -0.62]} castShadow>
+      <boxGeometry args={[1.6, 0.06, 0.3]} />
+      <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
+    </mesh>
+    <mesh position={[-0.7, 0.18, -0.62]}>
+      <boxGeometry args={[0.06, 0.4, 0.25]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.7, 0.18, -0.62]}>
+      <boxGeometry args={[0.06, 0.4, 0.25]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
 // Burung-burung di langit — simple silhouette (V-shape via 2 cone)
 // drifting horizontal. 3 burung dengan posisi & speed berbeda. Animasi
 // sederhana di useFrame: x position drift + sedikit y oscillation.
@@ -1128,10 +1397,15 @@ const TelagaScene = ({
     <Bench />
     <Dock />
     <Bridge />
+    <SignPost />
+    <PicnicTable />
     <Cattails />
     <Wildflowers />
+    <Bushes />
     <Lanterns />
     <BankTrees />
+    <Ducks />
+    <PaperBoats />
     <FallingPetals count={60} />
     {pads.map((pad) => (
       <LilyWishPad
