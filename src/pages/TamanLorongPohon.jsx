@@ -2296,11 +2296,46 @@ const CameraSync = ({ viewMode, transitioning }) => {
   return null;
 };
 
-// FPV movement controller — listen WASD/arrow keys, update camera.position
-// per frame ngikut direction camera. Y di-lock di 1.6 (eye level), x dan z
-// di-clamp dalam playable region.
+// FPV movement controller — listen WASD/arrow keys (desktop), update
+// camera.position per frame. Y di-lock di 1.6 (eye level), x/z clamp.
 const FPV_FORWARD = new THREE.Vector3();
 const FPV_RIGHT = new THREE.Vector3();
+
+// Mobile FPV — gerakan via joystickRef (left thumb), look via lookRef
+// (right swipe). Camera rotation order YXZ supaya pitch+yaw composition
+// behave like proper FPS camera.
+const MobileFPVMovement = ({ joystickRef, lookRef }) => {
+  const { camera } = useThree();
+  useEffect(() => {
+    camera.rotation.order = 'YXZ';
+  }, [camera]);
+  useFrame((state, delta) => {
+    // Apply look (yaw + pitch) dari lookRef
+    camera.rotation.y = lookRef.current.yaw;
+    camera.rotation.x = lookRef.current.pitch;
+    camera.rotation.z = 0;
+    // Movement dari joystickRef
+    const speed = 3.0 * delta;
+    camera.getWorldDirection(FPV_FORWARD);
+    FPV_FORWARD.y = 0;
+    FPV_FORWARD.normalize();
+    FPV_RIGHT.crossVectors(FPV_FORWARD, camera.up).normalize();
+    const jx = joystickRef.current.x;
+    const jy = joystickRef.current.y;
+    if (jy !== 0) camera.position.addScaledVector(FPV_FORWARD, jy * speed);
+    if (jx !== 0) camera.position.addScaledVector(FPV_RIGHT, jx * speed);
+    // Boundary + Y breathing
+    camera.position.x = Math.max(-4.5, Math.min(4.5, camera.position.x));
+    camera.position.z = Math.max(-32, Math.min(0, camera.position.z));
+    const moving = jx !== 0 || jy !== 0;
+    const t = state.clock.elapsedTime;
+    const bobAmp = moving ? 0.025 : 0.012;
+    const bobFreq = moving ? 2.4 : 1.2;
+    camera.position.y = 1.6 + Math.sin(t * bobFreq) * bobAmp;
+  });
+  return null;
+};
+
 const FPVMovement = ({ enabled }) => {
   const { camera } = useThree();
   const keysRef = useRef({ w: false, a: false, s: false, d: false });
@@ -2362,6 +2397,8 @@ const LorongScene = ({
   signatureEvent,
   viewMode,
   transitioning,
+  joystickRef,
+  lookRef,
   onTreeHover,
   onTreeOut,
   onTreeClick,
@@ -2455,11 +2492,14 @@ const LorongScene = ({
         autoRotateSpeed={0.15}
       />
     )}
-    {!transitioning && viewMode === 'fpv' && (
+    {!transitioning && viewMode === 'fpv' && !isMobile && (
       <>
         <PointerLockControls />
         <FPVMovement enabled />
       </>
+    )}
+    {!transitioning && viewMode === 'fpv' && isMobile && (
+      <MobileFPVMovement joystickRef={joystickRef} lookRef={lookRef} />
     )}
   </>
 );
@@ -2601,6 +2641,125 @@ const IntroTitle = () => {
   );
 };
 
+// Mobile FPV controls overlay — joystick visual bottom-left + invisible
+// touch zone full-screen. Touch left half = joystick movement, touch
+// right half = swipe-look. Multi-touch via touch.identifier tracking.
+const MobileFPVControls = ({ joystickRef, lookRef }) => {
+  const baseRef = useRef();
+  const stickRef = useRef();
+  const joyTouchId = useRef(null);
+  const lookTouchId = useRef(null);
+  const lookLast = useRef({ x: 0, y: 0 });
+  const baseRect = useRef({ cx: 0, cy: 0, r: 36 });
+
+  useEffect(() => {
+    const updateBaseRect = () => {
+      if (baseRef.current) {
+        const rect = baseRef.current.getBoundingClientRect();
+        baseRect.current = {
+          cx: rect.left + rect.width / 2,
+          cy: rect.top + rect.height / 2,
+          r: rect.width / 2 - 8,
+        };
+      }
+    };
+    updateBaseRect();
+    window.addEventListener('resize', updateBaseRect);
+    window.addEventListener('orientationchange', updateBaseRect);
+    return () => {
+      window.removeEventListener('resize', updateBaseRect);
+      window.removeEventListener('orientationchange', updateBaseRect);
+    };
+  }, []);
+
+  const handleTouchStart = (e) => {
+    e.preventDefault();
+    for (const touch of e.changedTouches) {
+      const x = touch.clientX;
+      const w = window.innerWidth;
+      // Left 45% screen = joystick zone, right 55% = look swipe
+      if (x < w * 0.45 && joyTouchId.current === null) {
+        joyTouchId.current = touch.identifier;
+      } else if (lookTouchId.current === null) {
+        lookTouchId.current = touch.identifier;
+        lookLast.current = { x: touch.clientX, y: touch.clientY };
+      }
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+    for (const touch of e.changedTouches) {
+      if (touch.identifier === joyTouchId.current) {
+        const { cx, cy, r } = baseRect.current;
+        let dx = touch.clientX - cx;
+        let dy = touch.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist > r) {
+          dx = (dx / dist) * r;
+          dy = (dy / dist) * r;
+        }
+        joystickRef.current.x = dx / r;
+        joystickRef.current.y = -dy / r; // drag up = forward
+        if (stickRef.current) {
+          stickRef.current.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        }
+      } else if (touch.identifier === lookTouchId.current) {
+        const dx = touch.clientX - lookLast.current.x;
+        const dy = touch.clientY - lookLast.current.y;
+        lookRef.current.yaw -= dx * 0.005;
+        lookRef.current.pitch -= dy * 0.005;
+        lookRef.current.pitch = Math.max(-1.3, Math.min(1.3, lookRef.current.pitch));
+        lookLast.current = { x: touch.clientX, y: touch.clientY };
+      }
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    for (const touch of e.changedTouches) {
+      if (touch.identifier === joyTouchId.current) {
+        joyTouchId.current = null;
+        joystickRef.current.x = 0;
+        joystickRef.current.y = 0;
+        if (stickRef.current) {
+          stickRef.current.style.transform = `translate(-50%, -50%)`;
+        }
+      } else if (touch.identifier === lookTouchId.current) {
+        lookTouchId.current = null;
+      }
+    }
+  };
+
+  return (
+    <>
+      {/* Full-screen invisible touch zone */}
+      <div
+        className="absolute inset-0 z-10"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+        style={{ touchAction: 'none' }}
+      />
+      {/* Joystick visual */}
+      <div
+        ref={baseRef}
+        className="absolute bottom-8 left-8 w-20 h-20 rounded-full border-2 border-white/35 bg-black/30 backdrop-blur-sm pointer-events-none z-20"
+      >
+        <div
+          ref={stickRef}
+          className="absolute top-1/2 left-1/2 w-12 h-12 rounded-full bg-white/45"
+          style={{ transform: 'translate(-50%, -50%)' }}
+        />
+      </div>
+      {/* Hint */}
+      <div className="absolute bottom-32 left-8 text-white/40 text-[8px] uppercase tracking-[0.25em] pointer-events-none z-20 max-w-[140px]">
+        Drag stick · Swipe kanan untuk lihat
+      </div>
+    </>
+  );
+};
+
 // Tutorial hint — muncul setelah intro fade out, kasih tahu user
 // soal mode berjalan. Auto-fade after ~6s. Skip di mobile (FPV
 // desktop only).
@@ -2738,9 +2897,24 @@ const TamanLorongPohonPage = () => {
   // Transitioning flag — set true saat toggle, controls dihapus, camera
   // lerp via CameraSync, set false setelah ~1.2s (transition done).
   const [transitioning, setTransitioning] = useState(false);
+  // Mobile FPV refs — joystick (left thumb movement) + look (right
+  // swipe rotation). Updated dari MobileFPVControls (DOM), read di
+  // MobileFPVMovement (Canvas). Reset saat exit FPV.
+  const joystickRef = useRef({ x: 0, y: 0 });
+  const lookRef = useRef({ yaw: 0, pitch: 0 });
   const toggleViewMode = () => {
     setTransitioning(true);
-    setViewMode((m) => (m === 'orbit' ? 'fpv' : 'orbit'));
+    setViewMode((m) => {
+      const next = m === 'orbit' ? 'fpv' : 'orbit';
+      // Reset mobile inputs saat masuk fpv
+      if (next === 'fpv') {
+        joystickRef.current.x = 0;
+        joystickRef.current.y = 0;
+        lookRef.current.yaw = 0;
+        lookRef.current.pitch = 0;
+      }
+      return next;
+    });
     setTimeout(() => setTransitioning(false), 1200);
   };
 
@@ -2819,6 +2993,8 @@ const TamanLorongPohonPage = () => {
               signatureEvent={signatureEvent}
               viewMode={viewMode}
               transitioning={transitioning}
+              joystickRef={joystickRef}
+              lookRef={lookRef}
               onTreeHover={handleTreeHover}
               onTreeOut={handleTreeOut}
               onTreeClick={handleTreeClick}
@@ -2849,26 +3025,27 @@ const TamanLorongPohonPage = () => {
         <TutorialHint isMobile={isMobile} />
         <LorongHeader />
         <LorongFooter hoveredTreeId={hoveredTreeId} />
-        {/* FPV toggle — desktop only (PointerLockControls butuh mouse).
-            Position bottom-right, di atas footer hint. */}
-        {!isMobile && (
-          <button
-            type="button"
-            onClick={toggleViewMode}
-            disabled={transitioning}
-            className="pointer-events-auto absolute bottom-6 right-6 z-20 px-4 py-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {viewMode === 'orbit' ? 'Masuk berjalan' : 'Keluar berjalan'}
-          </button>
-        )}
-        {/* FPV hint overlay — muncul saat masuk fpv mode */}
-        {viewMode === 'fpv' && (
+        {/* FPV toggle — desktop AND mobile. Position bottom-right. */}
+        <button
+          type="button"
+          onClick={toggleViewMode}
+          disabled={transitioning}
+          className="pointer-events-auto absolute bottom-6 right-6 z-30 px-4 py-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {viewMode === 'orbit' ? 'Masuk berjalan' : 'Keluar berjalan'}
+        </button>
+        {/* Desktop FPV hint */}
+        {viewMode === 'fpv' && !isMobile && !transitioning && (
           <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/60 text-[11px] uppercase tracking-[0.25em] text-center">
             <div className="mb-1">Klik layar untuk lock kursor</div>
             <div className="text-white/40">
               WASD untuk jalan · Esc untuk lepas kursor
             </div>
           </div>
+        )}
+        {/* Mobile FPV joystick overlay */}
+        {viewMode === 'fpv' && isMobile && !transitioning && (
+          <MobileFPVControls joystickRef={joystickRef} lookRef={lookRef} />
         )}
         <MilestoneOverlay tree={selectedTree} onClose={handleClose} />
         <AmbientAudio profile="taman" position="top-right" />
