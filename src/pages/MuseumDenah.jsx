@@ -8,11 +8,14 @@
  * Monument Valley, Florence.
  *
  * Round 2A: scene statis, label drei Html melayang di tiap ruangan.
- * Round 2B (file ini): hover lifts box + emissive glow + label
- *   highlights; click buka overlay info ruangan dengan pesan "akan
- *   dirilis di Fase 3"; cursor pointer saat hover.
- * Round 2C nanti: kamera fly-in dari R0 → Denah, OrbitControls
- *   terbatas, progress markers (R1 ✓, dst).
+ * Round 2B: hover lifts box + emissive glow + label highlights;
+ *   click buka overlay info ruangan; cursor pointer saat hover.
+ * Round 2C (file ini): kamera fly-in 2.5 detik dari posisi rendah
+ *   ke isometrik saat halaman mount (kerasa "muncul" dari R0).
+ *   OrbitControls limited (rotate horizontal terbatas, zoom clamp,
+ *   no pan) aktif setelah fly-in selesai. Progress markers — tiap
+ *   kali user buka overlay ruangan, ID ruangan disimpan di
+ *   localStorage; label dapet checkmark "✓" untuk yang udah dilihat.
  *
  * Color palette: warm aprikot tones (sesuai identitas Armeniaca).
  * Background: dark-warm, bukan murni hitam — supaya kerasa "rumah",
@@ -21,9 +24,41 @@
 
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Html, Stats } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Html, OrbitControls, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
+
+// localStorage key untuk track ruangan yang udah dibuka overlay-nya.
+// Set of room IDs (string[]) di-serialize ke JSON. Reset cuma kalau
+// user clear storage manual atau pindah profile.
+const PREVIEWED_KEY = 'museum-rooms-previewed';
+
+const readPreviewed = () => {
+  try {
+    const raw = localStorage.getItem(PREVIEWED_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? new Set(parsed) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const writePreviewed = (set) => {
+  try {
+    localStorage.setItem(PREVIEWED_KEY, JSON.stringify([...set]));
+  } catch {
+    /* storage blocked — no-op */
+  }
+};
+
+// Kamera akhir setelah fly-in. Posisi sama dengan camera default di
+// Canvas, di-track terpisah biar OrbitControls tau target rotation
+// pivot-nya di mana.
+const CAMERA_FINAL = { x: 9, y: 11, z: 9 };
+const CAMERA_START = { x: 0, y: 1, z: 0 };
+const FLY_IN_DURATION = 2.5;
+const ORBIT_TARGET = [0, 1, 0];
 
 const HEX_RADIUS = 5;
 const ROOMS = [
@@ -90,11 +125,54 @@ const polarToXZ = (angleDeg, radius) => {
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
+// Fly-in kamera dari posisi rendah (deket lantai) ke posisi isometrik.
+// Kerasa kayak "naik" dari R0 ke denah. Saat fly-in jalan, OrbitControls
+// di-disable supaya user nggak bisa interrupt animasi. Setelah selesai,
+// onComplete dipanggil sekali, dan parent enable OrbitControls.
+const FlyInCamera = ({ onComplete, duration = FLY_IN_DURATION }) => {
+  const { camera } = useThree();
+  const elapsedRef = useRef(0);
+  const completedRef = useRef(false);
+
+  useEffect(() => {
+    camera.position.set(CAMERA_START.x, CAMERA_START.y, CAMERA_START.z);
+    camera.lookAt(0, 1, 0);
+  }, [camera]);
+
+  useFrame((_, delta) => {
+    if (completedRef.current) return;
+    elapsedRef.current = Math.min(elapsedRef.current + delta, duration);
+    const t = elapsedRef.current / duration;
+    const eased = 1 - Math.pow(1 - t, 3);
+    camera.position.x = lerp(CAMERA_START.x, CAMERA_FINAL.x, eased);
+    camera.position.y = lerp(CAMERA_START.y, CAMERA_FINAL.y, eased);
+    camera.position.z = lerp(CAMERA_START.z, CAMERA_FINAL.z, eased);
+    camera.lookAt(0, 1, 0);
+    if (t >= 1) {
+      completedRef.current = true;
+      onComplete?.();
+    }
+  });
+
+  return null;
+};
+
 // Box ruangan dengan hover lift + emissive glow + click handler.
 // Hover/click di-deteksi via R3F pointer events. Animasi hover (lift Y
 // + emissive intensity) di-lerp di useFrame supaya halus, bukan jump
 // instan. clamp factor delta*8 ngasih spring-feel ringan.
-const RoomBox = ({ room, hovered, onPointerOver, onPointerOut, onClick }) => {
+//
+// previewed: ruangan udah pernah di-click & overlay-nya dibuka. Visual
+// markernya: ✓ kecil di sebelah nama ruangan + label warna sedikit
+// lebih cerah default (nggak perlu hover).
+const RoomBox = ({
+  room,
+  hovered,
+  previewed,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
   const groupRef = useRef();
   const matRef = useRef();
   const [x, z] = polarToXZ(room.angle, HEX_RADIUS);
@@ -156,10 +234,17 @@ const RoomBox = ({ room, hovered, onPointerOver, onPointerOut, onClick }) => {
           }`}
         >
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors ${
-              hovered ? 'text-white' : 'text-white/85'
+            className={`text-[11px] font-medium tracking-wide transition-colors flex items-center justify-center gap-1 ${
+              hovered
+                ? 'text-white'
+                : previewed
+                  ? 'text-white/95'
+                  : 'text-white/85'
             }`}
           >
+            {previewed && (
+              <span className="text-[9px] text-emerald-300/85">✓</span>
+            )}
             {room.name}
           </div>
           <div
@@ -219,6 +304,9 @@ const DenahFloor = () => (
 
 const DenahScene = ({
   hoveredRoomId,
+  previewedRooms,
+  flyInActive,
+  onFlyInComplete,
   onRoomHover,
   onRoomOut,
   onRoomClick,
@@ -245,11 +333,33 @@ const DenahScene = ({
           key={room.id}
           room={room}
           hovered={hoveredRoomId === room.id}
+          previewed={previewedRooms.has(room.id)}
           onPointerOver={onRoomHover}
           onPointerOut={onRoomOut}
           onClick={onRoomClick}
         />
       ))}
+      {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
+      {/*
+        OrbitControls dirender selalu, tapi enabled=false saat fly-in.
+        Constraint: rotate horizontal bebas, vertical dikunci di range
+        atas (45°–72° dari atas), zoom limited 8–18 unit, no pan.
+        Tujuan: user bisa muter denah untuk lihat sisi belakang
+        ruangan, tapi nggak bisa ngerusak isometrik mood.
+      */}
+      <OrbitControls
+        enabled={!flyInActive}
+        target={ORBIT_TARGET}
+        enableZoom
+        minDistance={10}
+        maxDistance={20}
+        enablePan={false}
+        minPolarAngle={Math.PI / 4.5}
+        maxPolarAngle={Math.PI / 2.5}
+        enableDamping
+        dampingFactor={0.08}
+        rotateSpeed={0.5}
+      />
     </>
   );
 };
@@ -290,13 +400,19 @@ const DenahHeader = () => (
   </div>
 );
 
-const DenahFooter = ({ hoveredRoomId }) => {
-  const hint = hoveredRoomId
-    ? 'Klik untuk lihat detail ruangan'
-    : 'Arahkan kursor ke ruangan';
+const DenahFooter = ({ hoveredRoomId, flyInActive, previewedCount }) => {
+  let hint;
+  if (flyInActive) hint = 'Memasuki denah museum...';
+  else if (hoveredRoomId) hint = 'Klik untuk lihat detail ruangan';
+  else hint = 'Klik & seret untuk berputar · Scroll untuk zoom';
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[10px] uppercase tracking-[0.2em] text-center transition-opacity">
-      {hint}
+    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
+      <div className="text-white/40 text-[10px] uppercase tracking-[0.2em] transition-opacity">
+        {hint}
+      </div>
+      <div className="text-white/30 text-[10px] mt-1.5 tracking-wide">
+        {previewedCount} dari {ROOMS.length} ruangan dijelajahi
+      </div>
     </div>
   );
 };
@@ -366,26 +482,41 @@ const RoomDetailOverlay = ({ room, onClose }) => {
 const MuseumDenahPage = () => {
   const [hoveredRoomId, setHoveredRoomId] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [flyInActive, setFlyInActive] = useState(true);
+  // Set of room IDs yang udah dibuka overlay-nya. Init dari localStorage.
+  const [previewedRooms, setPreviewedRooms] = useState(() => readPreviewed());
 
   // Cursor pointer saat hover ruangan, normal saat tidak. Di-cleanup
-  // ke 'auto' kalau component unmount.
+  // ke 'auto' kalau component unmount. Saat fly-in jalan, lock cursor
+  // ke default supaya user nggak salah kira bisa interact.
   useEffect(() => {
-    document.body.style.cursor = hoveredRoomId ? 'pointer' : 'auto';
+    document.body.style.cursor =
+      !flyInActive && hoveredRoomId ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hoveredRoomId]);
+  }, [hoveredRoomId, flyInActive]);
 
-  const handleRoomHover = (roomId) => setHoveredRoomId(roomId);
+  const handleFlyInComplete = () => setFlyInActive(false);
+
+  const handleRoomHover = (roomId) => {
+    if (flyInActive) return;
+    setHoveredRoomId(roomId);
+  };
   const handleRoomOut = (roomId) => {
-    // Hanya clear kalau yang keluar adalah ruangan yang sedang
-    // hovered (defensive — kadang event leave fire belakangan dari
-    // event enter di ruangan lain).
     setHoveredRoomId((current) => (current === roomId ? null : current));
   };
   const handleRoomClick = (room) => {
+    if (flyInActive) return;
     setSelectedRoom(room);
-    setHoveredRoomId(null); // reset hover state saat overlay buka
+    setHoveredRoomId(null);
+    setPreviewedRooms((prev) => {
+      if (prev.has(room.id)) return prev;
+      const next = new Set(prev);
+      next.add(room.id);
+      writePreviewed(next);
+      return next;
+    });
   };
   const handleCloseOverlay = () => setSelectedRoom(null);
 
@@ -409,6 +540,9 @@ const MuseumDenahPage = () => {
           >
             <DenahScene
               hoveredRoomId={hoveredRoomId}
+              previewedRooms={previewedRooms}
+              flyInActive={flyInActive}
+              onFlyInComplete={handleFlyInComplete}
               onRoomHover={handleRoomHover}
               onRoomOut={handleRoomOut}
               onRoomClick={handleRoomClick}
@@ -418,7 +552,11 @@ const MuseumDenahPage = () => {
         </Suspense>
 
         <DenahHeader />
-        <DenahFooter hoveredRoomId={hoveredRoomId} />
+        <DenahFooter
+          hoveredRoomId={hoveredRoomId}
+          flyInActive={flyInActive}
+          previewedCount={previewedRooms.size}
+        />
         <RoomDetailOverlay
           room={selectedRoom}
           onClose={handleCloseOverlay}
