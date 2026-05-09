@@ -1999,6 +1999,62 @@ const LorongHeader = () => (
   </div>
 );
 
+// Cinematic intro title card — fade in saat first load, hold, fade
+// out. Eyebrow + title Fraunces italic + poetic subtitle. Once done,
+// removed dari DOM. User refresh untuk replay.
+const IntroTitle = () => {
+  const [visible, setVisible] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  useEffect(() => {
+    const t1 = setTimeout(() => setVisible(true), 350); // start fade in
+    const t2 = setTimeout(() => setVisible(false), 5500); // start fade out
+    const t3 = setTimeout(() => setRemoved(true), 7800); // remove dari DOM
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+  if (removed) return null;
+  return (
+    <div
+      className={`pointer-events-none absolute inset-0 z-30 flex items-center justify-center transition-opacity duration-[2200ms] ease-out ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      {/* Subtle vignette darken di belakang title supaya readable */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/35 via-transparent to-[#0a0d18]/35" />
+      <div className="relative text-center -translate-y-6">
+        <div className="text-white/55 text-[10px] uppercase tracking-[0.55em] mb-5">
+          R1 · Petak Pertama
+        </div>
+        <h1
+          className="text-white text-5xl mb-5 leading-[1.1]"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            fontWeight: 400,
+            letterSpacing: '0.01em',
+            textShadow: '0 0 40px rgba(255, 220, 160, 0.15)',
+          }}
+        >
+          Lorong Pohon Tahun
+        </h1>
+        <div
+          className="text-white/65 text-[13px]"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            letterSpacing: '0.02em',
+          }}
+        >
+          Sepuluh tahun, satu lorong, satu senja yang panjang.
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const LorongFooter = ({ hoveredTreeId }) => {
   const hint = hoveredTreeId
     ? 'Klik untuk baca milestone'
@@ -2164,6 +2220,7 @@ const TamanLorongPohonPage = () => {
           </Canvas>
         </Suspense>
 
+        <IntroTitle />
         <LorongHeader />
         <LorongFooter hoveredTreeId={hoveredTreeId} />
         {/* FPV toggle — desktop only (PointerLockControls butuh mouse).
