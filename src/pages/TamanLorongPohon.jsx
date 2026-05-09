@@ -25,22 +25,11 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+// Note: r3/utils.js berisi shared util taman (useIsMobile, lerp, dll).
+// Saat petak ke-3+ butuh juga, consider pindahkan ke ../components/taman/utils.js
+// (parent level) supaya nggak semantik "milik r3".
+import { useIsMobile, lerp } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
-
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
-};
-
-const lerp = (a, b, t) => a + (b - a) * t;
 
 // Layout konstan jalur. Pohon disusun alternating kiri/kanan di
 // sepanjang jalur. Path z dari START_Z ke END_Z (ke arah negatif z).
@@ -75,6 +64,217 @@ const lerpHexColor = (a, b, t) => {
   const g = Math.round(ag + (bg - ag) * t);
   const bl = Math.round(ab + (bb - ab) * t);
   return `#${((r << 16) | (g << 8) | bl).toString(16).padStart(6, '0')}`;
+};
+
+// Path corridor bounds untuk distribute particle/firefly. Sedikit lebih
+// lebar dari path itu sendiri supaya particle "wrap" tepi pohon, nggak
+// cuma straight di tengah path.
+const CORRIDOR_X_HALF = 5;
+const CORRIDOR_Z_MIN = PATH_END_Z - 2;
+const CORRIDOR_Z_MAX = PATH_START_Z + 2;
+const CORRIDOR_Z_LEN = CORRIDOR_Z_MAX - CORRIDOR_Z_MIN;
+
+// Kunang-kunang — bola kecil emissive kuning-oranye dengan flicker
+// pulse + drift orbital di sekitar home position. Twilight = perfect
+// fit — bloom-less scene jadi emissive intensity bisa lebih kuat tanpa
+// over-blow.
+const Firefly = ({ def }) => {
+  const ref = useRef();
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.position.x = def.home[0] + Math.sin(t * 0.4 + def.phase) * 0.6;
+    ref.current.position.y = def.home[1] + Math.cos(t * 0.5 + def.phase) * 0.25;
+    ref.current.position.z =
+      def.home[2] + Math.cos(t * 0.35 + def.phase * 1.3) * 0.6;
+    if (matRef.current) {
+      const pulse = 0.5 + 0.5 * Math.sin(t * def.flicker + def.phase * 2);
+      matRef.current.emissiveIntensity = 0.6 + pulse * 1.8;
+    }
+  });
+  return (
+    <mesh ref={ref}>
+      <sphereGeometry args={[0.045, 6, 6]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#fff4a8"
+        emissive="#ffc858"
+        emissiveIntensity={1.4}
+        roughness={1}
+      />
+    </mesh>
+  );
+};
+
+// Spread kunang-kunang di sepanjang lorong — strip distribution (bukan
+// ring kayak di r3 yang circular). Y di range mid-path supaya floating
+// di antar pohon, kelihatan kayak bintik magic di lorong.
+const FIREFLY_DEFS = Array.from({ length: 16 }, () => ({
+  home: [
+    (Math.random() - 0.5) * CORRIDOR_X_HALF * 2,
+    0.6 + Math.random() * 1.8,
+    CORRIDOR_Z_MIN + Math.random() * CORRIDOR_Z_LEN,
+  ],
+  phase: Math.random() * Math.PI * 2,
+  flicker: 2.5 + Math.random() * 2.5,
+}));
+
+const Fireflies = ({ count }) => {
+  const defs = count ? FIREFLY_DEFS.slice(0, count) : FIREFLY_DEFS;
+  return (
+    <>
+      {defs.map((def, i) => (
+        <Firefly key={`firefly-${i}`} def={def} />
+      ))}
+    </>
+  );
+};
+
+// Kabut tanah — partikel wisp halus di base path, oscillation absolute
+// (nggak cumulative drift) supaya bounded & nggak tembus ke bawah
+// ground over time.
+const GroundMist = ({ count = 70 }) => {
+  const ref = useRef();
+  const basePositions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * (CORRIDOR_X_HALF * 2 + 6);
+      // y 0.9..2.6 — sprite size 1.4 (bottom y - 0.7) tetap di atas ground
+      arr[i * 3 + 1] = 0.9 + Math.random() * 1.7;
+      arr[i * 3 + 2] = CORRIDOR_Z_MIN - 3 + Math.random() * (CORRIDOR_Z_LEN + 6);
+    }
+    return arr;
+  }, [count]);
+
+  const phases = useMemo(() => {
+    const arr = new Float32Array(count);
+    for (let i = 0; i < count; i++) arr[i] = Math.random() * Math.PI * 2;
+    return arr;
+  }, [count]);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      const phase = phases[i];
+      arr[i * 3] = basePositions[i * 3] + Math.sin(t * 0.15 + phase) * 0.4;
+      arr[i * 3 + 1] = basePositions[i * 3 + 1] + Math.cos(t * 0.18 + phase * 1.3) * 0.12;
+      arr[i * 3 + 2] = basePositions[i * 3 + 2] + Math.cos(t * 0.13 + phase) * 0.4;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={basePositions.slice()}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={1.4}
+        color="#9aa5b8"
+        transparent
+        opacity={0.38}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Daun gugur — tone autumn (orange/amber/rust/gold) drift turun pelan
+// dari atas pohon. Cycle: fall sampai z ground, reset ke atas. Memory
+// metaphor: waktu lewat, daun lepas dari pohon-tahun.
+const AUTUMN_LEAF_COLORS = [
+  '#c47a3a', // orange burnt
+  '#d99a4a', // amber
+  '#a85a30', // rust
+  '#e0b760', // gold
+  '#8a4a28', // deep brown
+];
+
+const FallingLeaves = ({ count = 60 }) => {
+  const ref = useRef();
+  const colorRef = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * (CORRIDOR_X_HALF * 2 + 4);
+      arr[i * 3 + 1] = Math.random() * 6;
+      arr[i * 3 + 2] = CORRIDOR_Z_MIN + Math.random() * CORRIDOR_Z_LEN;
+    }
+    return arr;
+  }, [count]);
+
+  const colors = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const hex = AUTUMN_LEAF_COLORS[Math.floor(Math.random() * AUTUMN_LEAF_COLORS.length)];
+      const v = parseInt(hex.slice(1), 16);
+      arr[i * 3] = ((v >> 16) & 0xff) / 255;
+      arr[i * 3 + 1] = ((v >> 8) & 0xff) / 255;
+      arr[i * 3 + 2] = (v & 0xff) / 255;
+    }
+    return arr;
+  }, [count]);
+
+  const velocities = useMemo(() => {
+    const arr = new Float32Array(count * 2);
+    for (let i = 0; i < count; i++) {
+      arr[i * 2] = -0.05 - Math.random() * 0.04; // fall speed
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.025; // sway speed
+    }
+    return arr;
+  }, [count]);
+
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] += velocities[i * 2 + 1] * delta * 60;
+      arr[i * 3 + 1] += velocities[i * 2] * delta;
+      if (arr[i * 3 + 1] < 0.2) {
+        arr[i * 3] = (Math.random() - 0.5) * (CORRIDOR_X_HALF * 2 + 4);
+        arr[i * 3 + 1] = 5 + Math.random() * 3;
+        arr[i * 3 + 2] = CORRIDOR_Z_MIN + Math.random() * CORRIDOR_Z_LEN;
+      }
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+        <bufferAttribute
+          ref={colorRef}
+          attach="attributes-color"
+          array={colors}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.16}
+        vertexColors
+        transparent
+        opacity={0.85}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
 };
 
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
@@ -182,6 +382,7 @@ const Path = () => (
 const LorongScene = ({
   trees,
   hoveredTreeId,
+  isMobile,
   onTreeHover,
   onTreeOut,
   onTreeClick,
@@ -201,6 +402,9 @@ const LorongScene = ({
       color="#a8c5e0"
     />
     <Path />
+    <Fireflies count={isMobile ? 9 : 16} />
+    <GroundMist count={isMobile ? 40 : 70} />
+    <FallingLeaves count={isMobile ? 35 : 60} />
     {trees.map((tree) => (
       <YearTree
         key={tree.id}
@@ -394,6 +598,7 @@ const TamanLorongPohonPage = () => {
             <LorongScene
               trees={trees}
               hoveredTreeId={hoveredTreeId}
+              isMobile={isMobile}
               onTreeHover={handleTreeHover}
               onTreeOut={handleTreeOut}
               onTreeClick={handleTreeClick}
