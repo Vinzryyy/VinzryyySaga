@@ -2252,17 +2252,11 @@ const IntroTitle = () => {
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      {/* Vignette gradient full-screen — darken top + bottom supaya
-          fokus ke center title card */}
+      {/* Vignette gradient full-screen — darken edges supaya fokus
+          ke center card */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/45 via-transparent to-[#0a0d18]/45" />
-      {/* Title card with backdrop */}
-      <div className="relative px-14 py-12 -translate-y-6">
-        {/* Card backdrop — gradient dark center fading di tepi,
-            backdrop-blur kasih separation dari scene */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/0 via-[#0a0d18]/72 to-[#0a0d18]/0 backdrop-blur-[3px]" />
-        {/* Top + bottom thin accent lines (art deco style) */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+      {/* Title card — solid bordered box dengan backdrop blur */}
+      <div className="relative px-14 py-12 -translate-y-6 rounded-md border border-white/15 bg-[#0a0d18]/85 backdrop-blur-md shadow-2xl">
         {/* Content */}
         <div className="relative text-center">
           <div className="text-white/60 text-[10px] uppercase tracking-[0.55em] mb-6">
