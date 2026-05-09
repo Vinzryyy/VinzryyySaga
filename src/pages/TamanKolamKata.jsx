@@ -59,6 +59,12 @@ const useIsMobile = () => {
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
+// Dimensi danau — dipake di banyak komponen (Banks, WalkPath, Bench,
+// Dock, LANTERN_POSITIONS, dst). Deklarasi di sini supaya semua module-
+// level constants yang reference ke nilai ini bisa baca tanpa TDZ.
+const RIVER_WIDTH = 14;
+const RIVER_LENGTH = 28;
+
 // Truncate untuk preview label di pad — biar nggak ngerampokin scene.
 const shortLabel = (text, maxWords = 4) => {
   const words = (text || '').trim().split(/\s+/);
@@ -525,12 +531,10 @@ const BankTrees = () => (
   </>
 );
 
-// Danau lebar di tengah taman — 14 wide × 28 long. Deep night blue
-// dengan metalness moderate + roughness sedang untuk reflection
-// halus dari moonlight + lentera. Static (no shader wave) untuk
-// performa — bisa di-upgrade nanti.
-const RIVER_WIDTH = 14;
-const RIVER_LENGTH = 28;
+// Danau lebar di tengah taman — RIVER_WIDTH × RIVER_LENGTH (deklarasi
+// di top file untuk hindari TDZ). Deep night blue dengan metalness
+// moderate + roughness sedang untuk reflection halus dari moonlight
+// + lentera. Static (no shader wave) untuk performa.
 const River = () => (
   <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
     <planeGeometry args={[RIVER_WIDTH, RIVER_LENGTH]} />
