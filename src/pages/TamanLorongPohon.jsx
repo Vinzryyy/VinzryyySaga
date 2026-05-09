@@ -277,6 +277,141 @@ const FallingLeaves = ({ count = 60 }) => {
   );
 };
 
+// Lentera kayu di sepanjang lorong — way-finding + memory metaphor
+// (cahaya sebagai penanda waktu yang lewat). Flicker via combo slow
+// sin (breath) + fast sin (jitter) → simulate flame instability tanpa
+// random noise yang bikin reactive.
+//
+// Position: 5 lantern di antara tree pairs, alternating side (kiri/
+// kanan) supaya cahaya distribute even sepanjang lorong. x=±3.5 (di
+// luar PATH_X_OFFSET=2.6 supaya nggak overlap pohon).
+const LANTERN_DEFS = [
+  { pos: [-3.5, 0, -5], phase: 0 },
+  { pos: [3.5, 0, -11], phase: 1.3 },
+  { pos: [-3.5, 0, -17], phase: 2.5 },
+  { pos: [3.5, 0, -23], phase: 0.7 },
+  { pos: [-3.5, 0, -29], phase: 1.8 },
+];
+
+const LanternPost = ({ pos, phase }) => {
+  const lightRef = useRef();
+  const matRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const slow = Math.sin(t * 0.7 + phase * 1.4) * 0.18;
+    const fast = Math.sin(t * 8 + phase) * 0.05;
+    const factor = 1 + slow + fast;
+    if (lightRef.current) lightRef.current.intensity = 1.6 * factor;
+    if (matRef.current) matRef.current.emissiveIntensity = 1.2 * factor;
+  });
+  return (
+    <group position={pos}>
+      {/* Tiang kayu */}
+      <mesh position={[0, 0.9, 0]}>
+        <cylinderGeometry args={[0.05, 0.07, 1.8, 6]} />
+        <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+      </mesh>
+      {/* Lamp body — panel emissive warna api */}
+      <mesh position={[0, 1.95, 0]}>
+        <boxGeometry args={[0.28, 0.32, 0.28]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color="#a8784a"
+          emissive="#ffaa44"
+          emissiveIntensity={1.2}
+          roughness={0.4}
+          metalness={0.1}
+        />
+      </mesh>
+      {/* Frame edges (kayu gelap) di 4 sudut */}
+      {[-1, 1].flatMap((sx) =>
+        [-1, 1].map((sz) => (
+          <mesh key={`f-${sx}-${sz}`} position={[sx * 0.13, 1.95, sz * 0.13]}>
+            <boxGeometry args={[0.04, 0.34, 0.04]} />
+            <meshStandardMaterial color="#1a0d08" roughness={0.95} />
+          </mesh>
+        ))
+      )}
+      {/* Atap pyramid */}
+      <mesh position={[0, 2.18, 0]}>
+        <coneGeometry args={[0.22, 0.16, 4]} />
+        <meshStandardMaterial color="#2a1d14" roughness={0.9} />
+      </mesh>
+      {/* Point light flickering */}
+      <pointLight
+        ref={lightRef}
+        position={[0, 1.95, 0]}
+        intensity={1.6}
+        color="#ffaa44"
+        distance={6}
+        decay={2}
+      />
+    </group>
+  );
+};
+
+const Lanterns = () => (
+  <>
+    {LANTERN_DEFS.map((l, i) => (
+      <LanternPost key={`lantern-${i}`} pos={l.pos} phase={l.phase} />
+    ))}
+  </>
+);
+
+// Year plaque kayu — penanda fisik di base tiap pohon dengan tahun
+// terukir, kerasa kayak memorial marker / milestone post. Plaque
+// di-tilt menghadap path supaya bisa dibaca dari camera.
+const YearPlaque = ({ tree }) => {
+  const side = Math.sign(tree.x); // -1 kiri, +1 kanan
+  return (
+    <group
+      position={[tree.x - side * 0.55, 0, tree.z + 0.25]}
+      rotation={[0, -side * Math.PI / 4, 0]}
+    >
+      {/* Mini post */}
+      <mesh position={[0, 0.18, 0]}>
+        <cylinderGeometry args={[0.02, 0.025, 0.36, 6]} />
+        <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+      </mesh>
+      {/* Mini plank */}
+      <mesh position={[0, 0.32, 0]}>
+        <boxGeometry args={[0.4, 0.14, 0.03]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
+      </mesh>
+      {/* Tepi plank atas-bawah (frame kayu lebih gelap) */}
+      <mesh position={[0, 0.395, 0.018]}>
+        <boxGeometry args={[0.42, 0.025, 0.02]} />
+        <meshStandardMaterial color="#3a2616" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.245, 0.018]}>
+        <boxGeometry args={[0.42, 0.025, 0.02]} />
+        <meshStandardMaterial color="#3a2616" roughness={0.95} />
+      </mesh>
+      {/* Tahun terukir */}
+      <Html position={[0, 0.32, 0.025]} center distanceFactor={6} occlude={false}>
+        <div style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          fontSize: '9px',
+          color: '#1a0d05',
+          whiteSpace: 'nowrap',
+          fontWeight: '600',
+          letterSpacing: '0.5px',
+          pointerEvents: 'none',
+        }}>{tree.year}</div>
+      </Html>
+    </group>
+  );
+};
+
+const YearPlaques = ({ trees }) => (
+  <>
+    {trees.map((tree) => (
+      <YearPlaque key={`plaque-${tree.id}`} tree={tree} />
+    ))}
+  </>
+);
+
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
 // melayang. Hover lift + emissive glow, click → modal milestone.
 const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
@@ -402,6 +537,8 @@ const LorongScene = ({
       color="#a8c5e0"
     />
     <Path />
+    <Lanterns />
+    <YearPlaques trees={trees} />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 40 : 70} />
     <FallingLeaves count={isMobile ? 35 : 60} />
