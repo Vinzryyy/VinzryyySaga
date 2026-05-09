@@ -27,10 +27,11 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
+import AmbientAudio from '../components/taman/AmbientAudio';
 
 // Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
 // dijaga konsisten supaya keputusan downscale seragam antar halaman
@@ -91,7 +92,8 @@ const HEX_RADIUS = 5;
 // Setiap petak punya tema garden yang sesuai isinya. ID 'r1'-'r6'
 // dipertahankan supaya progress lama di localStorage (key legacy
 // 'museum-rooms-previewed') tetap kepake — ID konsisten, nama yang
-// berubah.
+// berubah. Field `route`: kalau ada, modal nampilin CTA langsung
+// masuk; kalau null, fallback ke "akan dirilis di Fase 3".
 const PETAK = [
   {
     id: 'r1',
@@ -101,6 +103,7 @@ const PETAK = [
       'Jalur dengan pohon-pohon yang tumbuh tahun demi tahun — debut, single pertama, theater, generasi. Tiap pohon = milestone perjalanan Eli.',
     angle: 270,
     color: '#7a9d5e',
+    route: '/taman/r1',
   },
   {
     id: 'r2',
@@ -186,6 +189,72 @@ const FlyInCamera = ({ onComplete, duration = FLY_IN_DURATION }) => {
   });
 
   return null;
+};
+
+// Kelopak bunga jatuh pelan dari atas — dekoratif, kerasa kayak
+// taman senja yang hidup. Pakai BufferGeometry untuk render banyak
+// kelopak dalam 1 draw call. Posisi reset ke atas saat jatuh ke
+// bawah (sirkulasi tak-terhingga). Color tone soft pink/white/peach
+// supaya match palette twilight evening.
+const FallingPetals = ({ count = 80 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 30;
+      arr[i * 3 + 1] = Math.random() * 18; // distribusi tinggi awal
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 30;
+    }
+    return arr;
+  }, [count]);
+
+  // Velocity per partikel (deterministik via Math.random saat init)
+  // — bukan uniform fall supaya kelihatan natural.
+  const velocities = useMemo(() => {
+    const arr = new Float32Array(count * 2); // [vy, drift_x]
+    for (let i = 0; i < count; i++) {
+      arr[i * 2] = -0.15 - Math.random() * 0.1; // jatuh: -0.15 to -0.25
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.05; // sway samping tipis
+    }
+    return arr;
+  }, [count]);
+
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] += velocities[i * 2 + 1] * delta * 60;
+      arr[i * 3 + 1] += velocities[i * 2] * delta;
+      // Reset ke atas + posisi X/Z baru saat jatuh ke bawah ground
+      if (arr[i * 3 + 1] < -0.5) {
+        arr[i * 3] = (Math.random() - 0.5) * 30;
+        arr[i * 3 + 1] = 15 + Math.random() * 5;
+        arr[i * 3 + 2] = (Math.random() - 0.5) * 30;
+      }
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.13}
+        color="#f4c8d8"
+        transparent
+        opacity={0.55}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
 };
 
 // Bunga-bunga kecil tersebar di sekitar tiap petak — visual hint
@@ -371,25 +440,67 @@ const FRUIT_POSITIONS = [
   { pos: [0.0, 1.6, -0.55], color: '#ed9b6a' },
 ];
 
-const CenterTree = () => {
+// CenterTree — pohon aprikot di pusat peta. Sekarang clickable: hover
+// kasih emissive boost di semua foliage cluster, click → navigate ke
+// /26 (Pohon Kebaikan existing). Pohon ini secara naratif **adalah**
+// Pohon Kebaikan, jadi link langsung ke modul itu via center node.
+const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
-  useFrame((state) => {
+  const foliageMatRefs = useRef([]);
+
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
     groupRef.current.rotation.y =
       Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
+
+    // Emissive boost saat hover — foliage glow hijau lembut
+    const targetEm = hovered ? 0.35 : 0;
+    const factor = Math.min(delta * 6, 1);
+    foliageMatRefs.current.forEach((mat) => {
+      if (!mat) return;
+      mat.emissiveIntensity = lerp(
+        mat.emissiveIntensity,
+        targetEm,
+        factor
+      );
+    });
   });
+
   return (
-    <group ref={groupRef} position={[0, 0, 0]}>
+    <group
+      ref={groupRef}
+      position={[0, 0, 0]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
       {/* Trunk — ramping, tinggi 1.4, taper sedikit */}
       <mesh position={[0, 0.7, 0]}>
         <cylinderGeometry args={[0.1, 0.15, 1.4, 10]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
       </mesh>
-      {/* Foliage clusters */}
+      {/* Foliage clusters — material ref-tracked untuk hover emissive */}
       {FOLIAGE_CLUSTERS.map((c, i) => (
         <mesh key={`foliage-${i}`} position={c.pos}>
           <sphereGeometry args={[c.radius, 16, 12]} />
-          <meshStandardMaterial color={c.color} roughness={0.75} />
+          <meshStandardMaterial
+            ref={(el) => {
+              foliageMatRefs.current[i] = el;
+            }}
+            color={c.color}
+            emissive={c.color}
+            emissiveIntensity={0}
+            roughness={0.75}
+          />
         </mesh>
       ))}
       {/* Fruit aprikot — emissive subtle untuk kerasa hidup */}
@@ -405,6 +516,19 @@ const CenterTree = () => {
           />
         </mesh>
       ))}
+      {/* Floating label saat hover — "Pohon Kebaikan" + hint klik */}
+      {hovered && (
+        <Html position={[0, 2.9, 0]} center distanceFactor={10}>
+          <div className="text-center pointer-events-none select-none whitespace-nowrap">
+            <div className="text-white text-[12px] font-medium tracking-wide">
+              Pohon Kebaikan
+            </div>
+            <div className="text-emerald-300/80 text-[9px] mt-0.5 uppercase tracking-[0.15em]">
+              Klik untuk siram →
+            </div>
+          </div>
+        </Html>
+      )}
     </group>
   );
 };
@@ -428,12 +552,16 @@ const TamanFloor = () => (
 
 const TamanScene = ({
   hoveredPetakId,
+  hoveredCenter,
   previewedPetak,
   flyInActive,
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
   onPetakClick,
+  onCenterHover,
+  onCenterOut,
+  onCenterClick,
 }) => {
   return (
     <>
@@ -451,7 +579,13 @@ const TamanScene = ({
         color="#a8c5e0"
       />
       <TamanFloor />
-      <CenterTree />
+      <CenterTree
+        hovered={hoveredCenter}
+        onPointerOver={onCenterHover}
+        onPointerOut={onCenterOut}
+        onClick={onCenterClick}
+      />
+      <FallingPetals count={80} />
       {PETAK.map((petak) => (
         <PetakPlot
           key={petak.id}
@@ -587,30 +721,52 @@ const PetakDetailOverlay = ({ petak, onClose }) => {
         <p className="text-white/70 text-sm leading-relaxed mb-6">
           {petak.longDesc}
         </p>
-        <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 mb-6">
-          <p className="text-white/55 text-xs leading-relaxed">
-            Petak ini sedang dalam pertumbuhan.
-            <br />
-            Akan dirilis di{' '}
-            <span className="text-white/85">Fase 3</span> — kami
-            tanam petak satu per satu.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-6 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
-        >
-          Kembali ke peta taman
-        </button>
+        {petak.route ? (
+          <div className="flex flex-col gap-2.5">
+            <Link
+              to={petak.route}
+              className="w-full px-5 py-3 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition text-center"
+            >
+              Masuk {petak.name} →
+            </Link>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full px-5 py-2 rounded-full border border-white/20 text-white/65 text-xs hover:bg-white/10 transition"
+            >
+              Kembali ke peta taman
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 mb-6">
+              <p className="text-white/55 text-xs leading-relaxed">
+                Petak ini sedang dalam pertumbuhan.
+                <br />
+                Akan dirilis di{' '}
+                <span className="text-white/85">Fase 3</span> —
+                kami tanam petak satu per satu.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full px-6 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
+            >
+              Kembali ke peta taman
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
 const TamanPetaPage = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [hoveredPetakId, setHoveredPetakId] = useState(null);
+  const [hoveredCenter, setHoveredCenter] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
@@ -618,12 +774,13 @@ const TamanPetaPage = () => {
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
 
   useEffect(() => {
-    document.body.style.cursor =
-      !flyInActive && hoveredPetakId ? 'pointer' : 'auto';
+    const showPointer =
+      !flyInActive && (hoveredPetakId || hoveredCenter);
+    document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hoveredPetakId, flyInActive]);
+  }, [hoveredPetakId, hoveredCenter, flyInActive]);
 
   const handleFlyInComplete = () => setFlyInActive(false);
 
@@ -648,6 +805,18 @@ const TamanPetaPage = () => {
   };
   const handleCloseOverlay = () => setSelectedPetak(null);
 
+  // Center tree handlers — pohon aprikot di pusat = Pohon Kebaikan
+  // (modul existing di /26). Click navigate ke sana.
+  const handleCenterHover = () => {
+    if (flyInActive) return;
+    setHoveredCenter(true);
+  };
+  const handleCenterOut = () => setHoveredCenter(false);
+  const handleCenterClick = () => {
+    if (flyInActive) return;
+    navigate('/26');
+  };
+
   return (
     <>
       <Seo
@@ -671,12 +840,16 @@ const TamanPetaPage = () => {
           >
             <TamanScene
               hoveredPetakId={hoveredPetakId}
+              hoveredCenter={hoveredCenter}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
               onPetakClick={handlePetakClick}
+              onCenterHover={handleCenterHover}
+              onCenterOut={handleCenterOut}
+              onCenterClick={handleCenterClick}
             />
             {import.meta.env.DEV && <Stats />}
           </Canvas>
@@ -692,6 +865,7 @@ const TamanPetaPage = () => {
           petak={selectedPetak}
           onClose={handleCloseOverlay}
         />
+        <AmbientAudio profile="taman" position="top-right" />
       </div>
     </>
   );

@@ -56,6 +56,7 @@ const VivoPage = lazy(() => import('./pages/Vivo'));
 // yang udah pernah di-share.
 const TamanPage = lazy(() => import('./pages/Taman'));
 const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
+const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -123,6 +124,7 @@ function AppShell() {
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/taman" element={<TamanPage />} />
             <Route path="/taman/peta" element={<TamanPetaPage />} />
+            <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
             <Route path="/museum" element={<Navigate to="/taman" replace />} />
             <Route

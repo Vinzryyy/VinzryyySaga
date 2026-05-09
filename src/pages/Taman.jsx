@@ -49,6 +49,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
+import AmbientAudio from '../components/taman/AmbientAudio';
 
 // Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
 // untuk turunin DustParticles count dan dpr supaya R0 tetep smooth di
@@ -113,6 +114,41 @@ const Gate = () => (
     <mesh position={[0, 4.2, 0]}>
       <boxGeometry args={[4.8, 0.4, 0.4]} />
       <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// Pohon mati di samping gerbang — siluet yang nguatin metafor
+// "padang yang sudah lama tak hujan". Trunk bengkok + 3 ranting
+// gundul tanpa daun. Tone gelap dengan tint warm-brown supaya
+// blend in dengan padang kering. Posisinya offset ke kiri gerbang
+// supaya nggak nutupin pintu masuk.
+const DeadTree = () => (
+  <group position={[-5, 0, -1]}>
+    {/* Trunk dengan rotation slight tilt — kerasa lelah */}
+    <mesh position={[0, 1.5, 0]} rotation={[0, 0, 0.08]}>
+      <cylinderGeometry args={[0.12, 0.22, 3, 6]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    {/* Cabang utama kanan */}
+    <mesh position={[0.55, 2.7, 0]} rotation={[0, 0, -1.0]}>
+      <cylinderGeometry args={[0.05, 0.1, 1.2, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    {/* Cabang utama kiri */}
+    <mesh position={[-0.4, 2.5, 0]} rotation={[0, 0, 0.9]}>
+      <cylinderGeometry args={[0.05, 0.09, 1.0, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    {/* Cabang atas kecil */}
+    <mesh position={[0.15, 3.4, 0.1]} rotation={[0.2, 0, 0.3]}>
+      <cylinderGeometry args={[0.04, 0.06, 0.7, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    {/* Sub-cabang dari ranting kanan */}
+    <mesh position={[1.1, 3.0, 0]} rotation={[0, 0, -0.5]}>
+      <cylinderGeometry args={[0.03, 0.04, 0.5, 4]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
     </mesh>
   </group>
 );
@@ -273,6 +309,7 @@ const R0Scene = ({
     />
     <Ground />
     <Gate />
+    <DeadTree />
     <DustParticles count={particleCount} />
     <DollyCamera
       resetTrigger={resetTrigger}
@@ -534,6 +571,7 @@ const MuseumPage = () => {
         <OpeningText stage={stage} resetTrigger={resetTrigger} />
         <TapHint visible={stage === 'active'} />
         <ExitOverlay visible={stage === 'done'} onRestart={handleRestart} />
+        <AmbientAudio profile="drought" position="top-right" />
 
         <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">
           Padang Tandus · stage: {stage}
