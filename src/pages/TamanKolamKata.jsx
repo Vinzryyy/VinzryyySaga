@@ -570,14 +570,15 @@ const CattailCluster = ({ pos }) => {
   }, []);
 
   // Wind sway — pivot di base cluster, gentle bend dua arah dengan phase
-  // unik per cluster supaya nggak gerak serempak.
+  // unik per cluster supaya nggak gerak serempak. Amplitude kecil (~3°)
+  // supaya kerasa breeze halus, bukan badai.
   const groupRef = useRef();
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
-    groupRef.current.rotation.x = Math.sin(t * 0.6 + phase) * 0.08;
-    groupRef.current.rotation.z = Math.cos(t * 0.5 + phase * 1.3) * 0.06;
+    groupRef.current.rotation.x = Math.sin(t * 0.7 + phase) * 0.05;
+    groupRef.current.rotation.z = Math.cos(t * 0.6 + phase * 1.3) * 0.04;
   });
 
   return (
@@ -718,7 +719,8 @@ const Wildflowers = () => {
 
 // Kunang-kunang — bola kecil dengan emissive kuning-oranye yang flicker
 // sin-based. Drift orbital di sekitar home position. Bloom pickup bikin
-// glow halo. Pas untuk late afternoon — first hint of evening magic.
+// glow halo. Late afternoon = baru sedikit muncul; jangan terlalu rame
+// supaya tetap kerasa "first hint" bukan night swarm.
 const Firefly = ({ def }) => {
   const ref = useRef();
   const matRef = useRef();
@@ -730,38 +732,35 @@ const Firefly = ({ def }) => {
     ref.current.position.z =
       def.home[2] + Math.cos(t * 0.35 + def.phase * 1.3) * 0.7;
     if (matRef.current) {
-      // Pulse 0.4..2.4 — flicker visible tapi nggak strobe
+      // Pulse halus 0.3..1.5 — bloom pickup udah bikin glow, jadi
+      // emissive ceiling moderate aja biar nggak overflow ke putih.
       const pulse = 0.5 + 0.5 * Math.sin(t * def.flicker + def.phase * 2);
-      matRef.current.emissiveIntensity = 0.4 + pulse * 2.0;
+      matRef.current.emissiveIntensity = 0.3 + pulse * 1.2;
     }
   });
   return (
     <mesh ref={ref}>
-      <sphereGeometry args={[0.045, 6, 6]} />
+      <sphereGeometry args={[0.04, 6, 6]} />
       <meshStandardMaterial
         ref={matRef}
         color="#fff4a8"
-        emissive="#ffd866"
-        emissiveIntensity={1.5}
+        emissive="#ffc858"
+        emissiveIntensity={1.0}
         roughness={1}
-        toneMapped={false}
       />
     </mesh>
   );
 };
 
-// Posisi home di-precompute sekali (per page load, deterministik antar
-// re-render). Distribusi spread di seluruh playable area, prefer area
-// rumput dan tepi danau.
-const FIREFLY_DEFS = Array.from({ length: 18 }, () => {
-  // 60% di tepi grass, 40% di atas air
-  const onWater = Math.random() < 0.4;
-  const r = onWater ? 5 : 9 + Math.random() * 5;
+// Spread di tepi rumput aja (kunang-kunang nggak terbang di tengah air),
+// radius ring 8..14 dari center. Posisi deterministik per page load.
+const FIREFLY_DEFS = Array.from({ length: 14 }, () => {
   const angle = Math.random() * Math.PI * 2;
+  const r = 8 + Math.random() * 6;
   return {
     home: [
       Math.cos(angle) * r,
-      0.4 + Math.random() * 1.6,
+      0.4 + Math.random() * 1.4,
       Math.sin(angle) * r,
     ],
     phase: Math.random() * Math.PI * 2,
@@ -968,35 +967,50 @@ const JumpingFish = ({ def }) => {
   return (
     <>
       <group ref={groupRef} visible={false}>
-        {/* Body — ellipsoid silver */}
-        <mesh scale={[0.32, 0.13, 0.11]} castShadow>
-          <sphereGeometry args={[1, 12, 8]} />
+        {/* Body — ellipsoid silver, long axis = +x (kepala) */}
+        <mesh scale={[0.3, 0.13, 0.11]} castShadow>
+          <sphereGeometry args={[1, 14, 10]} />
           <meshStandardMaterial
-            color="#aebccc"
+            color="#b6c4d2"
             roughness={0.35}
             metalness={0.55}
           />
         </mesh>
-        {/* Tail fin — segitiga di belakang */}
-        <mesh position={[-0.3, 0, 0]} rotation={[0, 0, 0]}>
-          <coneGeometry args={[0.09, 0.16, 4]} />
+        {/* Sirip dorsal kecil di atas */}
+        <mesh position={[0, 0.11, 0]} rotation={[0, 0, 0]}>
+          <coneGeometry args={[0.04, 0.07, 4]} />
+          <meshStandardMaterial
+            color="#92a2b4"
+            roughness={0.5}
+            metalness={0.4}
+          />
+        </mesh>
+        {/* Tail fin — cone horizontal nunjuk ke -x, base lebih lebar */}
+        <mesh position={[-0.32, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <coneGeometry args={[0.09, 0.14, 8]} />
           <meshStandardMaterial
             color="#8a98a8"
             roughness={0.5}
             metalness={0.4}
           />
         </mesh>
-        {/* Mata kecil */}
-        <mesh position={[0.22, 0.04, 0.08]}>
-          <sphereGeometry args={[0.018, 6, 6]} />
+        {/* Mata kecil di kedua sisi kepala */}
+        <mesh position={[0.22, 0.03, 0.07]}>
+          <sphereGeometry args={[0.016, 6, 6]} />
+          <meshStandardMaterial color="#1a1a1a" />
+        </mesh>
+        <mesh position={[0.22, 0.03, -0.07]}>
+          <sphereGeometry args={[0.016, 6, 6]} />
           <meshStandardMaterial color="#1a1a1a" />
         </mesh>
       </group>
-      {/* Splash ring di permukaan air */}
+      {/* Splash ring di permukaan air — y sedikit lebih tinggi supaya
+          nggak z-fight dgn reflector water */}
       <mesh
         ref={splashRef}
-        position={[def.pos[0], 0.06, def.pos[2]]}
+        position={[def.pos[0], 0.08, def.pos[2]]}
         rotation={[-Math.PI / 2, 0, 0]}
+        scale={[0.25, 1, 0.25]}
         visible={false}
       >
         <ringGeometry args={[0.22, 0.32, 28]} />
@@ -1888,92 +1902,93 @@ const Bench = () => (
 );
 
 // Pengunjung duduk di bench — figur low-poly dengan transform sama dgn
-// bench supaya nempel di seat. Posisi sub-group [0.4, 0.48, 0.08] =
-// agak ke kanan seat (local +x), depan seat (local +z = arah danau).
-// Subtle breathing sway — torso/head naik turun pelan.
+// bench. Inner group offset y=0.48 = seat surface (jadi y=0 internal =
+// permukaan tempat duduk). Hip di z=-0.05 (sedikit ke arah back rest),
+// kaki extend ke +z (arah danau). Upper body (torso+kepala+lengan)
+// di-group supaya breathing sway gerak natural sebagai satu unit.
 const BenchVisitor = () => {
-  const breathRef = useRef();
+  const upperRef = useRef();
   useFrame((state) => {
-    if (!breathRef.current) return;
+    if (!upperRef.current) return;
     const t = state.clock.elapsedTime;
-    breathRef.current.position.y = 0.25 + Math.sin(t * 1.1) * 0.008;
+    upperRef.current.position.y = Math.sin(t * 1.0) * 0.008;
   });
   return (
     <group
       position={[-(RIVER_WIDTH / 2 + 2.5), 0, -2]}
       rotation={[0, Math.PI / 2, 0]}
     >
-      <group position={[0.4, 0.48, 0.08]}>
-        {/* Torso — sweater abu-tua */}
-        <mesh ref={breathRef} position={[0, 0.25, 0]} castShadow>
-          <boxGeometry args={[0.32, 0.4, 0.22]} />
-          <meshStandardMaterial color="#5a6878" roughness={0.9} />
-        </mesh>
-        {/* Kepala */}
-        <mesh position={[0, 0.55, 0]} castShadow>
-          <sphereGeometry args={[0.13, 12, 10]} />
-          <meshStandardMaterial color="#d8b89a" roughness={0.85} />
-        </mesh>
-        {/* Rambut — hemisphere gelap di atas kepala */}
+      <group position={[0, 0.48, -0.05]}>
+        {/* Upper body — naik-turun pelan (breathing) */}
+        <group ref={upperRef}>
+          {/* Torso — sweater abu-tua, bottom nempel di atas paha (y=0.07) */}
+          <mesh position={[0, 0.27, 0]} castShadow>
+            <boxGeometry args={[0.32, 0.4, 0.22]} />
+            <meshStandardMaterial color="#5a6878" roughness={0.9} />
+          </mesh>
+          {/* Kepala — di atas leher pendek */}
+          <mesh position={[0, 0.65, 0]} castShadow>
+            <sphereGeometry args={[0.13, 14, 10]} />
+            <meshStandardMaterial color="#d8b89a" roughness={0.85} />
+          </mesh>
+          {/* Rambut — hemisphere gelap di top kepala, sedikit ke belakang */}
+          <mesh position={[0, 0.68, -0.02]}>
+            <sphereGeometry
+              args={[0.138, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
+            />
+            <meshStandardMaterial color="#2a2218" roughness={0.95} />
+          </mesh>
+          {/* Lengan kiri — shoulder belakang & atas, hand di pangkuan */}
+          <mesh
+            position={[-0.18, 0.25, 0.05]}
+            rotation={[-0.5, 0, 0.12]}
+            castShadow
+          >
+            <cylinderGeometry args={[0.05, 0.05, 0.36, 8]} />
+            <meshStandardMaterial color="#5a6878" roughness={0.9} />
+          </mesh>
+          {/* Lengan kanan */}
+          <mesh
+            position={[0.18, 0.25, 0.05]}
+            rotation={[-0.5, 0, -0.12]}
+            castShadow
+          >
+            <cylinderGeometry args={[0.05, 0.05, 0.36, 8]} />
+            <meshStandardMaterial color="#5a6878" roughness={0.9} />
+          </mesh>
+        </group>
+        {/* Paha — horizontal, dari pinggul ke arah danau, duduk di seat */}
         <mesh
-          position={[0, 0.58, -0.015]}
-          rotation={[0, 0, 0]}
-        >
-          <sphereGeometry
-            args={[0.135, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
-          />
-          <meshStandardMaterial color="#2a2218" roughness={0.95} />
-        </mesh>
-        {/* Lengan kiri — relax di pangkuan */}
-        <mesh
-          position={[-0.18, 0.18, 0.1]}
-          rotation={[0.6, 0, 0.18]}
-          castShadow
-        >
-          <cylinderGeometry args={[0.05, 0.05, 0.36, 6]} />
-          <meshStandardMaterial color="#5a6878" roughness={0.9} />
-        </mesh>
-        {/* Lengan kanan */}
-        <mesh
-          position={[0.18, 0.18, 0.1]}
-          rotation={[0.6, 0, -0.18]}
-          castShadow
-        >
-          <cylinderGeometry args={[0.05, 0.05, 0.36, 6]} />
-          <meshStandardMaterial color="#5a6878" roughness={0.9} />
-        </mesh>
-        {/* Paha — horizontal, dari pinggul ke arah danau */}
-        <mesh
-          position={[-0.08, 0, 0.2]}
+          position={[-0.08, 0.07, 0.18]}
           rotation={[Math.PI / 2, 0, 0]}
           castShadow
         >
-          <cylinderGeometry args={[0.07, 0.07, 0.4, 6]} />
+          <cylinderGeometry args={[0.07, 0.07, 0.4, 8]} />
           <meshStandardMaterial color="#2c3848" roughness={0.92} />
         </mesh>
         <mesh
-          position={[0.08, 0, 0.2]}
+          position={[0.08, 0.07, 0.18]}
           rotation={[Math.PI / 2, 0, 0]}
           castShadow
         >
-          <cylinderGeometry args={[0.07, 0.07, 0.4, 6]} />
+          <cylinderGeometry args={[0.07, 0.07, 0.4, 8]} />
           <meshStandardMaterial color="#2c3848" roughness={0.92} />
         </mesh>
-        {/* Betis — vertical turun dari lutut */}
-        <mesh position={[-0.08, -0.22, 0.38]} castShadow>
-          <cylinderGeometry args={[0.06, 0.06, 0.42, 6]} />
+        {/* Betis — vertical turun dari lutut (z=0.38) */}
+        <mesh position={[-0.08, -0.14, 0.4]} castShadow>
+          <cylinderGeometry args={[0.06, 0.06, 0.42, 8]} />
           <meshStandardMaterial color="#2c3848" roughness={0.92} />
         </mesh>
-        <mesh position={[0.08, -0.22, 0.38]} castShadow>
-          <cylinderGeometry args={[0.06, 0.06, 0.42, 6]} />
+        <mesh position={[0.08, -0.14, 0.4]} castShadow>
+          <cylinderGeometry args={[0.06, 0.06, 0.42, 8]} />
           <meshStandardMaterial color="#2c3848" roughness={0.92} />
         </mesh>
-        {/* Sepatu kecil */}
-        <mesh position={[-0.08, -0.45, 0.44]} castShadow>
+        {/* Sepatu kecil — di ujung betis, sedikit forward */}
+        <mesh position={[-0.08, -0.38, 0.46]} castShadow>
           <boxGeometry args={[0.1, 0.06, 0.16]} />
           <meshStandardMaterial color="#1a1410" roughness={0.85} />
         </mesh>
-        <mesh position={[0.08, -0.45, 0.44]} castShadow>
+        <mesh position={[0.08, -0.38, 0.46]} castShadow>
           <boxGeometry args={[0.1, 0.06, 0.16]} />
           <meshStandardMaterial color="#1a1410" roughness={0.85} />
         </mesh>
@@ -2217,7 +2232,7 @@ const TelagaScene = ({
     <PaperBoats />
     <Butterflies />
     <Dragonflies />
-    <Fireflies count={isMobile ? 10 : 18} />
+    <Fireflies count={isMobile ? 8 : 14} />
     <FallingPetals count={isMobile ? 60 : 120} />
     <GroundMist count={isMobile ? 60 : 100} />
     {pads.map((pad) => (
