@@ -569,8 +569,19 @@ const CattailCluster = ({ pos }) => {
     }));
   }, []);
 
+  // Wind sway — pivot di base cluster, gentle bend dua arah dengan phase
+  // unik per cluster supaya nggak gerak serempak.
+  const groupRef = useRef();
+  const phase = useMemo(() => Math.random() * Math.PI * 2, []);
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.rotation.x = Math.sin(t * 0.6 + phase) * 0.08;
+    groupRef.current.rotation.z = Math.cos(t * 0.5 + phase * 1.3) * 0.06;
+  });
+
   return (
-    <group position={pos}>
+    <group ref={groupRef} position={pos}>
       {/* Blade leaves — flat plane vertical, fanning out */}
       {blades.map((b, i) => (
         <mesh
@@ -705,6 +716,70 @@ const Wildflowers = () => {
   );
 };
 
+// Kunang-kunang — bola kecil dengan emissive kuning-oranye yang flicker
+// sin-based. Drift orbital di sekitar home position. Bloom pickup bikin
+// glow halo. Pas untuk late afternoon — first hint of evening magic.
+const Firefly = ({ def }) => {
+  const ref = useRef();
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.position.x = def.home[0] + Math.sin(t * 0.4 + def.phase) * 0.7;
+    ref.current.position.y = def.home[1] + Math.cos(t * 0.5 + def.phase) * 0.25;
+    ref.current.position.z =
+      def.home[2] + Math.cos(t * 0.35 + def.phase * 1.3) * 0.7;
+    if (matRef.current) {
+      // Pulse 0.4..2.4 — flicker visible tapi nggak strobe
+      const pulse = 0.5 + 0.5 * Math.sin(t * def.flicker + def.phase * 2);
+      matRef.current.emissiveIntensity = 0.4 + pulse * 2.0;
+    }
+  });
+  return (
+    <mesh ref={ref}>
+      <sphereGeometry args={[0.045, 6, 6]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#fff4a8"
+        emissive="#ffd866"
+        emissiveIntensity={1.5}
+        roughness={1}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+
+// Posisi home di-precompute sekali (per page load, deterministik antar
+// re-render). Distribusi spread di seluruh playable area, prefer area
+// rumput dan tepi danau.
+const FIREFLY_DEFS = Array.from({ length: 18 }, () => {
+  // 60% di tepi grass, 40% di atas air
+  const onWater = Math.random() < 0.4;
+  const r = onWater ? 5 : 9 + Math.random() * 5;
+  const angle = Math.random() * Math.PI * 2;
+  return {
+    home: [
+      Math.cos(angle) * r,
+      0.4 + Math.random() * 1.6,
+      Math.sin(angle) * r,
+    ],
+    phase: Math.random() * Math.PI * 2,
+    flicker: 2.5 + Math.random() * 2.5,
+  };
+});
+
+const Fireflies = ({ count }) => {
+  const defs = count ? FIREFLY_DEFS.slice(0, count) : FIREFLY_DEFS;
+  return (
+    <>
+      {defs.map((def, i) => (
+        <Firefly key={`firefly-${i}`} def={def} />
+      ))}
+    </>
+  );
+};
+
 // Wooden bridge — jembatan kayu kecil melintasi salah satu ujung
 // danau (di z = -12.5, dekat ujung utara). Span x dari -7 ke 7 (lebar
 // danau + sedikit overlap ke banks). Floor plank + 2 railing kiri/
@@ -828,6 +903,125 @@ const Ducks = () => (
   <>
     {DUCK_DEFS.map((def, i) => (
       <Duck key={`duck-${i}`} def={def} />
+    ))}
+  </>
+);
+
+// Ikan melompat — event-driven. Tiap fish punya cycle (jeda lama antar
+// jump) supaya event lompatan kerasa surprise, bukan continuous noise.
+// Selama jump, body ikut arc parabolic dan tilt nose-up→nose-down.
+// Ripple ring di posisi entry/exit kasih splash visual.
+const JumpingFish = ({ def }) => {
+  const groupRef = useRef();
+  const splashRef = useRef();
+  const fadeRef = useRef({ active: false, t0: 0, mode: 'enter' });
+
+  useFrame((state) => {
+    if (!groupRef.current || !splashRef.current) return;
+    const t = state.clock.elapsedTime;
+    const localT = (t + def.offset) % def.cycle;
+    const jumpT = def.jumpDuration;
+
+    if (localT < jumpT) {
+      // Arc — peak height = 1.2 di tengah
+      const u = localT / jumpT; // 0..1
+      const y = 4 * 1.2 * u * (1 - u);
+      groupRef.current.visible = true;
+      groupRef.current.position.set(def.pos[0], y, def.pos[2]);
+      // Tilt sepanjang arc — head naik di awal, head turun di akhir
+      groupRef.current.rotation.z = (0.5 - u) * Math.PI * 0.85;
+      groupRef.current.rotation.y = def.facing + u * 0.4;
+      // Trigger entry splash sekali per cycle
+      if (!fadeRef.current.active && u < 0.05) {
+        fadeRef.current = { active: true, t0: t, mode: 'enter' };
+      }
+      // Schedule exit splash di akhir arc
+      if (fadeRef.current.mode === 'enter' && u > 0.94) {
+        fadeRef.current = { active: true, t0: t, mode: 'exit' };
+      }
+    } else {
+      groupRef.current.visible = false;
+    }
+
+    // Splash ring fade (0.6s lifecycle)
+    const fade = fadeRef.current;
+    if (fade.active) {
+      const dt = t - fade.t0;
+      if (dt < 0.6) {
+        splashRef.current.visible = true;
+        const s = 0.25 + dt * 1.6;
+        splashRef.current.scale.set(s, 1, s);
+        splashRef.current.material.opacity = 0.55 * (1 - dt / 0.6);
+      } else {
+        splashRef.current.visible = false;
+        if (fade.mode === 'exit') {
+          // Reset untuk cycle berikutnya
+          fadeRef.current = { active: false, t0: 0, mode: 'enter' };
+        } else {
+          // Tunggu exit splash
+          fadeRef.current = { ...fade, active: false };
+        }
+      }
+    }
+  });
+
+  return (
+    <>
+      <group ref={groupRef} visible={false}>
+        {/* Body — ellipsoid silver */}
+        <mesh scale={[0.32, 0.13, 0.11]} castShadow>
+          <sphereGeometry args={[1, 12, 8]} />
+          <meshStandardMaterial
+            color="#aebccc"
+            roughness={0.35}
+            metalness={0.55}
+          />
+        </mesh>
+        {/* Tail fin — segitiga di belakang */}
+        <mesh position={[-0.3, 0, 0]} rotation={[0, 0, 0]}>
+          <coneGeometry args={[0.09, 0.16, 4]} />
+          <meshStandardMaterial
+            color="#8a98a8"
+            roughness={0.5}
+            metalness={0.4}
+          />
+        </mesh>
+        {/* Mata kecil */}
+        <mesh position={[0.22, 0.04, 0.08]}>
+          <sphereGeometry args={[0.018, 6, 6]} />
+          <meshStandardMaterial color="#1a1a1a" />
+        </mesh>
+      </group>
+      {/* Splash ring di permukaan air */}
+      <mesh
+        ref={splashRef}
+        position={[def.pos[0], 0.06, def.pos[2]]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        visible={false}
+      >
+        <ringGeometry args={[0.22, 0.32, 28]} />
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.5}
+          side={2}
+          depthWrite={false}
+        />
+      </mesh>
+    </>
+  );
+};
+
+const FISH_DEFS = [
+  { pos: [-2.5, 0, -6], cycle: 12, offset: 0, jumpDuration: 0.85, facing: 0.3 },
+  { pos: [3.2, 0, 1.5], cycle: 15, offset: 5.5, jumpDuration: 0.9, facing: -0.4 },
+  { pos: [-0.5, 0, 9], cycle: 17, offset: 10, jumpDuration: 0.95, facing: 1.1 },
+];
+
+const JumpingFishes = () => (
+  <>
+    {FISH_DEFS.map((def, i) => (
+      <JumpingFish key={`fish-${i}`} def={def} />
     ))}
   </>
 );
@@ -1693,6 +1887,101 @@ const Bench = () => (
   </group>
 );
 
+// Pengunjung duduk di bench — figur low-poly dengan transform sama dgn
+// bench supaya nempel di seat. Posisi sub-group [0.4, 0.48, 0.08] =
+// agak ke kanan seat (local +x), depan seat (local +z = arah danau).
+// Subtle breathing sway — torso/head naik turun pelan.
+const BenchVisitor = () => {
+  const breathRef = useRef();
+  useFrame((state) => {
+    if (!breathRef.current) return;
+    const t = state.clock.elapsedTime;
+    breathRef.current.position.y = 0.25 + Math.sin(t * 1.1) * 0.008;
+  });
+  return (
+    <group
+      position={[-(RIVER_WIDTH / 2 + 2.5), 0, -2]}
+      rotation={[0, Math.PI / 2, 0]}
+    >
+      <group position={[0.4, 0.48, 0.08]}>
+        {/* Torso — sweater abu-tua */}
+        <mesh ref={breathRef} position={[0, 0.25, 0]} castShadow>
+          <boxGeometry args={[0.32, 0.4, 0.22]} />
+          <meshStandardMaterial color="#5a6878" roughness={0.9} />
+        </mesh>
+        {/* Kepala */}
+        <mesh position={[0, 0.55, 0]} castShadow>
+          <sphereGeometry args={[0.13, 12, 10]} />
+          <meshStandardMaterial color="#d8b89a" roughness={0.85} />
+        </mesh>
+        {/* Rambut — hemisphere gelap di atas kepala */}
+        <mesh
+          position={[0, 0.58, -0.015]}
+          rotation={[0, 0, 0]}
+        >
+          <sphereGeometry
+            args={[0.135, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
+          />
+          <meshStandardMaterial color="#2a2218" roughness={0.95} />
+        </mesh>
+        {/* Lengan kiri — relax di pangkuan */}
+        <mesh
+          position={[-0.18, 0.18, 0.1]}
+          rotation={[0.6, 0, 0.18]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.05, 0.05, 0.36, 6]} />
+          <meshStandardMaterial color="#5a6878" roughness={0.9} />
+        </mesh>
+        {/* Lengan kanan */}
+        <mesh
+          position={[0.18, 0.18, 0.1]}
+          rotation={[0.6, 0, -0.18]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.05, 0.05, 0.36, 6]} />
+          <meshStandardMaterial color="#5a6878" roughness={0.9} />
+        </mesh>
+        {/* Paha — horizontal, dari pinggul ke arah danau */}
+        <mesh
+          position={[-0.08, 0, 0.2]}
+          rotation={[Math.PI / 2, 0, 0]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.07, 0.07, 0.4, 6]} />
+          <meshStandardMaterial color="#2c3848" roughness={0.92} />
+        </mesh>
+        <mesh
+          position={[0.08, 0, 0.2]}
+          rotation={[Math.PI / 2, 0, 0]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.07, 0.07, 0.4, 6]} />
+          <meshStandardMaterial color="#2c3848" roughness={0.92} />
+        </mesh>
+        {/* Betis — vertical turun dari lutut */}
+        <mesh position={[-0.08, -0.22, 0.38]} castShadow>
+          <cylinderGeometry args={[0.06, 0.06, 0.42, 6]} />
+          <meshStandardMaterial color="#2c3848" roughness={0.92} />
+        </mesh>
+        <mesh position={[0.08, -0.22, 0.38]} castShadow>
+          <cylinderGeometry args={[0.06, 0.06, 0.42, 6]} />
+          <meshStandardMaterial color="#2c3848" roughness={0.92} />
+        </mesh>
+        {/* Sepatu kecil */}
+        <mesh position={[-0.08, -0.45, 0.44]} castShadow>
+          <boxGeometry args={[0.1, 0.06, 0.16]} />
+          <meshStandardMaterial color="#1a1410" roughness={0.85} />
+        </mesh>
+        <mesh position={[0.08, -0.45, 0.44]} castShadow>
+          <boxGeometry args={[0.1, 0.06, 0.16]} />
+          <meshStandardMaterial color="#1a1410" roughness={0.85} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
 // Wooden dock (dermaga kecil) yang menjulur dari shore +x ke air.
 // 4 plank kayu sejajar + 4 pilar pendukung di air. Posisi z=4 supaya
 // nggak overlap dengan bench area yang di z=-2.
@@ -1911,6 +2200,7 @@ const TelagaScene = ({
     <RiverStones />
     <GrassTufts />
     <Bench />
+    <BenchVisitor />
     <Dock />
     <Bridge />
     <SignPost />
@@ -1923,9 +2213,11 @@ const TelagaScene = ({
     <Lanterns />
     <BankTrees />
     <Ducks />
+    <JumpingFishes />
     <PaperBoats />
     <Butterflies />
     <Dragonflies />
+    <Fireflies count={isMobile ? 10 : 18} />
     <FallingPetals count={isMobile ? 60 : 120} />
     <GroundMist count={isMobile ? 60 : 100} />
     {pads.map((pad) => (
