@@ -1,8 +1,8 @@
 # Museum Kebaikan
 
-**Interactive 3D web experience untuk seitansai (graduation) project Eli JKT48.**
+**Interactive 3D web experience untuk seitansai (birthday celebration) project Eli JKT48.**
 
-Sebuah museum digital yang dibangun dari scratch — perjalanan dari "dunia tanpa kebaikan" (grayscale) menuju "taman kebaikan kolektif" (langit bertabur kontributor) — sebagai bagian dari arsip visual yang dipublikasi oleh **Armeniaca**.
+Sebuah museum digital yang dibangun dari scratch — perjalanan dari "dunia tanpa kebaikan" (grayscale) menuju "taman kebaikan kolektif" (langit bertabur kontributor) — sebagai persembahan ulang tahun, dipublikasi oleh **Armeniaca**.
 
 ---
 
@@ -22,9 +22,9 @@ Sebuah museum digital yang dibangun dari scratch — perjalanan dari "dunia tanp
 
 ## Konteks
 
-Eli adalah member JKT48 yang akan **seitansai** (graduation). Sudah ada arsip statis di [armeniaca.online](https://armeniaca.online) — gallery, profile, schedule, wishes wall. Tapi arsip biasa terasa terputus: galeri di satu halaman, charity di halaman lain, quotes di tempat ketiga.
+Eli adalah member JKT48 yang akan merayakan **seitansai** (perayaan ulang tahun fans-driven, dari kanji 生誕祭 = "festival kelahiran"). Sudah ada arsip statis di [armeniaca.online](https://armeniaca.online) — gallery, profile, schedule, wishes wall. Tapi arsip biasa terasa terputus: galeri di satu halaman, charity di halaman lain, quotes di tempat ketiga.
 
-**Museum Kebaikan** dirancang sebagai **wadah naratif** yang menyatukan semua serpihan itu jadi satu perjalanan. Pengunjung tidak browsing menu — mereka **berjalan masuk** ke ruangan demi ruangan.
+**Museum Kebaikan** dirancang sebagai **wadah naratif** yang menyatukan semua serpihan itu jadi satu perjalanan — sebuah hadiah ulang tahun yang berbentuk pengalaman, bukan sekadar postingan. Pengunjung tidak browsing menu — mereka **berjalan masuk** ke ruangan demi ruangan.
 
 Konsep narasi yang dipilih:
 
@@ -33,6 +33,8 @@ Konsep narasi yang dipilih:
 > Mereka memasuki denah museum, memilih ruangan untuk dijelajahi.
 > Setiap ruangan = aspek berbeda dari kebaikan Eli & komunitas.
 > Ruangan akhir: pohon kebaikan dengan langit bertabur bintang — tiap bintang adalah kontributor.
+
+Karena seitansai = perayaan **ulang tahun** (bukan farewell), tone-nya hangat & kontinu: museum ini bukan monumen perpisahan, tapi **arsip hidup** yang akan terus tumbuh tahun demi tahun.
 
 ---
 
