@@ -441,7 +441,7 @@ const LANTERN_DEFS = [
   { pos: [-3.5, 0, -29], phase: 1.8 },
 ];
 
-const LanternPost = ({ pos, phase, dead = false, signatureTime }) => {
+const LanternPost = ({ pos, phase, dead = false, signatureEvent }) => {
   const lightRef = useRef();
   const matRef = useRef();
   const groupRef = useRef();
@@ -462,14 +462,14 @@ const LanternPost = ({ pos, phase, dead = false, signatureTime }) => {
     const fast = Math.sin(t * 8 + phase) * 0.05;
     const gustDip = Math.max(0, Math.abs(wind.gust) - 0.4) * 0.35;
     let factor = (1 + slow + fast) * (1 - gustDip);
-    // Signature moment — sync flicker (semua lentera ramp peak bareng)
-    if (signatureTime != null) {
-      const dt = t - signatureTime;
+    // Signature 'recent' — sync flicker (semua lentera ramp peak bareng)
+    if (signatureEvent && signatureEvent.type === 'recent') {
+      const dt = t - signatureEvent.time;
       if (dt > 0 && dt < 3) {
         let boost = 0;
-        if (dt < 0.5) boost = dt / 0.5; // ramp up 0→1
-        else if (dt < 2.0) boost = 1; // hold
-        else boost = (3 - dt) / 1; // fade 1→0
+        if (dt < 0.5) boost = dt / 0.5;
+        else if (dt < 2.0) boost = 1;
+        else boost = (3 - dt) / 1;
         factor *= 1 + boost * 1.4;
       }
     }
@@ -522,7 +522,7 @@ const LanternPost = ({ pos, phase, dead = false, signatureTime }) => {
   );
 };
 
-const Lanterns = ({ signatureTime }) => (
+const Lanterns = ({ signatureEvent }) => (
   <>
     {LANTERN_DEFS.map((l, i) => (
       <LanternPost
@@ -530,7 +530,7 @@ const Lanterns = ({ signatureTime }) => (
         pos={l.pos}
         phase={l.phase}
         dead={l.dead}
-        signatureTime={signatureTime}
+        signatureEvent={signatureEvent}
       />
     ))}
   </>
@@ -603,7 +603,7 @@ const YearPlaques = ({ trees }) => (
 // Body static, cuma kepala rotate slow (left-right) supaya kerasa
 // alert tapi tetep tenang. Mata kuning emissive jadi focal point —
 // sepasang titik kuning yang gerak pelan di antara pohon-pohon.
-const Owl = ({ pos, headPhase = 0 }) => {
+const Owl = ({ pos, headPhase = 0, signatureEvent }) => {
   const headRef = useRef();
   const eye1Ref = useRef(); // mesh ref — pakai .material untuk emissive
   const eye2Ref = useRef();
@@ -675,7 +675,18 @@ const Owl = ({ pos, headPhase = 0 }) => {
     const blink = Math.max(0, Math.abs(wind.gust) - 0.6) * 0.7;
     const alertBoost = alertRef.current.active ? 0.3 : 0;
     const trackBoost = tracking * 0.2;
-    const eyeIntensity = 1.1 + alertBoost + trackBoost - blink;
+    // Signature 'old' — owl mata blink (dim → bright cycle, "noticing")
+    let sigDim = 0;
+    if (signatureEvent && signatureEvent.type === 'old') {
+      const dt = t - signatureEvent.time;
+      if (dt > 0.2 && dt < 2.4) {
+        // 2 blinks: dim sharp → bright sharp → dim → back
+        const u = (dt - 0.2) / 2.2;
+        const blinkCycle = Math.cos(u * Math.PI * 4);
+        sigDim = blinkCycle * 0.5; // -0.5..0.5 oscillation
+      }
+    }
+    const eyeIntensity = 1.1 + alertBoost + trackBoost - blink + sigDim;
     if (eye1Ref.current) eye1Ref.current.material.emissiveIntensity = eyeIntensity;
     if (eye2Ref.current) eye2Ref.current.material.emissiveIntensity = eyeIntensity;
   });
@@ -749,10 +760,10 @@ const Owl = ({ pos, headPhase = 0 }) => {
 // offset toward path supaya owl perched di tepi foliage menghadap
 // lorong, nggak ketutupan dari camera angle. 1 di pohon era debut,
 // 1 di pohon era recent.
-const Owls = () => (
+const Owls = ({ signatureEvent }) => (
   <>
-    <Owl pos={[-2.2, 4.0, -8.67]} headPhase={0} />
-    <Owl pos={[2.2, 4.0, -25.33]} headPhase={1.8} />
+    <Owl pos={[-2.2, 4.0, -8.67]} headPhase={0} signatureEvent={signatureEvent} />
+    <Owl pos={[2.2, 4.0, -25.33]} headPhase={1.8} signatureEvent={signatureEvent} />
   </>
 );
 
@@ -760,7 +771,7 @@ const Owls = () => (
 // visible. Open to interpretation: bisa Eli muda berdiri menatap ke
 // arah camera (ke masa depan), atau just visitor lain. Subtle breathing
 // sway supaya kerasa "alive" tanpa explicit movement.
-const DistantFigure = ({ signatureTime }) => {
+const DistantFigure = ({ signatureEvent }) => {
   const groupRef = useRef();
   const bodyMatRef = useRef();
   const headMatRef = useRef();
@@ -768,16 +779,22 @@ const DistantFigure = ({ signatureTime }) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     groupRef.current.position.y = Math.sin(t * 0.9) * 0.012;
-    // Signature moment glow — phase 2 (0.5..2.5s) figure menyala amber
     let glow = 0;
-    if (signatureTime != null) {
-      const dt = t - signatureTime;
-      if (dt > 0.4 && dt < 2.6) {
+    let emissiveColor = '#ffaa50';
+    if (signatureEvent) {
+      const dt = t - signatureEvent.time;
+      if (signatureEvent.type === 'recent' && dt > 0.4 && dt < 2.6) {
+        // Recent signature: amber glow strong
         const u = (dt - 0.4) / 2.2;
-        // Smooth ease-in/out: 0→1 in 0..0.2, hold 0.2..0.8, fade 0.8..1
         if (u < 0.2) glow = u / 0.2;
         else if (u < 0.8) glow = 1;
         else glow = (1 - u) / 0.2;
+      } else if (signatureEvent.type === 'old' && dt > 0.6 && dt < 3.2) {
+        // Old signature: cool blue halo subtle (figure "menjawab" present)
+        const u = (dt - 0.6) / 2.6;
+        if (u < 0.25) glow = u / 0.25 * 0.6;
+        else if (u < 0.75) glow = 0.6;
+        else glow = (1 - u) / 0.25 * 0.6;
       }
     }
     if (bodyMatRef.current) {
@@ -1994,18 +2011,32 @@ const HIGHLIGHT_STAR_DEFS = [
   { pos: [4, 30, -18], scale: 0.36, color: '#fff4c8', phase: 3.2 }, // brightest, near zenith
 ];
 
-const HighlightStar = ({ pos, scale, color, phase }) => {
+const HighlightStar = ({ pos, scale, color, phase, signatureEvent }) => {
   const matRef = useRef();
   const haloMatRef = useRef();
   useFrame((state) => {
     if (!matRef.current) return;
     const t = state.clock.elapsedTime;
-    // Twinkle: pulse fast (8 Hz) + slow drift breath
+    // Twinkle base
     const fast = 0.5 + 0.5 * Math.sin(t * 6 + phase);
     const slow = 0.5 + 0.5 * Math.sin(t * 0.6 + phase * 1.4);
-    matRef.current.emissiveIntensity = 1.4 + fast * 0.6 + slow * 0.4;
+    let baseIntensity = 1.4 + fast * 0.6 + slow * 0.4;
+    let haloOpacity = 0.18 + slow * 0.15;
+    // Signature 'old' — semua highlight stars sync flash bareng
+    if (signatureEvent && signatureEvent.type === 'old') {
+      const dt = t - signatureEvent.time;
+      if (dt > 0 && dt < 3.5) {
+        let boost = 0;
+        if (dt < 0.4) boost = dt / 0.4;
+        else if (dt < 2.5) boost = 1;
+        else boost = (3.5 - dt) / 1;
+        baseIntensity += boost * 2.0;
+        haloOpacity += boost * 0.5;
+      }
+    }
+    matRef.current.emissiveIntensity = baseIntensity;
     if (haloMatRef.current) {
-      haloMatRef.current.opacity = 0.18 + slow * 0.15;
+      haloMatRef.current.opacity = haloOpacity;
     }
   });
   return (
@@ -2037,10 +2068,14 @@ const HighlightStar = ({ pos, scale, color, phase }) => {
   );
 };
 
-const HighlightStars = () => (
+const HighlightStars = ({ signatureEvent }) => (
   <>
     {HIGHLIGHT_STAR_DEFS.map((s, i) => (
-      <HighlightStar key={`hl-star-${i}`} {...s} />
+      <HighlightStar
+        key={`hl-star-${i}`}
+        {...s}
+        signatureEvent={signatureEvent}
+      />
     ))}
   </>
 );
@@ -2277,7 +2312,7 @@ const LorongScene = ({
   trees,
   hoveredTreeId,
   isMobile,
-  signatureTime,
+  signatureEvent,
   viewMode,
   transitioning,
   onTreeHover,
@@ -2325,19 +2360,19 @@ const LorongScene = ({
     <Bushes />
     <Mushrooms />
     <Stars />
-    <HighlightStars />
+    <HighlightStars signatureEvent={signatureEvent} />
     <Moon />
     <FlyingLeavesGust />
     <OldBench />
     <TreeSwing />
     <WindChime />
     <StoneMonument />
-    <Lanterns signatureTime={signatureTime} />
+    <Lanterns signatureEvent={signatureEvent} />
     <YearPlaques trees={trees} />
-    <Owls />
+    <Owls signatureEvent={signatureEvent} />
     <Rabbits />
     {!isMobile && <Bats />}
-    <DistantFigure signatureTime={signatureTime} />
+    <DistantFigure signatureEvent={signatureEvent} />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}
@@ -2560,9 +2595,13 @@ const TamanLorongPohonPage = () => {
   const isMobile = useIsMobile();
   const [hoveredTreeId, setHoveredTreeId] = useState(null);
   const [selectedTree, setSelectedTree] = useState(null);
-  // Signature moment: trigger saat user click tree[0] (era recent / closest
-  // ke camera). Lentera sync flicker 0.5..2s, distant figure glow 0.4..2.6s.
-  const [signatureTime, setSignatureTime] = useState(null);
+  // Signature events:
+  //   - 'recent' = click tree[0] (era recent) → lentera sync flicker +
+  //     distant figure glow amber (past acknowledges present)
+  //   - 'old' = click tree[last] (era debut) → highlight stars sync
+  //     pulse + owls eye blink + distant figure halo (present
+  //     acknowledges past)
+  const [signatureEvent, setSignatureEvent] = useState(null);
   const clockRef = useRef(0);
   // View mode: 'orbit' = elevated 3/4 default, 'fpv' = first-person walk.
   // Mobile sembunyi-in toggle (PointerLockControls nggak support touch).
@@ -2609,11 +2648,15 @@ const TamanLorongPohonPage = () => {
   const handleTreeClick = (tree) => {
     setSelectedTree(tree);
     setHoveredTreeId(null);
-    // Trigger signature moment kalau user click pohon era recent (idx 0)
-    if (trees.length > 0 && tree.id === trees[0].id) {
-      setSignatureTime(clockRef.current);
-      // Clear setelah 3.5s biar nggak jadi state stale
-      setTimeout(() => setSignatureTime(null), 3500);
+    if (trees.length === 0) return;
+    if (tree.id === trees[0].id) {
+      // Recent era: lentera sync + figure glow
+      setSignatureEvent({ type: 'recent', time: clockRef.current });
+      setTimeout(() => setSignatureEvent(null), 3500);
+    } else if (tree.id === trees[trees.length - 1].id) {
+      // Oldest era: stars sync + owl blink + figure halo
+      setSignatureEvent({ type: 'old', time: clockRef.current });
+      setTimeout(() => setSignatureEvent(null), 4000);
     }
   };
   const handleClose = () => setSelectedTree(null);
@@ -2644,7 +2687,7 @@ const TamanLorongPohonPage = () => {
               trees={trees}
               hoveredTreeId={hoveredTreeId}
               isMobile={isMobile}
-              signatureTime={signatureTime}
+              signatureEvent={signatureEvent}
               viewMode={viewMode}
               transitioning={transitioning}
               onTreeHover={handleTreeHover}
