@@ -1,27 +1,34 @@
 /**
  * Taman Kebaikan — Petak R3: Telaga Harapan.
  *
- * Wish panel 3D — taman di pinggir sungai kecil di malam hari. Tiap
- * teratai mekar di sungai = 1 wish dari fans (sumber: SITE_CONFIG.
- * wishes.seeds + live Firebase via subscribeToWishes). Setting taman
- * intim, bukan telaga lebar — lily pads disusun linear di sepanjang
- * aliran sungai dengan scatter horizontal kecil.
+ * Wish panel 3D — taman kota di tepi danau di malam hari. Tiap
+ * teratai mekar di danau = 1 wish dari fans (sumber: SITE_CONFIG.
+ * wishes.seeds + live Firebase via subscribeToWishes).
+ *
+ * Layout terinspirasi town park: danau tenang + bench kayu di tepi
+ * untuk pengunjung duduk sambil melihat teratai, walking path
+ * gravel sepanjang shore, dermaga kayu kecil yang menjulur ke air,
+ * dan pohon-pohon di perimeter.
  *
  * Visual:
- *   - Sungai sempit memanjang (6 wide × 28 long) sepanjang z-axis,
- *     deep night blue dengan reflection
- *   - Banks rumput di kedua sisi sungai (warm-dark green)
- *   - Batu-batu kecil scatter di tepi sungai (river stones)
- *   - Rumput tufts scatter di taman (cone meshes pendek)
- *   - 1-11 lily pad dengan bunga teratai mekar (cone petals + stamen).
- *     Color teratai variasi pink/peach/cream untuk kerasa kayak ladang
- *   - Pads gentle drift downstream (subtle z motion) + bobs naik turun
+ *   - Danau lebar (14 wide × 28 long) deep night blue dengan reflection
+ *   - Banks rumput keliling 4 sisi (warm-dark green)
+ *   - Wooden bench di shore -x menghadap air (visitor seating)
+ *   - Gravel walking path sepanjang shore -x parallel air
+ *   - Wooden dock kecil menjulur dari shore +x ke air
+ *   - Batu-batu di tepi danau (boundary stones)
+ *   - Rumput tufts + bunga liar scatter di banks
+ *   - 8-12 pohon di perimeter (BankTrees) — frame visual & atmosphere
+ *   - 4 lentera di sepanjang shore — warm pointlights breaking cool
+ *     moonlight
+ *   - 1-11 lily pad dengan teratai mekar (cone petals + stamen),
+ *     color variasi pink/peach/cream/lavender
+ *   - Pads gentle drift downstream (z motion) + bobs idle
  *   - Kunang-kunang warm-yellow drift di taman
- *   - Moonlight cool spotlight dari atas + warm fill dari fireflies
+ *   - Moonlight cool spotlight + warm fill + bulan visible + bintang
  *
- * Wish pertama (paling baru / featured) ditempatkan di center sungai
- * sebagai teratai besar; sisanya distribusi linear sepanjang sungai
- * dengan x-offset variasi.
+ * Wish pertama (paling baru / featured) jadi teratai besar di tengah
+ * danau; sisanya scatter di sekelilingnya dengan radius variasi.
  *
  * Click pad → modal full wish (nama Fraunces italic + handle +
  * message + tanggal). Layout modal sengaja lebih intim — text lebih
@@ -129,12 +136,12 @@ const TerataiBloom = ({ color = '#f4c8d8', scale = 1 }) => (
 
 // Lily pad + teratai bloom + label wish. Hover: lift Y + emissive
 // glow di leaf disc + label brighter + ripple ring expanding di
-// bawah pad. Plus subtle "drift downstream" — pad pelan-pelan
-// bergerak ke +z, kalau lewat batas END_Z reset ke START_Z.
-// Mensimulasikan air sungai yang mengalir.
-const FLOW_SPEED = 0.05; // unit per detik
-const FLOW_END_Z = 14;
-const FLOW_START_Z = -14;
+// bawah pad. Plus subtle drift downstream — pad pelan-pelan bergerak
+// ke +z, wrap saat lewat batas. Skala drift di-kecilin karena
+// danau lebih lebar (lebih ada area untuk bergerak).
+const FLOW_SPEED = 0.03; // unit per detik
+const FLOW_END_Z = 12;
+const FLOW_START_Z = -12;
 
 const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
@@ -451,10 +458,12 @@ const Lantern = ({ pos }) => (
 );
 
 const LANTERN_POSITIONS = [
-  [-4.2, 0, -10],
-  [4.2, 0, -5],
-  [-4.2, 0, 2],
-  [4.2, 0, 9],
+  // 2 di sepanjang path kiri (parallel walkway)
+  [-(RIVER_WIDTH / 2 + 0.5), 0, -10],
+  [-(RIVER_WIDTH / 2 + 0.5), 0, 8],
+  // 2 di shore kanan flank dock
+  [RIVER_WIDTH / 2 + 0.5, 0, -8],
+  [RIVER_WIDTH / 2 + 0.5, 0, 11],
 ];
 
 const Lanterns = () => (
@@ -487,13 +496,25 @@ const BankTree = ({ pos, scale = 1 }) => (
   </group>
 );
 
+// Pohon di perimeter danau — 4 sisi. Posisi nge-frame scene tanpa
+// nutupin lily pads atau bench/dock area.
 const BANK_TREE_POSITIONS = [
-  { pos: [-7.5, 0, -13], scale: 1.1 },
-  { pos: [-8.5, 0, -3], scale: 0.95 },
-  { pos: [-7.0, 0, 7], scale: 1.05 },
-  { pos: [8.0, 0, -8], scale: 1.0 },
-  { pos: [7.5, 0, 4], scale: 1.1 },
-  { pos: [8.8, 0, 12], scale: 0.9 },
+  // Kiri (jauh dari path biar nggak nutupin bench)
+  { pos: [-12.0, 0, -10], scale: 1.1 },
+  { pos: [-11.5, 0, -1], scale: 0.95 },
+  { pos: [-12.5, 0, 8], scale: 1.05 },
+  // Kanan (jauh dari dock)
+  { pos: [12.0, 0, -11], scale: 1.0 },
+  { pos: [12.5, 0, -2], scale: 1.1 },
+  { pos: [11.8, 0, 10], scale: 0.9 },
+  // Atas (-z)
+  { pos: [-6, 0, -17], scale: 1.0 },
+  { pos: [3, 0, -18], scale: 1.1 },
+  { pos: [8, 0, -16.5], scale: 0.95 },
+  // Bawah (+z)
+  { pos: [-7, 0, 17], scale: 1.05 },
+  { pos: [2, 0, 18], scale: 1.0 },
+  { pos: [9, 0, 17.5], scale: 0.9 },
 ];
 
 const BankTrees = () => (
@@ -504,70 +525,192 @@ const BankTrees = () => (
   </>
 );
 
-// Sungai kecil yang mengalir sepanjang z-axis — sempit (6 wide) tapi
-// panjang (32). Deep night blue dengan metalness sedikit + roughness
-// moderate untuk subtle reflection. Static (no shader wave) untuk
-// performa — bisa di-upgrade nanti kalau perlu.
-const RIVER_WIDTH = 5.5;
-const RIVER_LENGTH = 32;
+// Danau lebar di tengah taman — 14 wide × 28 long. Deep night blue
+// dengan metalness moderate + roughness sedang untuk reflection
+// halus dari moonlight + lentera. Static (no shader wave) untuk
+// performa — bisa di-upgrade nanti.
+const RIVER_WIDTH = 14;
+const RIVER_LENGTH = 28;
 const River = () => (
   <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
     <planeGeometry args={[RIVER_WIDTH, RIVER_LENGTH]} />
     <meshStandardMaterial
       color="#0d1f3a"
       roughness={0.5}
-      metalness={0.4}
+      metalness={0.45}
     />
   </mesh>
 );
 
-// Banks (tepi sungai) + lapangan taman — 2 plane besar di kiri dan
-// kanan sungai dengan grass-color malam. Warna sengaja warm-dark green
-// (bukan pure black) supaya pinggir sungai kelihatan, bukan absorbed
-// ke background.
+// Banks rumput keliling 4 sisi danau + lapangan taman luar. Warna
+// warm-dark green supaya tepi terlihat dari background. Banks agak
+// lebih elevated dari air = kerasa kayak shoreline yang sedikit
+// di atas water level.
 const Banks = () => (
   <>
-    {/* Lapangan utama — frame visual agar sungai nggak floating */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.06, 0]}>
-      <planeGeometry args={[60, 60]} />
+    {/* Lapangan utama — frame visual luar */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.07, 0]}>
+      <planeGeometry args={[70, 70]} />
       <meshStandardMaterial color="#1f2a1a" roughness={1} />
     </mesh>
-    {/* Bank kiri — slightly lifted ke atas air supaya kerasa kayak
-        tepi sungai yang sedikit ke atas, bukan flat */}
+    {/* Bank kiri (-x) — lebih lebar karena di sini ada bench + path */}
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
-      position={[-(RIVER_WIDTH / 2 + 4), -0.045, 0]}
+      position={[-(RIVER_WIDTH / 2 + 5), -0.04, 0]}
     >
-      <planeGeometry args={[8, RIVER_LENGTH]} />
+      <planeGeometry args={[10, RIVER_LENGTH + 2]} />
       <meshStandardMaterial color="#2a3525" roughness={1} />
     </mesh>
-    {/* Bank kanan */}
+    {/* Bank kanan (+x) — sini ada dock */}
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
-      position={[RIVER_WIDTH / 2 + 4, -0.045, 0]}
+      position={[RIVER_WIDTH / 2 + 5, -0.04, 0]}
     >
-      <planeGeometry args={[8, RIVER_LENGTH]} />
+      <planeGeometry args={[10, RIVER_LENGTH + 2]} />
+      <meshStandardMaterial color="#2a3525" roughness={1} />
+    </mesh>
+    {/* Bank atas (-z) */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.04, -(RIVER_LENGTH / 2 + 4)]}
+    >
+      <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
+      <meshStandardMaterial color="#2a3525" roughness={1} />
+    </mesh>
+    {/* Bank bawah (+z) */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.04, RIVER_LENGTH / 2 + 4]}
+    >
+      <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
       <meshStandardMaterial color="#2a3525" roughness={1} />
     </mesh>
   </>
 );
 
+// Walking path — gravel-toned strip di sepanjang bank kiri (-x),
+// parallel sama danau. Tone warm-gray (#5a4f42) supaya kelihatan
+// distinct dari grass banks. Lebar 1.4, panjang sesuai danau.
+const WalkPath = () => (
+  <mesh
+    rotation={[-Math.PI / 2, 0, 0]}
+    position={[-(RIVER_WIDTH / 2 + 1.5), -0.03, 0]}
+  >
+    <planeGeometry args={[1.4, RIVER_LENGTH + 1]} />
+    <meshStandardMaterial color="#5a4f42" roughness={1} />
+  </mesh>
+);
+
+// Wooden bench di shore kiri menghadap air — sandaran + tempat duduk
+// + 2 kaki. Pengunjung "virtual" duduk di sini, lihat teratai. Posisi
+// di z=-2 supaya kelihatan dari camera default angle yang nempel ke
+// sisi kanan.
+const Bench = () => (
+  <group position={[-(RIVER_WIDTH / 2 + 2.5), 0, -2]} rotation={[0, Math.PI / 2, 0]}>
+    {/* Tempat duduk (seat plank) */}
+    <mesh position={[0, 0.45, 0]}>
+      <boxGeometry args={[1.6, 0.06, 0.4]} />
+      <meshStandardMaterial color="#4a3a26" roughness={0.85} />
+    </mesh>
+    {/* Sandaran (back rest) */}
+    <mesh position={[0, 0.75, -0.18]}>
+      <boxGeometry args={[1.6, 0.5, 0.06]} />
+      <meshStandardMaterial color="#4a3a26" roughness={0.85} />
+    </mesh>
+    {/* Kaki kiri */}
+    <mesh position={[-0.65, 0.22, 0]}>
+      <boxGeometry args={[0.08, 0.45, 0.32]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.9} />
+    </mesh>
+    {/* Kaki kanan */}
+    <mesh position={[0.65, 0.22, 0]}>
+      <boxGeometry args={[0.08, 0.45, 0.32]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.9} />
+    </mesh>
+    {/* Sandaran tangan kiri */}
+    <mesh position={[-0.78, 0.55, 0]}>
+      <boxGeometry args={[0.08, 0.25, 0.4]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.9} />
+    </mesh>
+    {/* Sandaran tangan kanan */}
+    <mesh position={[0.78, 0.55, 0]}>
+      <boxGeometry args={[0.08, 0.25, 0.4]} />
+      <meshStandardMaterial color="#3a2c1c" roughness={0.9} />
+    </mesh>
+  </group>
+);
+
+// Wooden dock (dermaga kecil) yang menjulur dari shore +x ke air.
+// 4 plank kayu sejajar + 4 pilar pendukung di air. Posisi z=4 supaya
+// nggak overlap dengan bench area yang di z=-2.
+const Dock = () => {
+  const PLANK_LENGTH = 3.6;
+  const PLANK_WIDTH = 1.6;
+  const baseX = RIVER_WIDTH / 2 + 0.2;
+  return (
+    <group position={[0, 0, 4]}>
+      {/* Platform kayu — 1 plane datar */}
+      <mesh position={[baseX - PLANK_LENGTH / 2, 0.04, 0]}>
+        <boxGeometry args={[PLANK_LENGTH, 0.08, PLANK_WIDTH]} />
+        <meshStandardMaterial color="#4a3826" roughness={0.85} />
+      </mesh>
+      {/* Plank lines on top — dekoratif, kasih kesan plank-plank */}
+      <mesh position={[baseX - PLANK_LENGTH / 2, 0.085, -0.4]}>
+        <boxGeometry args={[PLANK_LENGTH - 0.1, 0.005, 0.04]} />
+        <meshStandardMaterial color="#2a1d12" roughness={1} />
+      </mesh>
+      <mesh position={[baseX - PLANK_LENGTH / 2, 0.085, 0]}>
+        <boxGeometry args={[PLANK_LENGTH - 0.1, 0.005, 0.04]} />
+        <meshStandardMaterial color="#2a1d12" roughness={1} />
+      </mesh>
+      <mesh position={[baseX - PLANK_LENGTH / 2, 0.085, 0.4]}>
+        <boxGeometry args={[PLANK_LENGTH - 0.1, 0.005, 0.04]} />
+        <meshStandardMaterial color="#2a1d12" roughness={1} />
+      </mesh>
+      {/* 4 pilar pendukung di air — 1 di tiap sudut */}
+      <mesh position={[baseX - 0.3, -0.3, -0.65]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.7, 6]} />
+        <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+      </mesh>
+      <mesh position={[baseX - 0.3, -0.3, 0.65]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.7, 6]} />
+        <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+      </mesh>
+      <mesh position={[baseX - PLANK_LENGTH + 0.3, -0.3, -0.65]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.7, 6]} />
+        <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+      </mesh>
+      <mesh position={[baseX - PLANK_LENGTH + 0.3, -0.3, 0.65]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.7, 6]} />
+        <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+
 // Batu-batu kecil di tepi sungai — irregular box meshes dengan tone
 // warm-gray, scatter di kedua tepi sungai sepanjang aliran. Posisi
 // deterministik via index supaya konsisten antar render.
+// Boundary stones di tepi danau — keliling kiri-kanan-atas-bawah
+// supaya kerasa kayak shoreline beneran.
 const STONE_POSITIONS = [
-  // Kiri sungai
-  { pos: [-3.0, 0.0, -10], scale: [0.4, 0.25, 0.35], rot: 0.3 },
-  { pos: [-3.2, 0.0, -4], scale: [0.5, 0.3, 0.45], rot: 0.7 },
-  { pos: [-2.95, 0.0, 2], scale: [0.35, 0.22, 0.3], rot: 1.1 },
-  { pos: [-3.1, 0.0, 8], scale: [0.45, 0.28, 0.4], rot: 0.4 },
-  { pos: [-2.9, 0.0, 13], scale: [0.3, 0.2, 0.28], rot: 0.9 },
-  // Kanan sungai
-  { pos: [3.0, 0.0, -12], scale: [0.4, 0.26, 0.38], rot: 0.5 },
-  { pos: [3.15, 0.0, -6], scale: [0.5, 0.3, 0.42], rot: 1.0 },
-  { pos: [2.95, 0.0, 0], scale: [0.35, 0.23, 0.32], rot: 0.6 },
-  { pos: [3.1, 0.0, 5], scale: [0.42, 0.27, 0.38], rot: 1.2 },
-  { pos: [3.0, 0.0, 11], scale: [0.38, 0.25, 0.35], rot: 0.3 },
+  // Kiri (-x), spread sepanjang z (skip area bench z=-2..-3)
+  { pos: [-7.2, 0.0, -11], scale: [0.45, 0.28, 0.4], rot: 0.3 },
+  { pos: [-7.0, 0.0, -6], scale: [0.5, 0.3, 0.45], rot: 0.7 },
+  { pos: [-7.4, 0.0, 1], scale: [0.35, 0.22, 0.3], rot: 1.1 },
+  { pos: [-7.1, 0.0, 7], scale: [0.45, 0.28, 0.4], rot: 0.4 },
+  { pos: [-7.3, 0.0, 12], scale: [0.3, 0.2, 0.28], rot: 0.9 },
+  // Kanan (+x), skip area dock z=4
+  { pos: [7.2, 0.0, -12], scale: [0.4, 0.26, 0.38], rot: 0.5 },
+  { pos: [7.0, 0.0, -6], scale: [0.5, 0.3, 0.42], rot: 1.0 },
+  { pos: [7.3, 0.0, -1], scale: [0.35, 0.23, 0.32], rot: 0.6 },
+  { pos: [7.1, 0.0, 9], scale: [0.42, 0.27, 0.38], rot: 1.2 },
+  { pos: [7.4, 0.0, 13], scale: [0.38, 0.25, 0.35], rot: 0.3 },
+  // Atas (-z) & bawah (+z) — beberapa di tepi panjang danau
+  { pos: [-3, 0.0, -14.3], scale: [0.4, 0.25, 0.35], rot: 0.5 },
+  { pos: [3, 0.0, -14.3], scale: [0.45, 0.28, 0.4], rot: 0.8 },
+  { pos: [-3, 0.0, 14.3], scale: [0.4, 0.25, 0.35], rot: 0.3 },
+  { pos: [3, 0.0, 14.3], scale: [0.42, 0.27, 0.38], rot: 0.9 },
 ];
 const RiverStones = () => (
   <>
@@ -593,20 +736,24 @@ const RiverStones = () => (
 // dengan tone hijau lebih cerah dari banks, supaya catch light dan
 // kasih texture ke lapangan. Posisi deterministik per index.
 const TUFT_POSITIONS = [
-  // Kiri (x negative)
-  { pos: [-5.5, 0, -11], color: '#3a4d2a' },
-  { pos: [-7.0, 0, -7], color: '#445537' },
-  { pos: [-6.2, 0, -2], color: '#3a4d2a' },
-  { pos: [-7.5, 0, 4], color: '#445537' },
-  { pos: [-5.8, 0, 9], color: '#384a28' },
-  { pos: [-6.8, 0, 13], color: '#3a4d2a' },
-  // Kanan (x positive)
-  { pos: [5.6, 0, -13], color: '#445537' },
-  { pos: [7.0, 0, -8], color: '#3a4d2a' },
-  { pos: [6.2, 0, -3], color: '#384a28' },
-  { pos: [7.5, 0, 3], color: '#3a4d2a' },
-  { pos: [5.5, 0, 8], color: '#445537' },
-  { pos: [6.9, 0, 14], color: '#3a4d2a' },
+  // Bank kiri — skip area path (x=-8.5..-7.7) dan bench (-9, z=-2)
+  { pos: [-9.5, 0, -11], color: '#3a4d2a' },
+  { pos: [-10.5, 0, -6], color: '#445537' },
+  { pos: [-9.8, 0, 3], color: '#3a4d2a' },
+  { pos: [-10.2, 0, 9], color: '#445537' },
+  { pos: [-9.0, 0, 13], color: '#384a28' },
+  // Bank kanan — skip dock area (z=4)
+  { pos: [9.5, 0, -13], color: '#445537' },
+  { pos: [10.0, 0, -8], color: '#3a4d2a' },
+  { pos: [9.8, 0, -2], color: '#384a28' },
+  { pos: [10.5, 0, 9], color: '#3a4d2a' },
+  { pos: [9.0, 0, 14], color: '#445537' },
+  // Bank atas (-z)
+  { pos: [-2, 0, -16], color: '#3a4d2a' },
+  { pos: [4, 0, -17], color: '#445537' },
+  // Bank bawah (+z)
+  { pos: [-3, 0, 16.5], color: '#384a28' },
+  { pos: [2, 0, 17], color: '#3a4d2a' },
 ];
 
 const GrassTuft = ({ pos, color }) => (
@@ -665,9 +812,12 @@ const TelagaScene = ({
     <Starfield count={200} />
     <Moon />
     <Banks />
+    <WalkPath />
     <River />
     <RiverStones />
     <GrassTufts />
+    <Bench />
+    <Dock />
     <Lanterns />
     <BankTrees />
     {pads.map((pad) => (
@@ -684,8 +834,8 @@ const TelagaScene = ({
     <OrbitControls
       target={[0, 0, 0]}
       enableZoom
-      minDistance={10}
-      maxDistance={26}
+      minDistance={12}
+      maxDistance={32}
       enablePan={false}
       minPolarAngle={Math.PI / 4.5}
       maxPolarAngle={Math.PI / 2.4}
@@ -838,17 +988,19 @@ const buildWishList = (firebaseWishes, seeds, limit = 11) => {
   return unique.slice(0, limit);
 };
 
-// Convert wish list → pad layout. Posisi linear sepanjang sungai
-// dengan x-offset variasi alternating. 1 center pad di z=0 (teratai
-// besar). Sisanya distribusi merata di range FLOW_START_Z..FLOW_END_Z
-// dengan x dalam range RIVER_WIDTH/3 supaya lily nggak nempel ke tepi.
+// Convert wish list → pad layout di danau lebar. 1 center pad di
+// (0,0,0) jadi teratai besar. Sisanya scatter di sekelilingnya
+// pakai golden-angle spiral untuk distribusi natural (nggak ring/
+// grid). Posisi deterministik per index.
 //
-// Posisi z di-spread merata sehingga drift downstream nggak bikin pad
-// menumpuk di satu titik (gap stabil antar pad seiring waktu).
+// Margin dari shoreline: x dijaga di range ±(RIVER_WIDTH/2 - 1.6),
+// z di range ±(RIVER_LENGTH/2 - 2). Jaga jarak juga dari dock (z=4,
+// x>5) supaya pad nggak overlap dengan dermaga.
 const buildPads = (wishes) => {
   if (!wishes.length) return [];
   const items = [];
-  const xRange = RIVER_WIDTH / 3.5; // ±xRange jadi range x lily
+  const xMax = RIVER_WIDTH / 2 - 1.6;
+  const zMax = RIVER_LENGTH / 2 - 2;
 
   // Center wish — teratai besar di z=0
   const center = wishes[0];
@@ -866,21 +1018,25 @@ const buildPads = (wishes) => {
     phase: 0,
   });
 
-  // Surrounding wishes — distribusi linear sepanjang sungai. Z range
-  // FLOW_START_Z..FLOW_END_Z dibagi rata dikurangin slot center.
+  // Surrounding wishes — golden-angle spiral. Tiap step naik radius
+  // dan rotasi 137.5° untuk distribusi yang nggak grid-like.
   const others = wishes.slice(1);
   if (others.length === 0) return items;
-  const totalRange = FLOW_END_Z - FLOW_START_Z;
-  const slotSize = totalRange / (others.length + 1);
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
   others.forEach((w, i) => {
-    // Posisi z dari FLOW_START_Z + slotSize*(i+1), tapi skip slot
-    // yang dekat z=0 (jangan tabrakan dengan center pad).
-    let z = FLOW_START_Z + slotSize * (i + 0.5);
-    if (Math.abs(z) < 1.5) z += z >= 0 ? 1.5 : -1.5; // dorong jauhin center
-    // X-offset alternating dengan variasi kecil — natural scatter
-    const xSide = i % 2 === 0 ? -1 : 1;
-    const xVar = ((i * 17) % 100) / 100; // 0..1 deterministik
-    const x = xSide * xRange * (0.4 + xVar * 0.6);
+    // r naik bertahap, di-clamp supaya nggak nempel ke shore
+    const r = 2.5 + Math.sqrt(i) * 1.6;
+    const angle = i * goldenAngle + 0.5;
+    let x = Math.cos(angle) * r;
+    let z = Math.sin(angle) * r;
+    // Avoid dock area (kanan z=4, x sekitar 5..7)
+    const dockBlock = x > 4.5 && z > 2.5 && z < 5.5;
+    if (dockBlock) {
+      x = -Math.abs(x); // mirror ke kiri
+    }
+    // Clamp ke water bounds
+    x = Math.max(-xMax, Math.min(xMax, x));
+    z = Math.max(-zMax, Math.min(zMax, z));
     const tilt = ((i * 73) % 360) * (Math.PI / 180);
     items.push({
       id: `pad-${w.id || `seed-${i}`}-${i}`,
@@ -947,7 +1103,7 @@ const TamanKolamKataPage = () => {
       <div className="relative w-full h-screen bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 42, position: [11, 8, 5] }}
+            camera={{ fov: 42, position: [13, 9, 12] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
