@@ -2252,33 +2252,46 @@ const IntroTitle = () => {
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      {/* Subtle vignette darken di belakang title supaya readable */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/35 via-transparent to-[#0a0d18]/35" />
-      <div className="relative text-center -translate-y-6">
-        <div className="text-white/55 text-[10px] uppercase tracking-[0.55em] mb-5">
-          R1 · Petak Pertama
-        </div>
-        <h1
-          className="text-white text-5xl mb-5 leading-[1.1]"
-          style={{
-            fontFamily: '"Fraunces Variable", serif',
-            fontStyle: 'italic',
-            fontWeight: 400,
-            letterSpacing: '0.01em',
-            textShadow: '0 0 40px rgba(255, 220, 160, 0.15)',
-          }}
-        >
-          Pohon-Pohon yang Mengingat
-        </h1>
-        <div
-          className="text-white/65 text-[13px]"
-          style={{
-            fontFamily: '"Fraunces Variable", serif',
-            fontStyle: 'italic',
-            letterSpacing: '0.02em',
-          }}
-        >
-          Sepuluh tahun, satu lorong, satu senja yang panjang.
+      {/* Vignette gradient full-screen — darken top + bottom supaya
+          fokus ke center title card */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/45 via-transparent to-[#0a0d18]/45" />
+      {/* Title card with backdrop */}
+      <div className="relative px-14 py-12 -translate-y-6">
+        {/* Card backdrop — gradient dark center fading di tepi,
+            backdrop-blur kasih separation dari scene */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/0 via-[#0a0d18]/72 to-[#0a0d18]/0 backdrop-blur-[3px]" />
+        {/* Top + bottom thin accent lines (art deco style) */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+        {/* Content */}
+        <div className="relative text-center">
+          <div className="text-white/60 text-[10px] uppercase tracking-[0.55em] mb-6">
+            R1 · Petak Pertama
+          </div>
+          <h1
+            className="text-white text-5xl mb-6 leading-[1.1]"
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+              fontWeight: 400,
+              letterSpacing: '0.01em',
+              textShadow: '0 0 40px rgba(255, 220, 160, 0.18)',
+            }}
+          >
+            Pohon-Pohon yang Mengingat
+          </h1>
+          {/* Inner separator line antara title & subtitle */}
+          <div className="mx-auto mb-5 w-12 h-px bg-white/30" />
+          <div
+            className="text-white/70 text-[13px]"
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Sepuluh tahun, satu lorong, satu senja yang panjang.
+          </div>
         </div>
       </div>
     </div>
