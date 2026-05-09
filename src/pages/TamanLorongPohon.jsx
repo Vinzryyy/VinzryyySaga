@@ -251,12 +251,14 @@ const GroundMist = ({ count = 70 }) => {
   );
 };
 
-// Mist pool — concentrated mist patches di posisi tertentu (low spots
-// di lorong) untuk variasi density. Lebih thick dari GroundMist
-// background, kasih atmospheric zones.
+// Mist pool — concentrated mist patches di kiri-kanan path (di sides),
+// bukan tengah. Kasih kesan "ada ruang" di sekitar lorong, bukan flat
+// world. Distribusi alternating side sepanjang path z.
 const MIST_POOL_DEFS = [
-  { pos: [0, 0, -12], radius: 4.5, count: 28 },
-  { pos: [0, 0, -24], radius: 5.5, count: 32 },
+  { pos: [-7, 0, -7], radius: 3.5, count: 22 },
+  { pos: [7, 0, -13], radius: 4.0, count: 26 },
+  { pos: [-8, 0, -20], radius: 3.8, count: 24 },
+  { pos: [7.5, 0, -27], radius: 3.6, count: 22 },
 ];
 
 const MistPool = ({ pos, radius, count }) => {
@@ -1014,59 +1016,105 @@ const MemoryFragments = () => (
   </>
 );
 
-// Shooting star — rare event langit, streak putih melintas dari
-// upper-right ke lower-left tiap 90-180 detik. Plane elongated dengan
-// emissive material. Lifecycle 1.4s: fade in → travel → fade out.
-const ShootingStar = () => {
-  const meshRef = useRef();
-  const matRef = useRef();
+// Flying leaves gust — gerombolan daun gugur terbang lintasi scene
+// tiap 90-180 detik. Cocok untuk autumn senja theme. 12 leaves
+// dengan delay staggered, tumbling rotation, fade in/out per-leaf.
+// Replace shooting star yang kelihatan kayak kotak putih dari
+// beberapa angle.
+const FLYING_LEAF_COUNT = 12;
+const FLYING_LEAF_DEFS = Array.from({ length: FLYING_LEAF_COUNT }, () => ({
+  offsetX: (Math.random() - 0.5) * 1.4,
+  offsetY: (Math.random() - 0.5) * 1.6,
+  offsetZ: (Math.random() - 0.5) * 1.6,
+  rotSpeedX: 1.2 + Math.random() * 2.5,
+  rotSpeedZ: 0.8 + Math.random() * 2.0,
+  rotPhase: Math.random() * Math.PI * 2,
+  delay: Math.random() * 0.5,
+  colorIdx: Math.floor(Math.random() * AUTUMN_LEAF_COLORS.length),
+  scale: 0.6 + Math.random() * 0.7,
+}));
+
+const FlyingLeavesGust = () => {
+  const refs = useRef([]);
   const stateRef = useRef({
     active: false,
     t0: 0,
-    next: 30 + Math.random() * 60,
+    next: 25 + Math.random() * 60,
   });
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     if (!stateRef.current.active && t > stateRef.current.next) {
       stateRef.current = { active: true, t0: t, next: 0 };
     }
-    if (stateRef.current.active && meshRef.current && matRef.current) {
-      const dt = t - stateRef.current.t0;
-      if (dt < 1.4) {
-        const u = dt / 1.4;
-        meshRef.current.position.x = 15 - u * 30;
-        meshRef.current.position.y = 14 - u * 8;
-        meshRef.current.position.z = -12;
-        meshRef.current.visible = true;
-        const opacity = u < 0.15
-          ? u / 0.15
-          : u > 0.85
-          ? (1 - u) / 0.15
-          : 1;
-        matRef.current.opacity = opacity;
-      } else {
-        stateRef.current = {
-          active: false,
-          t0: 0,
-          next: t + 90 + Math.random() * 90,
-        };
-        meshRef.current.visible = false;
+    if (!stateRef.current.active) return;
+    const totalDt = t - stateRef.current.t0;
+    const LIFECYCLE = 2.6; // detik per-leaf
+    const MAX_DELAY = 0.5;
+    let allDone = true;
+    FLYING_LEAF_DEFS.forEach((leaf, i) => {
+      const m = refs.current[i];
+      if (!m) return;
+      const dt = totalDt - leaf.delay;
+      if (dt < 0) {
+        m.visible = false;
+        allDone = false;
+        return;
       }
+      if (dt > LIFECYCLE) {
+        m.visible = false;
+        return;
+      }
+      allDone = false;
+      const u = dt / LIFECYCLE;
+      // Trajectory: enter (12, 6, -10) → exit (-12, 0.5, -25),
+      // dengan small arc sin(u*π)*1.2 ke atas (kayak ditiup angin)
+      m.position.x = 12 - u * 24 + leaf.offsetX;
+      m.position.y = 6 - u * 5.5 + Math.sin(u * Math.PI) * 1.0 + leaf.offsetY;
+      m.position.z = -10 - u * 15 + leaf.offsetZ;
+      // Tumble rotation continuous
+      m.rotation.x = t * leaf.rotSpeedX + leaf.rotPhase;
+      m.rotation.z = t * leaf.rotSpeedZ + leaf.rotPhase;
+      m.visible = true;
+      // Fade in/out
+      if (m.material) {
+        const opacity = u < 0.12 ? u / 0.12 : u > 0.85 ? (1 - u) / 0.15 : 1;
+        m.material.opacity = opacity * 0.92;
+      }
+    });
+    if (allDone || totalDt > LIFECYCLE + MAX_DELAY + 0.3) {
+      stateRef.current = {
+        active: false,
+        t0: 0,
+        next: t + 90 + Math.random() * 90,
+      };
+      FLYING_LEAF_DEFS.forEach((_, i) => {
+        if (refs.current[i]) refs.current[i].visible = false;
+      });
     }
   });
   return (
-    <mesh ref={meshRef} visible={false} rotation={[0, 0, -0.26]}>
-      <planeGeometry args={[2.5, 0.05]} />
-      <meshStandardMaterial
-        ref={matRef}
-        color="#ffffff"
-        emissive="#ffffff"
-        emissiveIntensity={2.2}
-        transparent
-        opacity={0}
-        depthWrite={false}
-      />
-    </mesh>
+    <>
+      {FLYING_LEAF_DEFS.map((leaf, i) => (
+        <mesh
+          key={`fly-leaf-${i}`}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          visible={false}
+          scale={leaf.scale}
+        >
+          <planeGeometry args={[0.18, 0.13]} />
+          <meshStandardMaterial
+            color={AUTUMN_LEAF_COLORS[leaf.colorIdx]}
+            transparent
+            opacity={0}
+            side={THREE.DoubleSide}
+            roughness={1}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
   );
 };
 
@@ -2050,7 +2098,7 @@ const LorongScene = ({
     <Stars />
     <HighlightStars />
     <Moon />
-    <ShootingStar />
+    <FlyingLeavesGust />
     <OldBench />
     <TreeSwing />
     <WindChime />
