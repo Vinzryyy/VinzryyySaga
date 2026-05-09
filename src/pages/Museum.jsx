@@ -274,24 +274,32 @@ const ExitOverlay = ({ visible, onRestart }) => (
         Warna telah kembali.
       </p>
       <p className="text-white/60 text-sm leading-relaxed mb-8">
-        Kamu telah melewati pintu masuk Museum Kebaikan.
+        Pintu masuk Museum Kebaikan telah terbuka.
         <br />
-        Ruangan-ruangan berikutnya sedang dibangun.
+        Pilih ruangan untuk dijelajahi.
       </p>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center px-6">
-        <button
-          type="button"
-          onClick={onRestart}
-          className="px-5 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
-        >
-          Ulangi R0
-        </button>
+      <div className="flex flex-col gap-3 justify-center px-6">
         <Link
-          to="/"
-          className="px-5 py-2.5 rounded-full bg-white text-black text-sm hover:bg-white/90 transition"
+          to="/museum/denah"
+          className="px-5 py-3 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition"
         >
-          Kembali ke beranda
+          Masuk Denah Museum →
         </Link>
+        <div className="flex gap-3 justify-center">
+          <button
+            type="button"
+            onClick={onRestart}
+            className="px-4 py-2 rounded-full border border-white/30 text-white/70 text-xs hover:bg-white/10 transition"
+          >
+            Ulangi R0
+          </button>
+          <Link
+            to="/"
+            className="px-4 py-2 rounded-full border border-white/30 text-white/70 text-xs hover:bg-white/10 transition"
+          >
+            Kembali ke beranda
+          </Link>
+        </div>
       </div>
     </div>
   </div>
