@@ -1051,6 +1051,52 @@ const JumpingFishes = () => (
 // yang di-tilt jadi shape kapal. Subtle bob + slow drift downstream
 // (mirror pattern lily pads). 3 kapal kertas drifting di air, fungsi
 // thematic untuk wish wall — "harapan yang hanyut".
+//
+// Geometry custom (shared antar semua boat instance untuk efisiensi):
+// - Hull: canoe shape via 6 vertex (bow top peak, stern top peak,
+//   left/right waterline, bow/stern waterline) → 8 triangle (2 wall
+//   atas + 4 slope ujung + 2 bottom). Bentuknya recognizable sebagai
+//   perahu kertas — bow & stern lancip naik ke atas, tengah lebar.
+// - Sail peak: 1 triangle perpendicular ke long axis di tengah hull,
+//   mirip lipatan kertas yang naik ke atas (signature origami fold).
+const ORIGAMI_HULL_GEOM = (() => {
+  const geom = new THREE.BufferGeometry();
+  const verts = new Float32Array([
+    0, 0.20, -0.32,   // 0: bow top peak (lancip naik)
+    0, 0.20, 0.32,    // 1: stern top peak (lancip naik)
+    -0.16, 0, 0,      // 2: left middle (waterline)
+    0.16, 0, 0,       // 3: right middle (waterline)
+    0, 0, -0.32,      // 4: bow waterline
+    0, 0, 0.32,       // 5: stern waterline
+  ]);
+  geom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geom.setIndex([
+    0, 1, 3,   // right upper wall (ridge bow-stern → right edge)
+    0, 2, 1,   // left upper wall
+    0, 3, 4,   // bow right slope (ke bow waterline)
+    0, 4, 2,   // bow left slope
+    1, 5, 3,   // stern right slope
+    1, 2, 5,   // stern left slope
+    4, 3, 5,   // bottom right
+    4, 5, 2,   // bottom left
+  ]);
+  geom.computeVertexNormals();
+  return geom;
+})();
+
+const ORIGAMI_SAIL_GEOM = (() => {
+  const geom = new THREE.BufferGeometry();
+  const verts = new Float32Array([
+    -0.12, 0.05, 0,   // left base
+    0.12, 0.05, 0,    // right base
+    0, 0.32, 0,       // peak (lebih tinggi dari hull ridge 0.20)
+  ]);
+  geom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geom.setIndex([0, 1, 2]);
+  geom.computeVertexNormals();
+  return geom;
+})();
+
 const PaperBoat = ({ def }) => {
   const groupRef = useRef();
   const driftZRef = useRef(0);
@@ -1067,27 +1113,35 @@ const PaperBoat = ({ def }) => {
     groupRef.current.position.y = 0.06 + Math.sin(t * 0.8 + def.phase) * 0.025;
     groupRef.current.position.z = z;
     groupRef.current.rotation.z = Math.sin(t * 0.6 + def.phase) * 0.06;
+    // Slight yaw drift — perahu nggak lurus banget (def.yaw base + osilasi)
+    groupRef.current.rotation.y = (def.yaw || 0) + Math.sin(t * 0.4 + def.phase) * 0.04;
   });
   return (
     <group ref={groupRef}>
-      {/* Hull bawah — 2 segitiga miring kebawah membentuk V */}
-      <mesh rotation={[Math.PI / 2.6, 0, 0]} position={[0, 0, 0]}>
-        <coneGeometry args={[0.18, 0.4, 4]} />
-        <meshStandardMaterial color="#f4ecd8" roughness={0.9} />
+      {/* Hull canoe shape — 8 triangle, double-sided */}
+      <mesh geometry={ORIGAMI_HULL_GEOM} castShadow>
+        <meshStandardMaterial
+          color="#fff8ea"
+          roughness={0.85}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      {/* Sail/atap segitiga — vertical dari tengah hull */}
-      <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.18, 0]}>
-        <coneGeometry args={[0.16, 0.3, 4]} />
-        <meshStandardMaterial color="#fff8ea" roughness={0.85} />
+      {/* Center sail peak — lipatan kertas ke atas, sedikit lebih warm */}
+      <mesh geometry={ORIGAMI_SAIL_GEOM}>
+        <meshStandardMaterial
+          color="#f4ecd8"
+          roughness={0.9}
+          side={THREE.DoubleSide}
+        />
       </mesh>
     </group>
   );
 };
 
 const PAPER_BOAT_DEFS = [
-  { start: [-2.2, 0, -8], phase: 0 },
-  { start: [2.5, 0, 0], phase: 2.0 },
-  { start: [-1.0, 0, 7], phase: 4.0 },
+  { start: [-2.2, 0, -8], phase: 0, yaw: 0.15 },
+  { start: [2.5, 0, 0], phase: 2.0, yaw: -0.2 },
+  { start: [-1.0, 0, 7], phase: 4.0, yaw: 0.08 },
 ];
 
 const PaperBoats = () => (
