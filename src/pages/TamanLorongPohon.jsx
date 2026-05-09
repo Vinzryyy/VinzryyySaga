@@ -534,6 +534,134 @@ const DistantFigure = () => {
   );
 };
 
+// Bat silhouette — V-shape gelap drifting di langit malam. 3 bat
+// dengan x drift speed beda, wrap saat lewat batas. Wing flap via
+// rotation.z oscillation pada wings group (visual rocking dari V).
+const Bat = ({ def }) => {
+  const groupRef = useRef();
+  const wingsRef = useRef();
+  const xRef = useRef(def.startX);
+  useFrame((state, delta) => {
+    if (!groupRef.current || !wingsRef.current) return;
+    xRef.current += def.speed * delta;
+    if (xRef.current > 25) xRef.current = -25;
+    const t = state.clock.elapsedTime;
+    groupRef.current.position.x = xRef.current;
+    groupRef.current.position.y = def.y + Math.sin(t * 1.2 + def.phase) * 0.4;
+    groupRef.current.position.z = def.z;
+    wingsRef.current.rotation.z = Math.sin(t * 7 + def.phase) * 0.28;
+  });
+  return (
+    <group ref={groupRef}>
+      <group ref={wingsRef}>
+        {/* Sayap kiri — sharper angle dari Bird */}
+        <mesh rotation={[0, 0, 0.85]}>
+          <coneGeometry args={[0.16, 0.42, 3]} />
+          <meshStandardMaterial color="#0a0a12" roughness={1} />
+        </mesh>
+        {/* Sayap kanan */}
+        <mesh rotation={[0, 0, -0.85]}>
+          <coneGeometry args={[0.16, 0.42, 3]} />
+          <meshStandardMaterial color="#0a0a12" roughness={1} />
+        </mesh>
+        {/* Body kecil di tengah */}
+        <mesh>
+          <sphereGeometry args={[0.05, 8, 6]} />
+          <meshStandardMaterial color="#0a0a12" roughness={1} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+const BAT_DEFS = [
+  { startX: -22, y: 11, z: -15, speed: 1.4, phase: 0 },
+  { startX: -28, y: 13, z: -22, speed: 1.0, phase: 1.5 },
+  { startX: -18, y: 9, z: -8, speed: 1.7, phase: 0.8 },
+];
+
+const Bats = () => (
+  <>
+    {BAT_DEFS.map((def, i) => (
+      <Bat key={`bat-${i}`} def={def} />
+    ))}
+  </>
+);
+
+// Kelinci di tepi lorong — ground-level cute moment. Body putih-cream
+// stationary, head rotate slow alert (mirroring Owl pattern). Posisi
+// di antara owl positions supaya nggak crowd.
+const Rabbit = ({ pos }) => {
+  const headRef = useRef();
+  useFrame((state) => {
+    if (!headRef.current) return;
+    const t = state.clock.elapsedTime;
+    headRef.current.rotation.y = Math.sin(t * 0.8) * 0.4;
+  });
+  return (
+    <group position={pos}>
+      {/* Body — ellipsoid bawah */}
+      <mesh position={[0, 0.07, 0]} scale={[0.10, 0.07, 0.13]}>
+        <sphereGeometry args={[1, 12, 10]} />
+        <meshStandardMaterial color="#d8c8b0" roughness={0.85} />
+      </mesh>
+      {/* Head group — rotate alert */}
+      <group ref={headRef} position={[0.05, 0.13, 0]}>
+        <mesh>
+          <sphereGeometry args={[0.07, 12, 10]} />
+          <meshStandardMaterial color="#e0d0b8" roughness={0.85} />
+        </mesh>
+        {/* Telinga kiri */}
+        <mesh
+          position={[0.005, 0.10, 0.03]}
+          rotation={[0, 0, -0.2]}
+          scale={[0.4, 1.5, 0.4]}
+        >
+          <capsuleGeometry args={[0.025, 0.06, 4, 6]} />
+          <meshStandardMaterial color="#d8c8b0" roughness={0.85} />
+        </mesh>
+        {/* Telinga kanan */}
+        <mesh
+          position={[0.005, 0.10, -0.03]}
+          rotation={[0, 0, -0.2]}
+          scale={[0.4, 1.5, 0.4]}
+        >
+          <capsuleGeometry args={[0.025, 0.06, 4, 6]} />
+          <meshStandardMaterial color="#d8c8b0" roughness={0.85} />
+        </mesh>
+        {/* Mata kiri & kanan */}
+        <mesh position={[0.06, 0.01, 0.04]}>
+          <sphereGeometry args={[0.012, 6, 6]} />
+          <meshStandardMaterial color="#1a0e08" />
+        </mesh>
+        <mesh position={[0.06, 0.01, -0.04]}>
+          <sphereGeometry args={[0.012, 6, 6]} />
+          <meshStandardMaterial color="#1a0e08" />
+        </mesh>
+        {/* Hidung */}
+        <mesh position={[0.085, -0.005, 0]}>
+          <sphereGeometry args={[0.010, 6, 6]} />
+          <meshStandardMaterial color="#3a1a14" />
+        </mesh>
+      </group>
+      {/* Ekor putih bulat */}
+      <mesh position={[-0.10, 0.08, 0]}>
+        <sphereGeometry args={[0.025, 8, 6]} />
+        <meshStandardMaterial color="#fff8ea" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// 1 rabbit di tepi path antar owl — z=-14 (between owl#1 z=-8.67 dan
+// owl#2 z=-25.33). x=-3.2 di kiri path, menghadap +x (default — head
+// di +x default). Jadi rabbit "watches" path.
+const Rabbits = () => (
+  <>
+    <Rabbit pos={[-3.2, 0, -14]} />
+  </>
+);
+
 // Pohon-tahun: trunk pendek + 1 foliage cluster + label year
 // melayang. Hover lift + emissive glow, click → modal milestone.
 const YearTree = ({ tree, hovered, onPointerOver, onPointerOut, onClick }) => {
@@ -662,6 +790,8 @@ const LorongScene = ({
     <Lanterns />
     <YearPlaques trees={trees} />
     <Owls />
+    <Rabbits />
+    {!isMobile && <Bats />}
     <DistantFigure />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 40 : 70} />
