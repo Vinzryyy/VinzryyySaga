@@ -119,9 +119,10 @@ const PETAK = [
     name: 'Kolam Kata',
     desc: 'Kutipan mengambang',
     longDesc:
-      'Kolam teratai dengan kata-kata Eli mengambang di permukaan — kutipan dari jikoshoukai, interview, dan tweet pilihan.',
+      'Kolam teratai malam dengan kata-kata Eli mengambang di permukaan — catchphrase di tengah, 10 kutipan pilihan dari koleksi Armeniaca scatter di sekelilingnya.',
     angle: 30,
     color: '#86a868',
+    route: '/taman/r3',
   },
   {
     id: 'r4',
