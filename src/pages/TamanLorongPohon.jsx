@@ -21,8 +21,9 @@
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Html, OrbitControls, Stats } from '@react-three/drei';
+import * as THREE from 'three';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Html, OrbitControls, PointerLockControls, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 // Note: r3/utils.js berisi shared util taman (useIsMobile, lerp, dll).
@@ -1104,11 +1105,83 @@ const Path = () => (
   </>
 );
 
+// Sync camera position saat user toggle viewMode antara 'orbit' dan
+// 'fpv'. Orbit = elevated 3/4 view (good overview), FPV = eye-level
+// walk (immersive). Direct camera.position.set + lookAt karena di
+// dalam Canvas (akses useThree).
+const CameraSync = ({ viewMode }) => {
+  const { camera } = useThree();
+  const prevModeRef = useRef(viewMode);
+  useEffect(() => {
+    if (prevModeRef.current === viewMode) return;
+    if (viewMode === 'fpv') {
+      // Spawn di awal lorong, eye level 1.6, hadap ke ujung path (-z)
+      camera.position.set(0, 1.6, 0);
+      camera.lookAt(0, 1.6, -10);
+    } else {
+      // Reset ke orbit angle awal
+      camera.position.set(7, 9, 4);
+      camera.lookAt(0, 0, -16);
+    }
+    prevModeRef.current = viewMode;
+  }, [viewMode, camera]);
+  return null;
+};
+
+// FPV movement controller — listen WASD/arrow keys, update camera.position
+// per frame ngikut direction camera. Y di-lock di 1.6 (eye level), x dan z
+// di-clamp dalam playable region.
+const FPV_FORWARD = new THREE.Vector3();
+const FPV_RIGHT = new THREE.Vector3();
+const FPVMovement = ({ enabled }) => {
+  const { camera } = useThree();
+  const keysRef = useRef({ w: false, a: false, s: false, d: false });
+
+  useEffect(() => {
+    if (!enabled) return undefined;
+    const setKey = (e, value) => {
+      const k = e.key.toLowerCase();
+      if (k === 'w' || k === 'arrowup') keysRef.current.w = value;
+      else if (k === 's' || k === 'arrowdown') keysRef.current.s = value;
+      else if (k === 'a' || k === 'arrowleft') keysRef.current.a = value;
+      else if (k === 'd' || k === 'arrowright') keysRef.current.d = value;
+    };
+    const onDown = (e) => setKey(e, true);
+    const onUp = (e) => setKey(e, false);
+    window.addEventListener('keydown', onDown);
+    window.addEventListener('keyup', onUp);
+    return () => {
+      window.removeEventListener('keydown', onDown);
+      window.removeEventListener('keyup', onUp);
+      keysRef.current = { w: false, a: false, s: false, d: false };
+    };
+  }, [enabled]);
+
+  useFrame((_, delta) => {
+    if (!enabled) return;
+    const speed = 3.5 * delta;
+    camera.getWorldDirection(FPV_FORWARD);
+    FPV_FORWARD.y = 0;
+    FPV_FORWARD.normalize();
+    FPV_RIGHT.crossVectors(FPV_FORWARD, camera.up).normalize();
+    if (keysRef.current.w) camera.position.addScaledVector(FPV_FORWARD, speed);
+    if (keysRef.current.s) camera.position.addScaledVector(FPV_FORWARD, -speed);
+    if (keysRef.current.a) camera.position.addScaledVector(FPV_RIGHT, -speed);
+    if (keysRef.current.d) camera.position.addScaledVector(FPV_RIGHT, speed);
+    // Boundary — keep dalam corridor + sedikit outside, di luar path end
+    camera.position.x = Math.max(-4.5, Math.min(4.5, camera.position.x));
+    camera.position.z = Math.max(-32, Math.min(0, camera.position.z));
+    camera.position.y = 1.6;
+  });
+  return null;
+};
+
 const LorongScene = ({
   trees,
   hoveredTreeId,
   isMobile,
   signatureTime,
+  viewMode,
   onTreeHover,
   onTreeOut,
   onTreeClick,
@@ -1165,21 +1238,29 @@ const LorongScene = ({
         onClick={onTreeClick}
       />
     ))}
-    {/* OrbitControls limited — user bisa rotate horizontal sedikit
-        + zoom in/out untuk eksplor jalur, tapi nggak bisa flip
-        vertikal (anti-disorient). */}
-    <OrbitControls
-      target={ORBIT_TARGET}
-      enableZoom
-      minDistance={12}
-      maxDistance={28}
-      enablePan={false}
-      minPolarAngle={Math.PI / 4}
-      maxPolarAngle={Math.PI / 2.4}
-      enableDamping
-      dampingFactor={0.08}
-      rotateSpeed={0.4}
-    />
+    <CameraSync viewMode={viewMode} />
+    {/* Orbit mode: elevated 3/4 view dengan rotate + zoom limit */}
+    {viewMode === 'orbit' && (
+      <OrbitControls
+        target={ORBIT_TARGET}
+        enableZoom
+        minDistance={12}
+        maxDistance={28}
+        enablePan={false}
+        minPolarAngle={Math.PI / 4}
+        maxPolarAngle={Math.PI / 2.4}
+        enableDamping
+        dampingFactor={0.08}
+        rotateSpeed={0.4}
+      />
+    )}
+    {/* FPV mode: PointerLockControls (mouse look) + WASD movement */}
+    {viewMode === 'fpv' && (
+      <>
+        <PointerLockControls />
+        <FPVMovement enabled />
+      </>
+    )}
   </>
 );
 
@@ -1302,6 +1383,9 @@ const TamanLorongPohonPage = () => {
   // ke camera). Lentera sync flicker 0.5..2s, distant figure glow 0.4..2.6s.
   const [signatureTime, setSignatureTime] = useState(null);
   const clockRef = useRef(0);
+  // View mode: 'orbit' = elevated 3/4 default, 'fpv' = first-person walk.
+  // Mobile sembunyi-in toggle (PointerLockControls nggak support touch).
+  const [viewMode, setViewMode] = useState('orbit');
 
   // Map ELI_TIMELINE → tree positions di scene. Alternating kiri/kanan,
   // gap z = (PATH_END - PATH_START) / (count-1). Year color progressive.
@@ -1372,6 +1456,7 @@ const TamanLorongPohonPage = () => {
               hoveredTreeId={hoveredTreeId}
               isMobile={isMobile}
               signatureTime={signatureTime}
+              viewMode={viewMode}
               onTreeHover={handleTreeHover}
               onTreeOut={handleTreeOut}
               onTreeClick={handleTreeClick}
@@ -1382,6 +1467,28 @@ const TamanLorongPohonPage = () => {
 
         <LorongHeader />
         <LorongFooter hoveredTreeId={hoveredTreeId} />
+        {/* FPV toggle — desktop only (PointerLockControls butuh mouse).
+            Position bottom-right, di atas footer hint. */}
+        {!isMobile && (
+          <button
+            type="button"
+            onClick={() =>
+              setViewMode((m) => (m === 'orbit' ? 'fpv' : 'orbit'))
+            }
+            className="pointer-events-auto absolute bottom-6 right-6 z-20 px-4 py-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition"
+          >
+            {viewMode === 'orbit' ? 'Masuk berjalan' : 'Keluar berjalan'}
+          </button>
+        )}
+        {/* FPV hint overlay — muncul saat masuk fpv mode */}
+        {viewMode === 'fpv' && (
+          <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/60 text-[11px] uppercase tracking-[0.25em] text-center">
+            <div className="mb-1">Klik layar untuk lock kursor</div>
+            <div className="text-white/40">
+              WASD untuk jalan · Esc untuk lepas kursor
+            </div>
+          </div>
+        )}
         <MilestoneOverlay tree={selectedTree} onClose={handleClose} />
         <AmbientAudio profile="taman" position="top-right" />
       </div>
