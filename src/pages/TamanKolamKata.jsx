@@ -56,47 +56,26 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import {
+  RIVER_WIDTH,
+  RIVER_LENGTH,
+  BRIDGE_Z,
+  BRIDGE_SPAN,
+  FLOW_SPEED,
+  FLOW_END_Z,
+  FLOW_START_Z,
+  LEAF_COLORS,
+  BLOOM_COLORS,
+  WILDFLOWER_COLORS,
+} from '../components/taman/r3/constants';
+import {
+  useIsMobile,
+  lerp,
+  shortLabel,
+  formatDate,
+} from '../components/taman/r3/utils';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { subscribeToWishes } from '../lib/wishesDb';
-
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
-};
-
-const lerp = (a, b, t) => a + (b - a) * t;
-
-// Dimensi danau — dipake di banyak komponen (Banks, WalkPath, Bench,
-// Dock, LANTERN_POSITIONS, dst). Deklarasi di sini supaya semua module-
-// level constants yang reference ke nilai ini bisa baca tanpa TDZ.
-const RIVER_WIDTH = 14;
-const RIVER_LENGTH = 28;
-
-// Truncate untuk preview label di pad — biar nggak ngerampokin scene.
-const shortLabel = (text, maxWords = 4) => {
-  const words = (text || '').trim().split(/\s+/);
-  if (words.length <= maxWords) return text || '';
-  return words.slice(0, maxWords).join(' ') + '…';
-};
-
-const formatDate = (raw) => {
-  if (!raw) return '';
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return raw;
-  return d.toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-};
 
 // Bunga teratai mekar — 6 outer petals (cone tilted outward) + 3 inner
 // petals (cone tilted upright) + center stamen (sphere with strong
@@ -160,13 +139,7 @@ const TerataiBloom = ({ color = '#f4c8d8', scale = 1 }) => (
 // bawah pad. Plus subtle drift downstream — pad pelan-pelan bergerak
 // ke +z, wrap saat lewat batas. Skala drift di-kecilin karena
 // danau lebih lebar (lebih ada area untuk bergerak).
-const FLOW_SPEED = 0.03; // unit per detik
-const FLOW_END_Z = 12;
-// FLOW_START_Z = -10.5 supaya pad nggak masuk ke area bridge (z=-12.5
-// dengan width 1.6 → bridge plank z=-13.3..-11.7). Pad center radius
-// max 0.95, jadi pad di z=-10.5 extend ke z=-11.45 — masih 0.25u
-// south of bridge front. Wrap distance = 22.5 (dulu 24).
-const FLOW_START_Z = -10.5;
+// FLOW_SPEED, FLOW_END_Z, FLOW_START_Z sekarang di constants.js.
 
 const LilyWishPad = ({ pad, hovered, hideLabel, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
@@ -658,14 +631,7 @@ const Cattails = () => (
 // sedikit emissive untuk pop. Pakai Points untuk efisiensi visual,
 // tapi karena warna variasi per bunga harus pakai vertex colors —
 // untuk simplicity pakai mesh kecil (~50 mesh, manageable).
-const WILDFLOWER_COLORS = [
-  '#f4d870', // dandelion yellow
-  '#ffffff', // white daisy
-  '#e89bb8', // pink wildflower
-  '#9bb8e8', // blue wildflower
-  '#c89be8', // purple wildflower
-  '#f4a570', // soft orange
-];
+// WILDFLOWER_COLORS sekarang di constants.js.
 
 // Wildflowers di-randomize per mount — useMemo([]) regenerate setiap
 // kali user load /taman/r3, jadi taman kerasa berubah-ubah tiap visit.
@@ -794,8 +760,7 @@ const Fireflies = ({ count }) => {
 // danau (di z = -12.5, dekat ujung utara). Span x dari -7 ke 7 (lebar
 // danau + sedikit overlap ke banks). Floor plank + 2 railing kiri/
 // kanan + railing posts (4 di tiap side).
-const BRIDGE_Z = -12.5;
-const BRIDGE_SPAN = 16;
+// BRIDGE_Z, BRIDGE_SPAN sekarang di constants.js.
 
 const Bridge = () => {
   const posts = [];
@@ -2768,18 +2733,7 @@ const WishOverlay = ({ pad, onClose }) => {
   );
 };
 
-// Palet teratai bloom — variasi pink/peach/cream/lavender supaya
-// telaga kerasa kayak ladang teratai mekar, bukan stamping.
-const BLOOM_COLORS = [
-  '#f4a8c0', // pink
-  '#f4c890', // peach
-  '#f5e0c0', // warm cream
-  '#d4a8e0', // lavender
-  '#f48ba0', // dusty rose
-  '#f4d870', // sunny yellow
-];
-// Daun teratai — variasi hijau cerah (siang) untuk match daytime mood
-const LEAF_COLORS = ['#5a8045', '#6e9358', '#4f7438', '#65884d'];
+// BLOOM_COLORS, LEAF_COLORS sekarang di constants.js (di-import di top).
 
 // Ambil daftar wishes — merge seeds + Firebase (kalau ada). Sort
 // newest-first by date, take top N supaya pad nggak crowded. Satu
