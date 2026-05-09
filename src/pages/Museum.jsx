@@ -31,11 +31,28 @@ import { Link } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stats } from '@react-three/drei';
 import {
+  Bloom,
   EffectComposer,
   HueSaturation,
   Vignette,
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
+
+// Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
+// untuk turunin DustParticles count dan dpr supaya R0 tetep smooth di
+// HP entry-level. Threshold 768px = batas Tailwind md breakpoint.
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return isMobile;
+};
 
 const TRANSITION_DURATION = 3.0; // detik
 const DOLLY_DURATION = 12.0;
@@ -178,7 +195,12 @@ const FogTuner = ({ targetFar }) => {
   return null;
 };
 
-const R0Scene = ({ fogFar, resetTrigger, onDollyComplete }) => (
+const R0Scene = ({
+  fogFar,
+  resetTrigger,
+  particleCount = 300,
+  onDollyComplete,
+}) => (
   <>
     <fog attach="fog" args={['#0a0a0c', 8, 28]} />
     <color attach="background" args={['#0a0a0c']} />
@@ -192,7 +214,7 @@ const R0Scene = ({ fogFar, resetTrigger, onDollyComplete }) => (
     />
     <Ground />
     <Gate />
-    <DustParticles />
+    <DustParticles count={particleCount} />
     <DollyCamera
       resetTrigger={resetTrigger}
       onDollyComplete={onDollyComplete}
@@ -312,6 +334,7 @@ const SceneFallback = () => (
 );
 
 const MuseumPage = () => {
+  const isMobile = useIsMobile();
   // Stage state machine — drives transition + UI overlays. Lihat header
   // file untuk semantik tiap stage.
   const [stage, setStage] = useState('idle');
@@ -325,21 +348,32 @@ const MuseumPage = () => {
   const [saturation, setSaturation] = useState(-1);
   const [vignette, setVignette] = useState(0.7);
   const [fogFar, setFogFar] = useState(28);
+  // Bloom intensity tween: 0 (idle) → peak 1.5 di tengah transisi (saat
+  // warna paling baru bersinar) → settle 0.4 (done). Dipake untuk
+  // ngasih efek "cahaya menyembur" saat warna kembali ke dunia.
+  const [bloom, setBloom] = useState(0);
 
   // Tween postprocessing values berdasar stage. Reset instan untuk idle/
   // active, animate selama TRANSITION_DURATION untuk transitioning,
   // hold di nilai akhir untuk done.
+  //
+  // Bloom kurva-nya beda dari saturation/vignette: bukan linear monoton,
+  // tapi "puncak di tengah". Pakai sin(πt) supaya bloom climb tinggi
+  // saat warna mulai pulih (dramatic flash), lalu turun ke nilai
+  // istirahat saat transisi selesai.
   useEffect(() => {
     if (stage === 'idle' || stage === 'active') {
       setSaturation(-1);
       setVignette(0.7);
       setFogFar(28);
+      setBloom(0);
       return undefined;
     }
     if (stage === 'done') {
       setSaturation(0);
       setVignette(0.3);
       setFogFar(60);
+      setBloom(0.4);
       return undefined;
     }
     if (stage !== 'transitioning') return undefined;
@@ -354,6 +388,11 @@ const MuseumPage = () => {
       setSaturation(-1 + eased);
       setVignette(0.7 - eased * 0.4);
       setFogFar(28 + eased * 32);
+      // Bloom puncak di t=0.5, turun ke 0.4 di t=1. Ngasih "flash"
+      // saat warna paling deras balik.
+      const bloomPeak = Math.sin(t * Math.PI) * 1.5;
+      const bloomSettle = 0.4 * t;
+      setBloom(Math.max(bloomPeak, bloomSettle));
       if (t < 1) {
         raf = requestAnimationFrame(tick);
       } else {
@@ -393,20 +432,30 @@ const MuseumPage = () => {
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 55, position: [0, 1.6, 18] }}
-            dpr={[1, 2]}
-            gl={{ antialias: true, powerPreference: 'high-performance' }}
+            dpr={isMobile ? [1, 1] : [1, 2]}
+            gl={{
+              antialias: !isMobile,
+              powerPreference: 'high-performance',
+            }}
             shadows={false}
           >
             <R0Scene
               fogFar={fogFar}
               resetTrigger={resetTrigger}
+              particleCount={isMobile ? 100 : 300}
               onDollyComplete={handleDollyComplete}
             />
             <EffectComposer>
               <HueSaturation saturation={saturation} />
               <Vignette eskil={false} offset={0.25} darkness={vignette} />
+              <Bloom
+                intensity={bloom}
+                luminanceThreshold={0.2}
+                luminanceSmoothing={0.4}
+                mipmapBlur
+              />
             </EffectComposer>
-            <Stats />
+            {import.meta.env.DEV && <Stats />}
           </Canvas>
         </Suspense>
 

@@ -22,11 +22,27 @@
  * bukan "void".
  */
 
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
+
+// Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
+// dijaga konsisten supaya keputusan downscale seragam antar halaman
+// museum). Threshold 768px = batas Tailwind md breakpoint.
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const mq = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return isMobile;
+};
 
 // localStorage key untuk track ruangan yang udah dibuka overlay-nya.
 // Set of room IDs (string[]) di-serialize ke JSON. Reset cuma kalau
@@ -260,6 +276,29 @@ const RoomBox = ({
   );
 };
 
+// Pohon aprikot: trunk lebih ramping & tinggi, foliage 4 sphere
+// dengan variasi warna hijau (sedikit shift hue per cluster supaya
+// nggak flat), dan 6 fruit sphere oranye-aprikot sebagai tribut ke
+// identitas Armeniaca (= aprikot dalam Latin). Fruit punya emissive
+// tipis supaya kerasa "fresh", dan ke-pickup oleh Bloom di R0 nanti
+// kalau tree dipake di Taman Akhir.
+//
+// Posisi fruit deterministik (di-memo) — bukan acak per render.
+const FOLIAGE_CLUSTERS = [
+  { pos: [0, 1.85, 0], radius: 0.85, color: '#7a9d5e' },
+  { pos: [0.35, 2.15, 0.15], radius: 0.55, color: '#8eb070' },
+  { pos: [-0.3, 2.05, -0.1], radius: 0.6, color: '#86a868' },
+  { pos: [0.05, 2.4, -0.2], radius: 0.45, color: '#94b878' },
+];
+const FRUIT_POSITIONS = [
+  { pos: [0.55, 1.95, 0.3], color: '#e89870' },
+  { pos: [-0.45, 1.7, 0.25], color: '#e8a87c' },
+  { pos: [0.1, 2.35, 0.5], color: '#ed9b6a' },
+  { pos: [-0.55, 2.1, -0.3], color: '#e89870' },
+  { pos: [0.4, 2.45, -0.4], color: '#e8a87c' },
+  { pos: [0.0, 1.6, -0.55], color: '#ed9b6a' },
+];
+
 const CenterTree = () => {
   const groupRef = useRef();
   useFrame((state) => {
@@ -269,22 +308,31 @@ const CenterTree = () => {
   });
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.12, 0.18, 1.2, 8]} />
-        <meshStandardMaterial color="#5a3e2b" roughness={0.9} />
+      {/* Trunk — ramping, tinggi 1.4, taper sedikit */}
+      <mesh position={[0, 0.7, 0]}>
+        <cylinderGeometry args={[0.1, 0.15, 1.4, 10]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
       </mesh>
-      <mesh position={[0, 1.5, 0]}>
-        <sphereGeometry args={[0.7, 16, 12]} />
-        <meshStandardMaterial color="#7a9d5e" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.2, 1.95, 0.1]}>
-        <sphereGeometry args={[0.45, 16, 12]} />
-        <meshStandardMaterial color="#8eb070" roughness={0.7} />
-      </mesh>
-      <mesh position={[-0.25, 1.85, -0.05]}>
-        <sphereGeometry args={[0.5, 16, 12]} />
-        <meshStandardMaterial color="#86a868" roughness={0.7} />
-      </mesh>
+      {/* Foliage clusters */}
+      {FOLIAGE_CLUSTERS.map((c, i) => (
+        <mesh key={`foliage-${i}`} position={c.pos}>
+          <sphereGeometry args={[c.radius, 16, 12]} />
+          <meshStandardMaterial color={c.color} roughness={0.75} />
+        </mesh>
+      ))}
+      {/* Fruit aprikot — emissive subtle untuk kerasa hidup */}
+      {FRUIT_POSITIONS.map((f, i) => (
+        <mesh key={`fruit-${i}`} position={f.pos}>
+          <sphereGeometry args={[0.11, 12, 10]} />
+          <meshStandardMaterial
+            color={f.color}
+            emissive={f.color}
+            emissiveIntensity={0.15}
+            roughness={0.55}
+            metalness={0.05}
+          />
+        </mesh>
+      ))}
     </group>
   );
 };
@@ -480,6 +528,7 @@ const RoomDetailOverlay = ({ room, onClose }) => {
 };
 
 const MuseumDenahPage = () => {
+  const isMobile = useIsMobile();
   const [hoveredRoomId, setHoveredRoomId] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
@@ -531,8 +580,11 @@ const MuseumDenahPage = () => {
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 38, position: [9, 11, 9] }}
-            dpr={[1, 2]}
-            gl={{ antialias: true, powerPreference: 'high-performance' }}
+            dpr={isMobile ? [1, 1] : [1, 2]}
+            gl={{
+              antialias: !isMobile,
+              powerPreference: 'high-performance',
+            }}
             shadows={false}
             onCreated={({ camera }) => {
               camera.lookAt(0, 0, 0);
@@ -547,7 +599,7 @@ const MuseumDenahPage = () => {
               onRoomOut={handleRoomOut}
               onRoomClick={handleRoomClick}
             />
-            <Stats />
+            {import.meta.env.DEV && <Stats />}
           </Canvas>
         </Suspense>
 
