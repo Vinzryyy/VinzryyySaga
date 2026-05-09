@@ -1097,11 +1097,236 @@ const Path = () => (
       <planeGeometry args={[2.2, Math.abs(PATH_END_Z - PATH_START_Z) + 6]} />
       <meshStandardMaterial color="#3a3022" roughness={1} />
     </mesh>
-    {/* Floor sekitar path — match palette /taman/peta */}
+    {/* Floor sekitar path — palette twilight senja sedikit purple */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.001, -16]}>
       <planeGeometry args={[40, 50]} />
-      <meshStandardMaterial color="#1c1f2a" roughness={1} />
+      <meshStandardMaterial color="#1f2335" roughness={1} />
     </mesh>
+  </>
+);
+
+// Ground patches — tone variasi di floor supaya nggak flat. Beberapa
+// patch lebih warm (kecoklatan), beberapa lebih cool (gelap kebiruan).
+// Match palette twilight + autumn vibe.
+const GROUND_PATCH_DEFS = [
+  { pos: [-5.5, 0.001, -8], r: 1.6, color: '#2a2438' },
+  { pos: [5.0, 0.001, -14], r: 1.8, color: '#2a2030' },
+  { pos: [-6.0, 0.001, -22], r: 1.4, color: '#3a3020' },
+  { pos: [4.5, 0.001, -28], r: 1.7, color: '#252840' },
+  { pos: [-4.2, 0.001, -4], r: 1.3, color: '#2c2538' },
+  { pos: [6.5, 0.001, -18], r: 1.5, color: '#3a2820' },
+  { pos: [-7.0, 0.001, -26], r: 1.6, color: '#252840' },
+  { pos: [5.5, 0.001, -3], r: 1.2, color: '#2a2438' },
+];
+const GroundPatches = () => (
+  <>
+    {GROUND_PATCH_DEFS.map((p, i) => (
+      <mesh
+        key={`patch-${i}`}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={p.pos}
+        receiveShadow
+      >
+        <circleGeometry args={[p.r, 16]} />
+        <meshStandardMaterial color={p.color} roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
+// Bintang-bintang di langit — Points geometry distribute di upper
+// hemisphere radius 40-50. Subtle twinkle via emissive material.
+const STAR_COUNT = 110;
+const STAR_POSITIONS = (() => {
+  const arr = new Float32Array(STAR_COUNT * 3);
+  for (let i = 0; i < STAR_COUNT; i++) {
+    // Distribute di upper hemisphere (y > 5) di radius 35-50
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.random() * Math.PI * 0.45; // 0..81° dari zenith
+    const r = 38 + Math.random() * 12;
+    arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    arr[i * 3 + 1] = r * Math.cos(phi) + 6; // lift sedikit ke atas
+    arr[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+  }
+  return arr;
+})();
+
+const Stars = () => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Subtle twinkle — material-level pulse
+    matRef.current.opacity = 0.85 + Math.sin(t * 0.7) * 0.12;
+  });
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={STAR_POSITIONS}
+          count={STAR_COUNT}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        ref={matRef}
+        size={0.4}
+        color="#ffffff"
+        transparent
+        opacity={0.85}
+        sizeAttenuation={false}
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Bulan — sphere emissive cream-yellow di upper-back-left. Visible dari
+// camera default angle (camera looking at z=-16 from upper-right). Moon
+// di posisi (-12, 18, -28) supaya kelihatan tinggi & belakang.
+const Moon = () => (
+  <group position={[-12, 18, -28]}>
+    {/* Moon body */}
+    <mesh>
+      <sphereGeometry args={[1.4, 24, 18]} />
+      <meshStandardMaterial
+        color="#fff8d8"
+        emissive="#ffe8a8"
+        emissiveIntensity={1.2}
+        roughness={0.85}
+      />
+    </mesh>
+    {/* Moon halo — slightly larger transparent sphere */}
+    <mesh>
+      <sphereGeometry args={[1.9, 20, 16]} />
+      <meshBasicMaterial
+        color="#ffe8a8"
+        transparent
+        opacity={0.12}
+        depthWrite={false}
+      />
+    </mesh>
+  </group>
+);
+
+// Distant forest silhouette — ring of dark trees di perimeter scene
+// (radius 22-30). Color desaturated cool-purple supaya fade ke fog.
+// Cuma trunk + foliage sphere besar, no animation, no detail.
+const DISTANT_FOREST_DEFS = (() => {
+  const arr = [];
+  const count = 14;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.2;
+    const r = 22 + Math.random() * 8;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      scale: 1.5 + Math.random() * 1.0,
+      hue: Math.random() > 0.5 ? '#1e2238' : '#2a2238',
+    });
+  }
+  return arr;
+})();
+const DistantForest = () => (
+  <>
+    {DISTANT_FOREST_DEFS.map((t, i) => (
+      <group key={`distant-${i}`} position={t.pos} scale={t.scale}>
+        {/* Trunk pendek */}
+        <mesh position={[0, 0.6, 0]}>
+          <cylinderGeometry args={[0.1, 0.18, 1.2, 6]} />
+          <meshStandardMaterial color="#15182a" roughness={1} />
+        </mesh>
+        {/* Foliage besar dengan tone desaturated */}
+        <mesh position={[0, 1.85, 0]}>
+          <sphereGeometry args={[0.7, 10, 8]} />
+          <meshStandardMaterial color={t.hue} roughness={1} />
+        </mesh>
+      </group>
+    ))}
+  </>
+);
+
+// Daun gugur yang udah settle di tanah — accumulate di sekitar base
+// pohon. Flat plane tipis tone autumn, scatter random per tree.
+const SETTLED_LEAF_COLORS = ['#7a4828', '#8a5a30', '#5a3818', '#a06430'];
+const SETTLED_LEAF_DEFS = (() => {
+  // Generate berdasarkan tree positions — tapi karena tree z dynamic
+  // dari ELI_TIMELINE.length, hardcode sebaran along path
+  const arr = [];
+  for (let i = 0; i < 10; i++) {
+    const z = -2 + (-30 / 9) * i;
+    const side = i % 2 === 0 ? -1 : 1;
+    const baseX = side * 2.6;
+    // 3-5 leaves around tree base
+    const count = 3 + Math.floor(Math.random() * 3);
+    for (let j = 0; j < count; j++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 0.4 + Math.random() * 0.6;
+      arr.push({
+        pos: [baseX + Math.cos(angle) * r, 0.008, z + Math.sin(angle) * r],
+        rot: Math.random() * Math.PI * 2,
+        scale: 0.7 + Math.random() * 0.5,
+        color: SETTLED_LEAF_COLORS[Math.floor(Math.random() * SETTLED_LEAF_COLORS.length)],
+      });
+    }
+  }
+  return arr;
+})();
+const SettledLeaves = () => (
+  <>
+    {SETTLED_LEAF_DEFS.map((l, i) => (
+      <mesh
+        key={`settled-${i}`}
+        position={l.pos}
+        rotation={[-Math.PI / 2, 0, l.rot]}
+        scale={l.scale}
+      >
+        <planeGeometry args={[0.18, 0.12]} />
+        <meshStandardMaterial
+          color={l.color}
+          transparent
+          opacity={0.85}
+          roughness={1}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    ))}
+  </>
+);
+
+// Batu-batu border path — 2 baris (kiri dan kanan path) dengan jarak
+// reguler. Random size dan rotation kasih kesan natural.
+const PATH_EDGE_STONES = (() => {
+  const arr = [];
+  const stoneZ = [];
+  for (let z = PATH_START_Z; z >= PATH_END_Z; z -= 1.6) stoneZ.push(z);
+  stoneZ.forEach((z, i) => {
+    arr.push({
+      pos: [-1.25 + (Math.random() - 0.5) * 0.1, 0.06, z + (Math.random() - 0.5) * 0.3],
+      scale: [0.18 + Math.random() * 0.1, 0.10 + Math.random() * 0.05, 0.16 + Math.random() * 0.08],
+      rot: Math.random() * Math.PI,
+    });
+    arr.push({
+      pos: [1.25 + (Math.random() - 0.5) * 0.1, 0.06, z + (Math.random() - 0.5) * 0.3],
+      scale: [0.18 + Math.random() * 0.1, 0.10 + Math.random() * 0.05, 0.16 + Math.random() * 0.08],
+      rot: Math.random() * Math.PI,
+    });
+  });
+  return arr;
+})();
+const PathEdgeStones = () => (
+  <>
+    {PATH_EDGE_STONES.map((s, i) => (
+      <mesh
+        key={`stone-${i}`}
+        position={s.pos}
+        scale={s.scale}
+        rotation={[0, s.rot, 0]}
+      >
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#3a3128" roughness={0.95} metalness={0.05} />
+      </mesh>
+    ))}
   </>
 );
 
@@ -1187,8 +1412,9 @@ const LorongScene = ({
   onTreeClick,
 }) => (
   <>
-    <fog attach="fog" args={['#1c1f2a', 14, 45]} />
-    <color attach="background" args={['#1c1f2a']} />
+    {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
+    <fog attach="fog" args={['#1f2335', 14, 48]} />
+    <color attach="background" args={['#1f2335']} />
     <ambientLight intensity={0.5} />
     {/* Sunset key light — warm dari upper-front */}
     <directionalLight
@@ -1216,7 +1442,13 @@ const LorongScene = ({
       decay={2}
     />
     <Path />
+    <GroundPatches />
     <Footprints />
+    <PathEdgeStones />
+    <SettledLeaves />
+    <DistantForest />
+    <Stars />
+    <Moon />
     <ShootingStar />
     <Lanterns signatureTime={signatureTime} />
     <YearPlaques trees={trees} />
