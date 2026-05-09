@@ -1509,20 +1509,37 @@ const GroundPatches = () => (
 );
 
 // Bintang-bintang di langit — Points geometry distribute di upper
-// hemisphere radius 40-50. Subtle twinkle via emissive material.
-const STAR_COUNT = 110;
-const STAR_POSITIONS = (() => {
-  const arr = new Float32Array(STAR_COUNT * 3);
+// hemisphere radius 35-55. Per-star vertex colors variasi (warm
+// kuning / cool kebiruan / white) supaya kerasa kayak field bintang
+// real. Pulse opacity material untuk twinkle subtle.
+const STAR_COUNT = 240;
+const { STAR_POSITIONS, STAR_COLORS } = (() => {
+  const positions = new Float32Array(STAR_COUNT * 3);
+  const colors = new Float32Array(STAR_COUNT * 3);
   for (let i = 0; i < STAR_COUNT; i++) {
-    // Distribute di upper hemisphere (y > 5) di radius 35-50
     const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 0.45; // 0..81° dari zenith
-    const r = 38 + Math.random() * 12;
-    arr[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-    arr[i * 3 + 1] = r * Math.cos(phi) + 6; // lift sedikit ke atas
-    arr[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    const phi = Math.random() * Math.PI * 0.48;
+    const r = 35 + Math.random() * 20;
+    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[i * 3 + 1] = r * Math.cos(phi) + 4;
+    positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    // Color variation: 60% white, 25% warm yellow, 15% cool blue
+    const tier = Math.random();
+    if (tier < 0.6) {
+      colors[i * 3] = 1;
+      colors[i * 3 + 1] = 1;
+      colors[i * 3 + 2] = 1;
+    } else if (tier < 0.85) {
+      colors[i * 3] = 1;
+      colors[i * 3 + 1] = 0.92;
+      colors[i * 3 + 2] = 0.78;
+    } else {
+      colors[i * 3] = 0.85;
+      colors[i * 3 + 1] = 0.92;
+      colors[i * 3 + 2] = 1;
+    }
   }
-  return arr;
+  return { STAR_POSITIONS: positions, STAR_COLORS: colors };
 })();
 
 const Stars = () => {
@@ -1530,8 +1547,7 @@ const Stars = () => {
   useFrame((state) => {
     if (!matRef.current) return;
     const t = state.clock.elapsedTime;
-    // Subtle twinkle — material-level pulse
-    matRef.current.opacity = 0.85 + Math.sin(t * 0.7) * 0.12;
+    matRef.current.opacity = 0.75 + Math.sin(t * 0.7) * 0.15;
   });
   return (
     <points>
@@ -1542,11 +1558,17 @@ const Stars = () => {
           count={STAR_COUNT}
           itemSize={3}
         />
+        <bufferAttribute
+          attach="attributes-color"
+          array={STAR_COLORS}
+          count={STAR_COUNT}
+          itemSize={3}
+        />
       </bufferGeometry>
       <pointsMaterial
         ref={matRef}
-        size={0.4}
-        color="#ffffff"
+        size={1.8}
+        vertexColors
         transparent
         opacity={0.85}
         sizeAttenuation={false}
@@ -1555,6 +1577,69 @@ const Stars = () => {
     </points>
   );
 };
+
+// Highlight stars — 6 bright sphere stars di posisi tetap, kasih
+// "anchor" visual di langit (focal points). Emissive intensity pulse
+// per star dengan phase beda supaya twinkle natural.
+const HIGHLIGHT_STAR_DEFS = [
+  { pos: [-22, 22, -28], scale: 0.28, color: '#fff8d8', phase: 0 },
+  { pos: [16, 24, -22], scale: 0.34, color: '#fffae8', phase: 1.4 },
+  { pos: [-8, 28, -32], scale: 0.30, color: '#e8f0ff', phase: 2.7 },
+  { pos: [22, 19, -10], scale: 0.26, color: '#fff8d8', phase: 0.8 },
+  { pos: [-28, 18, 5], scale: 0.30, color: '#fffae8', phase: 2.0 },
+  { pos: [4, 30, -18], scale: 0.36, color: '#fff4c8', phase: 3.2 }, // brightest, near zenith
+];
+
+const HighlightStar = ({ pos, scale, color, phase }) => {
+  const matRef = useRef();
+  const haloMatRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Twinkle: pulse fast (8 Hz) + slow drift breath
+    const fast = 0.5 + 0.5 * Math.sin(t * 6 + phase);
+    const slow = 0.5 + 0.5 * Math.sin(t * 0.6 + phase * 1.4);
+    matRef.current.emissiveIntensity = 1.4 + fast * 0.6 + slow * 0.4;
+    if (haloMatRef.current) {
+      haloMatRef.current.opacity = 0.18 + slow * 0.15;
+    }
+  });
+  return (
+    <group position={pos} scale={scale}>
+      {/* Body sphere emissive */}
+      <mesh>
+        <sphereGeometry args={[1, 14, 10]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color={color}
+          emissive={color}
+          emissiveIntensity={1.4}
+          roughness={0.85}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Halo soft glow — sphere lebih besar transparent */}
+      <mesh>
+        <sphereGeometry args={[2.2, 12, 8]} />
+        <meshBasicMaterial
+          ref={haloMatRef}
+          color={color}
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+const HighlightStars = () => (
+  <>
+    {HIGHLIGHT_STAR_DEFS.map((s, i) => (
+      <HighlightStar key={`hl-star-${i}`} {...s} />
+    ))}
+  </>
+);
 
 // Bulan — sphere emissive cream-yellow di upper-back-left. Visible dari
 // camera default angle (camera looking at z=-16 from upper-right). Moon
@@ -1826,6 +1911,7 @@ const LorongScene = ({
     <Bushes />
     <Mushrooms />
     <Stars />
+    <HighlightStars />
     <Moon />
     <ShootingStar />
     <OldBench />
