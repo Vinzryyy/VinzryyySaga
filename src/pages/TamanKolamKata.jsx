@@ -164,7 +164,7 @@ const FLOW_SPEED = 0.03; // unit per detik
 const FLOW_END_Z = 12;
 const FLOW_START_Z = -12;
 
-const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => {
+const LilyWishPad = ({ pad, hovered, hideLabel, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
   const matRef = useRef();
   const rippleRef = useRef();
@@ -271,39 +271,41 @@ const LilyWishPad = ({ pad, hovered, onPointerOver, onPointerOut, onClick }) => 
       <group position={[0, 0.04, 0]}>
         <TerataiBloom color={pad.bloomColor} scale={bloomScale} />
       </group>
-      <Html
-        position={[0, pad.isCenter ? 0.65 : 0.5, 0]}
-        center
-        distanceFactor={11}
-        occlude={false}
-      >
-        <div
-          className={`text-center pointer-events-none select-none transition-all duration-300 ease-out ${
-            hovered ? '-translate-y-1' : ''
-          }`}
-          style={{ minWidth: pad.isCenter ? '180px' : '140px' }}
+      {!hideLabel && (
+        <Html
+          position={[0, pad.isCenter ? 0.65 : 0.5, 0]}
+          center
+          distanceFactor={11}
+          occlude={false}
         >
-          {pad.isCenter && (
-            <div className="text-pink-200/80 text-[8px] uppercase tracking-[0.25em] mb-1">
-              Wish utama
-            </div>
-          )}
           <div
-            className={`leading-snug transition-colors ${
-              pad.isCenter ? 'text-[11px] font-medium' : 'text-[10px]'
-            } ${hovered ? 'text-white' : 'text-white/75'}`}
-          >
-            — {pad.name}
-          </div>
-          <div
-            className={`text-[9px] mt-0.5 transition-colors leading-snug ${
-              hovered ? 'text-white/80' : 'text-white/55'
+            className={`text-center pointer-events-none select-none transition-all duration-300 ease-out ${
+              hovered ? '-translate-y-1' : ''
             }`}
+            style={{ minWidth: pad.isCenter ? '180px' : '140px' }}
           >
-            {shortLabel(pad.message, pad.isCenter ? 6 : 4)}
+            {pad.isCenter && (
+              <div className="text-pink-200/80 text-[8px] uppercase tracking-[0.25em] mb-1">
+                Wish utama
+              </div>
+            )}
+            <div
+              className={`leading-snug transition-colors ${
+                pad.isCenter ? 'text-[11px] font-medium' : 'text-[10px]'
+              } ${hovered ? 'text-white' : 'text-white/75'}`}
+            >
+              — {pad.name}
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 transition-colors leading-snug ${
+                hovered ? 'text-white/80' : 'text-white/55'
+              }`}
+            >
+              {shortLabel(pad.message, pad.isCenter ? 6 : 4)}
+            </div>
           </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   );
 };
@@ -2534,6 +2536,7 @@ const TelagaScene = ({
   pads,
   hoveredPadId,
   isMobile,
+  hideLabels,
   onPadHover,
   onPadOut,
   onPadClick,
@@ -2621,6 +2624,7 @@ const TelagaScene = ({
         key={pad.id}
         pad={pad}
         hovered={hoveredPadId === pad.id}
+        hideLabel={hideLabels}
         onPointerOver={onPadHover}
         onPointerOut={onPadOut}
         onClick={onPadClick}
@@ -2915,6 +2919,7 @@ const TamanKolamKataPage = () => {
               pads={pads}
               hoveredPadId={hoveredPadId}
               isMobile={isMobile}
+              hideLabels={Boolean(selectedPad)}
               onPadHover={handlePadHover}
               onPadOut={handlePadOut}
               onPadClick={handlePadClick}
