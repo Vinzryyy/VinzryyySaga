@@ -354,14 +354,18 @@ const CenterTree = () => {
   );
 };
 
-const DenahFloor = () => (
+// Lantai taman — plane besar tone twilight evening (bukan dark museum
+// hall) dengan grid tipis untuk persepsi skala. Tone biru-warm yang
+// muncul saat senja: matahari masih nyentuh sedikit di langit, tanah
+// pelan-pelan teduh. Pas untuk setting "taman di waktu senja".
+const TamanFloor = () => (
   <>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[40, 40]} />
-      <meshStandardMaterial color="#1f1612" roughness={1} />
+      <meshStandardMaterial color="#1c1f2a" roughness={1} />
     </mesh>
     <gridHelper
-      args={[40, 40, '#3a2a1f', '#2a1d15']}
+      args={[40, 40, '#2c3142', '#222632']}
       position={[0, 0.005, 0]}
     />
   </>
