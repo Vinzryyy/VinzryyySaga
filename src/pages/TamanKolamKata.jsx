@@ -604,30 +604,41 @@ const WILDFLOWER_COLORS = [
 
 const WILDFLOWER_POSITIONS = (() => {
   const items = [];
-  // Scatter di banks (avoid path -x dan dock area +x z=4)
-  // Bank kiri (di luar path)
+  // Bank kiri (di luar path) — 24 bunga
+  for (let i = 0; i < 24; i++) {
+    const x = -10 - ((i * 17) % 70) / 70 * 7;
+    const z = -13 + (i * 1.15);
+    items.push({
+      pos: [x, 0.04, z],
+      colorIdx: (i * 3) % WILDFLOWER_COLORS.length,
+    });
+  }
+  // Bank kanan (di luar dock) — 24 bunga
+  for (let i = 0; i < 24; i++) {
+    const x = 10 + ((i * 23) % 70) / 70 * 7;
+    const z = -13 + (i * 1.15);
+    items.push({
+      pos: [x, 0.04, z],
+      colorIdx: (i * 5 + 1) % WILDFLOWER_COLORS.length,
+    });
+  }
+  // Bank atas (-z) — 14 bunga
   for (let i = 0; i < 14; i++) {
-    const x = -10 - ((i * 17) % 50) / 50 * 6;
-    const z = -12 + (i * 2.0);
-    items.push({ pos: [x, 0.04, z], colorIdx: (i * 3) % WILDFLOWER_COLORS.length });
+    const x = -9 + (i * 1.4);
+    const z = -16 - ((i * 13) % 50) / 50 * 4;
+    items.push({
+      pos: [x, 0.04, z],
+      colorIdx: (i * 7 + 2) % WILDFLOWER_COLORS.length,
+    });
   }
-  // Bank kanan (di luar dock)
+  // Bank bawah (+z) — 14 bunga
   for (let i = 0; i < 14; i++) {
-    const x = 10 + ((i * 23) % 50) / 50 * 6;
-    const z = -12 + (i * 2.0);
-    items.push({ pos: [x, 0.04, z], colorIdx: (i * 5 + 1) % WILDFLOWER_COLORS.length });
-  }
-  // Bank atas (-z)
-  for (let i = 0; i < 8; i++) {
-    const x = -8 + (i * 2.2);
-    const z = -16 - ((i * 13) % 30) / 30 * 3;
-    items.push({ pos: [x, 0.04, z], colorIdx: (i * 7 + 2) % WILDFLOWER_COLORS.length });
-  }
-  // Bank bawah (+z)
-  for (let i = 0; i < 8; i++) {
-    const x = -8 + (i * 2.2);
-    const z = 16 + ((i * 11) % 30) / 30 * 3;
-    items.push({ pos: [x, 0.04, z], colorIdx: (i * 5 + 3) % WILDFLOWER_COLORS.length });
+    const x = -9 + (i * 1.4);
+    const z = 16 + ((i * 11) % 50) / 50 * 4;
+    items.push({
+      pos: [x, 0.04, z],
+      colorIdx: (i * 5 + 3) % WILDFLOWER_COLORS.length,
+    });
   }
   return items;
 })();
@@ -852,11 +863,11 @@ const BUSH_POSITIONS = [
   { pos: [-10.5, 0, 0], scale: 1.0 },
   { pos: [-9.5, 0, 6], scale: 0.85 },
   { pos: [-10.0, 0, 12], scale: 0.95 },
-  // Bank kanan
+  // Bank kanan — fix overlap dengan picnic table @ [10, 0, 7]
   { pos: [10.0, 0, -10], scale: 1.0 },
   { pos: [9.5, 0, -3], scale: 0.9 },
-  { pos: [10.5, 0, 7], scale: 1.0 },
-  { pos: [9.8, 0, 13], scale: 0.85 },
+  { pos: [12.0, 0, 4], scale: 1.0 }, // moved from [10.5, 0, 7]
+  { pos: [11.5, 0, 11], scale: 0.85 }, // moved from [9.8, 0, 13]
   // Bank atas
   { pos: [-5, 0, -16], scale: 0.95 },
   { pos: [6, 0, -17], scale: 0.9 },
@@ -973,6 +984,318 @@ const PicnicTable = () => (
       <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
     </mesh>
   </group>
+);
+
+// Kupu-kupu di sekitar bunga — 2 plane wings doublesided + body kecil.
+// Animasi: hover position bobbing dengan sin waves di 3 axis, wing
+// flap via rotation. Phase per butterfly biar nggak sync.
+const Butterfly = ({ home, color, phase }) => {
+  const groupRef = useRef();
+  const wingsRef = useRef();
+
+  useFrame((state) => {
+    if (!groupRef.current || !wingsRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Hover position dengan range kecil di sekitar home
+    groupRef.current.position.x = home[0] + Math.sin(t * 0.7 + phase) * 0.5;
+    groupRef.current.position.y =
+      home[1] + Math.cos(t * 0.5 + phase) * 0.25;
+    groupRef.current.position.z =
+      home[2] + Math.sin(t * 0.6 + phase * 1.3) * 0.4;
+    groupRef.current.rotation.y = Math.sin(t * 0.4 + phase) * 0.5;
+    // Wings flap cepat
+    wingsRef.current.rotation.y = Math.sin(t * 14 + phase) * 0.6;
+  });
+
+  return (
+    <group ref={groupRef}>
+      <group ref={wingsRef}>
+        {/* Wing kiri */}
+        <mesh position={[-0.08, 0, 0]} rotation={[0, 0.4, 0]}>
+          <planeGeometry args={[0.14, 0.18]} />
+          <meshStandardMaterial
+            color={color}
+            side={2}
+            roughness={0.6}
+            emissive={color}
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+        {/* Wing kanan */}
+        <mesh position={[0.08, 0, 0]} rotation={[0, -0.4, 0]}>
+          <planeGeometry args={[0.14, 0.18]} />
+          <meshStandardMaterial
+            color={color}
+            side={2}
+            roughness={0.6}
+            emissive={color}
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+        {/* Body */}
+        <mesh>
+          <cylinderGeometry args={[0.012, 0.015, 0.16, 6]} />
+          <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+const BUTTERFLY_DEFS = [
+  { home: [-9, 0.6, -7], color: '#f4a8c0', phase: 0 },
+  { home: [-10, 0.5, 5], color: '#f4d870', phase: 1.5 },
+  { home: [10, 0.6, -5], color: '#e89bb8', phase: 2.8 },
+  { home: [9, 0.55, 11], color: '#c89be8', phase: 0.7 },
+  { home: [-3, 0.5, -16], color: '#f4d870', phase: 3.2 },
+  { home: [4, 0.6, 16], color: '#f4a8c0', phase: 1.2 },
+];
+
+const Butterflies = () => (
+  <>
+    {BUTTERFLY_DEFS.map((def, i) => (
+      <Butterfly key={`butterfly-${i}`} {...def} />
+    ))}
+  </>
+);
+
+// Capung di atas air — body silinder hijau metallic + 4 plane wings
+// transparan. Hover animation lebih darting (faster, less smooth)
+// dari butterfly. Posisi sekitar lily pads.
+const Dragonfly = ({ home, phase }) => {
+  const groupRef = useRef();
+  const wingsRef = useRef();
+
+  useFrame((state) => {
+    if (!groupRef.current || !wingsRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Darting hover — quick small movements
+    groupRef.current.position.x =
+      home[0] + Math.sin(t * 1.2 + phase) * 0.7;
+    groupRef.current.position.y =
+      home[1] + Math.cos(t * 0.9 + phase) * 0.15;
+    groupRef.current.position.z =
+      home[2] + Math.cos(t * 1.0 + phase * 1.5) * 0.6;
+    groupRef.current.rotation.y = Math.sin(t * 0.7 + phase) * 0.8;
+    wingsRef.current.rotation.x = Math.sin(t * 30 + phase) * 0.3;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Body — silinder hijau metallic */}
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.025, 0.018, 0.32, 8]} />
+        <meshStandardMaterial
+          color="#3a8060"
+          roughness={0.4}
+          metalness={0.5}
+          emissive="#3a8060"
+          emissiveIntensity={0.15}
+        />
+      </mesh>
+      {/* Eyes — 2 sphere kecil di kepala */}
+      <mesh position={[0.16, 0.025, 0.04]}>
+        <sphereGeometry args={[0.03, 6, 6]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.5} />
+      </mesh>
+      <mesh position={[0.16, 0.025, -0.04]}>
+        <sphereGeometry args={[0.03, 6, 6]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.5} />
+      </mesh>
+      {/* 4 wings transparent */}
+      <group ref={wingsRef} position={[0.04, 0.04, 0]}>
+        <mesh rotation={[0, 0.3, 0]} position={[0.04, 0, 0.16]}>
+          <planeGeometry args={[0.18, 0.08]} />
+          <meshStandardMaterial
+            color="#cfe8e0"
+            side={2}
+            transparent
+            opacity={0.55}
+            roughness={0.3}
+          />
+        </mesh>
+        <mesh rotation={[0, -0.3, 0]} position={[0.04, 0, -0.16]}>
+          <planeGeometry args={[0.18, 0.08]} />
+          <meshStandardMaterial
+            color="#cfe8e0"
+            side={2}
+            transparent
+            opacity={0.55}
+            roughness={0.3}
+          />
+        </mesh>
+        <mesh rotation={[0, 0.4, 0]} position={[-0.04, 0, 0.14]}>
+          <planeGeometry args={[0.16, 0.07]} />
+          <meshStandardMaterial
+            color="#cfe8e0"
+            side={2}
+            transparent
+            opacity={0.55}
+            roughness={0.3}
+          />
+        </mesh>
+        <mesh rotation={[0, -0.4, 0]} position={[-0.04, 0, -0.14]}>
+          <planeGeometry args={[0.16, 0.07]} />
+          <meshStandardMaterial
+            color="#cfe8e0"
+            side={2}
+            transparent
+            opacity={0.55}
+            roughness={0.3}
+          />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+const DRAGONFLY_DEFS = [
+  { home: [-3, 0.8, -2], phase: 0 },
+  { home: [4, 0.9, 4], phase: 2.0 },
+  { home: [0, 1.0, -8], phase: 4.0 },
+];
+
+const Dragonflies = () => (
+  <>
+    {DRAGONFLY_DEFS.map((def, i) => (
+      <Dragonfly key={`dragonfly-${i}`} {...def} />
+    ))}
+  </>
+);
+
+// Bunga matahari — tinggi (1.5m), tall stem + center disk + 12 petal
+// cones. Cluster di banks supaya jadi visual landmark di taman.
+const Sunflower = ({ pos, scale = 1 }) => (
+  <group position={pos} scale={scale}>
+    {/* Stem panjang */}
+    <mesh position={[0, 0.75, 0]} castShadow>
+      <cylinderGeometry args={[0.025, 0.04, 1.5, 6]} />
+      <meshStandardMaterial color="#4a7035" roughness={1} />
+    </mesh>
+    {/* Daun 1 di stem */}
+    <mesh position={[0.15, 0.6, 0]} rotation={[0, 0, -0.4]} castShadow>
+      <coneGeometry args={[0.06, 0.25, 4]} />
+      <meshStandardMaterial color="#5a8045" roughness={0.9} />
+    </mesh>
+    {/* Daun 2 */}
+    <mesh position={[-0.13, 0.4, 0.05]} rotation={[0, 0.3, 0.4]} castShadow>
+      <coneGeometry args={[0.05, 0.22, 4]} />
+      <meshStandardMaterial color="#5a8045" roughness={0.9} />
+    </mesh>
+    {/* Center disk — coklat-kuning */}
+    <mesh position={[0, 1.55, 0]}>
+      <cylinderGeometry args={[0.13, 0.13, 0.05, 16]} />
+      <meshStandardMaterial color="#5a3826" roughness={0.95} />
+    </mesh>
+    {/* Petal kelopak — 12 cones di sekeliling disk */}
+    {Array.from({ length: 12 }).map((_, i) => {
+      const angle = (i / 12) * Math.PI * 2;
+      return (
+        <mesh
+          key={`petal-${i}`}
+          position={[
+            Math.cos(angle) * 0.18,
+            1.55,
+            Math.sin(angle) * 0.18,
+          ]}
+          rotation={[Math.PI / 2, 0, -angle - Math.PI / 2]}
+        >
+          <coneGeometry args={[0.07, 0.18, 4]} />
+          <meshStandardMaterial
+            color="#f4c038"
+            roughness={0.55}
+            emissive="#f4c038"
+            emissiveIntensity={0.12}
+          />
+        </mesh>
+      );
+    })}
+  </group>
+);
+
+const SUNFLOWER_PATCHES = [
+  // Patch 1: 3 sunflowers di bank kiri jauh
+  { pos: [-11, 0, -14], scale: 0.95 },
+  { pos: [-11.5, 0, -13.4], scale: 0.85 },
+  { pos: [-10.5, 0, -13.6], scale: 1.0 },
+  // Patch 2: 3 sunflowers di bank kanan
+  { pos: [12, 0, 0], scale: 1.0 },
+  { pos: [12.6, 0, -0.3], scale: 0.9 },
+  { pos: [12.3, 0, 0.6], scale: 0.95 },
+  // Patch 3: 4 sunflowers di bank bawah
+  { pos: [8, 0, 17], scale: 1.0 },
+  { pos: [8.6, 0, 16.5], scale: 0.85 },
+  { pos: [9.2, 0, 17.2], scale: 0.95 },
+  { pos: [7.5, 0, 17.5], scale: 0.9 },
+];
+
+const Sunflowers = () => (
+  <>
+    {SUNFLOWER_PATCHES.map((s, i) => (
+      <Sunflower key={`sunflower-${i}`} pos={s.pos} scale={s.scale} />
+    ))}
+  </>
+);
+
+// Mushroom clusters — small mushroom dengan stem putih + cap dome
+// merah dengan dot putih (klasik fairy tale style). Cluster of 2-3
+// mushroom di tempat shadowy (dekat trees/bushes).
+const Mushroom = ({ size = 1 }) => (
+  <group scale={size}>
+    {/* Stem */}
+    <mesh position={[0, 0.07, 0]}>
+      <cylinderGeometry args={[0.04, 0.05, 0.15, 8]} />
+      <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+    </mesh>
+    {/* Cap dome */}
+    <mesh position={[0, 0.16, 0]}>
+      <sphereGeometry args={[0.1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      <meshStandardMaterial
+        color="#c84838"
+        roughness={0.7}
+        emissive="#c84838"
+        emissiveIntensity={0.1}
+      />
+    </mesh>
+    {/* Dot putih kecil di cap */}
+    <mesh position={[0.04, 0.21, 0]}>
+      <sphereGeometry args={[0.018, 6, 6]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.9} />
+    </mesh>
+    <mesh position={[-0.05, 0.20, 0.03]}>
+      <sphereGeometry args={[0.015, 6, 6]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.9} />
+    </mesh>
+  </group>
+);
+
+const MUSHROOM_CLUSTERS = [
+  { pos: [-8.5, 0, -10], count: 3 },
+  { pos: [9.5, 0, -12], count: 2 },
+  { pos: [-9.5, 0, 9], count: 3 },
+  { pos: [11.5, 0, -7], count: 2 },
+  { pos: [-3, 0, -14], count: 2 },
+];
+
+const Mushrooms = () => (
+  <>
+    {MUSHROOM_CLUSTERS.map((cluster, i) => (
+      <group key={`mushroom-cluster-${i}`} position={cluster.pos}>
+        {Array.from({ length: cluster.count }).map((_, j) => {
+          const angle = (j / cluster.count) * Math.PI * 2 + i;
+          const r = 0.18 + (j * 13) % 10 / 100;
+          return (
+            <group
+              key={j}
+              position={[Math.cos(angle) * r, 0, Math.sin(angle) * r]}
+            >
+              <Mushroom size={0.85 + ((j + i) % 4) * 0.1} />
+            </group>
+          );
+        })}
+      </group>
+    ))}
+  </>
 );
 
 // Burung-burung di langit — simple silhouette (V-shape via 2 cone)
@@ -1420,24 +1743,38 @@ const RiverStones = () => (
 // dengan tone hijau lebih cerah dari banks, supaya catch light dan
 // kasih texture ke lapangan. Posisi deterministik per index.
 const TUFT_POSITIONS = [
-  // Bank kiri — skip area path (x=-8.5..-7.7) dan bench (-9, z=-2)
+  // Bank kiri
   { pos: [-9.5, 0, -11], color: '#5a8045' },
   { pos: [-10.5, 0, -6], color: '#6e9358' },
   { pos: [-9.8, 0, 3], color: '#5a8045' },
   { pos: [-10.2, 0, 9], color: '#6e9358' },
   { pos: [-9.0, 0, 13], color: '#4f7438' },
-  // Bank kanan — skip dock area (z=4)
+  { pos: [-11.5, 0, -2], color: '#65884d' },
+  { pos: [-11, 0, 4], color: '#5a8045' },
+  { pos: [-12, 0, 10], color: '#6e9358' },
+  { pos: [-12.5, 0, -8], color: '#4f7438' },
+  // Bank kanan
   { pos: [9.5, 0, -13], color: '#6e9358' },
   { pos: [10.0, 0, -8], color: '#5a8045' },
   { pos: [9.8, 0, -2], color: '#4f7438' },
   { pos: [10.5, 0, 9], color: '#5a8045' },
   { pos: [9.0, 0, 14], color: '#6e9358' },
+  { pos: [11.5, 0, -5], color: '#5a8045' },
+  { pos: [12.5, 0, 2], color: '#65884d' },
+  { pos: [13, 0, -10], color: '#4f7438' },
+  { pos: [12.8, 0, 13], color: '#6e9358' },
   // Bank atas (-z)
   { pos: [-2, 0, -16], color: '#5a8045' },
   { pos: [4, 0, -17], color: '#6e9358' },
+  { pos: [-7, 0, -17.5], color: '#5a8045' },
+  { pos: [9, 0, -16], color: '#65884d' },
+  { pos: [-1, 0, -18.5], color: '#4f7438' },
   // Bank bawah (+z)
   { pos: [-3, 0, 16.5], color: '#4f7438' },
   { pos: [2, 0, 17], color: '#5a8045' },
+  { pos: [-7, 0, 17.5], color: '#6e9358' },
+  { pos: [10, 0, 18], color: '#65884d' },
+  { pos: [0, 0, 18.5], color: '#5a8045' },
 ];
 
 const GrassTuft = ({ pos, color }) => (
@@ -1534,11 +1871,15 @@ const TelagaScene = ({
     <PicnicTable />
     <Cattails />
     <Wildflowers />
+    <Sunflowers />
+    <Mushrooms />
     <Bushes />
     <Lanterns />
     <BankTrees />
     <Ducks />
     <PaperBoats />
+    <Butterflies />
+    <Dragonflies />
     <FallingPetals count={isMobile ? 60 : 120} />
     <GroundMist count={isMobile ? 60 : 100} />
     {pads.map((pad) => (
