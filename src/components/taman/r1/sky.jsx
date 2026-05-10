@@ -325,7 +325,11 @@ export const Nebula = () => {
 
 // Shooting star — rare event tiap ~25-50 detik random. Spawn di random
 // sky position, streak across via direction vector, fade in/out
-// lifecycle 1.4 detik.
+// lifecycle 1.4 detik. Mesh di-stretch + di-orient sepanjang velocity
+// vector untuk visible streak (bukan cuma sphere persistence-of-vision).
+const SHOOTING_STAR_TILT = new THREE.Quaternion();
+const SHOOTING_STAR_DEFAULT_DIR = new THREE.Vector3(0, 0, 1);
+const SHOOTING_STAR_NORMALIZED_DIR = new THREE.Vector3();
 export const ShootingStar = () => {
   const meshRef = useRef();
   const stateRef = useRef({
@@ -356,6 +360,16 @@ export const ShootingStar = () => {
         .multiplyScalar(18 + Math.random() * 8);
       stateRef.current.active = true;
       stateRef.current.t0 = t;
+      // Orient mesh sepanjang velocity vector — capsule local Z-axis
+      // align ke direction. Compute once per spawn, reuse setiap frame.
+      SHOOTING_STAR_NORMALIZED_DIR.copy(stateRef.current.direction).normalize();
+      SHOOTING_STAR_TILT.setFromUnitVectors(
+        SHOOTING_STAR_DEFAULT_DIR,
+        SHOOTING_STAR_NORMALIZED_DIR,
+      );
+      if (meshRef.current) {
+        meshRef.current.quaternion.copy(SHOOTING_STAR_TILT);
+      }
     }
     if (!stateRef.current.active || !meshRef.current) {
       if (meshRef.current) meshRef.current.visible = false;
@@ -380,7 +394,9 @@ export const ShootingStar = () => {
   });
   return (
     <mesh ref={meshRef} visible={false}>
-      <sphereGeometry args={[0.18, 10, 8]} />
+      {/* Capsule stretched sepanjang Z untuk streak feel (was sphere
+          0.18 — sphere doesn't communicate motion direction). */}
+      <capsuleGeometry args={[0.06, 1.4, 4, 6]} />
       <meshBasicMaterial
         color="#fffae8"
         transparent

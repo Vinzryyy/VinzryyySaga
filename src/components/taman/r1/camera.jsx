@@ -67,12 +67,28 @@ export const CinematicIntro = ({ active, onComplete }) => {
 
 export const CameraSync = ({ viewMode, transitioning }) => {
   const { camera } = useThree();
-  useFrame((_, delta) => {
-    if (!transitioning) return;
-    const target = CAMERA_TARGETS[viewMode] || CAMERA_TARGETS.orbit;
-    const factor = Math.min(delta * 4.5, 1);
-    camera.position.lerp(target.pos, factor);
-    camera.lookAt(target.look);
+  // Idle FOV breathing — subtle zoom in/out ±0.5 deg saat orbit mode.
+  // Modulate FOV bukan position supaya gak fight dgn OrbitControls
+  // (controls compute spherical dari camera.position; modify Y akan
+  // persist as new spherical state = drift). FOV gak diatur controls.
+  const idleBaseFovRef = useRef(null);
+  useFrame((state, delta) => {
+    if (transitioning) {
+      const target = CAMERA_TARGETS[viewMode] || CAMERA_TARGETS.orbit;
+      const factor = Math.min(delta * 4.5, 1);
+      camera.position.lerp(target.pos, factor);
+      camera.lookAt(target.look);
+      idleBaseFovRef.current = null;
+      return;
+    }
+    if (viewMode !== 'orbit') return;
+    if (idleBaseFovRef.current === null) {
+      idleBaseFovRef.current = camera.fov;
+    }
+    const t = state.clock.elapsedTime;
+    const breath = Math.sin(t * 0.16) * 0.5;
+    camera.fov = idleBaseFovRef.current + breath;
+    camera.updateProjectionMatrix();
   });
   return null;
 };
