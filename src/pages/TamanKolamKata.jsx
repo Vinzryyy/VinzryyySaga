@@ -471,39 +471,77 @@ const DistantTreeLine = () => (
   </>
 );
 
-// Bukit jauh sebagai silhouette — 3 layer ridge di horizon untuk kasih
-// atmospheric depth & sense of wider world. Pakai box geometry rendah
-// dengan tone hijau-biru desaturated (atmospheric haze). Layer paling
-// jauh = paling samar (lebih biru), paling depan = lebih hijau.
+// Bukit jauh — 360° ring of ridges, 2 layer (far + mid) untuk kasih
+// "bumi bulat" feel. User pan camera ke arah mana pun selalu lihat
+// horizon land. Box ridges placed evenly around angular sectors,
+// rotated face origin, height varied untuk silhouette natural.
+const HILL_FAR_DEFS = (() => {
+  const arr = [];
+  const count = 14;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.1;
+    const r = 50 + Math.random() * 6;
+    arr.push({
+      angle,
+      r,
+      width: 18 + Math.random() * 22,
+      height: 3.5 + Math.random() * 2.5,
+    });
+  }
+  return arr;
+})();
+const HILL_MID_DEFS = (() => {
+  const arr = [];
+  const count = 12;
+  for (let i = 0; i < count; i++) {
+    // Offset angular dari far layer biar gak overlap kotak rapat
+    const angle = (i / count) * Math.PI * 2 + Math.PI / count;
+    const r = 38 + Math.random() * 5;
+    arr.push({
+      angle,
+      r,
+      width: 14 + Math.random() * 14,
+      height: 2.5 + Math.random() * 1.8,
+    });
+  }
+  return arr;
+})();
 const DistantHills = () => (
   <>
-    {/* Layer paling jauh */}
-    <mesh position={[-20, 1.5, -55]}>
-      <boxGeometry args={[60, 4, 1]} />
-      <meshStandardMaterial color="#9aaab5" roughness={1} />
-    </mesh>
-    <mesh position={[15, 2.0, -52]}>
-      <boxGeometry args={[40, 5, 1]} />
-      <meshStandardMaterial color="#9aaab5" roughness={1} />
-    </mesh>
-    {/* Layer tengah */}
-    <mesh position={[-5, 1.8, -45]}>
-      <boxGeometry args={[35, 4.5, 1]} />
-      <meshStandardMaterial color="#7d9583" roughness={1} />
-    </mesh>
-    <mesh position={[20, 1.5, -42]}>
-      <boxGeometry args={[28, 4, 1]} />
-      <meshStandardMaterial color="#7d9583" roughness={1} />
-    </mesh>
-    {/* Layer paling depan — lebih hijau, lebih kelihatan detail */}
-    <mesh position={[-15, 1.2, -35]}>
-      <boxGeometry args={[25, 3.5, 1]} />
-      <meshStandardMaterial color="#5a7a55" roughness={1} />
-    </mesh>
-    <mesh position={[10, 1.0, -33]}>
-      <boxGeometry args={[20, 3.0, 1]} />
-      <meshStandardMaterial color="#5a7a55" roughness={1} />
-    </mesh>
+    {/* Far layer — paling biru-pucat, atmospheric haze */}
+    {HILL_FAR_DEFS.map((h, i) => {
+      const x = Math.cos(h.angle) * h.r;
+      const z = Math.sin(h.angle) * h.r;
+      // Rotate box face origin (negate angle, add π/2 untuk align width
+      // tangent ke radius)
+      const rotY = -h.angle + Math.PI / 2;
+      return (
+        <mesh
+          key={`hill-far-${i}`}
+          position={[x, h.height / 2 - 0.5, z]}
+          rotation={[0, rotY, 0]}
+        >
+          <boxGeometry args={[h.width, h.height, 1]} />
+          <meshStandardMaterial color="#9aaab5" roughness={1} fog={false} />
+        </mesh>
+      );
+    })}
+    {/* Mid layer — sedikit lebih hijau, lebih dekat user */}
+    {HILL_MID_DEFS.map((h, i) => {
+      const x = Math.cos(h.angle) * h.r;
+      const z = Math.sin(h.angle) * h.r;
+      const rotY = -h.angle + Math.PI / 2;
+      return (
+        <mesh
+          key={`hill-mid-${i}`}
+          position={[x, h.height / 2 - 0.3, z]}
+          rotation={[0, rotY, 0]}
+        >
+          <boxGeometry args={[h.width, h.height, 1]} />
+          <meshStandardMaterial color="#7d9583" roughness={1} fog={false} />
+        </mesh>
+      );
+    })}
   </>
 );
 
