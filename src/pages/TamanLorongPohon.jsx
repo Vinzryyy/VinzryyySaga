@@ -2712,18 +2712,50 @@ const SceneFallback = () => (
   </div>
 );
 
+// Web Share fallback — kalau Web Share gak ada (desktop browsers
+// terutama), copy URL ke clipboard + flash subtle confirmation. Pakai
+// link absolute supaya share dari mobile bawa user ke r1, bukan root.
+const handleShare = async () => {
+  const url = `${window.location.origin}/taman/r1`;
+  const data = {
+    title: 'Pohon-Pohon yang Mengingat',
+    text: 'Sepuluh tahun perjalanan Eli, dalam bentuk pohon-pohon di sebuah lorong.',
+    url,
+  };
+  try {
+    if (navigator.share && navigator.canShare && navigator.canShare(data)) {
+      await navigator.share(data);
+      return;
+    }
+  } catch {
+    /* user cancel / share denied — fallback ke clipboard */
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    // Subtle visual feedback via document title flash
+    const orig = document.title;
+    document.title = 'Link disalin ✓';
+    setTimeout(() => { document.title = orig; }, 1400);
+  } catch {
+    /* clipboard blocked — give up gracefully */
+  }
+};
+
 const LorongHeader = () => (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-5">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6 sm:py-5 gap-2">
     <div className="pointer-events-auto">
       <Link
         to="/taman/peta"
-        className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[10px] sm:text-xs tracking-[0.2em] uppercase transition"
       >
         ← Peta Taman
       </Link>
     </div>
+    {/* Hide center title on narrow screens — kompetisi dgn side links
+        di < 480px bikin overflow + tampak crowded. Layar gede tetep
+        keep judul di header. */}
     <div
-      className="text-white/85 text-sm tracking-wide"
+      className="hidden sm:block text-white/85 text-sm tracking-wide"
       style={{
         fontFamily: '"Fraunces Variable", serif',
         fontStyle: 'italic',
@@ -2731,10 +2763,35 @@ const LorongHeader = () => (
     >
       Pohon-Pohon yang Mengingat
     </div>
-    <div className="pointer-events-auto">
+    <div className="pointer-events-auto flex items-center gap-3">
+      <button
+        type="button"
+        onClick={handleShare}
+        aria-label="Bagikan halaman ini"
+        title="Bagikan"
+        className="text-white/50 hover:text-white/85 transition flex items-center justify-center w-7 h-7"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+      </button>
       <Link
         to="/"
-        className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[10px] sm:text-xs tracking-[0.2em] uppercase transition"
       >
         Keluar →
       </Link>
@@ -2768,15 +2825,17 @@ const IntroTitle = () => {
       {/* Vignette gradient full-screen — darken edges supaya fokus
           ke center card */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d18]/45 via-transparent to-[#0a0d18]/45" />
-      {/* Title card — solid bordered box dengan backdrop blur */}
-      <div className="relative px-14 py-12 -translate-y-6 rounded-md border border-white/15 bg-[#0a0d18]/85 backdrop-blur-md shadow-2xl">
+      {/* Title card — solid bordered box dengan backdrop blur. Padding
+          + text size responsive: di mobile sempit, text-5xl + px-14
+          bikin overflow, dipotong jadi text-3xl + px-8. */}
+      <div className="relative mx-6 px-8 py-9 sm:px-14 sm:py-12 -translate-y-6 rounded-md border border-white/15 bg-[#0a0d18]/85 backdrop-blur-md shadow-2xl">
         {/* Content */}
         <div className="relative text-center">
-          <div className="text-white/60 text-[10px] uppercase tracking-[0.55em] mb-6">
+          <div className="text-white/60 text-[9px] sm:text-[10px] uppercase tracking-[0.45em] sm:tracking-[0.55em] mb-5 sm:mb-6">
             R1 · Petak Pertama
           </div>
           <h1
-            className="text-white text-5xl mb-6 leading-[1.1]"
+            className="text-white text-3xl sm:text-5xl mb-5 sm:mb-6 leading-[1.1]"
             style={{
               fontFamily: '"Fraunces Variable", serif',
               fontStyle: 'italic',
@@ -2925,13 +2984,12 @@ const MobileFPVControls = ({ joystickRef, lookRef }) => {
 };
 
 // Tutorial hint — muncul setelah intro fade out, kasih tahu user
-// soal mode berjalan. Auto-fade after ~6s. Skip di mobile (FPV
-// desktop only).
+// soal mode berjalan. Auto-fade after ~6s. Mobile dapat copy yg
+// reflect joystick controls (chunk 4D added mobile FPV).
 const TutorialHint = ({ isMobile }) => {
   const [visible, setVisible] = useState(false);
   const [removed, setRemoved] = useState(false);
   useEffect(() => {
-    if (isMobile) return undefined;
     // Tunggu intro selesai (~7.8s), lalu show 6s
     const t1 = setTimeout(() => setVisible(true), 8200);
     const t2 = setTimeout(() => setVisible(false), 14500);
@@ -2941,39 +2999,47 @@ const TutorialHint = ({ isMobile }) => {
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, [isMobile]);
-  if (removed || isMobile) return null;
+  }, []);
+  if (removed) return null;
+  // Position: di mobile geser ke top biar gak konflik dgn joystick
+  // (bottom-left) atau FPV button (bottom-right). Desktop tetap kanan
+  // bawah seperti sebelumnya.
   return (
     <div
-      className={`pointer-events-none absolute bottom-24 right-6 z-20 max-w-[260px] transition-opacity duration-1000 ease-out ${
-        visible ? 'opacity-100' : 'opacity-0'
-      }`}
+      className={`pointer-events-none absolute z-20 max-w-[260px] transition-opacity duration-1000 ease-out ${
+        isMobile
+          ? 'top-16 right-4 max-w-[200px]'
+          : 'bottom-24 right-6'
+      } ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
-      <div className="rounded-md border border-white/15 bg-[#0a0d18]/80 backdrop-blur-md px-4 py-3 shadow-xl">
+      <div className="rounded-md border border-white/15 bg-[#0a0d18]/80 backdrop-blur-md px-3 py-2.5 sm:px-4 sm:py-3 shadow-xl">
         <div className="text-white/55 text-[8px] uppercase tracking-[0.4em] mb-1.5">
           Tip
         </div>
         <div
-          className="text-white/85 text-[12px] leading-relaxed"
+          className="text-white/85 text-[11px] sm:text-[12px] leading-relaxed"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',
           }}
         >
-          Coba "mode berjalan" untuk pengalaman immersive — jalan di
-          antara pohon-pohon dengan WASD.
+          {isMobile
+            ? 'Coba mode berjalan — joystick kiri jalan, swipe kanan untuk lihat sekitar.'
+            : 'Coba "mode berjalan" untuk pengalaman immersive — jalan di antara pohon-pohon dengan WASD.'}
         </div>
       </div>
     </div>
   );
 };
 
-const LorongFooter = ({ hoveredTreeId }) => {
+const LorongFooter = ({ hoveredTreeId, isMobile }) => {
   const hint = hoveredTreeId
     ? 'Klik untuk baca milestone'
-    : `Pilih pohon dari ${ELI_TIMELINE.length} tahun perjalanan · drag untuk berputar`;
+    : isMobile
+      ? `Ketuk salah satu pohon · ${ELI_TIMELINE.length} tahun perjalanan`
+      : `Pilih pohon dari ${ELI_TIMELINE.length} tahun perjalanan · drag untuk berputar`;
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[10px] uppercase tracking-[0.2em] text-center">
+    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-center px-4 max-w-[90vw]">
       {hint}
     </div>
   );
@@ -3324,13 +3390,15 @@ const TamanLorongPohonPage = () => {
         <IntroTitle />
         <TutorialHint isMobile={isMobile} />
         <LorongHeader />
-        <LorongFooter hoveredTreeId={hoveredTreeId} />
-        {/* FPV toggle — desktop AND mobile. Position bottom-right. */}
+        <LorongFooter hoveredTreeId={hoveredTreeId} isMobile={isMobile} />
+        {/* FPV toggle — desktop AND mobile. Position bottom-right.
+            Safe-area inset bottom buat iPhone home indicator. */}
         <button
           type="button"
           onClick={toggleViewMode}
           disabled={transitioning}
-          className="pointer-events-auto absolute bottom-6 right-6 z-30 px-4 py-2 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="pointer-events-auto absolute right-4 sm:right-6 z-30 px-3 py-2 sm:px-4 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
         >
           {viewMode === 'orbit' ? 'Masuk berjalan' : 'Keluar berjalan'}
         </button>
