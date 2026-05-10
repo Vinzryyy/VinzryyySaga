@@ -1951,12 +1951,12 @@ const Sun = () => {
     outerHaloRef.current.material.opacity = 0.10 + Math.sin(t * 0.25) * 0.03;
   });
   return (
-    <group position={[12, 4, -10]}>
-      {/* Sun body — senja: posisi rendah dekat horizon, warm orange
-          (was higher noon yellow). Bigger biar dramatic sunset feel. */}
+    <group position={[8, 16, -10]}>
+      {/* Sun body — overhead position (high), warm orange senja.
+          y=16 dekat zenith dome. Visible saat user pan camera up. */}
       <mesh>
-        <sphereGeometry args={[1.5, 24, 16]} />
-        <meshBasicMaterial color="#ffb878" toneMapped={false} fog={false} />
+        <sphereGeometry args={[1.6, 24, 16]} />
+        <meshBasicMaterial color="#ffc890" toneMapped={false} fog={false} />
       </mesh>
       {/* Tight halo — pink-orange */}
       <mesh>
@@ -2779,19 +2779,19 @@ const TelagaScene = ({
     {/* Fog lebih dense — distant elements fade ke haze, kasih sense
         atmospheric depth & "world has limits". Far 55 (was 75) bikin
         ground mist + distant trees + hills nyatu di horizon haze. */}
-    {/* Fog senja — warm dusty pink-purple tone, gradient ke arah
-        haze. Density tighter biar pembatas perimeter "ujung dunia"
-        di-dissolve sebagai kabut bukan ridge hill solid. */}
-    <fog attach="fog" args={['#d4a890', 12, 28]} />
+    {/* Fog senja — warm dusty pink-purple tone. Far 42 supaya taman
+        jelas keliatan, perimeter dissolve gradually ke kabut bukan
+        cut-off rapat. */}
+    <fog attach="fog" args={['#d4a890', 18, 42]} />
     {/* Background warm match fog — eliminate black void di area yg
         gak ke-cover dome (di luar dome edge / sebelum scene render). */}
     <color attach="background" args={['#d4a890']} />
     {/* Ambient lift hangat — keep ground nggak gelap */}
     <ambientLight intensity={isMobile ? 0.85 : 0.7} color="#ffd8b8" />
-    {/* Sun directional — senja: rendah dekat horizon, warm orange.
-        Posisi match Sun mesh [12, 4, -10]. */}
+    {/* Sun directional — match Sun mesh overhead position [8,16,-10].
+        Higher angle = light comes from above, ground lit decently. */}
     <directionalLight
-      position={[12, 6, -10]}
+      position={[8, 14, -8]}
       intensity={1.2}
       color="#ffb878"
       castShadow
@@ -2865,8 +2865,8 @@ const TelagaScene = ({
     <OrbitControls
       target={[0, 4, 0]}
       enableZoom
-      minDistance={8}
-      maxDistance={20}
+      minDistance={10}
+      maxDistance={26}
       enablePan={false}
       // Polar diperluas untuk hemisphere view tanpa tembus ground.
       // Target raised ke y=4 (mid-air) supaya camera bisa tilt
