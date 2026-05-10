@@ -1772,8 +1772,6 @@ const Mushrooms = () => (
       <group key={`mushroom-cluster-${i}`} position={cluster.pos}>
         {Array.from({ length: cluster.count }).map((_, j) => {
           const angle = (j / cluster.count) * Math.PI * 2 + i;
-          // Variation 0.18..0.42 (sebelumnya cuma 0.18..0.24 — operator
-          // precedence bikin pembagian /100 dominate).
           const r = 0.18 + ((j * 13) % 10) * 0.04;
           return (
             <group
@@ -1785,6 +1783,166 @@ const Mushrooms = () => (
           );
         })}
       </group>
+    ))}
+  </>
+);
+
+// =============================================================
+// FILL DECOR — bunga + batu untuk area yang masih kosong
+// =============================================================
+
+// Cluster bunga warna-warni di patch — small spheres dengan emissive
+// soft (kayak kelopak yg sedikit catch light). 5-7 bunga per bed,
+// scattered di radius 0.6 sekitar pos.
+const FLOWER_BED_DEFS = [
+  { pos: [-8, 0, -8], colors: ['#f08080', '#ffd060', '#f4a4c4'] },
+  { pos: [-9, 0, 4], colors: ['#d4a0e0', '#fff080', '#f8b0a0'] },
+  { pos: [9, 0, -7], colors: ['#ffa0a0', '#c8e070', '#f8d8b0'] },
+  { pos: [10, 0, 5], colors: ['#f4a0c8', '#ffd078', '#a4d4f4'] },
+  { pos: [-4, 0, -14], colors: ['#ffb070', '#f8a8c0', '#d8d8a0'] },
+  { pos: [5, 0, -14], colors: ['#a8d8c0', '#ffc878', '#f4a0c4'] },
+  { pos: [-5, 0, 14], colors: ['#f4d488', '#e0a4d8', '#ffa888'] },
+  { pos: [6, 0, 14], colors: ['#f8a8c8', '#c8e08c', '#ffcc88'] },
+];
+const FlowerBed = ({ pos, colors }) => {
+  // Pre-compute petal positions deterministic dari pos
+  const flowers = useMemo(() => {
+    const arr = [];
+    const seed = (n) => ((pos[0] * 13 + pos[2] * 17 + n * 7) % 100) / 100;
+    for (let j = 0; j < 7; j++) {
+      const angle = j * 0.97 + seed(j) * 1.5;
+      const r = 0.2 + seed(j + 10) * 0.5;
+      const colorIdx = j % colors.length;
+      arr.push({
+        x: Math.cos(angle) * r,
+        z: Math.sin(angle) * r,
+        h: 0.18 + seed(j + 20) * 0.12,
+        scale: 0.7 + seed(j + 30) * 0.4,
+        color: colors[colorIdx],
+      });
+    }
+    return arr;
+  }, [pos, colors]);
+  return (
+    <group position={pos}>
+      {flowers.map((f, j) => (
+        <group key={j} position={[f.x, 0, f.z]} scale={f.scale}>
+          {/* Stem hijau tipis */}
+          <mesh position={[0, f.h / 2, 0]}>
+            <cylinderGeometry args={[0.012, 0.018, f.h, 4]} />
+            <meshStandardMaterial color="#5a7045" roughness={1} />
+          </mesh>
+          {/* Petal — sphere warna-warni dengan slight emissive */}
+          <mesh position={[0, f.h, 0]}>
+            <sphereGeometry args={[0.085, 8, 6]} />
+            <meshStandardMaterial
+              color={f.color}
+              emissive={f.color}
+              emissiveIntensity={0.18}
+              roughness={0.7}
+            />
+          </mesh>
+          {/* Center kuning kecil */}
+          <mesh position={[0, f.h, 0]}>
+            <sphereGeometry args={[0.04, 6, 5]} />
+            <meshStandardMaterial color="#ffe070" roughness={0.6} />
+          </mesh>
+        </group>
+      ))}
+      {/* Soft grass patch di base bed */}
+      <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.85, 12]} />
+        <meshStandardMaterial color="#5a7548" roughness={1} transparent opacity={0.55} />
+      </mesh>
+    </group>
+  );
+};
+const FlowerBeds = ({ isMobile }) => {
+  const list = isMobile
+    ? FLOWER_BED_DEFS.slice(0, 5)
+    : FLOWER_BED_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <FlowerBed key={`fbed-${i}`} pos={b.pos} colors={b.colors} />
+      ))}
+    </>
+  );
+};
+
+// Decor stones — kelompok batu kecil scattered, garden zen feel.
+// 6-7 batu per cluster, ukuran variasi 0.15..0.35.
+const STONE_CLUSTER_DEFS = [
+  { pos: [-9.5, 0, -3], rot: 0.3 },
+  { pos: [9.5, 0, -2], rot: -0.5 },
+  { pos: [-7, 0, 11], rot: 0.8 },
+  { pos: [8, 0, 12], rot: 1.2 },
+  { pos: [0, 0, -16], rot: 0 },
+  { pos: [-13, 0, 4], rot: 0.6 },
+];
+const StoneCluster = ({ pos, rot }) => {
+  const stones = useMemo(() => {
+    const arr = [];
+    const seed = (n) => ((pos[0] * 11 + pos[2] * 19 + n * 5) % 100) / 100;
+    for (let i = 0; i < 6; i++) {
+      const angle = i * 1.2 + seed(i) * 0.6;
+      const r = 0.15 + seed(i + 10) * 0.4;
+      arr.push({
+        x: Math.cos(angle) * r,
+        z: Math.sin(angle) * r,
+        size: 0.12 + seed(i + 20) * 0.18,
+        tilt: seed(i + 30) * 0.5,
+      });
+    }
+    return arr;
+  }, [pos]);
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {stones.map((s, i) => (
+        <mesh
+          key={i}
+          position={[s.x, s.size / 2, s.z]}
+          rotation={[s.tilt * 0.3, s.tilt, 0]}
+        >
+          <boxGeometry args={[s.size * 1.4, s.size, s.size * 1.2]} />
+          <meshStandardMaterial color="#7a7468" roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+const StoneClusters = () => (
+  <>
+    {STONE_CLUSTER_DEFS.map((c, i) => (
+      <StoneCluster key={`stcl-${i}`} pos={c.pos} rot={c.rot} />
+    ))}
+  </>
+);
+
+// Path stepping stones — batu pipih sebagai path tambahan dari bench
+// ke dock atau di tepi pond. Kasih hint "ada jalur" tanpa harus
+// kontruksi WalkPath full.
+const STEPPING_STONE_DEFS = [
+  { pos: [-7, 0.02, -2], r: 0.45 },
+  { pos: [-5, 0.02, -1.5], r: 0.4 },
+  { pos: [-3, 0.02, -1], r: 0.45 },
+  { pos: [7, 0.02, 8], r: 0.4 },
+  { pos: [8.5, 0.02, 9.5], r: 0.42 },
+  { pos: [10, 0.02, 11], r: 0.4 },
+  { pos: [-9, 0.02, 7], r: 0.4 },
+  { pos: [-7.5, 0.02, 8.5], r: 0.45 },
+];
+const SteppingStones = () => (
+  <>
+    {STEPPING_STONE_DEFS.map((s, i) => (
+      <mesh
+        key={`step-${i}`}
+        position={s.pos}
+        rotation={[-Math.PI / 2, 0, (i * 0.7) % 1.5]}
+      >
+        <circleGeometry args={[s.r, 12]} />
+        <meshStandardMaterial color="#857668" roughness={1} />
+      </mesh>
     ))}
   </>
 );
@@ -2158,24 +2316,25 @@ const BankTree = ({ pos, scale = 1 }) => {
 };
 
 // Pohon di perimeter danau — 4 sisi. Posisi nge-frame scene tanpa
-// nutupin lily pads atau bench/dock area.
+// nutupin lily pads atau bench/dock area. Scale ~1.6-2.1 supaya
+// pohon kerasa "ada" dari overhead view (was 0.9-1.1, terlalu kecil).
 const BANK_TREE_POSITIONS = [
-  // Kiri (jauh dari path biar nggak nutupin bench)
-  { pos: [-12.0, 0, -10], scale: 1.1 },
-  { pos: [-11.5, 0, -1], scale: 0.95 },
-  { pos: [-12.5, 0, 8], scale: 1.05 },
-  // Kanan (jauh dari dock)
-  { pos: [12.0, 0, -11], scale: 1.0 },
-  { pos: [12.5, 0, -2], scale: 1.1 },
-  { pos: [11.8, 0, 10], scale: 0.9 },
+  // Kiri
+  { pos: [-12.0, 0, -10], scale: 1.9 },
+  { pos: [-11.5, 0, -1], scale: 1.7 },
+  { pos: [-12.5, 0, 8], scale: 1.85 },
+  // Kanan
+  { pos: [12.0, 0, -11], scale: 1.75 },
+  { pos: [12.5, 0, -2], scale: 2.0 },
+  { pos: [11.8, 0, 10], scale: 1.6 },
   // Atas (-z)
-  { pos: [-6, 0, -17], scale: 1.0 },
-  { pos: [3, 0, -18], scale: 1.1 },
-  { pos: [8, 0, -16.5], scale: 0.95 },
+  { pos: [-6, 0, -17], scale: 1.8 },
+  { pos: [3, 0, -18], scale: 2.0 },
+  { pos: [8, 0, -16.5], scale: 1.65 },
   // Bawah (+z)
-  { pos: [-7, 0, 17], scale: 1.05 },
-  { pos: [2, 0, 18], scale: 1.0 },
-  { pos: [9, 0, 17.5], scale: 0.9 },
+  { pos: [-7, 0, 17], scale: 1.85 },
+  { pos: [2, 0, 18], scale: 1.75 },
+  { pos: [9, 0, 17.5], scale: 1.6 },
 ];
 
 const BankTrees = ({ count }) => (
@@ -2841,6 +3000,9 @@ const TelagaScene = ({
     <Sunflowers />
     <Mushrooms />
     <Bushes />
+    <FlowerBeds isMobile={isMobile} />
+    <StoneClusters />
+    <SteppingStones />
     <Lanterns />
     <BankTrees count={isMobile ? 8 : 12} />
     <Ducks />
@@ -3133,7 +3295,7 @@ const TamanKolamKataPage = () => {
       <div className="relative w-full h-screen bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 50, position: [13, 9, 12] }}
+            camera={{ fov: 50, position: [4, 20, 8] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
