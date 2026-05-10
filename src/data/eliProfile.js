@@ -162,6 +162,15 @@ export const ELI_TIMELINE = [
     badge: 'JKT48 TV',
   },
   {
+    id: 'pertaruhan-cinta-shonichi',
+    date: '2025-10-12',
+    period: '12 Oktober 2025',
+    title: 'Shonichi Setlist Original JKT48 — "Pertaruhan Cinta"',
+    body:
+      'Eli ikut memulai perjalanan setlist original JKT48 "Pertaruhan Cinta" pada hari shonichi. Pertaruhan Cinta merupakan setlist original yang ditulis dan diaransemen khusus untuk JKT48 — bukan adaptasi dari katalog AKB48 — sebuah momentum penting bagi grup. Tampil di shonichi setlist original menempatkan Eli sebagai bagian dari sejarah baru theater JKT48.',
+    badge: 'Theater · Shonichi',
+  },
+  {
     id: 'three-team-announce',
     date: '2025-12-20',
     period: '20 Desember 2025',
@@ -187,6 +196,15 @@ export const ELI_TIMELINE = [
     body:
       'Sistem tiga tim resmi mulai dijalankan dan Eli aktif sebagai member Team Dream bersama Freya Jayawardana dan member lainnya. Setelah melewati perjalanan panjang dari trainee Generasi 7, Team KIII, hingga New Era, Eli memasuki fase baru sebagai salah satu member berpengalaman di era JKT48 Fight 2026.',
     badge: 'Team Dream',
+  },
+  {
+    id: 'dream-bakudan-shonichi',
+    date: '2026-04-18',
+    period: '18 April 2026',
+    title: 'Shonichi Setlist Team Dream — "Dream Bakudan"',
+    body:
+      'Bersama Team Dream, Eli tampil di shonichi setlist "Dream Bakudan" — setlist debut Team Dream di era JKT48 Fight 2026. Penampilan ini menjadi panggung perdana Eli di formasi tim baru pasca-restrukturisasi sistem 3 tim, sekaligus menandai dimulainya kompetisi setlist antar tim sebagai inti dari format JKT48 Fight.',
+    badge: 'Team Dream · Shonichi',
   },
   {
     id: 'show-400',
