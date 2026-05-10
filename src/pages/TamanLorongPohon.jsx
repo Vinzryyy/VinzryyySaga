@@ -2577,7 +2577,7 @@ const ConstellationLines = ({ stars }) => {
     const fadeIn = Math.min(1, Math.max(0, (dt - 1.5) / 4));
     // Subtle breathing 0.85..1.0 supaya gak pure static
     const breath = 0.92 + Math.sin(t * 0.3) * 0.08;
-    matRef.current.opacity = 0.32 * fadeIn * breath;
+    matRef.current.opacity = 0.42 * fadeIn * breath;
   });
 
   if (positions.length === 0) return null;
@@ -3068,9 +3068,10 @@ const PathEdgeStones = () => (
 // `transitioning` di parent. Setelah transition selesai, controls
 // diambil alih.
 const CAMERA_TARGETS = {
-  // Orbit: camera dekat target [0,5,-10] — user "berdiri di tengah
-  // dunia bulat", pan 360° = lihat semua konstelasi di sekeliling.
-  orbit: { pos: new THREE.Vector3(4, 3, -2), look: new THREE.Vector3(0, 5, -10) },
+  // Orbit: camera dekat target [0,5,-10]. Position y=4 (sedikit
+  // di bawah target y=5) supaya initial polar ~1.68 within
+  // maxPolar 1.75 limit (gak ada snap saat first render).
+  orbit: { pos: new THREE.Vector3(4, 4, -2), look: new THREE.Vector3(0, 5, -10) },
   // FPV "tatap langit": user di tengah path, eye level, look default
   // ke atas-depan tapi bisa pan bebas via mouse/touch.
   fpv: { pos: new THREE.Vector3(0, 1.7, -8), look: new THREE.Vector3(0, 7, -14) },
@@ -3339,12 +3340,13 @@ const LorongScene = ({
         minDistance={5}
         maxDistance={14}
         enablePan={false}
-        // Full sphere view: polar range diperluas ke top (looking
-        // straight up) + bawah (looking down at ground). User bebas
-        // pan 360° azimuth + ~15°-160° polar untuk lihat seluruh
-        // konstelasi keliling + ground sekitar.
+        // Polar range — clamp ke maxPolar 1.75 (~100°) supaya camera
+        // gak tembus ke bawah ground saat orbit dipping. ORBIT_TARGET
+        // y=5, distance 5-14 → polar 1.75 keeps camera y >= ~2 di
+        // worst case (maxDistance + max tilt). User masih bisa look
+        // down ~10° dari horizontal untuk lihat ground sekitar.
         minPolarAngle={Math.PI / 12}
-        maxPolarAngle={2.4}
+        maxPolarAngle={1.75}
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.4}
@@ -4335,7 +4337,7 @@ const TamanLorongPohonPage = () => {
       <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 55, position: [4, 3, -2] }}
+            camera={{ fov: 55, position: [4, 4, -2] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
