@@ -111,6 +111,11 @@ import {
   MonumentMomentOverlay,
   ClockSync,
 } from '../components/taman/r1/ui';
+import {
+  isPerfEnabled,
+  PerfSampler,
+  PerfHUD,
+} from '../components/taman/r1/perf';
 
 const LorongScene = ({
   trees,
@@ -305,6 +310,11 @@ const LorongScene = ({
 
 const TamanLorongPohonPage = () => {
   const isMobile = useIsMobile();
+  // Perf profiling — enable via ?perf=1 URL param. Stats panel +
+  // FPS HUD + console warning saat sustained slow. Eval sekali on
+  // mount, gak react ke URL change.
+  const perfEnabled = useMemo(() => isPerfEnabled(), []);
+  const perfFpsRef = useRef(0);
   const [hoveredTreeId, setHoveredTreeId] = useState(null);
   const [selectedTree, setSelectedTree] = useState(null);
   // Signature events:
@@ -507,6 +517,7 @@ const TamanLorongPohonPage = () => {
             }}
           >
             <ClockSync clockRef={clockRef} />
+            {perfEnabled && <PerfSampler statsRef={perfFpsRef} />}
             <LorongScene
               trees={trees}
               hoveredTreeId={hoveredTreeId}
@@ -549,7 +560,7 @@ const TamanLorongPohonPage = () => {
                 <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
               </EffectComposer>
             )}
-            {import.meta.env.DEV && <Stats />}
+            {(import.meta.env.DEV || perfEnabled) && <Stats />}
           </Canvas>
         </Suspense>
 
@@ -599,6 +610,7 @@ const TamanLorongPohonPage = () => {
           active={signatureEvent?.type === 'monument'}
         />
         <AmbientAudio profile="taman-r1" position="top-right" />
+        {perfEnabled && <PerfHUD statsRef={perfFpsRef} />}
       </div>
     </>
   );
