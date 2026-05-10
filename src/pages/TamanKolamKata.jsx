@@ -1794,15 +1794,18 @@ const Mushrooms = () => (
 // Cluster bunga warna-warni di patch — small spheres dengan emissive
 // soft (kayak kelopak yg sedikit catch light). 5-7 bunga per bed,
 // scattered di radius 0.6 sekitar pos.
+// Flower beds di sisi pond — semua di luar pond bounds (x>±7 atau
+// z>±18). Dulu beberapa di z=±14 yang sekarang INSIDE pond setelah
+// extension ke z=±18.
 const FLOWER_BED_DEFS = [
-  { pos: [-8, 0, -8], colors: ['#f08080', '#ffd060', '#f4a4c4'] },
-  { pos: [-9, 0, 4], colors: ['#d4a0e0', '#fff080', '#f8b0a0'] },
+  { pos: [-9, 0, -8], colors: ['#f08080', '#ffd060', '#f4a4c4'] },
+  { pos: [-10, 0, 4], colors: ['#d4a0e0', '#fff080', '#f8b0a0'] },
   { pos: [9, 0, -7], colors: ['#ffa0a0', '#c8e070', '#f8d8b0'] },
   { pos: [10, 0, 5], colors: ['#f4a0c8', '#ffd078', '#a4d4f4'] },
-  { pos: [-4, 0, -14], colors: ['#ffb070', '#f8a8c0', '#d8d8a0'] },
-  { pos: [5, 0, -14], colors: ['#a8d8c0', '#ffc878', '#f4a0c4'] },
-  { pos: [-5, 0, 14], colors: ['#f4d488', '#e0a4d8', '#ffa888'] },
-  { pos: [6, 0, 14], colors: ['#f8a8c8', '#c8e08c', '#ffcc88'] },
+  { pos: [-9, 0, -19], colors: ['#ffb070', '#f8a8c0', '#d8d8a0'] },
+  { pos: [9, 0, -19], colors: ['#a8d8c0', '#ffc878', '#f4a0c4'] },
+  { pos: [-9, 0, 19], colors: ['#f4d488', '#e0a4d8', '#ffa888'] },
+  { pos: [9, 0, 19], colors: ['#f8a8c8', '#c8e08c', '#ffcc88'] },
 ];
 const FlowerBed = ({ pos, colors }) => {
   // Pre-compute petal positions deterministic dari pos
@@ -1875,9 +1878,9 @@ const FlowerBeds = ({ isMobile }) => {
 const STONE_CLUSTER_DEFS = [
   { pos: [-9.5, 0, -3], rot: 0.3 },
   { pos: [9.5, 0, -2], rot: -0.5 },
-  { pos: [-7, 0, 11], rot: 0.8 },
-  { pos: [8, 0, 12], rot: 1.2 },
-  { pos: [0, 0, -16], rot: 0 },
+  { pos: [-9, 0, 11], rot: 0.8 },
+  { pos: [9, 0, 12], rot: 1.2 },
+  { pos: [0, 0, -20], rot: 0 },
   { pos: [-13, 0, 4], rot: 0.6 },
 ];
 const StoneCluster = ({ pos, rot }) => {
@@ -1922,15 +1925,17 @@ const StoneClusters = () => (
 // Path stepping stones — batu pipih sebagai path tambahan dari bench
 // ke dock atau di tepi pond. Kasih hint "ada jalur" tanpa harus
 // kontruksi WalkPath full.
+// Stepping stones di bank zone (x>±7 atau z>±18) — gak boleh masuk
+// pond. Path hint dari bench ke pond edge atau dock area.
 const STEPPING_STONE_DEFS = [
-  { pos: [-7, 0.02, -2], r: 0.45 },
-  { pos: [-5, 0.02, -1.5], r: 0.4 },
-  { pos: [-3, 0.02, -1], r: 0.45 },
-  { pos: [7, 0.02, 8], r: 0.4 },
-  { pos: [8.5, 0.02, 9.5], r: 0.42 },
+  { pos: [-9, 0.02, -2], r: 0.45 },
+  { pos: [-9.5, 0.02, -0.5], r: 0.4 },
+  { pos: [-9.2, 0.02, 1], r: 0.45 },
+  { pos: [9, 0.02, 8], r: 0.4 },
+  { pos: [9.5, 0.02, 9.5], r: 0.42 },
   { pos: [10, 0.02, 11], r: 0.4 },
-  { pos: [-9, 0.02, 7], r: 0.4 },
-  { pos: [-7.5, 0.02, 8.5], r: 0.45 },
+  { pos: [-9.5, 0.02, 7], r: 0.4 },
+  { pos: [-9, 0.02, 8.5], r: 0.45 },
 ];
 const SteppingStones = () => (
   <>
@@ -2437,9 +2442,9 @@ const FlyingFlock = ({ isMobile }) => {
   );
 };
 
-// Pohon di perimeter danau — 4 sisi. Posisi nge-frame scene tanpa
-// nutupin lily pads atau bench/dock area. Scale ~1.6-2.1 supaya
-// pohon kerasa "ada" dari overhead view (was 0.9-1.1, terlalu kecil).
+// Pohon di perimeter danau — pond sekarang z=±18, jadi top/bottom
+// trees dipindah ke z<-18 atau z>18 (di luar air). Side trees tetap
+// di x=±12 (outside pond width ±7).
 const BANK_TREE_POSITIONS = [
   // Kiri
   { pos: [-12.0, 0, -10], scale: 1.9 },
@@ -2449,14 +2454,14 @@ const BANK_TREE_POSITIONS = [
   { pos: [12.0, 0, -11], scale: 1.75 },
   { pos: [12.5, 0, -2], scale: 2.0 },
   { pos: [11.8, 0, 10], scale: 1.6 },
-  // Atas (-z)
-  { pos: [-6, 0, -17], scale: 1.8 },
-  { pos: [3, 0, -18], scale: 2.0 },
-  { pos: [8, 0, -16.5], scale: 1.65 },
-  // Bawah (+z)
-  { pos: [-7, 0, 17], scale: 1.85 },
-  { pos: [2, 0, 18], scale: 1.75 },
-  { pos: [9, 0, 17.5], scale: 1.6 },
+  // Atas (-z, outside pond -18)
+  { pos: [-7, 0, -20.5], scale: 1.8 },
+  { pos: [3, 0, -21], scale: 2.0 },
+  { pos: [9, 0, -20], scale: 1.65 },
+  // Bawah (+z, outside pond 18)
+  { pos: [-8, 0, 20], scale: 1.85 },
+  { pos: [2, 0, 21], scale: 1.75 },
+  { pos: [10, 0, 20.5], scale: 1.6 },
 ];
 
 const BankTrees = ({ count }) => (
@@ -2519,30 +2524,19 @@ const River = ({ isMobile = false }) => (
 // earthy-green (slightly desaturated) — biar dense grass blades di
 // atasnya yang ngasih warna utama, plane bawah cuma jadi base supaya
 // nggak ada gap. Tiap bank tone sedikit beda untuk break uniformity.
-// Bank rounded — 2 circle layers concentric, lapangan luar dark green
-// + ring lighter di tengah dekat pond. Semua bulat, no rectangular
-// edges, sesuai shape pond (rounded rect).
+// Bank — single circle ground r=32. Sebelumnya ada inner ring tapi
+// gap antara pond rect (x=±7) dan ring inner radius (10) menyebabkan
+// strip warna outer dark visible di sisi pond — bad visual. Plus ring
+// overlap pond corners. Single ground homogeneous = clean.
 const Banks = () => (
-  <>
-    {/* Lapangan utama — circle besar dark green */}
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, -0.07, 0]}
-      receiveShadow
-    >
-      <circleGeometry args={[32, 48]} />
-      <meshStandardMaterial color="#536d3f" roughness={1} />
-    </mesh>
-    {/* Inner bank — ring lighter green dekat pond */}
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, -0.04, 0]}
-      receiveShadow
-    >
-      <ringGeometry args={[10, 22, 48]} />
-      <meshStandardMaterial color="#5e7a48" roughness={1} />
-    </mesh>
-  </>
+  <mesh
+    rotation={[-Math.PI / 2, 0, 0]}
+    position={[0, -0.07, 0]}
+    receiveShadow
+  >
+    <circleGeometry args={[32, 48]} />
+    <meshStandardMaterial color="#5b7544" roughness={1} />
+  </mesh>
 );
 
 // Walking path — gravel-toned strip di sepanjang bank kiri (-x),
