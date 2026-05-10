@@ -1135,13 +1135,18 @@ const MemoryFragment = ({ pos, text, phase = 0, period = 10 }) => {
   );
 };
 
-const MemoryFragments = () => (
-  <>
-    {MEMORY_FRAGMENTS.map((f, i) => (
-      <MemoryFragment key={`mem-${i}`} {...f} />
-    ))}
-  </>
-);
+// Mobile cull: drei <Html> mounting react portals per frame mahal di
+// device kelas bawah — drop ke 5 fragment paling kunci, skip 4 sisanya.
+const MemoryFragments = ({ isMobile }) => {
+  const list = isMobile ? MEMORY_FRAGMENTS.slice(0, 5) : MEMORY_FRAGMENTS;
+  return (
+    <>
+      {list.map((f, i) => (
+        <MemoryFragment key={`mem-${i}`} {...f} />
+      ))}
+    </>
+  );
+};
 
 // Flying leaves gust — gerombolan daun gugur terbang lintasi scene
 // tiap 90-180 detik. Cocok untuk autumn senja theme. 12 leaves
@@ -1178,7 +1183,10 @@ const FLYING_LEAF_DEFS = Array.from({ length: FLYING_LEAF_COUNT }, () => ({
   curveBias: (Math.random() - 0.5) * 0.6,
 }));
 
-const FlyingLeavesGust = () => {
+// Mobile cull: 14 → 8 leaves. Per-leaf 3-axis rotation + swirl orbit
+// per frame is the heaviest math here, halving cuts useFrame loop cost.
+const FlyingLeavesGust = ({ isMobile }) => {
+  const list = isMobile ? FLYING_LEAF_DEFS.slice(0, 8) : FLYING_LEAF_DEFS;
   const refs = useRef([]);
   const stateRef = useRef({
     active: false,
@@ -1195,7 +1203,7 @@ const FlyingLeavesGust = () => {
     const BASE_LIFECYCLE = 2.8;
     const MAX_DELAY = 0.7;
     let activeAny = false;
-    FLYING_LEAF_DEFS.forEach((leaf, i) => {
+    list.forEach((leaf, i) => {
       const m = refs.current[i];
       if (!m) return;
       const dt = (totalDt - leaf.delay) * leaf.speedFactor;
@@ -1243,14 +1251,14 @@ const FlyingLeavesGust = () => {
         t0: 0,
         next: t + 90 + Math.random() * 90,
       };
-      FLYING_LEAF_DEFS.forEach((_, i) => {
+      list.forEach((_, i) => {
         if (refs.current[i]) refs.current[i].visible = false;
       });
     }
   });
   return (
     <>
-      {FLYING_LEAF_DEFS.map((leaf, i) => (
+      {list.map((leaf, i) => (
         <mesh
           key={`fly-leaf-${i}`}
           ref={(el) => {
@@ -1345,11 +1353,14 @@ const SIDE_TREE_DEFS = (() => {
   return arr;
 })();
 
-const SideTrees = () => {
+// Mobile cull: 16 → 8 (slice setengah). Tetep ada filler density tapi
+// halve trunk+foliage geometry & sway calc per frame.
+const SideTrees = ({ isMobile }) => {
+  const list = isMobile ? SIDE_TREE_DEFS.slice(0, 8) : SIDE_TREE_DEFS;
   const refs = useRef([]);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    SIDE_TREE_DEFS.forEach((tree, i) => {
+    list.forEach((tree, i) => {
       const r = refs.current[i];
       if (!r) return;
       const wind = getWind(t, tree.pos[0] * 0.27 + tree.pos[2] * 0.13);
@@ -1359,7 +1370,7 @@ const SideTrees = () => {
   });
   return (
     <>
-      {SIDE_TREE_DEFS.map((tree, i) => (
+      {list.map((tree, i) => (
         <group key={`side-${i}`} position={tree.pos} scale={tree.scale}>
           {/* Trunk */}
           <mesh position={[0, 0.85, 0]}>
@@ -2239,17 +2250,22 @@ const HighlightStar = ({ pos, scale, color, phase, signatureEvent }) => {
   );
 };
 
-const HighlightStars = ({ signatureEvent }) => (
-  <>
-    {HIGHLIGHT_STAR_DEFS.map((s, i) => (
-      <HighlightStar
-        key={`hl-star-${i}`}
-        {...s}
-        signatureEvent={signatureEvent}
-      />
-    ))}
-  </>
-);
+// Mobile cull: 6 → 4 highlight stars. Tiap star punya useFrame dgn
+// pulsing emissive — turunin counts kasih nafas ke main thread.
+const HighlightStars = ({ signatureEvent, isMobile }) => {
+  const list = isMobile ? HIGHLIGHT_STAR_DEFS.slice(0, 4) : HIGHLIGHT_STAR_DEFS;
+  return (
+    <>
+      {list.map((s, i) => (
+        <HighlightStar
+          key={`hl-star-${i}`}
+          {...s}
+          signatureEvent={signatureEvent}
+        />
+      ))}
+    </>
+  );
+};
 
 // Bulan — sphere emissive cream-yellow di upper-back-left. Visible dari
 // camera default angle (camera looking at z=-16 from upper-right). Moon
@@ -2296,24 +2312,29 @@ const DISTANT_FOREST_DEFS = (() => {
   }
   return arr;
 })();
-const DistantForest = () => (
-  <>
-    {DISTANT_FOREST_DEFS.map((t, i) => (
-      <group key={`distant-${i}`} position={t.pos} scale={t.scale}>
-        {/* Trunk pendek */}
-        <mesh position={[0, 0.6, 0]}>
-          <cylinderGeometry args={[0.1, 0.18, 1.2, 6]} />
-          <meshStandardMaterial color="#15182a" roughness={1} />
-        </mesh>
-        {/* Foliage besar dengan tone desaturated */}
-        <mesh position={[0, 1.85, 0]}>
-          <sphereGeometry args={[0.7, 10, 8]} />
-          <meshStandardMaterial color={t.hue} roughness={1} />
-        </mesh>
-      </group>
-    ))}
-  </>
-);
+// Mobile cull: 14 → 9. Static trees (no animation) cuma kena pas init,
+// tapi tiap mesh tambah draw call. Mengurangi sini help fillrate juga.
+const DistantForest = ({ isMobile }) => {
+  const list = isMobile ? DISTANT_FOREST_DEFS.slice(0, 9) : DISTANT_FOREST_DEFS;
+  return (
+    <>
+      {list.map((t, i) => (
+        <group key={`distant-${i}`} position={t.pos} scale={t.scale}>
+          {/* Trunk pendek */}
+          <mesh position={[0, 0.6, 0]}>
+            <cylinderGeometry args={[0.1, 0.18, 1.2, 6]} />
+            <meshStandardMaterial color="#15182a" roughness={1} />
+          </mesh>
+          {/* Foliage besar dengan tone desaturated */}
+          <mesh position={[0, 1.85, 0]}>
+            <sphereGeometry args={[0.7, 10, 8]} />
+            <meshStandardMaterial color={t.hue} roughness={1} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
 
 // Daun gugur yang udah settle di tanah — accumulate di sekitar base
 // pohon. Flat plane tipis tone autumn, scatter random per tree.
@@ -2569,14 +2590,14 @@ const LorongScene = ({
     <PathEdgeStones />
     <SettledLeaves />
     <Puddle isMobile={isMobile} />
-    <DistantForest />
-    <SideTrees />
+    <DistantForest isMobile={isMobile} />
+    <SideTrees isMobile={isMobile} />
     <Bushes />
     <Mushrooms />
     <Stars />
-    <HighlightStars signatureEvent={signatureEvent} />
+    <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
     <Moon />
-    <FlyingLeavesGust />
+    <FlyingLeavesGust isMobile={isMobile} />
     <OldBench onClick={onBenchClick} />
     <TreeSwing activeRef={swingActiveRef} onClick={onSwingClick} />
     <WindChime activeRef={chimeActiveRef} onClick={onChimeClick} />
@@ -2625,7 +2646,7 @@ const LorongScene = ({
     <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}
     <FallingLeaves count={isMobile ? 35 : 60} />
-    <MemoryFragments />
+    <MemoryFragments isMobile={isMobile} />
     {trees.map((tree, idx) => (
       <YearTree
         key={tree.id}
