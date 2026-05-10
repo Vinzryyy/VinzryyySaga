@@ -77,55 +77,61 @@ const ORBIT_TARGET = [0, 5, -10];
 // perjalanan karier muncul dari horizon timur, naik ke zenith, lalu
 // turun lagi ke horizon barat. Stars stay at tree-top level..mid-sky
 // (y ~3.5-9), gak terlalu tinggi supaya gak bikin user crane neck.
-// Era definitions — center azimuth/altitude/spread per era. Stars
-// dalam era diposisi via chronological azimuth (oldest kiri → newest
-// kanan dalam era) plus random jitter dari hash per milestone. No
-// rigid pattern — kerasa lebih natural seperti konstelasi nyata.
+// Era definitions — 7 era distribute evenly di celestial sphere 360°
+// keliling user. Spacing 2π/7 ≈ 51.4° per era. Chronological clockwise
+// (viewed from above): Trainee di forward, sweep ke kanan via Theater
+// → Senbatsu → New Era (back-right), wrap ke Mature (back-left) →
+// Variety (left) → Fight (front-left). User pan camera = lihat
+// perjalanan wrap around them.
 const SKY_RADIUS = 11;
+// Sky dome centered around orbit target supaya user "berdiri di
+// tengah" dunia bulat — pan camera = lihat sisi sky berbeda.
+// SKY_CENTER align dengan ORBIT_TARGET di bawah.
+const SKY_CENTER = [0, 5, -10];
 const ERA_DEFS = [
   {
     id: 'trainee',
     name: 'Trainee',
     color: '#a8c0ff',
-    azimuth: 1.05,
-    altitude: 0.20,
-    spread: 0.16,
+    azimuth: 0, // forward
+    altitude: 0.32,
+    spread: 0.22,
     milestoneIds: ['audition', 'sousenkyo-2018', 'class-a'],
   },
   {
     id: 'theater',
     name: 'Theater',
     color: '#ffcc88',
-    azimuth: 0.55,
-    altitude: 0.28,
-    spread: 0.13,
+    azimuth: 0.898, // front-right ~51°
+    altitude: 0.40,
+    spread: 0.18,
     milestoneIds: ['theater-debut', 'team-kiii'],
   },
   {
     id: 'senbatsu',
     name: 'Senbatsu',
     color: '#ff9ec0',
-    azimuth: 0.18,
-    altitude: 0.36,
-    spread: 0.12,
+    azimuth: 1.795, // right ~103°
+    altitude: 0.34,
+    spread: 0.18,
     milestoneIds: ['show-100', 'first-senbatsu'],
   },
   {
     id: 'new-era',
     name: 'New Era',
     color: '#a4e8d0',
-    azimuth: -0.20,
-    altitude: 0.44,
-    spread: 0.18,
+    azimuth: 2.693, // back-right ~154°
+    altitude: 0.42,
+    spread: 0.22,
     milestoneIds: ['new-formation-2021', 'darashinai-aishikata', 'show-200'],
   },
   {
     id: 'mature',
     name: 'Mature',
     color: '#d8a8ff',
-    azimuth: -0.65,
-    altitude: 0.38,
-    spread: 0.22,
+    azimuth: -2.693, // back-left ~-154°
+    altitude: 0.36,
+    spread: 0.26,
     milestoneIds: [
       'sayonara-crawl',
       'spv-langit-biru-2024',
@@ -137,18 +143,18 @@ const ERA_DEFS = [
     id: 'variety',
     name: 'Variety',
     color: '#ffe6a0',
-    azimuth: -1.05,
+    azimuth: -1.795, // left ~-103°
     altitude: 0.28,
-    spread: 0.14,
+    spread: 0.18,
     milestoneIds: ['belajar-konseling', 'pertaruhan-cinta-shonichi'],
   },
   {
     id: 'fight',
     name: 'JKT48 Fight',
     color: '#ff9080',
-    azimuth: -1.45,
-    altitude: 0.20,
-    spread: 0.26,
+    azimuth: -0.898, // front-left ~-51°
+    altitude: 0.30,
+    spread: 0.30,
     milestoneIds: [
       'three-team-announce',
       'fight-tagline',
@@ -182,15 +188,17 @@ const hashSeed = (str) => {
   return (h % 10000) / 10000;
 };
 
-// Convert (azimuth, altitude) → world XYZ on sky dome of SKY_RADIUS.
-// User faces -z di scene → azimuth 0 = directly forward (-z).
-// Azimuth positive = swing east (+x), negative = west (-x).
+// Convert (azimuth, altitude) → world XYZ on sky dome of SKY_RADIUS,
+// centered at SKY_CENTER. User stands di SKY_CENTER, pan camera 360°
+// untuk lihat semua bintang (full celestial sphere around user).
+// Azimuth 0 = -z (forward of original scene), positive = +x (right),
+// negative = -x (left). Wrap to behind user via |azimuth| > π/2.
 const skyPosition = (azimuth, altitude) => {
   const pitch = altitude * (Math.PI / 2); // 0=horizon, π/2=zenith
   const horizR = SKY_RADIUS * Math.cos(pitch);
-  const y = SKY_RADIUS * Math.sin(pitch);
-  const x = horizR * Math.sin(azimuth);
-  const z = -horizR * Math.cos(azimuth);
+  const y = SKY_CENTER[1] + SKY_RADIUS * Math.sin(pitch);
+  const x = SKY_CENTER[0] + horizR * Math.sin(azimuth);
+  const z = SKY_CENTER[2] - horizR * Math.cos(azimuth);
   return [x, y, z];
 };
 
@@ -3027,12 +3035,12 @@ const PathEdgeStones = () => (
 // `transitioning` di parent. Setelah transition selesai, controls
 // diambil alih.
 const CAMERA_TARGETS = {
-  // Orbit: camera lebih rendah + lookAt mid-air supaya langit dominan,
-  // tanah cuma terlihat di tepi bawah view.
-  orbit: { pos: new THREE.Vector3(4, 3, 6), look: new THREE.Vector3(0, 5, -10) },
-  // FPV "tatap langit": user di tengah path, eye level, look ke sky
-  // mid-front (atas + sedikit ke depan).
-  fpv: { pos: new THREE.Vector3(0, 1.7, -7), look: new THREE.Vector3(0, 7, -14) },
+  // Orbit: camera dekat target [0,5,-10] — user "berdiri di tengah
+  // dunia bulat", pan 360° = lihat semua konstelasi di sekeliling.
+  orbit: { pos: new THREE.Vector3(4, 3, -2), look: new THREE.Vector3(0, 5, -10) },
+  // FPV "tatap langit": user di tengah path, eye level, look default
+  // ke atas-depan tapi bisa pan bebas via mouse/touch.
+  fpv: { pos: new THREE.Vector3(0, 1.7, -8), look: new THREE.Vector3(0, 7, -14) },
 };
 
 const CameraSync = ({ viewMode, transitioning }) => {
@@ -3287,19 +3295,20 @@ const LorongScene = ({
       <OrbitControls
         target={ORBIT_TARGET}
         enableZoom
-        minDistance={6}
-        maxDistance={17}
+        minDistance={5}
+        maxDistance={14}
         enablePan={false}
-        // Polar range diperluas ke arah bawah (camera below target =
-        // looking up) supaya user bisa "menengadah" ke konstelasi.
-        // ORBIT_TARGET.y=6, eye level y=1.6 → polar ~110° dari +Y axis.
-        minPolarAngle={Math.PI / 8}
-        maxPolarAngle={2.05}
+        // Full sphere view: polar range diperluas ke top (looking
+        // straight up) + bawah (looking down at ground). User bebas
+        // pan 360° azimuth + ~15°-160° polar untuk lihat seluruh
+        // konstelasi keliling + ground sekitar.
+        minPolarAngle={Math.PI / 12}
+        maxPolarAngle={2.4}
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.4}
         autoRotate
-        autoRotateSpeed={0.08}
+        autoRotateSpeed={0.10}
       />
     )}
     {!transitioning && viewMode === 'fpv' && !isMobile && (
@@ -4285,7 +4294,7 @@ const TamanLorongPohonPage = () => {
       <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 50, position: [4, 3, 6] }}
+            camera={{ fov: 55, position: [4, 3, -2] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
