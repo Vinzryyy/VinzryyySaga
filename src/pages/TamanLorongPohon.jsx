@@ -2350,6 +2350,7 @@ const StarMilestone = ({
   star,
   hovered,
   selected,
+  spotlit,
   signatureEvent,
   onPointerOver,
   onPointerOut,
@@ -2379,6 +2380,13 @@ const StarMilestone = ({
     if (selected) {
       glow += 0.4 + Math.sin(t * 1.4) * 0.2;
       scaleMul *= 1.08;
+    }
+    // Era spotlight — saat user click chip di EraGuide, semua bintang
+    // dalam era pulse dgn rhythm cepat 4 detik. Helps user
+    // identifikasi mana bintang dari era itu di langit.
+    if (spotlit) {
+      glow += 0.7 + Math.sin(t * 5) * 0.4;
+      scaleMul *= 1.18;
     }
     // Signature event — first/last star clicked → cross-scene effect
     // already triggered in parent. Here we don't re-amplify (avoid
@@ -3137,6 +3145,7 @@ const LorongScene = ({
   trees,
   hoveredTreeId,
   selectedTreeId,
+  spotlightEra,
   isMobile,
   signatureEvent,
   viewMode,
@@ -3264,6 +3273,7 @@ const LorongScene = ({
         star={star}
         hovered={hoveredTreeId === star.id}
         selected={selectedTreeId === star.id}
+        spotlit={spotlightEra === star.eraId}
         signatureEvent={signatureEvent}
         onPointerOver={onTreeHover}
         onPointerOut={onTreeOut}
@@ -3438,13 +3448,33 @@ const LorongHeader = () => (
 // Cinematic intro title card — fade in saat first load, hold, fade
 // out. Eyebrow + title Fraunces italic + poetic subtitle. Once done,
 // removed dari DOM. User refresh untuk replay.
+const INTRO_STORAGE_KEY = 'taman-r1-intro-seen';
 const IntroTitle = () => {
   const [visible, setVisible] = useState(false);
   const [removed, setRemoved] = useState(false);
   useEffect(() => {
+    // Skip kalau user udah lihat di visit sebelumnya — gak ngulang
+    // intro tiap kali masuk r1
+    let seen = false;
+    try {
+      seen = localStorage.getItem(INTRO_STORAGE_KEY) === '1';
+    } catch {
+      /* storage blocked */
+    }
+    if (seen) {
+      setRemoved(true);
+      return undefined;
+    }
     const t1 = setTimeout(() => setVisible(true), 350); // start fade in
     const t2 = setTimeout(() => setVisible(false), 5500); // start fade out
-    const t3 = setTimeout(() => setRemoved(true), 7800); // remove dari DOM
+    const t3 = setTimeout(() => {
+      setRemoved(true);
+      try {
+        localStorage.setItem(INTRO_STORAGE_KEY, '1');
+      } catch {
+        /* storage blocked */
+      }
+    }, 7800);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -3619,17 +3649,146 @@ const MobileFPVControls = ({ joystickRef, lookRef }) => {
   );
 };
 
+// Era guide HUD — panel kecil dengan 7 era list + color chip + count.
+// Click chip → trigger spotlight: bintang dalam era pulse 4 detik
+// supaya user gampang identifikasi mana yang mana di langit. Active
+// era (lagi spotlight) di-highlight visual.
+const ERA_GUIDE_STORAGE_KEY = 'taman-r1-guide-collapsed';
+const EraGuide = ({ trees, isMobile, onSpotlight, spotlightEra }) => {
+  // Persistence: user bisa collapse panel kalau merasa intrusive.
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(ERA_GUIDE_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleCollapsed = () => {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem(ERA_GUIDE_STORAGE_KEY, next ? '1' : '0');
+      } catch {
+        /* storage blocked */
+      }
+      return next;
+    });
+  };
+  const grouped = useMemo(
+    () =>
+      ERA_DEFS.map((era) => ({
+        ...era,
+        stars: trees.filter(
+          (t) => ERA_LOOKUP.get(t.id)?.eraDef.id === era.id,
+        ),
+      })),
+    [trees],
+  );
+  return (
+    <div
+      className={`pointer-events-none absolute z-20 ${
+        isMobile
+          ? 'bottom-20 left-3 right-3 flex justify-center'
+          : 'top-20 left-4'
+      }`}
+    >
+      <div className="pointer-events-auto rounded-md border border-white/10 bg-[#0a0d18]/75 backdrop-blur-md shadow-xl">
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          className="flex items-center gap-2 px-3 py-2 w-full text-left hover:bg-white/5 transition"
+          aria-label={collapsed ? 'Buka panduan era' : 'Tutup panduan era'}
+        >
+          <span className="text-white/55 text-[8px] uppercase tracking-[0.3em]">
+            Era
+          </span>
+          <span
+            className="text-white/40 text-[10px] ml-auto"
+            style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}
+          >
+            ▾
+          </span>
+        </button>
+        {!collapsed && (
+          <div
+            className={`px-2 pb-2 ${
+              isMobile ? 'flex flex-wrap justify-center gap-1' : 'flex flex-col gap-0.5'
+            }`}
+          >
+            {grouped.map((era) => {
+              const isActive = spotlightEra === era.id;
+              return (
+                <button
+                  key={era.id}
+                  type="button"
+                  onClick={() => onSpotlight(era.id)}
+                  className={`flex items-center gap-2 px-2 py-1 rounded-sm transition ${
+                    isActive ? 'bg-white/12' : 'hover:bg-white/8'
+                  }`}
+                  aria-label={`Spotlight ${era.name} (${era.stars.length} bintang)`}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{
+                      background: era.color,
+                      boxShadow: isActive
+                        ? `0 0 10px ${era.color}, 0 0 4px ${era.color}`
+                        : `0 0 4px ${era.color}55`,
+                    }}
+                  />
+                  <span
+                    className="text-[10px] uppercase tracking-[0.16em] whitespace-nowrap"
+                    style={{
+                      color: isActive
+                        ? era.color
+                        : 'rgba(255,255,255,0.72)',
+                    }}
+                  >
+                    {era.name}
+                  </span>
+                  <span className="text-[9px] text-white/35 tabular-nums ml-1">
+                    {era.stars.length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Tutorial hint — muncul setelah intro fade out, kasih tahu user
-// soal mode berjalan. Auto-fade after ~6s. Mobile dapat copy yg
-// reflect joystick controls (chunk 4D added mobile FPV).
+// soal mode berjalan. Auto-fade after ~6s. Persist seen state di
+// localStorage supaya gak muncul lagi di visit berikutnya.
+const TUTORIAL_STORAGE_KEY = 'taman-r1-tutorial-seen';
 const TutorialHint = ({ isMobile }) => {
   const [visible, setVisible] = useState(false);
   const [removed, setRemoved] = useState(false);
   useEffect(() => {
+    // Skip kalau user udah pernah lihat
+    let seen = false;
+    try {
+      seen = localStorage.getItem(TUTORIAL_STORAGE_KEY) === '1';
+    } catch {
+      /* storage blocked */
+    }
+    if (seen) {
+      setRemoved(true);
+      return undefined;
+    }
     // Tunggu intro selesai (~7.8s), lalu show 6s
     const t1 = setTimeout(() => setVisible(true), 8200);
     const t2 = setTimeout(() => setVisible(false), 14500);
-    const t3 = setTimeout(() => setRemoved(true), 16500);
+    const t3 = setTimeout(() => {
+      setRemoved(true);
+      try {
+        localStorage.setItem(TUTORIAL_STORAGE_KEY, '1');
+      } catch {
+        /* storage blocked */
+      }
+    }, 16500);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -3754,32 +3913,53 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
           {tree.body}
         </p>
 
-        {/* Progress dots — 1 dot per pohon, current = besar amber.
-            Click dot untuk loncat ke milestone itu. */}
+        {/* Progress dots grouped by era — 7 cluster, color per era.
+            Active dot pakai era color (bukan generic amber) supaya
+            user tahu lagi di era mana. */}
         {total > 0 && (
-          <div className="flex items-center justify-center gap-1.5 mb-3">
-            {trees.map((t, i) => {
-              const active = t.id === tree.id;
+          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+            {ERA_DEFS.map((era, eraIdx) => {
+              const eraStars = trees.filter((t) => t.eraId === era.id);
+              if (eraStars.length === 0) return null;
               return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => {
-                    if (active) return;
-                    if (i < idx) onPrev?.(i);
-                    else onNext?.(i);
-                  }}
-                  aria-label={`${t.year} — ${t.title}`}
-                  className="group p-1 -m-1"
-                >
-                  <span
-                    className={`block rounded-full transition-all ${
-                      active
-                        ? 'w-2 h-2 bg-amber-300/85'
-                        : 'w-1.5 h-1.5 bg-white/25 group-hover:bg-white/55'
-                    }`}
-                  />
-                </button>
+                <React.Fragment key={era.id}>
+                  {eraIdx > 0 && (
+                    <span className="w-px h-2.5 bg-white/15" aria-hidden="true" />
+                  )}
+                  <div className="flex items-center gap-1">
+                    {eraStars.map((t) => {
+                      const i = trees.findIndex((x) => x.id === t.id);
+                      const active = t.id === tree.id;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => {
+                            if (active) return;
+                            if (i < idx) onPrev?.(i);
+                            else onNext?.(i);
+                          }}
+                          aria-label={`${t.year} — ${t.title}`}
+                          className="group p-1 -m-1"
+                        >
+                          <span
+                            className={`block rounded-full transition-all ${
+                              active ? 'w-2 h-2' : 'w-1.5 h-1.5'
+                            }`}
+                            style={{
+                              background: active
+                                ? era.color
+                                : 'rgba(255,255,255,0.22)',
+                              boxShadow: active
+                                ? `0 0 8px ${era.color}`
+                                : 'none',
+                            }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </React.Fragment>
               );
             })}
           </div>
@@ -3787,6 +3967,11 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
         {idx >= 0 && (
           <div className="text-center text-white/40 text-[10px] uppercase tracking-[0.3em] mb-5">
             Bintang ke-{idx + 1} dari {total}
+            {tree.eraId && (
+              <span className="ml-2" style={{ color: ERA_LOOKUP.get(tree.id)?.eraDef.color ?? 'inherit' }}>
+                · {ERA_LOOKUP.get(tree.id)?.eraDef.name}
+              </span>
+            )}
           </div>
         )}
 
@@ -3969,6 +4154,26 @@ const TamanLorongPohonPage = () => {
       setTimeout(() => playChimeTone(f, 0.14), i * 90 + Math.random() * 60);
     }
   };
+  // Era spotlight: user click chip di EraGuide → bintang era itu
+  // pulse 4 detik supaya gampang identifikasi di langit. Skip kalau
+  // era yang sama lagi spotlight.
+  const [spotlightEra, setSpotlightEra] = useState(null);
+  const spotlightTimerRef = useRef(null);
+  const handleEraSpotlight = (eraId) => {
+    if (spotlightEra === eraId) return; // toggle-off behavior
+    setSpotlightEra(eraId);
+    if (spotlightTimerRef.current) clearTimeout(spotlightTimerRef.current);
+    spotlightTimerRef.current = setTimeout(() => {
+      setSpotlightEra(null);
+      spotlightTimerRef.current = null;
+    }, 4000);
+  };
+  useEffect(() => {
+    return () => {
+      if (spotlightTimerRef.current) clearTimeout(spotlightTimerRef.current);
+    };
+  }, []);
+
   // Monument moment: triggered via click di orbit OR proximity di FPV.
   // Skip kalau monument moment udah aktif (jangan re-trigger overlap).
   const handleMonumentTrigger = () => {
@@ -4007,6 +4212,8 @@ const TamanLorongPohonPage = () => {
       const [x, y, z] = milestoneSkyPosition(entry.id);
       const year = entry.date ? entry.date.slice(0, 4) : entry.period;
       const color = starColorForMilestone(entry.id);
+      const eraInfo = ERA_LOOKUP.get(entry.id);
+      const eraId = eraInfo?.eraDef.id ?? null;
       // Anchor flags untuk signature events (recent/old) — first &
       // last star in array trigger cross-scene effects via
       // signatureEvent state.
@@ -4019,6 +4226,7 @@ const TamanLorongPohonPage = () => {
         z,
         year,
         color,
+        eraId,
         isRecentAnchor,
         isOldAnchor,
       };
@@ -4093,6 +4301,7 @@ const TamanLorongPohonPage = () => {
               trees={trees}
               hoveredTreeId={hoveredTreeId}
               selectedTreeId={selectedTree?.id ?? null}
+              spotlightEra={spotlightEra}
               isMobile={isMobile}
               signatureEvent={signatureEvent}
               viewMode={viewMode}
@@ -4134,6 +4343,12 @@ const TamanLorongPohonPage = () => {
 
         <IntroTitle />
         <TutorialHint isMobile={isMobile} />
+        <EraGuide
+          trees={trees}
+          isMobile={isMobile}
+          onSpotlight={handleEraSpotlight}
+          spotlightEra={spotlightEra}
+        />
         <LorongHeader />
         <LorongFooter hoveredTreeId={hoveredTreeId} isMobile={isMobile} />
         {/* FPV toggle — desktop AND mobile. Position bottom-right.
