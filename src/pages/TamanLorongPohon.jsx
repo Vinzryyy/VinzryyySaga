@@ -45,24 +45,175 @@ import AmbientAudio from '../components/taman/AmbientAudio';
 import { useIsMobile, lerp } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
 
-// Layout konstan jalur. Pohon disusun alternating kiri/kanan di
-// sepanjang jalur. Path z dari START_Z ke END_Z (ke arah negatif z).
+// Layout konstan jalur. PATH_* tetap referensi ground (bench, swing,
+// monument tied to z=-15..-32) — user "berdiri di taman" tetep di
+// koridor ini. Bedanya: trees milestone udah pindah ke langit (lihat
+// ERA_DEFS + skyPosition di bawah).
 const PATH_START_Z = -2;
 const PATH_END_Z = -32;
-const PATH_X_OFFSET = 2.6; // alternating ±2.6 dari sumbu jalur
-const ORBIT_TARGET = [0, 0, -16]; // tengah jalur
+const PATH_X_OFFSET = 2.6; // alternating ±2.6 dari sumbu jalur (legacy)
+// Orbit target naik ke mid-air supaya camera arc mendominan langit,
+// bukan ground. User tetep liat tanah di edge view, tapi langit
+// dominant.
+const ORBIT_TARGET = [0, 6, -12];
 
-// Bikin warna foliage progressive — pohon awal (debut) hijau muda
-// (tunas), pohon akhir (sekarang) hijau matang & sedikit aprikot.
-const foliageColorForIndex = (idx, total) => {
-  const t = idx / Math.max(total - 1, 1);
-  // green-young (#9bc474) → mature (#7a9d5e) → mature-warm (#a89d5e)
-  if (t < 0.5) {
-    const k = t / 0.5;
-    return lerpHexColor('#9bc474', '#7a9d5e', k);
+// Era definitions — 7 era career Eli, masing-masing jadi 1 konstelasi
+// di langit. azimuth = sudut horizontal dari -z (forward of garden),
+// counterclockwise viewed from above. altitude 0..1 = horizon..zenith.
+// Color = palette dominant per era; bintang individual mendapat
+// gradient seputar warna ini. spread = scatter radius bintang dari
+// center konstelasi (radian). Order matters — milestoneIds urutannya
+// kronologis, line connections membentuk line dari oldest ke newest.
+const SKY_RADIUS = 22;
+const ERA_DEFS = [
+  {
+    id: 'trainee',
+    name: 'Trainee',
+    color: '#a8c0ff', // soft blue
+    azimuth: 0.95, // upper-right of forward view
+    altitude: 0.32,
+    spread: 0.16,
+    milestoneIds: ['audition', 'sousenkyo-2018', 'class-a'],
+  },
+  {
+    id: 'theater',
+    name: 'Theater',
+    color: '#ffcc88', // warm amber
+    azimuth: 0.55,
+    altitude: 0.5,
+    spread: 0.13,
+    milestoneIds: ['theater-debut', 'team-kiii'],
+  },
+  {
+    id: 'senbatsu',
+    name: 'Senbatsu',
+    color: '#ff9ec0', // pink
+    azimuth: 0.18,
+    altitude: 0.62,
+    spread: 0.13,
+    milestoneIds: ['show-100', 'first-senbatsu'],
+  },
+  {
+    id: 'new-era',
+    name: 'New Era',
+    color: '#a4e8d0', // mint
+    azimuth: -0.22,
+    altitude: 0.7,
+    spread: 0.18,
+    milestoneIds: ['new-formation-2021', 'darashinai-aishikata', 'show-200'],
+  },
+  {
+    id: 'mature',
+    name: 'Mature',
+    color: '#d8a8ff', // lavender
+    azimuth: -0.62,
+    altitude: 0.6,
+    spread: 0.22,
+    milestoneIds: [
+      'sayonara-crawl',
+      'spv-langit-biru-2024',
+      'show-300',
+      'undergirl-bibir-2024',
+    ],
+  },
+  {
+    id: 'variety',
+    name: 'Variety',
+    color: '#ffe6a0', // soft yellow
+    azimuth: -0.95,
+    altitude: 0.45,
+    spread: 0.14,
+    milestoneIds: ['belajar-konseling', 'pertaruhan-cinta-shonichi'],
+  },
+  {
+    id: 'fight',
+    name: 'JKT48 Fight',
+    color: '#ff9080', // warm coral
+    azimuth: -1.32,
+    altitude: 0.3,
+    spread: 0.26,
+    milestoneIds: [
+      'three-team-announce',
+      'fight-tagline',
+      'team-dream',
+      'dream-bakudan-shonichi',
+      'show-400',
+    ],
+  },
+];
+
+// Build flat lookup: milestoneId → { eraIdx, posInEra, eraDef }.
+// Dipake saat compute star position deterministic per milestone.
+const ERA_LOOKUP = (() => {
+  const map = new Map();
+  ERA_DEFS.forEach((era, eraIdx) => {
+    era.milestoneIds.forEach((mid, posInEra) => {
+      map.set(mid, { eraIdx, posInEra, eraDef: era });
+    });
+  });
+  return map;
+})();
+
+// Hash sederhana → 0..1, deterministic per string. Dipake untuk
+// per-milestone jitter posisi dalam konstelasi.
+const hashSeed = (str) => {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = (h * 16777619) >>> 0;
   }
-  const k = (t - 0.5) / 0.5;
-  return lerpHexColor('#7a9d5e', '#a89d5e', k);
+  return (h % 10000) / 10000;
+};
+
+// Convert (azimuth, altitude) → world XYZ on sky dome of SKY_RADIUS.
+// User faces -z di scene → azimuth 0 = directly forward (-z).
+// Azimuth positive = swing east (+x), negative = west (-x).
+const skyPosition = (azimuth, altitude) => {
+  const pitch = altitude * (Math.PI / 2); // 0=horizon, π/2=zenith
+  const horizR = SKY_RADIUS * Math.cos(pitch);
+  const y = SKY_RADIUS * Math.sin(pitch);
+  const x = horizR * Math.sin(azimuth);
+  const z = -horizR * Math.cos(azimuth);
+  return [x, y, z];
+};
+
+// Position untuk milestone tertentu di konstelasi era-nya. Center era
+// + jitter deterministic dari hashSeed per-milestone. posInEra dipake
+// untuk arc pattern (bintang konstelasi gak pure random, tapi sedikit
+// terstruktur supaya line connections form readable shape).
+const milestoneSkyPosition = (milestoneId) => {
+  const info = ERA_LOOKUP.get(milestoneId);
+  if (!info) return [0, SKY_RADIUS * 0.6, -SKY_RADIUS * 0.5];
+  const { eraDef, posInEra } = info;
+  const total = eraDef.milestoneIds.length;
+  // Arc spread within constellation — milestones distributed along an
+  // arc centered at era.azimuth/altitude. Half-spread di kedua axis.
+  const t = total === 1 ? 0 : posInEra / (total - 1) - 0.5;
+  // Jitter from hash supaya gak terlalu uniform — pure arc kaku.
+  const seedA = hashSeed(`${milestoneId}-a`) - 0.5;
+  const seedB = hashSeed(`${milestoneId}-b`) - 0.5;
+  const az = eraDef.azimuth + t * eraDef.spread * 1.6 + seedA * eraDef.spread * 0.4;
+  const alt = Math.max(
+    0.15,
+    Math.min(0.92, eraDef.altitude + seedB * eraDef.spread * 0.7),
+  );
+  return skyPosition(az, alt);
+};
+
+// Bikin warna bintang per milestone — base era color, slight
+// brightness shift berdasarkan posisi dalam era (oldest = sedikit
+// dimmer, newest = sedikit brighter). Returns hex string.
+const starColorForMilestone = (milestoneId) => {
+  const info = ERA_LOOKUP.get(milestoneId);
+  if (!info) return '#ffffff';
+  const { eraDef, posInEra } = info;
+  const total = eraDef.milestoneIds.length;
+  const t = total === 1 ? 0.5 : posInEra / (total - 1);
+  // Lerp dari slightly dimmer era color → era color → slightly brighter
+  const dim = lerpHexColor('#000000', eraDef.color, 0.78);
+  const bright = lerpHexColor(eraDef.color, '#ffffff', 0.22);
+  if (t < 0.5) return lerpHexColor(dim, eraDef.color, t / 0.5);
+  return lerpHexColor(eraDef.color, bright, (t - 0.5) / 0.5);
 };
 
 const lerpHexColor = (a, b, t) => {
@@ -2084,6 +2235,283 @@ const YearTree = ({ tree, idx, hovered, onPointerOver, onPointerOut, onClick }) 
   );
 };
 
+// =============================================================
+// KONSTELASI MILESTONE — bintang per milestone di langit
+// =============================================================
+//
+// Replace YearTree (di-path) dengan StarMilestone (di-langit). Tiap
+// bintang di-position pakai milestoneSkyPosition(id) → era-grouped
+// position di sky dome. Click handler tetap sama (parent passes
+// onClick(starData), modal pagination intact).
+//
+// Visual: emissive sphere body + halo 2x larger transparent,
+// emissiveIntensity di-pulse via useFrame (twinkle subtle), boost
+// glow + scale saat hover, sustained pulse saat star di-select
+// (selectedId match) untuk continuity di MilestoneOverlay.
+const StarMilestone = ({
+  star,
+  hovered,
+  selected,
+  signatureEvent,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
+  const groupRef = useRef();
+  const matRef = useRef();
+  const haloMatRef = useRef();
+  // Twinkle phase deterministic per id supaya bintang-bintang gak
+  // pulse synchronously (busy + unrealistic).
+  const twinklePhase = useMemo(() => hashSeed(`${star.id}-tw`) * Math.PI * 2, [star.id]);
+  // Upcoming (date null) dim outline only — dapet treatment beda.
+  const isUpcoming = star.upcoming === true;
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Base twinkle — sine modulation 0.6 Hz, range emissive 0.8..1.4.
+    const twinkle = 1.1 + Math.sin(t * 0.6 + twinklePhase) * 0.3;
+    let glow = isUpcoming ? 0.4 : 1.0;
+    let scaleMul = 1.0;
+    // Hover lift
+    if (hovered) {
+      glow += 0.8;
+      scaleMul = 1.15;
+    }
+    // Selected pulse (modal open) — sustained glow + slow breath
+    if (selected) {
+      glow += 0.4 + Math.sin(t * 1.4) * 0.2;
+      scaleMul *= 1.08;
+    }
+    // Signature event — first/last star clicked → cross-scene effect
+    // already triggered in parent. Here we don't re-amplify (avoid
+    // double-pulsing the clicked star). Era-anchor stars (eraIdx 0
+    // or last) bisa subtle pulse saat 'old'/'recent' event aktif.
+    if (signatureEvent) {
+      const dt = t - signatureEvent.time;
+      if (dt > 0 && dt < 3.0) {
+        const u = dt / 3.0;
+        const env = Math.sin(u * Math.PI);
+        if (signatureEvent.type === 'recent' && star.isRecentAnchor) {
+          glow += env * 0.6;
+        } else if (signatureEvent.type === 'old' && star.isOldAnchor) {
+          glow += env * 0.6;
+        }
+      }
+    }
+    if (matRef.current) {
+      matRef.current.emissiveIntensity = glow * twinkle;
+    }
+    if (haloMatRef.current) {
+      const haloOp = Math.max(
+        0.06,
+        (isUpcoming ? 0.10 : 0.20) + (hovered ? 0.18 : 0) + (selected ? 0.12 : 0),
+      );
+      haloMatRef.current.opacity = haloOp;
+    }
+    groupRef.current.scale.setScalar(scaleMul);
+  });
+  const baseSize = 0.32;
+  return (
+    <group
+      ref={groupRef}
+      position={[star.x, star.y, star.z]}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(star);
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.(star.id);
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.(star.id);
+      }}
+    >
+      {/* Body — emissive sphere */}
+      <mesh>
+        <sphereGeometry args={[baseSize, 16, 12]} />
+        {isUpcoming ? (
+          // Upcoming: wireframe-ish via low opacity standard, no emissive
+          <meshStandardMaterial
+            ref={matRef}
+            color={star.color}
+            emissive={star.color}
+            emissiveIntensity={0.4}
+            roughness={0.9}
+            transparent
+            opacity={0.55}
+            toneMapped={false}
+          />
+        ) : (
+          <meshStandardMaterial
+            ref={matRef}
+            color={star.color}
+            emissive={star.color}
+            emissiveIntensity={1.0}
+            roughness={0.85}
+            toneMapped={false}
+          />
+        )}
+      </mesh>
+      {/* Halo — soft glow 2.4x */}
+      <mesh>
+        <sphereGeometry args={[baseSize * 2.4, 12, 8]} />
+        <meshBasicMaterial
+          ref={haloMatRef}
+          color={star.color}
+          transparent
+          opacity={0.2}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// Garis konstelasi — connect bintang dalam satu era. Pakai vanilla
+// THREE.LineSegments dgn BufferGeometry: list of (start, end) points
+// untuk setiap pair adjacent dalam milestoneIds order. Color subtle
+// per era. Fade in saat scene mount via material.opacity ramp.
+const ConstellationLines = ({ stars }) => {
+  const geometryRef = useRef();
+  const matRef = useRef();
+  const startTimeRef = useRef(-1);
+
+  // Build line segments: untuk tiap era, connect bintang adjacent
+  // pakai gl.LINES (2 points = 1 segment). Plus per-era warna via
+  // vertex colors.
+  const { positions, colors } = useMemo(() => {
+    const pos = [];
+    const col = [];
+    const byId = new Map(stars.map((s) => [s.id, s]));
+    ERA_DEFS.forEach((era) => {
+      const ids = era.milestoneIds;
+      // Parse era color hex → rgb 0..1
+      const hex = era.color.replace('#', '');
+      const r = parseInt(hex.slice(0, 2), 16) / 255;
+      const g = parseInt(hex.slice(2, 4), 16) / 255;
+      const b = parseInt(hex.slice(4, 6), 16) / 255;
+      for (let i = 0; i < ids.length - 1; i++) {
+        const a = byId.get(ids[i]);
+        const c = byId.get(ids[i + 1]);
+        if (!a || !c) continue;
+        pos.push(a.x, a.y, a.z, c.x, c.y, c.z);
+        col.push(r, g, b, r, g, b);
+      }
+    });
+    return {
+      positions: new Float32Array(pos),
+      colors: new Float32Array(col),
+    };
+  }, [stars]);
+
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    if (startTimeRef.current < 0) startTimeRef.current = t;
+    const dt = t - startTimeRef.current;
+    // Fade in over 4s saat scene mount (kasih waktu user fokus ke
+    // bintang dulu sebelum lines reveal)
+    const fadeIn = Math.min(1, Math.max(0, (dt - 1.5) / 4));
+    // Subtle breathing 0.85..1.0 supaya gak pure static
+    const breath = 0.92 + Math.sin(t * 0.3) * 0.08;
+    matRef.current.opacity = 0.22 * fadeIn * breath;
+  });
+
+  if (positions.length === 0) return null;
+  return (
+    <lineSegments>
+      <bufferGeometry ref={geometryRef}>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={positions.length / 3}
+          itemSize={3}
+        />
+        <bufferAttribute
+          attach="attributes-color"
+          array={colors}
+          count={colors.length / 3}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <lineBasicMaterial
+        ref={matRef}
+        vertexColors
+        transparent
+        opacity={0}
+        depthWrite={false}
+      />
+    </lineSegments>
+  );
+};
+
+// Era label — Html floating di atas konstelasi center, fade in saat
+// camera pointing dekat ke arah era itu. Subtle, gak persistent —
+// kasih hint nama era tanpa clutter scene.
+const ConstellationLabels = () => {
+  const groupRefs = useRef([]);
+  useFrame((state) => {
+    const camDir = new THREE.Vector3();
+    state.camera.getWorldDirection(camDir);
+    ERA_DEFS.forEach((era, i) => {
+      const ref = groupRefs.current[i];
+      if (!ref) return;
+      const eraCenter = skyPosition(era.azimuth, era.altitude);
+      const toCenter = new THREE.Vector3(
+        eraCenter[0],
+        eraCenter[1],
+        eraCenter[2],
+      ).sub(state.camera.position).normalize();
+      const dot = camDir.dot(toCenter);
+      // Visible saat camera melihat ke arah era (dot > 0.85), fade
+      // di tepi — soft, contextual.
+      const op = Math.max(0, (dot - 0.82) / 0.18);
+      ref.style.opacity = String(op * 0.7);
+    });
+  });
+  return (
+    <>
+      {ERA_DEFS.map((era, i) => {
+        const center = skyPosition(era.azimuth, era.altitude);
+        // Label posisi sedikit di atas center konstelasi
+        const labelPos = [center[0], center[1] + 1.8, center[2]];
+        return (
+          <Html
+            key={era.id}
+            position={labelPos}
+            center
+            distanceFactor={14}
+            occlude={false}
+            style={{ pointerEvents: 'none' }}
+          >
+            <div
+              ref={(el) => {
+                groupRefs.current[i] = el;
+              }}
+              className="whitespace-nowrap text-center"
+              style={{
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+                fontSize: '13px',
+                color: era.color,
+                opacity: 0,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                textShadow: '0 0 8px rgba(0,0,0,0.7)',
+                transition: 'opacity 400ms ease-out',
+              }}
+            >
+              {era.name}
+            </div>
+          </Html>
+        );
+      })}
+    </>
+  );
+};
+
 // Jalur tanah membentang dari awal ke akhir lorong. Lebih sempit dari
 // floor utama supaya kerasa kayak path/garden walk, bukan field.
 const Path = () => (
@@ -2446,8 +2874,12 @@ const PathEdgeStones = () => (
 // `transitioning` di parent. Setelah transition selesai, controls
 // diambil alih.
 const CAMERA_TARGETS = {
-  orbit: { pos: new THREE.Vector3(7, 9, 4), look: new THREE.Vector3(0, 0, -16) },
-  fpv: { pos: new THREE.Vector3(0, 1.6, 0), look: new THREE.Vector3(0, 1.6, -10) },
+  // Orbit: camera lebih rendah + lookAt mid-air supaya langit dominan,
+  // tanah cuma terlihat di tepi bawah view.
+  orbit: { pos: new THREE.Vector3(5, 4, 8), look: new THREE.Vector3(0, 6, -12) },
+  // FPV "tatap langit": user di tengah path, eye level, look ke sky
+  // mid-front (atas + sedikit ke depan).
+  fpv: { pos: new THREE.Vector3(0, 1.7, -8), look: new THREE.Vector3(0, 9, -16) },
 };
 
 const CameraSync = ({ viewMode, transitioning }) => {
@@ -2559,6 +2991,7 @@ const FPVMovement = ({ enabled }) => {
 const LorongScene = ({
   trees,
   hoveredTreeId,
+  selectedTreeId,
   isMobile,
   signatureEvent,
   viewMode,
@@ -2613,13 +3046,14 @@ const LorongScene = ({
     <SettledLeaves />
     <Puddle isMobile={isMobile} />
     <DistantForest isMobile={isMobile} />
-    <SideTrees isMobile={isMobile} />
+    {/* SideTrees + YearPlaques + FlyingLeavesGust + Owls dropped — tied
+        to tree metaphor / block sky view di tema konstelasi. Owls
+        perched di foliage tree gak relevan saat trees pindah ke langit. */}
     <Bushes />
     <Mushrooms />
     <Stars />
     <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
     <Moon />
-    <FlyingLeavesGust isMobile={isMobile} />
     <OldBench onClick={onBenchClick} />
     <TreeSwing activeRef={swingActiveRef} onClick={onSwingClick} />
     <WindChime activeRef={chimeActiveRef} onClick={onChimeClick} />
@@ -2660,22 +3094,24 @@ const LorongScene = ({
     )}
     <StoneMonument onClick={onMonumentTrigger} />
     <Lanterns signatureEvent={signatureEvent} />
-    <YearPlaques trees={trees} />
-    <Owls signatureEvent={signatureEvent} />
     <Rabbits />
     {!isMobile && <Bats />}
     <DistantFigure signatureEvent={signatureEvent} />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}
-    <FallingLeaves count={isMobile ? 35 : 60} />
+    <FallingLeaves count={isMobile ? 22 : 38} />
     <MemoryFragments isMobile={isMobile} />
-    {trees.map((tree, idx) => (
-      <YearTree
-        key={tree.id}
-        tree={tree}
-        idx={idx}
-        hovered={hoveredTreeId === tree.id}
+    {/* Konstelasi milestone — bintang di langit, era-grouped */}
+    <ConstellationLines stars={trees} />
+    <ConstellationLabels />
+    {trees.map((star) => (
+      <StarMilestone
+        key={star.id}
+        star={star}
+        hovered={hoveredTreeId === star.id}
+        selected={selectedTreeId === star.id}
+        signatureEvent={signatureEvent}
         onPointerOver={onTreeHover}
         onPointerOut={onTreeOut}
         onClick={onTreeClick}
@@ -2688,16 +3124,19 @@ const LorongScene = ({
       <OrbitControls
         target={ORBIT_TARGET}
         enableZoom
-        minDistance={12}
-        maxDistance={28}
+        minDistance={9}
+        maxDistance={26}
         enablePan={false}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2.4}
+        // Polar range diperluas ke arah bawah (camera below target =
+        // looking up) supaya user bisa "menengadah" ke konstelasi.
+        // ORBIT_TARGET.y=6, eye level y=1.6 → polar ~110° dari +Y axis.
+        minPolarAngle={Math.PI / 8}
+        maxPolarAngle={2.05}
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.4}
         autoRotate
-        autoRotateSpeed={0.15}
+        autoRotateSpeed={0.12}
       />
     )}
     {!transitioning && viewMode === 'fpv' && !isMobile && (
@@ -3404,22 +3843,31 @@ const TamanLorongPohonPage = () => {
     setTimeout(() => setTransitioning(false), 1200);
   };
 
-  // Map ELI_TIMELINE → tree positions di scene. Alternating kiri/kanan,
-  // gap z = (PATH_END - PATH_START) / (count-1). Year color progressive.
+  // Map ELI_TIMELINE → star positions di sky dome. Tiap milestone
+  // diposisi pakai era-grouped sky coordinates (lihat ERA_DEFS +
+  // milestoneSkyPosition). Variabel masih namanya `trees` supaya gak
+  // butuh rename luas — semantically "milestone display objects",
+  // implementation now stars.
   const trees = useMemo(() => {
     const total = ELI_TIMELINE.length;
-    const gapZ = (PATH_END_Z - PATH_START_Z) / Math.max(total - 1, 1);
     return ELI_TIMELINE.map((entry, idx) => {
-      const side = idx % 2 === 0 ? -1 : 1;
-      const x = PATH_X_OFFSET * side;
-      const z = PATH_START_Z + gapZ * idx;
+      const [x, y, z] = milestoneSkyPosition(entry.id);
       const year = entry.date ? entry.date.slice(0, 4) : entry.period;
+      const color = starColorForMilestone(entry.id);
+      // Anchor flags untuk signature events (recent/old) — first &
+      // last star in array trigger cross-scene effects via
+      // signatureEvent state.
+      const isRecentAnchor = idx === 0;
+      const isOldAnchor = idx === total - 1;
       return {
         ...entry,
         x,
+        y,
         z,
         year,
-        color: foliageColorForIndex(idx, total),
+        color,
+        isRecentAnchor,
+        isOldAnchor,
       };
     });
   }, []);
@@ -3476,7 +3924,7 @@ const TamanLorongPohonPage = () => {
       <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 42, position: [7, 9, 4] }}
+            camera={{ fov: 50, position: [5, 4, 8] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
@@ -3484,13 +3932,14 @@ const TamanLorongPohonPage = () => {
             }}
             shadows={false}
             onCreated={({ camera }) => {
-              camera.lookAt(0, 0, -16);
+              camera.lookAt(0, 6, -12);
             }}
           >
             <ClockSync clockRef={clockRef} />
             <LorongScene
               trees={trees}
               hoveredTreeId={hoveredTreeId}
+              selectedTreeId={selectedTree?.id ?? null}
               isMobile={isMobile}
               signatureEvent={signatureEvent}
               viewMode={viewMode}
