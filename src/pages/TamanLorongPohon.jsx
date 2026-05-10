@@ -3077,6 +3077,47 @@ const CAMERA_TARGETS = {
   fpv: { pos: new THREE.Vector3(0, 1.7, -8), look: new THREE.Vector3(0, 7, -14) },
 };
 
+// Cinematic intro — camera arc dari overhead high-angle ke default
+// orbit position selama ~3.5s saat first visit. Bikin entrance terasa
+// "dunia perlahan terbuka" — start lihat ke bawah dari atas, lerp ke
+// eye-level orbit. Cubic ease-out: cepat awal, slow di akhir untuk
+// settle smooth.
+const INTRO_DURATION = 3.5;
+const INTRO_START_POS = new THREE.Vector3(0, 13, 4);
+const INTRO_END_POS = CAMERA_TARGETS.orbit.pos.clone();
+const INTRO_LOOK = CAMERA_TARGETS.orbit.look.clone();
+
+const CinematicIntro = ({ active, onComplete }) => {
+  const { camera } = useThree();
+  const startTimeRef = useRef(-1);
+  const completedRef = useRef(false);
+  useEffect(() => {
+    if (!active) return;
+    // Pre-position camera ke start sebelum first frame supaya gak
+    // ada jump dari default Canvas position ke INTRO_START.
+    camera.position.copy(INTRO_START_POS);
+    camera.lookAt(INTRO_LOOK);
+    startTimeRef.current = -1;
+    completedRef.current = false;
+  }, [active, camera]);
+  useFrame((state) => {
+    if (!active || completedRef.current) return;
+    const t = state.clock.elapsedTime;
+    if (startTimeRef.current < 0) startTimeRef.current = t;
+    const elapsed = t - startTimeRef.current;
+    const progress = Math.min(1, elapsed / INTRO_DURATION);
+    // Ease out cubic — fast start, settle slow di end
+    const eased = 1 - Math.pow(1 - progress, 3);
+    camera.position.lerpVectors(INTRO_START_POS, INTRO_END_POS, eased);
+    camera.lookAt(INTRO_LOOK);
+    if (progress >= 1 && !completedRef.current) {
+      completedRef.current = true;
+      onComplete?.();
+    }
+  });
+  return null;
+};
+
 const CameraSync = ({ viewMode, transitioning }) => {
   const { camera } = useThree();
   useFrame((_, delta) => {
@@ -3192,6 +3233,7 @@ const LorongScene = ({
   signatureEvent,
   viewMode,
   transitioning,
+  introActive,
   joystickRef,
   lookRef,
   swingActiveRef,
@@ -3204,6 +3246,7 @@ const LorongScene = ({
   onSwingClick,
   onChimeClick,
   onMonumentTrigger,
+  onIntroComplete,
 }) => (
   <>
     {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
@@ -3331,9 +3374,10 @@ const LorongScene = ({
     {/* Konstelasi + milestone stars dipindah ke <SkyGroup> di atas
         supaya FPV walk = stars follow user (parallax-free). */}
     <CameraSync viewMode={viewMode} transitioning={transitioning} />
+    <CinematicIntro active={introActive} onComplete={onIntroComplete} />
     {/* Controls cuma render setelah transition selesai supaya nggak
         fight dgn lerp. Saat transitioning=true, no control aktif. */}
-    {!transitioning && viewMode === 'orbit' && (
+    {!transitioning && !introActive && viewMode === 'orbit' && (
       <OrbitControls
         target={ORBIT_TARGET}
         enableZoom
@@ -4206,6 +4250,18 @@ const TamanLorongPohonPage = () => {
       setTimeout(() => playChimeTone(f, 0.14), i * 90 + Math.random() * 60);
     }
   };
+  // Cinematic intro: camera lerp dari overhead ke default selama
+  // ~3.5s di first visit. Skip kalau user udah lihat (localStorage
+  // 'taman-r1-intro-seen' di-set saat IntroTitle removal).
+  const [introActive, setIntroActive] = useState(() => {
+    try {
+      return localStorage.getItem(INTRO_STORAGE_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+  const handleIntroComplete = () => setIntroActive(false);
+
   // Era spotlight: user click chip di EraGuide → bintang era itu
   // pulse 4 detik supaya gampang identifikasi di langit. Skip kalau
   // era yang sama lagi spotlight.
@@ -4370,6 +4426,8 @@ const TamanLorongPohonPage = () => {
               onSwingClick={handleSwingClick}
               onChimeClick={handleChimeClick}
               onMonumentTrigger={handleMonumentTrigger}
+              introActive={introActive}
+              onIntroComplete={handleIntroComplete}
             />
             {!isMobile && (
               <EffectComposer>
@@ -4408,7 +4466,7 @@ const TamanLorongPohonPage = () => {
         <button
           type="button"
           onClick={toggleViewMode}
-          disabled={transitioning}
+          disabled={transitioning || introActive}
           className="pointer-events-auto absolute right-4 sm:right-6 z-30 px-3 py-2 sm:px-4 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
         >
