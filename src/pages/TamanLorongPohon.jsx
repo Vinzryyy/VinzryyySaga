@@ -2763,7 +2763,7 @@ const handleShare = async () => {
   const url = `${window.location.origin}/taman/r1`;
   const data = {
     title: 'Pohon-Pohon yang Mengingat',
-    text: 'Sepuluh perjalanan Eli, dalam bentuk pohon-pohon di sebuah lorong.',
+    text: `${ELI_TIMELINE.length} perjalanan Eli, dalam bentuk pohon-pohon di sebuah lorong.`,
     url,
   };
   try {
@@ -2900,7 +2900,7 @@ const IntroTitle = () => {
               letterSpacing: '0.02em',
             }}
           >
-            Sepuluh perjalanan, satu lorong, satu senja yang panjang.
+            {ELI_TIMELINE.length} perjalanan, satu lorong, satu senja yang panjang.
           </div>
         </div>
       </div>

@@ -9,96 +9,188 @@
  * Data marked TODO needs verification or expansion before publishing.
  */
 
+// Linimasa perjalanan Helisma Putri Kurnia di JKT48 — disusun
+// kronologis dari debut Generasi 7 (2018) hingga era JKT48 Fight 2026.
+// Show milestone (100/200/300/400) diberi `category: 'show-recap'`
+// supaya bisa di-filter terpisah dari narrative milestones (career
+// transitions, single, sousenkyo) di komponen yang butuh distingsi.
+//
+// Catatan tanggal:
+// - Show 100 ditulis sesuai input editorial (29 Des 2019). TSV
+//   #JumlahShowJKT48 menyatakan show ke-100 jatuh 15 Des 2019 di
+//   setlist "Saka Agari" — kalau ingin selaraskan ke canonical, ubah
+//   date ke 2019-12-15 + period "15 Desember 2019".
+// - Show 200 (2021-11-20) & 300 (2024-07-07) diambil dari TSV
+//   scripts/eli-show-log.tsv (canonical via @jehaes_).
+// - Show 400 belum tercapai per 24 April 2026 (count = 385). Entry
+//   ditandai upcoming dengan date: null.
 export const ELI_TIMELINE = [
   {
     id: 'audition',
     date: '2018-09-29',
-    period: 'September 2018',
-    title: 'Lulus Audisi Generasi 7',
+    period: '29 September 2018',
+    title: 'Lulus Audisi JKT48 Generasi 7',
     body:
-      'Helisma Putri lulus audisi JKT48 generasi 7 dan langsung ditempatkan di Academy Class A setelah melewati Step 1 dan Step 2.',
+      'Helisma Putri Kurnia resmi diperkenalkan sebagai salah satu member JKT48 Generasi 7 dalam pengumuman trainee baru JKT48. Berasal dari Bandung, Eli langsung menarik perhatian karena karakter ceria, logat Sunda yang khas, dan kemampuan membangun suasana di antara member lain. Setelah lolos tahap seleksi, Eli ditempatkan di Academy Class B sebagai awal perjalanan resminya di JKT48.',
     badge: 'Trainee',
   },
   {
-    id: 'theater-debut',
-    date: '2018-12-16',
-    period: 'Desember 2018',
-    title: 'Debut Teater bersama Team T',
-    body:
-      'Naik panggung pertama bersama Team T (T1 Revival — “Te wo Tsunaginagara”) bareng Angelina Christy dan Aurel Mayori. Detail unit songs tersedia di section Theater.',
-    badge: 'Team T',
-  },
-  {
     id: 'sousenkyo-2018',
-    date: '2018-10-01',
-    period: 'Oktober 2018',
-    title: 'JKT48 Senbatsu Sousenkyo Pertama',
+    date: '2018-10-27',
+    period: '27 Oktober 2018',
+    title: 'Partisipasi Sousenkyo Pertama',
     body:
-      'Mengikuti JKT48 Senbatsu Sousenkyo 2018 sebagai member baru, belum berhasil masuk ranking.',
+      'Eli mengikuti JKT48 Senbatsu Sousenkyo 2018 sebagai member trainee generasi baru. Walaupun belum berhasil masuk peringkat, pengalaman ini menjadi langkah awal Eli mengenal sistem kompetisi dan dukungan fanbase dalam budaya idol JKT48.',
     badge: 'Sousenkyo',
   },
   {
-    id: 'team-kiii',
-    date: '2019-07-01',
-    period: 'Juli 2019',
-    title: 'Transfer ke Team KIII',
+    id: 'class-a',
+    date: '2018-10-30',
+    period: '30 Oktober 2018',
+    title: 'Promosi ke Academy Class A',
     body:
-      'Resmi dipindahkan ke Team KIII pada konser graduation Cindy Yuvia, menandai awal era panggung reguler Eli.',
+      'Hanya sekitar satu bulan setelah debut, Eli berhasil naik dari Academy Class B ke Academy Class A. Kenaikan ini menunjukkan perkembangan performa dan adaptasinya yang cepat dalam latihan dance, vokal, dan theater sebagai member baru Generasi 7.',
+    badge: 'Academy',
+  },
+  {
+    id: 'theater-debut',
+    date: '2018-12-23',
+    period: '23 Desember 2018',
+    title: 'Debut Theater Pertama',
+    body:
+      'Eli menjalani debut theater pertamanya dalam stage revival Team T "Te wo Tsunaginagara". Penampilan ini menjadi titik awal perjalanan panggung Eli di Theater JKT48, sekaligus mulai dikenal oleh penonton theater karena energi dan ekspresinya yang natural di atas panggung.',
+    badge: 'Theater',
+  },
+  {
+    id: 'team-kiii',
+    date: '2019-07-21',
+    period: '21 Juli 2019',
+    title: 'Dipromosikan ke Team KIII',
+    body:
+      'Pada konser graduation Cindy Yuvia, Eli diumumkan resmi dipromosikan menjadi member Team KIII. Promosi ini menjadi milestone penting karena menandai peralihan Eli dari trainee academy menjadi member tim reguler JKT48 dengan jadwal theater dan event yang lebih aktif.',
     badge: 'Team KIII',
   },
   {
-    id: 'first-senbatsu',
-    date: '2020-01-01',
-    period: 'Single “Rapsodi”',
-    title: 'Senbatsu Pertama',
+    id: 'show-100',
+    date: '2019-12-29',
+    period: '29 Desember 2019',
+    title: 'Mencapai 100 Show Theater',
     body:
-      'Posisi Senbatsu pertama Eli tercatat di single “Rapsodi”, salah satu titik balik karier teater dan rilisnya.',
+      'Di tahun pertamanya sebagai member tim reguler, Eli berhasil mencapai 100 pertunjukan theater JKT48. Konsistensinya tampil di theater membuatnya semakin dikenal sebagai member dengan pembawaan hangat, lucu, dan komunikatif.',
+    badge: 'Theater · 100 Show',
+    category: 'show-recap',
+  },
+  {
+    id: 'first-senbatsu',
+    date: '2020-01-22',
+    period: '22 Januari 2020',
+    title: 'Senbatsu Pertama — "Rapsodi"',
+    body:
+      'Eli berhasil mencatatkan posisi Senbatsu pertamanya melalui single original JKT48 "Rapsodi". Lagu ini menjadi salah satu rilisan paling bersejarah bagi JKT48 karena merupakan original song pertama grup. Masuknya Eli ke formasi Senbatsu menjadi pencapaian besar dalam kariernya sejak debut Generasi 7.',
     badge: 'Senbatsu',
   },
   {
     id: 'new-formation-2021',
     date: '2021-03-13',
     period: '13 Maret 2021',
-    title: 'JKT48 New Era — Formasi Tunggal',
+    title: 'Bergabung ke Formasi JKT48 New Era',
     body:
-      'JKT48 mengumumkan New Formation: tiga tim (Team J, Team KIII, Team T) digabung menjadi satu tim tunggal bernama JKT48 New Era. Eli ikut transisi ke formasi baru ini, mengakhiri eranya di Team KIII.',
-    badge: 'New Formation',
+      'JKT48 mengumumkan restrukturisasi besar dengan membubarkan sistem Team J, Team KIII, dan Team T menjadi satu formasi tunggal bernama JKT48 New Era. Eli menjadi bagian dari formasi baru tersebut dan ikut melewati masa transisi besar JKT48 setelah perubahan sistem grup.',
+    badge: 'New Era',
+  },
+  {
+    id: 'darashinai-aishikata',
+    date: '2021-05-26',
+    period: '26 Mei 2021',
+    title: 'Partisipasi "Darashinai Aishikata"',
+    body:
+      'Eli kembali tampil dalam single utama JKT48 "Darashinai Aishikata". Partisipasi ini memperlihatkan konsistensinya dalam line-up rilisan utama JKT48 di era New Era.',
+    badge: 'Single',
+  },
+  {
+    id: 'show-200',
+    date: '2021-11-20',
+    period: '20 November 2021',
+    title: 'Mencapai 200 Show Theater',
+    body:
+      'Genap dua tahun setelah angka 100, Eli melewati 200 pertunjukan theater JKT48. Pencapaian ini didapatkan di tengah era New Era — masa transisi besar grup pasca-restrukturisasi tim — di setlist Renai Kinshi Jourei yang sedang aktif di periode tersebut. Konsistensi tampilnya jadi sinyal komitmen Eli pada panggung theater.',
+    badge: 'Theater · 200 Show',
+    category: 'show-recap',
+  },
+  {
+    id: 'sayonara-crawl',
+    date: '2023-10-11',
+    period: '11 Oktober 2023',
+    title: 'Partisipasi "Sayonara Crawl"',
+    body:
+      'Eli kembali berpartisipasi dalam single A-Side "Sayonara Crawl". Di periode ini, Eli semakin dikenal karena kemampuan variety, interaksi theater, dan image "Ceu Eli" yang kuat di kalangan fans maupun member.',
+    badge: 'Single',
+  },
+  {
+    id: 'spv-langit-biru-2024',
+    date: '2024-03-13',
+    period: '13 Maret 2024',
+    title: 'SPV "Langit Biru Cinta Searah"',
+    body:
+      'Eli tampil dalam Special Performance Video "Langit Biru Cinta Searah" bersama beberapa member utama JKT48. Performance video ini mendapat perhatian besar dari fans karena konsep visual dan nuansa emosionalnya, sekaligus memperlihatkan perkembangan kualitas performa Eli di atas panggung dan kamera.',
+    badge: 'SPV',
+  },
+  {
+    id: 'show-300',
+    date: '2024-07-07',
+    period: '7 Juli 2024',
+    title: 'Mencapai 300 Show Theater',
+    body:
+      'Lebih dari lima tahun setelah debut, Eli menyentuh angka 300 pertunjukan theater. Diraih di setlist Ramune no Nomikata, milestone ini menempatkan Eli sebagai salah satu member yang konsisten tampil sejak Generasi 7 hingga era theater modern JKT48.',
+    badge: 'Theater · 300 Show',
+    category: 'show-recap',
   },
   {
     id: 'undergirl-bibir-2024',
-    date: '2024-12-16',
-    period: '16 Desember 2024',
-    title: 'Undergirl di “Bibir yang Telah Dicuri”',
+    date: '2024-12-15',
+    period: '15 Desember 2024',
+    title: 'Undergirls — "Bibir yang Telah Dicuri"',
     body:
-      'Eli terpilih sebagai Undergirl untuk single “Bibir yang Telah Dicuri” (Nusumareta Kuchibiru) pada pengumuman hasil akhir Sousenkyo.',
+      'Pada hasil akhir Sousenkyo, Eli berhasil meraih posisi #22 dan masuk formasi Undergirls untuk lagu "Bibir yang Telah Dicuri" (Nusumareta Kuchibiru). Hasil ini menjadi bukti bertumbuhnya dukungan fanbase Eli setelah beberapa tahun konsisten aktif di theater, event, dan rilisan JKT48.',
     badge: 'Undergirls',
   },
   {
     id: 'three-team-announce',
     date: '2025-12-20',
     period: '20 Desember 2025',
-    title: 'Pengumuman Sistem 3 Tim & Tagline Fight',
+    title: 'Pengumuman Sistem 3 Tim Baru',
     body:
-      'Di ICE BSD, JKT48 mengumumkan rencana kembalinya sistem tim dengan tiga formasi baru: Team Passion, Team Dream, dan Team Love. Pengumuman ini sekaligus memperkenalkan tagline baru "JKT48 Fight".',
-    badge: 'Reshuffle',
+      'Dalam acara besar di ICE BSD, JKT48 mengumumkan era baru bertajuk "Fight!" dengan menghidupkan kembali sistem tiga tim: Team Passion, Team Dream, dan Team Love. Pada pengumuman tersebut, Eli diumumkan menjadi bagian dari Team Dream, menandai awal fase baru dalam perjalanan kariernya di JKT48.',
+    badge: 'JKT48 Fight',
   },
   {
     id: 'fight-tagline',
     date: '2026-01-17',
     period: '17 Januari 2026',
-    title: 'JKT48 14th Anniversary — Tagline “Fight!”',
+    title: 'JKT48 14th Anniversary — "Fight!"',
     body:
-      'Di ICE BSD, JKT48 merayakan 14 tahun perjalanan dan meluncurkan semangat baru “Fight!” sebagai tagline tahun 2026.',
+      'Dalam konser ulang tahun ke-14 JKT48, tagline baru "Fight!" resmi diperkenalkan sebagai semangat baru grup untuk tahun 2026. Eli ikut menjadi bagian dari generasi member yang membawa identitas baru JKT48 di era kompetitif antar tim.',
     badge: 'Anniversary',
   },
   {
     id: 'team-dream',
     date: '2026-04-01',
     period: '1 April 2026',
-    title: 'Bergabung dengan Team Dream',
+    title: 'Resmi Bergabung dengan Team Dream',
     body:
-      'Sistem tiga tim resmi berlaku. Eli ditempatkan di Team Dream, satu tim dengan Kapten JKT48 Freya Jayawardana, untuk format kompetisi JKT48 Fight 2026.',
+      'Sistem tiga tim resmi mulai dijalankan dan Eli aktif sebagai member Team Dream bersama Freya Jayawardana dan member lainnya. Setelah melewati perjalanan panjang dari trainee Generasi 7, Team KIII, hingga New Era, Eli memasuki fase baru sebagai salah satu member berpengalaman di era JKT48 Fight 2026.',
     badge: 'Team Dream',
+  },
+  {
+    id: 'show-400',
+    date: null,
+    period: 'Belum tercapai',
+    title: 'Menuju 400 Show Theater',
+    body:
+      'Per April 2026, Eli mencatat 385 pertunjukan theater JKT48 (sumber: recap #JumlahShowJKT48 oleh @jehaes_). Angka 400 tinggal selangkah lagi — milestone karier yang lazim dirayakan komunitas teater JKT48 sebagai penanda longevitas di panggung. Entry ini akan diperbarui dengan tanggal pasti ketika tercapai.',
+    badge: 'Theater · Menuju 400',
+    category: 'show-recap',
+    upcoming: true,
   },
 ];
 

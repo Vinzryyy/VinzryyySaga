@@ -329,7 +329,9 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
 };
 
 const TimelineSection = () => {
-  const formatYear = (iso) => new Date(iso).getFullYear();
+  // Entry tanpa date pasti (e.g. show-400 belum tercapai) tampilin
+  // ellipsis di kolom tahun, bukan "1970" hasil new Date(null).
+  const formatYear = (iso) => (iso ? new Date(iso).getFullYear() : '···');
   const { elementRef, isVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-50px' });
   return (
     <>
