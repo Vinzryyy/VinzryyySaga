@@ -2433,8 +2433,8 @@ const StarMilestone = ({
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     // Base twinkle — sine modulation 0.6 Hz, range emissive 0.8..1.4.
-    const twinkle = 1.1 + Math.sin(t * 0.6 + twinklePhase) * 0.3;
-    let glow = isUpcoming ? 0.4 : 1.0;
+    const twinkle = 0.95 + Math.sin(t * 0.6 + twinklePhase) * 0.22;
+    let glow = isUpcoming ? 0.32 : 0.72;
     let scaleMul = 1.0;
     // Hover lift
     if (hovered) {
@@ -2474,8 +2474,8 @@ const StarMilestone = ({
     }
     if (haloMatRef.current) {
       const haloOp = Math.max(
-        0.08,
-        (isUpcoming ? 0.12 : 0.26) + (hovered ? 0.20 : 0) + (selected ? 0.14 : 0),
+        0.06,
+        (isUpcoming ? 0.09 : 0.18) + (hovered ? 0.18 : 0) + (selected ? 0.12 : 0),
       );
       haloMatRef.current.opacity = haloOp;
     }
