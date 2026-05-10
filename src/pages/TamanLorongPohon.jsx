@@ -2459,6 +2459,53 @@ const StarMilestone = ({
           depthWrite={false}
         />
       </mesh>
+      {/* Year label — always visible subtle tag di bawah star. Title
+          appear on hover. distanceFactor disesuaikan dgn SKY_RADIUS=14
+          supaya text legible tapi gak overpowering. */}
+      <Html
+        position={[0, -baseSize * 1.8, 0]}
+        center
+        distanceFactor={8}
+        occlude={false}
+        style={{ pointerEvents: 'none' }}
+      >
+        <div
+          className="text-center whitespace-nowrap"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            color: star.color,
+            transition: 'opacity 300ms ease-out',
+            textShadow: '0 0 8px rgba(0,0,0,0.85)',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '11px',
+              letterSpacing: '0.18em',
+              opacity: hovered ? 0.95 : (selected ? 0.8 : 0.5),
+            }}
+          >
+            {star.year}
+          </div>
+          {(hovered || selected) && (
+            <div
+              style={{
+                fontSize: '10px',
+                marginTop: '3px',
+                color: 'rgba(255,255,255,0.85)',
+                fontStyle: 'italic',
+                maxWidth: '180px',
+                whiteSpace: 'normal',
+                lineHeight: '1.25',
+                animation: 'fadeIn 250ms ease-out',
+              }}
+            >
+              {star.title}
+            </div>
+          )}
+        </div>
+      </Html>
     </group>
   );
 };
@@ -2559,10 +2606,10 @@ const ConstellationLabels = () => {
         eraCenter[2],
       ).sub(state.camera.position).normalize();
       const dot = camDir.dot(toCenter);
-      // Visible saat camera melihat ke arah era (dot > 0.85), fade
-      // di tepi — soft, contextual.
-      const op = Math.max(0, (dot - 0.82) / 0.18);
-      ref.style.opacity = String(op * 0.7);
+      // Visible saat camera melihat ke arah era (dot > 0.65), fade
+      // di tepi — kasih lebih banyak konteks era saat user pan camera.
+      const op = Math.max(0, (dot - 0.65) / 0.35);
+      ref.style.opacity = String(op * 0.85);
     });
   });
   return (
@@ -3238,7 +3285,7 @@ const LorongScene = ({
         dampingFactor={0.08}
         rotateSpeed={0.4}
         autoRotate
-        autoRotateSpeed={0.12}
+        autoRotateSpeed={0.08}
       />
     )}
     {!transitioning && viewMode === 'fpv' && !isMobile && (
