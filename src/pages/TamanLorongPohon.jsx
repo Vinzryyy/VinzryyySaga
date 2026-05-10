@@ -122,6 +122,7 @@ const LorongScene = ({
   hoveredTreeId,
   selectedTreeId,
   spotlightEra,
+  hoveredEra,
   isMobile,
   signatureEvent,
   viewMode,
@@ -208,6 +209,7 @@ const LorongScene = ({
           hovered={hoveredTreeId === star.id}
           selected={selectedTreeId === star.id}
           spotlit={spotlightEra === star.eraId}
+          previewLit={hoveredEra === star.eraId && spotlightEra !== star.eraId}
           modalOpen={selectedTreeId !== null}
           signatureEvent={signatureEvent}
           onPointerOver={onTreeHover}
@@ -378,6 +380,9 @@ const TamanLorongPohonPage = () => {
   // pulse 4 detik supaya gampang identifikasi di langit. Skip kalau
   // era yang sama lagi spotlight.
   const [spotlightEra, setSpotlightEra] = useState(null);
+  // Hover preview — chip hover di EraGuide → softer pulse di stars
+  // (lebih gentle dari click spotlight). Cleared on mouse leave.
+  const [hoveredEra, setHoveredEra] = useState(null);
   const spotlightTimerRef = useRef(null);
   const handleEraSpotlight = (eraId) => {
     if (spotlightEra === eraId) return; // toggle-off behavior
@@ -523,6 +528,7 @@ const TamanLorongPohonPage = () => {
               hoveredTreeId={hoveredTreeId}
               selectedTreeId={selectedTree?.id ?? null}
               spotlightEra={spotlightEra}
+              hoveredEra={hoveredEra}
               isMobile={isMobile}
               signatureEvent={signatureEvent}
               viewMode={viewMode}
@@ -572,6 +578,8 @@ const TamanLorongPohonPage = () => {
           isMobile={isMobile}
           onSpotlight={handleEraSpotlight}
           spotlightEra={spotlightEra}
+          onHoverEra={setHoveredEra}
+          hoveredEra={hoveredEra}
         />
         <LorongHeader />
         <LorongFooter hoveredTreeId={hoveredTreeId} isMobile={isMobile} />

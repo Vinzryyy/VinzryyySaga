@@ -27,6 +27,7 @@ export const StarMilestone = ({
   hovered,
   selected,
   spotlit,
+  previewLit,
   signatureEvent,
   modalOpen,
   onPointerOver,
@@ -63,6 +64,12 @@ export const StarMilestone = ({
     if (spotlit) {
       glow += 0.7 + Math.sin(t * 5) * 0.4;
       scaleMul *= 1.18;
+    }
+    // Era preview — saat user hover chip (belum click), softer glow
+    // boost untuk identify era stars tanpa committed spotlight.
+    if (previewLit) {
+      glow += 0.35 + Math.sin(t * 3) * 0.15;
+      scaleMul *= 1.08;
     }
     // Signature event — first/last star anchor dapat subtle pulse
     // saat 'recent'/'old' event aktif (cross-scene effect coordinated
@@ -198,71 +205,55 @@ export const StarMilestone = ({
   );
 };
 
-// Garis konstelasi — connect bintang dalam satu era. Pakai vanilla
-// THREE.LineSegments dgn BufferGeometry: list of (start, end) points
-// untuk setiap pair adjacent dalam milestoneIds order. Color subtle
-// per era. Fade in saat scene mount via material.opacity ramp.
-export const ConstellationLines = ({ stars }) => {
-  const geometryRef = useRef();
+// Per-era line segments — single era → 1 lineSegments mesh dgn own
+// fade-in timing. Stagger reveal cascade: era 0 mulai fade @1.5s,
+// era 1 @1.9s, era 2 @2.3s, dst (gap 0.4s per era). Bikin konstelasi
+// kerasa "terbentuk satu per satu" oldest → newest.
+const EraLines = ({ era, stars, startDelay }) => {
   const matRef = useRef();
   const startTimeRef = useRef(-1);
-
-  const { positions, colors } = useMemo(() => {
-    const pos = [];
-    const col = [];
+  const { positions, color } = useMemo(() => {
     const byId = new Map(stars.map((s) => [s.id, s]));
-    ERA_DEFS.forEach((era) => {
-      const ids = era.milestoneIds;
-      const hex = era.color.replace('#', '');
-      const r = parseInt(hex.slice(0, 2), 16) / 255;
-      const g = parseInt(hex.slice(2, 4), 16) / 255;
-      const b = parseInt(hex.slice(4, 6), 16) / 255;
-      for (let i = 0; i < ids.length - 1; i++) {
-        const a = byId.get(ids[i]);
-        const c = byId.get(ids[i + 1]);
-        if (!a || !c) continue;
-        pos.push(a.x, a.y, a.z, c.x, c.y, c.z);
-        col.push(r, g, b, r, g, b);
-      }
-    });
+    const pos = [];
+    const ids = era.milestoneIds;
+    for (let i = 0; i < ids.length - 1; i++) {
+      const a = byId.get(ids[i]);
+      const c = byId.get(ids[i + 1]);
+      if (!a || !c) continue;
+      pos.push(a.x, a.y, a.z, c.x, c.y, c.z);
+    }
+    const hex = era.color.replace('#', '');
     return {
       positions: new Float32Array(pos),
-      colors: new Float32Array(col),
+      color: era.color,
     };
-  }, [stars]);
-
+  }, [era, stars]);
   useFrame((state) => {
     if (!matRef.current) return;
     const t = state.clock.elapsedTime;
     if (startTimeRef.current < 0) startTimeRef.current = t;
-    const dt = t - startTimeRef.current;
-    // Fade in over 4s saat scene mount (kasih waktu user fokus ke
-    // bintang dulu sebelum lines reveal)
-    const fadeIn = Math.min(1, Math.max(0, (dt - 1.5) / 4));
+    const dt = t - startTimeRef.current - startDelay;
+    // Cubic ease-in over 2.5s per era — feels like garis "drawn"
+    // bukan crossfade flat.
+    const u = Math.min(1, Math.max(0, dt / 2.5));
+    const eased = u * u * (3 - 2 * u); // smoothstep
     const breath = 0.92 + Math.sin(t * 0.3) * 0.08;
-    matRef.current.opacity = 0.42 * fadeIn * breath;
+    matRef.current.opacity = 0.42 * eased * breath;
   });
-
   if (positions.length === 0) return null;
   return (
     <lineSegments>
-      <bufferGeometry ref={geometryRef}>
+      <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
           array={positions}
           count={positions.length / 3}
           itemSize={3}
         />
-        <bufferAttribute
-          attach="attributes-color"
-          array={colors}
-          count={colors.length / 3}
-          itemSize={3}
-        />
       </bufferGeometry>
       <lineBasicMaterial
         ref={matRef}
-        vertexColors
+        color={color}
         transparent
         opacity={0}
         depthWrite={false}
@@ -270,6 +261,23 @@ export const ConstellationLines = ({ stars }) => {
     </lineSegments>
   );
 };
+
+// Garis konstelasi per-era — 7 lineSegments mesh terpisah, masing
+// punya start delay incremental (gap 0.4s) untuk progressive reveal
+// sequential oldest → newest era. User feel "konstelasi terbentuk
+// pelan-pelan" sebagai entry experience.
+export const ConstellationLines = ({ stars }) => (
+  <>
+    {ERA_DEFS.map((era, i) => (
+      <EraLines
+        key={era.id}
+        era={era}
+        stars={stars}
+        startDelay={1.5 + i * 0.4}
+      />
+    ))}
+  </>
+);
 
 // Era label — Html floating di atas konstelasi center, fade in saat
 // camera pointing dekat ke arah era itu (dot product > 0.65). Subtle,

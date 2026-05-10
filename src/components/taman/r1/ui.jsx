@@ -366,7 +366,14 @@ export const MobileFPVControls = ({ joystickRef, lookRef }) => {
 // supaya user gampang identifikasi mana yang mana di langit. Active
 // era (lagi spotlight) di-highlight visual.
 const ERA_GUIDE_STORAGE_KEY = 'taman-r1-guide-collapsed';
-export const EraGuide = ({ trees, isMobile, onSpotlight, spotlightEra }) => {
+export const EraGuide = ({
+  trees,
+  isMobile,
+  onSpotlight,
+  spotlightEra,
+  onHoverEra,
+  hoveredEra,
+}) => {
   // Persistence: user bisa collapse panel kalau merasa intrusive.
   // Default collapsed di mobile (less screen real estate), expanded
   // di desktop. User can toggle either way, persisted.
@@ -435,13 +442,20 @@ export const EraGuide = ({ trees, isMobile, onSpotlight, spotlightEra }) => {
           >
             {grouped.map((era) => {
               const isActive = spotlightEra === era.id;
+              const isHovered = hoveredEra === era.id;
               return (
                 <button
                   key={era.id}
                   type="button"
                   onClick={() => onSpotlight(era.id)}
+                  onMouseEnter={() => onHoverEra?.(era.id)}
+                  onMouseLeave={() => onHoverEra?.(null)}
                   className={`flex items-center gap-2 px-2 py-1 rounded-sm transition ${
-                    isActive ? 'bg-white/12' : 'hover:bg-white/8'
+                    isActive
+                      ? 'bg-white/12'
+                      : isHovered
+                        ? 'bg-white/8'
+                        : 'hover:bg-white/8'
                   }`}
                   aria-label={`Spotlight ${era.name} (${era.stars.length} bintang)`}
                 >
