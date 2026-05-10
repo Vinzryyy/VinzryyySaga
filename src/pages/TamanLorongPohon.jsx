@@ -669,15 +669,32 @@ const LANTERN_DEFS = [
   { pos: [-3.5, 0, -29], phase: 1.8 },
 ];
 
-const LanternPost = ({ pos, phase, dead = false, signatureEvent }) => {
+const TILE_SIZE_LANTERNS = 50;
+const LanternPost = ({ pos, phase, dead = false, signatureEvent, viewMode }) => {
   const lightRef = useRef();
   const matRef = useRef();
   const groupRef = useRef();
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     const wind = getWind(t, phase * 1.7);
-    // Pole sway tetap berlaku walau lentera mati
+    // Endless wrap: di FPV, position z di-wrap relatif terhadap
+    // camera z. Bikin lentera kerasa "muncul terus" di depan saat
+    // user jalan (gak ada ujung).
     if (groupRef.current) {
+      let displayZ = pos[2];
+      if (viewMode === 'fpv') {
+        const camZ = state.camera.position.z;
+        let relZ = pos[2] - camZ;
+        relZ =
+          ((relZ + TILE_SIZE_LANTERNS / 2) % TILE_SIZE_LANTERNS +
+            TILE_SIZE_LANTERNS) %
+            TILE_SIZE_LANTERNS -
+          TILE_SIZE_LANTERNS / 2;
+        displayZ = camZ + relZ;
+      }
+      groupRef.current.position.x = pos[0];
+      groupRef.current.position.y = pos[1];
+      groupRef.current.position.z = displayZ;
       groupRef.current.rotation.z = wind.total * 0.012;
     }
     if (dead) {
@@ -750,7 +767,7 @@ const LanternPost = ({ pos, phase, dead = false, signatureEvent }) => {
   );
 };
 
-const Lanterns = ({ signatureEvent }) => (
+const Lanterns = ({ signatureEvent, viewMode }) => (
   <>
     {LANTERN_DEFS.map((l, i) => (
       <LanternPost
@@ -759,6 +776,7 @@ const Lanterns = ({ signatureEvent }) => (
         phase={l.phase}
         dead={l.dead}
         signatureEvent={signatureEvent}
+        viewMode={viewMode}
       />
     ))}
   </>
@@ -1619,23 +1637,52 @@ const GardenAnchorTrees = ({ isMobile }) => {
 
 // Mobile cull: 16 → 8 (slice setengah). Tetep ada filler density tapi
 // halve trunk+foliage geometry & sway calc per frame.
-const SideTrees = ({ isMobile }) => {
+// Endless wrap: di FPV mode, posisi tree z di-wrap relatif terhadap
+// camera z. Saat user walk forward, tree yang behind ke-recycle ke
+// front. Bikin path kerasa tidak ada ujungnya. Di orbit mode, posisi
+// tetap di world coordinates asli.
+const TILE_SIZE_TREES = 50; // wrap range di z direction
+const SideTrees = ({ isMobile, viewMode }) => {
   const list = isMobile ? SIDE_TREE_DEFS.slice(0, 8) : SIDE_TREE_DEFS;
-  const refs = useRef([]);
+  const foliageRefs = useRef([]);
+  const groupRefs = useRef([]);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
+    const camZ = state.camera.position.z;
+    const wrap = viewMode === 'fpv';
     list.forEach((tree, i) => {
-      const r = refs.current[i];
-      if (!r) return;
-      const wind = getWind(t, tree.pos[0] * 0.27 + tree.pos[2] * 0.13);
-      r.rotation.z = wind.total * 0.04;
-      r.rotation.x = wind.total * 0.02;
+      const fol = foliageRefs.current[i];
+      const grp = groupRefs.current[i];
+      if (!fol || !grp) return;
+      const baseZ = tree.pos[2];
+      // Wrap z relative to camera (only di FPV)
+      let displayZ = baseZ;
+      if (wrap) {
+        const center = camZ;
+        let relZ = baseZ - center;
+        relZ =
+          ((relZ + TILE_SIZE_TREES / 2) % TILE_SIZE_TREES + TILE_SIZE_TREES) %
+            TILE_SIZE_TREES -
+          TILE_SIZE_TREES / 2;
+        displayZ = center + relZ;
+      }
+      grp.position.z = displayZ;
+      const wind = getWind(t, tree.pos[0] * 0.27 + displayZ * 0.13);
+      fol.rotation.z = wind.total * 0.04;
+      fol.rotation.x = wind.total * 0.02;
     });
   });
   return (
     <>
       {list.map((tree, i) => (
-        <group key={`side-${i}`} position={tree.pos} scale={tree.scale}>
+        <group
+          key={`side-${i}`}
+          ref={(el) => {
+            groupRefs.current[i] = el;
+          }}
+          position={tree.pos}
+          scale={tree.scale}
+        >
           {/* Trunk */}
           <mesh position={[0, 0.85, 0]}>
             <cylinderGeometry args={[0.07, 0.12, 1.7, 6]} />
@@ -1644,7 +1691,7 @@ const SideTrees = ({ isMobile }) => {
           {/* Foliage — 1 sphere dengan sway via parent group ref */}
           <group
             ref={(el) => {
-              refs.current[i] = el;
+              foliageRefs.current[i] = el;
             }}
             position={[0, 1.7, 0]}
           >
@@ -2708,18 +2755,18 @@ const ConstellationLabels = () => {
 
 // Jalur tanah membentang dari awal ke akhir lorong. Lebih sempit dari
 // floor utama supaya kerasa kayak path/garden walk, bukan field.
+// Path strip — di-extend ke z=-220..220 supaya endless walk gak
+// nimbul gap. Fog far 32 = user cuma lihat ~30 unit di depan,
+// sisanya invisible. Floor sekitar juga di-extend.
 const Path = () => (
   <>
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, 0, (PATH_START_Z + PATH_END_Z) / 2]}
-    >
-      <planeGeometry args={[2.2, Math.abs(PATH_END_Z - PATH_START_Z) + 6]} />
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+      <planeGeometry args={[2.2, 440]} />
       <meshStandardMaterial color="#3a3022" roughness={1} />
     </mesh>
     {/* Floor sekitar path — palette twilight senja sedikit purple */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.001, -16]}>
-      <planeGeometry args={[40, 50]} />
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.001, 0]}>
+      <planeGeometry args={[40, 460]} />
       <meshStandardMaterial color="#1f2335" roughness={1} />
     </mesh>
   </>
@@ -3200,8 +3247,11 @@ const MobileFPVMovement = ({ joystickRef, lookRef }) => {
     if (jy !== 0) camera.position.addScaledVector(FPV_FORWARD, jy * speed);
     if (jx !== 0) camera.position.addScaledVector(FPV_RIGHT, jx * speed);
     // Boundary + Y breathing
-    camera.position.x = Math.max(-4.5, Math.min(4.5, camera.position.x));
-    camera.position.z = Math.max(-32, Math.min(0, camera.position.z));
+    // Endless walk: x clamp tetap (gak kabur ke sisi taman),
+    // z bebas — entities akan wrap di sekitar user lewat
+    // EndlessSideTrees & EndlessLanterns. Monument tetap landmark
+    // di z=-32, user bisa lewatin atau balik.
+    camera.position.x = Math.max(-5.5, Math.min(5.5, camera.position.x));
     const moving = jx !== 0 || jy !== 0;
     const t = state.clock.elapsedTime;
     const bobAmp = moving ? 0.025 : 0.012;
@@ -3252,8 +3302,11 @@ const FPVMovement = ({ enabled }) => {
     if (keysRef.current.a) camera.position.addScaledVector(FPV_RIGHT, -speed);
     if (keysRef.current.d) camera.position.addScaledVector(FPV_RIGHT, speed);
     // Boundary — keep dalam corridor + sedikit outside, di luar path end
-    camera.position.x = Math.max(-4.5, Math.min(4.5, camera.position.x));
-    camera.position.z = Math.max(-32, Math.min(0, camera.position.z));
+    // Endless walk: x clamp tetap (gak kabur ke sisi taman),
+    // z bebas — entities akan wrap di sekitar user lewat
+    // EndlessSideTrees & EndlessLanterns. Monument tetap landmark
+    // di z=-32, user bisa lewatin atau balik.
+    camera.position.x = Math.max(-5.5, Math.min(5.5, camera.position.x));
     // Camera Y breathing: idle = subtle 1.6 ± 0.012, walking = sedikit
     // lebih besar (head bob ritmis ngikut langkah). Frequency walking
     // 2.4 (lebih cepat) vs idle 1.2 (lebih tenang).
@@ -3332,7 +3385,7 @@ const LorongScene = ({
         perimeter, GardenAnchorTrees di posisi spesifik dekat bench/
         swing/monument untuk komposisi. YearPlaques + Owls tetep
         dropped (tied ke per-milestone tree). */}
-    <SideTrees isMobile={isMobile} />
+    <SideTrees isMobile={isMobile} viewMode={viewMode} />
     <GardenAnchorTrees isMobile={isMobile} />
     <Bushes />
     <Mushrooms />
@@ -3403,7 +3456,7 @@ const LorongScene = ({
       </Html>
     )}
     <StoneMonument onClick={onMonumentTrigger} />
-    <Lanterns signatureEvent={signatureEvent} />
+    <Lanterns signatureEvent={signatureEvent} viewMode={viewMode} />
     <Rabbits />
     {!isMobile && <Bats />}
     <DistantFigure signatureEvent={signatureEvent} />
