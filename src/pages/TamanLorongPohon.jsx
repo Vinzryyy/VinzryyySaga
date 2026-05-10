@@ -62,7 +62,7 @@ const PATH_X_OFFSET = 2.6; // alternating ±2.6 dari sumbu jalur (legacy)
 // Orbit target naik ke mid-air supaya camera arc mendominan langit,
 // bukan ground. User tetep liat tanah di edge view, tapi langit
 // dominant.
-const ORBIT_TARGET = [0, 6, -12];
+const ORBIT_TARGET = [0, 5, -10];
 
 // Era definitions — 7 era career Eli, masing-masing jadi 1 konstelasi
 // di langit. azimuth = sudut horizontal dari -z (forward of garden),
@@ -81,7 +81,7 @@ const ORBIT_TARGET = [0, 6, -12];
 // dalam era diposisi via chronological azimuth (oldest kiri → newest
 // kanan dalam era) plus random jitter dari hash per milestone. No
 // rigid pattern — kerasa lebih natural seperti konstelasi nyata.
-const SKY_RADIUS = 14;
+const SKY_RADIUS = 11;
 const ERA_DEFS = [
   {
     id: 'trainee',
@@ -2724,7 +2724,7 @@ const { STAR_POSITIONS, STAR_COLORS } = (() => {
   for (let i = 0; i < STAR_COUNT; i++) {
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.random() * Math.PI * 0.48;
-    const r = 35 + Math.random() * 20;
+    const r = 24 + Math.random() * 14;
     positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
     positions[i * 3 + 1] = r * Math.cos(phi) + 4;
     positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
@@ -2905,7 +2905,7 @@ const DISTANT_FOREST_DEFS = (() => {
   const count = 14;
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * Math.PI * 2 + Math.random() * 0.2;
-    const r = 22 + Math.random() * 8;
+    const r = 16 + Math.random() * 5;
     arr.push({
       pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
       scale: 1.5 + Math.random() * 1.0,
@@ -3029,10 +3029,10 @@ const PathEdgeStones = () => (
 const CAMERA_TARGETS = {
   // Orbit: camera lebih rendah + lookAt mid-air supaya langit dominan,
   // tanah cuma terlihat di tepi bawah view.
-  orbit: { pos: new THREE.Vector3(5, 4, 8), look: new THREE.Vector3(0, 6, -12) },
+  orbit: { pos: new THREE.Vector3(4, 3, 6), look: new THREE.Vector3(0, 5, -10) },
   // FPV "tatap langit": user di tengah path, eye level, look ke sky
   // mid-front (atas + sedikit ke depan).
-  fpv: { pos: new THREE.Vector3(0, 1.7, -8), look: new THREE.Vector3(0, 9, -16) },
+  fpv: { pos: new THREE.Vector3(0, 1.7, -7), look: new THREE.Vector3(0, 7, -14) },
 };
 
 const CameraSync = ({ viewMode, transitioning }) => {
@@ -3165,7 +3165,7 @@ const LorongScene = ({
 }) => (
   <>
     {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
-    <fog attach="fog" args={['#1f2335', 14, 48]} />
+    <fog attach="fog" args={['#1f2335', 10, 32]} />
     <color attach="background" args={['#1f2335']} />
     <ambientLight intensity={0.5} />
     {/* Sunset key light — warm dari upper-front */}
@@ -3287,8 +3287,8 @@ const LorongScene = ({
       <OrbitControls
         target={ORBIT_TARGET}
         enableZoom
-        minDistance={9}
-        maxDistance={26}
+        minDistance={6}
+        maxDistance={17}
         enablePan={false}
         // Polar range diperluas ke arah bawah (camera below target =
         // looking up) supaya user bisa "menengadah" ke konstelasi.
@@ -4285,7 +4285,7 @@ const TamanLorongPohonPage = () => {
       <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 50, position: [5, 4, 8] }}
+            camera={{ fov: 50, position: [4, 3, 6] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
@@ -4293,7 +4293,7 @@ const TamanLorongPohonPage = () => {
             }}
             shadows={false}
             onCreated={({ camera }) => {
-              camera.lookAt(0, 6, -12);
+              camera.lookAt(0, 5, -10);
             }}
           >
             <ClockSync clockRef={clockRef} />
