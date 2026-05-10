@@ -2754,75 +2754,116 @@ const GroundPatches = () => (
   </>
 );
 
-// Bintang-bintang di langit — Points geometry distribute di upper
-// hemisphere radius 35-55. Per-star vertex colors variasi (warm
-// kuning / cool kebiruan / white) supaya kerasa kayak field bintang
-// real. Pulse opacity material untuk twinkle subtle.
-const STAR_COUNT = 240;
-const { STAR_POSITIONS, STAR_COLORS } = (() => {
-  const positions = new Float32Array(STAR_COUNT * 3);
-  const colors = new Float32Array(STAR_COUNT * 3);
-  for (let i = 0; i < STAR_COUNT; i++) {
+// Multi-layer starfield — bikin "dunia penuh bintang" feeling.
+// Tiga layer di radius berbeda, density tinggi, fog: false supaya
+// stars stay bright regardless of distance:
+// - Far stars (700, size 1.2): backdrop deep space
+// - Mid stars (320, size 1.6): between user dan far backdrop
+// - Bright stars (70, size 2.6): occasional brighter point lights
+// Total ~1090 background stars, padat di atas + sekitar user.
+const buildStarLayer = (count, rMin, rMax) => {
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
     const theta = Math.random() * Math.PI * 2;
-    const phi = Math.random() * Math.PI * 0.48;
-    const r = 24 + Math.random() * 14;
+    // phi 0..0.55 = upper hemisphere (avoid stars below ground/y=0)
+    const phi = Math.random() * Math.PI * 0.55;
+    const r = rMin + Math.random() * (rMax - rMin);
     positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-    positions[i * 3 + 1] = r * Math.cos(phi) + 4;
+    positions[i * 3 + 1] = r * Math.cos(phi) + 2;
     positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-    // Color variation: 60% white, 25% warm yellow, 15% cool blue
+    // Color variation — 50% white, 30% warm, 20% cool, dengan
+    // varying intensity per star (some dim, some bright)
     const tier = Math.random();
-    if (tier < 0.6) {
-      colors[i * 3] = 1;
-      colors[i * 3 + 1] = 1;
-      colors[i * 3 + 2] = 1;
-    } else if (tier < 0.85) {
-      colors[i * 3] = 1;
-      colors[i * 3 + 1] = 0.92;
-      colors[i * 3 + 2] = 0.78;
+    const intensity = 0.55 + Math.random() * 0.45; // 0.55..1.0
+    if (tier < 0.5) {
+      colors[i * 3] = intensity;
+      colors[i * 3 + 1] = intensity;
+      colors[i * 3 + 2] = intensity;
+    } else if (tier < 0.8) {
+      colors[i * 3] = intensity;
+      colors[i * 3 + 1] = intensity * 0.92;
+      colors[i * 3 + 2] = intensity * 0.74;
     } else {
-      colors[i * 3] = 0.85;
-      colors[i * 3 + 1] = 0.92;
-      colors[i * 3 + 2] = 1;
+      colors[i * 3] = intensity * 0.82;
+      colors[i * 3 + 1] = intensity * 0.92;
+      colors[i * 3 + 2] = intensity;
     }
   }
-  return { STAR_POSITIONS: positions, STAR_COLORS: colors };
-})();
+  return { positions, colors };
+};
 
-const Stars = () => {
+const FAR_STAR = buildStarLayer(700, 22, 38);
+const MID_STAR = buildStarLayer(320, 13, 22);
+const BRIGHT_STAR = buildStarLayer(70, 16, 30);
+
+const StarLayer = ({ data, size, baseOpacity, twinkleSpeed, twinkleAmp }) => {
   const matRef = useRef();
   useFrame((state) => {
     if (!matRef.current) return;
     const t = state.clock.elapsedTime;
-    matRef.current.opacity = 0.75 + Math.sin(t * 0.7) * 0.15;
+    matRef.current.opacity =
+      baseOpacity + Math.sin(t * twinkleSpeed) * twinkleAmp;
   });
   return (
     <points>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          array={STAR_POSITIONS}
-          count={STAR_COUNT}
+          array={data.positions}
+          count={data.positions.length / 3}
           itemSize={3}
         />
         <bufferAttribute
           attach="attributes-color"
-          array={STAR_COLORS}
-          count={STAR_COUNT}
+          array={data.colors}
+          count={data.colors.length / 3}
           itemSize={3}
         />
       </bufferGeometry>
       <pointsMaterial
         ref={matRef}
-        size={1.8}
+        size={size}
         vertexColors
         transparent
-        opacity={0.85}
+        opacity={baseOpacity}
         sizeAttenuation={false}
         depthWrite={false}
+        fog={false}
       />
     </points>
   );
 };
+
+const Stars = () => (
+  <>
+    {/* Far backdrop — deep space dim layer */}
+    <StarLayer
+      data={FAR_STAR}
+      size={1.2}
+      baseOpacity={0.72}
+      twinkleSpeed={0.7}
+      twinkleAmp={0.12}
+    />
+    {/* Mid layer — closer + slight movement, lebih kerasa "ada di
+        antara stars". Twinkle phase beda supaya gak sync sama far. */}
+    <StarLayer
+      data={MID_STAR}
+      size={1.6}
+      baseOpacity={0.82}
+      twinkleSpeed={0.45}
+      twinkleAmp={0.18}
+    />
+    {/* Bright stars — bigger, sparser, more contrast. Slow pulse. */}
+    <StarLayer
+      data={BRIGHT_STAR}
+      size={2.6}
+      baseOpacity={0.95}
+      twinkleSpeed={0.3}
+      twinkleAmp={0.10}
+    />
+  </>
+);
 
 // Highlight stars — 6 bright sphere stars di posisi tetap, kasih
 // "anchor" visual di langit (focal points). Emissive intensity pulse
