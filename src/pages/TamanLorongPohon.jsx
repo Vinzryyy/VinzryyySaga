@@ -894,6 +894,13 @@ const DistantFigure = ({ signatureEvent }) => {
         if (u < 0.25) glow = u / 0.25 * 0.6;
         else if (u < 0.75) glow = 0.6;
         else glow = (1 - u) / 0.25 * 0.6;
+      } else if (signatureEvent.type === 'monument' && dt > 0.3 && dt < 5.0) {
+        // Monument signature: amber halo SUSTAIN — figure "diakui" oleh
+        // user yang sampe ujung lorong. Lebih lama + intens dari recent.
+        const u = (dt - 0.3) / 4.7;
+        if (u < 0.15) glow = u / 0.15 * 1.2;
+        else if (u < 0.85) glow = 1.2;
+        else glow = (1 - u) / 0.15 * 1.2;
       }
     }
     if (bodyMatRef.current) {
@@ -1484,8 +1491,22 @@ const Mushrooms = () => (
 // jalan sampai ujung lorong di FPV. Engraving puitis. DistantFigure
 // (z=-34) berdiri SETELAH monument — viewer baca monument dulu, lalu
 // liat siluet figure beyond it.
-const StoneMonument = () => (
-  <group position={[0, 0, -32]}>
+const StoneMonument = ({ onClick }) => (
+  <group
+    position={[0, 0, -32]}
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick?.();
+    }}
+    onPointerOver={(e) => {
+      e.stopPropagation();
+      document.body.style.cursor = 'pointer';
+    }}
+    onPointerOut={(e) => {
+      e.stopPropagation();
+      document.body.style.cursor = 'auto';
+    }}
+  >
     {/* Base block — wider stone foundation */}
     <mesh position={[0, 0.2, 0]} castShadow>
       <boxGeometry args={[1.5, 0.4, 0.6]} />
@@ -2553,6 +2574,7 @@ const LorongScene = ({
   onBenchClick,
   onSwingClick,
   onChimeClick,
+  onMonumentTrigger,
 }) => (
   <>
     {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
@@ -2601,6 +2623,7 @@ const LorongScene = ({
     <OldBench onClick={onBenchClick} />
     <TreeSwing activeRef={swingActiveRef} onClick={onSwingClick} />
     <WindChime activeRef={chimeActiveRef} onClick={onChimeClick} />
+    <MonumentProximity viewMode={viewMode} onTrigger={onMonumentTrigger} />
     {/* Bench whisper — floating poetic line di atas bangku saat di-click.
         distanceFactor=8 supaya readable di orbit jarak default. */}
     {benchActive && (
@@ -2635,7 +2658,7 @@ const LorongScene = ({
         `}</style>
       </Html>
     )}
-    <StoneMonument />
+    <StoneMonument onClick={onMonumentTrigger} />
     <Lanterns signatureEvent={signatureEvent} />
     <YearPlaques trees={trees} />
     <Owls signatureEvent={signatureEvent} />
@@ -3207,6 +3230,93 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
   );
 };
 
+// Detect saat user FPV mendekati monument (z < -27.5). Auto-trigger
+// monument signature event sekali per session — supaya "perjalanan"
+// dapat ending moment yang earned, bukan harus klik manual. triggered
+// ref-only (no rerender) supaya gak loop.
+const MonumentProximity = ({ viewMode, onTrigger }) => {
+  const triggered = useRef(false);
+  useFrame((state) => {
+    if (viewMode !== 'fpv') return;
+    if (triggered.current) return;
+    if (state.camera.position.z < -27.5) {
+      triggered.current = true;
+      onTrigger?.();
+    }
+  });
+  // Reset triggered flag saat user balik ke orbit (biar kalau masuk
+  // FPV lagi & dekati monument lagi, dapat moment-nya lagi)
+  useEffect(() => {
+    if (viewMode === 'orbit') triggered.current = false;
+  }, [viewMode]);
+  return null;
+};
+
+// 2D HUD overlay yang fade in saat monument signatureEvent active.
+// Radial vignette darken edges + warm tint kasih kesan "moment" focus.
+// Plus poetic confirmation text tampil ~3.5s di tengah bawah.
+const MonumentMomentOverlay = ({ active }) => {
+  const [removed, setRemoved] = useState(true);
+  useEffect(() => {
+    if (active) {
+      setRemoved(false);
+      return undefined;
+    }
+    // Fade out → remove dari DOM after transition done
+    const t = setTimeout(() => setRemoved(true), 1300);
+    return () => clearTimeout(t);
+  }, [active]);
+  if (removed) return null;
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-25 transition-opacity duration-[1200ms] ease-out"
+      style={{ opacity: active ? 1 : 0 }}
+    >
+      {/* Vignette tighten — radial gradient gelap di edges */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, transparent 35%, rgba(20,12,5,0.45) 75%, rgba(20,12,5,0.78) 100%)',
+        }}
+      />
+      {/* Warm amber tint subtle — kerasa kayak golden hour membungkus */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(255,170,80,0.04), rgba(255,140,60,0.07))',
+          mixBlendMode: 'overlay',
+        }}
+      />
+      {/* Poetic text di bottom-center — fade in setelah vignette settle */}
+      <div
+        className="absolute bottom-24 left-1/2 -translate-x-1/2 text-center px-6"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          color: 'rgba(255,228,178,0.92)',
+          fontSize: '15px',
+          letterSpacing: '0.02em',
+          textShadow: '0 0 10px rgba(0,0,0,0.7), 0 0 28px rgba(255,170,80,0.25)',
+          animation: active ? 'monumentTextFade 5500ms ease-out forwards' : 'none',
+          opacity: 0,
+        }}
+      >
+        Kau sampai ke ujung.
+      </div>
+      <style>{`
+        @keyframes monumentTextFade {
+          0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+          18%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+          80%  { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 // Sync R3F state.clock.elapsedTime ke ref di parent component supaya
 // click handler (yg di luar Canvas) bisa baca elapsed time saat trigger
 // signature event. Tanpa ini, signatureTime jadi di domain Date.now()
@@ -3266,6 +3376,17 @@ const TamanLorongPohonPage = () => {
       const f = notes[Math.floor(Math.random() * notes.length)];
       setTimeout(() => playChimeTone(f, 0.14), i * 90 + Math.random() * 60);
     }
+  };
+  // Monument moment: triggered via click di orbit OR proximity di FPV.
+  // Skip kalau monument moment udah aktif (jangan re-trigger overlap).
+  const handleMonumentTrigger = () => {
+    if (signatureEvent?.type === 'monument') return;
+    setSignatureEvent({ type: 'monument', time: clockRef.current });
+    setTimeout(() => setSignatureEvent(null), 5500);
+    // Deep slow bell — A4 (lebih rendah dari chime tube notes A5-E6).
+    // Bawa tone "earned" ending, bukan playful tinkle.
+    playChimeTone(440, 0.22);
+    setTimeout(() => playChimeTone(659, 0.16), 380); // E5 layered, harmonic 5th
   };
   const toggleViewMode = () => {
     setTransitioning(true);
@@ -3385,6 +3506,7 @@ const TamanLorongPohonPage = () => {
               onBenchClick={handleBenchClick}
               onSwingClick={handleSwingClick}
               onChimeClick={handleChimeClick}
+              onMonumentTrigger={handleMonumentTrigger}
             />
             {!isMobile && (
               <EffectComposer>
@@ -3442,6 +3564,9 @@ const TamanLorongPohonPage = () => {
           onClose={handleClose}
           onPrev={handlePrev}
           onNext={handleNext}
+        />
+        <MonumentMomentOverlay
+          active={signatureEvent?.type === 'monument'}
         />
         <AmbientAudio profile="taman-r1" position="top-right" />
       </div>
