@@ -2646,6 +2646,345 @@ const ScatteredFlowers = ({ isMobile }) => {
   );
 };
 
+// Wishing well — focal point: stone base, wood post, peaked roof.
+// Pose di sisi outer area sebagai landmark sekunder.
+const WishingWell = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stone base ring */}
+    <mesh position={[0, 0.4, 0]} castShadow>
+      <cylinderGeometry args={[0.7, 0.75, 0.8, 12]} />
+      <meshStandardMaterial color="#8a7d6a" roughness={1} />
+    </mesh>
+    {/* Inner dark hole */}
+    <mesh position={[0, 0.78, 0]}>
+      <cylinderGeometry args={[0.55, 0.55, 0.05, 12]} />
+      <meshStandardMaterial color="#1a1410" roughness={1} />
+    </mesh>
+    {/* Two posts */}
+    <mesh position={[-0.55, 1.4, 0]}>
+      <cylinderGeometry args={[0.05, 0.06, 1.4, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.55, 1.4, 0]}>
+      <cylinderGeometry args={[0.05, 0.06, 1.4, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Crossbar */}
+    <mesh position={[0, 2.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.04, 0.04, 1.3, 6]} />
+      <meshStandardMaterial color="#3d2818" roughness={0.95} />
+    </mesh>
+    {/* Roof — peaked tent shape */}
+    <mesh position={[0, 2.4, 0]} castShadow>
+      <coneGeometry args={[0.85, 0.5, 4]} />
+      <meshStandardMaterial color="#6a4d2f" roughness={0.9} />
+    </mesh>
+    {/* Bucket hanging */}
+    <mesh position={[0, 1.6, 0]}>
+      <cylinderGeometry args={[0.16, 0.14, 0.22, 8]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Rope */}
+    <mesh position={[0, 1.85, 0]}>
+      <cylinderGeometry args={[0.012, 0.012, 0.32, 4]} />
+      <meshStandardMaterial color="#5a4d3a" roughness={1} />
+    </mesh>
+  </group>
+);
+
+// Tree stump — short cylinder + flat top dgn bark texture warm.
+// Scattered in outer area — small deko sederhana.
+const TreeStump = ({ pos, rot = 0, scale = 1 }) => (
+  <group position={pos} rotation={[0, rot, 0]} scale={scale}>
+    <mesh position={[0, 0.22, 0]} castShadow>
+      <cylinderGeometry args={[0.32, 0.36, 0.44, 10]} />
+      <meshStandardMaterial color="#6a4d2f" roughness={0.95} />
+    </mesh>
+    {/* Top tan ring */}
+    <mesh position={[0, 0.443, 0]}>
+      <cylinderGeometry args={[0.31, 0.31, 0.01, 10]} />
+      <meshStandardMaterial color="#a87850" roughness={0.85} />
+    </mesh>
+    {/* Center growth ring darker */}
+    <mesh position={[0, 0.444, 0]}>
+      <cylinderGeometry args={[0.16, 0.16, 0.01, 10]} />
+      <meshStandardMaterial color="#7a5530" roughness={0.85} />
+    </mesh>
+  </group>
+);
+const TREE_STUMP_DEFS = [
+  { pos: [-21, 0, 4], rot: 0.3, scale: 1.0 },
+  { pos: [20, 0, -4], rot: -0.5, scale: 0.9 },
+  { pos: [-16, 0, -23], rot: 0.7, scale: 1.1 },
+  { pos: [17, 0, 23], rot: 1.2, scale: 1.0 },
+  { pos: [-25, 0, -8], rot: 0.2, scale: 0.85 },
+];
+const TreeStumps = ({ isMobile }) => {
+  const list = isMobile ? TREE_STUMP_DEFS.slice(0, 3) : TREE_STUMP_DEFS;
+  return (
+    <>
+      {list.map((s, i) => (
+        <TreeStump key={`stump-${i}`} pos={s.pos} rot={s.rot} scale={s.scale} />
+      ))}
+    </>
+  );
+};
+
+// Wheelbarrow — bak kayu + 1 wheel + 2 handle posts. Rustik garden.
+const Wheelbarrow = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Bak — flat box tilt slight */}
+    <mesh position={[0, 0.42, 0]} rotation={[0.05, 0, 0]} castShadow>
+      <boxGeometry args={[0.7, 0.32, 0.5]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Wheel */}
+    <mesh position={[0, 0.22, 0.42]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.22, 0.22, 0.08, 12]} />
+      <meshStandardMaterial color="#3d2818" roughness={0.9} />
+    </mesh>
+    {/* Wheel hub */}
+    <mesh position={[0, 0.22, 0.42]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.06, 0.06, 0.1, 8]} />
+      <meshStandardMaterial color="#1a1410" roughness={0.7} metalness={0.4} />
+    </mesh>
+    {/* Handles */}
+    <mesh position={[-0.28, 0.42, -0.4]} rotation={[0.3, 0, 0]}>
+      <cylinderGeometry args={[0.03, 0.03, 0.7, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.28, 0.42, -0.4]} rotation={[0.3, 0, 0]}>
+      <cylinderGeometry args={[0.03, 0.03, 0.7, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Soil/flowers in bak — small bunga cluster */}
+    <mesh position={[-0.1, 0.62, 0]}>
+      <sphereGeometry args={[0.07, 6, 5]} />
+      <meshStandardMaterial color="#f4a8c0" emissive="#f4a8c0" emissiveIntensity={0.15} />
+    </mesh>
+    <mesh position={[0.12, 0.62, 0.05]}>
+      <sphereGeometry args={[0.06, 6, 5]} />
+      <meshStandardMaterial color="#ffd060" emissive="#ffd060" emissiveIntensity={0.15} />
+    </mesh>
+    <mesh position={[0.05, 0.6, -0.1]}>
+      <sphereGeometry args={[0.065, 6, 5]} />
+      <meshStandardMaterial color="#d4a0e0" emissive="#d4a0e0" emissiveIntensity={0.15} />
+    </mesh>
+  </group>
+);
+const WHEELBARROW_DEFS = [
+  { pos: [-18, 0, -2], rot: 0.6 },
+  { pos: [18, 0, 16], rot: -0.4 },
+];
+const Wheelbarrows = () => (
+  <>
+    {WHEELBARROW_DEFS.map((w, i) => (
+      <Wheelbarrow key={`wb-${i}`} pos={w.pos} rot={w.rot} />
+    ))}
+  </>
+);
+
+// Bird bath — pedestal kolom batu + shallow basin atas.
+// Pose dekat tree stump / outer bench.
+const BirdBath = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Base */}
+    <mesh position={[0, 0.06, 0]}>
+      <cylinderGeometry args={[0.32, 0.36, 0.12, 10]} />
+      <meshStandardMaterial color="#7a7065" roughness={0.95} />
+    </mesh>
+    {/* Pedestal */}
+    <mesh position={[0, 0.5, 0]} castShadow>
+      <cylinderGeometry args={[0.13, 0.16, 0.76, 8]} />
+      <meshStandardMaterial color="#8a7d6a" roughness={1} />
+    </mesh>
+    {/* Basin outer */}
+    <mesh position={[0, 0.92, 0]}>
+      <cylinderGeometry args={[0.42, 0.32, 0.1, 16]} />
+      <meshStandardMaterial color="#7a7065" roughness={0.95} />
+    </mesh>
+    {/* Basin water */}
+    <mesh position={[0, 0.97, 0]}>
+      <cylinderGeometry args={[0.36, 0.36, 0.04, 16]} />
+      <meshStandardMaterial
+        color="#a8d4e8"
+        roughness={0.2}
+        metalness={0.1}
+        transparent
+        opacity={0.85}
+      />
+    </mesh>
+  </group>
+);
+const BIRD_BATH_DEFS = [
+  { pos: [-19, 0, 8], rot: 0.4 },
+  { pos: [19, 0, -10], rot: -0.6 },
+];
+const BirdBaths = () => (
+  <>
+    {BIRD_BATH_DEFS.map((b, i) => (
+      <BirdBath key={`bb-${i}`} pos={b.pos} rot={b.rot} />
+    ))}
+  </>
+);
+
+// Pinwheel — wood post + 4-blade pinwheel kertas warna, rotates dgn
+// useFrame untuk subtle motion. Kasih playful kid-friendly vibe.
+const Pinwheel = ({ pos, color, rot = 0 }) => {
+  const bladeRef = useRef();
+  useFrame((_, delta) => {
+    if (bladeRef.current) bladeRef.current.rotation.z += delta * 1.4;
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Pole */}
+      <mesh position={[0, 0.45, 0]}>
+        <cylinderGeometry args={[0.025, 0.03, 0.9, 6]} />
+        <meshStandardMaterial color="#8a6a4a" roughness={0.95} />
+      </mesh>
+      {/* Blade group */}
+      <group ref={bladeRef} position={[0, 0.92, 0]}>
+        {[0, 1, 2, 3].map((i) => (
+          <mesh key={i} rotation={[0, 0, (i * Math.PI) / 2]} position={[0.13, 0.13, 0.04]}>
+            <planeGeometry args={[0.26, 0.26]} />
+            <meshStandardMaterial
+              color={color}
+              emissive={color}
+              emissiveIntensity={0.18}
+              side={THREE.DoubleSide}
+              roughness={0.7}
+            />
+          </mesh>
+        ))}
+        {/* Center hub */}
+        <mesh position={[0, 0, 0.05]}>
+          <cylinderGeometry args={[0.04, 0.04, 0.04, 8]} />
+          <meshStandardMaterial color="#3d2818" roughness={0.9} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+const PINWHEEL_DEFS = [
+  { pos: [-14, 0, -22], color: '#ff8a8a', rot: 0.3 },
+  { pos: [-22, 0, 18], color: '#8ad4ff', rot: -0.4 },
+  { pos: [22, 0, 20], color: '#ffd470', rot: 0.6 },
+  { pos: [18, 0, -22], color: '#d8a0e8', rot: 1.0 },
+  { pos: [-13, 0, 24], color: '#a8e88a', rot: -0.2 },
+  { pos: [12, 0, -25], color: '#ffa8d4', rot: 0.8 },
+];
+const Pinwheels = ({ isMobile }) => {
+  const list = isMobile ? PINWHEEL_DEFS.slice(0, 3) : PINWHEEL_DEFS;
+  return (
+    <>
+      {list.map((p, i) => (
+        <Pinwheel key={`pw-${i}`} pos={p.pos} color={p.color} rot={p.rot} />
+      ))}
+    </>
+  );
+};
+
+// Welcome arch — wooden archway dengan bunga rambat (vine + bloom dots)
+// di top. Place sebagai entrance/landmark di belakang area.
+const WelcomeArch = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Two posts */}
+    <mesh position={[-1.0, 1.4, 0]} castShadow>
+      <cylinderGeometry args={[0.1, 0.12, 2.8, 8]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    <mesh position={[1.0, 1.4, 0]} castShadow>
+      <cylinderGeometry args={[0.1, 0.12, 2.8, 8]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Top crossbar (curved approx with box) */}
+    <mesh position={[0, 2.85, 0]} rotation={[0, 0, 0]}>
+      <boxGeometry args={[2.4, 0.18, 0.18]} />
+      <meshStandardMaterial color="#6a4d2f" roughness={0.95} />
+    </mesh>
+    {/* Vine bloom dots di top */}
+    {[-0.9, -0.5, -0.1, 0.3, 0.7, 1.0].map((x, i) => (
+      <mesh key={i} position={[x, 2.95 + (i % 2) * 0.06, 0.05]}>
+        <sphereGeometry args={[0.09, 6, 5]} />
+        <meshStandardMaterial
+          color={['#f4a8c0', '#ffd060', '#d4a0e0', '#f08080'][i % 4]}
+          emissive={['#f4a8c0', '#ffd060', '#d4a0e0', '#f08080'][i % 4]}
+          emissiveIntensity={0.2}
+          roughness={0.7}
+        />
+      </mesh>
+    ))}
+    {/* Vine green leaves */}
+    {[-0.8, -0.3, 0.2, 0.7].map((x, i) => (
+      <mesh key={`leaf-${i}`} position={[x, 2.92 + (i % 2) * 0.04, -0.03]}>
+        <sphereGeometry args={[0.07, 6, 5]} />
+        <meshStandardMaterial color="#5a8045" roughness={0.85} />
+      </mesh>
+    ))}
+  </group>
+);
+
+// Picnic blanket standalone — quilt + basket + 2 cup, tanpa NPC.
+// Empty picnic spot — cocok untuk vibe "ada yang lagi jalan-jalan".
+const PicnicBlanket = ({ pos, rot = 0, blanketColor }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Quilt */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow>
+      <planeGeometry args={[1.6, 1.4]} />
+      <meshStandardMaterial color={blanketColor} roughness={0.85} />
+    </mesh>
+    {/* Quilt accent stripe */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
+      <ringGeometry args={[0.55, 0.62, 16]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.9} transparent opacity={0.45} />
+    </mesh>
+    {/* Basket */}
+    <mesh position={[-0.4, 0.18, -0.3]}>
+      <boxGeometry args={[0.36, 0.32, 0.28]} />
+      <meshStandardMaterial color="#8a6a4a" roughness={0.95} />
+    </mesh>
+    {/* Basket handle */}
+    <mesh position={[-0.4, 0.4, -0.3]} rotation={[0, 0, Math.PI / 2]}>
+      <torusGeometry args={[0.12, 0.018, 6, 12, Math.PI]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.9} />
+    </mesh>
+    {/* Two cups */}
+    <mesh position={[0.35, 0.06, -0.2]}>
+      <cylinderGeometry args={[0.08, 0.07, 0.12, 8]} />
+      <meshStandardMaterial color="#f4d4a0" roughness={0.7} />
+    </mesh>
+    <mesh position={[0.4, 0.06, 0.2]}>
+      <cylinderGeometry args={[0.07, 0.06, 0.1, 8]} />
+      <meshStandardMaterial color="#e8a878" roughness={0.7} />
+    </mesh>
+    {/* Plate kecil */}
+    <mesh position={[0, 0.04, 0.3]} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[0.18, 12]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.6} />
+    </mesh>
+  </group>
+);
+const PICNIC_BLANKET_DEFS = [
+  { pos: [-15, 0, 14], rot: 0.5, blanketColor: '#d48a8a' },
+  { pos: [16, 0, -16], rot: -0.7, blanketColor: '#8aa4d4' },
+  { pos: [14, 0, 12], rot: 1.2, blanketColor: '#d4b48a' },
+];
+const PicnicBlankets = ({ isMobile }) => {
+  const list = isMobile ? PICNIC_BLANKET_DEFS.slice(0, 1) : PICNIC_BLANKET_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <PicnicBlanket
+          key={`pb-${i}`}
+          pos={b.pos}
+          rot={b.rot}
+          blanketColor={b.blanketColor}
+        />
+      ))}
+    </>
+  );
+};
+
 // Flying flock — burung yang terbang di mid altitude (y=5-9), drift
 // bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
 // udah ada (low + high).
@@ -3703,6 +4042,13 @@ const TelagaScene = ({
     <GardenLanterns isMobile={isMobile} />
     <WoodenBenches isMobile={isMobile} />
     <LogPiles />
+    <TreeStumps isMobile={isMobile} />
+    <Wheelbarrows />
+    <BirdBaths />
+    <Pinwheels isMobile={isMobile} />
+    <WishingWell pos={[-22, 0, -16]} rot={0.4} />
+    <WelcomeArch pos={[0, 0, -28]} rot={0} />
+    <PicnicBlankets isMobile={isMobile} />
     <BankTrees count={isMobile ? 8 : 12} />
     <OuterTrees isMobile={isMobile} />
     <FlyingFlock isMobile={isMobile} />
