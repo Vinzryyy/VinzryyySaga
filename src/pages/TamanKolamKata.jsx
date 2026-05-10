@@ -3149,78 +3149,162 @@ const Playground = ({ pos = [-16, 0, 6], rot = 0 }) => (
   </group>
 );
 
-// Picnic NPC group — blanket + sitting figures + basket. Cluster
-// sederhana untuk life signal di lapangan luar.
-const PicnicGroup = ({ pos, rot = 0 }) => (
-  <group position={pos} rotation={[0, rot, 0]}>
-    {/* Blanket — square plane warna-warni di tanah */}
-    <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[2.4, 2.4]} />
-      <meshStandardMaterial color="#d44048" roughness={1} />
+// Picnic NPC — figure duduk di blanket dengan anatomy proper:
+// torso vertical + head + arms relaxed + crossed legs flat di blanket.
+// Style match BenchVisitor (proper proportions, gak cartoony capsule).
+const PicnicNPC = ({ offset = [0, 0, 0], rot = 0, shirt, hair, skin = '#e8c8a8', pants = '#3a4858' }) => (
+  <group position={offset} rotation={[0, rot, 0]}>
+    {/* Crossed legs — 2 thigh cylinders horizontal di-overlap di tengah,
+        scale flatter karena duduk di blanket. */}
+    <mesh
+      position={[-0.06, 0.07, 0.18]}
+      rotation={[Math.PI / 2 - 0.3, 0, 0.4]}
+    >
+      <cylinderGeometry args={[0.07, 0.07, 0.42, 8]} />
+      <meshStandardMaterial color={pants} roughness={0.92} />
     </mesh>
-    {/* Pattern garis2 sederhana — 2 strip kuning silang */}
-    <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[2.4, 0.18]} />
-      <meshStandardMaterial color="#f4d048" roughness={1} />
+    <mesh
+      position={[0.06, 0.07, 0.18]}
+      rotation={[Math.PI / 2 - 0.3, 0, -0.4]}
+    >
+      <cylinderGeometry args={[0.07, 0.07, 0.42, 8]} />
+      <meshStandardMaterial color={pants} roughness={0.92} />
     </mesh>
-    <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
-      <planeGeometry args={[2.4, 0.18]} />
-      <meshStandardMaterial color="#f4d048" roughness={1} />
+    {/* Torso vertical — duduk tegak di belakang legs */}
+    <mesh position={[0, 0.34, -0.05]}>
+      <boxGeometry args={[0.3, 0.4, 0.2]} />
+      <meshStandardMaterial color={shirt} roughness={0.9} />
     </mesh>
-    {/* NPC 1 — sitting figure (squashed capsule body + sphere head) */}
-    <group position={[-0.7, 0, 0.5]}>
-      <mesh position={[0, 0.35, 0]}>
-        <capsuleGeometry args={[0.18, 0.4, 4, 8]} />
-        <meshStandardMaterial color="#6a7ab8" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 0.78, 0]}>
-        <sphereGeometry args={[0.13, 12, 10]} />
-        <meshStandardMaterial color="#e8c8a8" roughness={0.85} />
-      </mesh>
-      {/* Hair */}
-      <mesh position={[0, 0.86, 0]}>
-        <sphereGeometry args={[0.135, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#3a2818" roughness={1} />
-      </mesh>
-    </group>
-    {/* NPC 2 */}
-    <group position={[0.7, 0, 0.4]}>
-      <mesh position={[0, 0.35, 0]}>
-        <capsuleGeometry args={[0.18, 0.4, 4, 8]} />
-        <meshStandardMaterial color="#c84858" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 0.78, 0]}>
-        <sphereGeometry args={[0.13, 12, 10]} />
-        <meshStandardMaterial color="#e8c8a8" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 0.86, 0]}>
-        <sphereGeometry args={[0.135, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#5a3e2b" roughness={1} />
-      </mesh>
-    </group>
-    {/* Picnic basket */}
-    <group position={[0, 0, -0.6]}>
-      <mesh position={[0, 0.12, 0]}>
-        <boxGeometry args={[0.4, 0.24, 0.3]} />
-        <meshStandardMaterial color="#a8784a" roughness={0.95} />
-      </mesh>
-      {/* Handle */}
-      <mesh
-        position={[0, 0.32, 0]}
-        rotation={[0, 0, 0]}
-      >
-        <torusGeometry args={[0.14, 0.02, 6, 12, Math.PI]} />
-        <meshStandardMaterial color="#7a5a3a" />
-      </mesh>
-    </group>
+    {/* Head */}
+    <mesh position={[0, 0.7, -0.05]}>
+      <sphereGeometry args={[0.12, 14, 10]} />
+      <meshStandardMaterial color={skin} roughness={0.85} />
+    </mesh>
+    {/* Hair */}
+    <mesh position={[0, 0.73, -0.07]}>
+      <sphereGeometry
+        args={[0.128, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2]}
+      />
+      <meshStandardMaterial color={hair} roughness={0.95} />
+    </mesh>
+    {/* Lengan kiri — relaxed di samping turun ke pangkuan */}
+    <mesh
+      position={[-0.18, 0.3, -0.04]}
+      rotation={[-0.2, 0, 0.25]}
+    >
+      <cylinderGeometry args={[0.045, 0.045, 0.34, 8]} />
+      <meshStandardMaterial color={shirt} roughness={0.9} />
+    </mesh>
+    {/* Lengan kanan */}
+    <mesh
+      position={[0.18, 0.3, -0.04]}
+      rotation={[-0.2, 0, -0.25]}
+    >
+      <cylinderGeometry args={[0.045, 0.045, 0.34, 8]} />
+      <meshStandardMaterial color={shirt} roughness={0.9} />
+    </mesh>
   </group>
 );
 
+const PicnicGroup = ({ pos, rot = 0, theme = 'red' }) => {
+  const palette = theme === 'red'
+    ? {
+        blanket: '#c44048',
+        accent: '#f4d048',
+        shirts: ['#6a7ab8', '#c84858'],
+        hairs: ['#3a2818', '#5a3e2b'],
+      }
+    : theme === 'blue'
+      ? {
+          blanket: '#4868a8',
+          accent: '#f0e8d0',
+          shirts: ['#d8a050', '#7a8e6a'],
+          hairs: ['#2a2218', '#4a3828'],
+        }
+      : { // green
+          blanket: '#3a8848',
+          accent: '#fff0c8',
+          shirts: ['#c8688c', '#5a8095'],
+          hairs: ['#2a1d10', '#3a2818'],
+        };
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Blanket — square colored di tanah */}
+      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.6, 2.6]} />
+        <meshStandardMaterial color={palette.blanket} roughness={1} />
+      </mesh>
+      {/* Border — lighter strip border for plaid feel */}
+      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.15, 1.3, 4]} />
+        <meshStandardMaterial color={palette.accent} roughness={1} />
+      </mesh>
+      {/* Stripe pattern — 2 thin perpendicular strips */}
+      <mesh position={[0, 0.013, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.6, 0.12]} />
+        <meshStandardMaterial color={palette.accent} roughness={1} transparent opacity={0.55} />
+      </mesh>
+      <mesh position={[0, 0.013, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
+        <planeGeometry args={[2.6, 0.12]} />
+        <meshStandardMaterial color={palette.accent} roughness={1} transparent opacity={0.55} />
+      </mesh>
+      {/* NPC 1 — kiri menghadap center */}
+      <PicnicNPC
+        offset={[-0.65, 0, 0.45]}
+        rot={Math.PI * 0.65}
+        shirt={palette.shirts[0]}
+        hair={palette.hairs[0]}
+      />
+      {/* NPC 2 — kanan menghadap center */}
+      <PicnicNPC
+        offset={[0.65, 0, 0.45]}
+        rot={-Math.PI * 0.65}
+        shirt={palette.shirts[1]}
+        hair={palette.hairs[1]}
+      />
+      {/* Picnic basket — wood weave + handle + cloth cover */}
+      <group position={[0, 0, -0.55]}>
+        <mesh position={[0, 0.12, 0]}>
+          <boxGeometry args={[0.42, 0.24, 0.32]} />
+          <meshStandardMaterial color="#a8784a" roughness={0.95} />
+        </mesh>
+        {/* Lid cloth lebar */}
+        <mesh position={[0, 0.245, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.46, 0.36]} />
+          <meshStandardMaterial color="#f0e0c4" roughness={1} />
+        </mesh>
+        {/* Handle */}
+        <mesh
+          position={[0, 0.34, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <torusGeometry args={[0.14, 0.018, 6, 12, Math.PI]} />
+          <meshStandardMaterial color="#7a5a3a" />
+        </mesh>
+      </group>
+      {/* Drink bottle / cup di pinggir blanket */}
+      <mesh position={[-0.85, 0.12, -0.4]}>
+        <cylinderGeometry args={[0.06, 0.07, 0.24, 12]} />
+        <meshStandardMaterial color="#8aa8d8" transparent opacity={0.78} roughness={0.4} metalness={0.1} />
+      </mesh>
+      {/* Apple/buah ungu accent */}
+      <mesh position={[0.85, 0.06, -0.35]}>
+        <sphereGeometry args={[0.07, 10, 8]} />
+        <meshStandardMaterial color="#c0405a" roughness={0.7} />
+      </mesh>
+      <mesh position={[0.95, 0.06, -0.45]}>
+        <sphereGeometry args={[0.07, 10, 8]} />
+        <meshStandardMaterial color="#d4a850" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+};
+
 const PicnicGroups = () => (
   <>
-    <PicnicGroup pos={[-15, 0, -8]} rot={0.6} />
-    <PicnicGroup pos={[14, 0, -7]} rot={-0.4} />
-    <PicnicGroup pos={[-14, 0, 14]} rot={1.2} />
+    <PicnicGroup pos={[-15, 0, -8]} rot={0.6} theme="red" />
+    <PicnicGroup pos={[14, 0, -7]} rot={-0.4} theme="blue" />
+    <PicnicGroup pos={[-14, 0, 14]} rot={1.2} theme="green" />
   </>
 );
 
@@ -3685,6 +3769,19 @@ const TamanKolamKataPage = () => {
         <TelagaFooter hoveredPadId={hoveredPadId} totalPads={pads.length} />
         <WishOverlay pad={selectedPad} onClose={handleClose} />
         <AmbientAudio profile="taman" position="top-right" />
+        {/* Skip intro button — click anywhere during cinematic lerp
+            atau press dedicated button untuk fast-forward. UX win:
+            user yang udah pernah liat intro gak harus nunggu 3.5s. */}
+        {introActive && (
+          <button
+            type="button"
+            onClick={handleIntroComplete}
+            className="pointer-events-auto absolute bottom-6 right-6 z-30 px-4 py-2 rounded-full border border-white/30 bg-black/35 backdrop-blur-sm text-white/85 text-[11px] uppercase tracking-[0.2em] hover:bg-white/15 transition"
+            aria-label="Lewati intro animation"
+          >
+            Lewati intro
+          </button>
+        )}
       </div>
     </>
   );

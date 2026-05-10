@@ -4,9 +4,10 @@
  * component file bisa import tanpa bergantung ke order definisi.
  */
 
-// Dimensi danau utama — lebar 20 supaya pond kerasa luas dari overhead
-export const RIVER_WIDTH = 20;
-export const RIVER_LENGTH = 28;
+// Dimensi danau utama — length 36 supaya jembatan (BRIDGE_Z=-12.5)
+// kena di atas air, bukan ngambang di rumput.
+export const RIVER_WIDTH = 14;
+export const RIVER_LENGTH = 36;
 
 // Bridge: kayu kecil melintasi ujung utara danau (z negatif)
 export const BRIDGE_Z = -12.5;
