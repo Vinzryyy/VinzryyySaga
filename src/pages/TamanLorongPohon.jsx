@@ -1053,10 +1053,17 @@ const Owl = ({ pos, headPhase = 0, signatureEvent }) => {
 // offset toward path supaya owl perched di tepi foliage menghadap
 // lorong, nggak ketutupan dari camera angle. 1 di pohon era debut,
 // 1 di pohon era recent.
+// Owls perched di foliage tops dari GardenAnchorTrees. y=4 = atas
+// foliage anchor tree (1.9 + 0.55 + 0.85 = 3.3 base, * scale 1.2 ≈
+// 3.96). 3 owls scattered across path biar life signal terdistribusi.
 const Owls = ({ signatureEvent }) => (
   <>
-    <Owl pos={[-2.2, 4.0, -8.67]} headPhase={0} signatureEvent={signatureEvent} />
-    <Owl pos={[2.2, 4.0, -25.33]} headPhase={1.8} signatureEvent={signatureEvent} />
+    {/* Owl di bench area tree (anchor scale 1.2) */}
+    <Owl pos={[5.4, 4.0, -14.6]} headPhase={0} signatureEvent={signatureEvent} />
+    {/* Owl di wind chime area tree (anchor scale 1.15) */}
+    <Owl pos={[-3.4, 3.8, -7.8]} headPhase={1.2} signatureEvent={signatureEvent} />
+    {/* Owl di monument frame tree (anchor scale 1.25) */}
+    <Owl pos={[-4.8, 4.1, -29.5]} headPhase={2.4} signatureEvent={signatureEvent} />
   </>
 );
 
@@ -1270,9 +1277,15 @@ const Rabbit = ({ pos }) => {
 // 1 rabbit di tepi path antar owl — z=-14 (between owl#1 z=-8.67 dan
 // owl#2 z=-25.33). x=-3.2 di kiri path, menghadap +x (default — head
 // di +x default). Jadi rabbit "watches" path.
+// Rabbits — 4 ekor kelinci scattered di tepi path, ground-level
+// cute moment. Position di sisi path yang gak overlap dengan tree
+// foliage atau lentera.
 const Rabbits = () => (
   <>
     <Rabbit pos={[-3.2, 0, -14]} />
+    <Rabbit pos={[3.0, 0, -8]} />
+    <Rabbit pos={[-2.8, 0, -25]} />
+    <Rabbit pos={[2.7, 0, -3.5]} />
   </>
 );
 
@@ -3495,7 +3508,7 @@ const LorongScene = ({
 }) => (
   <>
     {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
-    <fog attach="fog" args={['#1f2335', 10, 32]} />
+    <fog attach="fog" args={['#1f2335', 13, 42]} />
     <color attach="background" args={['#1f2335']} />
     <ambientLight intensity={0.5} />
     {/* Sunset key light — warm dari upper-front */}
@@ -3610,6 +3623,7 @@ const LorongScene = ({
     )}
     <StoneMonument onClick={onMonumentTrigger} />
     <Lanterns signatureEvent={signatureEvent} viewMode={viewMode} />
+    <Owls signatureEvent={signatureEvent} />
     <Rabbits />
     {!isMobile && <Bats />}
     <DistantFigure signatureEvent={signatureEvent} />
