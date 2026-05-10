@@ -1559,32 +1559,42 @@ const SIDE_TREE_DEFS = (() => {
 // "garden" feel di sekitar landmark. Beda dari SideTrees yang
 // procedural+scattered di perimeter, ini pohon kunci yang ngebantu
 // frame komposisi scene.
+// Hand-placed pohon anchor — pasangan kiri+kanan setiap landmark
+// supaya komposisi simetris (sebelumnya beberapa hanya single-side
+// bikin kerasa pincang). Order: entrance → bench → swing → wind chime
+// → mid gap → monument (mobile slice ke depan ngambil yg paling
+// penting dulu).
 const GARDEN_ANCHOR_TREES = [
-  // Belakang bench (x=3.0, z=-15) — dua pohon framing sisi kanan path
-  { pos: [5.4, 0, -14.6], scale: 1.2, hueIdx: 1 },
-  { pos: [4.6, 0, -16.8], scale: 0.95, hueIdx: 2 },
-  // Depan/dekat swing (x=2.6, z=-18.67) — pohon utama foliage di
-  // mana swing tergantung sudah ada (bukan visible tree, cuma branch).
-  // Tambah pohon companion supaya area swing kerasa "ada di hutan".
-  { pos: [3.2, 0, -19.5], scale: 1.35, hueIdx: 3 },
-  // Dekat wind chime (x=-2.6, z=-8.67) — tree foliage yang chime
-  // tergantung. Companion tree close.
-  { pos: [-3.4, 0, -7.8], scale: 1.15, hueIdx: 0 },
-  { pos: [-4.2, 0, -10.2], scale: 0.9, hueIdx: 2 },
-  // Awal path — frame entrance dari posisi user spawn (z=0..-2)
+  // Entrance (z=-1.5 / -2.5) — frame user spawn area
   { pos: [-3.8, 0, -1.5], scale: 1.05, hueIdx: 1 },
   { pos: [3.6, 0, -2.5], scale: 1.1, hueIdx: 3 },
-  // Tengah path antara bench dan monument — fill gap
-  { pos: [-3.4, 0, -22.5], scale: 1.0, hueIdx: 0 },
-  // Dekat monument tapi gak terlalu close — frame the obelisk
+  // Monument frame (z=-28.8 / -29.5) — flank approach ke ujung path
   { pos: [-4.8, 0, -29.5], scale: 1.25, hueIdx: 2 },
   { pos: [4.2, 0, -28.8], scale: 0.95, hueIdx: 1 },
+  // Bench area (z=-14.6 / -16.8) — frame kedua sisi, was right-only
+  { pos: [5.4, 0, -14.6], scale: 1.2, hueIdx: 1 },
+  { pos: [-5.4, 0, -14.6], scale: 1.15, hueIdx: 3 },
+  { pos: [4.6, 0, -16.8], scale: 0.95, hueIdx: 2 },
+  { pos: [-4.6, 0, -16.8], scale: 1.0, hueIdx: 0 },
+  // Swing companion (z=-19.5) — was right-only, mirror ke kiri
+  { pos: [3.2, 0, -19.5], scale: 1.35, hueIdx: 3 },
+  { pos: [-3.5, 0, -19.5], scale: 1.2, hueIdx: 1 },
+  // Wind chime area (z=-7.8 / -10.2) — was left-only, mirror ke kanan
+  { pos: [-3.4, 0, -7.8], scale: 1.15, hueIdx: 0 },
+  { pos: [3.4, 0, -7.8], scale: 1.0, hueIdx: 2 },
+  { pos: [-4.2, 0, -10.2], scale: 0.9, hueIdx: 2 },
+  { pos: [4.2, 0, -10.2], scale: 0.95, hueIdx: 0 },
+  // Mid gap (z=-22.5) — was left-only, mirror ke kanan
+  { pos: [-3.4, 0, -22.5], scale: 1.0, hueIdx: 0 },
+  { pos: [3.5, 0, -22.5], scale: 1.05, hueIdx: 2 },
 ];
 
 const GardenAnchorTrees = ({ isMobile }) => {
-  // Mobile cull: 10 → 6 (drop yang paling jauh dari camera default).
+  // Mobile cull: 16 → 8 (entrance + monument + bench frame). Order
+  // di GARDEN_ANCHOR_TREES udah optimal: 4 most important pairs
+  // (entrance, monument, bench) di awal, drop swing/chime/mid gap.
   const list = isMobile
-    ? GARDEN_ANCHOR_TREES.slice(0, 6)
+    ? GARDEN_ANCHOR_TREES.slice(0, 8)
     : GARDEN_ANCHOR_TREES;
   const refs = useRef([]);
   useFrame((state) => {
