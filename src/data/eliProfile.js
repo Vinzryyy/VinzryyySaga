@@ -16,12 +16,10 @@
 // transitions, single, sousenkyo) di komponen yang butuh distingsi.
 //
 // Catatan tanggal:
-// - Show 100 ditulis sesuai input editorial (29 Des 2019). TSV
-//   #JumlahShowJKT48 menyatakan show ke-100 jatuh 15 Des 2019 di
-//   setlist "Saka Agari" — kalau ingin selaraskan ke canonical, ubah
-//   date ke 2019-12-15 + period "15 Desember 2019".
-// - Show 200 (2021-11-20) & 300 (2024-07-07) diambil dari TSV
-//   scripts/eli-show-log.tsv (canonical via @jehaes_).
+// - Show 100 (15 Des 2019, "Saka Agari"), 200 (20 Nov 2021, "Renai
+//   Kinshi Jourei"), & 300 (7 Jul 2024, "Ramune no Nomikata") diambil
+//   dari scripts/eli-show-log.tsv.
+// - Theater debut 16 Des 2018 ("Theater no Megami") = TSV row 1.
 // - Show 400 belum tercapai per 24 April 2026 (count = 385). Entry
 //   ditandai upcoming dengan date: null.
 export const ELI_TIMELINE = [
@@ -54,11 +52,11 @@ export const ELI_TIMELINE = [
   },
   {
     id: 'theater-debut',
-    date: '2018-12-23',
-    period: '23 Desember 2018',
+    date: '2018-12-16',
+    period: '16 Desember 2018',
     title: 'Debut Theater Pertama',
     body:
-      'Eli menjalani debut theater pertamanya dalam stage revival Team T "Te wo Tsunaginagara". Penampilan ini menjadi titik awal perjalanan panggung Eli di Theater JKT48, sekaligus mulai dikenal oleh penonton theater karena energi dan ekspresinya yang natural di atas panggung.',
+      'Eli menjalani debut theater pertamanya di setlist "Theater no Megami". Penampilan ini menjadi titik awal perjalanan panggung Eli di Theater JKT48, sekaligus mulai dikenal oleh penonton theater karena energi dan ekspresinya yang natural di atas panggung. Stage revival Team T "Te wo Tsunaginagara" menyusul kemudian sebagai bagian dari perjalanan Team T-nya.',
     badge: 'Theater',
   },
   {
@@ -72,11 +70,11 @@ export const ELI_TIMELINE = [
   },
   {
     id: 'show-100',
-    date: '2019-12-29',
-    period: '29 Desember 2019',
+    date: '2019-12-15',
+    period: '15 Desember 2019',
     title: 'Mencapai 100 Show Theater',
     body:
-      'Di tahun pertamanya sebagai member tim reguler, Eli berhasil mencapai 100 pertunjukan theater JKT48. Konsistensinya tampil di theater membuatnya semakin dikenal sebagai member dengan pembawaan hangat, lucu, dan komunikatif.',
+      'Setahun setelah debut theater, Eli menyentuh 100 pertunjukan theater JKT48 di setlist "Saka Agari". Konsistensinya tampil di theater sejak akhir 2018 — dari Theater no Megami sampai era Saka Agari — membuatnya semakin dikenal sebagai member dengan pembawaan hangat, lucu, dan komunikatif.',
     badge: 'Theater · 100 Show',
     category: 'show-recap',
   },
@@ -187,7 +185,7 @@ export const ELI_TIMELINE = [
     period: 'Belum tercapai',
     title: 'Menuju 400 Show Theater',
     body:
-      'Per April 2026, Eli mencatat 385 pertunjukan theater JKT48 (sumber: recap #JumlahShowJKT48 oleh @jehaes_). Angka 400 tinggal selangkah lagi — milestone karier yang lazim dirayakan komunitas teater JKT48 sebagai penanda longevitas di panggung. Entry ini akan diperbarui dengan tanggal pasti ketika tercapai.',
+      'Per April 2026, Eli mencatat 385 pertunjukan theater JKT48. Angka 400 tinggal selangkah lagi — milestone karier yang lazim dirayakan komunitas teater JKT48 sebagai penanda longevitas di panggung. Entry ini akan diperbarui dengan tanggal pasti ketika tercapai.',
     badge: 'Theater · Menuju 400',
     category: 'show-recap',
     upcoming: true,

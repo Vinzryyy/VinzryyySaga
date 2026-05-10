@@ -250,7 +250,7 @@ const LiveCounter = ({ events, careerStats }) => {
               )}
 
               <p className="mt-auto pt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55">
-                Baseline {baselineAsOfDate ? formatAsOf(baselineAsOfDate) : 'manual #JumlahShowJKT48'}
+                Baseline {baselineAsOfDate ? formatAsOf(baselineAsOfDate) : 'manual'}
               </p>
             </div>
           </div>

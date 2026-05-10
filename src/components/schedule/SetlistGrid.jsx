@@ -1,8 +1,8 @@
 /**
  * SetlistGrid — every theater setlist Eli has performed in.
  *
- * Source: /data/eli-show-log.json (manual #JumlahShowJKT48 recap by
- * @jehaes_, parsed by scripts/parse-show-log.py). The previous
+ * Source: /data/eli-show-log.json (manual show log, parsed by
+ * scripts/parse-show-log.py). The previous
  * version pulled from /data/eli-setlists.json (jkt48.com API) which
  * had gaps for pre-2021 shows + opaque "SL_X" titles. Manual data
  * has clean Indonesian setlist names + per-setlist unit-song

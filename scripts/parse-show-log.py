@@ -1,10 +1,8 @@
 """
-Parse the manual #JumlahShowJKT48 show log into structured JSON.
+Parse the manual show log into structured JSON.
 
-Source: scripts/eli-show-log.tsv (manual recap from @jehaes_, copied
-from his community spreadsheet — same data behind the 385 baseline
-on /schedule). 9-column TSV: NO / HARI / TANGGAL / SETLIST / UNIT
-SONG / POSITION / PARTNER / LINEUP / NOTE.
+Source: scripts/eli-show-log.tsv (9-column TSV: NO / HARI / TANGGAL /
+SETLIST / UNIT SONG / POSITION / PARTNER / LINEUP / NOTE).
 
 Output: public/data/eli-show-log.json — consumed by the SetlistGrid
 and ShowLog components on /schedule. Re-run whenever the TSV is
@@ -115,7 +113,7 @@ def main():
     duos = sum(1 for r in rows if r["position"] and r["position"].lower().startswith("duo"))
 
     payload = {
-        "source": "Manual recap by @jehaes_ via #JumlahShowJKT48 community count",
+        "source": "Manual show log",
         "totalShows": len(rows),
         "asOfDate": rows[-1]["date"] if rows else None,
         "totals": {
