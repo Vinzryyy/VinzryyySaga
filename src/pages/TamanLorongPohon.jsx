@@ -77,80 +77,129 @@ const ORBIT_TARGET = [0, 6, -12];
 // perjalanan karier muncul dari horizon timur, naik ke zenith, lalu
 // turun lagi ke horizon barat. Stars stay at tree-top level..mid-sky
 // (y ~3.5-9), gak terlalu tinggi supaya gak bikin user crane neck.
+// Era + konstelasi pattern. Per milestone dalam era, pattern[posInEra]
+// = [az_offset, alt_offset] normalized -1..1, dikalikan era.spread
+// saat compute world position. Bikin tiap konstelasi punya shape
+// recognizable (triangle, kite, arrow, dst) instead of pure horizontal
+// arc dengan random jitter.
 const SKY_RADIUS = 14;
 const ERA_DEFS = [
   {
     id: 'trainee',
     name: 'Trainee',
     color: '#a8c0ff', // soft blue
-    azimuth: 1.05, // upper-right of forward view
-    altitude: 0.18,
-    spread: 0.14,
+    azimuth: 1.05,
+    altitude: 0.20,
+    spread: 0.18,
     milestoneIds: ['audition', 'sousenkyo-2018', 'class-a'],
+    // Triangle pointing up — audisi di puncak, dua bawah flanking
+    pattern: [
+      [0.0, 0.7], // audition (top)
+      [-0.85, -0.45], // sousenkyo (bottom-left)
+      [0.85, -0.35], // class-a (bottom-right)
+    ],
   },
   {
     id: 'theater',
     name: 'Theater',
     color: '#ffcc88', // warm amber
-    azimuth: 0.62,
-    altitude: 0.26,
-    spread: 0.12,
+    azimuth: 0.55,
+    altitude: 0.28,
+    spread: 0.14,
     milestoneIds: ['theater-debut', 'team-kiii'],
+    // Diagonal pair — debut bawah-kiri, team KIII naik ke kanan-atas
+    pattern: [
+      [-0.7, -0.5],
+      [0.7, 0.5],
+    ],
   },
   {
     id: 'senbatsu',
     name: 'Senbatsu',
     color: '#ff9ec0', // pink
-    azimuth: 0.22,
-    altitude: 0.34,
-    spread: 0.12,
+    azimuth: 0.18,
+    altitude: 0.36,
+    spread: 0.13,
     milestoneIds: ['show-100', 'first-senbatsu'],
+    // Pair — show-100 kiri-atas, senbatsu kanan-bawah (descending)
+    pattern: [
+      [-0.55, 0.4],
+      [0.65, -0.3],
+    ],
   },
   {
     id: 'new-era',
     name: 'New Era',
     color: '#a4e8d0', // mint
-    azimuth: -0.18,
-    altitude: 0.42,
-    spread: 0.16,
+    azimuth: -0.20,
+    altitude: 0.44,
+    spread: 0.20,
     milestoneIds: ['new-formation-2021', 'darashinai-aishikata', 'show-200'],
+    // Open triangle pointing right — formasi kiri, darashinai bawah,
+    // show-200 kanan-atas. Asymmetric, kerasa transisi
+    pattern: [
+      [-0.75, 0.3],
+      [-0.05, -0.6],
+      [0.85, 0.5],
+    ],
   },
   {
     id: 'mature',
     name: 'Mature',
     color: '#d8a8ff', // lavender
-    azimuth: -0.62,
-    altitude: 0.36,
-    spread: 0.18,
+    azimuth: -0.65,
+    altitude: 0.38,
+    spread: 0.24,
     milestoneIds: [
       'sayonara-crawl',
       'spv-langit-biru-2024',
       'show-300',
       'undergirl-bibir-2024',
     ],
+    // Kite/diamond shape — sayonara kiri, spv atas, show-300 bawah,
+    // undergirls kanan
+    pattern: [
+      [-0.85, -0.05],
+      [-0.15, 0.7],
+      [0.15, -0.65],
+      [0.85, 0.05],
+    ],
   },
   {
     id: 'variety',
     name: 'Variety',
     color: '#ffe6a0', // soft yellow
-    azimuth: -1.0,
-    altitude: 0.26,
-    spread: 0.13,
+    azimuth: -1.05,
+    altitude: 0.28,
+    spread: 0.15,
     milestoneIds: ['belajar-konseling', 'pertaruhan-cinta-shonichi'],
+    // Pair — belajar di kiri, pertaruhan kanan-atas (slight rise)
+    pattern: [
+      [-0.55, -0.25],
+      [0.6, 0.35],
+    ],
   },
   {
     id: 'fight',
     name: 'JKT48 Fight',
     color: '#ff9080', // warm coral
-    azimuth: -1.4,
-    altitude: 0.18,
-    spread: 0.22,
+    azimuth: -1.45,
+    altitude: 0.20,
+    spread: 0.28,
     milestoneIds: [
       'three-team-announce',
       'fight-tagline',
       'team-dream',
       'dream-bakudan-shonichi',
       'show-400',
+    ],
+    // W-shape — 5 stars zigzag forming the JKT48 Fight era timeline
+    pattern: [
+      [-0.85, 0.15],
+      [-0.42, -0.5],
+      [0.0, 0.45],
+      [0.42, -0.45],
+      [0.9, 0.55],
     ],
   },
 ];
@@ -190,25 +239,27 @@ const skyPosition = (azimuth, altitude) => {
   return [x, y, z];
 };
 
-// Position untuk milestone tertentu di konstelasi era-nya. Center era
-// + jitter deterministic dari hashSeed per-milestone. posInEra dipake
-// untuk arc pattern (bintang konstelasi gak pure random, tapi sedikit
-// terstruktur supaya line connections form readable shape).
+// Position untuk milestone tertentu di konstelasi era-nya. Pakai
+// per-era pattern[] (hand-designed -1..1 offset per milestone)
+// dikalikan era.spread, plus jitter kecil dari hash supaya gak
+// pixel-perfect (subtle organic variation). Pattern bikin shape
+// konstelasi kebaca (triangle, kite, W, dst), bukan random scatter.
 const milestoneSkyPosition = (milestoneId) => {
   const info = ERA_LOOKUP.get(milestoneId);
   if (!info) return [0, SKY_RADIUS * 0.6, -SKY_RADIUS * 0.5];
   const { eraDef, posInEra } = info;
-  const total = eraDef.milestoneIds.length;
-  // Arc spread within constellation — milestones distributed along an
-  // arc centered at era.azimuth/altitude. Half-spread di kedua axis.
-  const t = total === 1 ? 0 : posInEra / (total - 1) - 0.5;
-  // Jitter from hash supaya gak terlalu uniform — pure arc kaku.
+  const pattern = eraDef.pattern?.[posInEra] ?? [0, 0];
   const seedA = hashSeed(`${milestoneId}-a`) - 0.5;
   const seedB = hashSeed(`${milestoneId}-b`) - 0.5;
-  const az = eraDef.azimuth + t * eraDef.spread * 1.6 + seedA * eraDef.spread * 0.4;
+  // Pattern dominan, jitter cuma 12% spread untuk soften pixel-perfect
+  const az =
+    eraDef.azimuth + pattern[0] * eraDef.spread + seedA * eraDef.spread * 0.12;
   const alt = Math.max(
     0.10,
-    Math.min(0.6, eraDef.altitude + seedB * eraDef.spread * 0.7),
+    Math.min(
+      0.6,
+      eraDef.altitude + pattern[1] * eraDef.spread + seedB * eraDef.spread * 0.10,
+    ),
   );
   return skyPosition(az, alt);
 };
