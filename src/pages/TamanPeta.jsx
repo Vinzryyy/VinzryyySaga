@@ -97,7 +97,7 @@ const HEX_RADIUS = 5;
 const PETAK = [
   {
     id: 'r1',
-    name: 'Lorong Pohon Tahun',
+    name: 'Pohon-Pohon yang Mengingat',
     desc: 'Jalur tahun demi tahun',
     longDesc:
       'Jalur dengan pohon-pohon yang tumbuh tahun demi tahun — debut, single pertama, theater, generasi. Tiap pohon = milestone perjalanan Eli.',
