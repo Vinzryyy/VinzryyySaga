@@ -14,7 +14,7 @@
  * - ClockSync: bridge state.clock ke parent ref (Canvas-side)
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFrame } from '@react-three/fiber';
 import { ELI_TIMELINE } from '../../../data/eliProfile';
