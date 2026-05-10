@@ -782,69 +782,6 @@ const Lanterns = ({ signatureEvent, viewMode }) => (
   </>
 );
 
-// Year plaque kayu — penanda fisik di base tiap pohon dengan tahun
-// terukir, kerasa kayak memorial marker / milestone post. Plaque
-// di-tilt menghadap path supaya bisa dibaca dari camera.
-const YearPlaque = ({ tree, cracked = false }) => {
-  const side = Math.sign(tree.x); // -1 kiri, +1 kanan
-  return (
-    <group
-      position={[tree.x - side * 0.55, 0, tree.z + 0.25]}
-      rotation={[0, -side * Math.PI / 4, 0]}
-    >
-      {/* Mini post */}
-      <mesh position={[0, 0.18, 0]}>
-        <cylinderGeometry args={[0.02, 0.025, 0.36, 6]} />
-        <meshStandardMaterial color="#3a2c1c" roughness={0.95} />
-      </mesh>
-      {/* Mini plank — kalau cracked, sedikit miring ke samping */}
-      <mesh position={[0, 0.32, 0]} rotation={[0, 0, cracked ? -0.12 : 0]}>
-        <boxGeometry args={[0.4, 0.14, 0.03]} />
-        <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
-      </mesh>
-      {/* Tepi plank atas-bawah (frame kayu lebih gelap) */}
-      <mesh position={[0, 0.395, 0.018]} rotation={[0, 0, cracked ? -0.12 : 0]}>
-        <boxGeometry args={[0.42, 0.025, 0.02]} />
-        <meshStandardMaterial color="#3a2616" roughness={0.95} />
-      </mesh>
-      <mesh position={[0, 0.245, 0.018]} rotation={[0, 0, cracked ? -0.12 : 0]}>
-        <boxGeometry args={[0.42, 0.025, 0.02]} />
-        <meshStandardMaterial color="#3a2616" roughness={0.95} />
-      </mesh>
-      {/* Crack line — diagonal dark line nyilang plank */}
-      {cracked && (
-        <mesh position={[0.05, 0.31, 0.02]} rotation={[0, 0, 0.7]}>
-          <boxGeometry args={[0.005, 0.13, 0.005]} />
-          <meshStandardMaterial color="#1a0d05" roughness={1} />
-        </mesh>
-      )}
-      {/* Tahun terukir */}
-      <Html position={[0, 0.32, 0.025]} center distanceFactor={6} occlude={false}>
-        <div style={{
-          fontFamily: '"Fraunces Variable", serif',
-          fontStyle: 'italic',
-          fontSize: '9px',
-          color: '#1a0d05',
-          whiteSpace: 'nowrap',
-          fontWeight: '600',
-          letterSpacing: '0.5px',
-          pointerEvents: 'none',
-          transform: cracked ? 'rotate(-7deg)' : undefined,
-        }}>{tree.year}</div>
-      </Html>
-    </group>
-  );
-};
-
-// Plaque ke-4 sengaja cracked — path storytelling subtle
-const YearPlaques = ({ trees }) => (
-  <>
-    {trees.map((tree, i) => (
-      <YearPlaque key={`plaque-${tree.id}`} tree={tree} cracked={i === 3} />
-    ))}
-  </>
-);
-
 // Burung hantu nemplok di pohon — quiet life signal di lorong malam.
 // Body static, cuma kepala rotate slow (left-right) supaya kerasa
 // alert tapi tetep tenang. Mata kuning emissive jadi focal point —
@@ -1888,128 +1825,6 @@ const StoneMonument = ({ onClick }) => (
   </group>
 );
 
-// Tree-specific decorations — bikin tiap pohon-tahun distinct, bukan
-// copy-paste. 5 types didistribusi ke 10 trees by index. Position
-// relative ke tree group, side = sign(tree.x) untuk path-facing.
-const TREE_DECORATION_TYPES = [
-  'blossom', // tree[0] — era recent celebration
-  'lampion', // tree[1]
-  'ribbon', // tree[2]
-  'nest', // tree[3]
-  'plate', // tree[4]
-  'lampion', // tree[5]
-  'ribbon', // tree[6]
-  'blossom', // tree[7]
-  'nest', // tree[8]
-  'plate', // tree[9] — debut era marker
-];
-
-const TreeDecoration = ({ type, side }) => {
-  switch (type) {
-    case 'blossom':
-      return (
-        <group position={[-side * 0.55, 2.7, 0.55]}>
-          <mesh>
-            <sphereGeometry args={[0.16, 12, 10]} />
-            <meshStandardMaterial
-              color="#f4b8c8"
-              emissive="#f4b8c8"
-              emissiveIntensity={0.35}
-              roughness={0.6}
-            />
-          </mesh>
-          {/* Bigger halo di sekitar blossom — glow soft */}
-          <mesh>
-            <sphereGeometry args={[0.24, 10, 8]} />
-            <meshBasicMaterial
-              color="#f4b8c8"
-              transparent
-              opacity={0.18}
-              depthWrite={false}
-            />
-          </mesh>
-        </group>
-      );
-    case 'lampion':
-      return (
-        <group position={[-side * 0.5, 2.0, 0.45]}>
-          {/* String menggantung dari foliage */}
-          <mesh position={[0, 0.42, 0]}>
-            <cylinderGeometry args={[0.005, 0.005, 0.7, 4]} />
-            <meshStandardMaterial color="#5a4530" />
-          </mesh>
-          {/* Lampion body — sphere oranye glowing */}
-          <mesh>
-            <sphereGeometry args={[0.10, 12, 10]} />
-            <meshStandardMaterial
-              color="#d8745a"
-              emissive="#ff8848"
-              emissiveIntensity={0.55}
-              roughness={0.7}
-            />
-          </mesh>
-          {/* Rope tail di bawah */}
-          <mesh position={[0, -0.13, 0]}>
-            <cylinderGeometry args={[0.004, 0.004, 0.08, 4]} />
-            <meshStandardMaterial color="#5a4530" />
-          </mesh>
-        </group>
-      );
-    case 'ribbon':
-      return (
-        <mesh position={[0, 1.0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.13, 0.025, 6, 16]} />
-          <meshStandardMaterial color="#c44a3e" roughness={0.85} />
-        </mesh>
-      );
-    case 'nest':
-      return (
-        <group position={[-side * 0.45, 3.45, 0.2]}>
-          {/* Nest dome */}
-          <mesh>
-            <sphereGeometry args={[0.10, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
-            <meshStandardMaterial color="#5a4530" roughness={0.95} />
-          </mesh>
-          {/* Inner rim */}
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.075, 0.012, 5, 12]} />
-            <meshStandardMaterial color="#3a2c1c" roughness={1} />
-          </mesh>
-        </group>
-      );
-    case 'plate':
-      return (
-        <group position={[0, 1.4, 0.18]}>
-          {/* Plank wood vertical attached to trunk */}
-          <mesh>
-            <boxGeometry args={[0.32, 0.20, 0.025]} />
-            <meshStandardMaterial color="#5a3e2b" roughness={0.85} />
-          </mesh>
-          {/* Border darker */}
-          <mesh position={[0, 0.115, 0.014]}>
-            <boxGeometry args={[0.34, 0.018, 0.018]} />
-            <meshStandardMaterial color="#3a2616" roughness={0.95} />
-          </mesh>
-          <mesh position={[0, -0.115, 0.014]}>
-            <boxGeometry args={[0.34, 0.018, 0.018]} />
-            <meshStandardMaterial color="#3a2616" roughness={0.95} />
-          </mesh>
-          {/* Small nail dots */}
-          <mesh position={[-0.13, 0.07, 0.018]}>
-            <sphereGeometry args={[0.008, 6, 6]} />
-            <meshStandardMaterial color="#2a2018" metalness={0.6} roughness={0.4} />
-          </mesh>
-          <mesh position={[0.13, 0.07, 0.018]}>
-            <sphereGeometry args={[0.008, 6, 6]} />
-            <meshStandardMaterial color="#2a2018" metalness={0.6} roughness={0.4} />
-          </mesh>
-        </group>
-      );
-    default:
-      return null;
-  }
-};
-
 // Bangku kayu tua — weathered, di-side path antara owl dan rabbit
 // (z=-15 right side, opposite rabbit di kiri). Dengan 2 daun gugur
 // settle di seat — kasih kesan "udah lama nggak diduduki".
@@ -2288,128 +2103,6 @@ const Puddle = ({ isMobile }) => (
   </mesh>
 );
 
-// Pohon-tahun: trunk pendek + 1 foliage cluster + label year
-// melayang. Hover lift + emissive glow, click → modal milestone.
-const YearTree = ({ tree, idx, hovered, onPointerOver, onPointerOut, onClick }) => {
-  const groupRef = useRef();
-  const foliageRef = useRef();
-  const matRef = useRef();
-  // Per-tree wind phase deterministik dari posisi — supaya pohon-pohon
-  // nggak sway in sync (tiap tree gerak dengan offset beda)
-  const windPhase = tree.x * 0.27 + tree.z * 0.13;
-
-  useFrame((state, delta) => {
-    if (!groupRef.current || !matRef.current) return;
-    const t = state.clock.elapsedTime;
-    const targetY = hovered ? 0.25 : 0;
-    const targetEmissive = hovered ? 0.4 : 0;
-    const factor = Math.min(delta * 8, 1);
-    groupRef.current.position.y = lerp(
-      groupRef.current.position.y,
-      targetY,
-      factor
-    );
-    matRef.current.emissiveIntensity = lerp(
-      matRef.current.emissiveIntensity,
-      targetEmissive,
-      factor
-    );
-    // Foliage sway — pivot di trunk top (group origin di y=1.2),
-    // rotation Z bikin foliage swing kiri-kanan match wind direction
-    if (foliageRef.current) {
-      const wind = getWind(t, windPhase);
-      foliageRef.current.rotation.z = wind.total * 0.045;
-      foliageRef.current.rotation.x = wind.total * 0.025;
-    }
-  });
-
-  return (
-    <group
-      ref={groupRef}
-      position={[tree.x, 0, tree.z]}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        onPointerOver(tree.id);
-      }}
-      onPointerOut={(e) => {
-        e.stopPropagation();
-        onPointerOut(tree.id);
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick(tree);
-      }}
-    >
-      {/* Trunk — static (nggak sway). Lebih tinggi dan tebal: 2.2 unit
-          height (was 1.2), radius 0.10/0.15 (was 0.08/0.13) supaya
-          proporsi tetap match */}
-      <mesh position={[0, 1.1, 0]}>
-        <cylinderGeometry args={[0.10, 0.15, 2.2, 8]} />
-        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
-      </mesh>
-      {/* Foliage assembly — pivot di trunk top (y=2.2). Foliage radius
-          0.95 (was 0.6), inner offset y=0.5 → center y world 2.7,
-          top y 3.65. Canopy feel di FPV (eye level 1.6 lewat di bawah) */}
-      <group ref={foliageRef} position={[0, 2.2, 0]}>
-        <mesh position={[0, 0.5, 0]}>
-          <sphereGeometry args={[0.95, 14, 10]} />
-          <meshStandardMaterial
-            ref={matRef}
-            color={tree.color}
-            emissive={tree.color}
-            emissiveIntensity={0}
-            roughness={0.75}
-          />
-        </mesh>
-      </group>
-      {/* Tree-specific decoration — different per tree by idx */}
-      <TreeDecoration
-        type={TREE_DECORATION_TYPES[idx % TREE_DECORATION_TYPES.length]}
-        side={Math.sign(tree.x)}
-      />
-      {/* Year label — Fraunces italic memorial style + separator line.
-          Naik ke 4.0 supaya tetap di atas foliage 3.65 */}
-      <Html position={[0, 4.0, 0]} center distanceFactor={10}>
-        <div
-          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
-            hovered ? '-translate-y-1' : ''
-          }`}
-        >
-          <div
-            className={`transition-colors leading-none ${
-              hovered ? 'text-white' : 'text-white/90'
-            }`}
-            style={{
-              fontFamily: '"Fraunces Variable", serif',
-              fontStyle: 'italic',
-              fontWeight: 300,
-              fontSize: '22px',
-              letterSpacing: '0.02em',
-              textShadow: hovered
-                ? '0 0 16px rgba(255, 220, 160, 0.5)'
-                : '0 0 8px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            {tree.year}
-          </div>
-          {/* Separator line subtle */}
-          <div
-            className={`mx-auto my-1.5 h-px transition-all ${
-              hovered ? 'w-6 bg-white/55' : 'w-4 bg-white/30'
-            }`}
-          />
-          <div
-            className={`text-[9px] uppercase tracking-[0.28em] transition-colors ${
-              hovered ? 'text-white/85' : 'text-white/55'
-            }`}
-          >
-            {tree.badge}
-          </div>
-        </div>
-      </Html>
-    </group>
-  );
-};
 
 // =============================================================
 // KONSTELASI MILESTONE — bintang per milestone di langit
@@ -2908,11 +2601,17 @@ const StarLayer = ({ data, size, baseOpacity, twinkleSpeed, twinkleAmp }) => {
   );
 };
 
-const Stars = () => (
+// Mobile-aware: drop bright layer + halve mid count (sparser counts
+// mobile = fewer points buffer + 1 fewer draw call). Density tetap
+// terasa "penuh bintang" via far+mid layer.
+const FAR_STAR_MOBILE = buildStarLayer(420, 22, 38);
+const MID_STAR_MOBILE = buildStarLayer(180, 13, 22);
+
+const Stars = ({ isMobile }) => (
   <>
     {/* Far backdrop — deep space dim layer */}
     <StarLayer
-      data={FAR_STAR}
+      data={isMobile ? FAR_STAR_MOBILE : FAR_STAR}
       size={1.2}
       baseOpacity={0.72}
       twinkleSpeed={0.7}
@@ -2921,20 +2620,24 @@ const Stars = () => (
     {/* Mid layer — closer + slight movement, lebih kerasa "ada di
         antara stars". Twinkle phase beda supaya gak sync sama far. */}
     <StarLayer
-      data={MID_STAR}
+      data={isMobile ? MID_STAR_MOBILE : MID_STAR}
       size={1.6}
       baseOpacity={0.82}
       twinkleSpeed={0.45}
       twinkleAmp={0.18}
     />
-    {/* Bright stars — bigger, sparser, more contrast. Slow pulse. */}
-    <StarLayer
-      data={BRIGHT_STAR}
-      size={2.6}
-      baseOpacity={0.95}
-      twinkleSpeed={0.3}
-      twinkleAmp={0.10}
-    />
+    {/* Bright stars — bigger, sparser, more contrast. Slow pulse.
+        Skip di mobile — fillrate cost tinggi (bigger size = lebih
+        banyak pixel render per point). */}
+    {!isMobile && (
+      <StarLayer
+        data={BRIGHT_STAR}
+        size={2.6}
+        baseOpacity={0.95}
+        twinkleSpeed={0.3}
+        twinkleAmp={0.10}
+      />
+    )}
   </>
 );
 
@@ -3561,11 +3264,11 @@ const LorongScene = ({
         follow camera XZ → stars terasa "ikut user" (real sky parallax-
         free). Di orbit, fixed di SKY_CENTER. */}
     <SkyGroup viewMode={viewMode}>
-      <Stars />
+      <Stars isMobile={isMobile} />
       {!isMobile && <Nebula />}
       <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
       <Moon />
-      <ShootingStar />
+      {!isMobile && <ShootingStar />}
       {/* Konstelasi milestone — bintang di langit, era-grouped */}
       <ConstellationLines stars={trees} />
       <ConstellationLabels />
@@ -3810,7 +3513,7 @@ const LorongHeader = () => (
 // out. Eyebrow + title Fraunces italic + poetic subtitle. Once done,
 // removed dari DOM. User refresh untuk replay.
 const INTRO_STORAGE_KEY = 'taman-r1-intro-seen';
-const IntroTitle = () => {
+const IntroTitle = ({ isMobile = false }) => {
   const [visible, setVisible] = useState(false);
   const [removed, setRemoved] = useState(false);
   useEffect(() => {
@@ -3876,7 +3579,7 @@ const IntroTitle = () => {
           {/* Inner separator line antara title & subtitle */}
           <div className="mx-auto mb-5 w-12 h-px bg-white/30" />
           <div
-            className="text-white/70 text-[13px]"
+            className="text-white/70 text-[13px] mb-6"
             style={{
               fontFamily: '"Fraunces Variable", serif',
               fontStyle: 'italic',
@@ -3884,6 +3587,12 @@ const IntroTitle = () => {
             }}
           >
             {ELI_TIMELINE.length} perjalanan, dirajut menjadi konstelasi di atas taman senja.
+          </div>
+          {/* Inline tip — replace separate TutorialHint surface */}
+          <div className="text-white/35 text-[9px] uppercase tracking-[0.3em]">
+            {isMobile
+              ? 'Ketuk bintang · Tatap langit untuk jalan di taman'
+              : 'Klik bintang · Drag untuk berputar · Tatap langit untuk jalan'}
           </div>
         </div>
       </div>
@@ -4017,12 +3726,18 @@ const MobileFPVControls = ({ joystickRef, lookRef }) => {
 const ERA_GUIDE_STORAGE_KEY = 'taman-r1-guide-collapsed';
 const EraGuide = ({ trees, isMobile, onSpotlight, spotlightEra }) => {
   // Persistence: user bisa collapse panel kalau merasa intrusive.
+  // Default collapsed di mobile (less screen real estate), expanded
+  // di desktop. User can toggle either way, persisted.
   const [collapsed, setCollapsed] = useState(() => {
     try {
-      return localStorage.getItem(ERA_GUIDE_STORAGE_KEY) === '1';
+      const stored = localStorage.getItem(ERA_GUIDE_STORAGE_KEY);
+      if (stored === '1') return true;
+      if (stored === '0') return false;
     } catch {
-      return false;
+      /* storage blocked */
     }
+    // Initial default: collapsed di mobile, expanded di desktop
+    return isMobile;
   });
   const toggleCollapsed = () => {
     setCollapsed((c) => {
@@ -4115,74 +3830,6 @@ const EraGuide = ({ trees, isMobile, onSpotlight, spotlightEra }) => {
             })}
           </div>
         )}
-      </div>
-    </div>
-  );
-};
-
-// Tutorial hint — muncul setelah intro fade out, kasih tahu user
-// soal mode berjalan. Auto-fade after ~6s. Persist seen state di
-// localStorage supaya gak muncul lagi di visit berikutnya.
-const TUTORIAL_STORAGE_KEY = 'taman-r1-tutorial-seen';
-const TutorialHint = ({ isMobile }) => {
-  const [visible, setVisible] = useState(false);
-  const [removed, setRemoved] = useState(false);
-  useEffect(() => {
-    // Skip kalau user udah pernah lihat
-    let seen = false;
-    try {
-      seen = localStorage.getItem(TUTORIAL_STORAGE_KEY) === '1';
-    } catch {
-      /* storage blocked */
-    }
-    if (seen) {
-      setRemoved(true);
-      return undefined;
-    }
-    // Tunggu intro selesai (~7.8s), lalu show 6s
-    const t1 = setTimeout(() => setVisible(true), 8200);
-    const t2 = setTimeout(() => setVisible(false), 14500);
-    const t3 = setTimeout(() => {
-      setRemoved(true);
-      try {
-        localStorage.setItem(TUTORIAL_STORAGE_KEY, '1');
-      } catch {
-        /* storage blocked */
-      }
-    }, 16500);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, []);
-  if (removed) return null;
-  // Position: di mobile geser ke top biar gak konflik dgn joystick
-  // (bottom-left) atau FPV button (bottom-right). Desktop tetap kanan
-  // bawah seperti sebelumnya.
-  return (
-    <div
-      className={`pointer-events-none absolute z-20 max-w-[260px] transition-opacity duration-1000 ease-out ${
-        isMobile
-          ? 'top-16 right-4 max-w-[200px]'
-          : 'bottom-24 right-6'
-      } ${visible ? 'opacity-100' : 'opacity-0'}`}
-    >
-      <div className="rounded-md border border-white/15 bg-[#0a0d18]/80 backdrop-blur-md px-3 py-2.5 sm:px-4 sm:py-3 shadow-xl">
-        <div className="text-white/55 text-[8px] uppercase tracking-[0.4em] mb-1.5">
-          Tip
-        </div>
-        <div
-          className="text-white/85 text-[11px] sm:text-[12px] leading-relaxed"
-          style={{
-            fontFamily: '"Fraunces Variable", serif',
-            fontStyle: 'italic',
-          }}
-        >
-          {isMobile
-            ? 'Coba "tatap langit" — joystick kiri jalan di taman, swipe kanan untuk menengadah konstelasi.'
-            : 'Coba "tatap langit" — jalan di taman dengan WASD, gerakkan mouse untuk menengadah konstelasi.'}
-        </div>
       </div>
     </div>
   );
@@ -4767,8 +4414,9 @@ const TamanLorongPohonPage = () => {
           </Canvas>
         </Suspense>
 
-        <IntroTitle />
-        <TutorialHint isMobile={isMobile} />
+        <IntroTitle isMobile={isMobile} />
+        {/* TutorialHint dropped — tip di-merge ke IntroTitle card bottom
+            supaya onboarding cuma 1 surface di first visit, bukan 2 */}
         <EraGuide
           trees={trees}
           isMobile={isMobile}
