@@ -2430,6 +2430,7 @@ const StarMilestone = ({
   selected,
   spotlit,
   signatureEvent,
+  modalOpen,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -2549,53 +2550,55 @@ const StarMilestone = ({
           depthWrite={false}
         />
       </mesh>
-      {/* Year label — always visible subtle tag di bawah star. Title
-          appear on hover. distanceFactor disesuaikan dgn SKY_RADIUS=14
-          supaya text legible tapi gak overpowering. */}
-      <Html
-        position={[0, -baseSize * 1.8, 0]}
-        center
-        distanceFactor={8}
-        occlude={false}
-        style={{ pointerEvents: 'none' }}
-      >
-        <div
-          className="text-center whitespace-nowrap"
-          style={{
-            fontFamily: '"Fraunces Variable", serif',
-            fontStyle: 'italic',
-            color: star.color,
-            transition: 'opacity 300ms ease-out',
-            textShadow: '0 0 8px rgba(0,0,0,0.85)',
-          }}
+      {/* Year label — visible saat hovered/selected/no-modal-open.
+          Saat modal open di star LAIN, label hidden supaya gak
+          overlap dgn modal content. */}
+      {(!modalOpen || hovered || selected) && (
+        <Html
+          position={[0, -baseSize * 1.8, 0]}
+          center
+          distanceFactor={8}
+          occlude={false}
+          style={{ pointerEvents: 'none' }}
         >
           <div
+            className="text-center whitespace-nowrap"
             style={{
-              fontSize: '11px',
-              letterSpacing: '0.18em',
-              opacity: hovered ? 0.95 : (selected ? 0.8 : 0.5),
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+              color: star.color,
+              transition: 'opacity 300ms ease-out',
+              textShadow: '0 0 8px rgba(0,0,0,0.85)',
             }}
           >
-            {star.year}
-          </div>
-          {(hovered || selected) && (
             <div
               style={{
-                fontSize: '10px',
-                marginTop: '3px',
-                color: 'rgba(255,255,255,0.85)',
-                fontStyle: 'italic',
-                maxWidth: '180px',
-                whiteSpace: 'normal',
-                lineHeight: '1.25',
-                animation: 'fadeIn 250ms ease-out',
+                fontSize: '11px',
+                letterSpacing: '0.18em',
+                opacity: hovered ? 0.95 : selected ? 0.85 : 0.45,
               }}
             >
-              {star.title}
+              {star.year}
             </div>
-          )}
-        </div>
-      </Html>
+            {(hovered || selected) && (
+              <div
+                style={{
+                  fontSize: '10px',
+                  marginTop: '3px',
+                  color: 'rgba(255,255,255,0.85)',
+                  fontStyle: 'italic',
+                  maxWidth: '180px',
+                  whiteSpace: 'normal',
+                  lineHeight: '1.25',
+                  animation: 'fadeIn 250ms ease-out',
+                }}
+              >
+                {star.title}
+              </div>
+            )}
+          </div>
+        </Html>
+      )}
     </group>
   );
 };
@@ -3573,6 +3576,7 @@ const LorongScene = ({
           hovered={hoveredTreeId === star.id}
           selected={selectedTreeId === star.id}
           spotlit={spotlightEra === star.eraId}
+          modalOpen={selectedTreeId !== null}
           signatureEvent={signatureEvent}
           onPointerOver={onTreeHover}
           onPointerOut={onTreeOut}
@@ -4238,126 +4242,177 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
   const fullDate = formatFullDate(tree.date);
   const hasPrev = idx > 0;
   const hasNext = idx >= 0 && idx < total - 1;
+  const eraDef = ERA_LOOKUP.get(tree.id)?.eraDef;
+  const eraColor = eraDef?.color ?? '#ffffff';
 
   return (
     <div
-      className="absolute inset-0 z-30 flex items-center justify-center bg-black/55 backdrop-blur-md"
+      className="absolute inset-0 z-30 flex items-center justify-center bg-black/65 backdrop-blur-md"
       onClick={onClose}
       style={{ animation: 'fadeIn 300ms ease-out' }}
     >
       <div
-        className="bg-[#1c1f2a]/95 border border-white/15 rounded-2xl px-7 sm:px-8 py-8 max-w-lg mx-6 w-[calc(100%-3rem)]"
+        className="relative bg-[#0e1018]/96 border border-white/10 rounded-2xl max-w-lg mx-6 w-[calc(100%-3rem)] overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.55)]"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          // Era color tint subtle di background — 4% gradient dari atas
+          background: `linear-gradient(180deg, ${eraColor}0c 0%, transparent 35%), #0e1018f5`,
+        }}
       >
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-emerald-300/80 text-[10px] uppercase tracking-[0.25em]">
-            {tree.badge}
-          </span>
-          <span className="text-white/55 text-[10px] tracking-wide">
-            {fullDate ?? tree.period}
-          </span>
-        </div>
-        <h2
-          className="text-white text-2xl mb-4 leading-tight"
+        {/* Top accent stripe — era color soft glow line */}
+        <div
+          className="h-[2px] w-full"
           style={{
-            fontFamily: '"Fraunces Variable", serif',
-            fontStyle: 'italic',
+            background: `linear-gradient(90deg, transparent 0%, ${eraColor}cc 50%, transparent 100%)`,
+            boxShadow: `0 0 12px ${eraColor}99`,
           }}
-        >
-          {tree.title}
-        </h2>
-        <p className="text-white/75 text-sm leading-relaxed mb-6">
-          {tree.body}
-        </p>
+        />
 
-        {/* Progress dots grouped by era — 7 cluster, color per era.
-            Active dot pakai era color (bukan generic amber) supaya
-            user tahu lagi di era mana. */}
-        {total > 0 && (
-          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
-            {ERA_DEFS.map((era, eraIdx) => {
-              const eraStars = trees.filter((t) => t.eraId === era.id);
-              if (eraStars.length === 0) return null;
-              return (
-                <React.Fragment key={era.id}>
-                  {eraIdx > 0 && (
-                    <span className="w-px h-2.5 bg-white/15" aria-hidden="true" />
-                  )}
-                  <div className="flex items-center gap-1">
-                    {eraStars.map((t) => {
-                      const i = trees.findIndex((x) => x.id === t.id);
-                      const active = t.id === tree.id;
-                      return (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => {
-                            if (active) return;
-                            if (i < idx) onPrev?.(i);
-                            else onNext?.(i);
-                          }}
-                          aria-label={`${t.year} — ${t.title}`}
-                          className="group p-1 -m-1"
-                        >
-                          <span
-                            className={`block rounded-full transition-all ${
-                              active ? 'w-2 h-2' : 'w-1.5 h-1.5'
-                            }`}
-                            style={{
-                              background: active
-                                ? era.color
-                                : 'rgba(255,255,255,0.22)',
-                              boxShadow: active
-                                ? `0 0 8px ${era.color}`
-                                : 'none',
-                            }}
-                          />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </React.Fragment>
-              );
-            })}
-          </div>
-        )}
-        {idx >= 0 && (
-          <div className="text-center text-white/40 text-[10px] uppercase tracking-[0.3em] mb-5">
-            Bintang ke-{idx + 1} dari {total}
-            {tree.eraId && (
-              <span className="ml-2" style={{ color: ERA_LOOKUP.get(tree.id)?.eraDef.color ?? 'inherit' }}>
-                · {ERA_LOOKUP.get(tree.id)?.eraDef.name}
+        <div className="px-7 sm:px-9 py-7 sm:py-8">
+          {/* Header — era badge + date */}
+          <div className="flex items-start justify-between gap-3 mb-5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                style={{
+                  background: eraColor,
+                  boxShadow: `0 0 8px ${eraColor}`,
+                }}
+                aria-hidden="true"
+              />
+              <span
+                className="text-[9px] uppercase tracking-[0.3em] font-medium"
+                style={{ color: eraColor }}
+              >
+                {eraDef?.name ?? 'Era'}
               </span>
-            )}
+              <span className="text-white/25 text-[10px]">·</span>
+              <span className="text-white/55 text-[9px] uppercase tracking-[0.25em]">
+                {tree.badge}
+              </span>
+            </div>
+            <span className="text-white/45 text-[10px] tabular-nums shrink-0 pt-0.5">
+              {fullDate ?? tree.period}
+            </span>
           </div>
-        )}
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => hasPrev && onPrev?.()}
-            disabled={!hasPrev}
-            className="px-3 py-2.5 rounded-full border border-white/20 text-white/70 text-xs hover:bg-white/10 hover:border-white/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Bintang sebelumnya"
+          {/* Title */}
+          <h2
+            className="text-white text-[26px] sm:text-[30px] leading-[1.15] mb-4"
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+              fontWeight: 400,
+              letterSpacing: '0.005em',
+            }}
           >
-            ←
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 px-5 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
-          >
-            Kembali ke konstelasi
-          </button>
-          <button
-            type="button"
-            onClick={() => hasNext && onNext?.()}
-            disabled={!hasNext}
-            className="px-3 py-2.5 rounded-full border border-white/20 text-white/70 text-xs hover:bg-white/10 hover:border-white/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Bintang selanjutnya"
-          >
-            →
-          </button>
+            {tree.title}
+          </h2>
+
+          {/* Subtle separator under title */}
+          <div
+            className="w-10 h-px mb-5"
+            style={{ background: `${eraColor}66` }}
+          />
+
+          {/* Body */}
+          <p className="text-white/72 text-[14px] leading-[1.6] mb-7">
+            {tree.body}
+          </p>
+
+          {/* Counter */}
+          {idx >= 0 && (
+            <div className="text-center text-white/35 text-[9px] uppercase tracking-[0.3em] mb-4">
+              Bintang ke-{idx + 1} dari {total}
+            </div>
+          )}
+
+          {/* Progress dots grouped by era — 7 cluster, color per era.
+              Active dot pakai era color + ring untuk emphasis. */}
+          {total > 0 && (
+            <div className="flex items-center justify-center gap-2 mb-7 flex-wrap">
+              {ERA_DEFS.map((era, eraIdx) => {
+                const eraStars = trees.filter((t) => t.eraId === era.id);
+                if (eraStars.length === 0) return null;
+                return (
+                  <React.Fragment key={era.id}>
+                    {eraIdx > 0 && (
+                      <span
+                        className="w-px h-2 bg-white/12"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <div className="flex items-center gap-1">
+                      {eraStars.map((t) => {
+                        const i = trees.findIndex((x) => x.id === t.id);
+                        const active = t.id === tree.id;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => {
+                              if (active) return;
+                              if (i < idx) onPrev?.(i);
+                              else onNext?.(i);
+                            }}
+                            aria-label={`${t.year} — ${t.title}`}
+                            className="group p-1 -m-1"
+                          >
+                            <span
+                              className={`block rounded-full transition-all ${
+                                active ? 'w-2.5 h-2.5' : 'w-1.5 h-1.5'
+                              }`}
+                              style={{
+                                background: active
+                                  ? era.color
+                                  : 'rgba(255,255,255,0.20)',
+                                boxShadow: active
+                                  ? `0 0 10px ${era.color}, 0 0 0 2px ${era.color}33`
+                                  : 'none',
+                              }}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Nav buttons — prev | close | next */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => hasPrev && onPrev?.()}
+              disabled={!hasPrev}
+              className="w-11 h-11 rounded-full border border-white/15 text-white/65 text-base hover:bg-white/8 hover:border-white/35 hover:text-white/95 transition disabled:opacity-25 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0"
+              aria-label="Bintang sebelumnya"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 h-11 rounded-full border border-white/25 text-white/85 text-[13px] hover:bg-white/8 hover:border-white/45 transition tracking-wide"
+              style={{
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+              }}
+            >
+              Kembali ke konstelasi
+            </button>
+            <button
+              type="button"
+              onClick={() => hasNext && onNext?.()}
+              disabled={!hasNext}
+              className="w-11 h-11 rounded-full border border-white/15 text-white/65 text-base hover:bg-white/8 hover:border-white/35 hover:text-white/95 transition disabled:opacity-25 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0"
+              aria-label="Bintang selanjutnya"
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
     </div>
