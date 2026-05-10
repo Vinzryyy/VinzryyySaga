@@ -3050,15 +3050,14 @@ const Moon = () => {
   );
 };
 
-// Nebula glow zones — large transparent emissive spheres di mid-
-// distance. Kasih color tint regional ke sky (purple/pink/teal),
-// bikin kerasa "ada awan kosmik" di antara bintang. Very low opacity
-// — subtle ambient color, gak overpowering.
+// Nebula glow zones — sangat tipis color hints di mid-distance.
+// Brightness dijaga lebih rendah dari moon halo (moon outer haze
+// opacity ~0.07, body emissive 1.4) supaya nebula gak compete buat
+// attention. 3 nebulas (was 4), opacity 0.03-0.045, radii 5-6.
 const NEBULA_DEFS = [
-  { pos: [-13, 10, -6], radius: 7, color: '#9070d0', opacity: 0.09 },
-  { pos: [11, 12, -16], radius: 8, color: '#d06090', opacity: 0.08 },
-  { pos: [2, 14, 8], radius: 6, color: '#60c0b0', opacity: 0.07 },
-  { pos: [-15, 8, 6], radius: 5, color: '#a050b0', opacity: 0.07 },
+  { pos: [-13, 10, -6], radius: 6, color: '#9070d0', opacity: 0.045 },
+  { pos: [11, 12, -16], radius: 6, color: '#d06090', opacity: 0.04 },
+  { pos: [2, 14, 8], radius: 5, color: '#60c0b0', opacity: 0.035 },
 ];
 const Nebula = () => {
   const refs = useRef([]);
@@ -3067,9 +3066,10 @@ const Nebula = () => {
     NEBULA_DEFS.forEach((n, i) => {
       const m = refs.current[i];
       if (!m || !m.material) return;
-      // Slow opacity drift per-nebula dengan phase beda
+      // Slow opacity drift per-nebula dengan phase beda. Drift
+      // amplitude kecil supaya nebula stay tipis konsisten.
       const phase = i * 1.7;
-      m.material.opacity = n.opacity + Math.sin(t * 0.18 + phase) * n.opacity * 0.3;
+      m.material.opacity = n.opacity + Math.sin(t * 0.18 + phase) * n.opacity * 0.25;
     });
   });
   return (
