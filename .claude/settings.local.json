@@ -84,7 +84,9 @@
       "Bash(git -C D:/VinzryyySaga mv \"x_image_urls \\(2\\).json\" \"data/x_image_urls \\(2\\).json\")",
       "Bash(git *)",
       "Bash(taskkill /F /PID 450 /T)",
-      "PowerShell(Stop-Process *)"
+      "PowerShell(Stop-Process *)",
+      "Bash(awk 'NR>=455 && NR<=475 {print NR\": \"$0}')",
+      "Bash(awk 'NR>=245 && NR<=255 {print NR\": \"$0}')"
     ]
   }
 }
