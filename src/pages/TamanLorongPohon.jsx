@@ -2608,6 +2608,39 @@ const ConstellationLines = ({ stars }) => {
   );
 };
 
+// Sky group — wrap semua celestial elements (background starfield,
+// highlight stars, moon, milestone stars, constellation lines &
+// labels). Di FPV mode, group ikutin camera XZ supaya stars terasa
+// "follow user" — parallax-free langit jauh, bintang stay relative
+// terhadap user posisi (real night sky behavior).
+//
+// Di orbit mode, group fixed di SKY_CENTER. User pan camera =
+// muter di sphere → lihat sisi langit berbeda.
+//
+// Lerp damping 0.08 untuk smooth follow saat user walk di FPV (gak
+// snap kaku). Y axis stay 0 (sky stays at fixed altitude in world).
+const SkyGroup = ({ children, viewMode }) => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const cx = state.camera.position.x;
+    const cz = state.camera.position.z;
+    const targetX = viewMode === 'fpv' ? cx - SKY_CENTER[0] : 0;
+    const targetZ = viewMode === 'fpv' ? cz - SKY_CENTER[2] : 0;
+    groupRef.current.position.x = lerp(
+      groupRef.current.position.x,
+      targetX,
+      0.08,
+    );
+    groupRef.current.position.z = lerp(
+      groupRef.current.position.z,
+      targetZ,
+      0.08,
+    );
+  });
+  return <group ref={groupRef}>{children}</group>;
+};
+
 // Era label — Html floating di atas konstelasi center, fade in saat
 // camera pointing dekat ke arah era itu. Subtle, gak persistent —
 // kasih hint nama era tanpa clutter scene.
@@ -3218,9 +3251,31 @@ const LorongScene = ({
     <GardenAnchorTrees isMobile={isMobile} />
     <Bushes />
     <Mushrooms />
-    <Stars />
-    <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
-    <Moon />
+    {/* SkyGroup — wrap semua celestial elements (background stars,
+        highlight stars, moon, milestone konstelasi). Di FPV, group
+        follow camera XZ → stars terasa "ikut user" (real sky parallax-
+        free). Di orbit, fixed di SKY_CENTER. */}
+    <SkyGroup viewMode={viewMode}>
+      <Stars />
+      <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
+      <Moon />
+      {/* Konstelasi milestone — bintang di langit, era-grouped */}
+      <ConstellationLines stars={trees} />
+      <ConstellationLabels />
+      {trees.map((star) => (
+        <StarMilestone
+          key={star.id}
+          star={star}
+          hovered={hoveredTreeId === star.id}
+          selected={selectedTreeId === star.id}
+          spotlit={spotlightEra === star.eraId}
+          signatureEvent={signatureEvent}
+          onPointerOver={onTreeHover}
+          onPointerOut={onTreeOut}
+          onClick={onTreeClick}
+        />
+      ))}
+    </SkyGroup>
     {/* FlyingLeavesGust di-bring-back — daun terbang di ground+mid air,
         gak ngeganggu sky atas (gust drift y=0.5..6, langit mulai y=10+). */}
     <FlyingLeavesGust isMobile={isMobile} />
@@ -3272,22 +3327,8 @@ const LorongScene = ({
     {!isMobile && <MistPools />}
     <FallingLeaves count={isMobile ? 22 : 38} />
     <MemoryFragments isMobile={isMobile} />
-    {/* Konstelasi milestone — bintang di langit, era-grouped */}
-    <ConstellationLines stars={trees} />
-    <ConstellationLabels />
-    {trees.map((star) => (
-      <StarMilestone
-        key={star.id}
-        star={star}
-        hovered={hoveredTreeId === star.id}
-        selected={selectedTreeId === star.id}
-        spotlit={spotlightEra === star.eraId}
-        signatureEvent={signatureEvent}
-        onPointerOver={onTreeHover}
-        onPointerOut={onTreeOut}
-        onClick={onTreeClick}
-      />
-    ))}
+    {/* Konstelasi + milestone stars dipindah ke <SkyGroup> di atas
+        supaya FPV walk = stars follow user (parallax-free). */}
     <CameraSync viewMode={viewMode} transitioning={transitioning} />
     {/* Controls cuma render setelah transition selesai supaya nggak
         fight dgn lerp. Saat transitioning=true, no control aktif. */}
