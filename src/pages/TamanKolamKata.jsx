@@ -1834,6 +1834,204 @@ const Clouds = () => (
   </>
 );
 
+// =============================================================
+// LANGIT — multi-layer atmospheric depth seperti r1, daytime palette
+// =============================================================
+//
+// Approach mirip r1 tapi tema siang: dome gradient + sun visible focal
+// point + layer cloud (existing mid + far backdrop + high cirrus) +
+// distant high birds. User rotate orbit camera 360° → sky terasa
+// "bulat" mengelilingi telaga. Polar diperluas supaya bisa menengadah.
+
+// Gradient sky dome — large inverted sphere covering hemisphere.
+// Vertex shader-less: pakai meshBasicMaterial + vertexColors yang
+// di-bake ke geometry pas init. Bottom (horizon) pink-warm, top
+// (zenith) deep blue. Bikin "we're in a dome" feel.
+const SkyDome = () => {
+  const geomRef = useRef();
+  // Compute vertex colors gradient sekali on mount
+  useLayoutEffect(() => {
+    if (!geomRef.current) return;
+    const positions = geomRef.current.attributes.position;
+    const colors = new Float32Array(positions.count * 3);
+    // Color anchors: horizon (y=0 ish) ke zenith (y=max)
+    const horizonR = 0.94, horizonG = 0.85, horizonB = 0.78; // soft pink
+    const midR = 0.82, midG = 0.88, midB = 0.93; // pale blue
+    const zenithR = 0.62, zenithG = 0.74, zenithB = 0.86; // deeper blue
+    for (let i = 0; i < positions.count; i++) {
+      const y = positions.getY(i);
+      // Normalize y to 0..1 across dome height (radius 50, so y goes 0..50)
+      const t = Math.max(0, Math.min(1, y / 50));
+      let r, g, b;
+      if (t < 0.45) {
+        const u = t / 0.45;
+        r = horizonR + (midR - horizonR) * u;
+        g = horizonG + (midG - horizonG) * u;
+        b = horizonB + (midB - horizonB) * u;
+      } else {
+        const u = (t - 0.45) / 0.55;
+        r = midR + (zenithR - midR) * u;
+        g = midG + (zenithG - midG) * u;
+        b = midB + (zenithB - midB) * u;
+      }
+      colors[i * 3] = r;
+      colors[i * 3 + 1] = g;
+      colors[i * 3 + 2] = b;
+    }
+    geomRef.current.setAttribute(
+      'color',
+      new THREE.BufferAttribute(colors, 3),
+    );
+  }, []);
+  return (
+    <mesh position={[0, 0, 0]}>
+      {/* Hemisphere — radius 50, only upper half (phiStart 0, phiLength
+          PI). side BackSide karena kita di dalam sphere. */}
+      <sphereGeometry
+        ref={geomRef}
+        args={[50, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2]}
+      />
+      <meshBasicMaterial
+        side={THREE.BackSide}
+        vertexColors
+        depthWrite={false}
+        fog={false}
+      />
+    </mesh>
+  );
+};
+
+// Sun — visible disc + 3-layer halo, mirip r1 Moon tapi warm yellow
+// dan posisi upper-front (afternoon sun). Slow pulse di outer haze.
+const Sun = () => {
+  const outerHaloRef = useRef();
+  useFrame((state) => {
+    if (!outerHaloRef.current) return;
+    const t = state.clock.elapsedTime;
+    outerHaloRef.current.material.opacity = 0.10 + Math.sin(t * 0.25) * 0.03;
+  });
+  return (
+    <group position={[14, 18, -8]}>
+      {/* Sun body — bigger glow than moon, warm yellow */}
+      <mesh>
+        <sphereGeometry args={[1.6, 24, 16]} />
+        <meshBasicMaterial color="#fff4c8" toneMapped={false} fog={false} />
+      </mesh>
+      {/* Tight halo */}
+      <mesh>
+        <sphereGeometry args={[2.3, 18, 14]} />
+        <meshBasicMaterial
+          color="#ffe8a8"
+          transparent
+          opacity={0.3}
+          depthWrite={false}
+          fog={false}
+        />
+      </mesh>
+      {/* Soft outer haze pulse */}
+      <mesh ref={outerHaloRef}>
+        <sphereGeometry args={[4.0, 16, 12]} />
+        <meshBasicMaterial
+          color="#ffd890"
+          transparent
+          opacity={0.10}
+          depthWrite={false}
+          fog={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// Far cloud layer — sparse small puffs di altitude tinggi (y=24-30)
+// + farther z. Lebih kecil dari mid clouds, dimmer. Bikin depth
+// layered (foreground existing clouds + background ini).
+const FAR_CLOUD_POSITIONS = [
+  { pos: [-22, 26, -32], scale: [1.4, 0.5, 1.0] },
+  { pos: [25, 28, -20], scale: [1.6, 0.6, 1.1] },
+  { pos: [-30, 24, 8], scale: [1.5, 0.5, 1.0] },
+  { pos: [28, 27, 18], scale: [1.3, 0.5, 0.9] },
+  { pos: [-12, 30, -38], scale: [1.8, 0.6, 1.2] },
+  { pos: [8, 25, 30], scale: [1.4, 0.5, 1.0] },
+  { pos: [-35, 22, -10], scale: [1.5, 0.5, 1.0] },
+  { pos: [32, 24, -2], scale: [1.4, 0.5, 1.0] },
+];
+const FarCloud = ({ pos, scale }) => (
+  <group position={pos} scale={scale}>
+    <mesh>
+      <sphereGeometry args={[1.5, 10, 8]} />
+      <meshBasicMaterial color="#f5f0ea" transparent opacity={0.55} fog={false} />
+    </mesh>
+    <mesh position={[0.8, 0.05, 0.15]}>
+      <sphereGeometry args={[1.0, 10, 8]} />
+      <meshBasicMaterial color="#f5f0ea" transparent opacity={0.55} fog={false} />
+    </mesh>
+  </group>
+);
+const FarClouds = ({ isMobile }) => {
+  const list = isMobile
+    ? FAR_CLOUD_POSITIONS.slice(0, 5)
+    : FAR_CLOUD_POSITIONS;
+  return (
+    <>
+      {list.map((c, i) => (
+        <FarCloud key={`fcloud-${i}`} pos={c.pos} scale={c.scale} />
+      ))}
+    </>
+  );
+};
+
+// High birds — V-shape silhouettes flock distant di altitude tinggi.
+// Slow drift horizontal, fade in/out via wing flap. Berbeda dari Birds
+// existing yang dekat, ini lebih jauh + lebih banyak.
+const HighBirdFlock = ({ count = 6 }) => {
+  const refs = useRef([]);
+  const defs = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => ({
+      x: -30 + Math.random() * 60,
+      y: 18 + Math.random() * 6,
+      z: -25 + Math.random() * 50,
+      speed: 0.6 + Math.random() * 0.4,
+      phase: Math.random() * Math.PI * 2,
+    }));
+  }, [count]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    defs.forEach((d, i) => {
+      const ref = refs.current[i];
+      if (!ref) return;
+      // Slow horizontal drift (X), wrap saat keluar batas
+      const x = ((d.x + t * d.speed + 60) % 60) - 30;
+      ref.position.x = x;
+      // Subtle wing flap via Y wobble
+      ref.position.y = d.y + Math.sin(t * 4 + d.phase) * 0.1;
+    });
+  });
+  return (
+    <>
+      {defs.map((d, i) => (
+        <group
+          key={`hbird-${i}`}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          position={[d.x, d.y, d.z]}
+        >
+          {/* Tiny V silhouette */}
+          <mesh rotation={[0, 0, 0.3]} position={[-0.1, 0, 0]}>
+            <boxGeometry args={[0.18, 0.02, 0.04]} />
+            <meshBasicMaterial color="#3a4858" fog={false} />
+          </mesh>
+          <mesh rotation={[0, 0, -0.3]} position={[0.1, 0, 0]}>
+            <boxGeometry args={[0.18, 0.02, 0.04]} />
+            <meshBasicMaterial color="#3a4858" fog={false} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
 // Lentera kayu kecil di tepi sungai — tiang vertikal + body lentera
 // box + atap. Daytime mode: nggak ada glow + nggak ada pointlight
 // (lampu kan mati siang hari). Tetap berdiri sebagai dekorasi taman.
@@ -2565,6 +2763,12 @@ const TelagaScene = ({
       intensity={0.4}
       color="#b8d0e8"
     />
+    {/* Sky layers — dome gradient + sun + far cloud backdrop + high
+        birds. Setara r1 multi-layer langit, palette daytime. */}
+    <SkyDome />
+    <Sun />
+    <FarClouds isMobile={isMobile} />
+    <HighBirdFlock count={isMobile ? 4 : 7} />
     <DistantHills />
     <DistantTreeLine />
     <Clouds />
@@ -2610,13 +2814,18 @@ const TelagaScene = ({
       />
     ))}
     <OrbitControls
-      target={[0, 0, 0]}
+      target={[0, 4, 0]}
       enableZoom
       minDistance={12}
       maxDistance={32}
       enablePan={false}
-      minPolarAngle={Math.PI / 4.5}
-      maxPolarAngle={Math.PI / 2.4}
+      // Polar diperluas untuk hemisphere view tanpa tembus ground.
+      // Target raised ke y=4 (mid-air) supaya camera bisa tilt
+      // slightly past horizontal (polar 1.55 ~89°) tanpa nyemplung
+      // bawah tanah. Ground entities tetep terlihat di default view
+      // (camera default [13,9,12] from target [0,4,0] = polar ~74°).
+      minPolarAngle={Math.PI / 8}
+      maxPolarAngle={1.55}
       enableDamping
       dampingFactor={0.08}
       rotateSpeed={0.4}
@@ -2875,7 +3084,7 @@ const TamanKolamKataPage = () => {
       <div className="relative w-full h-screen bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 42, position: [13, 9, 12] }}
+            camera={{ fov: 50, position: [13, 9, 12] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
@@ -2883,7 +3092,7 @@ const TamanKolamKataPage = () => {
             }}
             shadows={!isMobile}
             onCreated={({ camera }) => {
-              camera.lookAt(0, 0, 0);
+              camera.lookAt(0, 4, 0);
             }}
           >
             <TelagaScene
