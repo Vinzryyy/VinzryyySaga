@@ -57,38 +57,28 @@ const buildStarLayer = (count, rMin, rMax) => {
   const colors = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
     const theta = Math.random() * Math.PI * 2;
-    // phi 0..0.55 = upper hemisphere (avoid stars below ground/y=0)
-    const phi = Math.random() * Math.PI * 0.55;
+    // phi 0..0.62 = upper hemisphere lebih lebar (was 0.55), spread
+    // stars lebih dekat ke horizon biar full sky coverage feel.
+    const phi = Math.random() * Math.PI * 0.62;
     const r = rMin + Math.random() * (rMax - rMin);
     positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
     positions[i * 3 + 1] = r * Math.cos(phi) + 2;
     positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-    // Color variation — 50% white, 30% warm, 20% cool, dengan
-    // varying intensity per star (some dim, some bright)
-    const tier = Math.random();
-    const intensity = 0.55 + Math.random() * 0.45; // 0.55..1.0
-    if (tier < 0.5) {
-      colors[i * 3] = intensity;
-      colors[i * 3 + 1] = intensity;
-      colors[i * 3 + 2] = intensity;
-    } else if (tier < 0.8) {
-      colors[i * 3] = intensity;
-      colors[i * 3 + 1] = intensity * 0.92;
-      colors[i * 3 + 2] = intensity * 0.74;
-    } else {
-      colors[i * 3] = intensity * 0.82;
-      colors[i * 3 + 1] = intensity * 0.92;
-      colors[i * 3 + 2] = intensity;
-    }
+    // All white, varying intensity (0.55..1.0) — beberapa terang
+    // beberapa redup, kerasa real night sky tanpa color tinting.
+    const intensity = 0.55 + Math.random() * 0.45;
+    colors[i * 3] = intensity;
+    colors[i * 3 + 1] = intensity;
+    colors[i * 3 + 2] = intensity;
   }
   return { positions, colors };
 };
 
-const FAR_STAR = buildStarLayer(700, 22, 38);
-const MID_STAR = buildStarLayer(320, 13, 22);
-const BRIGHT_STAR = buildStarLayer(70, 16, 30);
-const FAR_STAR_MOBILE = buildStarLayer(420, 22, 38);
-const MID_STAR_MOBILE = buildStarLayer(180, 13, 22);
+const FAR_STAR = buildStarLayer(1100, 22, 38);
+const MID_STAR = buildStarLayer(480, 13, 22);
+const BRIGHT_STAR = buildStarLayer(110, 16, 30);
+const FAR_STAR_MOBILE = buildStarLayer(650, 22, 38);
+const MID_STAR_MOBILE = buildStarLayer(280, 13, 22);
 
 const StarLayer = ({ data, size, baseOpacity, twinkleSpeed, twinkleAmp }) => {
   const matRef = useRef();
