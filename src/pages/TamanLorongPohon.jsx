@@ -27,16 +27,8 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import * as THREE from 'three';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import {
-  Html,
-  MeshReflectorMaterial,
-  OrbitControls,
-  PointerLockControls,
-  Stats,
-} from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import { Html, OrbitControls, PointerLockControls, Stats } from '@react-three/drei';
 import {
   Bloom,
   EffectComposer,
@@ -46,35 +38,12 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
-// Note: r3/utils.js berisi shared util taman (useIsMobile, lerp, dll).
-// Saat petak ke-3+ butuh juga, consider pindahkan ke ../components/taman/utils.js
-// (parent level) supaya nggak semantik "milik r3".
-import { useIsMobile, lerp } from '../components/taman/r3/utils';
+import { useIsMobile } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
 
+import { ORBIT_TARGET, playChimeTone } from '../components/taman/r1/utils';
 import {
-  PATH_START_Z,
-  PATH_END_Z,
-  PATH_X_OFFSET,
-  ORBIT_TARGET,
-  CORRIDOR_X_HALF,
-  CORRIDOR_Z_MIN,
-  CORRIDOR_Z_MAX,
-  CORRIDOR_Z_LEN,
-  WIND_GUST_PERIOD,
-  FIREFLY_BLACKOUT_PERIOD,
-  hashSeed,
-  lerpHexColor,
-  getWind,
-  getFireflyBlackout,
-  playChimeTone,
-} from '../components/taman/r1/utils';
-import {
-  SKY_RADIUS,
-  SKY_CENTER,
-  ERA_DEFS,
   ERA_LOOKUP,
-  skyPosition,
   milestoneSkyPosition,
   starColorForMilestone,
 } from '../components/taman/r1/era';

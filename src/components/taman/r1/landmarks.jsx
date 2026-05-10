@@ -387,7 +387,6 @@ export const DistantFigure = ({ signatureEvent }) => {
     const t = state.clock.elapsedTime;
     groupRef.current.position.y = Math.sin(t * 0.9) * 0.012;
     let glow = 0;
-    let emissiveColor = '#ffaa50';
     if (signatureEvent) {
       const dt = t - signatureEvent.time;
       if (signatureEvent.type === 'recent' && dt > 0.4 && dt < 2.6) {
