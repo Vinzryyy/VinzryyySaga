@@ -3001,30 +3001,171 @@ const HighlightStars = ({ signatureEvent, isMobile }) => {
 // Bulan — sphere emissive cream-yellow di upper-back-left. Visible dari
 // camera default angle (camera looking at z=-16 from upper-right). Moon
 // di posisi (-12, 18, -28) supaya kelihatan tinggi & belakang.
-const Moon = () => (
-  <group position={[-12, 18, -28]}>
-    {/* Moon body */}
-    <mesh>
-      <sphereGeometry args={[1.4, 24, 18]} />
-      <meshStandardMaterial
-        color="#fff8d8"
-        emissive="#ffe8a8"
-        emissiveIntensity={1.2}
-        roughness={0.85}
-      />
-    </mesh>
-    {/* Moon halo — slightly larger transparent sphere */}
-    <mesh>
-      <sphereGeometry args={[1.9, 20, 16]} />
+// Moon — dramatic, lebih besar + 3-layer halo untuk presence kuat di
+// sky. Inner body + tight halo + soft outer haze. Slow pulse halo
+// untuk subtle "breathing" feel.
+const Moon = () => {
+  const outerHaloRef = useRef();
+  useFrame((state) => {
+    if (!outerHaloRef.current) return;
+    const t = state.clock.elapsedTime;
+    outerHaloRef.current.material.opacity = 0.07 + Math.sin(t * 0.3) * 0.025;
+  });
+  return (
+    <group position={[-9, 14, -18]}>
+      {/* Moon body — bigger */}
+      <mesh>
+        <sphereGeometry args={[2.0, 28, 20]} />
+        <meshStandardMaterial
+          color="#fff8d8"
+          emissive="#ffe8a8"
+          emissiveIntensity={1.4}
+          roughness={0.85}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Tight halo — close glow ring */}
+      <mesh>
+        <sphereGeometry args={[2.7, 22, 16]} />
+        <meshBasicMaterial
+          color="#ffe8a8"
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+          fog={false}
+        />
+      </mesh>
+      {/* Soft outer haze — wide diffuse glow yang pulse pelan */}
+      <mesh ref={outerHaloRef}>
+        <sphereGeometry args={[4.5, 20, 14]} />
+        <meshBasicMaterial
+          color="#ffd8a0"
+          transparent
+          opacity={0.07}
+          depthWrite={false}
+          fog={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// Nebula glow zones — large transparent emissive spheres di mid-
+// distance. Kasih color tint regional ke sky (purple/pink/teal),
+// bikin kerasa "ada awan kosmik" di antara bintang. Very low opacity
+// — subtle ambient color, gak overpowering.
+const NEBULA_DEFS = [
+  { pos: [-13, 10, -6], radius: 7, color: '#9070d0', opacity: 0.09 },
+  { pos: [11, 12, -16], radius: 8, color: '#d06090', opacity: 0.08 },
+  { pos: [2, 14, 8], radius: 6, color: '#60c0b0', opacity: 0.07 },
+  { pos: [-15, 8, 6], radius: 5, color: '#a050b0', opacity: 0.07 },
+];
+const Nebula = () => {
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    NEBULA_DEFS.forEach((n, i) => {
+      const m = refs.current[i];
+      if (!m || !m.material) return;
+      // Slow opacity drift per-nebula dengan phase beda
+      const phase = i * 1.7;
+      m.material.opacity = n.opacity + Math.sin(t * 0.18 + phase) * n.opacity * 0.3;
+    });
+  });
+  return (
+    <>
+      {NEBULA_DEFS.map((n, i) => (
+        <mesh
+          key={`neb-${i}`}
+          position={n.pos}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+        >
+          <sphereGeometry args={[n.radius, 16, 12]} />
+          <meshBasicMaterial
+            color={n.color}
+            transparent
+            opacity={n.opacity}
+            depthWrite={false}
+            fog={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// Shooting star — rare event tiap ~25-50 detik random. Spawn di
+// random sky position, streak across via direction vector, fade
+// in/out lifecycle 1.4 detik. Simple: bright sphere yang gerak
+// cepat, persistence of vision = streak feeling.
+const ShootingStar = () => {
+  const meshRef = useRef();
+  const stateRef = useRef({
+    active: false,
+    next: 8 + Math.random() * 20,
+    t0: 0,
+    start: new THREE.Vector3(),
+    direction: new THREE.Vector3(),
+  });
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    // Spawn check
+    if (!stateRef.current.active && t > stateRef.current.next) {
+      // Random sky position di upper hemisphere
+      const startTheta = Math.random() * Math.PI * 2;
+      const startPhi = 0.15 + Math.random() * 0.45;
+      const r = 16 + Math.random() * 6;
+      const sx = r * Math.sin(startPhi) * Math.cos(startTheta);
+      const sy = r * Math.cos(startPhi) + 4;
+      const sz = r * Math.sin(startPhi) * Math.sin(startTheta);
+      stateRef.current.start.set(sx, sy, sz);
+      // Direction: mostly horizontal sweep + sedikit downward
+      const dirAngle = startTheta + Math.PI + (Math.random() - 0.5) * 0.8;
+      stateRef.current.direction
+        .set(Math.cos(dirAngle), -0.15 - Math.random() * 0.2, Math.sin(dirAngle))
+        .normalize()
+        .multiplyScalar(18 + Math.random() * 8);
+      stateRef.current.active = true;
+      stateRef.current.t0 = t;
+    }
+    if (!stateRef.current.active || !meshRef.current) {
+      if (meshRef.current) meshRef.current.visible = false;
+      return;
+    }
+    const dt = t - stateRef.current.t0;
+    const lifecycle = 1.4;
+    if (dt > lifecycle) {
+      meshRef.current.visible = false;
+      stateRef.current.active = false;
+      stateRef.current.next = t + 25 + Math.random() * 25;
+      return;
+    }
+    const u = dt / lifecycle;
+    const offset = stateRef.current.direction.clone().multiplyScalar(u);
+    meshRef.current.position.copy(stateRef.current.start).add(offset);
+    meshRef.current.visible = true;
+    if (meshRef.current.material) {
+      // Fade in/out — visible window 0.15..0.85
+      const opacity = u < 0.15 ? u / 0.15 : u > 0.85 ? (1 - u) / 0.15 : 1;
+      meshRef.current.material.opacity = opacity;
+    }
+  });
+  return (
+    <mesh ref={meshRef} visible={false}>
+      <sphereGeometry args={[0.18, 10, 8]} />
       <meshBasicMaterial
-        color="#ffe8a8"
+        color="#fffae8"
         transparent
-        opacity={0.12}
+        opacity={0}
         depthWrite={false}
+        fog={false}
+        toneMapped={false}
       />
     </mesh>
-  </group>
-);
+  );
+};
 
 // Distant forest silhouette — ring of dark trees di perimeter scene
 // (radius 22-30). Color desaturated cool-purple supaya fade ke fog.
@@ -3395,8 +3536,10 @@ const LorongScene = ({
         free). Di orbit, fixed di SKY_CENTER. */}
     <SkyGroup viewMode={viewMode}>
       <Stars />
+      {!isMobile && <Nebula />}
       <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
       <Moon />
+      <ShootingStar />
       {/* Konstelasi milestone — bintang di langit, era-grouped */}
       <ConstellationLines stars={trees} />
       <ConstellationLabels />
