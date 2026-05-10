@@ -4,8 +4,8 @@
  * component file bisa import tanpa bergantung ke order definisi.
  */
 
-// Dimensi danau utama
-export const RIVER_WIDTH = 14;
+// Dimensi danau utama — lebar 20 supaya pond kerasa luas dari overhead
+export const RIVER_WIDTH = 20;
 export const RIVER_LENGTH = 28;
 
 // Bridge: kayu kecil melintasi ujung utara danau (z negatif)

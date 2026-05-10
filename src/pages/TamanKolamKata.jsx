@@ -38,7 +38,7 @@
 import React, { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as THREE from 'three';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   Environment,
   Html,
@@ -2315,6 +2315,128 @@ const BankTree = ({ pos, scale = 1 }) => {
   );
 };
 
+// Outer trees — scattered di outer ring (r=22-30) untuk fill lapangan
+// hijau luas yg kosong. Procedural deterministic positions di-place
+// di angular sector around pond (skip pond extent + dock area).
+const OUTER_TREE_DEFS = (() => {
+  const arr = [];
+  const count = 18;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
+    const r = 22 + Math.random() * 7;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      scale: 1.2 + Math.random() * 0.6,
+    });
+  }
+  return arr;
+})();
+const OuterTrees = ({ isMobile }) => {
+  const list = isMobile
+    ? OUTER_TREE_DEFS.slice(0, 10)
+    : OUTER_TREE_DEFS;
+  return (
+    <>
+      {list.map((t, i) => (
+        <BankTree key={`outer-tree-${i}`} pos={t.pos} scale={t.scale} />
+      ))}
+    </>
+  );
+};
+
+// Outer flower beds — 8-10 patches di lapangan luar antara outer trees.
+// Reuse FlowerBed component dgn posisi outer ring r=22-29.
+const OUTER_FLOWER_BED_DEFS = (() => {
+  const arr = [];
+  const count = 10;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + Math.PI / count;
+    const r = 23 + Math.random() * 5;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      colors: [
+        ['#f08080', '#ffd060', '#f4a4c4'],
+        ['#d4a0e0', '#fff080', '#f8b0a0'],
+        ['#ffa0a0', '#c8e070', '#f8d8b0'],
+        ['#f4a0c8', '#ffd078', '#a4d4f4'],
+      ][i % 4],
+    });
+  }
+  return arr;
+})();
+const OuterFlowerBeds = ({ isMobile }) => {
+  const list = isMobile
+    ? OUTER_FLOWER_BED_DEFS.slice(0, 6)
+    : OUTER_FLOWER_BED_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <FlowerBed key={`outer-fbed-${i}`} pos={b.pos} colors={b.colors} />
+      ))}
+    </>
+  );
+};
+
+// Flying flock — burung yang terbang di mid altitude (y=5-9), drift
+// bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
+// udah ada (low + high).
+const FLYING_FLOCK_COUNT = 8;
+const FLYING_FLOCK_DEFS = Array.from({ length: FLYING_FLOCK_COUNT }, (_, i) => ({
+  offsetX: (Math.random() - 0.5) * 4,
+  offsetY: (Math.random() - 0.5) * 1.5,
+  offsetZ: (Math.random() - 0.5) * 4,
+  flapPhase: Math.random() * Math.PI * 2,
+  flapFreq: 6 + Math.random() * 2,
+}));
+const FlyingFlock = ({ isMobile }) => {
+  const list = isMobile
+    ? FLYING_FLOCK_DEFS.slice(0, 5)
+    : FLYING_FLOCK_DEFS;
+  const refs = useRef([]);
+  const flockRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    // Flock leader drift — circular orbit di y~7 around pond
+    if (flockRef.current) {
+      const orbitR = 16;
+      flockRef.current.position.x = Math.cos(t * 0.18) * orbitR;
+      flockRef.current.position.y = 7 + Math.sin(t * 0.3) * 0.8;
+      flockRef.current.position.z = Math.sin(t * 0.18) * orbitR;
+      // Face flying direction
+      flockRef.current.rotation.y = -t * 0.18 + Math.PI / 2;
+    }
+    list.forEach((d, i) => {
+      const r = refs.current[i];
+      if (!r) return;
+      // Wing flap via Y bob
+      r.position.y = d.offsetY + Math.sin(t * d.flapFreq + d.flapPhase) * 0.08;
+    });
+  });
+  return (
+    <group ref={flockRef}>
+      {list.map((d, i) => (
+        <group
+          key={`fflk-${i}`}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          position={[d.offsetX, d.offsetY, d.offsetZ]}
+        >
+          {/* Tiny V silhouette */}
+          <mesh rotation={[0, 0, 0.3]} position={[-0.12, 0, 0]}>
+            <boxGeometry args={[0.22, 0.025, 0.05]} />
+            <meshBasicMaterial color="#3a3a48" fog={false} />
+          </mesh>
+          <mesh rotation={[0, 0, -0.3]} position={[0.12, 0, 0]}>
+            <boxGeometry args={[0.22, 0.025, 0.05]} />
+            <meshBasicMaterial color="#3a3a48" fog={false} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+};
+
 // Pohon di perimeter danau — 4 sisi. Posisi nge-frame scene tanpa
 // nutupin lily pads atau bench/dock area. Scale ~1.6-2.1 supaya
 // pohon kerasa "ada" dari overhead view (was 0.9-1.1, terlalu kecil).
@@ -2397,52 +2519,28 @@ const River = ({ isMobile = false }) => (
 // earthy-green (slightly desaturated) — biar dense grass blades di
 // atasnya yang ngasih warna utama, plane bawah cuma jadi base supaya
 // nggak ada gap. Tiap bank tone sedikit beda untuk break uniformity.
+// Bank rounded — 2 circle layers concentric, lapangan luar dark green
+// + ring lighter di tengah dekat pond. Semua bulat, no rectangular
+// edges, sesuai shape pond (rounded rect).
 const Banks = () => (
   <>
-    {/* Lapangan utama — frame visual luar, base earthy green */}
+    {/* Lapangan utama — circle besar dark green */}
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, -0.07, 0]}
       receiveShadow
     >
-      <planeGeometry args={[70, 70]} />
+      <circleGeometry args={[32, 48]} />
       <meshStandardMaterial color="#536d3f" roughness={1} />
     </mesh>
-    {/* Bank kiri (-x) — lebih lebar karena di sini ada bench + path */}
+    {/* Inner bank — ring lighter green dekat pond */}
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
-      position={[-(RIVER_WIDTH / 2 + 5), -0.04, 0]}
+      position={[0, -0.04, 0]}
       receiveShadow
     >
-      <planeGeometry args={[10, RIVER_LENGTH + 2]} />
+      <ringGeometry args={[10, 22, 48]} />
       <meshStandardMaterial color="#5e7a48" roughness={1} />
-    </mesh>
-    {/* Bank kanan (+x) — sini ada dock */}
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      position={[RIVER_WIDTH / 2 + 5, -0.04, 0]}
-      receiveShadow
-    >
-      <planeGeometry args={[10, RIVER_LENGTH + 2]} />
-      <meshStandardMaterial color="#587343" roughness={1} />
-    </mesh>
-    {/* Bank atas (-z) */}
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, -0.04, -(RIVER_LENGTH / 2 + 4)]}
-      receiveShadow
-    >
-      <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
-      <meshStandardMaterial color="#5b7846" roughness={1} />
-    </mesh>
-    {/* Bank bawah (+z) */}
-    <mesh
-      rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, -0.04, RIVER_LENGTH / 2 + 4]}
-      receiveShadow
-    >
-      <planeGeometry args={[RIVER_WIDTH + 20, 8]} />
-      <meshStandardMaterial color="#557243" roughness={1} />
     </mesh>
   </>
 );
@@ -2909,11 +3007,230 @@ const GroundPatches = () => (
   </>
 );
 
+// Cinematic intro — camera arc dari high overhead distant ke default
+// orbit position ~3.5s saat first visit. Bikin entrance terasa
+// "telaga perlahan terbuka". Persisted via localStorage flag.
+const TELAGA_INTRO_STORAGE_KEY = 'taman-r3-intro-seen';
+const TELAGA_INTRO_DURATION = 3.5;
+const TELAGA_INTRO_START_POS = new THREE.Vector3(0, 32, 18);
+const TELAGA_INTRO_END_POS = new THREE.Vector3(4, 20, 8);
+const TELAGA_INTRO_LOOK = new THREE.Vector3(0, 4, 0);
+
+const TelagaCinematicIntro = ({ active, onComplete }) => {
+  const { camera } = useThree();
+  const startTimeRef = useRef(-1);
+  const completedRef = useRef(false);
+  useEffect(() => {
+    if (!active) return;
+    camera.position.copy(TELAGA_INTRO_START_POS);
+    camera.lookAt(TELAGA_INTRO_LOOK);
+    startTimeRef.current = -1;
+    completedRef.current = false;
+  }, [active, camera]);
+  useFrame((state) => {
+    if (!active || completedRef.current) return;
+    const t = state.clock.elapsedTime;
+    if (startTimeRef.current < 0) startTimeRef.current = t;
+    const elapsed = t - startTimeRef.current;
+    const progress = Math.min(1, elapsed / TELAGA_INTRO_DURATION);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    camera.position.lerpVectors(
+      TELAGA_INTRO_START_POS,
+      TELAGA_INTRO_END_POS,
+      eased,
+    );
+    camera.lookAt(TELAGA_INTRO_LOOK);
+    if (progress >= 1 && !completedRef.current) {
+      completedRef.current = true;
+      onComplete?.();
+    }
+  });
+  return null;
+};
+
+// Playground — set anak-anak: slide kayu + swing + sandbox kecil.
+// Ditempatkan di outer lapangan, scale moderate dari overhead view.
+const Playground = ({ pos = [-16, 0, 6], rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Slide — sloped plank + ladder + ground base */}
+    <group position={[-1.8, 0, 0]}>
+      {/* Ladder side */}
+      <mesh position={[0, 0.8, 0]}>
+        <boxGeometry args={[0.08, 1.6, 0.6]} />
+        <meshStandardMaterial color="#8a5a3a" roughness={0.95} />
+      </mesh>
+      {/* Top platform */}
+      <mesh position={[0.4, 1.55, 0]}>
+        <boxGeometry args={[0.8, 0.06, 0.7]} />
+        <meshStandardMaterial color="#a86848" roughness={0.9} />
+      </mesh>
+      {/* Slope (slide track) */}
+      <mesh
+        position={[1.4, 0.85, 0]}
+        rotation={[0, 0, -0.7]}
+      >
+        <boxGeometry args={[2.0, 0.05, 0.55]} />
+        <meshStandardMaterial color="#d8a050" metalness={0.2} roughness={0.5} />
+      </mesh>
+      {/* Slide rails */}
+      <mesh
+        position={[1.4, 1.0, 0.28]}
+        rotation={[0, 0, -0.7]}
+      >
+        <boxGeometry args={[2.0, 0.06, 0.04]} />
+        <meshStandardMaterial color="#c89048" />
+      </mesh>
+      <mesh
+        position={[1.4, 1.0, -0.28]}
+        rotation={[0, 0, -0.7]}
+      >
+        <boxGeometry args={[2.0, 0.06, 0.04]} />
+        <meshStandardMaterial color="#c89048" />
+      </mesh>
+    </group>
+    {/* Swing set — 2 vertical posts + horizontal beam + 2 swings */}
+    <group position={[1.5, 0, 0]}>
+      <mesh position={[-0.9, 1.1, 0]}>
+        <boxGeometry args={[0.08, 2.2, 0.08]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+      </mesh>
+      <mesh position={[0.9, 1.1, 0]}>
+        <boxGeometry args={[0.08, 2.2, 0.08]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 2.15, 0]}>
+        <boxGeometry args={[1.95, 0.08, 0.08]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+      </mesh>
+      {/* Swing 1 — ropes + plank */}
+      <mesh position={[-0.4, 1.45, 0]}>
+        <cylinderGeometry args={[0.012, 0.012, 1.4, 4]} />
+        <meshStandardMaterial color="#7a5a40" />
+      </mesh>
+      <mesh position={[-0.4, 0.78, 0]}>
+        <boxGeometry args={[0.4, 0.04, 0.18]} />
+        <meshStandardMaterial color="#a86848" />
+      </mesh>
+      {/* Swing 2 */}
+      <mesh position={[0.4, 1.45, 0]}>
+        <cylinderGeometry args={[0.012, 0.012, 1.4, 4]} />
+        <meshStandardMaterial color="#7a5a40" />
+      </mesh>
+      <mesh position={[0.4, 0.78, 0]}>
+        <boxGeometry args={[0.4, 0.04, 0.18]} />
+        <meshStandardMaterial color="#a86848" />
+      </mesh>
+    </group>
+    {/* Sandbox — square wooden border filled with sand */}
+    <group position={[3.5, 0, 0]}>
+      {/* Border 4 sisi */}
+      <mesh position={[0, 0.05, -0.6]}>
+        <boxGeometry args={[1.4, 0.1, 0.06]} />
+        <meshStandardMaterial color="#8a5a3a" />
+      </mesh>
+      <mesh position={[0, 0.05, 0.6]}>
+        <boxGeometry args={[1.4, 0.1, 0.06]} />
+        <meshStandardMaterial color="#8a5a3a" />
+      </mesh>
+      <mesh position={[-0.7, 0.05, 0]}>
+        <boxGeometry args={[0.06, 0.1, 1.2]} />
+        <meshStandardMaterial color="#8a5a3a" />
+      </mesh>
+      <mesh position={[0.7, 0.05, 0]}>
+        <boxGeometry args={[0.06, 0.1, 1.2]} />
+        <meshStandardMaterial color="#8a5a3a" />
+      </mesh>
+      {/* Sand fill */}
+      <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[1.34, 1.14]} />
+        <meshStandardMaterial color="#e8d8a0" roughness={1} />
+      </mesh>
+    </group>
+  </group>
+);
+
+// Picnic NPC group — blanket + sitting figures + basket. Cluster
+// sederhana untuk life signal di lapangan luar.
+const PicnicGroup = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Blanket — square plane warna-warni di tanah */}
+    <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[2.4, 2.4]} />
+      <meshStandardMaterial color="#d44048" roughness={1} />
+    </mesh>
+    {/* Pattern garis2 sederhana — 2 strip kuning silang */}
+    <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[2.4, 0.18]} />
+      <meshStandardMaterial color="#f4d048" roughness={1} />
+    </mesh>
+    <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
+      <planeGeometry args={[2.4, 0.18]} />
+      <meshStandardMaterial color="#f4d048" roughness={1} />
+    </mesh>
+    {/* NPC 1 — sitting figure (squashed capsule body + sphere head) */}
+    <group position={[-0.7, 0, 0.5]}>
+      <mesh position={[0, 0.35, 0]}>
+        <capsuleGeometry args={[0.18, 0.4, 4, 8]} />
+        <meshStandardMaterial color="#6a7ab8" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.78, 0]}>
+        <sphereGeometry args={[0.13, 12, 10]} />
+        <meshStandardMaterial color="#e8c8a8" roughness={0.85} />
+      </mesh>
+      {/* Hair */}
+      <mesh position={[0, 0.86, 0]}>
+        <sphereGeometry args={[0.135, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#3a2818" roughness={1} />
+      </mesh>
+    </group>
+    {/* NPC 2 */}
+    <group position={[0.7, 0, 0.4]}>
+      <mesh position={[0, 0.35, 0]}>
+        <capsuleGeometry args={[0.18, 0.4, 4, 8]} />
+        <meshStandardMaterial color="#c84858" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.78, 0]}>
+        <sphereGeometry args={[0.13, 12, 10]} />
+        <meshStandardMaterial color="#e8c8a8" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.86, 0]}>
+        <sphereGeometry args={[0.135, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={1} />
+      </mesh>
+    </group>
+    {/* Picnic basket */}
+    <group position={[0, 0, -0.6]}>
+      <mesh position={[0, 0.12, 0]}>
+        <boxGeometry args={[0.4, 0.24, 0.3]} />
+        <meshStandardMaterial color="#a8784a" roughness={0.95} />
+      </mesh>
+      {/* Handle */}
+      <mesh
+        position={[0, 0.32, 0]}
+        rotation={[0, 0, 0]}
+      >
+        <torusGeometry args={[0.14, 0.02, 6, 12, Math.PI]} />
+        <meshStandardMaterial color="#7a5a3a" />
+      </mesh>
+    </group>
+  </group>
+);
+
+const PicnicGroups = () => (
+  <>
+    <PicnicGroup pos={[-15, 0, -8]} rot={0.6} />
+    <PicnicGroup pos={[14, 0, -7]} rot={-0.4} />
+    <PicnicGroup pos={[-14, 0, 14]} rot={1.2} />
+  </>
+);
+
 const TelagaScene = ({
   pads,
   hoveredPadId,
   isMobile,
   hideLabels,
+  introActive,
+  onIntroComplete,
   onPadHover,
   onPadOut,
   onPadClick,
@@ -3001,10 +3318,15 @@ const TelagaScene = ({
     <Mushrooms />
     <Bushes />
     <FlowerBeds isMobile={isMobile} />
+    <OuterFlowerBeds isMobile={isMobile} />
     <StoneClusters />
     <SteppingStones />
     <Lanterns />
     <BankTrees count={isMobile ? 8 : 12} />
+    <OuterTrees isMobile={isMobile} />
+    <FlyingFlock isMobile={isMobile} />
+    <Playground pos={[-16, 0, 6]} rot={0.4} />
+    <PicnicGroups />
     <Ducks />
     <JumpingFishes count={isMobile ? 2 : 3} />
     <Pigeons count={isMobile ? 2 : 4} />
@@ -3024,24 +3346,30 @@ const TelagaScene = ({
         onClick={onPadClick}
       />
     ))}
-    <OrbitControls
-      target={[0, 4, 0]}
-      enableZoom
-      minDistance={10}
-      maxDistance={26}
-      enablePan={false}
-      // Polar diperluas untuk hemisphere view tanpa tembus ground.
-      // Target raised ke y=4 (mid-air) supaya camera bisa tilt
-      // slightly past horizontal (polar 1.55 ~89°) tanpa nyemplung
-      // bawah tanah. Ground entities tetep terlihat di default view
-      // (camera default [13,9,12] from target [0,4,0] = polar ~74°).
-      minPolarAngle={Math.PI / 8}
-      maxPolarAngle={1.55}
-      enableDamping
-      dampingFactor={0.08}
-      rotateSpeed={0.4}
-      autoRotate
-      autoRotateSpeed={0.25}
+    {/* OrbitControls disabled saat intro lerp aktif — biar gak fight
+        dgn camera animation. Setelah intro complete, controls take
+        over. */}
+    {!introActive && (
+      <OrbitControls
+        target={[0, 4, 0]}
+        enableZoom
+        minDistance={10}
+        maxDistance={26}
+        enablePan={false}
+        minPolarAngle={Math.PI / 8}
+        maxPolarAngle={1.55}
+        enableDamping
+        // Damping low (0.04) = lebih banyak inertia = rotasi terasa
+        // halus + glide-y. autoRotate slow 0.15 untuk graceful idle.
+        dampingFactor={0.04}
+        rotateSpeed={0.4}
+        autoRotate
+        autoRotateSpeed={0.15}
+      />
+    )}
+    <TelagaCinematicIntro
+      active={introActive}
+      onComplete={onIntroComplete}
     />
   </>
 );
@@ -3252,6 +3580,22 @@ const TamanKolamKataPage = () => {
   const [hoveredPadId, setHoveredPadId] = useState(null);
   const [selectedPad, setSelectedPad] = useState(null);
   const [firebaseWishes, setFirebaseWishes] = useState([]);
+  // Cinematic intro — first visit only, persisted via localStorage.
+  const [introActive, setIntroActive] = useState(() => {
+    try {
+      return localStorage.getItem(TELAGA_INTRO_STORAGE_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+  const handleIntroComplete = () => {
+    setIntroActive(false);
+    try {
+      localStorage.setItem(TELAGA_INTRO_STORAGE_KEY, '1');
+    } catch {
+      /* storage blocked */
+    }
+  };
 
   const seeds = SITE_CONFIG.wishes?.seeds || [];
 
@@ -3311,6 +3655,8 @@ const TamanKolamKataPage = () => {
               hoveredPadId={hoveredPadId}
               isMobile={isMobile}
               hideLabels={Boolean(selectedPad)}
+              introActive={introActive}
+              onIntroComplete={handleIntroComplete}
               onPadHover={handlePadHover}
               onPadOut={handlePadOut}
               onPadClick={handlePadClick}
