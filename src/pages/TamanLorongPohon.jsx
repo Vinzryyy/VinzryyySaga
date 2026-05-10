@@ -71,42 +71,48 @@ const ORBIT_TARGET = [0, 6, -12];
 // gradient seputar warna ini. spread = scatter radius bintang dari
 // center konstelasi (radian). Order matters — milestoneIds urutannya
 // kronologis, line connections membentuk line dari oldest ke newest.
-const SKY_RADIUS = 22;
+//
+// Altitudes pakai "rainbow arc" pattern: edge eras (Trainee + Fight)
+// rendah dekat horizon, peak di tengah (New Era) ~y 8. Visualisasi:
+// perjalanan karier muncul dari horizon timur, naik ke zenith, lalu
+// turun lagi ke horizon barat. Stars stay at tree-top level..mid-sky
+// (y ~3.5-9), gak terlalu tinggi supaya gak bikin user crane neck.
+const SKY_RADIUS = 14;
 const ERA_DEFS = [
   {
     id: 'trainee',
     name: 'Trainee',
     color: '#a8c0ff', // soft blue
-    azimuth: 0.95, // upper-right of forward view
-    altitude: 0.32,
-    spread: 0.16,
+    azimuth: 1.05, // upper-right of forward view
+    altitude: 0.18,
+    spread: 0.14,
     milestoneIds: ['audition', 'sousenkyo-2018', 'class-a'],
   },
   {
     id: 'theater',
     name: 'Theater',
     color: '#ffcc88', // warm amber
-    azimuth: 0.55,
-    altitude: 0.5,
-    spread: 0.13,
+    azimuth: 0.62,
+    altitude: 0.26,
+    spread: 0.12,
     milestoneIds: ['theater-debut', 'team-kiii'],
   },
   {
     id: 'senbatsu',
     name: 'Senbatsu',
     color: '#ff9ec0', // pink
-    azimuth: 0.18,
-    altitude: 0.62,
-    spread: 0.13,
+    azimuth: 0.22,
+    altitude: 0.34,
+    spread: 0.12,
     milestoneIds: ['show-100', 'first-senbatsu'],
   },
   {
     id: 'new-era',
     name: 'New Era',
     color: '#a4e8d0', // mint
-    azimuth: -0.22,
-    altitude: 0.7,
-    spread: 0.18,
+    azimuth: -0.18,
+    altitude: 0.42,
+    spread: 0.16,
     milestoneIds: ['new-formation-2021', 'darashinai-aishikata', 'show-200'],
   },
   {
@@ -114,8 +120,8 @@ const ERA_DEFS = [
     name: 'Mature',
     color: '#d8a8ff', // lavender
     azimuth: -0.62,
-    altitude: 0.6,
-    spread: 0.22,
+    altitude: 0.36,
+    spread: 0.18,
     milestoneIds: [
       'sayonara-crawl',
       'spv-langit-biru-2024',
@@ -127,18 +133,18 @@ const ERA_DEFS = [
     id: 'variety',
     name: 'Variety',
     color: '#ffe6a0', // soft yellow
-    azimuth: -0.95,
-    altitude: 0.45,
-    spread: 0.14,
+    azimuth: -1.0,
+    altitude: 0.26,
+    spread: 0.13,
     milestoneIds: ['belajar-konseling', 'pertaruhan-cinta-shonichi'],
   },
   {
     id: 'fight',
     name: 'JKT48 Fight',
     color: '#ff9080', // warm coral
-    azimuth: -1.32,
-    altitude: 0.3,
-    spread: 0.26,
+    azimuth: -1.4,
+    altitude: 0.18,
+    spread: 0.22,
     milestoneIds: [
       'three-team-announce',
       'fight-tagline',
@@ -201,8 +207,8 @@ const milestoneSkyPosition = (milestoneId) => {
   const seedB = hashSeed(`${milestoneId}-b`) - 0.5;
   const az = eraDef.azimuth + t * eraDef.spread * 1.6 + seedA * eraDef.spread * 0.4;
   const alt = Math.max(
-    0.15,
-    Math.min(0.92, eraDef.altitude + seedB * eraDef.spread * 0.7),
+    0.10,
+    Math.min(0.6, eraDef.altitude + seedB * eraDef.spread * 0.7),
   );
   return skyPosition(az, alt);
 };
@@ -2564,13 +2570,13 @@ const ConstellationLabels = () => {
       {ERA_DEFS.map((era, i) => {
         const center = skyPosition(era.azimuth, era.altitude);
         // Label posisi sedikit di atas center konstelasi
-        const labelPos = [center[0], center[1] + 1.8, center[2]];
+        const labelPos = [center[0], center[1] + 1.2, center[2]];
         return (
           <Html
             key={era.id}
             position={labelPos}
             center
-            distanceFactor={14}
+            distanceFactor={9}
             occlude={false}
             style={{ pointerEvents: 'none' }}
           >
