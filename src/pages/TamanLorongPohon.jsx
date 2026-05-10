@@ -2815,7 +2815,20 @@ const LorongFooter = ({ hoveredTreeId }) => {
   );
 };
 
-const MilestoneOverlay = ({ tree, onClose }) => {
+// Format ISO date "YYYY-MM-DD" → "29 September 2018" untuk display.
+// ELI_TIMELINE.period kadang full kalimat ("Single Rapsodi") jadi
+// kita pakai date kalau ada, fallback ke period.
+const ID_MONTHS = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+];
+const formatFullDate = (iso) => {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${d} ${ID_MONTHS[m - 1]} ${y}`;
+};
+
+const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
   useEffect(() => {
     if (!tree) return undefined;
     const orig = document.body.style.overflow;
@@ -2825,7 +2838,25 @@ const MilestoneOverlay = ({ tree, onClose }) => {
     };
   }, [tree]);
 
+  // Keyboard nav — arrow left/right paginate, Esc close.
+  useEffect(() => {
+    if (!tree) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'ArrowLeft') onPrev?.();
+      else if (e.key === 'ArrowRight') onNext?.();
+      else if (e.key === 'Escape') onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [tree, onPrev, onNext, onClose]);
+
   if (!tree) return null;
+  const total = trees?.length ?? 0;
+  const idx = trees?.findIndex((t) => t.id === tree.id) ?? -1;
+  const fullDate = formatFullDate(tree.date);
+  const hasPrev = idx > 0;
+  const hasNext = idx >= 0 && idx < total - 1;
+
   return (
     <div
       className="absolute inset-0 z-30 flex items-center justify-center bg-black/55 backdrop-blur-md"
@@ -2833,7 +2864,7 @@ const MilestoneOverlay = ({ tree, onClose }) => {
       style={{ animation: 'fadeIn 300ms ease-out' }}
     >
       <div
-        className="bg-[#1c1f2a]/95 border border-white/15 rounded-2xl px-8 py-9 max-w-lg mx-6"
+        className="bg-[#1c1f2a]/95 border border-white/15 rounded-2xl px-7 sm:px-8 py-8 max-w-lg mx-6 w-[calc(100%-3rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-3">
@@ -2841,7 +2872,7 @@ const MilestoneOverlay = ({ tree, onClose }) => {
             {tree.badge}
           </span>
           <span className="text-white/55 text-[10px] tracking-wide">
-            {tree.period}
+            {fullDate ?? tree.period}
           </span>
         </div>
         <h2
@@ -2853,16 +2884,73 @@ const MilestoneOverlay = ({ tree, onClose }) => {
         >
           {tree.title}
         </h2>
-        <p className="text-white/75 text-sm leading-relaxed mb-7">
+        <p className="text-white/75 text-sm leading-relaxed mb-6">
           {tree.body}
         </p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full px-5 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
-        >
-          Kembali ke lorong
-        </button>
+
+        {/* Progress dots — 1 dot per pohon, current = besar amber.
+            Click dot untuk loncat ke milestone itu. */}
+        {total > 0 && (
+          <div className="flex items-center justify-center gap-1.5 mb-3">
+            {trees.map((t, i) => {
+              const active = t.id === tree.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => {
+                    if (active) return;
+                    if (i < idx) onPrev?.(i);
+                    else onNext?.(i);
+                  }}
+                  aria-label={`${t.year} — ${t.title}`}
+                  className="group p-1 -m-1"
+                >
+                  <span
+                    className={`block rounded-full transition-all ${
+                      active
+                        ? 'w-2 h-2 bg-amber-300/85'
+                        : 'w-1.5 h-1.5 bg-white/25 group-hover:bg-white/55'
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {idx >= 0 && (
+          <div className="text-center text-white/40 text-[10px] uppercase tracking-[0.3em] mb-5">
+            Pohon ke-{idx + 1} dari {total}
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => hasPrev && onPrev?.()}
+            disabled={!hasPrev}
+            className="px-3 py-2.5 rounded-full border border-white/20 text-white/70 text-xs hover:bg-white/10 hover:border-white/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Pohon sebelumnya"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-5 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
+          >
+            Kembali ke lorong
+          </button>
+          <button
+            type="button"
+            onClick={() => hasNext && onNext?.()}
+            disabled={!hasNext}
+            className="px-3 py-2.5 rounded-full border border-white/20 text-white/70 text-xs hover:bg-white/10 hover:border-white/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Pohon selanjutnya"
+          >
+            →
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2963,6 +3051,22 @@ const TamanLorongPohonPage = () => {
     }
   };
   const handleClose = () => setSelectedTree(null);
+  // Prev/next/jump pagination dari modal — gak trigger signature event
+  // (signature event tied to tree click di scene, bukan modal nav).
+  const handlePrev = (jumpIdx) => {
+    if (!selectedTree) return;
+    const i = trees.findIndex((t) => t.id === selectedTree.id);
+    const target = typeof jumpIdx === 'number' ? jumpIdx : i - 1;
+    if (target < 0 || target >= trees.length) return;
+    setSelectedTree(trees[target]);
+  };
+  const handleNext = (jumpIdx) => {
+    if (!selectedTree) return;
+    const i = trees.findIndex((t) => t.id === selectedTree.id);
+    const target = typeof jumpIdx === 'number' ? jumpIdx : i + 1;
+    if (target < 0 || target >= trees.length) return;
+    setSelectedTree(trees[target]);
+  };
 
   return (
     <>
@@ -3047,7 +3151,13 @@ const TamanLorongPohonPage = () => {
         {viewMode === 'fpv' && isMobile && !transitioning && (
           <MobileFPVControls joystickRef={joystickRef} lookRef={lookRef} />
         )}
-        <MilestoneOverlay tree={selectedTree} onClose={handleClose} />
+        <MilestoneOverlay
+          tree={selectedTree}
+          trees={trees}
+          onClose={handleClose}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
         <AmbientAudio profile="taman" position="top-right" />
       </div>
     </>
