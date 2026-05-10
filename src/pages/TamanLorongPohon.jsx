@@ -113,6 +113,58 @@ const getWind = (t, phaseOffset = 0) => {
 // Firefly blackout — semua kunang-kunang dim bareng tiap ~75 detik.
 // Active window 1.5% dari period (~1.1s), parabolic dim. Atmospheric
 // blip — kayak "scene tahan napas sejenak".
+// SFX singleton — lazy AudioContext untuk one-shot tones (wind chime
+// click, dst). Dibuat saat first user gesture, di-respect localStorage
+// 'taman-audio-enabled' supaya selaras dgn AmbientAudio toggle.
+let _sfxCtx = null;
+const getSfxCtx = () => {
+  if (typeof window === 'undefined') return null;
+  if (!_sfxCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    try {
+      _sfxCtx = new Ctx();
+    } catch {
+      return null;
+    }
+  }
+  if (_sfxCtx.state === 'suspended') {
+    _sfxCtx.resume().catch(() => {});
+  }
+  return _sfxCtx;
+};
+const isAudioEnabled = () => {
+  try {
+    return localStorage.getItem('taman-audio-enabled') === '1';
+  } catch {
+    return false;
+  }
+};
+// Bell tone — base sine + 2 harmonics dgn quick attack + slow exp decay.
+// Sounds metallic/chime-like. freq base ~880 default (A5), bisa di-vary
+// untuk banyak tube notes.
+const playChimeTone = (frequency = 880, masterAmp = 0.18) => {
+  if (!isAudioEnabled()) return;
+  const ctx = getSfxCtx();
+  if (!ctx) return;
+  const partial = (freq, amp, decay) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    g.gain.value = 0;
+    g.gain.linearRampToValueAtTime(amp, ctx.currentTime + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0008, ctx.currentTime + decay);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + decay + 0.05);
+  };
+  partial(frequency, masterAmp, 1.6);
+  partial(frequency * 2, masterAmp * 0.4, 1.0);
+  partial(frequency * 3.01, masterAmp * 0.22, 0.7);
+};
+
 const FIREFLY_BLACKOUT_PERIOD = 75;
 const getFireflyBlackout = (t) => {
   const u = ((t % FIREFLY_BLACKOUT_PERIOD) + FIREFLY_BLACKOUT_PERIOD) % FIREFLY_BLACKOUT_PERIOD / FIREFLY_BLACKOUT_PERIOD;
@@ -1602,8 +1654,23 @@ const TreeDecoration = ({ type, side }) => {
 // Bangku kayu tua — weathered, di-side path antara owl dan rabbit
 // (z=-15 right side, opposite rabbit di kiri). Dengan 2 daun gugur
 // settle di seat — kasih kesan "udah lama nggak diduduki".
-const OldBench = () => (
-  <group position={[3.0, 0, -15]} rotation={[0, -Math.PI / 2.4, 0]}>
+const OldBench = ({ onClick }) => (
+  <group
+    position={[3.0, 0, -15]}
+    rotation={[0, -Math.PI / 2.4, 0]}
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick?.();
+    }}
+    onPointerOver={(e) => {
+      e.stopPropagation();
+      document.body.style.cursor = 'pointer';
+    }}
+    onPointerOut={(e) => {
+      e.stopPropagation();
+      document.body.style.cursor = 'auto';
+    }}
+  >
     {/* Seat plank */}
     <mesh position={[0, 0.4, 0]} castShadow>
       <boxGeometry args={[1.4, 0.05, 0.36]} />
@@ -1658,16 +1725,41 @@ const OldBench = () => (
 // x=2.6) cantilever toward path. Swing assembly hanging dari branch
 // tip dengan 2 rope + plank seat. Pendulum motion sync dengan wind
 // (rotation.x dari wind.total).
-const TreeSwing = () => {
+const TreeSwing = ({ activeRef, onClick }) => {
   const swingRef = useRef();
   const windPhase = -18.67 * 0.13 + 1.0;
   useFrame((state) => {
     if (!swingRef.current) return;
     const t = state.clock.elapsedTime;
     const wind = getWind(t, windPhase);
-    // Pendulum forward-back (rotation X) + idle drift
-    swingRef.current.rotation.x = wind.total * 0.12 + Math.sin(t * 0.6) * 0.04;
+    // Decay 0→1→0 over 3s setelah click. Boost amplitudo + frequency
+    // supaya kerasa "didorong" — physics fakery.
+    const dt = t - (activeRef?.current ?? -Infinity);
+    let boost = 0;
+    let pushFreq = 0;
+    if (dt >= 0 && dt < 3) {
+      const u = dt / 3;
+      // Initial spike yang decay exponential
+      boost = (1 - u) * Math.exp(-u * 1.2);
+      // Sinusoidal push at ~0.7 Hz (natural pendulum cadence)
+      pushFreq = Math.sin(dt * 4.4) * boost * 0.6;
+    }
+    // Pendulum forward-back (rotation X) + idle drift + push
+    swingRef.current.rotation.x =
+      wind.total * 0.12 + Math.sin(t * 0.6) * 0.04 + pushFreq;
   });
+  const handleClick = (e) => {
+    e.stopPropagation();
+    onClick?.();
+  };
+  const handleOver = (e) => {
+    e.stopPropagation();
+    document.body.style.cursor = 'pointer';
+  };
+  const handleOut = (e) => {
+    e.stopPropagation();
+    document.body.style.cursor = 'auto';
+  };
   return (
     <>
       {/* Branch horizontal di foliage tree[5] (y=2.7 = foliage center) */}
@@ -1677,7 +1769,12 @@ const TreeSwing = () => {
       </mesh>
       {/* Swing pivot di tip cabang (1.3, 2.7, -18.67), rope 2.1 ke plank */}
       <group position={[1.3, 2.7, -18.67]}>
-        <group ref={swingRef}>
+        <group
+          ref={swingRef}
+          onClick={handleClick}
+          onPointerOver={handleOver}
+          onPointerOut={handleOut}
+        >
           {/* 2 rope hanging — 2.1 panjang */}
           <mesh position={[-0.16, -1.05, 0]}>
             <cylinderGeometry args={[0.012, 0.012, 2.1, 6]} />
@@ -1705,17 +1802,39 @@ const TreeSwing = () => {
 const CHIME_TUBE_LENGTHS = [0.30, 0.25, 0.32, 0.27, 0.28];
 const CHIME_TUBE_X = [-0.06, -0.03, 0, 0.03, 0.06];
 
-const WindChime = () => {
+const WindChime = ({ activeRef, onClick }) => {
   const groupRef = useRef();
   const windPhase = -8.67 * 0.13 + 2.0;
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     const wind = getWind(t, windPhase);
+    // Click boost — quick wobble decay over ~2s
+    const dt = t - (activeRef?.current ?? -Infinity);
+    let boostZ = 0;
+    let boostX = 0;
+    if (dt >= 0 && dt < 2) {
+      const u = dt / 2;
+      const env = Math.exp(-u * 2.2);
+      boostZ = Math.sin(dt * 8.0) * env * 0.18;
+      boostX = Math.sin(dt * 11.5) * env * 0.10;
+    }
     // Sway 2 axis — chime swings sideways (Z) lebih dominant, slight forward (X)
-    groupRef.current.rotation.z = wind.total * 0.08;
-    groupRef.current.rotation.x = wind.sway * 0.04;
+    groupRef.current.rotation.z = wind.total * 0.08 + boostZ;
+    groupRef.current.rotation.x = wind.sway * 0.04 + boostX;
   });
+  const handleClick = (e) => {
+    e.stopPropagation();
+    onClick?.();
+  };
+  const handleOver = (e) => {
+    e.stopPropagation();
+    document.body.style.cursor = 'pointer';
+  };
+  const handleOut = (e) => {
+    e.stopPropagation();
+    document.body.style.cursor = 'auto';
+  };
   return (
     <>
       {/* Branch horizontal di foliage tree[2] (y=2.85 sedikit upper foliage) */}
@@ -1725,7 +1844,12 @@ const WindChime = () => {
       </mesh>
       {/* Chime pivot di tip cabang (-1.45, 2.85, -8.67) */}
       <group position={[-1.45, 2.85, -8.67]}>
-        <group ref={groupRef}>
+        <group
+          ref={groupRef}
+          onClick={handleClick}
+          onPointerOver={handleOver}
+          onPointerOut={handleOut}
+        >
           {/* String dari branch ke top disc */}
           <mesh position={[0, -0.18, 0]}>
             <cylinderGeometry args={[0.005, 0.005, 0.3, 4]} />
@@ -2399,9 +2523,15 @@ const LorongScene = ({
   transitioning,
   joystickRef,
   lookRef,
+  swingActiveRef,
+  chimeActiveRef,
+  benchActive,
   onTreeHover,
   onTreeOut,
   onTreeClick,
+  onBenchClick,
+  onSwingClick,
+  onChimeClick,
 }) => (
   <>
     {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
@@ -2447,9 +2577,43 @@ const LorongScene = ({
     <HighlightStars signatureEvent={signatureEvent} />
     <Moon />
     <FlyingLeavesGust />
-    <OldBench />
-    <TreeSwing />
-    <WindChime />
+    <OldBench onClick={onBenchClick} />
+    <TreeSwing activeRef={swingActiveRef} onClick={onSwingClick} />
+    <WindChime activeRef={chimeActiveRef} onClick={onChimeClick} />
+    {/* Bench whisper — floating poetic line di atas bangku saat di-click.
+        distanceFactor=8 supaya readable di orbit jarak default. */}
+    {benchActive && (
+      <Html
+        position={[3.0, 1.45, -15]}
+        center
+        distanceFactor={8}
+        occlude={false}
+        style={{ pointerEvents: 'none' }}
+      >
+        <div
+          className="whitespace-nowrap text-center"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            color: 'rgba(255,228,178,0.9)',
+            fontSize: '14px',
+            letterSpacing: '0.01em',
+            textShadow: '0 0 10px rgba(0,0,0,0.7), 0 0 24px rgba(255,170,80,0.18)',
+            animation: 'lorongBenchFade 5500ms ease-out forwards',
+          }}
+        >
+          Bangku kosong, masih menunggu.
+        </div>
+        <style>{`
+          @keyframes lorongBenchFade {
+            0%   { opacity: 0; transform: translateY(6px); }
+            12%  { opacity: 1; transform: translateY(0); }
+            85%  { opacity: 1; transform: translateY(-2px); }
+            100% { opacity: 0; transform: translateY(-8px); }
+          }
+        `}</style>
+      </Html>
+    )}
     <StoneMonument />
     <Lanterns signatureEvent={signatureEvent} />
     <YearPlaques trees={trees} />
@@ -2990,6 +3154,32 @@ const TamanLorongPohonPage = () => {
   // MobileFPVMovement (Canvas). Reset saat exit FPV.
   const joystickRef = useRef({ x: 0, y: 0 });
   const lookRef = useRef({ yaw: 0, pitch: 0 });
+  // Interaction state untuk prop ke bench/swing/chime:
+  //   - benchActive (state) — show Html overlay 5s saat bench clicked
+  //   - swingActiveRef / chimeActiveRef — clock time of last click,
+  //     dibaca by useFrame untuk decay-based animation boost. Pakai
+  //     ref biar gak trigger rerender setiap click.
+  const [benchActive, setBenchActive] = useState(false);
+  const swingActiveRef = useRef(-Infinity);
+  const chimeActiveRef = useRef(-Infinity);
+  const handleBenchClick = () => {
+    setBenchActive(true);
+    setTimeout(() => setBenchActive(false), 5500);
+  };
+  const handleSwingClick = () => {
+    swingActiveRef.current = clockRef.current;
+  };
+  const handleChimeClick = () => {
+    chimeActiveRef.current = clockRef.current;
+    // Tinkle 2–3 notes pentatonic, slight stagger.
+    // A5, B5, C6, D6, E6 — gentle bell range.
+    const notes = [880, 988, 1047, 1175, 1319];
+    const count = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < count; i++) {
+      const f = notes[Math.floor(Math.random() * notes.length)];
+      setTimeout(() => playChimeTone(f, 0.14), i * 90 + Math.random() * 60);
+    }
+  };
   const toggleViewMode = () => {
     setTransitioning(true);
     setViewMode((m) => {
@@ -3099,9 +3289,15 @@ const TamanLorongPohonPage = () => {
               transitioning={transitioning}
               joystickRef={joystickRef}
               lookRef={lookRef}
+              swingActiveRef={swingActiveRef}
+              chimeActiveRef={chimeActiveRef}
+              benchActive={benchActive}
               onTreeHover={handleTreeHover}
               onTreeOut={handleTreeOut}
               onTreeClick={handleTreeClick}
+              onBenchClick={handleBenchClick}
+              onSwingClick={handleSwingClick}
+              onChimeClick={handleChimeClick}
             />
             {!isMobile && (
               <EffectComposer>
