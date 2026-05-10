@@ -1212,12 +1212,12 @@ const BUSH_POSITIONS = [
   { pos: [9.5, 0, -3], scale: 0.9 },
   { pos: [12.0, 0, 4], scale: 1.0 }, // moved from [10.5, 0, 7]
   { pos: [11.5, 0, 11], scale: 0.85 }, // moved from [9.8, 0, 13]
-  // Bank atas (-z) — outside pond z<-18
-  { pos: [-5, 0, -19], scale: 0.95 },
-  { pos: [6, 0, -19.5], scale: 0.9 },
-  // Bank bawah (+z) — outside pond z>18
-  { pos: [-6, 0, 19], scale: 0.95 },
-  { pos: [5, 0, 19.5], scale: 1.0 },
+  // Bank atas (-z) — outside pond+path z<-19.5
+  { pos: [-5, 0, -21], scale: 0.95 },
+  { pos: [6, 0, -22], scale: 0.9 },
+  // Bank bawah (+z) — outside pond+path z>19.5
+  { pos: [-6, 0, 21], scale: 0.95 },
+  { pos: [5, 0, 22], scale: 1.0 },
 ];
 
 const Bushes = () => (
@@ -1769,9 +1769,8 @@ const MUSHROOM_CLUSTERS = [
   { pos: [-8.5, 0, -10], count: 3 },
   { pos: [9.5, 0, -12], count: 2 },
   { pos: [-9.5, 0, 9], count: 3 },
-  { pos: [-11.5, 0, -5], count: 2 },
-  // Was [-3, 0, -14] inside pond — moved to outside pond bound z<-18
-  { pos: [-3, 0, -19], count: 2 },
+  { pos: [-11, 0, -5], count: 2 },
+  { pos: [10.5, 0, 5], count: 2 },
 ];
 
 const Mushrooms = () => (
@@ -1810,10 +1809,10 @@ const FLOWER_BED_DEFS = [
   { pos: [-10, 0, 4], colors: ['#d4a0e0', '#fff080', '#f8b0a0'] },
   { pos: [9, 0, -7], colors: ['#ffa0a0', '#c8e070', '#f8d8b0'] },
   { pos: [10, 0, 5], colors: ['#f4a0c8', '#ffd078', '#a4d4f4'] },
-  { pos: [-9, 0, -19], colors: ['#ffb070', '#f8a8c0', '#d8d8a0'] },
-  { pos: [9, 0, -19], colors: ['#a8d8c0', '#ffc878', '#f4a0c4'] },
-  { pos: [-9, 0, 19], colors: ['#f4d488', '#e0a4d8', '#ffa888'] },
-  { pos: [9, 0, 19], colors: ['#f8a8c8', '#c8e08c', '#ffcc88'] },
+  { pos: [-9, 0, -21], colors: ['#ffb070', '#f8a8c0', '#d8d8a0'] },
+  { pos: [9, 0, -21], colors: ['#a8d8c0', '#ffc878', '#f4a0c4'] },
+  { pos: [-9, 0, 21], colors: ['#f4d488', '#e0a4d8', '#ffa888'] },
+  { pos: [9, 0, 21], colors: ['#f8a8c8', '#c8e08c', '#ffcc88'] },
 ];
 const FlowerBed = ({ pos, colors }) => {
   // Pre-compute petal positions deterministic dari pos
@@ -1888,8 +1887,10 @@ const STONE_CLUSTER_DEFS = [
   { pos: [9.5, 0, -2], rot: -0.5 },
   { pos: [-9, 0, 11], rot: 0.8 },
   { pos: [9, 0, 12], rot: 1.2 },
-  { pos: [0, 0, -20], rot: 0 },
   { pos: [-13, 0, 4], rot: 0.6 },
+  { pos: [13, 0, -6], rot: -0.7 },
+  { pos: [0, 0, -23], rot: 0 },
+  { pos: [0, 0, 23], rot: 0.5 },
 ];
 const StoneCluster = ({ pos, rot }) => {
   const stones = useMemo(() => {
@@ -2328,18 +2329,34 @@ const BankTree = ({ pos, scale = 1 }) => {
   );
 };
 
-// Outer trees — scattered di outer ring (r=22-30) untuk fill lapangan
-// hijau luas yg kosong. Procedural deterministic positions di-place
-// di angular sector around pond (skip pond extent + dock area).
+// Outer trees — scattered di outer ring (r=18-22) di dalam ground
+// circle r=24. Bank circle smaller jadi outer trees harus inward.
 const OUTER_TREE_DEFS = (() => {
   const arr = [];
-  const count = 18;
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.15;
-    const r = 22 + Math.random() * 7;
+  // Two rings — inner ring r=22-25 dgn pond-axis skip, outer ring
+  // r=28-33 fill seluruh keliling termasuk arah pond axis (jauh dari
+  // pond jadi gak overlap).
+  const innerCount = 16;
+  for (let i = 0; i < innerCount; i++) {
+    const angle = (i / innerCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.12;
+    const angDeg = (((angle * 180) / Math.PI) + 360) % 360;
+    const isPondAxis =
+      (angDeg > 75 && angDeg < 105) ||
+      (angDeg > 255 && angDeg < 285);
+    if (isPondAxis) continue;
+    const r = 22 + Math.random() * 3;
     arr.push({
       pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
-      scale: 1.2 + Math.random() * 0.6,
+      scale: 1.5 + Math.random() * 0.6,
+    });
+  }
+  const outerCount = 18;
+  for (let i = 0; i < outerCount; i++) {
+    const angle = (i / outerCount) * Math.PI * 2 + Math.PI / outerCount + (Math.random() - 0.5) * 0.15;
+    const r = 28 + Math.random() * 5;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      scale: 1.7 + Math.random() * 0.7,
     });
   }
   return arr;
@@ -2357,14 +2374,20 @@ const OuterTrees = ({ isMobile }) => {
   );
 };
 
-// Outer flower beds — 8-10 patches di lapangan luar antara outer trees.
-// Reuse FlowerBed component dgn posisi outer ring r=22-29.
+// Outer flower beds — patches di lapangan luar (ground r=36).
+// Posisi di antara outer trees, r=20-30. Skip pond axis di ring dalam
+// supaya gak overlap path strips.
 const OUTER_FLOWER_BED_DEFS = (() => {
   const arr = [];
-  const count = 10;
-  for (let i = 0; i < count; i++) {
-    const angle = (i / count) * Math.PI * 2 + Math.PI / count;
-    const r = 23 + Math.random() * 5;
+  const innerCount = 14;
+  for (let i = 0; i < innerCount; i++) {
+    const angle = (i / innerCount) * Math.PI * 2 + Math.PI / innerCount;
+    const angDeg = (((angle * 180) / Math.PI) + 360) % 360;
+    const isPondAxis =
+      (angDeg > 75 && angDeg < 105) ||
+      (angDeg > 255 && angDeg < 285);
+    if (isPondAxis) continue;
+    const r = 20 + Math.random() * 3;
     arr.push({
       pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
       colors: [
@@ -2372,6 +2395,20 @@ const OUTER_FLOWER_BED_DEFS = (() => {
         ['#d4a0e0', '#fff080', '#f8b0a0'],
         ['#ffa0a0', '#c8e070', '#f8d8b0'],
         ['#f4a0c8', '#ffd078', '#a4d4f4'],
+      ][i % 4],
+    });
+  }
+  const outerCount = 12;
+  for (let i = 0; i < outerCount; i++) {
+    const angle = (i / outerCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+    const r = 27 + Math.random() * 5;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      colors: [
+        ['#f4d870', '#ffffff', '#e89bb8'],
+        ['#9bb8e8', '#c89be8', '#f4a570'],
+        ['#fff080', '#f8b0a0', '#d4a0e0'],
+        ['#a4d4f4', '#ffd078', '#f4a0c8'],
       ][i % 4],
     });
   }
@@ -2532,19 +2569,51 @@ const River = ({ isMobile = false }) => (
 // earthy-green (slightly desaturated) — biar dense grass blades di
 // atasnya yang ngasih warna utama, plane bawah cuma jadi base supaya
 // nggak ada gap. Tiap bank tone sedikit beda untuk break uniformity.
-// Bank — single circle ground r=32. Sebelumnya ada inner ring tapi
-// gap antara pond rect (x=±7) dan ring inner radius (10) menyebabkan
-// strip warna outer dark visible di sisi pond — bad visual. Plus ring
-// overlap pond corners. Single ground homogeneous = clean.
+// Bank — single circle ground r=24 (was 32, kecilin per user). Plus
+// jalan setapak rect strips di 3 sisi pond (sisi kiri sudah covered
+// oleh WalkPath existing). 4 sisi total surround pond untuk perimeter
+// walkway feel.
 const Banks = () => (
-  <mesh
-    rotation={[-Math.PI / 2, 0, 0]}
-    position={[0, -0.07, 0]}
-    receiveShadow
-  >
-    <circleGeometry args={[32, 48]} />
-    <meshStandardMaterial color="#5b7544" roughness={1} />
-  </mesh>
+  <>
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.07, 0]}
+      receiveShadow
+    >
+      <circleGeometry args={[36, 56]} />
+      <meshStandardMaterial color="#5b7544" roughness={1} />
+    </mesh>
+    {/* Jalan setapak — gravel strips di 3 sisi pond (top, bottom,
+        right). Sisi kiri WalkPath existing. Lebar 1.4 untuk feel
+        bank path yg cukup wide. */}
+    {/* Top (z<0 side) */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.05, -(RIVER_LENGTH / 2 + 0.8)]}
+      receiveShadow
+    >
+      <planeGeometry args={[RIVER_WIDTH + 2.8, 1.4]} />
+      <meshStandardMaterial color="#7e6e58" roughness={0.95} />
+    </mesh>
+    {/* Bottom (z>0 side) */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.05, RIVER_LENGTH / 2 + 0.8]}
+      receiveShadow
+    >
+      <planeGeometry args={[RIVER_WIDTH + 2.8, 1.4]} />
+      <meshStandardMaterial color="#7e6e58" roughness={0.95} />
+    </mesh>
+    {/* Right (+x side, di belakang dock) */}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[RIVER_WIDTH / 2 + 0.8, -0.05, 0]}
+      receiveShadow
+    >
+      <planeGeometry args={[1.4, RIVER_LENGTH + 2]} />
+      <meshStandardMaterial color="#7e6e58" roughness={0.95} />
+    </mesh>
+  </>
 );
 
 // Walking path — gravel-toned strip di sepanjang bank kiri (-x),
@@ -3346,7 +3415,7 @@ const TelagaScene = ({
     {/* Fog senja — warm dusty pink-purple tone. Far 42 supaya taman
         jelas keliatan, perimeter dissolve gradually ke kabut bukan
         cut-off rapat. */}
-    <fog attach="fog" args={['#d4a890', 18, 42]} />
+    <fog attach="fog" args={['#d4a890', 22, 56]} />
     {/* Background warm match fog — eliminate black void di area yg
         gak ke-cover dome (di luar dome edge / sebelum scene render). */}
     <color attach="background" args={['#d4a890']} />
@@ -3442,7 +3511,7 @@ const TelagaScene = ({
         target={[0, 4, 0]}
         enableZoom
         minDistance={10}
-        maxDistance={26}
+        maxDistance={34}
         enablePan={false}
         minPolarAngle={Math.PI / 8}
         maxPolarAngle={1.55}
