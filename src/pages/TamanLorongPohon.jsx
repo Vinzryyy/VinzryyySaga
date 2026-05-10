@@ -3354,7 +3354,7 @@ const TamanLorongPohonPage = () => {
           onPrev={handlePrev}
           onNext={handleNext}
         />
-        <AmbientAudio profile="taman" position="top-right" />
+        <AmbientAudio profile="taman-r1" position="top-right" />
       </div>
     </>
   );
