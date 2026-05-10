@@ -2763,7 +2763,7 @@ const handleShare = async () => {
   const url = `${window.location.origin}/taman/r1`;
   const data = {
     title: 'Pohon-Pohon yang Mengingat',
-    text: 'Sepuluh tahun perjalanan Eli, dalam bentuk pohon-pohon di sebuah lorong.',
+    text: 'Sepuluh perjalanan Eli, dalam bentuk pohon-pohon di sebuah lorong.',
     url,
   };
   try {
@@ -2900,7 +2900,7 @@ const IntroTitle = () => {
               letterSpacing: '0.02em',
             }}
           >
-            Sepuluh tahun, satu lorong, satu senja yang panjang.
+            Sepuluh perjalanan, satu lorong, satu senja yang panjang.
           </div>
         </div>
       </div>
@@ -3080,8 +3080,8 @@ const LorongFooter = ({ hoveredTreeId, isMobile }) => {
   const hint = hoveredTreeId
     ? 'Klik untuk baca milestone'
     : isMobile
-      ? `Ketuk salah satu pohon · ${ELI_TIMELINE.length} tahun perjalanan`
-      : `Pilih pohon dari ${ELI_TIMELINE.length} tahun perjalanan · drag untuk berputar`;
+      ? `Ketuk salah satu pohon · ${ELI_TIMELINE.length} perjalanan`
+      : `Pilih pohon dari ${ELI_TIMELINE.length} perjalanan · drag untuk berputar`;
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-center px-4 max-w-[90vw]">
       {hint}
