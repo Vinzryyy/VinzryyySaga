@@ -643,16 +643,24 @@ const CattailCluster = ({ pos }) => {
   );
 };
 
+// Cattails (typha) — water plants di shallow edge pond. Semua di
+// pond shore (x=±6.5..±7 = water edge, atau z=±17.5 = top/bottom
+// edge) supaya kerasa emerging from water natural.
 const CATTAIL_POSITIONS = [
-  // Tepi kiri danau (skip area bench/dock/path)
-  [-7.0, 0, -12],
-  [-7.0, 0, 11],
+  // Tepi kiri (x=-7, sepanjang z)
+  [-6.8, 0, -14],
+  [-6.8, 0, -3],
+  [-6.8, 0, 11],
   // Tepi kanan
-  [7.0, 0, -10],
-  [7.0, 0, -1],
-  // Tepi atas/bawah
-  [-2, 0, -13.5],
-  [3, 0, 13.5],
+  [6.8, 0, -10],
+  [6.8, 0, -1],
+  [6.8, 0, 13],
+  // Tepi atas (z=-17.5)
+  [-3, 0, -17.5],
+  [4, 0, -17.5],
+  // Tepi bawah (z=17.5)
+  [-4, 0, 17.5],
+  [3, 0, 17.5],
 ];
 
 const Cattails = () => (
@@ -695,18 +703,18 @@ const Wildflowers = () => {
       const size = 0.06 + Math.random() * 0.025;
       items.push({ pos: [x, size, z], colorIdx, size });
     }
-    // Bank atas (-z) — band z<-16
+    // Bank atas (-z) — z<-18 (outside pond yang sekarang ke z=-18)
     for (let i = 0; i < 16; i++) {
       const x = -10 + Math.random() * 20;
-      const z = -16 - Math.random() * 4;
+      const z = -18.5 - Math.random() * 4;
       const colorIdx = Math.floor(Math.random() * WILDFLOWER_COLORS.length);
       const size = 0.06 + Math.random() * 0.025;
       items.push({ pos: [x, size, z], colorIdx, size });
     }
-    // Bank bawah (+z)
+    // Bank bawah (+z) — z>18
     for (let i = 0; i < 16; i++) {
       const x = -10 + Math.random() * 20;
-      const z = 16 + Math.random() * 4;
+      const z = 18.5 + Math.random() * 4;
       const colorIdx = Math.floor(Math.random() * WILDFLOWER_COLORS.length);
       const size = 0.06 + Math.random() * 0.025;
       items.push({ pos: [x, size, z], colorIdx, size });
@@ -1204,12 +1212,12 @@ const BUSH_POSITIONS = [
   { pos: [9.5, 0, -3], scale: 0.9 },
   { pos: [12.0, 0, 4], scale: 1.0 }, // moved from [10.5, 0, 7]
   { pos: [11.5, 0, 11], scale: 0.85 }, // moved from [9.8, 0, 13]
-  // Bank atas
-  { pos: [-5, 0, -16], scale: 0.95 },
-  { pos: [6, 0, -17], scale: 0.9 },
-  // Bank bawah
-  { pos: [-6, 0, 17], scale: 0.95 },
-  { pos: [5, 0, 16.5], scale: 1.0 },
+  // Bank atas (-z) — outside pond z<-18
+  { pos: [-5, 0, -19], scale: 0.95 },
+  { pos: [6, 0, -19.5], scale: 0.9 },
+  // Bank bawah (+z) — outside pond z>18
+  { pos: [-6, 0, 19], scale: 0.95 },
+  { pos: [5, 0, 19.5], scale: 1.0 },
 ];
 
 const Bushes = () => (
@@ -1761,9 +1769,9 @@ const MUSHROOM_CLUSTERS = [
   { pos: [-8.5, 0, -10], count: 3 },
   { pos: [9.5, 0, -12], count: 2 },
   { pos: [-9.5, 0, 9], count: 3 },
-  // Pindah dari [11.5, 0, -7] (overlap BikeParking) ke bank kiri kosong
   { pos: [-11.5, 0, -5], count: 2 },
-  { pos: [-3, 0, -14], count: 2 },
+  // Was [-3, 0, -14] inside pond — moved to outside pond bound z<-18
+  { pos: [-3, 0, -19], count: 2 },
 ];
 
 const Mushrooms = () => (
@@ -2803,18 +2811,18 @@ const TUFT_POSITIONS = [
   { pos: [12.5, 0, 2], color: '#65884d' },
   { pos: [13, 0, -10], color: '#4f7438' },
   { pos: [12.8, 0, 13], color: '#6e9358' },
-  // Bank atas (-z)
-  { pos: [-2, 0, -16], color: '#5a8045' },
-  { pos: [4, 0, -17], color: '#6e9358' },
-  { pos: [-7, 0, -17.5], color: '#5a8045' },
-  { pos: [9, 0, -16], color: '#65884d' },
-  { pos: [-1, 0, -18.5], color: '#4f7438' },
-  // Bank bawah (+z)
-  { pos: [-3, 0, 16.5], color: '#4f7438' },
-  { pos: [2, 0, 17], color: '#5a8045' },
-  { pos: [-7, 0, 17.5], color: '#6e9358' },
-  { pos: [10, 0, 18], color: '#65884d' },
-  { pos: [0, 0, 18.5], color: '#5a8045' },
+  // Bank atas (-z, outside pond z<-18)
+  { pos: [-2, 0, -19], color: '#5a8045' },
+  { pos: [4, 0, -19.5], color: '#6e9358' },
+  { pos: [-7.5, 0, -19], color: '#5a8045' },
+  { pos: [9, 0, -19], color: '#65884d' },
+  { pos: [-1, 0, -20.5], color: '#4f7438' },
+  // Bank bawah (+z, outside pond z>18)
+  { pos: [-3, 0, 19], color: '#4f7438' },
+  { pos: [2, 0, 19.5], color: '#5a8045' },
+  { pos: [-7.5, 0, 19], color: '#6e9358' },
+  { pos: [10, 0, 19], color: '#65884d' },
+  { pos: [0, 0, 20.5], color: '#5a8045' },
 ];
 
 const GrassTuft = ({ pos, color }) => (
@@ -2892,7 +2900,9 @@ const isBlockedForGrass = (x, z) => {
 // densityScale lebih besar = grid lebih rapat = lebih banyak blade.
 const generateGrassBlades = (densityScale = 1) => {
   const cellSize = 0.42 / densityScale;
-  const halfExtent = 17;
+  // halfExtent 21 supaya cover bank zone past pond (RIVER_LENGTH/2=18)
+  // — isBlockedForGrass filter pond rect, sisanya rumput.
+  const halfExtent = 21;
   const blades = [];
   for (let x = -halfExtent; x <= halfExtent; x += cellSize) {
     for (let z = -halfExtent; z <= halfExtent; z += cellSize) {
