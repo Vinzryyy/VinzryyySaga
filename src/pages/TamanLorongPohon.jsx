@@ -1,22 +1,29 @@
 /**
- * Taman Kebaikan — Petak R1: Pohon-Pohon yang Mengingat.
+ * Taman Kebaikan — Petak R1: Konstelasi Perjalanan.
  *
- * Petak pertama di /taman/peta yang punya isi konkret. Konsep:
- * jalur dengan pohon-pohon yang tumbuh seiring tahun, tiap pohon =
- * milestone karier Eli dari ELI_TIMELINE di src/data/eliProfile.js.
+ * Petak pertama di /taman/peta yang punya isi konkret. Konsep: user
+ * berdiri di taman senja melihat ke atas — milestone karier Eli (dari
+ * ELI_TIMELINE di src/data/eliProfile.js) di-render sebagai bintang
+ * di langit, di-group ke 7 konstelasi per era (lihat ERA_DEFS):
+ * Trainee → Theater → Senbatsu → New Era → Mature → Variety → JKT48
+ * Fight. Bintang dalam satu era terhubung garis tipis = konstelasi.
  *
- * View: top-down 3/4 isometric (sama palette dengan /taman/peta —
- * twilight evening). 10 pohon disusun alternating kiri-kanan di
- * sepanjang jalur dari z=-2 ke z=-32 (gap 3.3 unit per node). Tiap
- * pohon clickable: hover lift + glow, click buka modal info milestone.
+ * Ground level kept (bench, swing, wind chime, monument, lentera,
+ * mist) sebagai dasar "berdiri di taman" — user gak floating di
+ * space. Camera tilt up: orbit target di mid-air, polar diperluas ke
+ * arah bawah supaya user bisa "menengadah".
  *
- * Vertical slice ini jadi template untuk 5 petak lain. Pattern yang
- * di-establish di sini (route /taman/rN, scene low-poly, hover/click
- * modal, header/footer minimal, palette match Peta Taman) bakal
- * di-replikasi untuk Petak Karya, Kolam Kata, dst.
+ * Layer langit:
+ * - Background starfield (240 points) — bintang random distant
+ * - HighlightStars (6) — bright anchor stars existing
+ * - StarMilestone (21) — milestone career, era-grouped, clickable
+ * - ConstellationLines — segments connecting milestones in same era
+ * - ConstellationLabels — fade-in era name saat camera looking toward
  *
- * Performance: 10 pohon × ~6 mesh/pohon = 60 mesh total. Plus floor,
- * lighting, fog. Worst case 30+ fps di mobile dengan downscale.
+ * Pre-konstelasi rewrite: dulu r1 = "Pohon-Pohon yang Mengingat",
+ * 21 pohon di-arrange alternating kiri/kanan di sepanjang lorong z.
+ * Mulai cramped saat ELI_TIMELINE tumbuh > 14 entries. Pivot ke
+ * konstelasi handle scaling ke 21+ stars naturally (langit besar).
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
@@ -3189,7 +3196,7 @@ const SceneFallback = () => (
           letterSpacing: '0.01em',
         }}
       >
-        Menyusuri lorong...
+        Menyusun konstelasi...
       </div>
     </div>
   </div>
@@ -3201,8 +3208,8 @@ const SceneFallback = () => (
 const handleShare = async () => {
   const url = `${window.location.origin}/taman/r1`;
   const data = {
-    title: 'Pohon-Pohon yang Mengingat',
-    text: `${ELI_TIMELINE.length} perjalanan Eli, dalam bentuk pohon-pohon di sebuah lorong.`,
+    title: 'Konstelasi Perjalanan',
+    text: `${ELI_TIMELINE.length} perjalanan Eli, dirajut sebagai konstelasi di langit taman senja.`,
     url,
   };
   try {
@@ -3244,7 +3251,7 @@ const LorongHeader = () => (
         fontStyle: 'italic',
       }}
     >
-      Pohon-Pohon yang Mengingat
+      Konstelasi Perjalanan
     </div>
     <div className="pointer-events-auto flex items-center gap-3">
       <button
@@ -3327,7 +3334,7 @@ const IntroTitle = () => {
               textShadow: '0 0 40px rgba(255, 220, 160, 0.18)',
             }}
           >
-            Pohon-Pohon yang Mengingat
+            Konstelasi Perjalanan
           </h1>
           {/* Inner separator line antara title & subtitle */}
           <div className="mx-auto mb-5 w-12 h-px bg-white/30" />
@@ -3339,7 +3346,7 @@ const IntroTitle = () => {
               letterSpacing: '0.02em',
             }}
           >
-            {ELI_TIMELINE.length} perjalanan, satu lorong, satu senja yang panjang.
+            {ELI_TIMELINE.length} perjalanan, dirajut menjadi konstelasi di atas taman senja.
           </div>
         </div>
       </div>
@@ -3460,7 +3467,7 @@ const MobileFPVControls = ({ joystickRef, lookRef }) => {
       </div>
       {/* Hint */}
       <div className="absolute bottom-32 left-8 text-white/40 text-[8px] uppercase tracking-[0.25em] pointer-events-none z-20 max-w-[140px]">
-        Drag stick · Swipe kanan untuk lihat
+        Drag stick · Swipe kanan untuk menengadah
       </div>
     </>
   );
@@ -3507,8 +3514,8 @@ const TutorialHint = ({ isMobile }) => {
           }}
         >
           {isMobile
-            ? 'Coba mode berjalan — joystick kiri jalan, swipe kanan untuk lihat sekitar.'
-            : 'Coba "mode berjalan" untuk pengalaman immersive — jalan di antara pohon-pohon dengan WASD.'}
+            ? 'Coba "tatap langit" — joystick kiri jalan di taman, swipe kanan untuk menengadah konstelasi.'
+            : 'Coba "tatap langit" — jalan di taman dengan WASD, gerakkan mouse untuk menengadah konstelasi.'}
         </div>
       </div>
     </div>
@@ -3519,8 +3526,8 @@ const LorongFooter = ({ hoveredTreeId, isMobile }) => {
   const hint = hoveredTreeId
     ? 'Klik untuk baca milestone'
     : isMobile
-      ? `Ketuk salah satu pohon · ${ELI_TIMELINE.length} perjalanan`
-      : `Pilih pohon dari ${ELI_TIMELINE.length} perjalanan · drag untuk berputar`;
+      ? `Ketuk salah satu bintang · ${ELI_TIMELINE.length} perjalanan di langit`
+      : `Pilih bintang dari ${ELI_TIMELINE.length} perjalanan · drag untuk berputar langit`;
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-center px-4 max-w-[90vw]">
       {hint}
@@ -3633,7 +3640,7 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
         )}
         {idx >= 0 && (
           <div className="text-center text-white/40 text-[10px] uppercase tracking-[0.3em] mb-5">
-            Pohon ke-{idx + 1} dari {total}
+            Bintang ke-{idx + 1} dari {total}
           </div>
         )}
 
@@ -3643,7 +3650,7 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
             onClick={() => hasPrev && onPrev?.()}
             disabled={!hasPrev}
             className="px-3 py-2.5 rounded-full border border-white/20 text-white/70 text-xs hover:bg-white/10 hover:border-white/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Pohon sebelumnya"
+            aria-label="Bintang sebelumnya"
           >
             ←
           </button>
@@ -3652,14 +3659,14 @@ const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
             onClick={onClose}
             className="flex-1 px-5 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
           >
-            Kembali ke lorong
+            Kembali ke konstelasi
           </button>
           <button
             type="button"
             onClick={() => hasNext && onNext?.()}
             disabled={!hasNext}
             className="px-3 py-2.5 rounded-full border border-white/20 text-white/70 text-xs hover:bg-white/10 hover:border-white/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="Pohon selanjutnya"
+            aria-label="Bintang selanjutnya"
           >
             →
           </button>
@@ -3917,8 +3924,8 @@ const TamanLorongPohonPage = () => {
   return (
     <>
       <Seo
-        title="Pohon-Pohon yang Mengingat"
-        description="Tahun demi tahun perjalanan Eli — milestone karier dari debut sampai sekarang, dalam bentuk pohon-pohon di sebuah lorong."
+        title="Konstelasi Perjalanan"
+        description="Perjalanan karier Eli dari Generasi 7 ke Team Dream — milestone-milestone yang dirajut menjadi konstelasi di langit taman senja."
         path="/taman/r1"
       />
       <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
@@ -3992,14 +3999,14 @@ const TamanLorongPohonPage = () => {
           className="pointer-events-auto absolute right-4 sm:right-6 z-30 px-3 py-2 sm:px-4 rounded-full border border-white/25 bg-black/30 backdrop-blur-sm text-white/85 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] hover:bg-white/10 hover:border-white/40 transition disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
         >
-          {viewMode === 'orbit' ? 'Masuk berjalan' : 'Keluar berjalan'}
+          {viewMode === 'orbit' ? 'Tatap langit' : 'Keluar tatap langit'}
         </button>
         {/* Desktop FPV hint */}
         {viewMode === 'fpv' && !isMobile && !transitioning && (
           <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/60 text-[11px] uppercase tracking-[0.25em] text-center">
-            <div className="mb-1">Klik layar untuk lock kursor</div>
+            <div className="mb-1">Klik layar untuk mulai menengadah</div>
             <div className="text-white/40">
-              WASD untuk jalan · Esc untuk lepas kursor
+              WASD untuk jalan di taman · Esc untuk lepas kursor
             </div>
           </div>
         )}

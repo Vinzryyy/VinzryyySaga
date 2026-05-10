@@ -97,12 +97,12 @@ const HEX_RADIUS = 5;
 const PETAK = [
   {
     id: 'r1',
-    name: 'Pohon-Pohon yang Mengingat',
-    desc: 'Jalur tahun demi tahun',
+    name: 'Konstelasi Perjalanan',
+    desc: 'Bintang-bintang per era karier',
     longDesc:
-      'Jalur dengan pohon-pohon yang tumbuh tahun demi tahun — debut, single pertama, theater, generasi. Tiap pohon = milestone perjalanan Eli.',
+      'Berdiri di taman senja, menengadah ke langit. Tiap bintang = milestone perjalanan Eli, di-group ke tujuh konstelasi per era — Trainee, Theater, Senbatsu, New Era, Mature, Variety, JKT48 Fight.',
     angle: 270,
-    color: '#7a9d5e',
+    color: '#a8c0ff',
     route: '/taman/r1',
   },
   {
