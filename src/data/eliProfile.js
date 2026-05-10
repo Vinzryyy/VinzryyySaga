@@ -153,21 +153,12 @@ export const ELI_TIMELINE = [
     badge: 'Undergirls',
   },
   {
-    id: 'belajar-konseling-debut',
+    id: 'belajar-konseling',
     date: '2025-07-20',
-    period: '20 Juli 2025',
-    title: 'Memulai Program "Belajar Konseling" di JKT48 TV',
-    body:
-      'Eli mendapat program varietasnya sendiri di JKT48 TV berjudul "Belajar Konseling". Dalam program ini, Eli berperan sebagai "Buna Eli" yang mengajak trainee Generasi 13 berbincang santai untuk mengenal kepribadian, cerita hidup, mimpi, hingga karakter unik masing-masing member. Program ini memperlihatkan sisi Eli yang hangat, suportif, dan komunikatif sebagai senior di JKT48. Episode perdana dimulai bersama Intan dan mendapat respons positif dari fans karena konsepnya yang lebih personal dan nyaman ditonton.',
-    badge: 'JKT48 TV',
-  },
-  {
-    id: 'belajar-konseling-9-episodes',
-    date: '2025-09-30',
     period: 'Juli – September 2025',
-    title: '"Belajar Konseling" Mencapai 9 Episode',
+    title: 'Program "Belajar Konseling" di JKT48 TV',
     body:
-      'Program "Belajar Konseling" berkembang menjadi salah satu serial rutin JKT48 TV di tahun 2025 dengan total 9 episode bersama trainee Generasi 13. Melalui program ini, Eli membantu memperkenalkan member-member baru kepada fans dengan pendekatan yang lebih emosional dan natural dibanding format interview biasa. Kehadiran Eli sebagai host dipuji karena mampu membuat trainee lebih nyaman dan terbuka selama sesi percakapan.',
+      'Eli mendapat program varietasnya sendiri di JKT48 TV berjudul "Belajar Konseling". Dalam program ini, Eli berperan sebagai "Buna Eli" yang mengajak trainee Generasi 13 berbincang santai untuk mengenal kepribadian, cerita hidup, mimpi, hingga karakter unik masing-masing member. Episode perdana dimulai bersama Intan, dan program berkembang jadi salah satu serial rutin JKT48 TV dengan total 9 episode di tahun 2025. Kehadiran Eli sebagai host dipuji karena mampu membuat trainee lebih nyaman dan terbuka — pendekatan emosional yang lebih natural dibanding format interview biasa, sekaligus memperlihatkan sisi hangat dan suportifnya sebagai senior di JKT48.',
     badge: 'JKT48 TV',
   },
   {
