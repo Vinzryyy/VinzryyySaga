@@ -480,12 +480,12 @@ const HILL_FAR_DEFS = (() => {
   const count = 14;
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.1;
-    const r = 50 + Math.random() * 6;
+    const r = 28 + Math.random() * 4;
     arr.push({
       angle,
       r,
-      width: 18 + Math.random() * 22,
-      height: 3.5 + Math.random() * 2.5,
+      width: 12 + Math.random() * 14,
+      height: 2.5 + Math.random() * 1.8,
     });
   }
   return arr;
@@ -494,14 +494,13 @@ const HILL_MID_DEFS = (() => {
   const arr = [];
   const count = 12;
   for (let i = 0; i < count; i++) {
-    // Offset angular dari far layer biar gak overlap kotak rapat
     const angle = (i / count) * Math.PI * 2 + Math.PI / count;
-    const r = 38 + Math.random() * 5;
+    const r = 21 + Math.random() * 3;
     arr.push({
       angle,
       r,
-      width: 14 + Math.random() * 14,
-      height: 2.5 + Math.random() * 1.8,
+      width: 9 + Math.random() * 9,
+      height: 1.8 + Math.random() * 1.2,
     });
   }
   return arr;
@@ -1842,25 +1841,25 @@ const Birds = () => (
 // (z=-25..15). Rotasi per cloud untuk variasi shape, scale 1-2x.
 // Kasih sense of "langit ada isi", bukan flat color.
 const CLOUD_POSITIONS = [
-  { pos: [-10, 18, -22], scale: [2.2, 1.0, 1.5] },
-  { pos: [12, 20, -18], scale: [2.0, 0.9, 1.6] },
-  { pos: [-2, 22, -28], scale: [2.5, 1.1, 1.8] },
-  { pos: [18, 17, 0], scale: [1.8, 0.9, 1.4] },
-  { pos: [-18, 19, 5], scale: [2.0, 1.0, 1.5] },
+  { pos: [-7, 13, -15], scale: [2.0, 0.9, 1.4] },
+  { pos: [8, 14, -12], scale: [1.8, 0.8, 1.5] },
+  { pos: [-1, 15, -19], scale: [2.2, 1.0, 1.6] },
+  { pos: [12, 12, 0], scale: [1.6, 0.8, 1.3] },
+  { pos: [-12, 13, 4], scale: [1.8, 0.9, 1.4] },
 ];
 const Cloud = ({ pos, scale }) => (
   <group position={pos} scale={scale}>
     <mesh>
       <sphereGeometry args={[1.5, 12, 10]} />
-      <meshStandardMaterial color="#ffffff" roughness={1} />
+      <meshStandardMaterial color="#ffd8c0" roughness={1} />
     </mesh>
     <mesh position={[1.0, 0.1, 0.2]}>
       <sphereGeometry args={[1.1, 12, 10]} />
-      <meshStandardMaterial color="#ffffff" roughness={1} />
+      <meshStandardMaterial color="#ffd8c0" roughness={1} />
     </mesh>
     <mesh position={[-0.9, -0.1, 0.1]}>
       <sphereGeometry args={[1.0, 12, 10]} />
-      <meshStandardMaterial color="#ffffff" roughness={1} />
+      <meshStandardMaterial color="#ffd8c0" roughness={1} />
     </mesh>
   </group>
 );
@@ -1892,14 +1891,16 @@ const SkyDome = () => {
     if (!geomRef.current) return;
     const positions = geomRef.current.attributes.position;
     const colors = new Float32Array(positions.count * 3);
-    // Color anchors: horizon (y=0 ish) ke zenith (y=max)
-    const horizonR = 0.94, horizonG = 0.85, horizonB = 0.78; // soft pink
-    const midR = 0.82, midG = 0.88, midB = 0.93; // pale blue
-    const zenithR = 0.62, zenithG = 0.74, zenithB = 0.86; // deeper blue
+    // Senja palette tanpa area hitam — horizon warm orange → mid
+    // dusty pink-purple → zenith soft lavender (gak deep dark).
+    // Atmosphere "matahari hampir tenggelam" tapi sky tetap glow.
+    const horizonR = 0.96, horizonG = 0.62, horizonB = 0.46; // warm orange
+    const midR = 0.82, midG = 0.60, midB = 0.70; // dusty pink-purple
+    const zenithR = 0.62, zenithG = 0.58, zenithB = 0.78; // soft lavender
     for (let i = 0; i < positions.count; i++) {
       const y = positions.getY(i);
-      // Normalize y to 0..1 across dome height (radius 50, so y goes 0..50)
-      const t = Math.max(0, Math.min(1, y / 50));
+      // Normalize y to 0..1 across dome height (radius 32, so y goes 0..32)
+      const t = Math.max(0, Math.min(1, y / 32));
       let r, g, b;
       if (t < 0.45) {
         const u = t / 0.45;
@@ -1923,11 +1924,12 @@ const SkyDome = () => {
   }, []);
   return (
     <mesh position={[0, 0, 0]}>
-      {/* Hemisphere — radius 50, only upper half (phiStart 0, phiLength
-          PI). side BackSide karena kita di dalam sphere. */}
+      {/* Hemisphere — radius 32, only upper half. side BackSide
+          karena kita di dalam sphere. Smaller dome = lebih intimate
+          "lingkup bumi" feel. */}
       <sphereGeometry
         ref={geomRef}
-        args={[50, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2]}
+        args={[32, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2]}
       />
       <meshBasicMaterial
         side={THREE.BackSide}
@@ -1949,30 +1951,31 @@ const Sun = () => {
     outerHaloRef.current.material.opacity = 0.10 + Math.sin(t * 0.25) * 0.03;
   });
   return (
-    <group position={[14, 18, -8]}>
-      {/* Sun body — bigger glow than moon, warm yellow */}
+    <group position={[12, 4, -10]}>
+      {/* Sun body — senja: posisi rendah dekat horizon, warm orange
+          (was higher noon yellow). Bigger biar dramatic sunset feel. */}
       <mesh>
-        <sphereGeometry args={[1.6, 24, 16]} />
-        <meshBasicMaterial color="#fff4c8" toneMapped={false} fog={false} />
+        <sphereGeometry args={[1.5, 24, 16]} />
+        <meshBasicMaterial color="#ffb878" toneMapped={false} fog={false} />
       </mesh>
-      {/* Tight halo */}
+      {/* Tight halo — pink-orange */}
       <mesh>
-        <sphereGeometry args={[2.3, 18, 14]} />
+        <sphereGeometry args={[2.2, 18, 14]} />
         <meshBasicMaterial
-          color="#ffe8a8"
+          color="#ff9c70"
           transparent
-          opacity={0.3}
+          opacity={0.32}
           depthWrite={false}
           fog={false}
         />
       </mesh>
-      {/* Soft outer haze pulse */}
+      {/* Soft outer haze — warm bloom yang nyebar luas */}
       <mesh ref={outerHaloRef}>
-        <sphereGeometry args={[4.0, 16, 12]} />
+        <sphereGeometry args={[3.8, 16, 12]} />
         <meshBasicMaterial
-          color="#ffd890"
+          color="#ff8050"
           transparent
-          opacity={0.10}
+          opacity={0.13}
           depthWrite={false}
           fog={false}
         />
@@ -1985,24 +1988,24 @@ const Sun = () => {
 // + farther z. Lebih kecil dari mid clouds, dimmer. Bikin depth
 // layered (foreground existing clouds + background ini).
 const FAR_CLOUD_POSITIONS = [
-  { pos: [-22, 26, -32], scale: [1.4, 0.5, 1.0] },
-  { pos: [25, 28, -20], scale: [1.6, 0.6, 1.1] },
-  { pos: [-30, 24, 8], scale: [1.5, 0.5, 1.0] },
-  { pos: [28, 27, 18], scale: [1.3, 0.5, 0.9] },
-  { pos: [-12, 30, -38], scale: [1.8, 0.6, 1.2] },
-  { pos: [8, 25, 30], scale: [1.4, 0.5, 1.0] },
-  { pos: [-35, 22, -10], scale: [1.5, 0.5, 1.0] },
-  { pos: [32, 24, -2], scale: [1.4, 0.5, 1.0] },
+  { pos: [-15, 18, -22], scale: [1.2, 0.45, 0.9] },
+  { pos: [17, 20, -14], scale: [1.4, 0.5, 1.0] },
+  { pos: [-20, 17, 5], scale: [1.3, 0.45, 0.9] },
+  { pos: [19, 19, 12], scale: [1.1, 0.45, 0.8] },
+  { pos: [-8, 22, -26], scale: [1.5, 0.55, 1.0] },
+  { pos: [5, 18, 20], scale: [1.2, 0.45, 0.9] },
+  { pos: [-23, 16, -7], scale: [1.3, 0.45, 0.9] },
+  { pos: [21, 17, -1], scale: [1.2, 0.45, 0.9] },
 ];
 const FarCloud = ({ pos, scale }) => (
   <group position={pos} scale={scale}>
     <mesh>
       <sphereGeometry args={[1.5, 10, 8]} />
-      <meshBasicMaterial color="#f5f0ea" transparent opacity={0.55} fog={false} />
+      <meshBasicMaterial color="#ffc8a8" transparent opacity={0.55} fog={false} />
     </mesh>
     <mesh position={[0.8, 0.05, 0.15]}>
       <sphereGeometry args={[1.0, 10, 8]} />
-      <meshBasicMaterial color="#f5f0ea" transparent opacity={0.55} fog={false} />
+      <meshBasicMaterial color="#ffc8a8" transparent opacity={0.55} fog={false} />
     </mesh>
   </group>
 );
@@ -2026,9 +2029,9 @@ const HighBirdFlock = ({ count = 6 }) => {
   const refs = useRef([]);
   const defs = useMemo(() => {
     return Array.from({ length: count }, (_, i) => ({
-      x: -30 + Math.random() * 60,
-      y: 18 + Math.random() * 6,
-      z: -25 + Math.random() * 50,
+      x: -20 + Math.random() * 40,
+      y: 13 + Math.random() * 4,
+      z: -18 + Math.random() * 36,
       speed: 0.6 + Math.random() * 0.4,
       phase: Math.random() * Math.PI * 2,
     }));
@@ -2039,7 +2042,7 @@ const HighBirdFlock = ({ count = 6 }) => {
       const ref = refs.current[i];
       if (!ref) return;
       // Slow horizontal drift (X), wrap saat keluar batas
-      const x = ((d.x + t * d.speed + 60) % 60) - 30;
+      const x = ((d.x + t * d.speed + 40) % 40) - 20;
       ref.position.x = x;
       // Subtle wing flap via Y wobble
       ref.position.y = d.y + Math.sin(t * 4 + d.phase) * 0.1;
@@ -2776,15 +2779,21 @@ const TelagaScene = ({
     {/* Fog lebih dense — distant elements fade ke haze, kasih sense
         atmospheric depth & "world has limits". Far 55 (was 75) bikin
         ground mist + distant trees + hills nyatu di horizon haze. */}
-    <fog attach="fog" args={['#cdd8e2', 22, 55]} />
-    {/* Ambient netral hangat */}
-    <ambientLight intensity={isMobile ? 0.7 : 0.5} color="#ffeed8" />
-    {/* Sun directional — late afternoon: tinggi cukup untuk
-        illuminate scene, warm tone ringan. */}
+    {/* Fog senja — warm dusty pink-purple tone, gradient ke arah
+        haze. Density tighter biar pembatas perimeter "ujung dunia"
+        di-dissolve sebagai kabut bukan ridge hill solid. */}
+    <fog attach="fog" args={['#d4a890', 12, 28]} />
+    {/* Background warm match fog — eliminate black void di area yg
+        gak ke-cover dome (di luar dome edge / sebelum scene render). */}
+    <color attach="background" args={['#d4a890']} />
+    {/* Ambient lift hangat — keep ground nggak gelap */}
+    <ambientLight intensity={isMobile ? 0.85 : 0.7} color="#ffd8b8" />
+    {/* Sun directional — senja: rendah dekat horizon, warm orange.
+        Posisi match Sun mesh [12, 4, -10]. */}
     <directionalLight
-      position={[8, 12, 4]}
-      intensity={1.4}
-      color="#ffe0b8"
+      position={[12, 6, -10]}
+      intensity={1.2}
+      color="#ffb878"
       castShadow
       shadow-mapSize={[2048, 2048]}
       shadow-camera-left={-25}
@@ -2795,11 +2804,12 @@ const TelagaScene = ({
       shadow-camera-far={60}
       shadow-bias={-0.0005}
     />
-    {/* Sky fill — cool blue dari arah berlawanan untuk balance */}
+    {/* Sky fill — dusty pink dari arah berlawanan, gak cool blue
+        (biar konsisten senja, no black-blue contrast). */}
     <directionalLight
       position={[-6, 6, -4]}
-      intensity={0.4}
-      color="#b8d0e8"
+      intensity={0.5}
+      color="#e8b8b0"
     />
     {/* Sky layers — dome gradient + sun + far cloud backdrop + high
         birds. Setara r1 multi-layer langit, palette daytime. */}
@@ -2807,8 +2817,9 @@ const TelagaScene = ({
     <Sun />
     <FarClouds isMobile={isMobile} />
     <HighBirdFlock count={isMobile ? 4 : 7} />
-    <DistantHills />
-    <DistantTreeLine />
+    {/* DistantHills + DistantTreeLine dropped — pembatas perimeter
+        di-handle pure oleh fog senja, bikin "ujung dunia" kerasa
+        soft-fade bukan ridge solid. */}
     <Clouds />
     <Birds />
     <Banks />
@@ -2854,8 +2865,8 @@ const TelagaScene = ({
     <OrbitControls
       target={[0, 4, 0]}
       enableZoom
-      minDistance={12}
-      maxDistance={32}
+      minDistance={8}
+      maxDistance={20}
       enablePan={false}
       // Polar diperluas untuk hemisphere view tanpa tembus ground.
       // Target raised ke y=4 (mid-air) supaya camera bisa tilt
