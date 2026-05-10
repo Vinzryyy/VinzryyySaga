@@ -1518,6 +1518,87 @@ const SIDE_TREE_DEFS = (() => {
   return arr;
 })();
 
+// Garden anchor trees — pohon hand-placed di posisi spesifik dekat
+// bench, swing, monument supaya kasih visual anchor + intimate
+// "garden" feel di sekitar landmark. Beda dari SideTrees yang
+// procedural+scattered di perimeter, ini pohon kunci yang ngebantu
+// frame komposisi scene.
+const GARDEN_ANCHOR_TREES = [
+  // Belakang bench (x=3.0, z=-15) — dua pohon framing sisi kanan path
+  { pos: [5.4, 0, -14.6], scale: 1.2, hueIdx: 1 },
+  { pos: [4.6, 0, -16.8], scale: 0.95, hueIdx: 2 },
+  // Depan/dekat swing (x=2.6, z=-18.67) — pohon utama foliage di
+  // mana swing tergantung sudah ada (bukan visible tree, cuma branch).
+  // Tambah pohon companion supaya area swing kerasa "ada di hutan".
+  { pos: [3.2, 0, -19.5], scale: 1.35, hueIdx: 3 },
+  // Dekat wind chime (x=-2.6, z=-8.67) — tree foliage yang chime
+  // tergantung. Companion tree close.
+  { pos: [-3.4, 0, -7.8], scale: 1.15, hueIdx: 0 },
+  { pos: [-4.2, 0, -10.2], scale: 0.9, hueIdx: 2 },
+  // Awal path — frame entrance dari posisi user spawn (z=0..-2)
+  { pos: [-3.8, 0, -1.5], scale: 1.05, hueIdx: 1 },
+  { pos: [3.6, 0, -2.5], scale: 1.1, hueIdx: 3 },
+  // Tengah path antara bench dan monument — fill gap
+  { pos: [-3.4, 0, -22.5], scale: 1.0, hueIdx: 0 },
+  // Dekat monument tapi gak terlalu close — frame the obelisk
+  { pos: [-4.8, 0, -29.5], scale: 1.25, hueIdx: 2 },
+  { pos: [4.2, 0, -28.8], scale: 0.95, hueIdx: 1 },
+];
+
+const GardenAnchorTrees = ({ isMobile }) => {
+  // Mobile cull: 10 → 6 (drop yang paling jauh dari camera default).
+  const list = isMobile
+    ? GARDEN_ANCHOR_TREES.slice(0, 6)
+    : GARDEN_ANCHOR_TREES;
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    list.forEach((tree, i) => {
+      const r = refs.current[i];
+      if (!r) return;
+      const wind = getWind(t, tree.pos[0] * 0.31 + tree.pos[2] * 0.17);
+      r.rotation.z = wind.total * 0.05;
+      r.rotation.x = wind.total * 0.025;
+    });
+  });
+  return (
+    <>
+      {list.map((tree, i) => (
+        <group key={`anchor-${i}`} position={tree.pos} scale={tree.scale}>
+          {/* Trunk slightly thicker dari side trees */}
+          <mesh position={[0, 0.95, 0]}>
+            <cylinderGeometry args={[0.09, 0.14, 1.9, 6]} />
+            <meshStandardMaterial color="#3a2818" roughness={1} />
+          </mesh>
+          {/* Foliage — sphere lebih besar untuk presence dekat camera */}
+          <group
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            position={[0, 1.9, 0]}
+          >
+            <mesh position={[0, 0.55, 0]}>
+              <sphereGeometry args={[0.85, 14, 10]} />
+              <meshStandardMaterial
+                color={SIDE_TREE_COLORS[tree.hueIdx]}
+                roughness={1}
+              />
+            </mesh>
+            {/* Smaller secondary foliage cluster — softer silhouette */}
+            <mesh position={[0.3, 0.25, 0.1]}>
+              <sphereGeometry args={[0.45, 10, 8]} />
+              <meshStandardMaterial
+                color={SIDE_TREE_COLORS[(tree.hueIdx + 2) % 4]}
+                roughness={1}
+              />
+            </mesh>
+          </group>
+        </group>
+      ))}
+    </>
+  );
+};
+
 // Mobile cull: 16 → 8 (slice setengah). Tetep ada filler density tapi
 // halve trunk+foliage geometry & sway calc per frame.
 const SideTrees = ({ isMobile }) => {
@@ -2310,14 +2391,14 @@ const StarMilestone = ({
     }
     if (haloMatRef.current) {
       const haloOp = Math.max(
-        0.06,
-        (isUpcoming ? 0.10 : 0.20) + (hovered ? 0.18 : 0) + (selected ? 0.12 : 0),
+        0.08,
+        (isUpcoming ? 0.12 : 0.26) + (hovered ? 0.20 : 0) + (selected ? 0.14 : 0),
       );
       haloMatRef.current.opacity = haloOp;
     }
     groupRef.current.scale.setScalar(scaleMul);
   });
-  const baseSize = 0.32;
+  const baseSize = 0.38;
   return (
     <group
       ref={groupRef}
@@ -2361,9 +2442,9 @@ const StarMilestone = ({
           />
         )}
       </mesh>
-      {/* Halo — soft glow 2.4x */}
+      {/* Halo — soft glow 2.7x untuk lebih shining presence di fog */}
       <mesh>
-        <sphereGeometry args={[baseSize * 2.4, 12, 8]} />
+        <sphereGeometry args={[baseSize * 2.7, 12, 8]} />
         <meshBasicMaterial
           ref={haloMatRef}
           color={star.color}
@@ -2423,7 +2504,7 @@ const ConstellationLines = ({ stars }) => {
     const fadeIn = Math.min(1, Math.max(0, (dt - 1.5) / 4));
     // Subtle breathing 0.85..1.0 supaya gak pure static
     const breath = 0.92 + Math.sin(t * 0.3) * 0.08;
-    matRef.current.opacity = 0.22 * fadeIn * breath;
+    matRef.current.opacity = 0.32 * fadeIn * breath;
   });
 
   if (positions.length === 0) return null;
@@ -3053,14 +3134,22 @@ const LorongScene = ({
     <SettledLeaves />
     <Puddle isMobile={isMobile} />
     <DistantForest isMobile={isMobile} />
-    {/* SideTrees + YearPlaques + FlyingLeavesGust + Owls dropped — tied
-        to tree metaphor / block sky view di tema konstelasi. Owls
-        perched di foliage tree gak relevan saat trees pindah ke langit. */}
+    {/* Pohon-pohon dikembalikan sebagai garden filler — gak lagi
+        per-milestone (milestones udah pindah ke langit), tapi sebagai
+        tatanan taman di mana user berdiri. SideTrees scattered di
+        perimeter, GardenAnchorTrees di posisi spesifik dekat bench/
+        swing/monument untuk komposisi. YearPlaques + Owls tetep
+        dropped (tied ke per-milestone tree). */}
+    <SideTrees isMobile={isMobile} />
+    <GardenAnchorTrees isMobile={isMobile} />
     <Bushes />
     <Mushrooms />
     <Stars />
     <HighlightStars signatureEvent={signatureEvent} isMobile={isMobile} />
     <Moon />
+    {/* FlyingLeavesGust di-bring-back — daun terbang di ground+mid air,
+        gak ngeganggu sky atas (gust drift y=0.5..6, langit mulai y=10+). */}
+    <FlyingLeavesGust isMobile={isMobile} />
     <OldBench onClick={onBenchClick} />
     <TreeSwing activeRef={swingActiveRef} onClick={onSwingClick} />
     <WindChime activeRef={chimeActiveRef} onClick={onChimeClick} />
