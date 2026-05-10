@@ -2427,6 +2427,225 @@ const OuterFlowerBeds = ({ isMobile }) => {
   );
 };
 
+// Garden lantern — wood pole + paper lamp top, warm emissive supaya
+// kerasa lentera taman senja yg mulai nyala. Scatter di outer ring.
+const GardenLantern = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Wood pole */}
+    <mesh position={[0, 0.8, 0]} castShadow>
+      <cylinderGeometry args={[0.05, 0.06, 1.6, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Cap di bawah lamp */}
+    <mesh position={[0, 1.62, 0]}>
+      <cylinderGeometry args={[0.16, 0.12, 0.06, 6]} />
+      <meshStandardMaterial color="#3d2818" roughness={0.9} />
+    </mesh>
+    {/* Paper lamp body — soft warm glow */}
+    <mesh position={[0, 1.82, 0]}>
+      <sphereGeometry args={[0.18, 12, 8]} />
+      <meshStandardMaterial
+        color="#ffd690"
+        emissive="#ffb060"
+        emissiveIntensity={0.85}
+        roughness={0.6}
+        transparent
+        opacity={0.92}
+      />
+    </mesh>
+    {/* Top finial */}
+    <mesh position={[0, 2.04, 0]}>
+      <coneGeometry args={[0.07, 0.12, 6]} />
+      <meshStandardMaterial color="#3d2818" roughness={0.9} />
+    </mesh>
+    {/* Soft halo */}
+    <pointLight position={[0, 1.82, 0]} color="#ffb060" intensity={0.35} distance={4} decay={2} />
+  </group>
+);
+const GARDEN_LANTERN_DEFS = [
+  { pos: [-22, 0, -10], rot: 0.4 },
+  { pos: [22, 0, -8], rot: -0.3 },
+  { pos: [-20, 0, 12], rot: 0.6 },
+  { pos: [20, 0, 14], rot: -0.5 },
+  { pos: [-14, 0, -22], rot: 0.2 },
+  { pos: [14, 0, 22], rot: 1.0 },
+];
+const GardenLanterns = ({ isMobile }) => {
+  const list = isMobile ? GARDEN_LANTERN_DEFS.slice(0, 4) : GARDEN_LANTERN_DEFS;
+  return (
+    <>
+      {list.map((l, i) => (
+        <GardenLantern key={`gl-${i}`} pos={l.pos} rot={l.rot} />
+      ))}
+    </>
+  );
+};
+
+// Wooden bench — simple 2-plank seat dgn 2 kaki kayu. Posisi facing
+// pond supaya feel "duduk lihat danau".
+const WoodenBench = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Seat plank */}
+    <mesh position={[0, 0.45, 0]} castShadow>
+      <boxGeometry args={[1.6, 0.08, 0.4]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Back rest */}
+    <mesh position={[0, 0.78, -0.16]} castShadow>
+      <boxGeometry args={[1.6, 0.5, 0.06]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Legs */}
+    <mesh position={[-0.65, 0.22, 0]}>
+      <boxGeometry args={[0.08, 0.45, 0.36]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.65, 0.22, 0]}>
+      <boxGeometry args={[0.08, 0.45, 0.36]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const BENCH_DEFS = [
+  // Facing pond — rotation arah pondnya (origin)
+  { pos: [-13, 0, -16], rot: Math.atan2(16, 13) }, // upper-left, face origin
+  { pos: [16, 0, -14], rot: Math.atan2(14, -16) },
+  { pos: [-15, 0, 18], rot: Math.atan2(-18, 15) },
+  { pos: [15, 0, 18], rot: Math.atan2(-18, -15) },
+];
+const WoodenBenches = ({ isMobile }) => {
+  const list = isMobile ? BENCH_DEFS.slice(0, 2) : BENCH_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <WoodenBench key={`bench-${i}`} pos={b.pos} rot={b.rot} />
+      ))}
+    </>
+  );
+};
+
+// Log pile — 3-4 cylinder logs stacked, decor rustik. Bagus dipasang
+// near outer trees seperti firewood.
+const LogPile = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Bottom 2 logs */}
+    <mesh position={[-0.18, 0.16, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <cylinderGeometry args={[0.16, 0.16, 1.0, 8]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.18, 0.16, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <cylinderGeometry args={[0.16, 0.16, 1.0, 8]} />
+      <meshStandardMaterial color="#6a4d2f" roughness={0.95} />
+    </mesh>
+    {/* Top log */}
+    <mesh position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+      <cylinderGeometry args={[0.15, 0.15, 1.0, 8]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+    </mesh>
+    {/* Cross log */}
+    <mesh position={[0, 0.18, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.13, 0.13, 0.5, 8]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const LOG_PILE_DEFS = [
+  { pos: [-19, 0, -4], rot: 0.3 },
+  { pos: [21, 0, 6], rot: -0.4 },
+  { pos: [-17, 0, 22], rot: 0.7 },
+];
+const LogPiles = () => (
+  <>
+    {LOG_PILE_DEFS.map((l, i) => (
+      <LogPile key={`logpile-${i}`} pos={l.pos} rot={l.rot} />
+    ))}
+  </>
+);
+
+// Outer mushroom clusters — extend mushroom decor ke outer ring (r=20-28).
+// Lebih banyak cluster supaya outer area gak kosong.
+const OUTER_MUSHROOM_DEFS = [
+  { pos: [-22, 0, -2], count: 3 },
+  { pos: [-20, 0, 16], count: 2 },
+  { pos: [22, 0, 0], count: 3 },
+  { pos: [19, 0, -18], count: 2 },
+  { pos: [-12, 0, -25], count: 3 },
+  { pos: [13, 0, 25], count: 2 },
+];
+const OuterMushrooms = ({ isMobile }) => {
+  const list = isMobile ? OUTER_MUSHROOM_DEFS.slice(0, 3) : OUTER_MUSHROOM_DEFS;
+  return (
+    <>
+      {list.map((cluster, i) => (
+        <group key={`omush-${i}`} position={cluster.pos}>
+          {Array.from({ length: cluster.count }).map((_, j) => {
+            const angle = (j / cluster.count) * Math.PI * 2 + i * 1.3;
+            const r = 0.2 + ((j * 11) % 9) * 0.05;
+            return (
+              <group key={j} position={[Math.cos(angle) * r, 0, Math.sin(angle) * r]}>
+                <Mushroom size={0.85 + ((j + i) % 4) * 0.1} />
+              </group>
+            );
+          })}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// Scattered single-stem flowers — sparse, deterministic seed berdasar
+// angle, fill outer area dgn warna soft. Lebih ringan dari FlowerBed
+// (1 bloom only). Jumlah 36 desktop, 18 mobile.
+const SCATTERED_FLOWER_DEFS = (() => {
+  const arr = [];
+  const colors = ['#f4d870', '#ffffff', '#e89bb8', '#c89be8', '#f4a570', '#9bb8e8'];
+  const count = 40;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + (i % 3) * 0.21;
+    // r=18-32, sparse fill ground
+    const r = 18 + ((i * 7) % 14) + ((i * 3) % 5) * 0.4;
+    // Skip if di pond corridor (z range ±19, x ±9)
+    const x = Math.cos(angle) * r;
+    const z = Math.sin(angle) * r;
+    if (Math.abs(x) < 9 && Math.abs(z) < 19) continue;
+    arr.push({
+      pos: [x, 0, z],
+      h: 0.22 + ((i * 13) % 7) * 0.03,
+      color: colors[i % colors.length],
+    });
+  }
+  return arr;
+})();
+const ScatteredFlower = ({ pos, h, color }) => (
+  <group position={pos}>
+    <mesh position={[0, h / 2, 0]}>
+      <cylinderGeometry args={[0.012, 0.018, h, 4]} />
+      <meshStandardMaterial color="#5a7045" roughness={1} />
+    </mesh>
+    <mesh position={[0, h, 0]}>
+      <sphereGeometry args={[0.075, 6, 5]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.16}
+        roughness={0.7}
+      />
+    </mesh>
+  </group>
+);
+const ScatteredFlowers = ({ isMobile }) => {
+  const list = isMobile
+    ? SCATTERED_FLOWER_DEFS.slice(0, 18)
+    : SCATTERED_FLOWER_DEFS;
+  return (
+    <>
+      {list.map((f, i) => (
+        <ScatteredFlower key={`sf-${i}`} pos={f.pos} h={f.h} color={f.color} />
+      ))}
+    </>
+  );
+};
+
 // Flying flock — burung yang terbang di mid altitude (y=5-9), drift
 // bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
 // udah ada (low + high).
@@ -3476,9 +3695,14 @@ const TelagaScene = ({
     <Bushes />
     <FlowerBeds isMobile={isMobile} />
     <OuterFlowerBeds isMobile={isMobile} />
+    <ScatteredFlowers isMobile={isMobile} />
+    <OuterMushrooms isMobile={isMobile} />
     <StoneClusters />
     <SteppingStones />
     <Lanterns />
+    <GardenLanterns isMobile={isMobile} />
+    <WoodenBenches isMobile={isMobile} />
+    <LogPiles />
     <BankTrees count={isMobile ? 8 : 12} />
     <OuterTrees isMobile={isMobile} />
     <FlyingFlock isMobile={isMobile} />
