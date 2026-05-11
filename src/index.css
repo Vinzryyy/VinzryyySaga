@@ -338,6 +338,23 @@ body {
   .eli-butterfly { animation: none; }
 }
 
+/* Idle sway — buah pelan ayun dari stem (top), kerasa kayak angin.
+   Setiap fruit dapat animation-delay + duration berbeda (inline style
+   dari hash posisi) supaya gak in-sync, looks natural. Outer group
+   yg nge-sway, inner group handle hover/pop terpisah supaya transforms
+   gak conflict. */
+@keyframes eliFruitSway {
+  0%   { transform: rotate(-2.2deg) translateY(0); }
+  50%  { transform: rotate(2.2deg) translateY(-1px); }
+  100% { transform: rotate(-2.2deg) translateY(0); }
+}
+.eli-fruit-sway {
+  transform-origin: top center;
+  transform-box: fill-box;
+  animation: eliFruitSway 4s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Interactive apricot fruits — playable di Pohon Kebaikan. Wrapper di
    parent <g transform="translate(cx,cy)">, jadi children positioned
    relative ke 0,0. Hover scale up, click triggers pop animation + spark
@@ -396,6 +413,7 @@ body {
 .eli-fruit-spark-r { animation: eliFruitSparkRight 700ms ease-out forwards; }
 .eli-fruit-spark-b { animation: eliFruitSparkBottom 700ms ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
+  .eli-fruit-sway,
   .eli-fruit-pop,
   .eli-fruit-quote,
   .eli-fruit-spark { animation: none !important; }

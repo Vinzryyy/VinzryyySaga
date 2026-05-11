@@ -1213,51 +1213,68 @@ const Apricot = ({ cx, cy, size }) => {
     setAnimKey((k) => k + 1);
   };
 
+  // Sway timing deterministic dari posisi fruit — fruits di posisi
+  // beda dapat delay beda, jadi gak in-sync (kerasa alami, kayak
+  // angin pelan goyangin). Delay 0-3.6s, duration 3.6-4.8s spread.
+  const seed = Math.abs(Math.round(cx) * 7 + Math.round(cy) * 13);
+  const swayDelay = `${(seed % 36) / 10}s`;
+  const swayDuration = `${3.6 + ((seed % 13) / 13) * 1.2}s`;
+
   return (
     <g transform={`translate(${cx} ${cy})`} style={{ cursor: 'pointer' }}>
+      {/* Outer sway group — ayun pelan dari stem (top), gak ikut
+          ke-scale saat hover/pop di inner. */}
       <g
-        key={`fruit-${animKey}`}
-        className={animKey > 0 ? 'eli-fruit eli-fruit-pop' : 'eli-fruit'}
-        onClick={handleClick}
-        onPointerEnter={(e) => {
-          e.currentTarget.classList.add('eli-fruit-hover');
-        }}
-        onPointerLeave={(e) => {
-          e.currentTarget.classList.remove('eli-fruit-hover');
+        className="eli-fruit-sway"
+        style={{
+          animationDelay: swayDelay,
+          animationDuration: swayDuration,
         }}
       >
-        <circle cx={0} cy={0} r={size} fill="var(--retro-gold)" />
-        <ellipse cx={-size * 0.3} cy={-size * 0.3} rx={size * 0.35} ry={size * 0.35} fill="var(--retro-gold-light)" opacity="0.85" />
-        <line x1={0} y1={-size} x2={0} y2={-size - 4} stroke="var(--retro-brown-dark)" strokeWidth="1.5" strokeLinecap="round" />
-        <ellipse
-          cx={3}
-          cy={-size - 3}
-          rx="3.5"
-          ry="2.5"
-          fill="#7BA05B"
-          transform="rotate(35 3 -8)"
-        />
-      </g>
-      {animKey > 0 && (
-        <g key={`fx-${animKey}`} className="eli-fruit-fx" pointerEvents="none">
-          {/* Floating quote di atas fruit */}
-          <text
-            x="0"
-            y={-size - 8}
-            fontSize="5.5"
-            textAnchor="middle"
-            fill="var(--retro-burgundy)"
-            fontWeight="700"
-            className="eli-fruit-quote"
-          >
-            {quote}
-          </text>
-          {/* 3 spark particles meletup keluar */}
-          <circle cx={-size - 1} cy={-size * 0.4} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-l" />
-          <circle cx={size + 1} cy={-size * 0.4} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-r" />
-          <circle cx="0" cy={size + 1} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-b" />
+        <g
+          key={`fruit-${animKey}`}
+          className={animKey > 0 ? 'eli-fruit eli-fruit-pop' : 'eli-fruit'}
+          onClick={handleClick}
+          onPointerEnter={(e) => {
+            e.currentTarget.classList.add('eli-fruit-hover');
+          }}
+          onPointerLeave={(e) => {
+            e.currentTarget.classList.remove('eli-fruit-hover');
+          }}
+        >
+          <circle cx={0} cy={0} r={size} fill="var(--retro-gold)" />
+          <ellipse cx={-size * 0.3} cy={-size * 0.3} rx={size * 0.35} ry={size * 0.35} fill="var(--retro-gold-light)" opacity="0.85" />
+          <line x1={0} y1={-size} x2={0} y2={-size - 4} stroke="var(--retro-brown-dark)" strokeWidth="1.5" strokeLinecap="round" />
+          <ellipse
+            cx={3}
+            cy={-size - 3}
+            rx="3.5"
+            ry="2.5"
+            fill="#7BA05B"
+            transform="rotate(35 3 -8)"
+          />
         </g>
-      )}
+        {animKey > 0 && (
+          <g key={`fx-${animKey}`} className="eli-fruit-fx" pointerEvents="none">
+            {/* Floating quote di atas fruit */}
+            <text
+              x="0"
+              y={-size - 8}
+              fontSize="5.5"
+              textAnchor="middle"
+              fill="var(--retro-burgundy)"
+              fontWeight="700"
+              className="eli-fruit-quote"
+            >
+              {quote}
+            </text>
+            {/* 3 spark particles meletup keluar */}
+            <circle cx={-size - 1} cy={-size * 0.4} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-l" />
+            <circle cx={size + 1} cy={-size * 0.4} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-r" />
+            <circle cx="0" cy={size + 1} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-b" />
+          </g>
+        )}
+      </g>
     </g>
   );
 };
