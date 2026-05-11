@@ -23,8 +23,8 @@ const ByuMusic = () => (
   <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
     <Seo
       path="/byu-music"
-      title="By-U Music — Putri Helisma"
-      description="Lagu By-U oleh Putri Helisma. Masih tersegel — akan dibuka 15 Juni 2026. Sampai saat itu, kita yang menjaganya. Bagian dari Harmoni Kebaikan."
+      title="By-U Music"
+      description="Sebuah lagu yang masih tersegel. Akan dibuka 15 Juni 2026. Sampai saat itu, kita yang menjaga denyutnya. Bagian dari Harmoni Kebaikan."
     />
 
     <FloatingPetals />
@@ -61,13 +61,13 @@ const ByuMusic = () => (
         </div>
         <h1 className="font-header text-[2.4rem] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9] max-w-4xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
           <span className="italic font-normal">By-U</span>
-          <span className="text-[color:var(--retro-burgundy-light)]">.</span>
+          <span className="text-[color:var(--retro-burgundy-light)]"> Music.</span>
         </h1>
         <p className="mt-5 sm:mt-6 font-header italic text-base sm:text-lg md:text-xl text-[color:var(--retro-cream)]/85 leading-relaxed max-w-2xl">
-          Putri Helisma — lagu yang menunggu dibuka.
+          Sebuah lagu yang menunggu dibuka.
         </p>
         <p className="mt-4 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
-          Lagu ini masih tersegel. Akan dibuka pada{' '}
+          Masih tersegel. Akan dibuka pada{' '}
           <span className="font-bold text-[color:var(--retro-burgundy)]">15 Juni 2026</span>{' '}
           — bertepatan dgn ulang tahun ke-26 Eli. Sampai saat itu, kita yang
           menjaganya: tiap klik "Saya menunggu" jadi satu doa untuk hari rilis.

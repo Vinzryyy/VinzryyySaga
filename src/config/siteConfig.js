@@ -50,7 +50,7 @@ export const SITE_CONFIG = {
           {
             label: 'By-U Music',
             hash: 'byu-music',
-            description: 'Lagu Putri Helisma — dibuka 15 Juni 2026',
+            description: 'Lagu tersegel — dibuka 15 Juni 2026',
             icon: 'ri-music-2-line',
           },
           // Galeri Kebaikan — hidden sampai project resmi diumumkan.
