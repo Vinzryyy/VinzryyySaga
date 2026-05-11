@@ -140,6 +140,130 @@ import {
   PerfHUD,
 } from '../components/taman/r1/perf';
 
+// Drought-only decay dressing — fallen branches, broken logs, dried
+// leaf piles, dan satu tree yang roboh. Distribusi deterministik via
+// seeded RNG supaya placement konsisten antar render (gak jumpy saat
+// React re-render).
+const seededRandom = (initial) => {
+  let s = initial;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+};
+
+const FALLEN_BRANCH_DEFS = (() => {
+  const rand = seededRandom(137);
+  const arr = [];
+  for (let i = 0; i < 34; i++) {
+    const z = -2 - rand() * 34;
+    const side = rand() > 0.5 ? 1 : -1;
+    const x = side * (1.6 + rand() * 5.5);
+    arr.push({
+      pos: [x, 0.04, z],
+      yaw: rand() * Math.PI * 2,
+      tilt: (rand() - 0.5) * 0.25,
+      len: 0.45 + rand() * 0.75,
+      thick: 0.028 + rand() * 0.028,
+    });
+  }
+  return arr;
+})();
+
+const FALLEN_LOG_DEFS = [
+  { pos: [-4.6, 0.12, -7.5], yaw: 1.3, len: 2.6, thick: 0.14 },
+  { pos: [5.2, 0.10, -16.4], yaw: 0.6, len: 2.3, thick: 0.13 },
+  { pos: [-3.9, 0.10, -24.2], yaw: 2.0, len: 1.9, thick: 0.12 },
+  { pos: [4.4, 0.13, -31.0], yaw: 0.3, len: 2.5, thick: 0.13 },
+];
+
+const FallenDeadwood = ({ isMobile }) => {
+  const branches = isMobile
+    ? FALLEN_BRANCH_DEFS.slice(0, 18)
+    : FALLEN_BRANCH_DEFS;
+  return (
+    <>
+      {branches.map((b, i) => (
+        <group key={`fb-${i}`} position={b.pos} rotation={[0, b.yaw, 0]}>
+          <mesh rotation={[b.tilt, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[b.thick, b.thick * 1.3, b.len, 5]} />
+            <meshStandardMaterial color="#2a1f15" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+      {FALLEN_LOG_DEFS.map((l, i) => (
+        <group key={`flog-${i}`} position={l.pos} rotation={[0, l.yaw, 0]}>
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[l.thick, l.thick * 1.15, l.len, 8]} />
+            <meshStandardMaterial color="#3a2a1f" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
+const DRIED_LEAF_PILE_DEFS = (() => {
+  const rand = seededRandom(271);
+  const arr = [];
+  for (let i = 0; i < 16; i++) {
+    const z = -3 - rand() * 32;
+    const side = rand() > 0.5 ? 1 : -1;
+    const x = side * (1.8 + rand() * 5);
+    arr.push({
+      pos: [x, 0.011, z],
+      r: 0.4 + rand() * 0.5,
+      rot: rand() * Math.PI,
+      color: rand() > 0.5 ? '#2a1d12' : '#3a2818',
+    });
+  }
+  return arr;
+})();
+
+const DriedLeafPiles = () => (
+  <>
+    {DRIED_LEAF_PILE_DEFS.map((d, i) => (
+      <mesh
+        key={`dl-${i}`}
+        position={d.pos}
+        rotation={[-Math.PI / 2, 0, d.rot]}
+      >
+        <circleGeometry args={[d.r, 12]} />
+        <meshStandardMaterial color={d.color} roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
+// Satu pohon roboh besar — dramatic centerpiece dari "ekosistem rusak".
+// Trunk panjang lying horizontal + broken stub + 2 dead branch shrapnel.
+const FallenTree = () => (
+  <group position={[-5.6, 0.3, -19]} rotation={[0, 0.4, 0]}>
+    <mesh rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.15, 0.22, 3.2, 8]} />
+      <meshStandardMaterial color="#3a2a1f" roughness={1} />
+    </mesh>
+    <mesh position={[1.7, -0.05, 0]} rotation={[0, 0, Math.PI / 2 - 0.5]}>
+      <cylinderGeometry args={[0.1, 0.15, 0.6, 6]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    <mesh
+      position={[-1.4, 0.05, 0.35]}
+      rotation={[0.3, 0.4, Math.PI / 2 + 0.6]}
+    >
+      <cylinderGeometry args={[0.04, 0.06, 0.8, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    <mesh
+      position={[0.6, 0.02, -0.4]}
+      rotation={[0.2, -0.5, Math.PI / 2 + 0.45]}
+    >
+      <cylinderGeometry args={[0.035, 0.055, 0.7, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+  </group>
+);
+
 const LorongScene = ({
   trees,
   hoveredTreeId,
@@ -214,6 +338,11 @@ const LorongScene = ({
         rusak. */}
     <SideTrees isMobile={isMobile} viewMode={viewMode} restorationLevel={0} />
     <GardenAnchorTrees isMobile={isMobile} restorationLevel={0} />
+    {/* Decay dressing — ranting jatuh, kayu rebah, daun kering, pohon
+        roboh. Ngebangun tone "ekosistem rusak" yang lebih kerasa. */}
+    <FallenDeadwood isMobile={isMobile} />
+    <DriedLeafPiles />
+    <FallenTree />
     {/* SkyGroup — wrap semua celestial elements (background stars,
         highlight stars, moon, milestone konstelasi). Di FPV, group
         follow camera XZ → stars terasa "ikut user" (real sky parallax-
