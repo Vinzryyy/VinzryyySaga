@@ -58,6 +58,10 @@ const TamanPage = lazy(() => import('./pages/Taman'));
 const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
 const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
 const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
+// Denyut — heartbeat website (presence-driven pulse visual). Standalone
+// page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
+// lain.
+const DenyutPage = lazy(() => import('./pages/Denyut'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -123,6 +127,7 @@ function AppShell() {
                 pre-announce — keeps any pre-shared links from 404'ing. */}
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
             <Route path="/vivo" element={<VivoPage />} />
+            <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/taman" element={<TamanPage />} />
             <Route path="/taman/peta" element={<TamanPetaPage />} />
             <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
