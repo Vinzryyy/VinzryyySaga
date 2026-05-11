@@ -524,6 +524,35 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
       <StaffWithNotes stage={stage} />
       <EmittedNotes show={showNotes} />
 
+      {/* Light rays — muncul stage 5 only. 12 sinar memancar dari pusat
+          heart, kerasa "lepas / siap pulang". Slow rotation supaya
+          kerasa hidup. */}
+      {stage >= TOTAL_STAGES && (
+        <div
+          aria-hidden="true"
+          className="absolute w-72 h-72 sm:w-80 sm:h-80 pointer-events-none"
+          style={{ animation: 'byuRaysRotate 22s linear infinite' }}
+        >
+          <svg viewBox="0 0 100 100" className="w-full h-full">
+            <defs>
+              <linearGradient id="byuRay" x1="50%" y1="50%" x2="50%" y2="0%">
+                <stop offset="0%" stopColor="rgba(255,180,180,0)" />
+                <stop offset="40%" stopColor="rgba(255,180,180,0.15)" />
+                <stop offset="100%" stopColor="rgba(255,200,210,0)" />
+              </linearGradient>
+            </defs>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <polygon
+                key={i}
+                points="50,50 49,8 51,8"
+                fill="url(#byuRay)"
+                transform={`rotate(${i * 30} 50 50)`}
+              />
+            ))}
+          </svg>
+        </div>
+      )}
+
       {/* Concentric ripple rings — expand outward + fade dgn rhythm
           beat. 3 rings dgn stagger delay supaya kontinyu. */}
       {[0, 1, 2].map((i) => (
@@ -632,6 +661,10 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
           0%   { opacity: 0; transform: translateY(-4px); }
           100% { opacity: 1; transform: translateY(0); }
         }
+        @keyframes byuRaysRotate {
+          0%   { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
         @keyframes byuNoteEmit {
           0%   {
             transform: translate(0, 0) scale(0.5) rotate(0deg);
@@ -661,7 +694,8 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
           [class*="byuHeartBeat"], [class*="byuHeartShadow"],
           [class*="byuHaloPulse"], [class*="byuCorePulse"],
           [class*="byuSheen"], [class*="byuRipple"],
-          [class*="byuNoteEmit"], [class*="byuStaffNoteIn"] {
+          [class*="byuNoteEmit"], [class*="byuStaffNoteIn"],
+          [class*="byuRaysRotate"] {
             animation: none !important;
           }
         }
@@ -745,7 +779,12 @@ const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
     }
   };
 
-  const baseIntensity = Math.min(1, 0.4 + supporters / 200);
+  // Intensity driven by stage utama — supporters cuma kasih boost
+  // kecil di atas baseline stage. Stage 1 = 0.2 (heart pucat & redup),
+  // stage 5 = 1.0 (glow penuh).
+  const stageIntensity = 0.2 + (stage - 1) * 0.2;
+  const supporterBonus = Math.min(0.15, supporters / 800);
+  const baseIntensity = Math.min(1, stageIntensity + supporterBonus);
 
   return (
     <>
