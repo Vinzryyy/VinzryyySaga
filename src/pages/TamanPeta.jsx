@@ -649,6 +649,153 @@ const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
     </Html>
   );
 };
+// Twinkling stars di langit malam — taman senja makin malam, bintang
+// muncul di atas. Single Points mesh dgn material opacity oscillation
+// sebagai twinkle global (per-vertex twinkle butuh shader, overkill
+// utk scope ini). Posisi semi-hemispherical di atas peta.
+const Stars = ({ count = 80 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      // Spread di hemisphere atas — radius 18-26, y 6-18.
+      const theta = Math.random() * Math.PI * 2;
+      const r = 18 + Math.random() * 8;
+      arr[i * 3] = Math.cos(theta) * r;
+      arr[i * 3 + 1] = 6 + Math.random() * 12;
+      arr[i * 3 + 2] = Math.sin(theta) * r;
+    }
+    return arr;
+  }, [count]);
+
+  useFrame((state) => {
+    if (!ref.current || !ref.current.material) return;
+    const t = state.clock.elapsedTime;
+    ref.current.material.opacity = 0.55 + Math.sin(t * 0.55) * 0.18;
+  });
+
+  return (
+    <points ref={ref} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.09}
+        color="#fff8e0"
+        transparent
+        opacity={0.65}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Moon — disc kecil glow lembut di sudut atas peta. Bukan light source
+// asli (cuma visual), light asli udah dari directionalLight existing.
+const Moon = () => (
+  <group position={[-13, 14, -12]}>
+    {/* Core moon */}
+    <mesh>
+      <sphereGeometry args={[1.1, 24, 16]} />
+      <meshBasicMaterial color="#fff4d0" toneMapped={false} />
+    </mesh>
+    {/* Inner halo */}
+    <mesh>
+      <sphereGeometry args={[1.7, 24, 16]} />
+      <meshBasicMaterial
+        color="#fff4d0"
+        transparent
+        opacity={0.18}
+        toneMapped={false}
+      />
+    </mesh>
+    {/* Outer halo */}
+    <mesh>
+      <sphereGeometry args={[2.6, 24, 16]} />
+      <meshBasicMaterial
+        color="#ffe5a0"
+        transparent
+        opacity={0.08}
+        toneMapped={false}
+      />
+    </mesh>
+  </group>
+);
+
+// Fireflies — sphere kecil emissive yg drift Lissajous di sekitar
+// scene. Pulse intensity per partikel dgn phase random. Kerasa taman
+// hidup, bukan diorama statis. Density terbatas (12 desktop / 6 mobile)
+// supaya gak overload performance.
+const FIREFLY_COUNT_DESKTOP = 12;
+const FIREFLY_COUNT_MOBILE = 6;
+const Firefly = ({ def }) => {
+  const ref = useRef();
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!ref.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.position.x =
+      def.cx + Math.sin(t * def.freqX + def.phaseX) * def.ampX;
+    ref.current.position.y =
+      def.cy + Math.sin(t * def.freqY + def.phaseY) * def.ampY;
+    ref.current.position.z =
+      def.cz + Math.cos(t * def.freqZ + def.phaseZ) * def.ampZ;
+    const pulse = 0.55 + Math.sin(t * def.pulseFreq + def.pulsePhase) * 0.4;
+    matRef.current.emissiveIntensity = pulse;
+    matRef.current.opacity = 0.65 + Math.sin(t * def.pulseFreq + def.pulsePhase) * 0.3;
+  });
+  return (
+    <mesh ref={ref}>
+      <sphereGeometry args={[0.055, 8, 6]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#fff0a0"
+        emissive="#ffd060"
+        emissiveIntensity={0.9}
+        transparent
+        opacity={0.85}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+const Fireflies = ({ isMobile }) => {
+  const count = isMobile ? FIREFLY_COUNT_MOBILE : FIREFLY_COUNT_DESKTOP;
+  const defs = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      // Spread di dalam ring petak (radius < 9) untuk visibility.
+      // Tapi avoid pusat (tree area) supaya gak nutupin pohon.
+      const theta = (i / count) * Math.PI * 2 + Math.random() * 0.6;
+      const r = 3.5 + Math.random() * 4;
+      arr.push({
+        cx: Math.cos(theta) * r,
+        cy: 1.0 + Math.random() * 1.8,
+        cz: Math.sin(theta) * r,
+        ampX: 0.7 + Math.random() * 1.1,
+        ampY: 0.25 + Math.random() * 0.45,
+        ampZ: 0.7 + Math.random() * 1.1,
+        freqX: 0.25 + Math.random() * 0.35,
+        freqY: 0.55 + Math.random() * 0.45,
+        freqZ: 0.3 + Math.random() * 0.35,
+        phaseX: Math.random() * Math.PI * 2,
+        phaseY: Math.random() * Math.PI * 2,
+        phaseZ: Math.random() * Math.PI * 2,
+        pulseFreq: 0.7 + Math.random() * 0.7,
+        pulsePhase: Math.random() * Math.PI * 2,
+      });
+    }
+    return arr;
+  }, [count]);
+  return defs.map((def, i) => <Firefly key={`ff-${i}`} def={def} />);
+};
+
 const NarrativeWhispers = ({ isMobile }) => {
   const list = isMobile ? NARRATIVE_WHISPERS.slice(0, 2) : NARRATIVE_WHISPERS;
   return (
@@ -691,6 +838,9 @@ const TamanScene = ({
       />
       <TamanFloor />
       <DroughtRing />
+      <Stars count={isMobile ? 45 : 90} />
+      <Moon />
+      <Fireflies isMobile={isMobile} />
       <NarrativeWhispers isMobile={isMobile} />
       <CenterTree
         hovered={hoveredCenter}
@@ -698,7 +848,7 @@ const TamanScene = ({
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
       />
-      <FallingPetals count={80} />
+      <FallingPetals count={isMobile ? 50 : 80} />
       {PETAK.map((petak) => (
         <PetakPlot
           key={petak.id}
