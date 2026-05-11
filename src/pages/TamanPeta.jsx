@@ -95,43 +95,14 @@ const FLY_IN_DURATION = 2.5;
 const ORBIT_TARGET = [0, 1, 0];
 
 const HEX_RADIUS = 5;
-// Petak taman aktif — narrative-nya: peta ini berdiri di tengah kota
-// yang udah runtuh (city ruins silhouette di horizon). Dua petak yang
-// hidup = dua sisa peradaban yang masih bisa dimasuki:
-//   r1 (Gerbang Masuk Kota, /taman/r1)       — Bab 1, pintu masuk
-//   r3 (Taman Terakhir di Kota, /taman/r3)   — Bab 2, oasis hijau
-// ID 'r1'/'r3' dipertahankan (legacy route + localStorage progress
-// key 'museum-rooms-previewed'). Chapter number disequence (1, 2)
-// supaya checklist dot rapi tanpa gap. Petak r2/r4/r5/r6 di-remove
-// sampai fitur masing-masing dibangun.
-const PETAK = [
-  {
-    id: 'r1',
-    chapter: 1,
-    name: 'Gerbang Masuk Kota',
-    eyebrow: 'Bab 1 · Gerbang Kota Lama',
-    desc: 'Lewat sini, peradaban dulu masuk',
-    longDesc:
-      'Gerbang batu yang dulu menyambut peradaban kini berdiri di antara reruntuhan. Lewat sini, langit malam masih menyimpan tujuh konstelasi — setiap bintang adalah satu masa yang pernah hidup. Kotanya runtuh, tapi cerita di langit tetap utuh, menunggu diingat.',
-    angle: 270,
-    color: '#a8c0ff',
-    route: '/taman/r1',
-    nextId: 'r3',
-  },
-  {
-    id: 'r3',
-    chapter: 2,
-    name: 'Taman Terakhir di Kota',
-    eyebrow: 'Bab 2 · Oasis di Reruntuhan',
-    desc: 'Hijau terakhir yang masih bernapas',
-    longDesc:
-      'Di tengah kota yang runtuh, satu taman bertahan hijau. Telaganya diisi tiap kali seseorang menuliskan harapan di /wishes — tiap teratai yang mekar adalah satu doa yang menolak ikut padam. Inilah taman terakhir: bukti bahwa di sisa peradaban, masih ada yang menanam.',
-    angle: 90,
-    color: '#86a868',
-    route: '/taman/r3',
-    nextId: 'r1', // loop balik ke bab 1
-  },
-];
+// Petak DIKOSONGKAN — user lagi redesign navigation model dari awal.
+// Wilayah baru bernama "Kota" (gerbang masuknya = R0 / /taman). Peta
+// ini sementara cuma punya pohon di tengah + environment desert dusk
+// + city ruins di horizon. Path stones, hex ring, chapter petak,
+// restoration indicator, dan modal info semua di-disable di render
+// sambil nunggu konsep baru. State + handlers tetap utuh supaya gak
+// invasive — gampang re-wire saat redesign masuk.
+const PETAK = [];
 
 const polarToXZ = (angleDeg, radius) => {
   const rad = (angleDeg * Math.PI) / 180;
@@ -2657,90 +2628,21 @@ const TamanScene = ({
         intensity={0.55}
         color="#c89a8a"
       />
+      {/* Blank-slate mode — user lagi redesign nav model dari awal.
+          Scene sengaja sisain: ground (TamanFloor + DroughtRing) +
+          CenterTree (Pohon Terakhir) + lights + camera infra. Semua
+          dekorasi lain (ruins, aurora, stars, moon, dead trees, petak
+          elements, particles, dll) di-disable sambil nunggu konsep
+          baru. Komponen-nya tetap ada di file (cuma gak di-render)
+          supaya gampang re-enable saat redesign masuk. */}
       <TamanFloor />
       <DroughtRing />
-      <CityRuins />
-      <Aurora />
-      <Constellations />
-      <DeadTrees />
-      <RecoveringSaplings restorationLevel={restorationLevel} />
-      <Wildflowers restorationLevel={restorationLevel} />
-      {restorationLevel >= 1 && <RestorationCelebration />}
-      <Stars count={isMobile ? 45 : 90} />
-      <Moon />
-      <ShootingStar />
-      <BirdsFlock />
-      <StonePath petakList={PETAK} visitedSet={previewedPetak} />
-      <PetakGroundGlow petakList={PETAK} />
-      <ChapterFlowRing />
-      <ChapterFlowBead />
-      <PathLanterns />
-      <WoodenBench />
-      {/* Visited halo per petak — emerald ring di atas petak yg udah
-          dibuka overlay-nya. Progress indicator visual. */}
-      {PETAK.filter((p) => previewedPetak.has(p.id)).map((petak) => (
-        <VisitedHalo key={`vh-${petak.id}`} petak={petak} />
-      ))}
-      {hoveredPetakId && (() => {
-        const hovered = PETAK.find((p) => p.id === hoveredPetakId);
-        if (!hovered) return null;
-        return (
-          <>
-            <HoverRipple petak={hovered} />
-            <HoverTrail petak={hovered} />
-          </>
-        );
-      })()}
-      <Fireflies isMobile={isMobile} />
-      {!modalOpen && <NarrativeWhispers isMobile={isMobile} />}
       <CenterTree
         hovered={hoveredCenter}
         onPointerOver={onCenterHover}
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
       />
-      <TreeHalo />
-      <TreeLightCone />
-      <HaloSparkles />
-      <MistParticles count={isMobile ? 30 : 55} />
-      <SandDust count={isMobile ? 40 : 80} />
-      <HighDustShimmer count={isMobile ? 20 : 40} />
-      <FallingPetals count={isMobile ? 50 : 80} />
-      {/* Direction arrow saat hover — tunjukkan next chapter
-          petak dari yg di-hover. */}
-      {hoveredPetakId &&
-        (() => {
-          const fromPetak = PETAK.find((p) => p.id === hoveredPetakId);
-          const toPetak = fromPetak?.nextId
-            ? PETAK.find((p) => p.id === fromPetak.nextId)
-            : null;
-          if (!fromPetak || !toPetak) return null;
-          return <NextChapterArrow fromPetak={fromPetak} toPetak={toPetak} />;
-        })()}
-      {PETAK.map((petak) => (
-        <PetakPlot
-          key={petak.id}
-          petak={petak}
-          hovered={hoveredPetakId === petak.id}
-          previewed={previewedPetak.has(petak.id)}
-          hideLabel={modalOpen}
-          onPointerOver={onPetakHover}
-          onPointerOut={onPetakOut}
-          onClick={onPetakClick}
-        />
-      ))}
-      {/* Per-petak landmark — distinctive 3D element on top of each
-          petak yg signal tema-nya (torii, easel, lily pad, basket,
-          paint brush, mini tree). */}
-      {PETAK.map((petak) => (
-        <PetakLandmark key={`${petak.id}-landmark`} petak={petak} />
-      ))}
-      {/* Bunga-bunga kecil di sekitar tiap petak. Render terpisah dari
-          PetakPlot supaya posisinya tetap di tanah saat petak lift
-          karena hover. */}
-      {PETAK.map((petak) => (
-        <PetakFlowers key={`${petak.id}-flowers`} petak={petak} />
-      ))}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
         OrbitControls dirender selalu, tapi enabled=false saat fly-in.
@@ -3145,6 +3047,7 @@ const TamanPetaPage = () => {
       const n = parseFloat(override);
       if (!Number.isNaN(n)) return Math.max(0, Math.min(1, n));
     }
+    if (PETAK.length === 0) return 0;
     return Math.min(1, previewedPetak.size / PETAK.length);
   }, [searchParams, previewedPetak]);
 
@@ -3253,37 +3156,10 @@ const TamanPetaPage = () => {
           </Canvas>
         </Suspense>
 
-        <TamanHeader modalOpen={Boolean(selectedPetak)} />
-        <TamanPetaIntroTitle />
-        <RestorationIndicator
-          level={restorationLevel}
-          chaptersExplored={previewedPetak.size}
-          totalChapters={PETAK.length}
-          visitedSet={previewedPetak}
-          flyInActive={flyInActive}
-          modalOpen={Boolean(selectedPetak)}
-        />
-        <TamanFooter
-          hoveredPetakId={hoveredPetakId}
-          flyInActive={flyInActive}
-          previewedCount={previewedPetak.size}
-          modalOpen={Boolean(selectedPetak)}
-        />
-        <PetakDetailOverlay
-          petak={selectedPetak}
-          onClose={handleCloseOverlay}
-          onJumpToPetak={(nextPetak) => {
-            // Bab → bab navigation: ganti selected petak ke next.
-            setSelectedPetak(nextPetak);
-            setPreviewedPetak((prev) => {
-              if (prev.has(nextPetak.id)) return prev;
-              const next = new Set(prev);
-              next.add(nextPetak.id);
-              writePreviewed(next);
-              return next;
-            });
-          }}
-        />
+        <TamanHeader />
+        {/* Intro title, restoration indicator, footer hint, dan petak
+            detail modal sengaja di-disable selama blank-slate mode.
+            Re-enable kalau redesign udah jelas mau pakai komponen mana. */}
         <AmbientAudio profile="taman" position="top-right" />
       </div>
     </>
