@@ -142,10 +142,23 @@ const FloatingNotes = ({ show }) => {
 
 // Centerpiece beating heart. `intensity` (0–1) scales halo glow + ripple
 // rings + floating notes density, `period` (CSS time) controls speed.
-// Animation pakai PQRST shape (spike 14%, dip 28%, second spike 42%,
-// rest 70%+) — sama dgn /denyut supaya feel-nya konsisten antar fitur.
+//
+// Animasi pakai LUB-DUB two-stage (mirror cardiac sound):
+//   8%  lub — sharp uptick (AV valves close, systole start)
+//   22% relax dip
+//   36% dub — softer second peak (semilunar close, systole end)
+//   60% rest
+// Lebih anatomis dari single PQRST spike, kerasa "double-thump" beneran.
+//
+// Layered visuals dari luar ke dalam:
+//   - Outer halo blur (warm red ambient)
+//   - 3 concentric ripple rings (expanding ring waves)
+//   - Heart SVG body (scale beat)
+//   - Inner hot core (pulse opacity sync lub — kerasa "darah dipompa")
+//   - Specular sheen highlight (overlay, brightens at lub)
 const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
   const haloOpacity = 0.4 + intensity * 0.5;
+  const coreOpacity = 0.45 + intensity * 0.45;
   const showNotes = intensity >= 0.5;
   return (
     <div
@@ -177,28 +190,76 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
           animation: 'byuHaloPulse var(--byu-beat) ease-in-out infinite',
         }}
       />
+
       <div
-        className="relative w-44 h-44 sm:w-52 sm:h-52 drop-shadow-[0_4px_20px_rgba(139,30,40,0.4)]"
+        className="relative w-44 h-44 sm:w-52 sm:h-52"
         style={{
-          animation: 'byuHeartBeat var(--byu-beat) ease-in-out infinite',
+          animation:
+            'byuHeartBeat var(--byu-beat) ease-in-out infinite, byuHeartShadow var(--byu-beat) ease-in-out infinite',
         }}
       >
         <AnatomicalHeartSvg />
+
+        {/* Inner hot core — gloss merah cerah di tengah-bawah heart
+            yg pulse opacity + scale sync lub. Mix-blend screen di-
+            bypass karena bg bukan transparent; pakai positioning
+            absolute di tengah body heart (offset ke kanan-bawah krn
+            heart asimetris, apex condong kiri-bawah). */}
+        <div
+          aria-hidden="true"
+          className="absolute left-[44%] top-[52%] -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 rounded-full blur-2xl pointer-events-none"
+          style={{
+            background: `radial-gradient(circle, rgba(255,110,110,${coreOpacity}) 0%, rgba(220,60,70,${coreOpacity * 0.5}) 45%, transparent 75%)`,
+            animation: 'byuCorePulse var(--byu-beat) ease-in-out infinite',
+          }}
+        />
+
+        {/* Specular sheen highlight — overlay terang yg shift posisi
+            tipis + brightens saat lub. Kasih kerasa permukaan otot
+            yg basah / glossy, bukan flat. */}
+        <div
+          aria-hidden="true"
+          className="absolute left-[28%] top-[32%] w-16 h-10 rounded-full blur-md pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse, rgba(255,210,210,0.65) 0%, transparent 75%)',
+            animation: 'byuSheen var(--byu-beat) ease-in-out infinite',
+          }}
+        />
       </div>
 
       <style>{`
         @keyframes byuHeartBeat {
           0%   { transform: scale(1); }
-          14%  { transform: scale(1.13); }
-          28%  { transform: scale(0.99); }
-          42%  { transform: scale(1.07); }
-          70%  { transform: scale(1); }
+          8%   { transform: scale(1.14); }
+          22%  { transform: scale(0.99); }
+          36%  { transform: scale(1.07); }
+          60%  { transform: scale(1); }
           100% { transform: scale(1); }
+        }
+        @keyframes byuHeartShadow {
+          0%, 100% { filter: drop-shadow(0 4px 18px rgba(139,30,40,0.35)); }
+          8%       { filter: drop-shadow(0 8px 28px rgba(180,40,55,0.6)); }
+          36%      { filter: drop-shadow(0 6px 22px rgba(160,35,50,0.5)); }
+          60%      { filter: drop-shadow(0 4px 18px rgba(139,30,40,0.35)); }
         }
         @keyframes byuHaloPulse {
           0%, 100% { opacity: 0.55; transform: scale(1); }
-          14%      { opacity: 0.95; transform: scale(1.07); }
-          70%      { opacity: 0.55; transform: scale(1); }
+          8%       { opacity: 0.98; transform: scale(1.08); }
+          36%      { opacity: 0.78; transform: scale(1.03); }
+          60%      { opacity: 0.55; transform: scale(1); }
+        }
+        @keyframes byuCorePulse {
+          0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.92); }
+          8%       { opacity: 1;    transform: translate(-50%, -50%) scale(1.18); }
+          22%      { opacity: 0.5;  transform: translate(-50%, -50%) scale(0.98); }
+          36%      { opacity: 0.8;  transform: translate(-50%, -50%) scale(1.08); }
+          60%      { opacity: 0.35; transform: translate(-50%, -50%) scale(0.92); }
+        }
+        @keyframes byuSheen {
+          0%, 100% { opacity: 0.55; transform: translate(0, 0); }
+          8%       { opacity: 0.95; transform: translate(-2px, -1px); }
+          36%      { opacity: 0.75; transform: translate(1px, 0); }
+          60%      { opacity: 0.55; transform: translate(0, 0); }
         }
         @keyframes byuRipple {
           0%   { transform: scale(1); opacity: 0.55; }
@@ -212,8 +273,10 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
           100% { transform: translate(calc(var(--byu-note-x) + 12px), -120px) rotate(8deg); opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          [class*="byuHeartBeat"], [class*="byuHaloPulse"],
-          [class*="byuRipple"], [class*="byuNoteFloat"] {
+          [class*="byuHeartBeat"], [class*="byuHeartShadow"],
+          [class*="byuHaloPulse"], [class*="byuCorePulse"],
+          [class*="byuSheen"], [class*="byuRipple"],
+          [class*="byuNoteFloat"] {
             animation: none !important;
           }
         }
