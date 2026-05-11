@@ -92,7 +92,7 @@ const ByuMusic = () => (
 
         <div className="mt-10 pt-6 border-t border-[color:var(--retro-brown-dark)]/10">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-            A project by Helismiley × Armeniaca
+            A project by Armeniaca × BY-U Music
           </p>
         </div>
       </div>
