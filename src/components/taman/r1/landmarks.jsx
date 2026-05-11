@@ -484,12 +484,15 @@ export const CorridorDoorway = () => {
   // 6 radial light rays — thin plane meshes from arch center outward,
   // slow rotation supaya kerasa "cahaya hidup" bukan static.
   const rayAngles = [0, 1, 2, 3, 4, 5].map((i) => (i / 6) * Math.PI * 2);
-  // Stepping stones approaching portal — 4 stones on path, low flat
+  // Stepping stones approaching portal — 4 stones IN FRONT of portal
+  // (z positif dalam group = closer to player). World z=-37+z, so
+  // z=+1.5 → world -35.5 (between StoneMonument z=-32 + DistantFigure
+  // z=-34). Path visual leading INTO portal.
   const stoneDefs = [
-    { z: -1.5, x: 0.15, scale: 0.9, rot: 0.3 },
-    { z: -2.5, x: -0.18, scale: 0.85, rot: -0.4 },
-    { z: -3.5, x: 0.1, scale: 1.0, rot: 0.6 },
-    { z: -4.6, x: -0.05, scale: 0.95, rot: 1.1 },
+    { z: 1.5, x: 0.15, scale: 0.9, rot: 0.3 },
+    { z: 2.5, x: -0.18, scale: 0.85, rot: -0.4 },
+    { z: 3.5, x: 0.1, scale: 1.0, rot: 0.6 },
+    { z: 4.6, x: -0.05, scale: 0.95, rot: 1.1 },
   ];
   return (
     <group position={[0, 0, -37]}>
