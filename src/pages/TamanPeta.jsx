@@ -679,6 +679,95 @@ const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
     </Html>
   );
 };
+// Chapter flow ring — thin torus on ground around hex perimeter,
+// subtle emissive. Visualisasi "ada lingkaran cerita" yg connecting
+// 6 bab.
+const ChapterFlowRing = () => (
+  <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    <torusGeometry args={[HEX_RADIUS, 0.04, 6, 64]} />
+    <meshStandardMaterial
+      color="#7a9d5e"
+      emissive="#a8e8d4"
+      emissiveIntensity={0.3}
+      roughness={0.7}
+      toneMapped={false}
+    />
+  </mesh>
+);
+
+// Chapter flow bead — small bright sphere traveling clockwise di
+// chapter ring, indikasi visual arah cerita (bab 1 → 2 → 3 → ...).
+// Plus trail 5 buntut yg fade size+opacity.
+const ChapterFlowBead = () => {
+  const beadRef = useRef();
+  const trailRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const speed = 0.22; // rad/s — slow enough utk follow
+    // Main bead at primary angle, clockwise (sin(-t))
+    const mainAngle = -t * speed;
+    if (beadRef.current) {
+      beadRef.current.position.x = Math.cos(mainAngle) * HEX_RADIUS;
+      beadRef.current.position.z = Math.sin(mainAngle) * HEX_RADIUS;
+    }
+    // Trail beads behind, each delayed phase
+    trailRefs.current.forEach((trail, i) => {
+      if (!trail) return;
+      const lagAngle = mainAngle + (i + 1) * 0.12;
+      trail.position.x = Math.cos(lagAngle) * HEX_RADIUS;
+      trail.position.z = Math.sin(lagAngle) * HEX_RADIUS;
+    });
+  });
+  return (
+    <>
+      <mesh ref={beadRef} position={[HEX_RADIUS, 0.08, 0]}>
+        <sphereGeometry args={[0.13, 10, 8]} />
+        <meshBasicMaterial color="#fff5c8" toneMapped={false} />
+      </mesh>
+      {/* Trail — 5 smaller fading beads */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <mesh
+          key={`trail-${i}`}
+          ref={(el) => {
+            trailRefs.current[i] = el;
+          }}
+          position={[HEX_RADIUS, 0.06, 0]}
+        >
+          <sphereGeometry args={[0.1 - i * 0.014, 8, 6]} />
+          <meshBasicMaterial
+            color="#fff5c8"
+            transparent
+            opacity={0.7 - i * 0.13}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// Visited petak halo — ring marker around top of visited petak.
+// Lebih visible drpd just ✓ di label. Mengindikasikan progress
+// jelajahi cerita.
+const VisitedHalo = ({ petak }) => {
+  const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+  return (
+    <mesh
+      position={[px, 0.78, pz]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <ringGeometry args={[1.35, 1.45, 24]} />
+      <meshBasicMaterial
+        color="#86d68a"
+        transparent
+        opacity={0.55}
+        toneMapped={false}
+        side={2}
+      />
+    </mesh>
+  );
+};
+
 // Constellation lines — 3 cluster patterns di sky high, thin line
 // segments connecting "stars". Cyan-mint color, kerasa magical &
 // match theme r1 Konstelasi Perjalanan. Subtle opacity pulse.
@@ -1633,6 +1722,13 @@ const TamanScene = ({
       <Moon />
       <StonePath petakList={PETAK} />
       <PetakGroundGlow petakList={PETAK} />
+      <ChapterFlowRing />
+      <ChapterFlowBead />
+      {/* Visited halo per petak — emerald ring di atas petak yg udah
+          dibuka overlay-nya. Progress indicator visual. */}
+      {PETAK.filter((p) => previewedPetak.has(p.id)).map((petak) => (
+        <VisitedHalo key={`vh-${petak.id}`} petak={petak} />
+      ))}
       {hoveredPetakId && (
         <HoverRipple petak={PETAK.find((p) => p.id === hoveredPetakId)} />
       )}
