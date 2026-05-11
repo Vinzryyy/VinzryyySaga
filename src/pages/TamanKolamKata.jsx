@@ -2471,7 +2471,9 @@ const GARDEN_LANTERN_DEFS = [
   { pos: [14, 0, 22], rot: 1.0 },
 ];
 const GardenLanterns = ({ isMobile }) => {
-  const list = isMobile ? GARDEN_LANTERN_DEFS.slice(0, 4) : GARDEN_LANTERN_DEFS;
+  // Mobile cull 6→3 (drops 1 pointLight + 3 lantern groups, supaya total dynamic
+  // lights di scene < Three.js 8-light cap).
+  const list = isMobile ? GARDEN_LANTERN_DEFS.slice(0, 3) : GARDEN_LANTERN_DEFS;
   return (
     <>
       {list.map((l, i) => (
@@ -3357,7 +3359,7 @@ const WATER_LANTERN_DEFS = [
   { startX: -2.0, startZ: 5, color: '#ffcc88', phase: 2.5 },
   { startX: 3.2, startZ: 10, color: '#ff9468', phase: 0.6 },
 ];
-const WaterLantern = ({ def }) => {
+const WaterLantern = ({ def, withLight = true }) => {
   const ref = useRef();
   const flameRef = useRef();
   useFrame((state) => {
@@ -3406,16 +3408,19 @@ const WaterLantern = ({ def }) => {
           opacity={0.9}
         />
       </mesh>
-      <pointLight position={[0, 0.2, 0]} intensity={0.35} distance={2.5} color={def.color} />
+      {withLight && (
+        <pointLight position={[0, 0.2, 0]} intensity={0.35} distance={2.5} color={def.color} />
+      )}
     </group>
   );
 };
 const WaterLanterns = ({ isMobile }) => {
   const list = isMobile ? WATER_LANTERN_DEFS.slice(0, 2) : WATER_LANTERN_DEFS;
+  // Mobile: emissive only, skip pointLight (saves 2 active lights di <8 GPU limit)
   return (
     <>
       {list.map((d, i) => (
-        <WaterLantern key={`wlan-${i}`} def={d} />
+        <WaterLantern key={`wlan-${i}`} def={d} withLight={!isMobile} />
       ))}
     </>
   );
@@ -3688,13 +3693,15 @@ const EMA_TAG_DEFS = Array.from({ length: 8 }, (_, i) => ({
   phase: i * 0.7,
   rope: 0.35 + (i % 3) * 0.08,
 }));
-const EmaTablets = ({ pos, rot = 0 }) => {
+const EmaTablets = ({ pos, rot = 0, isMobile = false }) => {
   const tagsRef = useRef([]);
+  const defs = isMobile ? EMA_TAG_DEFS.slice(0, 5) : EMA_TAG_DEFS;
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     tagsRef.current.forEach((ref, i) => {
       if (!ref) return;
-      const def = EMA_TAG_DEFS[i];
+      const def = defs[i];
+      if (!def) return;
       ref.rotation.z = Math.sin(t * 0.8 + def.phase) * 0.08;
       ref.rotation.x = Math.cos(t * 0.6 + def.phase) * 0.05;
     });
@@ -3725,7 +3732,7 @@ const EmaTablets = ({ pos, rot = 0 }) => {
         <meshStandardMaterial color="#3d2818" roughness={0.9} />
       </mesh>
       {/* Tablets hanging */}
-      {EMA_TAG_DEFS.map((def, i) => (
+      {defs.map((def, i) => (
         <group
           key={`ema-${i}`}
           ref={(el) => {
@@ -3766,7 +3773,7 @@ const EmaTablets = ({ pos, rot = 0 }) => {
 // Stone toro lantern — Japanese stone lantern. Stack: base + middle
 // shaft + chamber + roof. Soft warm pointLight di chamber utk senja
 // glow. Place sebagai pasangan flanking pond.
-const StoneToro = ({ pos, rot = 0 }) => (
+const StoneToro = ({ pos, rot = 0, withLight = true }) => (
   <group position={pos} rotation={[0, rot, 0]}>
     {/* Base block */}
     <mesh position={[0, 0.12, 0]} castShadow>
@@ -3789,7 +3796,7 @@ const StoneToro = ({ pos, rot = 0 }) => (
       <meshStandardMaterial
         color="#f4d098"
         emissive="#ffb070"
-        emissiveIntensity={0.6}
+        emissiveIntensity={withLight ? 0.6 : 0.95}
         transparent
         opacity={0.85}
       />
@@ -3805,7 +3812,9 @@ const StoneToro = ({ pos, rot = 0 }) => (
       <meshStandardMaterial color="#7a7065" roughness={1} />
     </mesh>
     {/* Warm glow */}
-    <pointLight position={[0, 0.86, 0]} intensity={0.5} distance={4.5} color="#ffb070" />
+    {withLight && (
+      <pointLight position={[0, 0.86, 0]} intensity={0.5} distance={4.5} color="#ffb070" />
+    )}
   </group>
 );
 const STONE_TORO_DEFS = [
@@ -3814,10 +3823,11 @@ const STONE_TORO_DEFS = [
 ];
 const StoneToros = ({ isMobile }) => {
   const list = isMobile ? STONE_TORO_DEFS.slice(0, 1) : STONE_TORO_DEFS;
+  // Mobile: bump emissive, skip pointLight
   return (
     <>
       {list.map((d, i) => (
-        <StoneToro key={`toro-${i}`} pos={d.pos} rot={d.rot} />
+        <StoneToro key={`toro-${i}`} pos={d.pos} rot={d.rot} withLight={!isMobile} />
       ))}
     </>
   );
@@ -5280,7 +5290,7 @@ const TelagaScene = ({
       intensity={1.2}
       color="#ffb878"
       castShadow
-      shadow-mapSize={[2048, 2048]}
+      shadow-mapSize={isMobile ? [1024, 1024] : [2048, 2048]}
       shadow-camera-left={-25}
       shadow-camera-right={25}
       shadow-camera-top={25}
@@ -5353,7 +5363,7 @@ const TelagaScene = ({
     <GardenSwing pos={[-12, 0, 22]} rot={-0.2} />
     <Mailbox pos={[3, 0, -26]} rot={-0.3} />
     <ReadingNook pos={[7, 0, -16]} rot={2.2} />
-    <EmaTablets pos={[-19, 0, -14]} rot={1.2} />
+    <EmaTablets pos={[-19, 0, -14]} rot={1.2} isMobile={isMobile} />
     <StoneToros isMobile={isMobile} />
     <WindChime pos={[-22, 0, 0]} rot={0.4} />
     <SleepingCat pos={[-19, 0, -3.5]} rot={0.6} color="#d4a868" />
@@ -5421,17 +5431,18 @@ const SceneFallback = () => (
 );
 
 const TelagaHeader = () => (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-5">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
     <div className="pointer-events-auto">
       <Link
         to="/taman/peta"
-        className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
-        ← Peta Taman
+        <span className="md:hidden">← Peta</span>
+        <span className="hidden md:inline">← Peta Taman</span>
       </Link>
     </div>
     <div
-      className="text-white/85 text-sm tracking-wide"
+      className="text-white/85 text-[13px] md:text-sm tracking-wide"
       style={{
         fontFamily: '"Fraunces Variable", serif',
         fontStyle: 'italic',
@@ -5442,9 +5453,10 @@ const TelagaHeader = () => (
     <div className="pointer-events-auto">
       <Link
         to="/wishes"
-        className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
-        Tinggalkan wish →
+        <span className="md:hidden">Wish →</span>
+        <span className="hidden md:inline">Tinggalkan wish →</span>
       </Link>
     </div>
   </div>
