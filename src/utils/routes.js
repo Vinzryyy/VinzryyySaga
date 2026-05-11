@@ -20,11 +20,6 @@ const VIVO_ANCHORS = new Set([
   'vivo-idn',
   'vivo-showroom',
 ]);
-// Sub-tabs di /26 (Harmoni Kebaikan hub). Mapped ke /26#<hash>.
-const PAGE26_ANCHORS = new Set([
-  'pohon',
-  'byu',
-]);
 
 // Convert a SITE_CONFIG-style identifier (the legacy `hash` field on
 // nav/CTA items) to a router href. Year codes (`/^\d{4}$/`) become
@@ -36,7 +31,6 @@ export const hashToHref = (hash) => {
   if (HOME_ANCHORS.has(hash)) return `/#${hash}`;
   if (PROFILE_ANCHORS.has(hash)) return `/profile#${hash}`;
   if (VIVO_ANCHORS.has(hash)) return `/vivo#${hash}`;
-  if (PAGE26_ANCHORS.has(hash)) return `/26#${hash}`;
   if (hash === '26') return '/26';
   if (/^\d{4}$/.test(hash)) return `/gallery/${hash}`;
   return `/${hash}`;
@@ -54,6 +48,5 @@ export const hrefToActiveId = (pathname, hash) => {
   }
   if (pathname === '/gallery') return cleanHash || 'gallery';
   if (pathname === '/profile') return cleanHash || 'profile';
-  if (pathname === '/26') return cleanHash || '26';
   return pathname.replace(/^\//, '') || 'home';
 };

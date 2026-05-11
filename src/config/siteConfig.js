@@ -49,7 +49,7 @@ export const SITE_CONFIG = {
           },
           {
             label: 'By-U Music',
-            hash: 'byu',
+            hash: 'byu-music',
             description: 'Lagu Putri Helisma — dibuka 15 Juni 2026',
             icon: 'ri-music-2-line',
           },

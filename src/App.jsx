@@ -62,6 +62,10 @@ const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
 const DenyutPage = lazy(() => import('./pages/Denyut'));
+// ByuMusic — page dedicated utk lagu By-U Putri Helisma. Pre-release
+// support phase → auto-reveal player 15 Juni 2026. Standalone page,
+// linked dari dropdown navbar Harmoni Kebaikan.
+const ByuMusicPage = lazy(() => import('./pages/ByuMusic'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -123,11 +127,16 @@ function AppShell() {
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
-            {/* Titipan jadi tab di /26 (Harmoni Kebaikan hub). /titipan
-                standalone diredirect ke tab langsung. */}
+            <Route path="/byu-music" element={<ByuMusicPage />} />
+            {/* Link lama /titipan & /byu redirect ke /byu-music supaya
+                gak 404. */}
             <Route
               path="/titipan"
-              element={<Navigate to="/26#titipan" replace />}
+              element={<Navigate to="/byu-music" replace />}
+            />
+            <Route
+              path="/byu"
+              element={<Navigate to="/byu-music" replace />}
             />
             {/* /galeri-kebaikan redirects to /26 while the project is
                 pre-announce — keeps any pre-shared links from 404'ing. */}
