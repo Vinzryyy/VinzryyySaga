@@ -388,30 +388,32 @@ const CENTER_X = 200;
 // dgn metal rings + handle, isinya apricot bertumpuk (cap 30 visual,
 // counter di bawah show actual count).
 const BUCKET_THRESHOLD = 1700;
-const BUCKET_CAPACITY = 30;
-const BUCKET_CX = 320; // CENTER_X + 120 — sebelah kanan pot
+const BUCKET_CAPACITY = 48;
+const BUCKET_CX = 332; // sebelah kanan pot — kasih breathing room
 const BUCKET_BOTTOM_Y = POT_BOTTOM_Y - 2;
-const BUCKET_TOP_Y = BUCKET_BOTTOM_Y - 56;
-const BUCKET_TOP_W = 52;
-const BUCKET_BOTTOM_W = 38;
+const BUCKET_TOP_Y = BUCKET_BOTTOM_Y - 92; // 92px tall (sebelumnya 56)
+const BUCKET_TOP_W = 86;
+const BUCKET_BOTTOM_W = 60;
 
-// Layered apricot positions inside bucket — 4 rows, total 30 slots.
-// Deterministic per index (no Math.random per render).
+// Layered apricot positions inside bucket — 5 rows, total 48 slots.
+// Deterministic per index. Buah lebih banyak & lebih besar dari versi
+// kecil — fill bucket-nya kerasa.
 const BUCKET_APRICOT_POSITIONS = (() => {
   const rows = [
-    { dy: 6,  width: 38, count: 6, size: 4.2 },   // top — slightly above rim
-    { dy: 13, width: 42, count: 8, size: 4.0 },
-    { dy: 22, width: 42, count: 9, size: 3.8 },
-    { dy: 32, width: 38, count: 7, size: 3.6 },
+    { dy: 8,  width: 60, count: 8,  size: 6.4 },   // top row — overflow rim
+    { dy: 18, width: 68, count: 10, size: 6.0 },
+    { dy: 32, width: 70, count: 11, size: 5.8 },
+    { dy: 48, width: 68, count: 11, size: 5.6 },
+    { dy: 64, width: 60, count: 8,  size: 5.2 },
   ];
   const arr = [];
   let idx = 0;
   rows.forEach((row) => {
     for (let i = 0; i < row.count; i++) {
       const t = row.count === 1 ? 0.5 : i / (row.count - 1);
-      const x = BUCKET_CX - row.width / 2 + t * row.width + ((idx * 7) % 5 - 2);
-      const y = BUCKET_TOP_Y + row.dy + ((idx * 11) % 4 - 2) * 0.4;
-      arr.push({ x, y, size: row.size + ((idx * 13) % 3) * 0.18, idx });
+      const x = BUCKET_CX - row.width / 2 + t * row.width + ((idx * 7) % 7 - 3) * 0.55;
+      const y = BUCKET_TOP_Y + row.dy + ((idx * 11) % 4 - 2) * 0.5;
+      arr.push({ x, y, size: row.size + ((idx * 13) % 3) * 0.25, idx });
       idx++;
     }
   });
@@ -424,14 +426,14 @@ const ApricotBucket = ({ filled = 0 }) => {
   const isFull = filled >= BUCKET_CAPACITY;
   return (
     <g aria-label={`Bucket panen — ${filled} buah aprikot`}>
-      {/* Drop shadow di tanah */}
+      {/* Drop shadow di tanah — lebih luas utk bucket besar */}
       <ellipse
         cx={BUCKET_CX}
-        cy={BUCKET_BOTTOM_Y + 4}
-        rx={BUCKET_BOTTOM_W / 2 + 4}
-        ry="3.5"
+        cy={BUCKET_BOTTOM_Y + 5}
+        rx={BUCKET_BOTTOM_W / 2 + 8}
+        ry="5"
         fill="#3a2820"
-        opacity="0.28"
+        opacity="0.3"
       />
       {/* Body — wooden trapezoid */}
       <path
@@ -441,69 +443,89 @@ const ApricotBucket = ({ filled = 0 }) => {
            L ${BUCKET_CX - BUCKET_BOTTOM_W / 2} ${BUCKET_BOTTOM_Y} Z`}
         fill="#8b6f47"
         stroke="#4a3220"
-        strokeWidth="1.4"
+        strokeWidth="1.8"
       />
-      {/* Wood slats — vertical lines untuk wood texture */}
-      {[-0.6, -0.3, 0, 0.3, 0.6].map((p, i) => {
-        const xTop = BUCKET_CX + p * BUCKET_TOP_W * 0.95;
-        const xBot = BUCKET_CX + p * BUCKET_BOTTOM_W * 0.95;
+      {/* Wood slats — 7 vertical lines (sebelumnya 5) untuk bigger texture */}
+      {[-0.7, -0.46, -0.22, 0, 0.22, 0.46, 0.7].map((p, i) => {
+        const xTop = BUCKET_CX + p * BUCKET_TOP_W * 0.94;
+        const xBot = BUCKET_CX + p * BUCKET_BOTTOM_W * 0.94;
         return (
           <line
             key={`slat-${i}`}
             x1={xTop}
-            y1={BUCKET_TOP_Y + 1}
+            y1={BUCKET_TOP_Y + 1.5}
             x2={xBot}
-            y2={BUCKET_BOTTOM_Y - 1}
+            y2={BUCKET_BOTTOM_Y - 1.5}
             stroke="#5a3e25"
-            strokeWidth="0.8"
+            strokeWidth="1"
             opacity="0.55"
           />
         );
       })}
-      {/* Top metal ring */}
+      {/* Top metal ring — lebih tebal */}
       <ellipse
         cx={BUCKET_CX}
         cy={BUCKET_TOP_Y}
         rx={BUCKET_TOP_W / 2}
-        ry="3"
+        ry="4.5"
         fill="#4a4035"
         stroke="#2a1f15"
-        strokeWidth="0.8"
+        strokeWidth="1"
       />
       {/* Inner cavity (rim depth) */}
       <ellipse
         cx={BUCKET_CX}
-        cy={BUCKET_TOP_Y + 0.6}
-        rx={BUCKET_TOP_W / 2 - 3}
-        ry="2"
-        fill="#3a2a1c"
+        cy={BUCKET_TOP_Y + 1}
+        rx={BUCKET_TOP_W / 2 - 4}
+        ry="3"
+        fill="#2a1810"
       />
-      {/* Bottom metal ring */}
+      {/* Tengah ring — second band */}
       <rect
-        x={BUCKET_CX - BUCKET_BOTTOM_W / 2 - 1}
-        y={BUCKET_BOTTOM_Y - 4}
-        width={BUCKET_BOTTOM_W + 2}
+        x={BUCKET_CX - BUCKET_TOP_W * 0.42}
+        y={BUCKET_TOP_Y + (BUCKET_BOTTOM_Y - BUCKET_TOP_Y) * 0.45}
+        width={BUCKET_TOP_W * 0.84}
         height="3.5"
-        rx="1"
         fill="#4a4035"
         stroke="#2a1f15"
-        strokeWidth="0.5"
+        strokeWidth="0.6"
+        opacity="0.85"
       />
-      {/* Handle — semicircle arc dari kiri ke kanan */}
+      {/* Bottom metal ring — lebih tebal */}
+      <rect
+        x={BUCKET_CX - BUCKET_BOTTOM_W / 2 - 2}
+        y={BUCKET_BOTTOM_Y - 5}
+        width={BUCKET_BOTTOM_W + 4}
+        height="5"
+        rx="1.5"
+        fill="#4a4035"
+        stroke="#2a1f15"
+        strokeWidth="0.7"
+      />
+      {/* Handle — semicircle arc lebih besar */}
       <path
-        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 4} ${BUCKET_TOP_Y}
-           Q ${BUCKET_CX} ${BUCKET_TOP_Y - 16} ${BUCKET_CX + BUCKET_TOP_W / 2 - 4} ${BUCKET_TOP_Y}`}
+        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 6} ${BUCKET_TOP_Y}
+           Q ${BUCKET_CX} ${BUCKET_TOP_Y - 26} ${BUCKET_CX + BUCKET_TOP_W / 2 - 6} ${BUCKET_TOP_Y}`}
         fill="none"
         stroke="#2a1f15"
-        strokeWidth="1.6"
+        strokeWidth="2.4"
         strokeLinecap="round"
       />
-      {/* Sheen highlight di kiri body */}
+      {/* Handle inner shadow */}
       <path
-        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 4} ${BUCKET_TOP_Y + 5}
-           L ${BUCKET_CX - BUCKET_BOTTOM_W / 2 + 4} ${BUCKET_BOTTOM_Y - 5}`}
-        stroke="rgba(255,225,180,0.35)"
-        strokeWidth="2"
+        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 6} ${BUCKET_TOP_Y}
+           Q ${BUCKET_CX} ${BUCKET_TOP_Y - 26} ${BUCKET_CX + BUCKET_TOP_W / 2 - 6} ${BUCKET_TOP_Y}`}
+        fill="none"
+        stroke="rgba(0,0,0,0.4)"
+        strokeWidth="0.6"
+        strokeLinecap="round"
+      />
+      {/* Sheen highlight di kiri body — bigger, diagonal */}
+      <path
+        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 6} ${BUCKET_TOP_Y + 7}
+           L ${BUCKET_CX - BUCKET_BOTTOM_W / 2 + 6} ${BUCKET_BOTTOM_Y - 7}`}
+        stroke="rgba(255,225,180,0.4)"
+        strokeWidth="3"
         strokeLinecap="round"
       />
 
@@ -519,44 +541,55 @@ const ApricotBucket = ({ filled = 0 }) => {
             fill="var(--retro-gold-light)"
             opacity="0.85"
           />
-          {/* Stem mini untuk top row */}
-          {a.y < BUCKET_TOP_Y + 8 && (
-            <line
-              x1={a.x}
-              y1={a.y - a.size}
-              x2={a.x}
-              y2={a.y - a.size - 2}
-              stroke="var(--retro-brown-dark)"
-              strokeWidth="0.8"
-              strokeLinecap="round"
-            />
+          {/* Stem + leaf untuk top row (overflow rim) */}
+          {a.y < BUCKET_TOP_Y + 11 && (
+            <>
+              <line
+                x1={a.x}
+                y1={a.y - a.size}
+                x2={a.x}
+                y2={a.y - a.size - 3}
+                stroke="var(--retro-brown-dark)"
+                strokeWidth="1.1"
+                strokeLinecap="round"
+              />
+              {/* Tiny leaf */}
+              <ellipse
+                cx={a.x + 2}
+                cy={a.y - a.size - 2.5}
+                rx="2"
+                ry="1.3"
+                fill="#7BA05B"
+                transform={`rotate(40 ${a.x + 2} ${a.y - a.size - 2.5})`}
+              />
+            </>
           )}
         </g>
       ))}
 
-      {/* Counter badge di bawah bucket */}
+      {/* Counter badge di bawah bucket — lebih besar match scale */}
       <g>
         <rect
-          x={BUCKET_CX - 22}
-          y={BUCKET_BOTTOM_Y + 8}
-          width="44"
-          height="14"
-          rx="7"
+          x={BUCKET_CX - 30}
+          y={BUCKET_BOTTOM_Y + 11}
+          width="60"
+          height="18"
+          rx="9"
           fill="var(--retro-burgundy)"
-          opacity="0.92"
+          opacity="0.94"
         />
         <text
           x={BUCKET_CX}
-          y={BUCKET_BOTTOM_Y + 17.5}
+          y={BUCKET_BOTTOM_Y + 23.5}
           textAnchor="middle"
-          fontSize="9"
+          fontSize="11"
           fontWeight="700"
           fill="var(--retro-cream)"
           fontFamily="inherit"
         >
           {filled.toLocaleString('id-ID')}
           {isFull && (
-            <tspan opacity="0.7" dx="1" fontSize="7">
+            <tspan opacity="0.7" dx="2" fontSize="9">
               ✦
             </tspan>
           )}
