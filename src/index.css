@@ -420,6 +420,62 @@ body {
   .eli-fruit-hover { transform: none; filter: none; }
 }
 
+/* Tree wobble — tree pelan goyang saat user siram (one-shot 750ms).
+   Origin bottom center supaya gerakan natural dari akar/pot. */
+@keyframes eliTreeWobble {
+  0%   { transform: rotate(0deg) translateY(0); }
+  18%  { transform: rotate(-1.8deg) translateY(-2px); }
+  36%  { transform: rotate(1.6deg) translateY(-1px); }
+  56%  { transform: rotate(-1.1deg) translateY(0); }
+  76%  { transform: rotate(0.7deg); }
+  100% { transform: rotate(0deg); }
+}
+.eli-tree-wobble {
+  animation: eliTreeWobble 750ms ease-out;
+  transform-origin: bottom center;
+}
+
+/* Stage advance burst — flash radial + badge zoom + confetti rain.
+   Hanya muncul saat stage advance terjadi (5s display). */
+@keyframes eliStageFlash {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  35%  { opacity: 0.55; transform: translate(-50%, -50%) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+}
+.eli-stage-flash {
+  background: radial-gradient(circle, rgba(232,179,90,0.5) 0%, rgba(232,179,90,0.15) 45%, transparent 75%);
+  animation: eliStageFlash 1400ms ease-out forwards;
+}
+@keyframes eliStageBadge {
+  0%   { opacity: 0; transform: translateY(-12px) scale(0.85); }
+  20%  { opacity: 1; transform: translateY(0) scale(1.06); }
+  35%  { transform: translateY(0) scale(1); }
+  85%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+.eli-stage-badge {
+  animation: eliStageBadge 4800ms ease-out forwards;
+}
+@keyframes eliStageConfetti {
+  0%   { opacity: 0; transform: translateY(-20px) rotate(0deg) scale(0.7); }
+  10%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(180px) rotate(720deg) scale(0.9); }
+}
+.eli-stage-confetti {
+  width: 6px;
+  height: 9px;
+  border-radius: 1px;
+  animation-name: eliStageConfetti;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .eli-tree-wobble,
+  .eli-stage-flash,
+  .eli-stage-badge,
+  .eli-stage-confetti { animation: none !important; }
+}
+
 /* ==========================================================================
    Scrollbar Styling
    ========================================================================== */

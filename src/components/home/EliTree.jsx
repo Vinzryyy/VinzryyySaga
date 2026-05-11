@@ -15,7 +15,7 @@
  * shows a "demo mode" message instead of crashing.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   subscribeToTreeSupports,
   incrementTreeSupports,
@@ -1279,18 +1279,54 @@ const Apricot = ({ cx, cy, size }) => {
   );
 };
 
+// Count-up hook — animate number dari prev → target value (ease-out
+// cubic). Hindari snapping yg kerasa "ngehack". Smooth tween 700ms.
+const useCountUp = (target, duration = 700) => {
+  const [display, setDisplay] = useState(target);
+  const fromRef = useRef(target);
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = target;
+    if (from === to) {
+      setDisplay(to);
+      return undefined;
+    }
+    const start = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const v = Math.round(from + (to - from) * eased);
+      setDisplay(v);
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = to;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => raf && cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return display;
+};
+
 const EliTree = () => {
   const [count, setCount] = useState(0);
   const [supportedToday, setSupportedToday] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null); // { kind: 'success'|'error', message }
   const [justAdvancedStage, setJustAdvancedStage] = useState(null);
+  // Wobble state — tree goyang singkat begitu support sukses.
+  const [wobbleKey, setWobbleKey] = useState(0);
   const [liveWishes, setLiveWishes] = useState([]);
   const [openWish, setOpenWish] = useState(null);
   // One random seed picked once per mount. Drives the hanging-wish
   // shuffle below via a deterministic PRNG so the memo stays pure
   // (Math.random() during render trips react-hooks/purity).
   const [shuffleSeed] = useState(() => Math.floor(Math.random() * 0x7fffffff));
+
+  // Animated counter — display tween dari nilai sebelumnya ke target.
+  const displayCount = useCountUp(count);
 
   useEffect(() => {
     setSupportedToday(hasSupportedToday());
@@ -1367,6 +1403,8 @@ const EliTree = () => {
         kind: 'success',
         message: 'Terima kasih! Dukunganmu sudah dikirim. Kembali besok untuk menyiram lagi 🌱',
       });
+      // Trigger wobble (re-mount via key bump supaya animation restart).
+      setWobbleKey((k) => k + 1);
       const newStage = Math.min(MAX_STAGE, Math.floor((result.count || count + 1) / SUPPORTS_PER_STAGE));
       if (newStage > prevStage) {
         setJustAdvancedStage(newStage);
@@ -1391,17 +1429,67 @@ const EliTree = () => {
               room to grow without being cramped against the form. */}
           <div className="relative flex flex-col items-center">
             <div className="relative w-full flex justify-center">
-              <TreeArt
-                stage={stage}
-                count={count}
-                wishes={hangingWishes}
-                onOpenWish={setOpenWish}
-              />
+              {/* Wrapper untuk wobble — key bump force animation restart
+                  tiap kali user siram sukses. */}
+              <div
+                key={`wobble-${wobbleKey}`}
+                className={wobbleKey > 0 ? 'eli-tree-wobble' : ''}
+              >
+                <TreeArt
+                  stage={stage}
+                  count={count}
+                  wishes={hangingWishes}
+                  onOpenWish={setOpenWish}
+                />
+              </div>
+
+              {/* Stage advance burst — confetti + flash label di atas
+                  pohon. Lebih dramatis dari chip kecil sebelumnya. */}
               {justAdvancedStage != null && (
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.3em] shadow-lg animate-[fadeIn_0.4s_ease-out]">
-                  <i className="ri-sparkling-2-fill mr-1" />
-                  Pohon naik level: {STAGES[justAdvancedStage]?.label}
-                </div>
+                <>
+                  {/* Confetti burst dari atas tree */}
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-32 overflow-hidden">
+                    {Array.from({ length: 14 }).map((_, i) => {
+                      const colors = ['#8b4040', '#c9a961', '#e85064', '#f4d0a0', '#f4a8c0', '#a95050'];
+                      const c = colors[i % colors.length];
+                      // Spread linear dgn jitter — left jadi negatif/positif
+                      // relatif center, range -150 to +150 px.
+                      const xOff = -150 + (i / 13) * 300 + ((i * 7) % 13 - 6);
+                      return (
+                        <span
+                          key={`adv-conf-${justAdvancedStage}-${i}`}
+                          className="absolute eli-stage-confetti"
+                          style={{
+                            left: `calc(50% + ${xOff}px)`,
+                            top: '-10px',
+                            background: c,
+                            animationDelay: `${(i * 0.06).toFixed(2)}s`,
+                            animationDuration: `${(2.2 + (i % 5) * 0.25).toFixed(2)}s`,
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+                  {/* Big radial flash */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full eli-stage-flash"
+                  />
+                  {/* Stage label — bigger + pulse */}
+                  <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-10">
+                    <div className="px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-[0_10px_40px_-8px_rgba(139,64,64,0.7)] eli-stage-badge">
+                      <span className="block text-[9px] font-black uppercase tracking-[0.32em] opacity-75 text-center">
+                        Pohon naik level
+                      </span>
+                      <span className="flex items-center justify-center gap-2 mt-0.5">
+                        <i className="ri-sparkling-2-fill text-base text-[color:var(--retro-gold-light)]" />
+                        <span className="font-header italic text-sm">
+                          {STAGES[justAdvancedStage]?.label}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
             <div className="mt-6 text-center">
@@ -1438,7 +1526,7 @@ const EliTree = () => {
                   Dukungan Terkumpul
                 </p>
                 <p className="font-header text-6xl md:text-7xl font-black tabular-nums text-[color:var(--retro-burgundy)] leading-none">
-                  {count}
+                  {displayCount.toLocaleString('id-ID')}
                 </p>
               </div>
               {!isMaxStage && (
