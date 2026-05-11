@@ -200,27 +200,112 @@ const EmittedNotes = ({ show }) => {
   );
 };
 
-// Chain & padlock overlay — silver chrome chains banyak wraps, ada yg
-// extend keluar heart edges (kayak rantai yg menjuntai dari segelan).
-// 5 main strands di sudut beda + 2 loose ends. Padlock besar di tengah.
-// Opacity ramp per stage: full lock → hilang sempurna.
-//
-// viewBox -18..118 (lebih luas dari heart 0..100) supaya chains
-// natural extend past heart bounds. SVG dimensions juga lebih besar
-// dari heart wrapper untuk overflow visual.
+// Chain & padlock overlay — realistic interlocking oval chain links,
+// silver chrome. 5 main strands + 2 loose ends + center padlock.
+// Per strand, generate N oval links sepanjang stroke, alternate
+// orientation (parallel/perpendicular) supaya interlocking visual.
 const CHAIN_STROKES = [
-  { angle: 22, y: 30, x1: -14, x2: 114, width: 4.2 },
-  { angle: -28, y: 48, x1: -16, x2: 116, width: 4.4 },
-  { angle: 52, y: 60, x1: -12, x2: 112, width: 3.9 },
-  { angle: -56, y: 42, x1: -12, x2: 112, width: 3.7 },
-  { angle: 8, y: 72, x1: -14, x2: 114, width: 4.1 },
+  { angle: 22, y: 30, x1: -14, x2: 114 },
+  { angle: -28, y: 48, x1: -16, x2: 116 },
+  { angle: 52, y: 60, x1: -12, x2: 112 },
+  { angle: -56, y: 42, x1: -12, x2: 112 },
+  { angle: 8, y: 72, x1: -14, x2: 114 },
 ];
-// Loose chain ends — short segments dgn ujung free yg "menjuntai"
-// keluar dari heart edges (kayak rantai yg lepas dari segelan).
 const CHAIN_LOOSE_ENDS = [
-  { angle: -10, x1: 95, y1: 78, x2: 122, y2: 88 },  // kanan-bawah keluar
-  { angle: 15, x1: 5, y1: 18, x2: -18, y2: 12 },     // kiri-atas keluar
+  { x1: 95, y1: 78, x2: 122, y2: 92 },
+  { x1: 5, y1: 18, x2: -20, y2: 10 },
 ];
+
+// Render N oval links sepanjang strand horizontal x1→x2 at y. Alternate
+// rotation 0°/90° untuk interlocking effect. Caller wraps dgn rotate(angle).
+const renderHorizontalChainLinks = (x1, y, x2, keyPrefix) => {
+  const spacing = 4.6;
+  const linkRx = 2.7;
+  const linkRy = 1.55;
+  const total = x2 - x1;
+  const n = Math.max(2, Math.floor(total / spacing));
+  const step = total / n;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const cx = x1 + (i + 0.5) * step;
+    const isPerp = i % 2 === 1;
+    out.push(
+      <g
+        key={`${keyPrefix}-${i}`}
+        transform={`translate(${cx} ${y}) rotate(${isPerp ? 90 : 0})`}
+      >
+        {/* Link body — outline only, supaya kerasa loop terbuka. */}
+        <ellipse
+          cx="0" cy="0"
+          rx={linkRx} ry={linkRy}
+          fill="none"
+          stroke="url(#byuChain)"
+          strokeWidth="0.85"
+        />
+        {/* Inner shadow di bawah link — depth */}
+        <path
+          d={`M ${-linkRx + 0.5} ${linkRy - 0.3} A ${linkRx - 0.5} ${linkRy - 0.3} 0 0 0 ${linkRx - 0.5} ${linkRy - 0.3}`}
+          fill="none"
+          stroke="rgba(0,0,0,0.4)"
+          strokeWidth="0.4"
+        />
+        {/* Top highlight di atas link — chrome shine */}
+        <path
+          d={`M ${-linkRx + 0.6} ${-linkRy + 0.4} A ${linkRx - 0.6} ${linkRy - 0.4} 0 0 1 ${linkRx - 0.6} ${-linkRy + 0.4}`}
+          fill="none"
+          stroke="rgba(255,255,255,0.75)"
+          strokeWidth="0.45"
+        />
+      </g>,
+    );
+  }
+  return out;
+};
+
+// Render N oval links sepanjang loose end (x1,y1)→(x2,y2). Compute
+// segment angle internally, alternate orientation. Tail end dapet
+// ring kecil utk hint "loose link".
+const renderLooseChainLinks = (x1, y1, x2, y2, keyPrefix) => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const segAngle = (Math.atan2(dy, dx) * 180) / Math.PI;
+  const spacing = 4.6;
+  const linkRx = 2.7;
+  const linkRy = 1.55;
+  const n = Math.max(2, Math.floor(length / spacing));
+  const step = 1 / n;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) * step;
+    const cx = x1 + dx * t;
+    const cy = y1 + dy * t;
+    const isPerp = i % 2 === 1;
+    out.push(
+      <g
+        key={`${keyPrefix}-${i}`}
+        transform={`translate(${cx} ${cy}) rotate(${segAngle + (isPerp ? 90 : 0)})`}
+      >
+        <ellipse cx="0" cy="0" rx={linkRx} ry={linkRy} fill="none" stroke="url(#byuChain)" strokeWidth="0.85" />
+        <path d={`M ${-linkRx + 0.5} ${linkRy - 0.3} A ${linkRx - 0.5} ${linkRy - 0.3} 0 0 0 ${linkRx - 0.5} ${linkRy - 0.3}`} fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="0.4" />
+        <path d={`M ${-linkRx + 0.6} ${-linkRy + 0.4} A ${linkRx - 0.6} ${linkRy - 0.4} 0 0 1 ${linkRx - 0.6} ${-linkRy + 0.4}`} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="0.45" />
+      </g>,
+    );
+  }
+  // Tail ring di ujung loose — link terakhir yg dangling.
+  out.push(
+    <ellipse
+      key={`${keyPrefix}-tail`}
+      cx={x2} cy={y2}
+      rx="2.6" ry="2.6"
+      fill="none"
+      stroke="url(#byuChain)"
+      strokeWidth="1.1"
+    />,
+  );
+  return out;
+};
+
 const ChainOverlay = ({ stage }) => {
   const chainOpacity = Math.max(0, 1 - (stage - 1) / 4);
   if (chainOpacity <= 0.04) return null;
@@ -228,7 +313,7 @@ const ChainOverlay = ({ stage }) => {
   return (
     <svg
       aria-hidden="true"
-      viewBox="-18 -18 136 136"
+      viewBox="-22 -22 144 144"
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 sm:w-72 sm:h-72 pointer-events-none z-10"
       style={{
         opacity: chainOpacity,
@@ -238,27 +323,19 @@ const ChainOverlay = ({ stage }) => {
       }}
     >
       <defs>
-        {/* Silver chain gradient — chrome polish look */}
+        {/* Silver chrome gradient — chain link stroke */}
         <linearGradient id="byuChain" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#e8eaed" />
-          <stop offset="40%" stopColor="#9a9da3" />
-          <stop offset="60%" stopColor="#7a7d83" />
+          <stop offset="0%" stopColor="#f0f1f4" />
+          <stop offset="35%" stopColor="#b4b7bd" />
+          <stop offset="55%" stopColor="#7a7d83" />
           <stop offset="100%" stopColor="#c8ccd0" />
         </linearGradient>
-        {/* Highlight pita di atas chain — bikin link kerasa metallic */}
-        <linearGradient id="byuChainGlint" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.85)" />
-          <stop offset="50%" stopColor="rgba(255,255,255,0.45)" />
-          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-        </linearGradient>
-        {/* Padlock body — chrome silver */}
         <linearGradient id="byuLock" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#dadde2" />
           <stop offset="35%" stopColor="#9a9da3" />
           <stop offset="70%" stopColor="#6a6d73" />
           <stop offset="100%" stopColor="#4a4d53" />
         </linearGradient>
-        {/* Shackle (U-bar) — slightly darker */}
         <linearGradient id="byuShackle" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#c8ccd0" />
           <stop offset="50%" stopColor="#7a7d83" />
@@ -266,58 +343,18 @@ const ChainOverlay = ({ stage }) => {
         </linearGradient>
       </defs>
 
-      {/* 5 strand chain — masing-masing dgn 2 stroke layer (body silver
-          + highlight glint) supaya kerasa metallic. Stroke-dasharray
-          mimik link rantai. Beberapa extend keluar viewBox 0-100
-          (x1 negatif, x2 > 100) → kerasa rantai melilit keluar heart. */}
+      {/* 5 main strands. Each strand di-rotate sesuai angle, lalu
+          render N interlocking oval links sepanjang stroke. */}
       {CHAIN_STROKES.map((c, i) => (
-        <g key={`s-${i}`} transform={`rotate(${c.angle} 50 50)`}>
-          <line
-            x1={c.x1} y1={c.y} x2={c.x2} y2={c.y}
-            stroke="url(#byuChain)"
-            strokeWidth={c.width}
-            strokeLinecap="round"
-            strokeDasharray="4.5 2"
-          />
-          <line
-            x1={c.x1} y1={c.y - 0.7} x2={c.x2} y2={c.y - 0.7}
-            stroke="url(#byuChainGlint)"
-            strokeWidth={c.width * 0.32}
-            strokeLinecap="round"
-            strokeDasharray="3 3.5"
-            opacity="0.85"
-          />
+        <g key={`strand-${i}`} transform={`rotate(${c.angle} 50 50)`}>
+          {renderHorizontalChainLinks(c.x1, c.y, c.x2, `s${i}`)}
         </g>
       ))}
 
-      {/* Loose chain ends — segmen pendek dgn ujung free, menjuntai
-          keluar dari edges heart. Kerasa kayak rantai yg lepas dari
-          segelan. */}
+      {/* 2 loose ends — chain menjuntai keluar heart edges */}
       {CHAIN_LOOSE_ENDS.map((c, i) => (
-        <g key={`l-${i}`}>
-          <line
-            x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2}
-            stroke="url(#byuChain)"
-            strokeWidth="3.6"
-            strokeLinecap="round"
-            strokeDasharray="4 2"
-          />
-          <line
-            x1={c.x1} y1={c.y1 - 0.6} x2={c.x2} y2={c.y2 - 0.6}
-            stroke="url(#byuChainGlint)"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeDasharray="2.5 3"
-            opacity="0.85"
-          />
-          {/* Ujung link bulat — ring kecil di end menjadi hint "link
-              terakhir yg dangling". */}
-          <circle
-            cx={c.x2} cy={c.y2} r="2.4"
-            fill="none"
-            stroke="url(#byuChain)"
-            strokeWidth="1.4"
-          />
+        <g key={`loose-${i}`}>
+          {renderLooseChainLinks(c.x1, c.y1, c.x2, c.y2, `l${i}`)}
         </g>
       ))}
 
