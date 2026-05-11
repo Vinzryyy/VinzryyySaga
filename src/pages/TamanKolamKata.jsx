@@ -4026,6 +4026,336 @@ const PaperCraneGarland = ({ pos, rot = 0, isMobile }) => {
   );
 };
 
+// Torii gate — iconic Japanese red gate, BIG landmark. 2 vertical
+// red pillars + curved top "kasagi" + straight "shimaki" below.
+// Place sebagai entrance approach di corner.
+const Torii = ({ pos, rot = 0, scale = 1 }) => {
+  const PILLAR_H = 4.0 * scale;
+  const SPAN = 3.4 * scale;
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Pillars (slightly tilted inward for authentic shape) */}
+      <mesh position={[-SPAN / 2, PILLAR_H / 2, 0]} rotation={[0, 0, 0.025]} castShadow>
+        <cylinderGeometry args={[0.18 * scale, 0.22 * scale, PILLAR_H, 8]} />
+        <meshStandardMaterial color="#c84838" roughness={0.6} />
+      </mesh>
+      <mesh position={[SPAN / 2, PILLAR_H / 2, 0]} rotation={[0, 0, -0.025]} castShadow>
+        <cylinderGeometry args={[0.18 * scale, 0.22 * scale, PILLAR_H, 8]} />
+        <meshStandardMaterial color="#c84838" roughness={0.6} />
+      </mesh>
+      {/* Shimaki — straight beam below curved top */}
+      <mesh position={[0, PILLAR_H - 0.45 * scale, 0]} castShadow>
+        <boxGeometry args={[SPAN + 0.3 * scale, 0.22 * scale, 0.35 * scale]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.85} />
+      </mesh>
+      {/* Kasagi — curved top beam (approximated dgn wider box + 2 end caps) */}
+      <mesh position={[0, PILLAR_H - 0.15 * scale, 0]} castShadow>
+        <boxGeometry args={[SPAN + 1.0 * scale, 0.28 * scale, 0.45 * scale]} />
+        <meshStandardMaterial color="#c84838" roughness={0.6} />
+      </mesh>
+      {/* Upturned end caps on kasagi */}
+      <mesh
+        position={[-(SPAN + 1.0 * scale) / 2 + 0.08, PILLAR_H + 0.02 * scale, 0]}
+        rotation={[0, 0, 0.3]}
+      >
+        <boxGeometry args={[0.4 * scale, 0.28 * scale, 0.45 * scale]} />
+        <meshStandardMaterial color="#c84838" roughness={0.6} />
+      </mesh>
+      <mesh
+        position={[(SPAN + 1.0 * scale) / 2 - 0.08, PILLAR_H + 0.02 * scale, 0]}
+        rotation={[0, 0, -0.3]}
+      >
+        <boxGeometry args={[0.4 * scale, 0.28 * scale, 0.45 * scale]} />
+        <meshStandardMaterial color="#c84838" roughness={0.6} />
+      </mesh>
+      {/* Center plaque (gakuzuka) */}
+      <mesh position={[0, PILLAR_H - 0.85 * scale, 0]}>
+        <boxGeometry args={[0.5 * scale, 0.4 * scale, 0.1 * scale]} />
+        <meshStandardMaterial color="#e8d098" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, PILLAR_H - 0.85 * scale, 0.055 * scale]}>
+        <boxGeometry args={[0.32 * scale, 0.18 * scale, 0.01 * scale]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.9} />
+      </mesh>
+      {/* Tie at base pillars */}
+      <mesh position={[-SPAN / 2, 0.5 * scale, 0]}>
+        <cylinderGeometry args={[0.23 * scale, 0.23 * scale, 0.12 * scale, 8]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.85} />
+      </mesh>
+      <mesh position={[SPAN / 2, 0.5 * scale, 0]}>
+        <cylinderGeometry args={[0.23 * scale, 0.23 * scale, 0.12 * scale, 8]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// Sakura tree — stylized cherry blossom tree. Tall slim trunk + wide
+// crown made of pink-cream spheres (vs BankTree yang hijau). Adds
+// vertical drama + tie sama FallingPetals existing.
+const SakuraTree = ({ pos, scale = 1 }) => {
+  const blossomCount = 14;
+  const blossomDefs = useMemo(
+    () =>
+      Array.from({ length: blossomCount }, (_, i) => {
+        const angle = (i / blossomCount) * Math.PI * 2;
+        const r = 1.0 + (i % 3) * 0.4;
+        const y = 2.5 + ((i * 7) % 9) * 0.18;
+        return {
+          x: Math.cos(angle) * r,
+          y,
+          z: Math.sin(angle) * r,
+          size: 0.7 + ((i * 11) % 7) * 0.08,
+          color: ['#f4a8c0', '#f4c0d4', '#f8d4dc', '#f4b8c8'][i % 4],
+        };
+      }),
+    []
+  );
+  return (
+    <group position={pos} scale={scale}>
+      {/* Trunk */}
+      <mesh position={[0, 1.4, 0]} castShadow>
+        <cylinderGeometry args={[0.12, 0.18, 2.8, 7]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Trunk branches diverging upward */}
+      <mesh position={[0.18, 2.5, 0.1]} rotation={[0, 0, -0.3]}>
+        <cylinderGeometry args={[0.04, 0.07, 0.9, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[-0.18, 2.5, -0.1]} rotation={[0, 0, 0.3]}>
+        <cylinderGeometry args={[0.04, 0.07, 0.9, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Pink blossom puffs */}
+      {blossomDefs.map((b, i) => (
+        <mesh key={`bl-${i}`} position={[b.x, b.y, b.z]} castShadow>
+          <sphereGeometry args={[b.size, 8, 6]} />
+          <meshStandardMaterial
+            color={b.color}
+            emissive={b.color}
+            emissiveIntensity={0.12}
+            roughness={0.85}
+          />
+        </mesh>
+      ))}
+      {/* Center large bloom mass */}
+      <mesh position={[0, 3.0, 0]} castShadow>
+        <sphereGeometry args={[1.0, 10, 7]} />
+        <meshStandardMaterial
+          color="#f4b8c8"
+          emissive="#f4b8c8"
+          emissiveIntensity={0.1}
+          roughness={0.85}
+        />
+      </mesh>
+    </group>
+  );
+};
+const SAKURA_DEFS = [
+  { pos: [-25, 0, -4], scale: 1.1 },
+  { pos: [25, 0, 8], scale: 1.0 },
+];
+const Sakuras = ({ isMobile }) => {
+  const list = isMobile ? SAKURA_DEFS.slice(0, 1) : SAKURA_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <SakuraTree key={`sakura-${i}`} pos={d.pos} scale={d.scale} />
+      ))}
+    </>
+  );
+};
+
+// Jizo statue — small stylized stone Buddha figure dengan red knit
+// bib. Iconic Japanese guardian statue, scatter di outer/path area.
+const JizoStatue = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stone base */}
+    <mesh position={[0, 0.06, 0]}>
+      <cylinderGeometry args={[0.18, 0.2, 0.12, 8]} />
+      <meshStandardMaterial color="#6a605a" roughness={1} />
+    </mesh>
+    {/* Body — pear-shaped (cylinder + sphere top) */}
+    <mesh position={[0, 0.35, 0]} castShadow>
+      <cylinderGeometry args={[0.14, 0.16, 0.4, 8]} />
+      <meshStandardMaterial color="#a8a098" roughness={0.95} />
+    </mesh>
+    {/* Head — round dome */}
+    <mesh position={[0, 0.62, 0]}>
+      <sphereGeometry args={[0.15, 10, 8]} />
+      <meshStandardMaterial color="#a8a098" roughness={0.95} />
+    </mesh>
+    {/* Eyes — closed (small slit dots) */}
+    <mesh position={[-0.05, 0.64, 0.13]}>
+      <boxGeometry args={[0.025, 0.005, 0.001]} />
+      <meshStandardMaterial color="#3a2818" roughness={1} />
+    </mesh>
+    <mesh position={[0.05, 0.64, 0.13]}>
+      <boxGeometry args={[0.025, 0.005, 0.001]} />
+      <meshStandardMaterial color="#3a2818" roughness={1} />
+    </mesh>
+    {/* Small mouth */}
+    <mesh position={[0, 0.6, 0.135]}>
+      <boxGeometry args={[0.02, 0.004, 0.001]} />
+      <meshStandardMaterial color="#3a2818" roughness={1} />
+    </mesh>
+    {/* Red knit bib — soft hanging cloth */}
+    <mesh position={[0, 0.5, 0.08]} rotation={[0.3, 0, 0]}>
+      <boxGeometry args={[0.28, 0.14, 0.02]} />
+      <meshStandardMaterial color="#c84838" roughness={0.85} />
+    </mesh>
+    {/* Bib bottom — slightly wider */}
+    <mesh position={[0, 0.42, 0.1]} rotation={[0.4, 0, 0]}>
+      <boxGeometry args={[0.3, 0.08, 0.02]} />
+      <meshStandardMaterial color="#a83828" roughness={0.85} />
+    </mesh>
+  </group>
+);
+const JIZO_DEFS = [
+  { pos: [-8, 0, -16], rot: 0.4 },
+  { pos: [10, 0, 16], rot: 2.8 },
+  { pos: [-21, 0, 9], rot: 1.2 },
+];
+const Jizos = ({ isMobile }) => {
+  const list = isMobile ? JIZO_DEFS.slice(0, 2) : JIZO_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <JizoStatue key={`jizo-${i}`} pos={d.pos} rot={d.rot} />
+      ))}
+    </>
+  );
+};
+
+// Bamboo grove — cluster of tall thin bamboo stalks dgn segmented
+// node rings. Light green color, vertical accent contrast dgn round
+// tree canopies.
+const BambooStalk = ({ pos, height = 4.2, color = '#8ba868' }) => {
+  // Node rings sepanjang stalk
+  const nodes = Array.from({ length: Math.floor(height / 0.6) }, (_, i) => 0.4 + i * 0.6);
+  return (
+    <group position={pos}>
+      <mesh position={[0, height / 2, 0]} castShadow>
+        <cylinderGeometry args={[0.07, 0.08, height, 6]} />
+        <meshStandardMaterial color={color} roughness={0.85} />
+      </mesh>
+      {/* Nodes */}
+      {nodes.map((y, i) => (
+        <mesh key={`node-${i}`} position={[0, y, 0]}>
+          <cylinderGeometry args={[0.082, 0.082, 0.03, 6]} />
+          <meshStandardMaterial color="#5a7045" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Top leaves — 3 small horizontal sprays */}
+      <mesh position={[0.1, height - 0.2, 0]} rotation={[0, 0, 0.5]}>
+        <boxGeometry args={[0.35, 0.04, 0.08]} />
+        <meshStandardMaterial color="#7a9858" roughness={0.85} />
+      </mesh>
+      <mesh position={[-0.08, height - 0.4, 0.1]} rotation={[0.3, 0.5, -0.4]}>
+        <boxGeometry args={[0.3, 0.04, 0.08]} />
+        <meshStandardMaterial color="#6e8c4c" roughness={0.85} />
+      </mesh>
+      <mesh position={[0.05, height - 0.6, -0.08]} rotation={[-0.2, 0.3, 0.4]}>
+        <boxGeometry args={[0.32, 0.04, 0.08]} />
+        <meshStandardMaterial color="#7a9858" roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+const BAMBOO_STALK_DEFS = (() => {
+  // 7 stalks in tight cluster ~1.5u radius
+  const arr = [];
+  const count = 9;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + (i % 2) * 0.5;
+    const r = 0.4 + (i % 3) * 0.35;
+    arr.push({
+      offset: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      height: 3.8 + (i % 4) * 0.4,
+      color: ['#8ba868', '#9ab070', '#7a9858', '#8ba868'][i % 4],
+    });
+  }
+  return arr;
+})();
+const BambooGrove = ({ pos, isMobile }) => {
+  const list = isMobile ? BAMBOO_STALK_DEFS.slice(0, 5) : BAMBOO_STALK_DEFS;
+  return (
+    <group position={pos}>
+      {list.map((s, i) => (
+        <BambooStalk key={`bamboo-${i}`} pos={s.offset} height={s.height} color={s.color} />
+      ))}
+    </group>
+  );
+};
+
+// Rowboat tied at dock — wooden boat hull (open shell), 2 oars, bench
+// seat. Floating on pond surface, gentle bob via useFrame.
+const Rowboat = ({ pos, rot = 0 }) => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (ref.current) {
+      const t = state.clock.elapsedTime;
+      ref.current.position.y = 0.05 + Math.sin(t * 0.8) * 0.025;
+      ref.current.rotation.z = Math.sin(t * 0.6) * 0.025;
+    }
+  });
+  return (
+    <group ref={ref} position={pos} rotation={[0, rot, 0]}>
+      {/* Hull bottom — flattened sphere/capsule */}
+      <mesh position={[0, 0.1, 0]} scale={[1.2, 0.18, 0.45]}>
+        <sphereGeometry args={[1, 12, 8]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+      </mesh>
+      {/* Hull rim — thin top ring */}
+      <mesh position={[0, 0.22, 0]} scale={[1.2, 0.04, 0.45]}>
+        <sphereGeometry args={[1, 12, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Inside dark (hollow effect) */}
+      <mesh position={[0, 0.18, 0]} scale={[1.1, 0.13, 0.4]}>
+        <sphereGeometry args={[1, 12, 6]} />
+        <meshStandardMaterial color="#2a1810" roughness={1} />
+      </mesh>
+      {/* Bench seat across middle */}
+      <mesh position={[0, 0.25, 0]}>
+        <boxGeometry args={[0.16, 0.04, 0.7]} />
+        <meshStandardMaterial color="#8a6a4a" roughness={0.9} />
+      </mesh>
+      {/* Bench seat second */}
+      <mesh position={[-0.55, 0.25, 0]}>
+        <boxGeometry args={[0.14, 0.04, 0.65]} />
+        <meshStandardMaterial color="#8a6a4a" roughness={0.9} />
+      </mesh>
+      {/* Oar L */}
+      <mesh position={[0.1, 0.35, -0.5]} rotation={[0, -0.4, 0.4]}>
+        <cylinderGeometry args={[0.025, 0.025, 1.4, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Oar L blade */}
+      <mesh position={[0.55, 0.18, -0.95]} rotation={[0, -0.4, 0.4]}>
+        <boxGeometry args={[0.32, 0.04, 0.14]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+      </mesh>
+      {/* Oar R */}
+      <mesh position={[0.1, 0.35, 0.5]} rotation={[0, 0.4, 0.4]}>
+        <cylinderGeometry args={[0.025, 0.025, 1.4, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Oar R blade */}
+      <mesh position={[0.55, 0.18, 0.95]} rotation={[0, 0.4, 0.4]}>
+        <boxGeometry args={[0.32, 0.04, 0.14]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+      </mesh>
+      {/* Mooring rope to dock direction (+x toward bank) */}
+      <mesh position={[0.8, 0.22, 0]} rotation={[0, 0, -0.1]}>
+        <cylinderGeometry args={[0.012, 0.012, 1.2, 4]} />
+        <meshStandardMaterial color="#5a4d3a" roughness={1} />
+      </mesh>
+    </group>
+  );
+};
+
 // Flying flock — burung yang terbang di mid altitude (y=5-9), drift
 // bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
 // udah ada (low + high).
@@ -5105,6 +5435,11 @@ const TelagaScene = ({
     <WindChime pos={[-22, 0, 0]} rot={0.4} />
     <SleepingCat pos={[-19, 0, -3.5]} rot={0.6} color="#d4a868" />
     <PaperCraneGarland pos={[-8, 0, -25]} rot={0.2} isMobile={isMobile} />
+    <Torii pos={[22, 0, -16]} rot={-0.5} scale={1.1} />
+    <Sakuras isMobile={isMobile} />
+    <Jizos isMobile={isMobile} />
+    <BambooGrove pos={[-23, 0, -4]} isMobile={isMobile} />
+    <Rowboat pos={[2.5, 0, 5.5]} rot={1.2} />
     <BankTrees count={isMobile ? 8 : 12} />
     <OuterTrees isMobile={isMobile} />
     <FlyingFlock isMobile={isMobile} />
