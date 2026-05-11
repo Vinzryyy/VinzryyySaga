@@ -1027,6 +1027,34 @@ const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
     };
   }, []);
 
+  // Auto-play attempt saat ReleasedView mount. Pattern: muted autoplay
+  // dulu (browser allow), unmute pas user first gesture. Setelah H day
+  // (15 Juni), tiap user yg buka /byu-music langsung dapet lagu jalan.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return undefined;
+    audio.muted = true;
+    audio.volume = 0.7;
+    audio.play().catch(() => {
+      /* autoplay blocked — user can still manual click */
+    });
+    const unlock = () => {
+      audio.muted = false;
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      }
+    };
+    const opts = { once: true, passive: true };
+    document.addEventListener('click', unlock, opts);
+    document.addEventListener('touchstart', unlock, opts);
+    document.addEventListener('keydown', unlock, opts);
+    return () => {
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+  }, []);
+
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
