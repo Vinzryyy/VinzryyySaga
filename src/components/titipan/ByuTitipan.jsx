@@ -222,27 +222,44 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
   );
 };
 
-const CountdownDisplay = ({ days, hours, minutes, seconds }) => (
-  <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8">
-    {[
-      { v: days, label: 'hari' },
-      { v: hours, label: 'jam' },
-      { v: minutes, label: 'menit' },
-      { v: seconds, label: 'detik' },
-    ].map((u) => (
-      <div key={u.label} className="text-center">
-        <div
-          className="font-header text-3xl sm:text-5xl font-black tabular-nums leading-none text-[color:var(--retro-burgundy)]"
-        >
-          {String(u.v).padStart(2, '0')}
-        </div>
-        <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mt-2 text-[color:var(--retro-burgundy)]/60">
-          {u.label}
-        </div>
-      </div>
-    ))}
-  </div>
-);
+const CountdownDisplay = ({ days, hours, minutes, seconds }) => {
+  const units = [
+    { v: days, label: 'hari', key: 'd' },
+    { v: hours, label: 'jam', key: 'h' },
+    { v: minutes, label: 'menit', key: 'm' },
+    { v: seconds, label: 'detik', key: 's' },
+  ];
+  return (
+    <div className="flex items-stretch justify-center gap-3 sm:gap-5 mb-8">
+      {units.map((u, i) => (
+        <React.Fragment key={u.key}>
+          <div className="text-center min-w-[56px] sm:min-w-[72px]">
+            {/* key=u.v memaksa re-mount setiap nilai berubah supaya
+                animation tick replay — detik = tiap detik. */}
+            <div
+              key={u.v}
+              className="font-header text-3xl sm:text-5xl font-black tabular-nums leading-none text-[color:var(--retro-burgundy)]"
+              style={{ animation: 'byuTick 380ms ease-out' }}
+            >
+              {String(u.v).padStart(2, '0')}
+            </div>
+            <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] mt-2 text-[color:var(--retro-burgundy)]/55">
+              {u.label}
+            </div>
+          </div>
+          {i < units.length - 1 && (
+            <div
+              aria-hidden="true"
+              className="self-start mt-2 sm:mt-3 font-header text-2xl sm:text-4xl text-[color:var(--retro-burgundy)]/20 leading-none select-none"
+            >
+              :
+            </div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
 
 const PreReleaseView = ({ supporters }) => {
   const { days, hours, minutes, seconds } = useCountdown(RELEASE_DATE);
@@ -255,6 +272,10 @@ const PreReleaseView = ({ supporters }) => {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  // Acknowledgment beat — saat klik berhasil, heart denyut lebih cepat
+  // + intensity penuh selama 2s. Kasih feedback fisik bahwa input
+  // ke-record, sebelum return ke ritme tenang.
+  const [justClicked, setJustClicked] = useState(false);
 
   const handleClick = async () => {
     if (hasClicked || submitting) return;
@@ -269,16 +290,20 @@ const PreReleaseView = ({ supporters }) => {
         /* storage blocked */
       }
       setHasClicked(true);
+      setJustClicked(true);
+      setTimeout(() => setJustClicked(false), 2200);
     } else {
       setError(friendlyError(result.error));
     }
   };
 
+  const baseIntensity = Math.min(1, 0.4 + supporters / 200);
+
   return (
     <>
       <BeatingHeart
-        intensity={Math.min(1, 0.4 + supporters / 200)}
-        period="1.1s"
+        intensity={justClicked ? 1 : baseIntensity}
+        period={justClicked ? '0.7s' : '1.1s'}
       />
 
       <p className="text-center font-header italic text-base sm:text-lg text-[color:var(--retro-text-primary)] leading-relaxed mb-8 max-w-xl mx-auto">
@@ -299,9 +324,11 @@ const PreReleaseView = ({ supporters }) => {
         {hasClicked ? (
           <div className="space-y-3">
             <div
-              className="inline-block px-6 py-3 rounded-full border border-[color:var(--retro-burgundy)]/30 bg-[color:var(--retro-burgundy)]/5 text-[color:var(--retro-burgundy)] text-sm font-header italic"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[color:var(--retro-burgundy)]/30 bg-gradient-to-r from-[color:var(--retro-burgundy)]/5 via-[color:var(--retro-burgundy)]/10 to-[color:var(--retro-burgundy)]/5 text-[color:var(--retro-burgundy)] text-sm font-header italic"
+              style={{ animation: 'byuThanksIn 600ms ease-out' }}
             >
-              Terima kasih, kau salah satu yang menjaga.
+              <i className="ri-heart-fill text-rose-500/85 text-base" aria-hidden="true" />
+              Terima kasih, kau salah satu yang menjaga denyutnya.
             </div>
             <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
               {formatNumber(supporters)} orang sedang menjaga denyutnya.
@@ -482,7 +509,10 @@ const ByuTitipan = () => {
       className="px-5 sm:px-6 md:px-12 lg:px-20 pb-14 md:pb-20"
     >
       <div className="max-w-3xl mx-auto">
-        <div className="rounded-[2rem] bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 px-6 sm:px-10 py-10 sm:py-12 shadow-sm">
+        <div
+          className="rounded-[2rem] bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 px-6 sm:px-10 py-10 sm:py-12 shadow-sm"
+          style={{ animation: 'byuCardIn 750ms ease-out' }}
+        >
           <div className="text-center mb-8">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
               <i className="ri-music-2-line text-base" aria-hidden="true" />
@@ -496,6 +526,27 @@ const ByuTitipan = () => {
           )}
         </div>
       </div>
+      <style>{`
+        @keyframes byuCardIn {
+          0%   { opacity: 0; transform: translateY(18px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes byuThanksIn {
+          0%   { opacity: 0; transform: scale(0.92); }
+          60%  { transform: scale(1.04); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes byuTick {
+          0%   { opacity: 0.5; transform: translateY(-3px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [class*="byuCardIn"], [class*="byuThanksIn"],
+          [class*="byuTick"] {
+            animation: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 };
