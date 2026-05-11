@@ -557,11 +557,115 @@ const TamanFloor = () => (
   </>
 );
 
+// Drought ring — visual hint "padang kering masih ada di luar peta".
+// Ring tone warm brown (match R0 GROUND_COLOR) di radius 10-18,
+// di luar petak hexagonal (radius ~5). Plus 8 small dry patches
+// scattered di outer ring sebagai texture.
+const DROUGHT_PATCH_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2 + ((i * 17) % 7) * 0.12;
+    const r = 12 + ((i * 11) % 5);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0.012, Math.sin(angle) * r],
+      scale: 0.8 + ((i * 13) % 5) * 0.18,
+      rot: ((i * 23) % 360) * (Math.PI / 180),
+    });
+  }
+  return arr;
+})();
+const DroughtRing = () => (
+  <>
+    {/* Outer drought ring — warm brown plane below twilight grid */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
+      <ringGeometry args={[9.5, 19, 64]} />
+      <meshStandardMaterial color="#3a2a1a" roughness={1} />
+    </mesh>
+    {/* Slight gradient ring — lighter inner edge fade ke outer dark */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+      <ringGeometry args={[9.5, 11.5, 64]} />
+      <meshStandardMaterial
+        color="#4a3525"
+        roughness={1}
+        transparent
+        opacity={0.7}
+      />
+    </mesh>
+    {/* Scattered dry patches di outer ring untuk texture */}
+    {DROUGHT_PATCH_DEFS.map((p, i) => (
+      <mesh
+        key={`dp-${i}`}
+        rotation={[-Math.PI / 2, 0, p.rot]}
+        position={p.pos}
+        scale={p.scale}
+      >
+        <circleGeometry args={[0.5, 8]} />
+        <meshStandardMaterial color="#5a3a25" roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
+// Narrative whispers — 4 floating Html text fragments di antara petak,
+// pulsing fade in/out dengan phase offset per fragment. Kasih voice
+// narrative di scene supaya kerasa "ada cerita" bukan cuma peta statis.
+const NARRATIVE_WHISPERS = [
+  { pos: [7.5, 1.6, 1.5], text: 'di luar, padang masih kering', phase: 0.0, period: 11 },
+  { pos: [-7.0, 1.6, 3.5], text: 'di sini, kebaikan diingat', phase: 0.35, period: 12 },
+  { pos: [3.0, 1.6, -7.5], text: 'tiap petak satu kenangan', phase: 0.6, period: 11 },
+  { pos: [-3.5, 1.6, -7.0], text: 'yang masih bercahaya bertahan', phase: 0.2, period: 13 },
+];
+const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
+  const divRef = useRef();
+  useFrame((state) => {
+    if (!divRef.current) return;
+    const t = state.clock.elapsedTime;
+    const u = ((t / period) + phase) % 1;
+    // Pulse: fade in 0-15%, hold 15-45%, fade out 45-60%, off 60-100%
+    let op = 0;
+    if (u < 0.15) op = (u / 0.15) * 0.55;
+    else if (u < 0.45) op = 0.55;
+    else if (u < 0.6) op = 0.55 - ((u - 0.45) / 0.15) * 0.55;
+    divRef.current.style.opacity = String(op);
+  });
+  return (
+    <Html position={pos} center distanceFactor={11} occlude={false}>
+      <div
+        ref={divRef}
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          fontSize: '12px',
+          color: 'rgba(255, 230, 200, 0.85)',
+          letterSpacing: '0.04em',
+          textShadow: '0 0 10px rgba(0,0,0,0.7), 0 0 22px rgba(200,170,140,0.18)',
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          opacity: 0,
+        }}
+      >
+        {text}
+      </div>
+    </Html>
+  );
+};
+const NarrativeWhispers = ({ isMobile }) => {
+  const list = isMobile ? NARRATIVE_WHISPERS.slice(0, 2) : NARRATIVE_WHISPERS;
+  return (
+    <>
+      {list.map((w, i) => (
+        <NarrativeWhisper key={`nw-${i}`} {...w} />
+      ))}
+    </>
+  );
+};
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
   previewedPetak,
   flyInActive,
+  isMobile = false,
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
@@ -586,6 +690,8 @@ const TamanScene = ({
         color="#a8c5e0"
       />
       <TamanFloor />
+      <DroughtRing />
+      <NarrativeWhispers isMobile={isMobile} />
       <CenterTree
         hovered={hoveredCenter}
         onPointerOver={onCenterHover}
@@ -935,6 +1041,7 @@ const TamanPetaPage = () => {
               hoveredCenter={hoveredCenter}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
+              isMobile={isMobile}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
