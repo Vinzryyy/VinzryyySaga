@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-05-09T00:54:17.621851Z",
+  "fetchedAt": "2026-05-11T07:25:23.625568Z",
   "eventCount": 16,
   "events": [
     {
@@ -566,129 +566,6 @@
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 933,
-      "code": "EX579E",
-      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 7)",
-      "date": "2026-05-22T17:00:00.000Z",
-      "start_time": "17:00",
-      "end_time": "18:00",
-      "category": "TWO_SHOT",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
-      "members": [
-        {
-          "name": "Febriola Sinambela"
-        },
-        {
-          "name": "Freya Jayawardana"
-        },
-        {
-          "name": "Greesella Adhalia"
-        },
-        {
-          "name": "Helisma Putri"
-        },
-        {
-          "name": "Adeline Wijaya"
-        },
-        {
-          "name": "Nina Tutachia"
-        },
-        {
-          "name": "Oline Manuel"
-        },
-        {
-          "name": "Celline Thefani"
-        },
-        {
-          "name": "Cynthia Yaputera"
-        },
-        {
-          "name": "Alya Amanda"
-        },
-        {
-          "name": "Bong Aprilli"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 4"
-      ],
-      "tickets_sold_eli": [
-        75
-      ],
-      "eli_remaining": [
-        0
-      ],
-      "sold_out": true,
-      "remaining_total": 0,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex579e-23052026"
-    },
-    {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 933,
-      "code": "EX579E",
-      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 8)",
-      "date": "2026-05-22T17:00:00.000Z",
-      "start_time": "18:00",
-      "end_time": "19:00",
-      "category": "TWO_SHOT",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
-      "members": [
-        {
-          "name": "Febriola Sinambela"
-        },
-        {
-          "name": "Freya Jayawardana"
-        },
-        {
-          "name": "Greesella Adhalia"
-        },
-        {
-          "name": "Helisma Putri"
-        },
-        {
-          "name": "Adeline Wijaya"
-        },
-        {
-          "name": "Nina Tutachia"
-        },
-        {
-          "name": "Oline Manuel"
-        },
-        {
-          "name": "Celline Thefani"
-        },
-        {
-          "name": "Cynthia Yaputera"
-        },
-        {
-          "name": "Alya Amanda"
-        },
-        {
-          "name": "Mikaela Kusjanto"
-        },
-        {
-          "name": "Humaira Ramadhani"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 4"
-      ],
-      "tickets_sold_eli": [
-        75
-      ],
-      "eli_remaining": [
-        0
-      ],
-      "sold_out": true,
-      "remaining_total": 0,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex579e-23052026"
-    },
-    {
-      "kind": "EXCLUSIVE",
       "schedule_id": 936,
       "code": "EXE588",
       "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, Meet & Greet - 23 May (Sesi 3)",
@@ -1085,15 +962,138 @@
         "Jalur 8"
       ],
       "tickets_sold_eli": [
-        83
+        105
       ],
       "eli_remaining": [
-        167
+        145
       ],
       "sold_out": false,
-      "remaining_total": 167,
+      "remaining_total": 145,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 933,
+      "code": "EX579E",
+      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 7)",
+      "date": "2026-05-22T17:00:00.000Z",
+      "start_time": "17:00",
+      "end_time": "18:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Febriola Sinambela"
+        },
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Helisma Putri"
+        },
+        {
+          "name": "Adeline Wijaya"
+        },
+        {
+          "name": "Nina Tutachia"
+        },
+        {
+          "name": "Oline Manuel"
+        },
+        {
+          "name": "Celline Thefani"
+        },
+        {
+          "name": "Cynthia Yaputera"
+        },
+        {
+          "name": "Alya Amanda"
+        },
+        {
+          "name": "Bong Aprilli"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 4"
+      ],
+      "tickets_sold_eli": [
+        75
+      ],
+      "eli_remaining": [
+        0
+      ],
+      "sold_out": true,
+      "remaining_total": 0,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/ex579e-23052026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 933,
+      "code": "EX579E",
+      "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May (Sesi 8)",
+      "date": "2026-05-22T17:00:00.000Z",
+      "start_time": "18:00",
+      "end_time": "19:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Febriola Sinambela"
+        },
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Helisma Putri"
+        },
+        {
+          "name": "Adeline Wijaya"
+        },
+        {
+          "name": "Nina Tutachia"
+        },
+        {
+          "name": "Oline Manuel"
+        },
+        {
+          "name": "Celline Thefani"
+        },
+        {
+          "name": "Cynthia Yaputera"
+        },
+        {
+          "name": "Alya Amanda"
+        },
+        {
+          "name": "Mikaela Kusjanto"
+        },
+        {
+          "name": "Humaira Ramadhani"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 4"
+      ],
+      "tickets_sold_eli": [
+        75
+      ],
+      "eli_remaining": [
+        0
+      ],
+      "sold_out": true,
+      "remaining_total": 0,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/ex579e-23052026"
     }
   ]
 }
