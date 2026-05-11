@@ -1108,6 +1108,120 @@ const LilyPondRipples = () => {
   );
 };
 
+// Ground mist particles — soft drifting points di low altitude (0.2-0.8y),
+// pelan drift horizontal, wrap around viewport. Atmospheric haze yg
+// kasih depth + dreamy feel ke ground level. ~50 particles desktop.
+const MistParticles = ({ count = 50 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 24;
+      arr[i * 3 + 1] = 0.2 + Math.random() * 0.65;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 24;
+    }
+    return arr;
+  }, [count]);
+  const drifts = useMemo(() => {
+    const arr = new Float32Array(count * 2); // [vx, vz]
+    for (let i = 0; i < count; i++) {
+      arr[i * 2] = 0.04 + Math.random() * 0.03;
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.015;
+    }
+    return arr;
+  }, [count]);
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] += drifts[i * 2] * delta * 60;
+      arr[i * 3 + 2] += drifts[i * 2 + 1] * delta * 60;
+      // Wrap around supaya kontinyu
+      if (arr[i * 3] > 13) arr[i * 3] = -13;
+      if (arr[i * 3 + 2] > 13) arr[i * 3 + 2] = -13;
+      if (arr[i * 3 + 2] < -13) arr[i * 3 + 2] = 13;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.42}
+        color="#b8c4d0"
+        transparent
+        opacity={0.18}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Next-chapter direction arrow — cone tegak melayang di atas hovered
+// petak, ujung mengarah ke next chapter petak. Visual cue arah baca
+// cerita.
+const NextChapterArrow = ({ fromPetak, toPetak }) => {
+  const ref = useRef();
+  const [fx, fz] = polarToXZ(fromPetak.angle, HEX_RADIUS);
+  const [tx, tz] = polarToXZ(toPetak.angle, HEX_RADIUS);
+  // Direction vector & rotation around Y
+  const dx = tx - fx;
+  const dz = tz - fz;
+  const angle = Math.atan2(dx, dz);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    // Subtle vertical bob
+    ref.current.position.y = 1.8 + Math.sin(t * 2.2) * 0.08;
+  });
+  return (
+    <group position={[fx, 1.8, fz]} rotation={[0, angle, 0]}>
+      {/* Arrow group — tilt forward 90° supaya cone point in z+ direction */}
+      <group ref={ref} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh>
+          <coneGeometry args={[0.18, 0.42, 4]} />
+          <meshBasicMaterial
+            color="#fff5c8"
+            transparent
+            opacity={0.85}
+            toneMapped={false}
+          />
+        </mesh>
+        {/* Glow halo behind arrow */}
+        <mesh position={[0, -0.2, 0]}>
+          <sphereGeometry args={[0.25, 12, 8]} />
+          <meshBasicMaterial
+            color="#fff5c8"
+            transparent
+            opacity={0.18}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      </group>
+      {/* Chapter number floating label */}
+      <Html position={[0, 0.5, 0]} center distanceFactor={10}>
+        <div
+          className="text-white/85 text-[10px] tracking-[0.3em] uppercase font-bold pointer-events-none select-none whitespace-nowrap"
+          style={{
+            textShadow: '0 0 8px rgba(0,0,0,0.7)',
+          }}
+        >
+          Bab {toPetak.chapter} →
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // Birds flock — 5 small bird silhouettes flying across sky di V-formation.
 // Loop traversal dari kiri ke kanan tiap 40 detik. Tiap bird = 2 small
 // boxes angled sebagai V wings (silhouette far-away).
@@ -1835,7 +1949,19 @@ const TamanScene = ({
       />
       <TreeHalo />
       <HaloSparkles />
+      <MistParticles count={isMobile ? 30 : 55} />
       <FallingPetals count={isMobile ? 50 : 80} />
+      {/* Direction arrow saat hover — tunjukkan next chapter
+          petak dari yg di-hover. */}
+      {hoveredPetakId &&
+        (() => {
+          const fromPetak = PETAK.find((p) => p.id === hoveredPetakId);
+          const toPetak = fromPetak?.nextId
+            ? PETAK.find((p) => p.id === fromPetak.nextId)
+            : null;
+          if (!fromPetak || !toPetak) return null;
+          return <NextChapterArrow fromPetak={fromPetak} toPetak={toPetak} />;
+        })()}
       {PETAK.map((petak) => (
         <PetakPlot
           key={petak.id}
