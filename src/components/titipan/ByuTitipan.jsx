@@ -39,11 +39,11 @@ const TOTAL_STAGES = 5;
 const STAGE_INFO = [
   // index 0 unused; UI pakai stage 1–5
   null,
-  { name: 'Sunyi', hint: 'Hati masih bisu, menunggu napas.' },
-  { name: 'Bisikan', hint: 'Pembuluh mulai mengalir.' },
-  { name: 'Sayup', hint: 'Melodi dari kejauhan.' },
-  { name: 'Bernyanyi', hint: 'Suara mulai jelas.' },
-  { name: 'Siap Pulang', hint: 'Lagu siap dibuka.' },
+  { name: 'Sunyi', hint: 'Hati masih terkunci penuh, denyutnya bisu.' },
+  { name: 'Bisikan', hint: 'Mata rantai mulai longgar, denyut pertama terdengar.' },
+  { name: 'Sayup', hint: 'Rantai pelan-pelan lepas, melodi mulai terdengar.' },
+  { name: 'Bernyanyi', hint: 'Gembok hampir lepas, suara semakin terang.' },
+  { name: 'Siap Pulang', hint: 'Rantai hilang, lagu siap dibuka.' },
 ];
 
 const computeStage = (nowMs) => {
