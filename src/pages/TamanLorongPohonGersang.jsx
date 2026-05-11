@@ -381,6 +381,114 @@ const DroughtGroundPatches = () => (
   </>
 );
 
+// Pilar batu pecah — sisa colonnade yang dulu nge-frame jalan ini.
+// Tinggi acak (sebagian patah pendek, sebagian masih berdiri), tilt
+// sedikit supaya kerasa udah lama nggak ke-maintain. Bahan stone gray
+// warm — kontras sama wood deadwood.
+const PILLAR_RUIN_DEFS = [
+  { pos: [-4.5, 0, -4], h: 1.6, tilt: -0.08 },
+  { pos: [4.5, 0, -8], h: 0.5, tilt: 0.12 },
+  { pos: [-5.0, 0, -13], h: 1.3, tilt: -0.06 },
+  { pos: [4.8, 0, -17], h: 0.4, tilt: 0.18 },
+  { pos: [-4.5, 0, -22], h: 1.5, tilt: 0.1 },
+  { pos: [5.0, 0, -27], h: 0.9, tilt: -0.08 },
+  { pos: [-4.8, 0, -32], h: 0.65, tilt: 0.15 },
+];
+const PillarRuin = ({ pos, h, tilt }) => (
+  <group position={pos} rotation={[0, 0, tilt]}>
+    {/* Base block — square footing */}
+    <mesh position={[0, 0.1, 0]}>
+      <boxGeometry args={[0.5, 0.2, 0.5]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+    {/* Pilar shaft */}
+    <mesh position={[0, 0.2 + h / 2, 0]}>
+      <cylinderGeometry args={[0.16, 0.19, h, 8]} />
+      <meshStandardMaterial color="#7a6e5e" roughness={1} />
+    </mesh>
+    {/* Patah cap di atas — irregular flat */}
+    <mesh position={[0, 0.22 + h, 0]} rotation={[0.05, 0, 0.08]}>
+      <cylinderGeometry args={[0.13, 0.17, 0.08, 8]} />
+      <meshStandardMaterial color="#4a3e2e" roughness={1} />
+    </mesh>
+  </group>
+);
+const PillarRuins = () => (
+  <>
+    {PILLAR_RUIN_DEFS.map((p, i) => (
+      <PillarRuin key={`pillar-${i}`} {...p} />
+    ))}
+  </>
+);
+
+// Distant ruins — siluet city roboh di belakang BigTree (z<-42), spread
+// di sisi kiri-kanan supaya gak ngeblock Pohon Terakhir di center.
+// Bahan dark warm gray (lebih gelap dari pillar foreground supaya
+// kerasa "jauh + di balik kabut").
+const RUIN_BUILDING_DEFS = [
+  { pos: [-15, 0, -50], w: 3.2, h: 5.0, broken: true },
+  { pos: [-9, 0, -54], w: 2.4, h: 6.0, broken: false },
+  { pos: [9, 0, -53], w: 2.8, h: 5.5, broken: true },
+  { pos: [15, 0, -50], w: 3.5, h: 4.8, broken: false },
+  { pos: [-20, 0, -56], w: 4.0, h: 4.2, broken: true },
+  { pos: [19, 0, -57], w: 3.8, h: 5.8, broken: true },
+];
+const RuinBuilding = ({ pos, w, h, broken }) => (
+  <group position={pos}>
+    <mesh position={[0, h / 2, 0]}>
+      <boxGeometry args={[w, h, w * 0.8]} />
+      <meshStandardMaterial color="#3a3028" roughness={1} fog />
+    </mesh>
+    {broken && (
+      <mesh
+        position={[w * 0.25, h - 0.35, 0]}
+        rotation={[0, 0, 0.22]}
+      >
+        <boxGeometry args={[w * 0.55, 0.55, w * 0.82]} />
+        <meshStandardMaterial color="#2a2018" roughness={1} fog />
+      </mesh>
+    )}
+  </group>
+);
+const DistantRuins = () => (
+  <>
+    {RUIN_BUILDING_DEFS.map((b, i) => (
+      <RuinBuilding key={`ruin-${i}`} {...b} />
+    ))}
+  </>
+);
+
+// Ground cracks — line tipis gelap di tanah, kasih texture "tanah pecah
+// karena kekeringan panjang". Distribusi deterministik via seeded RNG.
+const GROUND_CRACK_DEFS = (() => {
+  const rand = seededRandom(389);
+  const arr = [];
+  for (let i = 0; i < 14; i++) {
+    const z = -3 - rand() * 32;
+    const x = (rand() - 0.5) * 12;
+    arr.push({
+      pos: [x, 0.005, z],
+      len: 0.8 + rand() * 1.6,
+      rot: rand() * Math.PI,
+    });
+  }
+  return arr;
+})();
+const GroundCracks = () => (
+  <>
+    {GROUND_CRACK_DEFS.map((c, i) => (
+      <mesh
+        key={`crack-${i}`}
+        position={c.pos}
+        rotation={[-Math.PI / 2, 0, c.rot]}
+      >
+        <planeGeometry args={[c.len, 0.04]} />
+        <meshStandardMaterial color="#1a120a" roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
 // Satu pohon roboh besar — dramatic centerpiece dari "ekosistem rusak".
 // Trunk panjang lying horizontal + broken stub + 2 dead branch shrapnel.
 const FallenTree = () => (
@@ -495,6 +603,12 @@ const LorongScene = ({
     <FallenDeadwood isMobile={isMobile} />
     <DriedLeafPiles />
     <FallenTree />
+    {/* Dead-town polish — colonnade ruin pilar pecah di sisi path,
+        distant city ruins siluet di horizon belakang BigTree, ground
+        cracks. Kerasa peradaban yg pernah ada, sekarang sisa puing. */}
+    <PillarRuins />
+    <DistantRuins />
+    <GroundCracks />
     {/* SkyGroup — wrap semua celestial elements (background stars,
         highlight stars, moon, milestone konstelasi). Di FPV, group
         follow camera XZ → stars terasa "ikut user" (real sky parallax-
