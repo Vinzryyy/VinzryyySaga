@@ -88,16 +88,18 @@ const FLY_IN_DURATION = 2.5;
 const ORBIT_TARGET = [0, 1, 0];
 
 const HEX_RADIUS = 5;
-// 6 petak taman, posisi heksagonal di sekeliling pohon aprikot.
-// Setiap petak punya tema garden yang sesuai isinya. ID 'r1'-'r6'
-// dipertahankan supaya progress lama di localStorage (key legacy
-// 'museum-rooms-previewed') tetap kepake — ID konsisten, nama yang
-// berubah. Field `route`: kalau ada, modal nampilin CTA langsung
-// masuk; kalau null, fallback ke "akan dirilis di Fase 3".
-// Narrative arc: 6 bab tour mengelilingi pohon, mulai dari r1 (langit
-// perjalanan) → r2 (tangan membentuk) → r3 (air harapan) → r4 (aksi
-// tumbuh) → r5 (warna tinggal) → r6 (pusat kembali). Tiap petak punya
-// `chapter` 1-6, `nextId` pointer ke bab berikut (r6 loop ke r1).
+// Petak taman aktif — saat ini cuma 2 yang udah punya feature page:
+//   r1 (Konstelasi Perjalanan, /taman/r1) — Bab 1
+//   r3 (Telaga Harapan, /taman/r3)        — Bab 2
+// Petak r2/r4/r5/r6 di-remove sementara sampai fitur masing-masing
+// dibangun. ID 'r3' dipertahankan (bukan direname ke 'r2') supaya
+// progress lama di localStorage (key 'museum-rooms-previewed') tetap
+// kepake — chapter number-nya aja yang disequence ulang jadi (1, 2)
+// supaya checklist dot kelihatan rapi tanpa gap.
+// Field `route`: kalau ada, modal nampilin CTA langsung masuk; kalau
+// null (belum dipake), fallback ke "akan dirilis di Fase 3".
+// Narrative arc: 2 bab loop balik — r1 (langit perjalanan) → r3 (air
+// harapan) → r1.
 const PETAK = [
   {
     id: 'r1',
@@ -110,67 +112,19 @@ const PETAK = [
     angle: 270,
     color: '#a8c0ff',
     route: '/taman/r1',
-    nextId: 'r2',
-  },
-  {
-    id: 'r2',
-    chapter: 2,
-    name: 'Petak Karya',
-    eyebrow: 'Bab 2 · Tangan Membentuk',
-    desc: 'Setelah langit, tangan mulai bergerak',
-    longDesc:
-      'Setelah cerita dituliskan, tangan-tangan datang membentuk. Video pertama, web pertama, poster pertama, lagu pertama yang di-cover — bukti bahwa di tempat ini, kebaikan tidak hanya disaksikan, tapi dikerjakan. Petak ini menyimpan apa yang telah dibuat penggemar atas namanya.',
-    angle: 330,
-    color: '#94b878',
     nextId: 'r3',
   },
   {
     id: 'r3',
-    chapter: 3,
+    chapter: 2,
     name: 'Telaga Harapan',
-    eyebrow: 'Bab 3 · Air Membawa Harapan',
+    eyebrow: 'Bab 2 · Air Membawa Harapan',
     desc: 'Sebelum aksi, harapan dulu mengalir',
     longDesc:
       'Tangan butuh air. Telaga ini diisi tiap kali seseorang menuliskan harapan di /wishes — tiap bunga teratai yang mekar adalah satu doa. Sebelum kebaikan jadi tanaman, harapan dulu mengalir di sini, menyirami benih yang belum terlihat.',
-    angle: 30,
+    angle: 90,
     color: '#86a868',
     route: '/taman/r3',
-    nextId: 'r4',
-  },
-  {
-    id: 'r4',
-    chapter: 4,
-    name: 'Kebun Kebaikan',
-    eyebrow: 'Bab 4 · Harapan Jadi Tunas',
-    desc: 'Aksi yang tumbuh dari harapan',
-    longDesc:
-      'Di mana harapan disirami, kebaikan ikut tumbuh. Tiap donasi, tiap kunjungan, tiap aksi nyata — satu tunas baru di kebun ini. Galeri Kebaikan adalah katalog tunas-tunas itu. Bab ini bukti bahwa kemarau di luar gerbang tidak selalu menang.',
-    angle: 90,
-    color: '#a8b870',
-    nextId: 'r5',
-  },
-  {
-    id: 'r5',
-    chapter: 5,
-    name: 'Padang Lukis',
-    eyebrow: 'Bab 5 · Warna yang Tinggal',
-    desc: 'Bukan semua kebaikan jadi angka',
-    longDesc:
-      'Bukan semua kebaikan terlihat sebagai donasi. Beberapa muncul sebagai gambar, lukisan, ilustrasi, warna — bahasa lain dari cinta. Ladang ini menyimpan fanart, sketch, karya yang lahir dari rasa. Warna yang menolak ikut padang menguning.',
-    angle: 150,
-    color: '#94b878',
-    nextId: 'r6',
-  },
-  {
-    id: 'r6',
-    chapter: 6,
-    name: 'Padang Aprikot',
-    eyebrow: 'Bab 6 · Pusat Kembali',
-    desc: 'Akhir yang sekaligus permulaan',
-    longDesc:
-      'Setelah lima bab perjalanan, semua kembali ke sini: pohon aprikot di tengah, langit malam bertabur kontributor di atas. Inilah pusat — bukan akhir, melainkan tempat siklus mulai lagi. Di sinilah benih baru bisa ditanam, dan cerita berikutnya menunggu ditulis.',
-    angle: 210,
-    color: '#e8a87c',
     nextId: 'r1', // loop balik ke bab 1
   },
 ];
@@ -349,6 +303,7 @@ const PetakPlot = ({
   petak,
   hovered,
   previewed,
+  hideLabel = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -402,6 +357,7 @@ const PetakPlot = ({
           metalness={0.0}
         />
       </mesh>
+      {!hideLabel && (
       <Html
         position={[0, 0.6, 0]}
         center
@@ -439,6 +395,7 @@ const PetakPlot = ({
           </div>
         </div>
       </Html>
+      )}
     </group>
   );
 };
@@ -2294,6 +2251,7 @@ const TamanScene = ({
   flyInActive,
   isMobile = false,
   restorationLevel = 0,
+  modalOpen = false,
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
@@ -2391,7 +2349,7 @@ const TamanScene = ({
         );
       })()}
       <Fireflies isMobile={isMobile} />
-      <NarrativeWhispers isMobile={isMobile} />
+      {!modalOpen && <NarrativeWhispers isMobile={isMobile} />}
       <CenterTree
         hovered={hoveredCenter}
         onPointerOver={onCenterHover}
@@ -2420,6 +2378,7 @@ const TamanScene = ({
           petak={petak}
           hovered={hoveredPetakId === petak.id}
           previewed={previewedPetak.has(petak.id)}
+          hideLabel={modalOpen}
           onPointerOver={onPetakHover}
           onPointerOut={onPetakOut}
           onClick={onPetakClick}
@@ -2471,7 +2430,9 @@ const SceneFallback = () => (
   </div>
 );
 
-const TamanHeader = () => (
+const TamanHeader = ({ modalOpen = false }) => {
+  if (modalOpen) return null;
+  return (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
     <div className="pointer-events-auto">
       <Link
@@ -2505,7 +2466,8 @@ const TamanHeader = () => (
       </Link>
     </div>
   </div>
-);
+  );
+};
 
 // First-visit intro overlay — connective tissue narasi: setelah user
 // lewat gerbang R0, peta ini reveals kenangan2 kebaikan yg bisa
@@ -2621,11 +2583,11 @@ const useCountUp = (target, duration = 700) => {
 // RestorationIndicator — UI overlay top-left showing chapter-based
 // pemulihan progress. Bar + chapter checklist dots + narrative copy.
 // Hidden during fly-in.
-const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedSet, flyInActive }) => {
+const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedSet, flyInActive, modalOpen = false }) => {
   // Hooks harus dipanggil sebelum any early return.
   const pctTarget = Math.round(level * 100);
   const animatedPct = useCountUp(pctTarget, 900);
-  if (flyInActive) return null;
+  if (flyInActive || modalOpen) return null;
   const isRecovered = level >= 1;
   return (
     <div className="pointer-events-none absolute top-20 md:top-24 left-4 md:left-6 z-10 max-w-[280px]">
@@ -2692,7 +2654,8 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedS
   );
 };
 
-const TamanFooter = ({ hoveredPetakId, flyInActive, previewedCount }) => {
+const TamanFooter = ({ hoveredPetakId, flyInActive, previewedCount, modalOpen = false }) => {
+  if (modalOpen) return null;
   let hint;
   if (flyInActive) hint = 'Memasuki taman...';
   else if (hoveredPetakId) hint = 'Klik untuk lihat detail petak';
@@ -2912,6 +2875,7 @@ const TamanPetaPage = () => {
               flyInActive={flyInActive}
               isMobile={isMobile}
               restorationLevel={restorationLevel}
+              modalOpen={Boolean(selectedPetak)}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
@@ -2924,7 +2888,7 @@ const TamanPetaPage = () => {
           </Canvas>
         </Suspense>
 
-        <TamanHeader />
+        <TamanHeader modalOpen={Boolean(selectedPetak)} />
         <TamanPetaIntroTitle />
         <RestorationIndicator
           level={restorationLevel}
@@ -2932,11 +2896,13 @@ const TamanPetaPage = () => {
           totalChapters={PETAK.length}
           visitedSet={previewedPetak}
           flyInActive={flyInActive}
+          modalOpen={Boolean(selectedPetak)}
         />
         <TamanFooter
           hoveredPetakId={hoveredPetakId}
           flyInActive={flyInActive}
           previewedCount={previewedPetak.size}
+          modalOpen={Boolean(selectedPetak)}
         />
         <PetakDetailOverlay
           petak={selectedPetak}
