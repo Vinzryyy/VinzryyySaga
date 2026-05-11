@@ -67,7 +67,11 @@ const useGateUnlock = () => {
     const unsubscribe = subscribeToTreeSupports(setCount);
     return unsubscribe;
   }, []);
-  const force = searchParams.get('unlock') === '1';
+  // Dev-only override: ?unlock=1 paksa buka gerbang walau count belum
+  // hit 2000. Di production param diabaikan — gating real count yang
+  // berlaku, user gak bisa bypass dari URL.
+  const force =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
   return { unlocked: force || count >= GATE_UNLOCK_THRESHOLD, count };
 };
 

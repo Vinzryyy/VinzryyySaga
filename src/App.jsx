@@ -138,7 +138,12 @@ const useTreeSupportCount = () => {
 const TamanR1RouteChooser = () => {
   const count = useTreeSupportCount();
   const [searchParams] = useSearchParams();
-  const override = searchParams.get('restoration');
+  // Dev-only override: ?restoration=0|1 paksa pilih variant r1.
+  // Gated import.meta.env.DEV — di production param ini diabaikan
+  // total (user gak bisa bypass gating dari URL).
+  const override = import.meta.env.DEV
+    ? searchParams.get('restoration')
+    : null;
   let useRestored;
   if (override !== null) {
     const n = parseFloat(override);
@@ -152,8 +157,11 @@ const TamanR1RouteChooser = () => {
 const TamanPetaRouteGuard = () => {
   const count = useTreeSupportCount();
   const [searchParams] = useSearchParams();
-  // Dev override: ?unlock=1 buka peta walau count belum 2000
-  const forceUnlock = searchParams.get('unlock') === '1';
+  // Dev-only override: ?unlock=1 buka peta walau count belum 2000.
+  // Gated import.meta.env.DEV — di production param ini diabaikan,
+  // gating real RTDB count yang berlaku.
+  const forceUnlock =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
   if (!forceUnlock && count < MAP_UNLOCK_THRESHOLD) {
     return <Navigate to="/armeniacaTown" replace />;
   }
