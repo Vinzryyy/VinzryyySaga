@@ -2877,30 +2877,38 @@ const TamanScene = ({
           plum zenith. Sun udah baru tenggelam, langit masih simpen sisa
           warmth. */}
       <fog attach="fog" args={['#5a3540', 14, 38]} />
-      <color attach="background" args={['#2a1f30']} />
-      <ambientLight intensity={0.5} color="#d8a890" />
-      {/* Key light — low sun residual, warm golden-amber */}
+      <color attach="background" args={['#2a1f25']} />
+      {/* Ambient — turunin sedikit + tone shift ke warm-gray (bukan rosy).
+          Drought peta = "siang berdebu di kota mati", bukan twilight ramah. */}
+      <ambientLight intensity={0.42} color="#c0a090" />
+      {/* Key light — sun lebih lemah dikit, warna geser ke amber pucat
+          biar kerasa "matahari nembus debu", bukan golden hour cozy. */}
       <directionalLight
         position={[8, 12, 6]}
-        intensity={1.4}
-        color="#ffb878"
+        intensity={1.2}
+        color="#f4b078"
       />
-      {/* Fill — bounce dari sand/desert ground, warm dusty rose
-          (bukan cool blue twilight) */}
+      {/* Fill — warm dusty, intensity dikit naik biar shadow side
+          object (ruins, dead trees) tetep keliatan, gak hitam mati. */}
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={0.55}
-        color="#c89a8a"
+        intensity={0.6}
+        color="#b8907a"
       />
-      {/* Blank-slate mode — user lagi redesign nav model dari awal.
-          Scene sengaja sisain: ground (TamanFloor + DroughtRing) +
-          CenterTree (Pohon Terakhir) + lights + camera infra. Semua
-          dekorasi lain (ruins, aurora, stars, moon, dead trees, petak
-          elements, particles, dll) di-disable sambil nunggu konsep
-          baru. Komponen-nya tetap ada di file (cuma gak di-render)
-          supaya gampang re-enable saat redesign masuk. */}
       <TamanFloor />
       <DroughtRing />
+      {/* Dead-town environment re-enabled — CityRuins di luar hex ring
+          (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
+          SandDust + HighDustShimmer (debu beterbangan = kerasa angin
+          gersang), Stars + Moon (langit malam atas kota mati). Aurora
+          + Fireflies + BirdsFlock + LilyPond sengaja di-skip — terlalu
+          alive untuk vibe "tempat tidak layak huni". */}
+      <CityRuins />
+      <DeadTrees />
+      <SandDust count={isMobile ? 50 : 100} />
+      {!isMobile && <HighDustShimmer count={40} />}
+      <Stars count={isMobile ? 50 : 90} />
+      <Moon />
       <CenterTree
         hovered={hoveredCenter}
         onPointerOver={onCenterHover}
