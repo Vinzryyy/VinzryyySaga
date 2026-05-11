@@ -50,12 +50,12 @@ const Page26 = lazy(() => import('./pages/Page26'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
 // Taman Kebaikan — fase 1 (Padang Tandus / R0 entrance) dan fase 2
 // (Peta Taman / hub denah). Lazy-loaded supaya bundle Three.js + R3F
-// (~250KB gzipped) hanya di-fetch saat user buka rute /taman/*, nggak
+// (~250KB gzipped) hanya di-fetch saat user buka rute /armeniacaTown/*, nggak
 // nambah berat first-paint halaman lain. Sebelumnya bernama "Museum
 // Kebaikan" — di-rename ke Taman supaya konsisten sama identitas
 // Armeniaca (= Prunus armeniaca, pohon aprikot) dan tone seitansai
 // (= perayaan ulang tahun yang tumbuh, bukan monumen perpisahan).
-// Route /museum/* di-redirect ke /taman/* untuk backward-compat link
+// Route /museum/* di-redirect ke /armeniacaTown/* untuk backward-compat link
 // yang udah pernah di-share.
 const TamanPage = lazy(() => import('./pages/Taman'));
 const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
@@ -113,9 +113,9 @@ const ScrollManager = () => {
 
 // Threshold gating berdasarkan tree support count (live dari RTDB
 // node tree_support/total, dikelola di Page26 /26):
-//   < 2000  : Peta Taman (/taman/peta) terkunci. Redirect ke /taman
+//   < 2000  : Peta Taman (/armeniacaTown/peta) terkunci. Redirect ke /armeniacaTown
 //             (Gerbang) — di sana user belum bisa masuk ke peta.
-//   < 4000  : Peta unlocked, tapi r1 (/taman/r1) masih versi gersang
+//   < 4000  : Peta unlocked, tapi r1 (/armeniacaTown/r1) masih versi gersang
 //             (ekosistem rusak: pohon mati, gak ada makhluk hidup).
 //   >= 4000 : r1 di-replace dengan canonical restored (foliage hijau,
 //             owls/rabbits/fireflies, beacon di big tree).
@@ -155,7 +155,7 @@ const TamanPetaRouteGuard = () => {
   // Dev override: ?unlock=1 buka peta walau count belum 2000
   const forceUnlock = searchParams.get('unlock') === '1';
   if (!forceUnlock && count < MAP_UNLOCK_THRESHOLD) {
-    return <Navigate to="/taman" replace />;
+    return <Navigate to="/armeniacaTown" replace />;
   }
   return <TamanPetaPage />;
 };
@@ -203,15 +203,34 @@ function AppShell() {
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
-            <Route path="/taman" element={<TamanPage />} />
-            <Route path="/taman/peta" element={<TamanPetaRouteGuard />} />
-            <Route path="/taman/r1" element={<TamanR1RouteChooser />} />
-            <Route path="/taman/r3" element={<TamanKolamKataPage />} />
-            {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
-            <Route path="/museum" element={<Navigate to="/taman" replace />} />
+            <Route path="/armeniacaTown" element={<TamanPage />} />
+            <Route path="/armeniacaTown/peta" element={<TamanPetaRouteGuard />} />
+            <Route path="/armeniacaTown/r1" element={<TamanR1RouteChooser />} />
+            <Route path="/armeniacaTown/r3" element={<TamanKolamKataPage />} />
+            {/* Backward-compat: rute /taman/* dari era sebelum rebrand
+                ke /armeniacaTown. Link lama tetep valid. */}
+            <Route
+              path="/taman"
+              element={<Navigate to="/armeniacaTown" replace />}
+            />
+            <Route
+              path="/taman/peta"
+              element={<Navigate to="/armeniacaTown/peta" replace />}
+            />
+            <Route
+              path="/taman/r1"
+              element={<Navigate to="/armeniacaTown/r1" replace />}
+            />
+            <Route
+              path="/taman/r3"
+              element={<Navigate to="/armeniacaTown/r3" replace />}
+            />
+            {/* Backward-compat: rute /museum/* dari era sebelum rebrand
+                Museum → Taman → ArmeniacaTown */}
+            <Route path="/museum" element={<Navigate to="/armeniacaTown" replace />} />
             <Route
               path="/museum/denah"
-              element={<Navigate to="/taman/peta" replace />}
+              element={<Navigate to="/armeniacaTown/peta" replace />}
             />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

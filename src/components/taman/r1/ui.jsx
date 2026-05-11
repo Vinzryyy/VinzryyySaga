@@ -68,7 +68,7 @@ export const SceneFallback = () => (
 // terutama), copy URL ke clipboard + flash subtle confirmation. Pakai
 // link absolute supaya share dari mobile bawa user ke r1, bukan root.
 export const handleShare = async () => {
-  const url = `${window.location.origin}/taman/r1`;
+  const url = `${window.location.origin}/armeniacaTown/r1`;
   const data = {
     title: 'Konstelasi Perjalanan',
     text: `${ELI_TIMELINE.length} perjalanan Eli, dirajut sebagai konstelasi di langit taman senja.`,
@@ -97,7 +97,7 @@ export const LorongHeader = () => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6 sm:py-5 gap-2">
     <div className="pointer-events-auto">
       <Link
-        to="/taman/peta"
+        to="/armeniacaTown/peta"
         className="text-white/50 hover:text-white/85 text-[10px] sm:text-xs tracking-[0.2em] uppercase transition"
       >
         ← Peta Taman

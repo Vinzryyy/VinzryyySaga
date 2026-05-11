@@ -11,7 +11,7 @@
  * tapi heat → cool. Drought → spring. Visual axes yang berubah saat
  * transisi:
  *   - Background & fog: warm hazy orange-brown (#5a3a25) → cool
- *     twilight blue-warm (#1c1f2a, match /taman/peta)
+ *     twilight blue-warm (#1c1f2a, match /armeniacaTown/peta)
  *   - Vignette darkness: 0.7 → 0.3 (claustrofobia mereda)
  *   - Fog far: 28 → 60 (jarak pandang membuka)
  *   - Bloom intensity: peak sin πt × 1.5 di tengah → settle 0.4
@@ -24,7 +24,7 @@
  *                  mana saja akan mulai transisi
  *   transitioning — tween 3 detik di semua axes di atas
  *   done         — overlay "kehidupan telah kembali" + tombol lanjut
- *                  ke /taman/peta (peta taman) atau ulangi/keluar.
+ *                  ke /armeniacaTown/peta (peta taman) atau ulangi/keluar.
  *
  * Catatan teknis: postprocessing pakai controlled props (saturation,
  * darkness sebagai prop biasa), BUKAN ref-based mutation. @react-three/
@@ -51,7 +51,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/taman/AmbientAudio';
+import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
 
 // Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
 // untuk turunin DustParticles count dan dpr supaya R0 tetep smooth di
@@ -75,7 +75,7 @@ const DOLLY_DURATION = 12.0;
 // Palette Padang Tandus.
 // IDLE/ACTIVE: warm hazy drought tone — kerasa kayak senja kemarau yang
 // panjang, berdebu, sunyi.
-// DONE: cool twilight — match palette /taman/peta supaya transisi
+// DONE: cool twilight — match palette /armeniacaTown/peta supaya transisi
 // halaman ke ranah peta taman kerasa kontinu visualnya.
 const BG_DROUGHT = '#5a3a25';
 const BG_TWILIGHT = '#1c1f2a';
@@ -1600,7 +1600,7 @@ const ExitOverlay = ({ visible, onRestart }) => (
       </p>
       <div className="flex flex-col gap-3 justify-center px-6">
         <Link
-          to="/taman/peta"
+          to="/armeniacaTown/peta"
           className="px-5 py-3 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition"
         >
           Masuk Peta Taman →
@@ -1730,7 +1730,7 @@ const MuseumPage = () => {
       <Seo
         title="Gerbang"
         description="Gerbang ke Kota — pintu masuk wilayah kebaikan, kenangan, dan harapan yang tumbuh."
-        path="/taman"
+        path="/armeniacaTown"
       />
       <div
         className="relative w-full h-screen overflow-hidden cursor-pointer select-none"

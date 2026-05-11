@@ -599,7 +599,7 @@ export const CorridorDoorway = () => {
 // Visual: pohon besar (trunk 4m + 4 foliage clusters). Proximity hit-
 // detect via useFrame: kalau camera (FPV player) masuk radius < 3.2
 // dari tree base (z=-37), trigger onTrigger() sekali. Parent wire ke
-// navigate('/taman/peta') = pulang ke map.
+// navigate('/armeniacaTown/peta') = pulang ke map.
 //
 // Triggered guard: triggeredRef supaya gak fire repeated saat camera
 // terus deket pas navigation transition jalan. Component unmount waktu

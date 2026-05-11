@@ -55,7 +55,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/taman/AmbientAudio';
+import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
 import {
   RIVER_WIDTH,
   RIVER_LENGTH,
@@ -67,13 +67,13 @@ import {
   LEAF_COLORS,
   BLOOM_COLORS,
   WILDFLOWER_COLORS,
-} from '../components/taman/r3/constants';
+} from '../components/armeniacaTown/r3/constants';
 import {
   useIsMobile,
   lerp,
   shortLabel,
   formatDate,
-} from '../components/taman/r3/utils';
+} from '../components/armeniacaTown/r3/utils';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { subscribeToWishes } from '../lib/wishesDb';
 
@@ -679,7 +679,7 @@ const Cattails = () => (
 // WILDFLOWER_COLORS sekarang di constants.js.
 
 // Wildflowers di-randomize per mount — useMemo([]) regenerate setiap
-// kali user load /taman/r3, jadi taman kerasa berubah-ubah tiap visit.
+// kali user load /armeniacaTown/r3, jadi taman kerasa berubah-ubah tiap visit.
 // Posisi acak di band sekitar tepi danau (avoid playable zones), color
 // dipilih random dari palette, size variasi dikit.
 const Wildflowers = () => {
@@ -5476,7 +5476,7 @@ const TelagaHeader = () => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
     <div className="pointer-events-auto">
       <Link
-        to="/taman/peta"
+        to="/armeniacaTown/peta"
         className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         <span className="md:hidden">← Peta</span>
@@ -5733,7 +5733,7 @@ const TamanKolamKataPage = () => {
       <Seo
         title="Telaga Harapan"
         description="Telaga teratai dengan harapan-harapan dari fans untuk Eli — wish wall dalam bentuk taman 3D."
-        path="/taman/r3"
+        path="/armeniacaTown/r3"
       />
       <div className="relative w-full h-screen bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>

@@ -1,7 +1,7 @@
 /**
  * Taman Kebaikan — Petak R1: Konstelasi Perjalanan.
  *
- * Petak pertama di /taman/peta yang punya isi konkret. Konsep: user
+ * Petak pertama di /armeniacaTown/peta yang punya isi konkret. Konsep: user
  * berdiri di taman senja melihat ke atas — milestone karier Eli (dari
  * ELI_TIMELINE di src/data/eliProfile.js) di-render sebagai bintang
  * di langit, di-group ke 7 konstelasi per era (lihat ERA_DEFS):
@@ -38,16 +38,16 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/taman/AmbientAudio';
-import { useIsMobile } from '../components/taman/r3/utils';
+import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
+import { useIsMobile } from '../components/armeniacaTown/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
 
-import { ORBIT_TARGET, playChimeTone } from '../components/taman/r1/utils';
+import { ORBIT_TARGET, playChimeTone } from '../components/armeniacaTown/r1/utils';
 import {
   ERA_LOOKUP,
   milestoneSkyPosition,
   starColorForMilestone,
-} from '../components/taman/r1/era';
+} from '../components/armeniacaTown/r1/era';
 import {
   SkyGroup,
   Stars,
@@ -55,12 +55,12 @@ import {
   Moon,
   Nebula,
   ShootingStar,
-} from '../components/taman/r1/sky';
+} from '../components/armeniacaTown/r1/sky';
 import {
   StarMilestone,
   ConstellationLines,
   ConstellationLabels,
-} from '../components/taman/r1/constellation';
+} from '../components/armeniacaTown/r1/constellation';
 import {
   Fireflies,
   GroundMist,
@@ -68,7 +68,7 @@ import {
   FallingLeaves,
   FlyingLeavesGust,
   MemoryFragments,
-} from '../components/taman/r1/atmosphere';
+} from '../components/armeniacaTown/r1/atmosphere';
 import {
   Path,
   GroundPatches,
@@ -81,7 +81,7 @@ import {
   DistantForest,
   SideTrees,
   GardenAnchorTrees,
-} from '../components/taman/r1/ground';
+} from '../components/armeniacaTown/r1/ground';
 import {
   Lanterns,
   Owls,
@@ -94,14 +94,14 @@ import {
   WindChime,
   MonumentProximity,
   BigTreeReturnPortal,
-} from '../components/taman/r1/landmarks';
+} from '../components/armeniacaTown/r1/landmarks';
 import {
   CAMERA_TARGETS,
   CinematicIntro,
   CameraSync,
   FPVMovement,
   MobileFPVMovement,
-} from '../components/taman/r1/camera';
+} from '../components/armeniacaTown/r1/camera';
 import {
   SceneFallback,
   LorongHeader,
@@ -112,12 +112,12 @@ import {
   MilestoneOverlay,
   MonumentMomentOverlay,
   ClockSync,
-} from '../components/taman/r1/ui';
+} from '../components/armeniacaTown/r1/ui';
 import {
   isPerfEnabled,
   PerfSampler,
   PerfHUD,
-} from '../components/taman/r1/perf';
+} from '../components/armeniacaTown/r1/perf';
 
 const LorongScene = ({
   trees,
@@ -382,10 +382,10 @@ const TamanLorongPohonPage = () => {
   const handleIntroComplete = () => setIntroActive(false);
 
   // Big Tree Return Portal — player FPV jalan ke ujung lorong (z=-37),
-  // hit pohon besar → balik ke /taman/peta. Guarded oleh triggeredRef
+  // hit pohon besar → balik ke /armeniacaTown/peta. Guarded oleh triggeredRef
   // di komponen-nya supaya fire sekali aja.
   const handleReturnTrigger = () => {
-    navigate('/taman/peta');
+    navigate('/armeniacaTown/peta');
   };
 
   // Era spotlight: user click chip di EraGuide → bintang era itu
@@ -517,7 +517,7 @@ const TamanLorongPohonPage = () => {
       <Seo
         title="Konstelasi Perjalanan"
         description="Perjalanan karier Eli dari Generasi 7 ke Team Dream — milestone-milestone yang dirajut menjadi konstelasi di langit taman senja."
-        path="/taman/r1"
+        path="/armeniacaTown/r1"
       />
       <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>

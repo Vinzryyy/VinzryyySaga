@@ -38,7 +38,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/taman/AmbientAudio';
+import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
 
 // Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
 // dijaga konsisten supaya keputusan downscale seragam antar halaman
@@ -96,7 +96,7 @@ const ORBIT_TARGET = [0, 1, 0];
 
 const HEX_RADIUS = 5;
 // Petak DIKOSONGKAN — user lagi redesign navigation model dari awal.
-// Wilayah baru bernama "Kota" (gerbang masuknya = R0 / /taman). Peta
+// Wilayah baru bernama "Kota" (gerbang masuknya = R0 / /armeniacaTown). Peta
 // ini sementara cuma punya pohon di tengah + environment desert dusk
 // + city ruins di horizon. Path stones, hex ring, chapter petak,
 // restoration indicator, dan modal info semua di-disable di render
@@ -507,7 +507,7 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
 
 // Gerbang petak di peta — versi mini dari Gate (Taman.jsx R0), berdiri
 // di selatan pohon supaya kerasa "pintu kembali" ke Padang Tandus.
-// Click → navigate('/taman'). Hover lift + emissive warm + label di
+// Click → navigate('/armeniacaTown'). Hover lift + emissive warm + label di
 // atas. Tirai swing tipis biar gak terasa statis dari isometric view.
 //
 // Scale 0.4 = pas duduk di petak ring (asli ~5.6 wide × 4.8 tall jadi
@@ -664,7 +664,7 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
 };
 
 // Lorong Masuk — stepping stones path antara Gerbang (z=8) dan Pohon
-// Terakhir (z=0). Click → /taman/r1 (Konstelasi Perjalanan). Stones
+// Terakhir (z=0). Click → /armeniacaTown/r1 (Konstelasi Perjalanan). Stones
 // di-arrange alternating kiri-kanan supaya kerasa setapak natural.
 // Hover: warm emissive glow di semua stones + label lift. Narrative:
 // inilah "jalan masuk" — lewat sini, perjalanan ke langit dimulai.
@@ -2980,7 +2980,7 @@ const TamanHeader = ({ modalOpen = false }) => {
     </div>
     <div className="pointer-events-auto">
       <Link
-        to="/taman"
+        to="/armeniacaTown"
         className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         <span className="md:hidden">Gerbang →</span>
@@ -3374,7 +3374,7 @@ const TamanPetaPage = () => {
   };
 
   // Gerbang handlers — petak mini "Gerbang" di selatan pohon, link
-  // balik ke /taman (Padang Tandus / Pintu Masuk Kota).
+  // balik ke /armeniacaTown (Padang Tandus / Pintu Masuk Kota).
   const handleGerbangHover = () => {
     if (flyInActive) return;
     setHoveredGerbang(true);
@@ -3382,11 +3382,11 @@ const TamanPetaPage = () => {
   const handleGerbangOut = () => setHoveredGerbang(false);
   const handleGerbangClick = () => {
     if (flyInActive) return;
-    navigate('/taman');
+    navigate('/armeniacaTown');
   };
 
   // Lorong Masuk handlers — stepping stones antara gerbang dan pohon,
-  // link ke /taman/r1 (Konstelasi Perjalanan).
+  // link ke /armeniacaTown/r1 (Konstelasi Perjalanan).
   const handleLorongHover = () => {
     if (flyInActive) return;
     setHoveredLorong(true);
@@ -3394,7 +3394,7 @@ const TamanPetaPage = () => {
   const handleLorongOut = () => setHoveredLorong(false);
   const handleLorongClick = () => {
     if (flyInActive) return;
-    navigate('/taman/r1');
+    navigate('/armeniacaTown/r1');
   };
 
   return (
@@ -3402,7 +3402,7 @@ const TamanPetaPage = () => {
       <Seo
         title="Peta Taman"
         description="Peta Taman Kebaikan — pilih petak untuk dijelajahi."
-        path="/taman/peta"
+        path="/armeniacaTown/peta"
       />
       <div className="relative w-full h-screen bg-[#2a1f30] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
