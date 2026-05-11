@@ -202,10 +202,9 @@ const Gate = () => {
 
 // Pohon mati di samping gerbang — siluet yang nguatin metafor
 // "padang yang sudah lama tak hujan". Trunk bengkok + 3 ranting
-// gundul tanpa daun. Tone gelap dengan tint warm-brown supaya
-// blend in dengan padang kering. Posisinya offset ke kiri gerbang
-// supaya nggak nutupin pintu masuk.
-const DeadTree = () => (
+// gundul tanpa daun. Saat stage='done', small green bud muncul di
+// ujung ranting — symbolic renewal (kebaikan mulai tumbuh).
+const DeadTree = ({ stage = 'idle' }) => (
   <group position={[-5, 0, -1]}>
     {/* Trunk dengan rotation slight tilt — kerasa lelah */}
     <mesh position={[0, 1.5, 0]} rotation={[0, 0, 0.08]}>
@@ -232,6 +231,31 @@ const DeadTree = () => (
       <cylinderGeometry args={[0.03, 0.04, 0.5, 4]} />
       <meshStandardMaterial color="#2a1d12" roughness={1} />
     </mesh>
+    {/* Tiny green bud — symbolic renewal saat done. Muncul di ujung
+        cabang atas kecil. Emissive subtle biar kerasa "hidup" di
+        twilight. */}
+    {stage === 'done' && (
+      <>
+        <mesh position={[0.25, 3.75, 0.18]}>
+          <sphereGeometry args={[0.06, 8, 6]} />
+          <meshStandardMaterial
+            color="#7aa858"
+            emissive="#5a8045"
+            emissiveIntensity={0.5}
+            roughness={0.85}
+          />
+        </mesh>
+        <mesh position={[0.18, 3.7, 0.12]}>
+          <sphereGeometry args={[0.04, 6, 5]} />
+          <meshStandardMaterial
+            color="#8ab868"
+            emissive="#6a9050"
+            emissiveIntensity={0.4}
+            roughness={0.85}
+          />
+        </mesh>
+      </>
+    )}
   </group>
 );
 
@@ -274,6 +298,32 @@ const ExtraDeadTrees = ({ isMobile }) => {
     </>
   );
 };
+
+// Mountain silhouette ring — extra layer behind DistantHills, posisi
+// lebih jauh r=42 + lebih tinggi + warna lebih dark. Kasih sense
+// "ada gunung di balik bukit" — depth layered.
+const MOUNTAIN_DEFS = (() => {
+  return Array.from({ length: 10 }, (_, i) => {
+    const angle = (i / 10) * Math.PI * 2 + 0.2;
+    const r = 42;
+    const scale = 1.4 + ((i * 11) % 6) * 0.2;
+    return {
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      scale,
+      rot: angle + Math.PI / 2,
+    };
+  });
+})();
+const Mountains = () => (
+  <>
+    {MOUNTAIN_DEFS.map((m, i) => (
+      <mesh key={`mtn-${i}`} position={m.pos} rotation={[0, m.rot, 0]}>
+        <coneGeometry args={[5 * m.scale, 4 * m.scale, 5]} />
+        <meshStandardMaterial color="#2a1d15" roughness={1} fog />
+      </mesh>
+    ))}
+  </>
+);
 
 // Distant hills silhouette ring — siluet bukit jauh di horizon supaya
 // "padang" gak kerasa flat infinite. Pakai dome ring trick: low cone
@@ -849,6 +899,90 @@ const CrackedUrn = ({ pos, rot = 0 }) => (
   </group>
 );
 
+// Stars — fade in selama stage transition, full visible saat 'done'.
+// Custom points geometry dgn deterministic positions di hemisphere
+// di atas scene. Opacity controlled via stage prop.
+const STAR_POSITIONS = (() => {
+  const arr = new Float32Array(80 * 3);
+  for (let i = 0; i < 80; i++) {
+    // Deterministic scatter via sin/cos seeds
+    const theta = (i * 137.5) * (Math.PI / 180);
+    const phi = Math.acos(2 * ((i * 7) % 100) / 100 - 1) * 0.5; // upper hemisphere
+    const r = 38 + (i % 5);
+    arr[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
+    arr[i * 3 + 1] = Math.cos(phi) * r * 0.6 + 5;
+    arr[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * r;
+  }
+  return arr;
+})();
+const Stars = ({ stage }) => {
+  const matRef = useRef();
+  const targetOpacity =
+    stage === 'done' ? 0.85 : stage === 'transitioning' ? 0.5 : 0;
+  useFrame((_, delta) => {
+    if (!matRef.current) return;
+    // Lerp opacity supaya smooth reveal
+    matRef.current.opacity += (targetOpacity - matRef.current.opacity) * Math.min(delta * 1.5, 1);
+  });
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={STAR_POSITIONS}
+          count={80}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        ref={matRef}
+        size={0.18}
+        color="#f4e8c8"
+        transparent
+        opacity={0}
+        sizeAttenuation={false}
+        depthWrite={false}
+        fog={false}
+      />
+    </points>
+  );
+};
+
+// Dust devil — single spiral particle pillar di samping (drought
+// atmosphere extra). Lazy slow rotation around y axis dgn varying
+// radius per height. Posisi off-path supaya gak overlap traveler.
+const DustDevil = ({ pos }) => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    ref.current.rotation.y = state.clock.elapsedTime * 1.2;
+  });
+  return (
+    <group ref={ref} position={pos}>
+      {Array.from({ length: 18 }).map((_, i) => {
+        const y = i * 0.18;
+        const r = 0.15 + (i * 0.04);
+        const angle = (i * 137.5) * (Math.PI / 180);
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(angle) * r, y, Math.sin(angle) * r]}
+            scale={1 - i * 0.025}
+          >
+            <sphereGeometry args={[0.06, 5, 4]} />
+            <meshBasicMaterial
+              color="#c4906a"
+              transparent
+              opacity={0.5 - i * 0.022}
+              fog={false}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
 // Tumbleweed — small ball rolling across padang, drift slow horizontal
 // across z axis. Adds movement to otherwise static scene.
 const Tumbleweed = () => {
@@ -1071,6 +1205,7 @@ const R0Scene = ({
   resetTrigger,
   particleCount = 300,
   isMobile = false,
+  stage = 'idle',
   onDollyComplete,
 }) => (
   <>
@@ -1096,6 +1231,8 @@ const R0Scene = ({
     />
     <Sun />
     <HighClouds />
+    <Stars stage={stage} />
+    <Mountains />
     <DistantHills />
     <SandDunes isMobile={isMobile} />
     <Ground isMobile={isMobile} />
@@ -1103,8 +1240,9 @@ const R0Scene = ({
     <Gate />
     <SignPost pos={[-1.95, 0, 5.5]} rot={0.6} />
     <BrokenLanternPost pos={[2.95, 0, 0.4]} rot={-0.2} />
-    <DeadTree />
+    <DeadTree stage={stage} />
     <PerchedCrow pos={[-5.0, 3.55, -1]} />
+    {!isMobile && <DustDevil pos={[-11, 0, 4]} />}
     <ExtraDeadTrees isMobile={isMobile} />
     <DryGrassTufts isMobile={isMobile} />
     <Rocks isMobile={isMobile} />
@@ -1167,8 +1305,8 @@ const OpeningText = ({ stage, resetTrigger }) => {
   );
 };
 
-// Hint "tap untuk masuk" dengan pulse subtle. Muncul setelah dolly
-// selesai, hilang saat user click.
+// Hint "tap untuk masuk" dengan pulse subtle + small tap icon. Muncul
+// setelah dolly selesai, hilang saat user click.
 const TapHint = ({ visible }) => (
   <div
     className={`pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 transition-opacity duration-1000 ${
@@ -1180,6 +1318,25 @@ const TapHint = ({ visible }) => (
         Tap untuk masuk taman
       </div>
       <div className="w-px h-8 bg-white/40" />
+      {/* Tap/cursor icon — minimal stroke svg, biar feel "soft prompt"
+          bukan flashy CTA. */}
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="text-white/60"
+      >
+        <path
+          d="M12 4v6M9 6.5L12 4l3 2.5M5 13c0-3.866 3.134-7 7-7s7 3.134 7 7v4.5c0 1.66-1.34 3-3 3H8c-1.66 0-3-1.34-3-3V13z"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+      </svg>
     </div>
   </div>
 );
@@ -1367,6 +1524,7 @@ const MuseumPage = () => {
               resetTrigger={resetTrigger}
               particleCount={isMobile ? 100 : 300}
               isMobile={isMobile}
+              stage={stage}
               onDollyComplete={handleDollyComplete}
             />
             <EffectComposer>
