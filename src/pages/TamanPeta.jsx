@@ -660,6 +660,81 @@ const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
     </Html>
   );
 };
+// Aurora curtains — 3 elongated planes tilted di sky high, semi-
+// transparent emissive utk magical atmosphere. Slow horizontal drift
+// + opacity pulse. Behind mountains tapi visible dari camera angle.
+const AURORA_DEFS = [
+  { pos: [-2, 12, -18], rotX: -Math.PI / 3.2, w: 22, h: 3.5, color: '#7ad9b3', phase: 0 },
+  { pos: [5, 11, -15], rotX: -Math.PI / 3.5, w: 18, h: 3, color: '#9abce0', phase: 1.5 },
+  { pos: [-6, 13, -20], rotX: -Math.PI / 3, w: 26, h: 4, color: '#d9a8d8', phase: 3 },
+];
+const AuroraCurtain = ({ pos, rotX, w, h, color, phase }) => {
+  const meshRef = useRef();
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
+    matRef.current.opacity = 0.14 + Math.sin(t * 0.35 + phase) * 0.08;
+    meshRef.current.position.x = pos[0] + Math.sin(t * 0.12 + phase) * 1.8;
+  });
+  return (
+    <mesh ref={meshRef} position={pos} rotation={[rotX, 0, 0]}>
+      <planeGeometry args={[w, h]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color={color}
+        transparent
+        opacity={0.18}
+        toneMapped={false}
+        side={2}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+const Aurora = () => (
+  <>
+    {AURORA_DEFS.map((a, i) => (
+      <AuroraCurtain key={`aurora-${i}`} {...a} />
+    ))}
+  </>
+);
+
+// Hover ripple — ring expanding outward dari pusat petak yg lagi
+// di-hover. Loop cycle 0.67s, color matching petak. Visual feedback
+// kuat "you are looking at this".
+const HoverRipple = ({ petak }) => {
+  const meshRef = useRef();
+  const matRef = useRef();
+  const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+  useFrame((state) => {
+    if (!meshRef.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
+    const cycle = (t * 1.5) % 1;
+    const scale = 0.4 + cycle * 1.5;
+    meshRef.current.scale.set(scale, scale, scale);
+    matRef.current.opacity = (1 - cycle) * 0.6;
+  });
+  return (
+    <mesh
+      ref={meshRef}
+      position={[px, 0.025, pz]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <ringGeometry args={[1.35, 1.5, 32]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color={petak.color}
+        transparent
+        opacity={0.6}
+        toneMapped={false}
+        depthWrite={false}
+        side={2}
+      />
+    </mesh>
+  );
+};
+
 // Distant mountain silhouettes — 9 cones di luar drought ring (radius
 // 22-30), berbagai height + color. Kasih atmospheric depth ke horizon,
 // kerasa "ada dunia di luar taman". Tone dark blue-gray supaya recede.
@@ -1423,11 +1498,15 @@ const TamanScene = ({
       <TamanFloor />
       <DroughtRing />
       <Mountains />
+      <Aurora />
       <DeadTrees />
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
       <StonePath petakList={PETAK} />
       <PetakGroundGlow petakList={PETAK} />
+      {hoveredPetakId && (
+        <HoverRipple petak={PETAK.find((p) => p.id === hoveredPetakId)} />
+      )}
       <Fireflies isMobile={isMobile} />
       <NarrativeWhispers isMobile={isMobile} />
       <CenterTree
