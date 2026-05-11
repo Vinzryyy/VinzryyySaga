@@ -27,6 +27,34 @@ const RELEASE_DATE = new Date(RELEASE_ISO);
 const AUDIO_URL = '/byUmusic/By-U%20-%20Putri%20Helisma%20(16%20BIT).flac';
 const SUPPORT_CLICKED_KEY = 'byu-support-clicked';
 
+// Stage progression — 5 stage mingguan dari 2026-05-11 (page launch) ke
+// 2026-06-15 (rilis). Tiap minggu unlock satu layer anatomi heart +
+// satu baris staff dgn notes. Trigger by calendar, bukan supporter count.
+//
+// Override testing: ?stage=N (1–5) di URL.
+const STAGE_START_ISO = '2026-05-11T00:00:00+07:00';
+const STAGE_START_DATE = new Date(STAGE_START_ISO);
+const STAGE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+const TOTAL_STAGES = 5;
+const STAGE_INFO = [
+  // index 0 unused; UI pakai stage 1–5
+  null,
+  { name: 'Sunyi', hint: 'Hati masih bisu, menunggu napas.' },
+  { name: 'Bisikan', hint: 'Pembuluh mulai mengalir.' },
+  { name: 'Sayup', hint: 'Melodi dari kejauhan.' },
+  { name: 'Bernyanyi', hint: 'Suara mulai jelas.' },
+  { name: 'Siap Pulang', hint: 'Lagu siap dibuka.' },
+];
+
+const computeStage = (nowMs) => {
+  const elapsed = nowMs - STAGE_START_DATE.getTime();
+  if (elapsed < 0) return 1;
+  return Math.max(
+    1,
+    Math.min(TOTAL_STAGES, Math.floor(elapsed / STAGE_DURATION_MS) + 1),
+  );
+};
+
 const formatNumber = (n) => n.toLocaleString('id-ID');
 
 // Map raw Firebase errors ke pesan ramah-pengguna. Default fallback
@@ -58,53 +86,76 @@ const useCountdown = (target) => {
   };
 };
 
-// Anatomical heart SVG — shape sama dgn /denyut (ventricle asimetris,
-// aorta arch, pulmonary trunk, vena cava, coronary arteries). Tone
-// disesuaikan utk bg cream /byu-music (deep red yg masih kontras).
-const AnatomicalHeartSvg = () => (
-  <svg
-    viewBox="0 0 100 100"
-    width="100%"
-    height="100%"
-    aria-hidden="true"
-    style={{ display: 'block' }}
-  >
-    <defs>
-      <radialGradient id="byuHeartGlow" cx="55%" cy="45%" r="65%">
-        <stop offset="0%" stopColor="#e85060" />
-        <stop offset="40%" stopColor="#b02838" />
-        <stop offset="85%" stopColor="#6a1822" />
-        <stop offset="100%" stopColor="#3a0810" />
-      </radialGradient>
-      <radialGradient id="byuHeartHighlight" cx="35%" cy="35%" r="40%">
-        <stop offset="0%" stopColor="rgba(255,190,190,0.6)" />
-        <stop offset="100%" stopColor="rgba(255,190,190,0)" />
-      </radialGradient>
-      <linearGradient id="byuAorta" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#8a2028" />
-        <stop offset="100%" stopColor="#b03d48" />
-      </linearGradient>
-      <linearGradient id="byuPulm" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#5a3048" />
-        <stop offset="100%" stopColor="#984868" />
-      </linearGradient>
-    </defs>
-    <path d="M68 6 Q70 18 64 28" fill="none" stroke="#6a2a38" strokeWidth="5" strokeLinecap="round" />
-    <path d="M48 26 Q48 8 60 6 Q74 6 76 22 L74 36" fill="none" stroke="url(#byuAorta)" strokeWidth="7" strokeLinecap="round" />
-    <path d="M40 28 Q34 16 26 14" fill="none" stroke="url(#byuPulm)" strokeWidth="5.5" strokeLinecap="round" />
-    <path d="M30 18 Q24 16 20 22" fill="none" stroke="url(#byuPulm)" strokeWidth="3" strokeLinecap="round" opacity="0.85" />
-    <path
-      d="M50 30 Q32 24 22 38 Q14 52 24 70 Q34 86 44 92 Q48 94 46 88 Q42 78 44 70 Q38 66 36 58 Q44 64 50 62 Q58 66 64 60 Q66 70 62 78 Q60 86 64 90 Q76 80 80 64 Q84 48 76 38 Q66 28 56 32 Q52 30 50 30 Z"
-      fill="url(#byuHeartGlow)"
-      stroke="#2a0408"
-      strokeWidth="0.6"
-    />
-    <ellipse cx="38" cy="46" rx="14" ry="10" fill="url(#byuHeartHighlight)" opacity="0.7" />
-    <path d="M48 34 Q44 50 38 70 Q42 82 46 88" fill="none" stroke="#4a0810" strokeWidth="1.1" strokeLinecap="round" opacity="0.7" />
-    <path d="M58 36 Q66 42 70 56 Q70 70 64 84" fill="none" stroke="#4a0810" strokeWidth="1" strokeLinecap="round" opacity="0.65" />
-    <path d="M42 56 Q36 60 32 66" fill="none" stroke="#4a0810" strokeWidth="0.7" strokeLinecap="round" opacity="0.55" />
-  </svg>
-);
+// Anatomical heart SVG dengan progressive reveal per stage:
+// 1 — body only (pucat), no arteries/vessels
+// 2 — + coronary arteries (LAD, RCA, branch)
+// 3 — + pulmonary trunk + vena cava (top vessels)
+// 4 — + aorta arch + sheen highlight
+// 5 — full saturation + glow
+//
+// CSS transitions di opacity supaya unlock-nya halus, gak abrupt.
+const AnatomicalHeartSvg = ({ stage = TOTAL_STAGES }) => {
+  // Body opacity ramp 0.55 → 1 dari stage 1 ke 5.
+  const bodyOpacity = 0.55 + (Math.min(stage, TOTAL_STAGES) - 1) * 0.1125;
+  const arteriesOp = stage >= 2 ? 1 : 0;
+  const topVesselsOp = stage >= 3 ? 1 : 0;
+  const aortaSheenOp = stage >= 4 ? 1 : 0;
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      width="100%"
+      height="100%"
+      aria-hidden="true"
+      style={{ display: 'block' }}
+    >
+      <defs>
+        <radialGradient id="byuHeartGlow" cx="55%" cy="45%" r="65%">
+          <stop offset="0%" stopColor="#e85060" />
+          <stop offset="40%" stopColor="#b02838" />
+          <stop offset="85%" stopColor="#6a1822" />
+          <stop offset="100%" stopColor="#3a0810" />
+        </radialGradient>
+        <radialGradient id="byuHeartHighlight" cx="35%" cy="35%" r="40%">
+          <stop offset="0%" stopColor="rgba(255,190,190,0.6)" />
+          <stop offset="100%" stopColor="rgba(255,190,190,0)" />
+        </radialGradient>
+        <linearGradient id="byuAorta" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#8a2028" />
+          <stop offset="100%" stopColor="#b03d48" />
+        </linearGradient>
+        <linearGradient id="byuPulm" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#5a3048" />
+          <stop offset="100%" stopColor="#984868" />
+        </linearGradient>
+      </defs>
+
+      {/* Vena cava — stage 3+ */}
+      <path d="M68 6 Q70 18 64 28" fill="none" stroke="#6a2a38" strokeWidth="5" strokeLinecap="round" style={{ opacity: topVesselsOp, transition: 'opacity 800ms ease-out' }} />
+      {/* Aorta arch — stage 4+ */}
+      <path d="M48 26 Q48 8 60 6 Q74 6 76 22 L74 36" fill="none" stroke="url(#byuAorta)" strokeWidth="7" strokeLinecap="round" style={{ opacity: aortaSheenOp, transition: 'opacity 800ms ease-out' }} />
+      {/* Pulmonary trunk — stage 3+ */}
+      <path d="M40 28 Q34 16 26 14" fill="none" stroke="url(#byuPulm)" strokeWidth="5.5" strokeLinecap="round" style={{ opacity: topVesselsOp, transition: 'opacity 800ms ease-out' }} />
+      <path d="M30 18 Q24 16 20 22" fill="none" stroke="url(#byuPulm)" strokeWidth="3" strokeLinecap="round" style={{ opacity: topVesselsOp * 0.85, transition: 'opacity 800ms ease-out' }} />
+
+      {/* Main body — selalu show, tapi opacity ramp per stage. */}
+      <path
+        d="M50 30 Q32 24 22 38 Q14 52 24 70 Q34 86 44 92 Q48 94 46 88 Q42 78 44 70 Q38 66 36 58 Q44 64 50 62 Q58 66 64 60 Q66 70 62 78 Q60 86 64 90 Q76 80 80 64 Q84 48 76 38 Q66 28 56 32 Q52 30 50 30 Z"
+        fill="url(#byuHeartGlow)"
+        stroke="#2a0408"
+        strokeWidth="0.6"
+        style={{ opacity: bodyOpacity, transition: 'opacity 800ms ease-out' }}
+      />
+
+      {/* Sheen ellipse — stage 4+ */}
+      <ellipse cx="38" cy="46" rx="14" ry="10" fill="url(#byuHeartHighlight)" style={{ opacity: aortaSheenOp * 0.7, transition: 'opacity 800ms ease-out' }} />
+
+      {/* Coronary arteries (LAD, RCA, branch) — stage 2+ */}
+      <path d="M48 34 Q44 50 38 70 Q42 82 46 88" fill="none" stroke="#4a0810" strokeWidth="1.1" strokeLinecap="round" style={{ opacity: arteriesOp * 0.7, transition: 'opacity 800ms ease-out' }} />
+      <path d="M58 36 Q66 42 70 56 Q70 70 64 84" fill="none" stroke="#4a0810" strokeWidth="1" strokeLinecap="round" style={{ opacity: arteriesOp * 0.65, transition: 'opacity 800ms ease-out' }} />
+      <path d="M42 56 Q36 60 32 66" fill="none" stroke="#4a0810" strokeWidth="0.7" strokeLinecap="round" style={{ opacity: arteriesOp * 0.55, transition: 'opacity 800ms ease-out' }} />
+    </svg>
+  );
+};
 
 // Music notes emitted dari pusat heart — melayang radial keluar atas
 // kanan/kiri, scale-in, fade out di ujung. 7 notes dgn stagger delay
@@ -148,6 +199,182 @@ const EmittedNotes = ({ show }) => {
   );
 };
 
+// Chain & padlock overlay — visual "hati yg kekunci" di stage awal.
+// Dua rantai silang X di depan heart + gembok di tengah. Opacity
+// ramp dari stage 1 (full lock) → stage 5 (hilang sempurna). Stage 4
+// padlock-nya udah crack (offset rotation tipis). Hilangnya gradual,
+// kerasa kayak rantai pelan-pelan kendor.
+const ChainOverlay = ({ stage }) => {
+  // Opacity per stage: 1 → 0.78 → 0.5 → 0.22 → 0 (released)
+  const chainOpacity = Math.max(0, 1 - (stage - 1) / 4);
+  if (chainOpacity <= 0.04) return null;
+  // Lock di stage 4 udah miring kayak mau lepas
+  const lockTilt = stage === 4 ? 14 : 0;
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 100 100"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{
+        opacity: chainOpacity,
+        transition: 'opacity 900ms ease-out',
+        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))',
+      }}
+    >
+      <defs>
+        <linearGradient id="byuChain" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#3d342b" />
+          <stop offset="50%" stopColor="#5a4a3a" />
+          <stop offset="100%" stopColor="#3d342b" />
+        </linearGradient>
+        <linearGradient id="byuLock" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6a5640" />
+          <stop offset="55%" stopColor="#4a3a28" />
+          <stop offset="100%" stopColor="#2a1d10" />
+        </linearGradient>
+      </defs>
+
+      {/* Chain 1: diagonal kiri-atas ke kanan-bawah. Dasharray bikin
+          link-link tipis kayak rantai. */}
+      <line
+        x1="2" y1="50" x2="98" y2="50"
+        transform="rotate(38 50 50)"
+        stroke="url(#byuChain)"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeDasharray="4.5 2.2"
+      />
+      {/* Chain 2: diagonal kanan-atas ke kiri-bawah */}
+      <line
+        x1="2" y1="50" x2="98" y2="50"
+        transform="rotate(-38 50 50)"
+        stroke="url(#byuChain)"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeDasharray="4.5 2.2"
+      />
+
+      {/* Padlock di tengah — body, shackle, keyhole */}
+      <g transform={`translate(50, 52) rotate(${lockTilt})`}>
+        {/* Shackle (U-bar) */}
+        <path
+          d="M-5.5 -2.5 Q-5.5 -10.5 0 -10.5 Q5.5 -10.5 5.5 -2.5"
+          fill="none"
+          stroke="url(#byuLock)"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+        {/* Body */}
+        <rect
+          x="-7"
+          y="-2.5"
+          width="14"
+          height="11"
+          rx="1.8"
+          fill="url(#byuLock)"
+          stroke="#1a0e04"
+          strokeWidth="0.35"
+        />
+        {/* Keyhole */}
+        <circle cx="0" cy="2.2" r="1.4" fill="#150a02" />
+        <line
+          x1="0" y1="2.2" x2="0" y2="5.4"
+          stroke="#150a02"
+          strokeWidth="0.9"
+          strokeLinecap="round"
+        />
+        {/* Sheen highlight kecil di kiri-atas body */}
+        <rect
+          x="-5"
+          y="-1"
+          width="3"
+          height="6"
+          rx="1"
+          fill="rgba(255,225,180,0.18)"
+        />
+      </g>
+    </svg>
+  );
+};
+
+// Musical staff (5 baris) di belakang heart, dgn notes posisional yg
+// tumbuh per stage. Stage-by-stage:
+//   1 — 0 baris, 0 notes (kosong)
+//   2 — 1 baris (tengah), 2 notes
+//   3 — 3 baris, 4 notes
+//   4 — 4 baris, 7 notes
+//   5 — 5 baris (full staff), 11 notes
+// Notes static (gak animated) — kerasa kayak "lagu yg udah terkumpul"
+// sambil heart pusat masih emit live notes. Posisi notes deterministic.
+const STAFF_LINE_POS = [22, 36, 50, 64, 78]; // y dalam viewBox 0..100
+const STAFF_NOTES = [
+  { x: 85, y: 50, glyph: '♪' },
+  { x: 315, y: 50, glyph: '♫' },
+  { x: 70, y: 36, glyph: '♩' },
+  { x: 330, y: 64, glyph: '♬' },
+  { x: 120, y: 22, glyph: '♪' },
+  { x: 280, y: 78, glyph: '♫' },
+  { x: 105, y: 64, glyph: '♩' },
+  { x: 295, y: 36, glyph: '♬' },
+  { x: 140, y: 78, glyph: '♪' },
+  { x: 260, y: 22, glyph: '♫' },
+  { x: 155, y: 50, glyph: '♭' },
+];
+const STAGE_TO_LINES = [0, 0, 1, 3, 4, 5]; // index = stage
+const STAGE_TO_NOTES = [0, 0, 2, 4, 7, 11];
+const StaffWithNotes = ({ stage }) => {
+  const numLines = STAGE_TO_LINES[stage] ?? 0;
+  const numNotes = STAGE_TO_NOTES[stage] ?? 0;
+  if (numLines === 0 && numNotes === 0) return null;
+  // Pick baris paling tengah-luar dulu: stage 2 (1 baris) ambil index 2
+  // (middle), stage 3 (3 baris) ambil index 1,2,3, dst.
+  const sliceLines = () => {
+    if (numLines === 5) return STAFF_LINE_POS;
+    if (numLines === 4) return STAFF_LINE_POS.slice(0, 4);
+    if (numLines === 3) return STAFF_LINE_POS.slice(1, 4);
+    if (numLines === 1) return [STAFF_LINE_POS[2]];
+    return [];
+  };
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 400 100"
+      preserveAspectRatio="xMidYMid meet"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-[24rem] sm:w-[28rem] h-32 sm:h-36 -z-[1]"
+    >
+      {sliceLines().map((y, i) => (
+        <line
+          key={`line-${i}`}
+          x1="20"
+          y1={y}
+          x2="380"
+          y2={y}
+          stroke="rgba(139,64,64,0.22)"
+          strokeWidth="0.6"
+          style={{ transition: 'opacity 600ms ease-out' }}
+        />
+      ))}
+      {STAFF_NOTES.slice(0, numNotes).map((n, i) => (
+        <text
+          key={`note-${i}`}
+          x={n.x}
+          y={n.y + 4}
+          fill="rgba(139,64,64,0.45)"
+          fontSize="14"
+          fontFamily="serif"
+          textAnchor="middle"
+          style={{
+            transition: 'opacity 800ms ease-out',
+            animation: `byuStaffNoteIn 800ms ease-out ${i * 100}ms both`,
+          }}
+        >
+          {n.glyph}
+        </text>
+      ))}
+    </svg>
+  );
+};
+
 // Centerpiece beating heart. `intensity` (0–1) scales halo glow + ripple
 // rings + floating notes density, `period` (CSS time) controls speed.
 //
@@ -164,17 +391,18 @@ const EmittedNotes = ({ show }) => {
 //   - Heart SVG body (scale beat)
 //   - Inner hot core (pulse opacity sync lub — kerasa "darah dipompa")
 //   - Specular sheen highlight (overlay, brightens at lub)
-const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
+const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }) => {
   const haloOpacity = 0.4 + intensity * 0.5;
   const coreOpacity = 0.45 + intensity * 0.45;
-  // Notes always emit — itu jantung lagi bikin musik. Intensitas
-  // rendah (solo waiter) tetap dapet beberapa note keluar.
-  const showNotes = intensity >= 0.3;
+  // Notes emit hanya kalau stage >= 2 — di stage 1 (Sunyi) heart masih
+  // bisu. Stage 2+ baru ada notes keluar.
+  const showNotes = stage >= 2 && intensity >= 0.3;
   return (
     <div
       className="relative flex items-center justify-center mb-8 min-h-[14rem] sm:min-h-[15rem]"
       style={{ '--byu-beat': period }}
     >
+      <StaffWithNotes stage={stage} />
       <EmittedNotes show={showNotes} />
 
       {/* Concentric ripple rings — expand outward + fade dgn rhythm
@@ -208,7 +436,11 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
             'byuHeartBeat var(--byu-beat) ease-in-out infinite, byuHeartShadow var(--byu-beat) ease-in-out infinite',
         }}
       >
-        <AnatomicalHeartSvg />
+        <AnatomicalHeartSvg stage={stage} />
+
+        {/* Chain & padlock overlay — fade out per stage (hilang
+            sempurna di released / stage 5). */}
+        <ChainOverlay stage={stage} />
 
         {/* Inner hot core — gloss merah cerah di tengah-bawah heart
             yg pulse opacity + scale sync lub. Mix-blend screen di-
@@ -276,6 +508,10 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
           80%  { transform: scale(1.7); opacity: 0; }
           100% { transform: scale(1.7); opacity: 0; }
         }
+        @keyframes byuStaffNoteIn {
+          0%   { opacity: 0; transform: translateY(-4px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
         @keyframes byuNoteEmit {
           0%   {
             transform: translate(0, 0) scale(0.5) rotate(0deg);
@@ -305,7 +541,7 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
           [class*="byuHeartBeat"], [class*="byuHeartShadow"],
           [class*="byuHaloPulse"], [class*="byuCorePulse"],
           [class*="byuSheen"], [class*="byuRipple"],
-          [class*="byuNoteEmit"] {
+          [class*="byuNoteEmit"], [class*="byuStaffNoteIn"] {
             animation: none !important;
           }
         }
@@ -353,7 +589,7 @@ const CountdownDisplay = ({ days, hours, minutes, seconds }) => {
   );
 };
 
-const PreReleaseView = ({ supporters }) => {
+const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
   const { days, hours, minutes, seconds } = useCountdown(RELEASE_DATE);
   const [hasClicked, setHasClicked] = useState(() => {
     try {
@@ -396,6 +632,7 @@ const PreReleaseView = ({ supporters }) => {
       <BeatingHeart
         intensity={justClicked ? 1 : baseIntensity}
         period={justClicked ? '0.7s' : '1.1s'}
+        stage={stage}
       />
 
       <p className="text-center font-header italic text-base sm:text-lg text-[color:var(--retro-text-primary)] leading-relaxed mb-8 max-w-xl mx-auto">
@@ -452,7 +689,7 @@ const PreReleaseView = ({ supporters }) => {
   );
 };
 
-const ReleasedView = ({ supporters }) => {
+const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -511,8 +748,12 @@ const ReleasedView = ({ supporters }) => {
   return (
     <>
       {/* Released — heart yg sama, tapi denyut lebih cepat saat lagu
-          jalan (kayak adrenalin), pelan saat di-pause. */}
-      <BeatingHeart intensity={1} period={isPlaying ? '0.85s' : '1.1s'} />
+          jalan (kayak adrenalin), pelan saat di-pause. Stage 5 full. */}
+      <BeatingHeart
+        intensity={1}
+        period={isPlaying ? '0.85s' : '1.1s'}
+        stage={stage}
+      />
 
       <audio ref={audioRef} src={AUDIO_URL} preload="metadata" />
 
@@ -576,6 +817,7 @@ const ReleasedView = ({ supporters }) => {
 const ByuTitipan = () => {
   const [searchParams] = useSearchParams();
   const force = searchParams.get('force');
+  const stageOverrideRaw = searchParams.get('stage');
   const [supporters, setSupporters] = useState(0);
   const [now, setNow] = useState(() => Date.now());
 
@@ -595,6 +837,19 @@ const ByuTitipan = () => {
     return now >= RELEASE_DATE.getTime();
   }, [force, now]);
 
+  // Released = stage 5 (final unlock); otherwise computed dari calendar.
+  // ?stage=N override aktif (1-5).
+  const stage = useMemo(() => {
+    if (isReleased) return TOTAL_STAGES;
+    if (stageOverrideRaw) {
+      const n = parseInt(stageOverrideRaw, 10);
+      if (!Number.isNaN(n)) return Math.max(1, Math.min(TOTAL_STAGES, n));
+    }
+    return computeStage(now);
+  }, [isReleased, stageOverrideRaw, now]);
+
+  const stageInfo = STAGE_INFO[stage] || STAGE_INFO[1];
+
   return (
     <section
       id="titipan-byu"
@@ -610,11 +865,27 @@ const ByuTitipan = () => {
               <i className="ri-music-2-line text-base" aria-hidden="true" />
               {isReleased ? 'Lagu Kebuka' : 'Lagu Kesegel'}
             </p>
+            {!isReleased && (
+              <div className="inline-flex items-center gap-2 mt-3 px-3.5 py-1.5 rounded-full border border-[color:var(--retro-burgundy)]/20 bg-[color:var(--retro-burgundy)]/5">
+                <span className="text-[9px] font-black uppercase tracking-[0.32em] text-[color:var(--retro-burgundy)]/65">
+                  Minggu {stage} dari {TOTAL_STAGES}
+                </span>
+                <span className="w-1 h-1 rounded-full bg-[color:var(--retro-burgundy)]/40" />
+                <span className="font-header italic text-[12px] text-[color:var(--retro-burgundy)]">
+                  {stageInfo.name}
+                </span>
+              </div>
+            )}
+            {!isReleased && (
+              <p className="mt-2 font-header italic text-[11px] text-[color:var(--color-text-secondary)]/85">
+                {stageInfo.hint}
+              </p>
+            )}
           </div>
           {isReleased ? (
-            <ReleasedView supporters={supporters} />
+            <ReleasedView supporters={supporters} stage={stage} />
           ) : (
-            <PreReleaseView supporters={supporters} />
+            <PreReleaseView supporters={supporters} stage={stage} />
           )}
         </div>
       </div>
