@@ -453,17 +453,44 @@ export const DistantFigure = ({ signatureEvent }) => {
 
 // Corridor doorway — samar arch silhouette di belakang DistantFigure,
 // hint visual bahwa lorong ini terhubung ke "ruangan lain" (memori
-// lain). Dark silhouette dgn subtle warm glow di dalamnya — yg ngasih
-// kesan "ada cahaya kebaikan di balik lorong". Pull player ke ujung.
-// Pose di z=-37 (di belakang figure z=-34 + monument z=-32).
+// lain). Dark silhouette dgn arched curved top + warm glow di dalamnya
+// + light rays radiating + stepping stones approach + whisper text.
+// Pull player ke ujung. Pose di z=-37 (di belakang figure z=-34 +
+// monument z=-32).
 export const CorridorDoorway = () => {
   const glowMatRef = useRef();
+  const raysRef = useRef();
+  const whisperRef = useRef();
   useFrame((state) => {
-    if (!glowMatRef.current) return;
     const t = state.clock.elapsedTime;
-    // Slow pulse — kerasa "bernafas", bukan static box
-    glowMatRef.current.opacity = 0.32 + Math.sin(t * 0.6) * 0.08;
+    // Inner glow slow pulse
+    if (glowMatRef.current) {
+      glowMatRef.current.opacity = 0.32 + Math.sin(t * 0.6) * 0.08;
+    }
+    // Light rays slow rotate around arch center axis
+    if (raysRef.current) {
+      raysRef.current.rotation.z = t * 0.08;
+    }
+    // Whisper text fade in/out over 8s cycle
+    if (whisperRef.current) {
+      const u = (t / 8) % 1;
+      let op = 0;
+      if (u < 0.15) op = (u / 0.15) * 0.6;
+      else if (u < 0.55) op = 0.6;
+      else if (u < 0.7) op = 0.6 - ((u - 0.55) / 0.15) * 0.6;
+      whisperRef.current.style.opacity = String(op);
+    }
   });
+  // 6 radial light rays — thin plane meshes from arch center outward,
+  // slow rotation supaya kerasa "cahaya hidup" bukan static.
+  const rayAngles = [0, 1, 2, 3, 4, 5].map((i) => (i / 6) * Math.PI * 2);
+  // Stepping stones approaching portal — 4 stones on path, low flat
+  const stoneDefs = [
+    { z: -1.5, x: 0.15, scale: 0.9, rot: 0.3 },
+    { z: -2.5, x: -0.18, scale: 0.85, rot: -0.4 },
+    { z: -3.5, x: 0.1, scale: 1.0, rot: 0.6 },
+    { z: -4.6, x: -0.05, scale: 0.95, rot: 1.1 },
+  ];
   return (
     <group position={[0, 0, -37]}>
       {/* Pillar kiri */}
@@ -476,15 +503,40 @@ export const CorridorDoorway = () => {
         <boxGeometry args={[0.28, 3.0, 0.28]} />
         <meshStandardMaterial color="#0a0d18" roughness={1} />
       </mesh>
-      {/* Top beam */}
-      <mesh position={[0, 3.15, 0]}>
-        <boxGeometry args={[3.5, 0.3, 0.32]} />
+      {/* Arched top — half torus dari pillar kiri ke kanan, inner
+          radius 1.55 = pillar offset. thetaLength PI = setengah ring.
+          Top dari arc di y=3+1.55=4.55. */}
+      <mesh position={[0, 3, 0]}>
+        <torusGeometry args={[1.55, 0.18, 6, 20, Math.PI]} />
         <meshStandardMaterial color="#0a0d18" roughness={1} />
       </mesh>
+      {/* Keystone — small box di puncak arch sebagai detail */}
+      <mesh position={[0, 4.55, 0]}>
+        <boxGeometry args={[0.36, 0.3, 0.32]} />
+        <meshStandardMaterial color="#0a0d18" roughness={1} />
+      </mesh>
+      {/* Light rays — 6 thin radiating planes dari arch center.
+          Rotation slow di z-axis, kasih kesan god-rays subtle. */}
+      <group ref={raysRef} position={[0, 1.7, 0.04]}>
+        {rayAngles.map((a, i) => (
+          <mesh
+            key={i}
+            position={[Math.cos(a) * 0.5, Math.sin(a) * 0.5, 0]}
+            rotation={[0, 0, a]}
+          >
+            <planeGeometry args={[4.5, 0.08]} />
+            <meshBasicMaterial
+              color="#ffb060"
+              transparent
+              opacity={0.18}
+              fog
+            />
+          </mesh>
+        ))}
+      </group>
       {/* Inner glow plane — warm amber, opacity pulsing. Posisi
-          tepat di tengah lorong arch, kasih kesan "ada cahaya
-          ruangan lain di balik gerbang ini". */}
-      <mesh position={[0, 1.5, 0.05]}>
+          tepat di tengah lorong arch. */}
+      <mesh position={[0, 1.7, 0.05]}>
         <planeGeometry args={[3.0, 2.8]} />
         <meshBasicMaterial
           ref={glowMatRef}
@@ -494,11 +546,43 @@ export const CorridorDoorway = () => {
           fog
         />
       </mesh>
+      {/* Whisper text floating di depan portal — "lewat sini" fade
+          in/out cycle. Distance 9 supaya readable saat user mendekat. */}
+      <Html position={[0, 0.5, 0.6]} center distanceFactor={9} occlude={false}>
+        <div
+          ref={whisperRef}
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            fontSize: '13px',
+            color: 'rgba(255, 215, 168, 0.9)',
+            letterSpacing: '0.05em',
+            textShadow: '0 0 12px rgba(0,0,0,0.7), 0 0 24px rgba(255,170,80,0.3)',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            opacity: 0,
+          }}
+        >
+          lewat sini, ruangan lain menunggu
+        </div>
+      </Html>
+      {/* Stepping stones approaching portal — flat low stones di path
+          z negatif (depan arch). Visual flow ke gate. */}
+      {stoneDefs.map((s, i) => (
+        <mesh
+          key={`step-${i}`}
+          position={[s.x, 0.03, s.z]}
+          rotation={[-Math.PI / 2, 0, s.rot]}
+          scale={s.scale}
+        >
+          <circleGeometry args={[0.32, 8]} />
+          <meshStandardMaterial color="#4a4d58" roughness={1} />
+        </mesh>
+      ))}
       {/* Subtle pointLight di mulut arch — bikin scene sekitar dapet
-          warm rim dari portal. Lebih kuat dari horizon glow existing,
-          biar player ketarik mata ke sana. */}
+          warm rim dari portal. */}
       <pointLight
-        position={[0, 1.5, 0.5]}
+        position={[0, 1.7, 0.5]}
         intensity={1.4}
         color="#ffb060"
         distance={8}
