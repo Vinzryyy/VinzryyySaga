@@ -546,6 +546,156 @@ const Sun = () => (
   </group>
 );
 
+// Crow perched on dead tree — silhouette dgn occasional wing twitch +
+// subtle head bob. Thematic top of DeadTree.
+const PerchedCrow = ({ pos }) => {
+  const wingsRef = useRef();
+  const headRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    // Wing twitch — pulse setiap ~5s
+    if (wingsRef.current) {
+      const twitch = Math.max(0, Math.sin(t * 0.6)) * Math.sin(t * 5);
+      wingsRef.current.rotation.z = twitch * 0.2;
+    }
+    // Head bob slight
+    if (headRef.current) {
+      headRef.current.rotation.y = Math.sin(t * 0.4) * 0.3;
+    }
+  });
+  return (
+    <group position={pos}>
+      {/* Body */}
+      <mesh>
+        <sphereGeometry args={[0.12, 8, 6]} />
+        <meshBasicMaterial color="#0a0805" fog={false} />
+      </mesh>
+      {/* Tail */}
+      <mesh position={[-0.12, -0.02, 0]} rotation={[0, 0, -0.3]}>
+        <boxGeometry args={[0.14, 0.04, 0.06]} />
+        <meshBasicMaterial color="#0a0805" fog={false} />
+      </mesh>
+      {/* Wings */}
+      <group ref={wingsRef}>
+        <mesh position={[0, 0.02, 0.07]} rotation={[0, 0, 0.1]}>
+          <boxGeometry args={[0.16, 0.04, 0.08]} />
+          <meshBasicMaterial color="#0a0805" fog={false} />
+        </mesh>
+        <mesh position={[0, 0.02, -0.07]} rotation={[0, 0, 0.1]}>
+          <boxGeometry args={[0.16, 0.04, 0.08]} />
+          <meshBasicMaterial color="#0a0805" fog={false} />
+        </mesh>
+      </group>
+      {/* Head + beak */}
+      <group ref={headRef} position={[0.1, 0.08, 0]}>
+        <mesh>
+          <sphereGeometry args={[0.06, 8, 6]} />
+          <meshBasicMaterial color="#0a0805" fog={false} />
+        </mesh>
+        <mesh position={[0.06, 0, 0]} rotation={[0, 0, -0.2]}>
+          <coneGeometry args={[0.022, 0.08, 5]} />
+          <meshBasicMaterial color="#3a2818" fog={false} />
+        </mesh>
+        {/* Eye dot */}
+        <mesh position={[0.025, 0.02, 0.05]}>
+          <sphereGeometry args={[0.012, 6, 5]} />
+          <meshBasicMaterial color="#c84838" fog={false} />
+        </mesh>
+      </group>
+      {/* Legs (thin) */}
+      <mesh position={[0, -0.12, 0.04]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.12, 4]} />
+        <meshBasicMaterial color="#0a0805" fog={false} />
+      </mesh>
+      <mesh position={[0, -0.12, -0.04]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.12, 4]} />
+        <meshBasicMaterial color="#0a0805" fog={false} />
+      </mesh>
+    </group>
+  );
+};
+
+// Sand dunes — low wide mounds di tanah supaya ground gak rata
+// sempurna. Pakai sphere flatten + tone slightly lighter dari ground.
+const DUNE_DEFS = [
+  { pos: [-14, 0, 6], scale: [3.2, 0.5, 2.4], color: '#4a3525' },
+  { pos: [16, 0, 3], scale: [3.8, 0.6, 2.6], color: '#403020' },
+  { pos: [-10, 0, -14], scale: [2.8, 0.45, 2.2], color: '#4a3525' },
+  { pos: [12, 0, -16], scale: [3.4, 0.55, 2.4], color: '#403020' },
+];
+const SandDune = ({ pos, scale, color }) => (
+  <mesh position={pos} scale={scale}>
+    <sphereGeometry args={[1, 12, 8]} />
+    <meshStandardMaterial color={color} roughness={1} />
+  </mesh>
+);
+const SandDunes = ({ isMobile }) => {
+  const list = isMobile ? DUNE_DEFS.slice(0, 2) : DUNE_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <SandDune key={`dune-${i}`} pos={d.pos} scale={d.scale} color={d.color} />
+      ))}
+    </>
+  );
+};
+
+// Abandoned wagon wheel — weathered wood wheel terlentang di tanah.
+// Storytelling prop, suggests "ada peradaban yg pernah lewat sini".
+const WagonWheel = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[Math.PI / 2.2, 0, rot]}>
+    {/* Outer ring */}
+    <mesh>
+      <torusGeometry args={[0.55, 0.05, 6, 18]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Inner hub */}
+    <mesh>
+      <cylinderGeometry args={[0.1, 0.1, 0.08, 8]} />
+      <meshStandardMaterial color="#2a1d12" roughness={0.95} />
+    </mesh>
+    {/* 6 spokes */}
+    {[0, 1, 2, 3, 4, 5].map((i) => (
+      <mesh key={i} rotation={[0, 0, (i / 6) * Math.PI * 2]} position={[0, 0, 0]}>
+        <boxGeometry args={[0.96, 0.04, 0.04]} />
+        <meshStandardMaterial color="#3a2818" roughness={0.95} />
+      </mesh>
+    ))}
+  </group>
+);
+
+// Broken fence posts — 4 segment broken wood post tersisa, kerasa
+// "dulu ada pagar di sini". Variasi height + tilt per segment.
+const FENCE_DEFS = [
+  { pos: [-4.5, 0, 6], height: 0.9, tilt: 0.15, rot: 0.3 },
+  { pos: [-3.0, 0, 6.5], height: 0.4, tilt: -0.2, rot: 0.4 },
+  { pos: [-1.5, 0, 6.8], height: 0.7, tilt: 0.1, rot: 0.2 },
+  { pos: [4.2, 0, 7], height: 0.5, tilt: -0.3, rot: -0.2 },
+];
+const FencePost = ({ pos, height, tilt, rot }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    <mesh position={[0, height / 2, 0]} rotation={[0, 0, tilt]}>
+      <boxGeometry args={[0.1, height, 0.08]} />
+      <meshStandardMaterial color={GATE_COLOR} roughness={1} />
+    </mesh>
+    {/* Top crack chip */}
+    <mesh position={[0.05, height, 0]} rotation={[0.3, 0, tilt + 0.2]}>
+      <boxGeometry args={[0.06, 0.08, 0.04]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+  </group>
+);
+const BrokenFence = ({ isMobile }) => {
+  const list = isMobile ? FENCE_DEFS.slice(0, 2) : FENCE_DEFS;
+  return (
+    <>
+      {list.map((f, i) => (
+        <FencePost key={`fence-${i}`} {...f} />
+      ))}
+    </>
+  );
+};
+
 // Tumbleweed — small ball rolling across padang, drift slow horizontal
 // across z axis. Adds movement to otherwise static scene.
 const Tumbleweed = () => {
@@ -794,14 +944,18 @@ const R0Scene = ({
     <Sun />
     <HighClouds />
     <DistantHills />
+    <SandDunes isMobile={isMobile} />
     <Ground isMobile={isMobile} />
     <Gate />
     <BrokenLanternPost pos={[2.95, 0, 0.4]} rot={-0.2} />
     <DeadTree />
+    <PerchedCrow pos={[-5.0, 3.55, -1]} />
     <ExtraDeadTrees isMobile={isMobile} />
     <DryGrassTufts isMobile={isMobile} />
     <Rocks isMobile={isMobile} />
     <BonesScatter isMobile={isMobile} />
+    <WagonWheel pos={[5.5, 0.1, 4]} rot={0.4} />
+    <BrokenFence isMobile={isMobile} />
     {!isMobile && <Vulture />}
     {!isMobile && <Tumbleweed />}
     <DustParticles count={particleCount} />
@@ -841,6 +995,15 @@ const OpeningText = ({ stage, resetTrigger }) => {
           }}
         >
           Sebelum kebaikan, padang ini hanya bayangan.
+        </p>
+        <p
+          className="text-white/50 text-sm md:text-base leading-relaxed tracking-wide mt-4"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+          }}
+        >
+          Angin masih kering, tapi gerbang menunggu.
         </p>
       </div>
     </div>
