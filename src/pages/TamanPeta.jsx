@@ -32,7 +32,6 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
-import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
 // dijaga konsisten supaya keputusan downscale seragam antar halaman
@@ -605,63 +604,40 @@ const DROUGHT_PATCH_DEFS = (() => {
   }
   return arr;
 })();
-// Color lerp helper utk hex strings — sederhana RGB interpolation.
-const lerpHexColor = (hexA, hexB, t) => {
-  const parse = (h) => {
-    const v = parseInt(h.replace('#', ''), 16);
-    return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
-  };
-  const [ra, ga, ba] = parse(hexA);
-  const [rb, gb, bb] = parse(hexB);
-  const r = Math.round(ra + (rb - ra) * t);
-  const g = Math.round(ga + (gb - ga) * t);
-  const b = Math.round(ba + (bb - ba) * t);
-  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
-};
-
-// DroughtRing — reactive ke restorationLevel. Saat 0 = brown drought,
-// saat 1 = lush green recovered. Color + opacity transition.
-const DroughtRing = ({ restorationLevel = 0 }) => {
-  // Interpolate brown → green per layer
-  const outerColor = lerpHexColor('#3a2a1a', '#5a8458', restorationLevel);
-  const innerColor = lerpHexColor('#4a3525', '#7aa468', restorationLevel);
-  const patchColor = lerpHexColor('#5a3a25', '#86a868', restorationLevel);
-  // Opacity ramp — drought patches fade as recovery progresses
-  const patchOpacity = 1 - restorationLevel * 0.6;
-  return (
-    <>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
-        <ringGeometry args={[9.5, 19, 64]} />
-        <meshStandardMaterial color={outerColor} roughness={1} />
+// DroughtRing — keep always brown wasteland (visual yg user suka).
+// Pemulihan muncul lewat saplings + wildflowers yg tumbuh DI ANTARA,
+// bukan dgn ngubah desert itu sendiri.
+const DroughtRing = () => (
+  <>
+    {/* Outer drought ring — warm brown plane below twilight grid */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
+      <ringGeometry args={[9.5, 19, 64]} />
+      <meshStandardMaterial color="#3a2a1a" roughness={1} />
+    </mesh>
+    {/* Slight gradient ring — lighter inner edge fade ke outer dark */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+      <ringGeometry args={[9.5, 11.5, 64]} />
+      <meshStandardMaterial
+        color="#4a3525"
+        roughness={1}
+        transparent
+        opacity={0.7}
+      />
+    </mesh>
+    {/* Scattered dry patches di outer ring untuk texture */}
+    {DROUGHT_PATCH_DEFS.map((p, i) => (
+      <mesh
+        key={`dp-${i}`}
+        rotation={[-Math.PI / 2, 0, p.rot]}
+        position={p.pos}
+        scale={p.scale}
+      >
+        <circleGeometry args={[0.5, 8]} />
+        <meshStandardMaterial color="#5a3a25" roughness={1} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
-        <ringGeometry args={[9.5, 11.5, 64]} />
-        <meshStandardMaterial
-          color={innerColor}
-          roughness={1}
-          transparent
-          opacity={0.7}
-        />
-      </mesh>
-      {DROUGHT_PATCH_DEFS.map((p, i) => (
-        <mesh
-          key={`dp-${i}`}
-          rotation={[-Math.PI / 2, 0, p.rot]}
-          position={p.pos}
-          scale={p.scale}
-        >
-          <circleGeometry args={[0.5, 8]} />
-          <meshStandardMaterial
-            color={patchColor}
-            roughness={1}
-            transparent
-            opacity={patchOpacity}
-          />
-        </mesh>
-      ))}
-    </>
-  );
-};
+    ))}
+  </>
+);
 
 // Narrative whispers — 4 floating Html text fragments di antara petak,
 // pulsing fade in/out dengan phase offset per fragment. Kasih voice
@@ -1795,64 +1771,112 @@ const DeadTree = ({ pos, rot, scale, lean }) => (
     </mesh>
   </group>
 );
-// DeadTrees + RecoveringSaplings — reactive ke restorationLevel.
-// Saat low restoration, semua dead trees visible.
-// Saat high restoration, dead trees fade out + saplings tumbuh
-// di posisi yg sama (replacement narrative).
+// Dead trees — ALWAYS visible (user suka aesthetic gurun rusak).
+const DeadTrees = () => DEAD_TREE_DEFS.map((d, i) => (
+  <DeadTree key={`dt-${i}`} {...d} />
+));
+
+// Recovering saplings — tumbuh di posisi BARU di drought ring (offset
+// dari dead trees, gak replacing them). N visible tergantung restoration
+// level. Each sapling = small new tree dgn foliage hijau.
 const RecoveringSapling = ({ pos, rot, scale }) => (
   <group position={pos} rotation={[0, rot, 0]} scale={scale}>
     {/* Small trunk */}
-    <mesh position={[0, 0.35, 0]}>
-      <cylinderGeometry args={[0.05, 0.08, 0.7, 6]} />
+    <mesh position={[0, 0.32, 0]}>
+      <cylinderGeometry args={[0.05, 0.08, 0.65, 6]} />
       <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
     </mesh>
-    {/* Small foliage cluster */}
-    <mesh position={[0, 0.85, 0]}>
-      <sphereGeometry args={[0.4, 12, 8]} />
+    {/* Main foliage cluster */}
+    <mesh position={[0, 0.78, 0]}>
+      <sphereGeometry args={[0.38, 12, 8]} />
       <meshStandardMaterial color="#86a868" roughness={0.7} />
     </mesh>
-    {/* Tiny offshoot leaves */}
-    <mesh position={[0.18, 0.95, 0.1]}>
+    {/* Side leaves utk variation */}
+    <mesh position={[0.16, 0.88, 0.08]}>
       <sphereGeometry args={[0.18, 8, 6]} />
       <meshStandardMaterial color="#94b878" roughness={0.7} />
     </mesh>
-    <mesh position={[-0.16, 0.75, -0.08]}>
-      <sphereGeometry args={[0.15, 8, 6]} />
+    <mesh position={[-0.14, 0.68, -0.08]}>
+      <sphereGeometry args={[0.16, 8, 6]} />
       <meshStandardMaterial color="#7a9d5e" roughness={0.75} />
     </mesh>
   </group>
 );
-const DeadTrees = ({ restorationLevel = 0 }) => (
-  <>
-    {DEAD_TREE_DEFS.map((d, i) => {
-      // Slot threshold per tree — i / total. Tree visible kalau
-      // restorationLevel < threshold (lower-indexed trees pulih dulu).
-      const slotThreshold = (i + 0.5) / DEAD_TREE_DEFS.length;
-      const isRecovered = restorationLevel > slotThreshold;
-      // Cross-fade opacity di transition zone
-      const transitionRange = 0.08;
-      const deadOpacity = Math.max(
-        0,
-        Math.min(1, (slotThreshold - restorationLevel + transitionRange) / transitionRange),
-      );
-      const saplingOpacity = 1 - deadOpacity;
-      return (
-        <group key={`dt-recovery-${i}`}>
-          {deadOpacity > 0.02 && (
-            <group>
-              {/* Cant set opacity per group easily — render only above
-                  visibility threshold, simpler. */}
-              {!isRecovered && <DeadTree {...d} />}
-            </group>
-          )}
-          {saplingOpacity > 0.02 && isRecovered && (
-            <RecoveringSapling pos={d.pos} rot={d.rot} scale={d.scale * 0.85} />
-          )}
-        </group>
-      );
-    })}
-  </>
-);
+const SAPLING_SLOT_DEFS = (() => {
+  const arr = [];
+  // 6 sapling slots — angles offset 20° dari dead tree angles
+  // supaya gak nimpa. Radius 12-15 (dalam drought ring).
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + 0.35; // 20° offset
+    const r = 12.5 + ((i * 13) % 5);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      rot: ((i * 31) % 360) * (Math.PI / 180),
+      scale: 0.55 + ((i * 17) % 5) * 0.1,
+    });
+  }
+  return arr;
+})();
+const RecoveringSaplings = ({ restorationLevel = 0 }) => {
+  // Show floor(restorationLevel * total) saplings, in order
+  const visibleCount = Math.floor(restorationLevel * SAPLING_SLOT_DEFS.length);
+  return (
+    <>
+      {SAPLING_SLOT_DEFS.slice(0, visibleCount).map((s, i) => (
+        <RecoveringSapling key={`sap-${i}`} {...s} />
+      ))}
+    </>
+  );
+};
+
+// Wildflower patches — small color dot clusters yg bloom di drought
+// ring saat restoration grows. 6 patches, 1 per restoration step.
+const WILDFLOWER_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + 0.85;
+    const r = 13 + ((i * 11) % 4);
+    const baseX = Math.cos(angle) * r;
+    const baseZ = Math.sin(angle) * r;
+    const colors = ['#f4a8c0', '#fae0a0', '#a890c8', '#f4c870', '#d68aa8', '#fff0e0'];
+    arr.push({
+      pos: [baseX, 0.014, baseZ],
+      color: colors[i % colors.length],
+    });
+  }
+  return arr;
+})();
+const Wildflowers = ({ restorationLevel = 0 }) => {
+  const visibleCount = Math.floor(restorationLevel * WILDFLOWER_DEFS.length);
+  return (
+    <>
+      {WILDFLOWER_DEFS.slice(0, visibleCount).map((w, i) => {
+        // Cluster: 5 small spheres around base pos
+        return (
+          <group key={`wf-${i}`} position={w.pos}>
+            {[
+              [0, 0.05, 0],
+              [0.25, 0.04, 0.1],
+              [-0.2, 0.04, 0.18],
+              [0.1, 0.05, -0.22],
+              [-0.18, 0.04, -0.1],
+            ].map(([dx, dy, dz], j) => (
+              <mesh key={`wf-${i}-${j}`} position={[dx, dy, dz]}>
+                <sphereGeometry args={[0.085, 8, 6]} />
+                <meshStandardMaterial
+                  color={w.color}
+                  emissive={w.color}
+                  emissiveIntensity={0.15}
+                  roughness={0.55}
+                />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
+    </>
+  );
+};
 
 // Tree halo — soft glow sphere + point light di sekitar pohon aprikot
 // pusat. Visual hint: pohon ini beacon, "yg masih hidup" di dunia
@@ -2116,11 +2140,13 @@ const TamanScene = ({
         color="#a8c5e0"
       />
       <TamanFloor />
-      <DroughtRing restorationLevel={restorationLevel} />
+      <DroughtRing />
       <Mountains />
       <Aurora />
       <Constellations />
-      <DeadTrees restorationLevel={restorationLevel} />
+      <DeadTrees />
+      <RecoveringSaplings restorationLevel={restorationLevel} />
+      <Wildflowers restorationLevel={restorationLevel} />
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
       <BirdsFlock />
@@ -2325,7 +2351,7 @@ const TamanPetaIntroTitle = () => {
           <br />
           enam bab kenangan masih bercahaya di sekelilingnya.
           <br />
-          Tiap dukungan & kebaikanmu menumbuhkan satu pohon
+          Tiap bab yang kau baca menumbuhkan satu pohon
           <br />
           di padang yang rusak. Mulai dari bab pertama.
         </p>
@@ -2334,10 +2360,10 @@ const TamanPetaIntroTitle = () => {
   );
 };
 
-// RestorationIndicator — UI overlay top-left showing community-driven
-// pemulihan progress (driven by tree supports). Bar + percentage +
-// short narrative copy. Hidden during fly-in.
-const RestorationIndicator = ({ level, supports, flyInActive }) => {
+// RestorationIndicator — UI overlay top-left showing chapter-based
+// pemulihan progress. Bar + chapters explored + narrative copy.
+// Hidden during fly-in.
+const RestorationIndicator = ({ level, chaptersExplored, totalChapters, flyInActive }) => {
   if (flyInActive) return null;
   const pct = Math.round(level * 100);
   const isRecovered = level >= 1;
@@ -2362,7 +2388,7 @@ const RestorationIndicator = ({ level, supports, flyInActive }) => {
             {pct}%
           </span>
           <span className="text-white/45 text-[10px] tracking-wide tabular-nums">
-            {supports.toLocaleString('id-ID')} dukungan
+            {chaptersExplored} / {totalChapters} bab
           </span>
         </div>
         <p
@@ -2373,8 +2399,8 @@ const RestorationIndicator = ({ level, supports, flyInActive }) => {
           }}
         >
           {isRecovered
-            ? 'Padang hijau lagi. Cerita berikutnya menunggu.'
-            : 'Tiap dukungan menumbuhkan satu pohon di padang kering.'}
+            ? 'Semua bab dijelajahi. Taman pulih.'
+            : 'Tiap bab yang kau baca menumbuhkan satu pohon.'}
         </p>
       </div>
     </div>
@@ -2505,11 +2531,6 @@ const PetakDetailOverlay = ({ petak, onClose, onJumpToPetak }) => {
   );
 };
 
-// Restoration level config — supports community-driven recovery dari
-// drought ke green ring. RESTORATION_MAX = total supports butuh untuk
-// 100% pemulihan. Bisa di-tune nanti seiring real numbers.
-const RESTORATION_MAX = 1500;
-
 const TamanPetaPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -2518,27 +2539,21 @@ const TamanPetaPage = () => {
   const [hoveredCenter, setHoveredCenter] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
-  const [treeSupports, setTreeSupports] = useState(0);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
 
-  // Subscribe to tree supports — drives restoration level (drought ring
-  // → green, dead trees → saplings).
-  useEffect(() => {
-    const unsub = subscribeToTreeSupports(setTreeSupports);
-    return unsub;
-  }, []);
-
-  // Restoration level 0..1. Override via ?restoration=0.5 utk dev test.
+  // Restoration level dari chapter exploration progress — bukan live
+  // counter. User dapat baca tiap bab = satu kebaikan ditanam.
+  // Override via ?restoration=0.5 utk dev test.
   const restorationLevel = useMemo(() => {
     const override = searchParams.get('restoration');
     if (override !== null) {
       const n = parseFloat(override);
       if (!Number.isNaN(n)) return Math.max(0, Math.min(1, n));
     }
-    return Math.min(1, treeSupports / RESTORATION_MAX);
-  }, [searchParams, treeSupports]);
+    return Math.min(1, previewedPetak.size / PETAK.length);
+  }, [searchParams, previewedPetak]);
 
   useEffect(() => {
     const showPointer =
@@ -2628,7 +2643,8 @@ const TamanPetaPage = () => {
         <TamanPetaIntroTitle />
         <RestorationIndicator
           level={restorationLevel}
-          supports={treeSupports}
+          chaptersExplored={previewedPetak.size}
+          totalChapters={PETAK.length}
           flyInActive={flyInActive}
         />
         <TamanFooter
