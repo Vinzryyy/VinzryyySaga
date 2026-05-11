@@ -51,7 +51,7 @@ export const SITE_CONFIG = {
             label: 'ArmeniacaTown',
             hash: 'armeniacaTown',
             description: 'Dunia 3D yang tumbuh dari siraman — gerbang terbuka di 2000 dukungan',
-            icon: 'ri-archway-line',
+            icon: 'ri-gamepad-line',
           },
           {
             label: 'By-U Music',
