@@ -628,8 +628,10 @@ const ApricotBucket = ({ filled = 0 }) => {
 
       {/* Papan pengumuman di atas sign post — wooden board dgn text
           "Pohon Kebaikan" + sub-line stage milestone. Slight tilt
-          -3° untuk rustic feel. */}
-      <g transform={`rotate(-3 ${SIGN_X} ${SIGN_BOARD_CY})`}>
+          -3° untuk rustic feel + gentle sway via CSS (origin top
+          center, pivot di mana board attached ke post). */}
+      <g className="eli-sign-sway">
+       <g transform={`rotate(-3 ${SIGN_X} ${SIGN_BOARD_CY})`}>
         {/* Drop shadow di bawah board */}
         <rect
           x={SIGN_X - SIGN_BOARD_W / 2 + 1.5}
@@ -712,6 +714,38 @@ const ApricotBucket = ({ filled = 0 }) => {
         >
           panen · {filled.toLocaleString('id-ID')} buah
         </text>
+       </g>
+      </g>
+
+      {/* Bird perched di pojok kanan-atas papan — kecil, occasional
+          tail flutter via CSS (animasi mostly idle, gerak singkat tiap
+          ~5s). Posisinya outside sign-sway group supaya gak ikut sway
+          jadi pivot-nya stay anchored ke "tempat duduk" di board. */}
+      <g
+        transform={`translate(${SIGN_X + SIGN_BOARD_W / 2 - 14} ${SIGN_BOARD_CY - SIGN_BOARD_H / 2 - 1})`}
+      >
+        <g className="eli-sign-bird">
+          {/* Tail */}
+          <path d="M -3.5 0.5 L -6.5 -1.2 L -5.5 1.4 Z" fill="#3a2415" />
+          {/* Body — oval */}
+          <ellipse cx="0" cy="0" rx="3.4" ry="2.2" fill="#3a2415" />
+          {/* Wing line */}
+          <path
+            d="M -1.4 -0.4 Q 0 -1.2 1.6 -0.2"
+            fill="none"
+            stroke="#1a0f08"
+            strokeWidth="0.5"
+          />
+          {/* Head */}
+          <circle cx="3" cy="-1.2" r="1.9" fill="#3a2415" />
+          {/* Beak */}
+          <path d="M 4.5 -1.2 L 6.5 -0.8 L 4.5 -0.3 Z" fill="#c9a961" />
+          {/* Eye highlight */}
+          <circle cx="3.2" cy="-1.6" r="0.4" fill="rgba(255,225,180,0.9)" />
+          {/* Tiny legs */}
+          <line x1="-0.8" y1="2" x2="-0.8" y2="3.2" stroke="#3a2415" strokeWidth="0.4" />
+          <line x1="0.8" y1="2" x2="0.8" y2="3.2" stroke="#3a2415" strokeWidth="0.4" />
+        </g>
       </g>
 
       {/* Counter badge di bawah meja */}

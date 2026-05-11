@@ -440,9 +440,39 @@ body {
   transform-box: fill-box;
   animation: eliTableApexGlow 2.8s ease-in-out infinite;
 }
+
+/* Sign board sway — wind movement ringan ±1.4° dari posisi anchor
+   atas (di mana board attached ke post). Combined dgn inner -3°
+   base tilt, total sway -1.6° ↔ -4.4°. */
+@keyframes eliSignSway {
+  0%, 100% { transform: rotate(-1.4deg); }
+  50%      { transform: rotate(1.4deg); }
+}
+.eli-sign-sway {
+  transform-origin: center top;
+  transform-box: fill-box;
+  animation: eliSignSway 5.5s ease-in-out infinite;
+}
+
+/* Bird perched di papan — mostly idle, occasional tail flutter
+   (rotation ±3° + slight bob) tiap ~5s. */
+@keyframes eliSignBirdFlutter {
+  0%, 88%, 100% { transform: translate(0, 0) rotate(0deg); }
+  90% { transform: translate(0, -0.5px) rotate(-3deg); }
+  93% { transform: translate(0, 0.2px) rotate(3deg); }
+  96% { transform: translate(0, 0) rotate(-1deg); }
+}
+.eli-sign-bird {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: eliSignBirdFlutter 5.2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .eli-table-mount,
-  .eli-table-apex-glow { animation: none !important; }
+  .eli-table-apex-glow,
+  .eli-sign-sway,
+  .eli-sign-bird { animation: none !important; }
 }
 
 /* Water droplets — tetes air jatuh dari atas tree saat user siram.
