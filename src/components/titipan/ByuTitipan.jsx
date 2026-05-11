@@ -86,73 +86,74 @@ const useCountdown = (target) => {
   };
 };
 
-// Anatomical heart SVG dengan progressive reveal per stage:
-// 1 — body only (pucat), no arteries/vessels
-// 2 — + coronary arteries (LAD, RCA, branch)
-// 3 — + pulmonary trunk + vena cava (top vessels)
-// 4 — + aorta arch + sheen highlight
-// 5 — full saturation + glow
-//
-// CSS transitions di opacity supaya unlock-nya halus, gak abrupt.
+// Love heart SVG — Valentine symmetric heart dgn glossy gradient.
+// Stage progression: opacity + saturate filter ramp per stage. Stage 1
+// dull/desaturated (kerasa "tertidur"), stage 5 vibrant penuh (kerasa
+// "hidup").
 const AnatomicalHeartSvg = ({ stage = TOTAL_STAGES }) => {
-  // Body opacity ramp 0.55 → 1 dari stage 1 ke 5.
-  const bodyOpacity = 0.55 + (Math.min(stage, TOTAL_STAGES) - 1) * 0.1125;
-  const arteriesOp = stage >= 2 ? 1 : 0;
-  const topVesselsOp = stage >= 3 ? 1 : 0;
-  const aortaSheenOp = stage >= 4 ? 1 : 0;
+  const bodyOpacity = 0.65 + (Math.min(stage, TOTAL_STAGES) - 1) * 0.0875;
+  const saturate = 0.45 + (Math.min(stage, TOTAL_STAGES) - 1) * 0.18;
   return (
     <svg
       viewBox="0 0 100 100"
       width="100%"
       height="100%"
       aria-hidden="true"
-      style={{ display: 'block' }}
+      style={{
+        display: 'block',
+        opacity: bodyOpacity,
+        filter: `saturate(${saturate})`,
+        transition: 'opacity 800ms ease-out, filter 800ms ease-out',
+      }}
     >
       <defs>
-        <radialGradient id="byuHeartGlow" cx="55%" cy="45%" r="65%">
-          <stop offset="0%" stopColor="#e85060" />
-          <stop offset="40%" stopColor="#b02838" />
-          <stop offset="85%" stopColor="#6a1822" />
-          <stop offset="100%" stopColor="#3a0810" />
-        </radialGradient>
-        <radialGradient id="byuHeartHighlight" cx="35%" cy="35%" r="40%">
-          <stop offset="0%" stopColor="rgba(255,190,190,0.6)" />
-          <stop offset="100%" stopColor="rgba(255,190,190,0)" />
-        </radialGradient>
-        <linearGradient id="byuAorta" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#8a2028" />
-          <stop offset="100%" stopColor="#b03d48" />
+        <linearGradient id="byuHeartFill" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ff5060" />
+          <stop offset="40%" stopColor="#e02030" />
+          <stop offset="80%" stopColor="#a0101c" />
+          <stop offset="100%" stopColor="#6a0810" />
         </linearGradient>
-        <linearGradient id="byuPulm" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#5a3048" />
-          <stop offset="100%" stopColor="#984868" />
+        <radialGradient id="byuHeartShine" cx="32%" cy="28%" r="32%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.85)" />
+          <stop offset="50%" stopColor="rgba(255,200,210,0.35)" />
+          <stop offset="100%" stopColor="rgba(255,200,210,0)" />
+        </radialGradient>
+        <linearGradient id="byuHeartShadow" x1="50%" y1="50%" x2="50%" y2="100%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0)" />
+          <stop offset="100%" stopColor="rgba(40,0,5,0.35)" />
         </linearGradient>
       </defs>
 
-      {/* Vena cava — stage 3+ */}
-      <path d="M68 6 Q70 18 64 28" fill="none" stroke="#6a2a38" strokeWidth="5" strokeLinecap="round" style={{ opacity: topVesselsOp, transition: 'opacity 800ms ease-out' }} />
-      {/* Aorta arch — stage 4+ */}
-      <path d="M48 26 Q48 8 60 6 Q74 6 76 22 L74 36" fill="none" stroke="url(#byuAorta)" strokeWidth="7" strokeLinecap="round" style={{ opacity: aortaSheenOp, transition: 'opacity 800ms ease-out' }} />
-      {/* Pulmonary trunk — stage 3+ */}
-      <path d="M40 28 Q34 16 26 14" fill="none" stroke="url(#byuPulm)" strokeWidth="5.5" strokeLinecap="round" style={{ opacity: topVesselsOp, transition: 'opacity 800ms ease-out' }} />
-      <path d="M30 18 Q24 16 20 22" fill="none" stroke="url(#byuPulm)" strokeWidth="3" strokeLinecap="round" style={{ opacity: topVesselsOp * 0.85, transition: 'opacity 800ms ease-out' }} />
-
-      {/* Main body — selalu show, tapi opacity ramp per stage. */}
+      {/* Valentine heart body — symmetric, slightly wider top. Curve
+          control points biar shape-nya plump & glossy, kayak referensi
+          user kasih. */}
       <path
-        d="M50 30 Q32 24 22 38 Q14 52 24 70 Q34 86 44 92 Q48 94 46 88 Q42 78 44 70 Q38 66 36 58 Q44 64 50 62 Q58 66 64 60 Q66 70 62 78 Q60 86 64 90 Q76 80 80 64 Q84 48 76 38 Q66 28 56 32 Q52 30 50 30 Z"
-        fill="url(#byuHeartGlow)"
-        stroke="#2a0408"
+        d="M 50 92 C 18 74 4 50 4 30 C 4 14 18 4 32 4 C 41 4 47 9 50 19 C 53 9 59 4 68 4 C 82 4 96 14 96 30 C 96 50 82 74 50 92 Z"
+        fill="url(#byuHeartFill)"
+        stroke="#3a0408"
         strokeWidth="0.6"
-        style={{ opacity: bodyOpacity, transition: 'opacity 800ms ease-out' }}
       />
-
-      {/* Sheen ellipse — stage 4+ */}
-      <ellipse cx="38" cy="46" rx="14" ry="10" fill="url(#byuHeartHighlight)" style={{ opacity: aortaSheenOp * 0.7, transition: 'opacity 800ms ease-out' }} />
-
-      {/* Coronary arteries (LAD, RCA, branch) — stage 2+ */}
-      <path d="M48 34 Q44 50 38 70 Q42 82 46 88" fill="none" stroke="#4a0810" strokeWidth="1.1" strokeLinecap="round" style={{ opacity: arteriesOp * 0.7, transition: 'opacity 800ms ease-out' }} />
-      <path d="M58 36 Q66 42 70 56 Q70 70 64 84" fill="none" stroke="#4a0810" strokeWidth="1" strokeLinecap="round" style={{ opacity: arteriesOp * 0.65, transition: 'opacity 800ms ease-out' }} />
-      <path d="M42 56 Q36 60 32 66" fill="none" stroke="#4a0810" strokeWidth="0.7" strokeLinecap="round" style={{ opacity: arteriesOp * 0.55, transition: 'opacity 800ms ease-out' }} />
+      {/* Bottom shadow — kasih depth */}
+      <path
+        d="M 50 92 C 18 74 4 50 4 30 C 4 14 18 4 32 4 C 41 4 47 9 50 19 C 53 9 59 4 68 4 C 82 4 96 14 96 30 C 96 50 82 74 50 92 Z"
+        fill="url(#byuHeartShadow)"
+      />
+      {/* Glossy shine highlight di kiri-atas */}
+      <ellipse
+        cx="32"
+        cy="28"
+        rx="13"
+        ry="9"
+        fill="url(#byuHeartShine)"
+      />
+      {/* Tiny extra reflection di kanan */}
+      <ellipse
+        cx="68"
+        cy="22"
+        rx="4"
+        ry="2.5"
+        fill="rgba(255,255,255,0.5)"
+      />
     </svg>
   );
 };
@@ -199,98 +200,179 @@ const EmittedNotes = ({ show }) => {
   );
 };
 
-// Chain & padlock overlay — visual "hati yg kekunci" di stage awal.
-// Dua rantai silang X di depan heart + gembok di tengah. Opacity
-// ramp dari stage 1 (full lock) → stage 5 (hilang sempurna). Stage 4
-// padlock-nya udah crack (offset rotation tipis). Hilangnya gradual,
-// kerasa kayak rantai pelan-pelan kendor.
+// Chain & padlock overlay — silver chrome chains banyak wraps, ada yg
+// extend keluar heart edges (kayak rantai yg menjuntai dari segelan).
+// 5 main strands di sudut beda + 2 loose ends. Padlock besar di tengah.
+// Opacity ramp per stage: full lock → hilang sempurna.
+//
+// viewBox -18..118 (lebih luas dari heart 0..100) supaya chains
+// natural extend past heart bounds. SVG dimensions juga lebih besar
+// dari heart wrapper untuk overflow visual.
+const CHAIN_STROKES = [
+  { angle: 22, y: 30, x1: -14, x2: 114, width: 4.2 },
+  { angle: -28, y: 48, x1: -16, x2: 116, width: 4.4 },
+  { angle: 52, y: 60, x1: -12, x2: 112, width: 3.9 },
+  { angle: -56, y: 42, x1: -12, x2: 112, width: 3.7 },
+  { angle: 8, y: 72, x1: -14, x2: 114, width: 4.1 },
+];
+// Loose chain ends — short segments dgn ujung free yg "menjuntai"
+// keluar dari heart edges (kayak rantai yg lepas dari segelan).
+const CHAIN_LOOSE_ENDS = [
+  { angle: -10, x1: 95, y1: 78, x2: 122, y2: 88 },  // kanan-bawah keluar
+  { angle: 15, x1: 5, y1: 18, x2: -18, y2: 12 },     // kiri-atas keluar
+];
 const ChainOverlay = ({ stage }) => {
-  // Opacity per stage: 1 → 0.78 → 0.5 → 0.22 → 0 (released)
   const chainOpacity = Math.max(0, 1 - (stage - 1) / 4);
   if (chainOpacity <= 0.04) return null;
-  // Lock di stage 4 udah miring kayak mau lepas
-  const lockTilt = stage === 4 ? 14 : 0;
+  const lockTilt = stage === 4 ? 12 : 0;
   return (
     <svg
       aria-hidden="true"
-      viewBox="0 0 100 100"
-      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="-18 -18 136 136"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 sm:w-72 sm:h-72 pointer-events-none z-10"
       style={{
         opacity: chainOpacity,
         transition: 'opacity 900ms ease-out',
-        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))',
+        filter: 'drop-shadow(0 1.5px 2.5px rgba(0,0,0,0.55))',
+        overflow: 'visible',
       }}
     >
       <defs>
-        <linearGradient id="byuChain" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#3d342b" />
-          <stop offset="50%" stopColor="#5a4a3a" />
-          <stop offset="100%" stopColor="#3d342b" />
+        {/* Silver chain gradient — chrome polish look */}
+        <linearGradient id="byuChain" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#e8eaed" />
+          <stop offset="40%" stopColor="#9a9da3" />
+          <stop offset="60%" stopColor="#7a7d83" />
+          <stop offset="100%" stopColor="#c8ccd0" />
         </linearGradient>
+        {/* Highlight pita di atas chain — bikin link kerasa metallic */}
+        <linearGradient id="byuChainGlint" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.85)" />
+          <stop offset="50%" stopColor="rgba(255,255,255,0.45)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+        </linearGradient>
+        {/* Padlock body — chrome silver */}
         <linearGradient id="byuLock" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#6a5640" />
-          <stop offset="55%" stopColor="#4a3a28" />
-          <stop offset="100%" stopColor="#2a1d10" />
+          <stop offset="0%" stopColor="#dadde2" />
+          <stop offset="35%" stopColor="#9a9da3" />
+          <stop offset="70%" stopColor="#6a6d73" />
+          <stop offset="100%" stopColor="#4a4d53" />
+        </linearGradient>
+        {/* Shackle (U-bar) — slightly darker */}
+        <linearGradient id="byuShackle" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#c8ccd0" />
+          <stop offset="50%" stopColor="#7a7d83" />
+          <stop offset="100%" stopColor="#5a5d63" />
         </linearGradient>
       </defs>
 
-      {/* Chain 1: diagonal kiri-atas ke kanan-bawah. Dasharray bikin
-          link-link tipis kayak rantai. */}
-      <line
-        x1="2" y1="50" x2="98" y2="50"
-        transform="rotate(38 50 50)"
-        stroke="url(#byuChain)"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-        strokeDasharray="4.5 2.2"
-      />
-      {/* Chain 2: diagonal kanan-atas ke kiri-bawah */}
-      <line
-        x1="2" y1="50" x2="98" y2="50"
-        transform="rotate(-38 50 50)"
-        stroke="url(#byuChain)"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-        strokeDasharray="4.5 2.2"
-      />
+      {/* 5 strand chain — masing-masing dgn 2 stroke layer (body silver
+          + highlight glint) supaya kerasa metallic. Stroke-dasharray
+          mimik link rantai. Beberapa extend keluar viewBox 0-100
+          (x1 negatif, x2 > 100) → kerasa rantai melilit keluar heart. */}
+      {CHAIN_STROKES.map((c, i) => (
+        <g key={`s-${i}`} transform={`rotate(${c.angle} 50 50)`}>
+          <line
+            x1={c.x1} y1={c.y} x2={c.x2} y2={c.y}
+            stroke="url(#byuChain)"
+            strokeWidth={c.width}
+            strokeLinecap="round"
+            strokeDasharray="4.5 2"
+          />
+          <line
+            x1={c.x1} y1={c.y - 0.7} x2={c.x2} y2={c.y - 0.7}
+            stroke="url(#byuChainGlint)"
+            strokeWidth={c.width * 0.32}
+            strokeLinecap="round"
+            strokeDasharray="3 3.5"
+            opacity="0.85"
+          />
+        </g>
+      ))}
 
-      {/* Padlock di tengah — body, shackle, keyhole */}
-      <g transform={`translate(50, 52) rotate(${lockTilt})`}>
+      {/* Loose chain ends — segmen pendek dgn ujung free, menjuntai
+          keluar dari edges heart. Kerasa kayak rantai yg lepas dari
+          segelan. */}
+      {CHAIN_LOOSE_ENDS.map((c, i) => (
+        <g key={`l-${i}`}>
+          <line
+            x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2}
+            stroke="url(#byuChain)"
+            strokeWidth="3.6"
+            strokeLinecap="round"
+            strokeDasharray="4 2"
+          />
+          <line
+            x1={c.x1} y1={c.y1 - 0.6} x2={c.x2} y2={c.y2 - 0.6}
+            stroke="url(#byuChainGlint)"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeDasharray="2.5 3"
+            opacity="0.85"
+          />
+          {/* Ujung link bulat — ring kecil di end menjadi hint "link
+              terakhir yg dangling". */}
+          <circle
+            cx={c.x2} cy={c.y2} r="2.4"
+            fill="none"
+            stroke="url(#byuChain)"
+            strokeWidth="1.4"
+          />
+        </g>
+      ))}
+
+      {/* Padlock besar di pusat */}
+      <g transform={`translate(50, 56) rotate(${lockTilt})`}>
         {/* Shackle (U-bar) */}
         <path
-          d="M-5.5 -2.5 Q-5.5 -10.5 0 -10.5 Q5.5 -10.5 5.5 -2.5"
+          d="M-8 -4 Q-8 -16 0 -16 Q8 -16 8 -4"
           fill="none"
-          stroke="url(#byuLock)"
-          strokeWidth="2.4"
+          stroke="url(#byuShackle)"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+        />
+        {/* Inner shadow shackle */}
+        <path
+          d="M-8 -4 Q-8 -16 0 -16 Q8 -16 8 -4"
+          fill="none"
+          stroke="rgba(0,0,0,0.35)"
+          strokeWidth="0.8"
           strokeLinecap="round"
         />
         {/* Body */}
         <rect
-          x="-7"
-          y="-2.5"
-          width="14"
-          height="11"
-          rx="1.8"
+          x="-11"
+          y="-4"
+          width="22"
+          height="17"
+          rx="2.4"
           fill="url(#byuLock)"
-          stroke="#1a0e04"
-          strokeWidth="0.35"
+          stroke="#3a3d43"
+          strokeWidth="0.45"
+        />
+        {/* Body inner shadow di bawah */}
+        <rect
+          x="-11"
+          y="9"
+          width="22"
+          height="4"
+          rx="2.4"
+          fill="rgba(0,0,0,0.18)"
+        />
+        {/* Sheen highlight kiri-atas body */}
+        <rect
+          x="-9"
+          y="-2.5"
+          width="4"
+          height="10"
+          rx="1.2"
+          fill="rgba(255,255,255,0.5)"
         />
         {/* Keyhole */}
-        <circle cx="0" cy="2.2" r="1.4" fill="#150a02" />
-        <line
-          x1="0" y1="2.2" x2="0" y2="5.4"
-          stroke="#150a02"
-          strokeWidth="0.9"
-          strokeLinecap="round"
-        />
-        {/* Sheen highlight kecil di kiri-atas body */}
-        <rect
-          x="-5"
-          y="-1"
-          width="3"
-          height="6"
-          rx="1"
-          fill="rgba(255,225,180,0.18)"
+        <circle cx="0" cy="2.5" r="2.1" fill="#0e1116" />
+        <path
+          d="M -0.8 2.5 L -1.4 9 L 1.4 9 L 0.8 2.5 Z"
+          fill="#0e1116"
         />
       </g>
     </svg>
@@ -438,10 +520,6 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
       >
         <AnatomicalHeartSvg stage={stage} />
 
-        {/* Chain & padlock overlay — fade out per stage (hilang
-            sempurna di released / stage 5). */}
-        <ChainOverlay stage={stage} />
-
         {/* Inner hot core — gloss merah cerah di tengah-bawah heart
             yg pulse opacity + scale sync lub. Mix-blend screen di-
             bypass karena bg bukan transparent; pakai positioning
@@ -468,6 +546,11 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
           }}
         />
       </div>
+
+      {/* Chain & padlock — sibling heart wrapper (gak ikut beat-pulse),
+          tampil di atas semua layer heart. Hati "terkurung" rantai
+          rigid yg pelan-pelan lepas tiap minggu. */}
+      <ChainOverlay stage={stage} />
 
       <style>{`
         @keyframes byuHeartBeat {
