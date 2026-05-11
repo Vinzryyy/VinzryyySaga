@@ -30,6 +30,13 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
+import {
+  Bloom,
+  EffectComposer,
+  ToneMapping,
+  Vignette,
+} from '@react-three/postprocessing';
+import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 
@@ -2884,6 +2891,26 @@ const TamanPetaPage = () => {
               onCenterOut={handleCenterOut}
               onCenterClick={handleCenterClick}
             />
+            {!isMobile && (
+              <EffectComposer multisampling={0}>
+                {/* Bloom — threshold tinggi 0.78 supaya cuma highlight
+                    emissive (tree fruits, moon, stars, lanterns, fireflies,
+                    path stones visited, light cone) yang glow. Mipmap blur
+                    biar soft & sinematik. */}
+                <Bloom
+                  intensity={0.55}
+                  luminanceThreshold={0.78}
+                  luminanceSmoothing={0.4}
+                  mipmapBlur
+                />
+                {/* Vignette darken edges — frame fokus ke pohon di tengah,
+                    juga ngebantu hide harsh ground edge di tepi screen. */}
+                <Vignette eskil={false} offset={0.3} darkness={0.55} />
+                {/* ACES filmic tonemapping — pal warm-cool twilight jadi
+                    lebih dramatik & film-grade, bukan flat sRGB. */}
+                <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+              </EffectComposer>
+            )}
             {import.meta.env.DEV && <Stats />}
           </Canvas>
         </Suspense>
