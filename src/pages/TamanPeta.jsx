@@ -880,6 +880,32 @@ const HaloSparkles = () => (
   </>
 );
 
+// TreeLightCone — vertical light cone dari sky pointing down ke pohon
+// kebaikan, kerasa kayak "sacred light" / overhead spotlight di focal
+// point. Subtle opacity pulse.
+const TreeLightCone = () => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    matRef.current.opacity = 0.07 + Math.sin(t * 0.45) * 0.025;
+  });
+  return (
+    <mesh position={[0, 7, 0]} rotation={[Math.PI, 0, 0]}>
+      <coneGeometry args={[2.8, 12, 18, 1, true]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color="#fff5c8"
+        transparent
+        opacity={0.07}
+        side={2}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+
 // Aurora curtains — 3 elongated planes tilted di sky high, semi-
 // transparent emissive utk magical atmosphere. Slow horizontal drift
 // + opacity pulse. Behind mountains tapi visible dari camera angle.
@@ -1036,10 +1062,11 @@ const Mountains = () => (
 // petak position. 6 spokes total = 24 stones. Kasih visual koneksi
 // "ini hub", path menjari ke 6 petak. Tiap stone punya emissive wave
 // yg propagate dari center keluar — kerasa "path memandu, hidup".
-const StonePath = ({ petakList }) => (
+const StonePath = ({ petakList, visitedSet }) => (
   <>
     {petakList.flatMap((petak) => {
       const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+      const visited = visitedSet?.has(petak.id) ?? false;
       const stones = [];
       for (let i = 0; i < 4; i++) {
         const t = 0.25 + i * 0.18;
@@ -1053,6 +1080,7 @@ const StonePath = ({ petakList }) => (
             rotation={[-Math.PI / 2, 0, (i * 0.4) % Math.PI]}
             radius={0.32 - i * 0.015}
             stoneIdx={i}
+            visited={visited}
           />,
         );
       }
@@ -1587,25 +1615,27 @@ const BreathingFoliage = ({ position, radius, color, phase = 0, matRefCallback }
 };
 
 // Path stone dgn emissive wave — pulse propagate dari center keluar.
-// Tiap stone dapat phase berdasar idx-nya di spoke (0 paling dekat
-// center, 3 paling jauh). Wave traveling outward kerasa "path memandu".
-const PathStone = ({ position, rotation, radius, stoneIdx }) => {
+// Visited petak path stones dapat emissive baseline lebih kuat
+// (kerasa "path udah dijalani / lit up").
+const PathStone = ({ position, rotation, radius, stoneIdx, visited = false }) => {
   const matRef = useRef();
   useFrame((state) => {
     if (!matRef.current) return;
     const t = state.clock.elapsedTime;
     const phase = stoneIdx * 0.7;
-    // Wave dari center keluar — phase advance positive = wave outward.
     const pulse = Math.max(0, Math.sin(t * 1.1 - phase) * 0.5 + 0.5);
-    matRef.current.emissiveIntensity = pulse * 0.55;
+    // Visited: 2× boost intensity + base offset, kerasa terang konstan
+    const base = visited ? 0.25 : 0;
+    const peak = visited ? 1.1 : 0.55;
+    matRef.current.emissiveIntensity = base + pulse * peak;
   });
   return (
     <mesh position={position} rotation={rotation}>
       <circleGeometry args={[radius, 8]} />
       <meshStandardMaterial
         ref={matRef}
-        color="#6a6e7a"
-        emissive="#c9a961"
+        color={visited ? '#8a8e9a' : '#6a6e7a'}
+        emissive={visited ? '#f4d088' : '#c9a961'}
         emissiveIntensity={0}
         roughness={1}
       />
@@ -2339,7 +2369,7 @@ const TamanScene = ({
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
       <BirdsFlock />
-      <StonePath petakList={PETAK} />
+      <StonePath petakList={PETAK} visitedSet={previewedPetak} />
       <PetakGroundGlow petakList={PETAK} />
       <ChapterFlowRing />
       <ChapterFlowBead />
@@ -2369,6 +2399,7 @@ const TamanScene = ({
         onClick={onCenterClick}
       />
       <TreeHalo />
+      <TreeLightCone />
       <HaloSparkles />
       <MistParticles count={isMobile ? 30 : 55} />
       <FallingPetals count={isMobile ? 50 : 80} />
@@ -2556,12 +2587,45 @@ const TamanPetaIntroTitle = () => {
   );
 };
 
+// Count-up hook — tween dari nilai sebelumnya ke target dgn ease-out
+// cubic. Cancel pas unmount.
+const useCountUp = (target, duration = 700) => {
+  const [display, setDisplay] = useState(target);
+  const fromRef = useRef(target);
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = target;
+    if (from === to) {
+      setDisplay(to);
+      return undefined;
+    }
+    const start = performance.now();
+    let raf;
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const v = from + (to - from) * eased;
+      setDisplay(v);
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = to;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => raf && cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return display;
+};
+
 // RestorationIndicator — UI overlay top-left showing chapter-based
 // pemulihan progress. Bar + chapter checklist dots + narrative copy.
 // Hidden during fly-in.
 const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedSet, flyInActive }) => {
+  // Hooks harus dipanggil sebelum any early return.
+  const pctTarget = Math.round(level * 100);
+  const animatedPct = useCountUp(pctTarget, 900);
   if (flyInActive) return null;
-  const pct = Math.round(level * 100);
   const isRecovered = level >= 1;
   return (
     <div className="pointer-events-none absolute top-20 md:top-24 left-4 md:left-6 z-10 max-w-[280px]">
@@ -2572,11 +2636,11 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedS
             Pemulihan Taman
           </span>
         </div>
-        {/* Progress bar */}
+        {/* Progress bar — width driven by animated count-up (smooth tween) */}
         <div className="h-1.5 rounded-full bg-white/8 overflow-hidden mb-2.5">
           <div
-            className="h-full bg-gradient-to-r from-amber-300 via-emerald-400 to-emerald-300 rounded-full transition-all duration-700"
-            style={{ width: `${Math.max(2, pct)}%` }}
+            className="h-full bg-gradient-to-r from-amber-300 via-emerald-400 to-emerald-300 rounded-full"
+            style={{ width: `${Math.max(2, animatedPct)}%` }}
           />
         </div>
         {/* Chapter checklist — 6 dots, filled per visited */}
@@ -2606,7 +2670,7 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedS
         </div>
         <div className="flex items-baseline justify-between gap-2 mb-1.5">
           <span className="text-white/85 text-sm font-bold tabular-nums">
-            {pct}%
+            {Math.round(animatedPct)}%
           </span>
           <span className="text-white/45 text-[10px] tracking-wide tabular-nums">
             {chaptersExplored} / {totalChapters} bab
