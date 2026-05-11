@@ -454,6 +454,28 @@ body {
   animation: eliSignSway 5.5s ease-in-out infinite;
 }
 
+/* Lantern flame flicker + halo glow pulse — warm cozy feel. Independent
+   timings + reduced-motion respected. */
+@keyframes eliLanternGlow {
+  0%, 100% { opacity: 0.24; transform: scale(0.95); }
+  50%      { opacity: 0.38; transform: scale(1.08); }
+}
+.eli-lantern-glow {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: eliLanternGlow 3.2s ease-in-out infinite;
+}
+@keyframes eliLanternFlame {
+  0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.9; }
+  35%      { transform: scaleY(1.12) scaleX(0.92); opacity: 1; }
+  70%      { transform: scaleY(0.94) scaleX(1.05); opacity: 0.85; }
+}
+.eli-lantern-flame {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: eliLanternFlame 1.4s ease-in-out infinite;
+}
+
 /* Bird perched di papan — mostly idle, occasional tail flutter
    (rotation ±3° + slight bob) tiap ~5s. */
 @keyframes eliSignBirdFlutter {
@@ -472,7 +494,9 @@ body {
   .eli-table-mount,
   .eli-table-apex-glow,
   .eli-sign-sway,
-  .eli-sign-bird { animation: none !important; }
+  .eli-sign-bird,
+  .eli-lantern-glow,
+  .eli-lantern-flame { animation: none !important; }
 }
 
 /* Water droplets — tetes air jatuh dari atas tree saat user siram.

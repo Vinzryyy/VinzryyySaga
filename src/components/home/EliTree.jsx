@@ -578,6 +578,67 @@ const ApricotBucket = ({ filled = 0 }) => {
         />
       ))}
 
+      {/* Tablecloth drape — cloth corner menutup front-left tabletop,
+          menjuntai sedikit ke bawah dgn lipatan tipis. Kasih kerasa
+          "domestic harvest" bukan industrial. */}
+      <g>
+        {(() => {
+          const clx = TABLE_CX - TABLE_FRONT_W / 2;
+          const clTop = TABLE_TOP_FRONT_Y;
+          const clBot = clTop + 20;
+          return (
+            <>
+              {/* Shadow underneath cloth */}
+              <path
+                d={`M ${clx + 1} ${clTop + 1}
+                   L ${clx + 24} ${clTop + 1}
+                   L ${clx + 21} ${clBot - 4}
+                   L ${clx + 16} ${clBot + 1}
+                   L ${clx + 3} ${clBot - 1}
+                   L ${clx - 1} ${clBot - 9} Z`}
+                fill="rgba(0,0,0,0.18)"
+              />
+              {/* Cloth body — cream linen */}
+              <path
+                d={`M ${clx - 2} ${clTop - 1}
+                   L ${clx + 24} ${clTop - 1}
+                   L ${clx + 22} ${clBot - 5}
+                   L ${clx + 17} ${clBot - 1}
+                   L ${clx + 4} ${clBot - 3}
+                   L ${clx - 2} ${clBot - 11} Z`}
+                fill="#fae5b8"
+                stroke="#c9a961"
+                strokeWidth="0.55"
+              />
+              {/* Fold lines — 2 subtle creases */}
+              <path
+                d={`M ${clx + 8} ${clTop + 2} Q ${clx + 9} ${clTop + 9} ${clx + 11} ${clBot - 8}`}
+                fill="none"
+                stroke="#c9a961"
+                strokeWidth="0.35"
+                opacity="0.6"
+              />
+              <path
+                d={`M ${clx + 16} ${clTop + 2} Q ${clx + 17} ${clTop + 9} ${clx + 18} ${clBot - 6}`}
+                fill="none"
+                stroke="#c9a961"
+                strokeWidth="0.35"
+                opacity="0.5"
+              />
+              {/* Highlight along top edge */}
+              <line
+                x1={clx + 2}
+                y1={clTop + 0.8}
+                x2={clx + 22}
+                y2={clTop + 0.8}
+                stroke="rgba(255,255,255,0.7)"
+                strokeWidth="0.5"
+              />
+            </>
+          );
+        })()}
+      </g>
+
       {/* Apricot pile di atas meja — layered render, low row first */}
       {apricots.map((a) => (
         <g key={`tab-${a.idx}`}>
@@ -714,6 +775,73 @@ const ApricotBucket = ({ filled = 0 }) => {
         >
           panen · {filled.toLocaleString('id-ID')} buah
         </text>
+        {/* Lantern menggantung dari bawah board front-right — small
+            amber glow. Inside rotate group jadi ikut tilt -3° board,
+            inside sway group jadi swing pelan dgn board. */}
+        {(() => {
+          const lx = SIGN_X + SIGN_BOARD_W / 2 - 14;
+          const ly = SIGN_BOARD_CY + SIGN_BOARD_H / 2;
+          return (
+            <g transform={`translate(${lx} ${ly})`}>
+              {/* Chain dari board edge ke lantern top */}
+              <line x1="0" y1="0" x2="0" y2="6" stroke="#3a2415" strokeWidth="0.7" />
+              {/* Lantern top cap — trapezoid */}
+              <path
+                d="M -3.2 6 L 3.2 6 L 2.6 4.5 L -2.6 4.5 Z"
+                fill="#3a2415"
+                stroke="#1a0f08"
+                strokeWidth="0.3"
+              />
+              {/* Glow halo behind lantern */}
+              <circle
+                cx="0"
+                cy="11"
+                r="9"
+                fill="#f9c66a"
+                opacity="0.28"
+                className="eli-lantern-glow"
+              />
+              {/* Lantern body — dark frame */}
+              <rect
+                x="-3.5"
+                y="6.5"
+                width="7"
+                height="9"
+                rx="0.6"
+                fill="#3a2415"
+                stroke="#1a0f08"
+                strokeWidth="0.3"
+              />
+              {/* Inner glass — amber */}
+              <rect
+                x="-2.6"
+                y="7.4"
+                width="5.2"
+                height="7"
+                fill="#f9c66a"
+              />
+              {/* Inner flame highlight */}
+              <ellipse
+                cx="0"
+                cy="11"
+                rx="1.3"
+                ry="2.4"
+                fill="#fff2c8"
+                opacity="0.9"
+                className="eli-lantern-flame"
+              />
+              {/* Glass left-right framing — supaya beneran kayak grid lantern */}
+              <line x1="0" y1="7.4" x2="0" y2="14.4" stroke="#3a2415" strokeWidth="0.4" />
+              {/* Bottom plate */}
+              <path
+                d="M -3.5 15.5 L 3.5 15.5 L 3 16.6 L -3 16.6 Z"
+                fill="#3a2415"
+                stroke="#1a0f08"
+                strokeWidth="0.3"
+              />
+            </g>
+          );
+        })()}
        </g>
       </g>
 
