@@ -62,6 +62,9 @@ const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
 const DenyutPage = lazy(() => import('./pages/Denyut'));
+// Titipan — page dedicated utk lagu By-U Putri Helisma. Pre-release
+// support phase → auto-reveal player 15 Juni 2026.
+const TitipanPage = lazy(() => import('./pages/Titipan'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -123,6 +126,7 @@ function AppShell() {
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
+            <Route path="/titipan" element={<TitipanPage />} />
             {/* /galeri-kebaikan redirects to /26 while the project is
                 pre-announce — keeps any pre-shared links from 404'ing. */}
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
@@ -132,11 +136,12 @@ function AppShell() {
             <Route path="/taman/peta" element={<TamanPetaPage />} />
             <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
             <Route path="/taman/r3" element={<TamanKolamKataPage />} />
-            {/* /taman/titipan dipindah jadi modul kedua di /26 (Harmoni
-                Kebaikan). Redirect supaya link lama tetap valid. */}
+            {/* /taman/titipan dipindah ke page dedicated /titipan
+                (Harmoni Kebaikan, bukan section). Redirect supaya
+                link lama tetap valid. */}
             <Route
               path="/taman/titipan"
-              element={<Navigate to="/26#titipan-byu" replace />}
+              element={<Navigate to="/titipan" replace />}
             />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
             <Route path="/museum" element={<Navigate to="/taman" replace />} />

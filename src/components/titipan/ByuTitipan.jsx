@@ -359,21 +359,13 @@ const ByuTitipan = () => {
       className="px-5 sm:px-6 md:px-12 lg:px-20 pb-14 md:pb-20"
     >
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8 md:mb-10">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
-            <i className="ri-music-2-line text-base" aria-hidden="true" />
-            {isReleased ? 'Modul Kedua · Titipan Terbuka' : 'Modul Kedua · Titipan Lagu'}
-          </p>
-          <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-2">
-            <span className="italic font-normal">By-U</span>
-            <span className="text-[color:var(--retro-burgundy)]">.</span>
-          </h2>
-          <p className="font-header italic text-sm sm:text-base text-[color:var(--color-text-secondary)]">
-            Putri Helisma
-          </p>
-        </div>
-
         <div className="rounded-[2rem] bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 px-6 sm:px-10 py-10 sm:py-12 shadow-sm">
+          <div className="text-center mb-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
+              <i className="ri-music-2-line text-base" aria-hidden="true" />
+              {isReleased ? 'Titipan Terbuka' : 'Titipan Tersegel'}
+            </p>
+          </div>
           {isReleased ? (
             <ReleasedView supporters={supporters} />
           ) : (
