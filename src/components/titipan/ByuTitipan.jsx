@@ -87,11 +87,9 @@ const useCountdown = (target) => {
 };
 
 // Love heart SVG — Valentine symmetric heart dgn glossy gradient.
-// Stage progression: opacity + saturate filter ramp per stage. Stage 1
-// dull/desaturated (kerasa "tertidur"), stage 5 vibrant penuh (kerasa
-// "hidup").
+// Stage progression: saturate filter ramp per stage (heart selalu
+// fully visible, cuma warnanya yg jadi lebih hidup).
 const AnatomicalHeartSvg = ({ stage = TOTAL_STAGES }) => {
-  const bodyOpacity = 0.65 + (Math.min(stage, TOTAL_STAGES) - 1) * 0.0875;
   const saturate = 0.45 + (Math.min(stage, TOTAL_STAGES) - 1) * 0.18;
   return (
     <svg
@@ -101,9 +99,8 @@ const AnatomicalHeartSvg = ({ stage = TOTAL_STAGES }) => {
       aria-hidden="true"
       style={{
         display: 'block',
-        opacity: bodyOpacity,
         filter: `saturate(${saturate})`,
-        transition: 'opacity 800ms ease-out, filter 800ms ease-out',
+        transition: 'filter 800ms ease-out',
       }}
     >
       <defs>
@@ -202,8 +199,10 @@ const EmittedNotes = ({ show }) => {
 
 // Chain & padlock overlay — realistic interlocking oval chain links,
 // silver chrome. 5 main strands + 2 loose ends + center padlock.
-// Per strand, generate N oval links sepanjang stroke, alternate
-// orientation (parallel/perpendicular) supaya interlocking visual.
+//
+// Stage progression: chains pecah DISCRETE per stage (bukan fade).
+// Tiap minggu, satu strand putus & lenyap. Padlock juga progress:
+// closed → cracked → shackle popped → falls off.
 const CHAIN_STROKES = [
   { angle: 22, y: 30, x1: -14, x2: 114 },
   { angle: -28, y: 48, x1: -16, x2: 116 },
@@ -215,6 +214,10 @@ const CHAIN_LOOSE_ENDS = [
   { x1: 95, y1: 78, x2: 122, y2: 92 },
   { x1: 5, y1: 18, x2: -20, y2: 10 },
 ];
+// Berapa main strand visible per stage:
+// 1→5, 2→4, 3→3, 4→1, 5→0
+const STRAND_COUNT_BY_STAGE = [0, 5, 4, 3, 1, 0];
+const LOOSE_COUNT_BY_STAGE = [0, 2, 2, 1, 0, 0];
 
 // Render N oval links sepanjang strand horizontal x1→x2 at y. Alternate
 // rotation 0°/90° untuk interlocking effect. Caller wraps dgn rotate(angle).
@@ -307,17 +310,21 @@ const renderLooseChainLinks = (x1, y1, x2, y2, keyPrefix) => {
 };
 
 const ChainOverlay = ({ stage }) => {
-  const chainOpacity = Math.max(0, 1 - (stage - 1) / 4);
-  if (chainOpacity <= 0.04) return null;
-  const lockTilt = stage === 4 ? 12 : 0;
+  if (stage >= TOTAL_STAGES) return null; // stage 5 = no chain, no lock
+  const strandCount = STRAND_COUNT_BY_STAGE[stage] || 0;
+  const looseCount = LOOSE_COUNT_BY_STAGE[stage] || 0;
+  // Padlock state per stage:
+  //   1-2: locked & intact
+  //   3:   keyhole glowing (kunci mulai masuk)
+  //   4:   shackle popped open (terlepas dari body, miring)
+  const shackleOpen = stage === 4;
+  const keyholeGlow = stage >= 3;
   return (
     <svg
       aria-hidden="true"
       viewBox="-22 -22 144 144"
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 sm:w-72 sm:h-72 pointer-events-none z-10"
       style={{
-        opacity: chainOpacity,
-        transition: 'opacity 900ms ease-out',
         filter: 'drop-shadow(0 1.5px 2.5px rgba(0,0,0,0.55))',
         overflow: 'visible',
       }}
@@ -343,73 +350,92 @@ const ChainOverlay = ({ stage }) => {
         </linearGradient>
       </defs>
 
-      {/* 5 main strands. Each strand di-rotate sesuai angle, lalu
-          render N interlocking oval links sepanjang stroke. */}
-      {CHAIN_STROKES.map((c, i) => (
+      {/* Main strands — sliced per stage. Tiap minggu hilang
+          satu, sampai stage 5 (0 strand). */}
+      {CHAIN_STROKES.slice(0, strandCount).map((c, i) => (
         <g key={`strand-${i}`} transform={`rotate(${c.angle} 50 50)`}>
           {renderHorizontalChainLinks(c.x1, c.y, c.x2, `s${i}`)}
         </g>
       ))}
 
-      {/* 2 loose ends — chain menjuntai keluar heart edges */}
-      {CHAIN_LOOSE_ENDS.map((c, i) => (
+      {/* Loose ends — juga reduced per stage */}
+      {CHAIN_LOOSE_ENDS.slice(0, looseCount).map((c, i) => (
         <g key={`loose-${i}`}>
           {renderLooseChainLinks(c.x1, c.y1, c.x2, c.y2, `l${i}`)}
         </g>
       ))}
 
-      {/* Padlock besar di pusat */}
-      <g transform={`translate(50, 56) rotate(${lockTilt})`}>
-        {/* Shackle (U-bar) */}
-        <path
-          d="M-8 -4 Q-8 -16 0 -16 Q8 -16 8 -4"
-          fill="none"
-          stroke="url(#byuShackle)"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
-        {/* Inner shadow shackle */}
-        <path
-          d="M-8 -4 Q-8 -16 0 -16 Q8 -16 8 -4"
-          fill="none"
-          stroke="rgba(0,0,0,0.35)"
-          strokeWidth="0.8"
-          strokeLinecap="round"
-        />
-        {/* Body */}
+      {/* Padlock di pusat — stage 1-4 visible, stage 5 hilang.
+          Shackle states:
+          - stage 1-3: closed (U-bar nempel body)
+          - stage 4:   popped — shackle rotate 65° dari kiri (lepas
+            dari sisi kanan body), kerasa kayak baru meledak. */}
+      <g transform="translate(50, 56)">
+        {/* Body (rendered first, di bawah shackle) */}
         <rect
-          x="-11"
-          y="-4"
-          width="22"
-          height="17"
+          x="-11" y="-4"
+          width="22" height="17"
           rx="2.4"
           fill="url(#byuLock)"
           stroke="#3a3d43"
           strokeWidth="0.45"
         />
-        {/* Body inner shadow di bawah */}
         <rect
-          x="-11"
-          y="9"
-          width="22"
-          height="4"
+          x="-11" y="9"
+          width="22" height="4"
           rx="2.4"
           fill="rgba(0,0,0,0.18)"
         />
-        {/* Sheen highlight kiri-atas body */}
         <rect
-          x="-9"
-          y="-2.5"
-          width="4"
-          height="10"
+          x="-9" y="-2.5"
+          width="4" height="10"
           rx="1.2"
           fill="rgba(255,255,255,0.5)"
         />
-        {/* Keyhole */}
-        <circle cx="0" cy="2.5" r="2.1" fill="#0e1116" />
+
+        {/* Shackle group — rotate sebagai unit kalau popped */}
+        <g
+          style={{
+            transform: shackleOpen
+              ? 'rotate(-58deg) translate(-3px, -1px)'
+              : 'none',
+            transformOrigin: '-8px -4px',
+            transition: 'transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        >
+          <path
+            d="M-8 -4 Q-8 -16 0 -16 Q8 -16 8 -4"
+            fill="none"
+            stroke="url(#byuShackle)"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+          />
+          <path
+            d="M-8 -4 Q-8 -16 0 -16 Q8 -16 8 -4"
+            fill="none"
+            stroke="rgba(0,0,0,0.35)"
+            strokeWidth="0.8"
+            strokeLinecap="round"
+          />
+        </g>
+
+        {/* Keyhole — stage 3+ glow kuning hangat (kunci mulai masuk) */}
+        <circle
+          cx="0" cy="2.5" r="2.1"
+          fill={keyholeGlow ? '#3a1f08' : '#0e1116'}
+        />
+        {keyholeGlow && (
+          <circle
+            cx="0" cy="2.5" r="1.4"
+            fill="#e8b35a"
+            style={{
+              filter: 'drop-shadow(0 0 3px rgba(232,179,90,0.85))',
+            }}
+          />
+        )}
         <path
           d="M -0.8 2.5 L -1.4 9 L 1.4 9 L 0.8 2.5 Z"
-          fill="#0e1116"
+          fill={keyholeGlow ? '#5a3010' : '#0e1116'}
         />
       </g>
     </svg>
