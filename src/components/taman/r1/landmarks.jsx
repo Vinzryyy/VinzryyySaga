@@ -595,6 +595,101 @@ export const CorridorDoorway = () => {
   );
 };
 
+// Big Tree Return Portal — replaces CorridorDoorway di ujung lorong.
+// Visual: pohon besar (trunk 4m + 4 foliage clusters). Proximity hit-
+// detect via useFrame: kalau camera (FPV player) masuk radius < 3.2
+// dari tree base (z=-37), trigger onTrigger() sekali. Parent wire ke
+// navigate('/taman/peta') = pulang ke map.
+//
+// Triggered guard: triggeredRef supaya gak fire repeated saat camera
+// terus deket pas navigation transition jalan. Component unmount waktu
+// route ganti, ref reset di mount selanjutnya — clean lifecycle.
+const BIG_TREE_FOLIAGE = [
+  { pos: [0, 5.2, 0], r: 2.2 },
+  { pos: [1.2, 5.8, 0.4], r: 1.5 },
+  { pos: [-1.1, 5.5, -0.3], r: 1.6 },
+  { pos: [0.3, 6.6, -0.2], r: 1.2 },
+];
+export const BigTreeReturnPortal = ({ onTrigger, viewMode }) => {
+  const triggeredRef = useRef(false);
+  const foliageMatRefs = useRef([]);
+  const TREE_POS_X = 0;
+  const TREE_POS_Z = -37;
+  const TRIGGER_DISTANCE = 3.2;
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    // Subtle living pulse on foliage emissive
+    foliageMatRefs.current.forEach((mat, i) => {
+      if (!mat) return;
+      mat.emissiveIntensity = 0.22 + Math.sin(t * 0.6 + i * 0.5) * 0.08;
+    });
+
+    if (triggeredRef.current) return;
+    // Hanya trigger di FPV — orbit camera nggak pernah deket cukup
+    // tapi defensive guard biar gak ada edge-case false fire.
+    if (viewMode !== 'fpv') return;
+    const cam = state.camera.position;
+    const dx = cam.x - TREE_POS_X;
+    const dz = cam.z - TREE_POS_Z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist < TRIGGER_DISTANCE) {
+      triggeredRef.current = true;
+      onTrigger?.();
+    }
+  });
+
+  return (
+    <group position={[TREE_POS_X, 0, TREE_POS_Z]}>
+      {/* Trunk — tall thick, taper bawah lebih lebar */}
+      <mesh position={[0, 2, 0]}>
+        <cylinderGeometry args={[0.45, 0.7, 4, 12]} />
+        <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+      </mesh>
+      {/* Foliage clusters — soft green dgn emissive warm-pale glow */}
+      {BIG_TREE_FOLIAGE.map((c, i) => (
+        <mesh key={`bigtree-foliage-${i}`} position={c.pos}>
+          <sphereGeometry args={[c.r, 16, 12]} />
+          <meshStandardMaterial
+            ref={(m) => {
+              foliageMatRefs.current[i] = m;
+            }}
+            color="#5e8470"
+            emissive="#a8d8b0"
+            emissiveIntensity={0.22}
+            roughness={0.85}
+          />
+        </mesh>
+      ))}
+      {/* Warm beacon point light di kanopi — nge-lit sekitar */}
+      <pointLight
+        position={[0, 5.5, 0]}
+        intensity={1.6}
+        color="#c8e0a8"
+        distance={12}
+        decay={2}
+      />
+      <Html position={[0, 8.4, 0]} center distanceFactor={11} occlude={false}>
+        <div
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            color: 'rgba(220,255,200,0.85)',
+            fontSize: '13px',
+            letterSpacing: '0.05em',
+            textShadow:
+              '0 0 12px rgba(0,0,0,0.7), 0 0 24px rgba(200,255,180,0.3)',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+          }}
+        >
+          dekati pohon ini untuk pulang
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // Bat silhouette — V-shape gelap drifting di langit malam. 3 bat
 // dengan x drift speed beda, wrap saat lewat batas. Wing flap via
 

@@ -27,6 +27,7 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import { Html, OrbitControls, PointerLockControls, Stats } from '@react-three/drei';
 import {
@@ -92,7 +93,7 @@ import {
   TreeSwing,
   WindChime,
   MonumentProximity,
-  CorridorDoorway,
+  BigTreeReturnPortal,
 } from '../components/taman/r1/landmarks';
 import {
   CAMERA_TARGETS,
@@ -142,6 +143,7 @@ const LorongScene = ({
   onChimeClick,
   onMonumentTrigger,
   onIntroComplete,
+  onReturnTrigger,
 }) => (
   <>
     {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
@@ -266,7 +268,7 @@ const LorongScene = ({
     <Rabbits />
     {!isMobile && <Bats />}
     <DistantFigure signatureEvent={signatureEvent} />
-    <CorridorDoorway />
+    <BigTreeReturnPortal viewMode={viewMode} onTrigger={onReturnTrigger} />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}
@@ -313,6 +315,7 @@ const LorongScene = ({
 
 
 const TamanLorongPohonPage = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   // Perf profiling — enable via ?perf=1 URL param. Stats panel +
   // FPS HUD + console warning saat sustained slow. Eval sekali on
@@ -377,6 +380,13 @@ const TamanLorongPohonPage = () => {
     }
   });
   const handleIntroComplete = () => setIntroActive(false);
+
+  // Big Tree Return Portal — player FPV jalan ke ujung lorong (z=-37),
+  // hit pohon besar → balik ke /taman/peta. Guarded oleh triggeredRef
+  // di komponen-nya supaya fire sekali aja.
+  const handleReturnTrigger = () => {
+    navigate('/taman/peta');
+  };
 
   // Era spotlight: user click chip di EraGuide → bintang era itu
   // pulse 4 detik supaya gampang identifikasi di langit. Skip kalau
@@ -549,6 +559,7 @@ const TamanLorongPohonPage = () => {
               onMonumentTrigger={handleMonumentTrigger}
               introActive={introActive}
               onIntroComplete={handleIntroComplete}
+              onReturnTrigger={handleReturnTrigger}
             />
             {!isMobile && (
               <EffectComposer>
