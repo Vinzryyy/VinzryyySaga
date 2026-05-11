@@ -48,6 +48,12 @@ export const SITE_CONFIG = {
             icon: 'ri-plant-line',
           },
           {
+            label: 'ArmeniacaTown',
+            hash: 'armeniacaTown',
+            description: 'Dunia 3D yang tumbuh dari siraman — gerbang terbuka di 2000 dukungan',
+            icon: 'ri-archway-line',
+          },
+          {
             label: 'By-U Music',
             hash: 'byu-music',
             description: 'Lagu tersegel — dibuka 15 Juni 2026',
