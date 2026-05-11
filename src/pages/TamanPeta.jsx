@@ -663,6 +663,102 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
   );
 };
 
+// Lorong Masuk — stepping stones path antara Gerbang (z=8) dan Pohon
+// Terakhir (z=0). Click → /taman/r1 (Konstelasi Perjalanan). Stones
+// di-arrange alternating kiri-kanan supaya kerasa setapak natural.
+// Hover: warm emissive glow di semua stones + label lift. Narrative:
+// inilah "jalan masuk" — lewat sini, perjalanan ke langit dimulai.
+const LORONG_STONE_DEFS = [
+  { pos: [-0.3, 0.06, 6.8], r: 0.32, rot: 0.4 },
+  { pos: [0.28, 0.06, 5.6], r: 0.34, rot: 1.1 },
+  { pos: [-0.22, 0.06, 4.4], r: 0.3, rot: 0.2 },
+  { pos: [0.3, 0.06, 3.2], r: 0.34, rot: 0.9 },
+  { pos: [-0.25, 0.06, 2.0], r: 0.3, rot: 1.4 },
+  { pos: [0.18, 0.06, 1.0], r: 0.28, rot: 0.6 },
+];
+const PetaLorongMasuk = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
+  const stoneMatRefs = useRef([]);
+
+  useFrame((_, delta) => {
+    const target = hovered ? 0.55 : 0.08;
+    const factor = Math.min(delta * 8, 1);
+    stoneMatRefs.current.forEach((mat) => {
+      if (!mat) return;
+      mat.emissiveIntensity = lerp(mat.emissiveIntensity, target, factor);
+    });
+  });
+
+  return (
+    <group
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {LORONG_STONE_DEFS.map((s, i) => (
+        <mesh
+          key={`lm-${i}`}
+          position={s.pos}
+          rotation={[0, s.rot, 0]}
+        >
+          <cylinderGeometry args={[s.r, s.r * 1.05, 0.12, 8]} />
+          <meshStandardMaterial
+            ref={(m) => {
+              stoneMatRefs.current[i] = m;
+            }}
+            color="#7a6a52"
+            emissive="#f4c478"
+            emissiveIntensity={0.08}
+            roughness={0.9}
+          />
+        </mesh>
+      ))}
+      {/* Hit-area volume — invisible cylinder yg ngecover seluruh path
+          biar hover ke setapak gampang dipick dari kamera isometrik
+          (tanpa harus tepat ke stone kecil). */}
+      <mesh position={[0, 0.4, 4]} visible={false}>
+        <boxGeometry args={[1.2, 0.8, 7]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      <Html
+        position={[0, 0.7, 4]}
+        center
+        distanceFactor={10}
+        occlude={false}
+      >
+        <div
+          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+            hovered ? '-translate-y-1' : ''
+          }`}
+        >
+          <div
+            className={`text-[11px] font-medium tracking-wide transition-colors ${
+              hovered ? 'text-white' : 'text-white/80'
+            }`}
+          >
+            Lorong Masuk
+          </div>
+          <div
+            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              hovered ? 'text-amber-200/85' : 'text-white/55'
+            }`}
+          >
+            Konstelasi Perjalanan
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // Lantai taman — plane besar tone twilight evening (bukan dark museum
 // hall) dengan grid tipis untuk persepsi skala. Tone biru-warm yang
 // muncul saat senja: matahari masih nyentuh sedikit di langit, tanah
@@ -2713,6 +2809,7 @@ const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
   hoveredGerbang,
+  hoveredLorong,
   previewedPetak,
   flyInActive,
   isMobile = false,
@@ -2728,6 +2825,9 @@ const TamanScene = ({
   onGerbangHover,
   onGerbangOut,
   onGerbangClick,
+  onLorongHover,
+  onLorongOut,
+  onLorongClick,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -2735,7 +2835,7 @@ const TamanScene = ({
   // Pause auto-rotate kalau user lagi hover petak — kerasa weird kalau
   // kamera bergerak sambil user fokus baca label.
   const userIsHovering =
-    Boolean(hoveredPetakId) || hoveredCenter || hoveredGerbang;
+    Boolean(hoveredPetakId) || hoveredCenter || hoveredGerbang || hoveredLorong;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
   // berputar. Resume manual control begitu user drag/zoom/touch atau
@@ -2811,6 +2911,12 @@ const TamanScene = ({
         onPointerOver={onGerbangHover}
         onPointerOut={onGerbangOut}
         onClick={onGerbangClick}
+      />
+      <PetaLorongMasuk
+        hovered={hoveredLorong}
+        onPointerOver={onLorongHover}
+        onPointerOut={onLorongOut}
+        onClick={onLorongClick}
       />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
@@ -3202,6 +3308,7 @@ const TamanPetaPage = () => {
   const [hoveredPetakId, setHoveredPetakId] = useState(null);
   const [hoveredCenter, setHoveredCenter] = useState(false);
   const [hoveredGerbang, setHoveredGerbang] = useState(false);
+  const [hoveredLorong, setHoveredLorong] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
@@ -3223,12 +3330,13 @@ const TamanPetaPage = () => {
 
   useEffect(() => {
     const showPointer =
-      !flyInActive && (hoveredPetakId || hoveredCenter || hoveredGerbang);
+      !flyInActive &&
+      (hoveredPetakId || hoveredCenter || hoveredGerbang || hoveredLorong);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hoveredPetakId, hoveredCenter, hoveredGerbang, flyInActive]);
+  }, [hoveredPetakId, hoveredCenter, hoveredGerbang, hoveredLorong, flyInActive]);
 
   const handleFlyInComplete = () => setFlyInActive(false);
 
@@ -3277,6 +3385,18 @@ const TamanPetaPage = () => {
     navigate('/taman');
   };
 
+  // Lorong Masuk handlers — stepping stones antara gerbang dan pohon,
+  // link ke /taman/r1 (Konstelasi Perjalanan).
+  const handleLorongHover = () => {
+    if (flyInActive) return;
+    setHoveredLorong(true);
+  };
+  const handleLorongOut = () => setHoveredLorong(false);
+  const handleLorongClick = () => {
+    if (flyInActive) return;
+    navigate('/taman/r1');
+  };
+
   return (
     <>
       <Seo
@@ -3302,6 +3422,7 @@ const TamanPetaPage = () => {
               hoveredPetakId={hoveredPetakId}
               hoveredCenter={hoveredCenter}
               hoveredGerbang={hoveredGerbang}
+              hoveredLorong={hoveredLorong}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               isMobile={isMobile}
@@ -3317,6 +3438,9 @@ const TamanPetaPage = () => {
               onGerbangHover={handleGerbangHover}
               onGerbangOut={handleGerbangOut}
               onGerbangClick={handleGerbangClick}
+              onLorongHover={handleLorongHover}
+              onLorongOut={handleLorongOut}
+              onLorongClick={handleLorongClick}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
