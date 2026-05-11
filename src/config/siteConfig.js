@@ -53,12 +53,15 @@ export const SITE_CONFIG = {
             description: 'Lagu tersegel — dibuka 15 Juni 2026',
             icon: 'ri-music-2-line',
           },
-          {
-            label: 'Galeri Kebaikan',
-            hash: 'galeri-kebaikan',
-            description: 'Arsip aksi kebaikan untuk Eli',
-            icon: 'ri-hand-heart-line',
-          },
+          // Galeri Kebaikan — disabled sampai siap diumumkan. Untuk
+          // reaktivasi: uncomment item ini + uncomment lazy import +
+          // route di App.jsx.
+          // {
+          //   label: 'Galeri Kebaikan',
+          //   hash: 'galeri-kebaikan',
+          //   description: 'Arsip aksi kebaikan untuk Eli',
+          //   icon: 'ri-hand-heart-line',
+          // },
           {
             label: 'Countdown',
             hash: 'countdown',
