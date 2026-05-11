@@ -57,8 +57,9 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import * as THREE from 'three';
 import { useNavigate } from 'react-router-dom';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Html, OrbitControls, PointerLockControls, Stats } from '@react-three/drei';
 import {
   Bloom,
@@ -94,15 +95,11 @@ import {
 } from '../components/taman/r1/constellation';
 import {
   Fireflies,
-  GroundMist,
-  MistPools,
   FallingLeaves,
   FlyingLeavesGust,
   MemoryFragments,
 } from '../components/taman/r1/atmosphere';
 import {
-  Path,
-  GroundPatches,
   Footprints,
   PathEdgeStones,
   SettledLeaves,
@@ -244,6 +241,103 @@ const DriedLeafPiles = () => (
     ))}
   </>
 );
+
+// Soft circle texture buat particles — bypass default square sprite
+// dari THREE.PointsMaterial. Generate sekali via CanvasTexture (radial
+// gradient white center → transparent edge), share across all polluted
+// air particle systems.
+const makeSoftParticleTexture = () => {
+  if (typeof document === 'undefined') return null;
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(
+    size / 2,
+    size / 2,
+    0,
+    size / 2,
+    size / 2,
+    size / 2
+  );
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.45, 'rgba(255,255,255,0.45)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+};
+
+// PollutedAir — pengganti GroundMist + MistPools di drought variant.
+// Sebelumnya pakai pointsMaterial tanpa map = render kotak putih jelek.
+// Sekarang soft round particles, warna dirty smog brown/yellow, drift
+// gentle. Bikin kerasa "udara tercemar" bukan "kabut bersih".
+const PollutedAir = ({ count = 120, isMobile = false }) => {
+  const ref = useRef();
+  const actualCount = isMobile ? Math.floor(count * 0.55) : count;
+  const softTexture = useMemo(() => makeSoftParticleTexture(), []);
+
+  const basePositions = useMemo(() => {
+    const arr = new Float32Array(actualCount * 3);
+    for (let i = 0; i < actualCount; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 20;
+      // y 0.4..3.2 — distribute floor → mid-height
+      arr[i * 3 + 1] = 0.4 + Math.random() * 2.8;
+      // z spanning corridor (~ -2 to -38)
+      arr[i * 3 + 2] = -2 - Math.random() * 36;
+    }
+    return arr;
+  }, [actualCount]);
+
+  const phases = useMemo(() => {
+    const arr = new Float32Array(actualCount);
+    for (let i = 0; i < actualCount; i++) arr[i] = Math.random() * Math.PI * 2;
+    return arr;
+  }, [actualCount]);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < actualCount; i++) {
+      const phase = phases[i];
+      arr[i * 3] =
+        basePositions[i * 3] + Math.sin(t * 0.12 + phase) * 0.5;
+      arr[i * 3 + 1] =
+        basePositions[i * 3 + 1] +
+        Math.cos(t * 0.14 + phase * 1.3) * 0.18;
+      arr[i * 3 + 2] =
+        basePositions[i * 3 + 2] + Math.cos(t * 0.1 + phase) * 0.45;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={basePositions.slice()}
+          count={actualCount}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        map={softTexture}
+        size={1.8}
+        color="#7a6850"
+        transparent
+        opacity={0.35}
+        sizeAttenuation
+        depthWrite={false}
+        alphaTest={0.01}
+      />
+    </points>
+  );
+};
 
 // Drought ground — replace canonical Path + GroundPatches. Tone warm
 // amber/sandy (bukan twilight purple) supaya konsisten sama dead trees.
@@ -488,8 +582,10 @@ const LorongScene = ({
         mati. Foliage hijau + beacon glow tetap aktif (narrative anchor
         of hope). Restorasi penuh ekosistem akan numbuh dari sini. */}
     <BigTreeReturnPortal viewMode={viewMode} onTrigger={onReturnTrigger} />
-    <GroundMist count={isMobile ? 22 : 38} />
-    {!isMobile && <MistPools />}
+    {/* Drought: GroundMist + MistPools (kabut bersih warna biru-abu)
+        diganti PollutedAir — soft round particles warna dirty smog
+        brown, kerasa "udara tercemar" bukan kabut. */}
+    <PollutedAir count={120} isMobile={isMobile} />
     <FallingLeaves count={isMobile ? 22 : 38} />
     <MemoryFragments isMobile={isMobile} />
     {/* Konstelasi + milestone stars dipindah ke <SkyGroup> di atas
