@@ -2985,6 +2985,368 @@ const PicnicBlankets = ({ isMobile }) => {
   );
 };
 
+// Gazebo — hexagonal pavilion sebagai landmark sekunder, place di
+// south sisi pond sebagai counter-balance untuk WelcomeArch (north).
+// 6 posts kayu + railing + peaked roof. Diameter ~5u — big enough to
+// feel like a destination but not block view.
+const Gazebo = ({ pos, rot = 0 }) => {
+  const R = 2.2; // posts radius
+  const ROOF_R = 2.7;
+  const postAngles = Array.from({ length: 6 }, (_, i) => (i / 6) * Math.PI * 2);
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Floor — slight raised hex platform */}
+      <mesh position={[0, 0.08, 0]} receiveShadow>
+        <cylinderGeometry args={[R + 0.15, R + 0.2, 0.16, 6]} />
+        <meshStandardMaterial color="#8a6a4a" roughness={0.9} />
+      </mesh>
+      {/* Inner floor lighter wood ring */}
+      <mesh position={[0, 0.17, 0]}>
+        <cylinderGeometry args={[R - 0.05, R - 0.05, 0.02, 6]} />
+        <meshStandardMaterial color="#a88860" roughness={0.85} />
+      </mesh>
+      {/* 6 posts */}
+      {postAngles.map((a, i) => (
+        <mesh
+          key={`post-${i}`}
+          position={[Math.cos(a) * R, 1.4, Math.sin(a) * R]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.08, 0.1, 2.6, 8]} />
+          <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Railing — connect adjacent posts at y=0.6 */}
+      {postAngles.map((a, i) => {
+        const a2 = postAngles[(i + 1) % 6];
+        const mx = (Math.cos(a) + Math.cos(a2)) / 2 * R;
+        const mz = (Math.sin(a) + Math.sin(a2)) / 2 * R;
+        const dx = Math.cos(a2) * R - Math.cos(a) * R;
+        const dz = Math.sin(a2) * R - Math.sin(a) * R;
+        const len = Math.sqrt(dx * dx + dz * dz);
+        const yaw = Math.atan2(dz, dx);
+        // Skip one side as entrance (facing pond, i.e. -z when rot=0)
+        if (i === 4) return null;
+        return (
+          <mesh key={`rail-${i}`} position={[mx, 0.6, mz]} rotation={[0, -yaw, 0]}>
+            <boxGeometry args={[len * 0.92, 0.06, 0.08]} />
+            <meshStandardMaterial color="#6a4d2f" roughness={0.95} />
+          </mesh>
+        );
+      })}
+      {/* Roof — hex peaked cone */}
+      <mesh position={[0, 3.1, 0]} castShadow>
+        <coneGeometry args={[ROOF_R, 1.4, 6]} />
+        <meshStandardMaterial color="#7a4d2f" roughness={0.9} />
+      </mesh>
+      {/* Roof underside trim */}
+      <mesh position={[0, 2.78, 0]}>
+        <cylinderGeometry args={[ROOF_R - 0.05, ROOF_R - 0.05, 0.1, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Roof tip ornament */}
+      <mesh position={[0, 3.95, 0]}>
+        <sphereGeometry args={[0.12, 8, 6]} />
+        <meshStandardMaterial color="#c89858" roughness={0.5} metalness={0.4} />
+      </mesh>
+      {/* Hanging lantern di center underneath roof */}
+      <mesh position={[0, 2.5, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, 0.3, 4]} />
+        <meshStandardMaterial color="#3d2818" roughness={1} />
+      </mesh>
+      <mesh position={[0, 2.25, 0]}>
+        <boxGeometry args={[0.22, 0.28, 0.22]} />
+        <meshStandardMaterial
+          color="#ffdc9a"
+          emissive="#ffb070"
+          emissiveIntensity={0.7}
+          roughness={0.6}
+        />
+      </mesh>
+      <pointLight position={[0, 2.25, 0]} intensity={0.4} distance={6} color="#ffc890" />
+    </group>
+  );
+};
+
+// Hammock — kain tergantung antara 2 wood post, sedikit sag di tengah +
+// gentle sway via useFrame. Bagus buat vibe "santai sore".
+const Hammock = ({ pos, rot = 0, color = '#c4685a' }) => {
+  const hammockRef = useRef();
+  useFrame((state) => {
+    if (hammockRef.current) {
+      // Subtle sway side to side
+      hammockRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.6) * 0.04;
+    }
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Two posts */}
+      <mesh position={[-1.4, 0.9, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.1, 1.8, 8]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[1.4, 0.9, 0]} castShadow>
+        <cylinderGeometry args={[0.08, 0.1, 1.8, 8]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Post tops — small caps */}
+      <mesh position={[-1.4, 1.82, 0]}>
+        <coneGeometry args={[0.13, 0.16, 6]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.9} />
+      </mesh>
+      <mesh position={[1.4, 1.82, 0]}>
+        <coneGeometry args={[0.13, 0.16, 6]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.9} />
+      </mesh>
+      {/* Hammock cloth — slight saggy curve approx with 3 boxes */}
+      <group ref={hammockRef} position={[0, 1.5, 0]}>
+        {/* Left rope */}
+        <mesh position={[-1.1, -0.05, 0]} rotation={[0, 0, -0.4]}>
+          <cylinderGeometry args={[0.012, 0.012, 0.5, 4]} />
+          <meshStandardMaterial color="#5a4d3a" roughness={1} />
+        </mesh>
+        {/* Right rope */}
+        <mesh position={[1.1, -0.05, 0]} rotation={[0, 0, 0.4]}>
+          <cylinderGeometry args={[0.012, 0.012, 0.5, 4]} />
+          <meshStandardMaterial color="#5a4d3a" roughness={1} />
+        </mesh>
+        {/* Cloth middle — saggy box */}
+        <mesh position={[0, -0.45, 0]} castShadow>
+          <boxGeometry args={[1.8, 0.08, 0.7]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Cloth edge ends — slope up */}
+        <mesh position={[-0.95, -0.32, 0]} rotation={[0, 0, 0.3]}>
+          <boxGeometry args={[0.3, 0.07, 0.7]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        <mesh position={[0.95, -0.32, 0]} rotation={[0, 0, -0.3]}>
+          <boxGeometry args={[0.3, 0.07, 0.7]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Decorative stripe */}
+        <mesh position={[0, -0.405, 0]}>
+          <boxGeometry args={[1.7, 0.01, 0.18]} />
+          <meshStandardMaterial color="#f4d870" roughness={0.7} />
+        </mesh>
+        {/* Pillow */}
+        <mesh position={[-0.6, -0.36, 0]}>
+          <boxGeometry args={[0.4, 0.12, 0.55]} />
+          <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// Birdhouse on pole — small painted wood box + sloped roof + tiny perch
+// + entrance hole. Mounted on tall pole. Scatter di outer ring.
+const Birdhouse = ({ pos, rot = 0, color = '#d4685a', roofColor = '#5a3d28' }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Pole */}
+    <mesh position={[0, 0.9, 0]} castShadow>
+      <cylinderGeometry args={[0.05, 0.06, 1.8, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* House box */}
+    <mesh position={[0, 1.95, 0]} castShadow>
+      <boxGeometry args={[0.42, 0.42, 0.36]} />
+      <meshStandardMaterial color={color} roughness={0.85} />
+    </mesh>
+    {/* Sloped roof — 2 slanted planes (approximation) */}
+    <mesh position={[0, 2.22, 0]} rotation={[0, 0, 0]}>
+      <coneGeometry args={[0.32, 0.2, 4]} />
+      <meshStandardMaterial color={roofColor} roughness={0.9} />
+    </mesh>
+    {/* Entrance hole (dark dot) */}
+    <mesh position={[0, 2.0, 0.181]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.07, 0.07, 0.01, 12]} />
+      <meshStandardMaterial color="#1a1410" roughness={1} />
+    </mesh>
+    {/* Tiny perch stick */}
+    <mesh position={[0, 1.92, 0.2]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.018, 0.018, 0.18, 5]} />
+      <meshStandardMaterial color="#3d2818" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const BIRDHOUSE_DEFS = [
+  { pos: [-24, 0, 14], rot: -0.3, color: '#d4685a', roofColor: '#5a3d28' },
+  { pos: [24, 0, -8], rot: 0.5, color: '#8aa4d4', roofColor: '#3d4858' },
+  { pos: [15, 0, -25], rot: 1.0, color: '#f4c870', roofColor: '#7a5a3a' },
+];
+const Birdhouses = ({ isMobile }) => {
+  const list = isMobile ? BIRDHOUSE_DEFS.slice(0, 2) : BIRDHOUSE_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <Birdhouse key={`bh-${i}`} pos={b.pos} rot={b.rot} color={b.color} roofColor={b.roofColor} />
+      ))}
+    </>
+  );
+};
+
+// Vegetable garden patch — raised wood plot dgn 3 rows of veggies
+// (carrot tops + lettuce + tomato). Kasih hint "ada yg nanam" tanpa
+// NPC.
+const VeggiePatch = ({ pos, rot = 0 }) => {
+  // Row spacings within patch
+  const carrots = [-0.35, -0.15, 0.05, 0.25, 0.45];
+  const lettuces = [-0.4, -0.1, 0.2, 0.5];
+  const tomatoes = [-0.3, 0, 0.3];
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Raised bed frame — 4 wood planks */}
+      <mesh position={[0, 0.08, -0.55]}>
+        <boxGeometry args={[1.6, 0.16, 0.06]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.08, 0.55]}>
+        <boxGeometry args={[1.6, 0.16, 0.06]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+      </mesh>
+      <mesh position={[-0.78, 0.08, 0]}>
+        <boxGeometry args={[0.06, 0.16, 1.1]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+      </mesh>
+      <mesh position={[0.78, 0.08, 0]}>
+        <boxGeometry args={[0.06, 0.16, 1.1]} />
+        <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+      </mesh>
+      {/* Soil top */}
+      <mesh position={[0, 0.14, 0]} receiveShadow>
+        <boxGeometry args={[1.5, 0.04, 1.05]} />
+        <meshStandardMaterial color="#4a3522" roughness={1} />
+      </mesh>
+      {/* Carrot row — orange triangle tops + green sprig */}
+      {carrots.map((x, i) => (
+        <group key={`carrot-${i}`} position={[x, 0.16, -0.35]}>
+          <mesh position={[0, 0.06, 0]}>
+            <coneGeometry args={[0.04, 0.08, 5]} />
+            <meshStandardMaterial color="#e88840" roughness={0.85} />
+          </mesh>
+          <mesh position={[0, 0.14, 0]}>
+            <coneGeometry args={[0.05, 0.1, 5]} />
+            <meshStandardMaterial color="#5a8045" roughness={0.85} />
+          </mesh>
+        </group>
+      ))}
+      {/* Lettuce row — green leafy ball */}
+      {lettuces.map((x, i) => (
+        <mesh key={`lettuce-${i}`} position={[x, 0.21, 0]}>
+          <sphereGeometry args={[0.09, 8, 6]} />
+          <meshStandardMaterial color="#6e9358" roughness={0.85} />
+        </mesh>
+      ))}
+      {/* Tomato row — small stake + red ball */}
+      {tomatoes.map((x, i) => (
+        <group key={`tomato-${i}`} position={[x, 0.16, 0.35]}>
+          <mesh position={[0, 0.18, 0]}>
+            <cylinderGeometry args={[0.015, 0.015, 0.36, 4]} />
+            <meshStandardMaterial color="#7a5a3a" roughness={0.95} />
+          </mesh>
+          <mesh position={[0.06, 0.18, 0]}>
+            <sphereGeometry args={[0.07, 6, 5]} />
+            <meshStandardMaterial color="#d44848" roughness={0.7} />
+          </mesh>
+          <mesh position={[-0.04, 0.26, 0.03]}>
+            <sphereGeometry args={[0.055, 6, 5]} />
+            <meshStandardMaterial color="#e85a4a" roughness={0.7} />
+          </mesh>
+        </group>
+      ))}
+      {/* Small wooden sign */}
+      <mesh position={[-0.7, 0.42, -0.5]}>
+        <boxGeometry args={[0.04, 0.5, 0.04]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[-0.7, 0.6, -0.5]}>
+        <boxGeometry args={[0.28, 0.16, 0.03]} />
+        <meshStandardMaterial color="#a88860" roughness={0.9} />
+      </mesh>
+    </group>
+  );
+};
+
+// Kite flying — diamond kite di sky dgn tail, anchored via string ke
+// ground stake. Drift gentle horizontal + slight bob via useFrame.
+// 1 kite saja sebagai sky accent.
+const Kite = ({ stakePos = [-6, 0, 16], skyHeight = 8 }) => {
+  const kiteRef = useRef();
+  const tailRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (kiteRef.current) {
+      // Drift in small ellipse around base sky position
+      kiteRef.current.position.x = stakePos[0] + 3.5 + Math.sin(t * 0.4) * 1.4;
+      kiteRef.current.position.y = skyHeight + Math.sin(t * 0.7) * 0.5;
+      kiteRef.current.position.z = stakePos[2] - 2.5 + Math.cos(t * 0.4) * 1.2;
+      // Slight tilt facing wind
+      kiteRef.current.rotation.z = Math.sin(t * 0.5) * 0.15 - 0.35;
+      kiteRef.current.rotation.y = Math.sin(t * 0.3) * 0.2;
+    }
+    if (tailRef.current) {
+      tailRef.current.rotation.x = Math.sin(t * 1.2) * 0.25;
+    }
+  });
+  return (
+    <>
+      {/* Ground stake */}
+      <mesh position={[stakePos[0], 0.18, stakePos[2]]}>
+        <cylinderGeometry args={[0.04, 0.02, 0.36, 5]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Kite + tail */}
+      <group ref={kiteRef} position={[stakePos[0] + 3.5, skyHeight, stakePos[2] - 2.5]}>
+        {/* Diamond kite — 4 triangle planes joined */}
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <planeGeometry args={[0.9, 0.9]} />
+          <meshStandardMaterial
+            color="#f4a8c0"
+            emissive="#f4a8c0"
+            emissiveIntensity={0.2}
+            side={THREE.DoubleSide}
+            roughness={0.7}
+          />
+        </mesh>
+        {/* Cross frame visible */}
+        <mesh position={[0, 0, 0.005]} rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.9, 0.02, 0.005]} />
+          <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 0, 0.005]} rotation={[0, 0, -Math.PI / 4]}>
+          <boxGeometry args={[0.9, 0.02, 0.005]} />
+          <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+        </mesh>
+        {/* Tail with bowties */}
+        <group ref={tailRef} position={[0, -0.45, 0]}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <mesh
+              key={`bow-${i}`}
+              position={[Math.sin(i * 0.4) * 0.1, -0.2 - i * 0.25, 0]}
+              rotation={[0, 0, i * 0.3]}
+            >
+              <boxGeometry args={[0.14, 0.05, 0.01]} />
+              <meshStandardMaterial
+                color={['#ffd470', '#8ad4ff', '#d8a0e8', '#a8e88a', '#ffa8d4'][i]}
+                emissive={['#ffd470', '#8ad4ff', '#d8a0e8', '#a8e88a', '#ffa8d4'][i]}
+                emissiveIntensity={0.25}
+                side={THREE.DoubleSide}
+                roughness={0.7}
+              />
+            </mesh>
+          ))}
+          {/* String continuation down */}
+          <mesh position={[0.05, -0.75, 0]} rotation={[0, 0, 0.1]}>
+            <cylinderGeometry args={[0.005, 0.005, 1.4, 3]} />
+            <meshStandardMaterial color="#f4ecd8" roughness={1} />
+          </mesh>
+        </group>
+      </group>
+    </>
+  );
+};
+
 // Flying flock — burung yang terbang di mid altitude (y=5-9), drift
 // bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
 // udah ada (low + high).
@@ -4049,6 +4411,11 @@ const TelagaScene = ({
     <WishingWell pos={[-22, 0, -16]} rot={0.4} />
     <WelcomeArch pos={[0, 0, -28]} rot={0} />
     <PicnicBlankets isMobile={isMobile} />
+    <Gazebo pos={[0, 0, 25]} rot={0} />
+    <Hammock pos={[-19, 0, -12]} rot={0.3} color="#c4685a" />
+    <Birdhouses isMobile={isMobile} />
+    <VeggiePatch pos={[16, 0, 8]} rot={0.3} />
+    {!isMobile && <Kite stakePos={[-6, 0, 16]} skyHeight={8} />}
     <BankTrees count={isMobile ? 8 : 12} />
     <OuterTrees isMobile={isMobile} />
     <FlyingFlock isMobile={isMobile} />
