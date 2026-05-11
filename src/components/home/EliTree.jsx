@@ -639,6 +639,81 @@ const ApricotBucket = ({ filled = 0 }) => {
         })()}
       </g>
 
+      {/* Wooden crate di sebelah kiri meja — empty crate ready for next
+          batch / overflow harvest visual. Pendek (18 tall), 4 slats. */}
+      {(() => {
+        const ccx = TABLE_CX - TABLE_FRONT_W / 2 - 16;
+        const ctop = TABLE_GROUND_Y - 18;
+        const cbot = TABLE_GROUND_Y;
+        const cw = 24;
+        return (
+          <g>
+            {/* Shadow */}
+            <ellipse cx={ccx} cy={cbot + 2} rx={cw / 2 + 3} ry="2.5" fill="#3a2820" opacity="0.3" />
+            {/* Body */}
+            <rect
+              x={ccx - cw / 2}
+              y={ctop}
+              width={cw}
+              height={cbot - ctop}
+              fill="#8b6f47"
+              stroke="#4a3220"
+              strokeWidth="1.1"
+            />
+            {/* Vertical slats — 3 wood planks */}
+            {[-0.3, 0, 0.3].map((p, i) => (
+              <line
+                key={`crate-slat-${i}`}
+                x1={ccx + p * cw}
+                y1={ctop + 1}
+                x2={ccx + p * cw}
+                y2={cbot - 1}
+                stroke="#5a3e25"
+                strokeWidth="0.8"
+                opacity="0.6"
+              />
+            ))}
+            {/* Top metal band */}
+            <rect
+              x={ccx - cw / 2 - 1}
+              y={ctop - 1}
+              width={cw + 2}
+              height="3"
+              rx="0.6"
+              fill="#4a4035"
+              stroke="#2a1f15"
+              strokeWidth="0.4"
+            />
+            {/* Bottom metal band */}
+            <rect
+              x={ccx - cw / 2 - 1}
+              y={cbot - 3}
+              width={cw + 2}
+              height="3"
+              rx="0.6"
+              fill="#4a4035"
+              stroke="#2a1f15"
+              strokeWidth="0.4"
+            />
+            {/* 2 apricots peeking out top — hint of contents */}
+            <circle cx={ccx - 4} cy={ctop - 0.5} r="3" fill="var(--retro-gold)" />
+            <ellipse cx={ccx - 5} cy={ctop - 1.5} rx="1" ry="1" fill="var(--retro-gold-light)" opacity="0.85" />
+            <circle cx={ccx + 4} cy={ctop} r="2.6" fill="var(--retro-gold)" />
+            <ellipse cx={ccx + 3} cy={ctop - 0.8} rx="0.8" ry="0.8" fill="var(--retro-gold-light)" opacity="0.85" />
+            {/* Sheen highlight kiri */}
+            <line
+              x1={ccx - cw / 2 + 2}
+              y1={ctop + 2}
+              x2={ccx - cw / 2 + 2}
+              y2={cbot - 2}
+              stroke="rgba(255,225,180,0.35)"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+          </g>
+        );
+      })()}
+
       {/* Apricot pile di atas meja — layered render, low row first */}
       {apricots.map((a) => (
         <g key={`tab-${a.idx}`}>
@@ -686,6 +761,29 @@ const ApricotBucket = ({ filled = 0 }) => {
           )}
         </g>
       ))}
+
+      {/* Honeybee buzzing di sekitar apricot pile — Lissajous orbit
+          around apex area, wings static (motion-implied via translation).
+          Drift period 4.2s ease-in-out. */}
+      <g transform={`translate(${TABLE_CX} ${TABLE_TOP_FRONT_Y - 28})`}>
+        <g className="eli-bee">
+          {/* Wings — semi-transparent */}
+          <ellipse cx="-1.6" cy="-2" rx="2.4" ry="1.4" fill="rgba(255,255,255,0.72)" />
+          <ellipse cx="1.6" cy="-2" rx="2.4" ry="1.4" fill="rgba(255,255,255,0.72)" />
+          {/* Body — yellow oval */}
+          <ellipse cx="0" cy="0" rx="3.2" ry="1.9" fill="#e8b35a" stroke="#3a2415" strokeWidth="0.35" />
+          {/* Stripes */}
+          <line x1="-1.5" y1="-1.5" x2="-1.5" y2="1.5" stroke="#3a2415" strokeWidth="0.85" />
+          <line x1="0" y1="-1.7" x2="0" y2="1.7" stroke="#3a2415" strokeWidth="0.85" />
+          <line x1="1.5" y1="-1.5" x2="1.5" y2="1.5" stroke="#3a2415" strokeWidth="0.85" />
+          {/* Head */}
+          <circle cx="-3.2" cy="-0.2" r="1.3" fill="#3a2415" />
+          {/* Eye highlight */}
+          <circle cx="-3.4" cy="-0.5" r="0.4" fill="rgba(255,225,180,0.85)" />
+          {/* Antenna */}
+          <path d="M -4 -1 Q -4.5 -2.5 -3.8 -3" fill="none" stroke="#3a2415" strokeWidth="0.4" />
+        </g>
+      </g>
 
       {/* Papan pengumuman di atas sign post — wooden board dgn text
           "Pohon Kebaikan" + sub-line stage milestone. Slight tilt
@@ -1414,6 +1512,42 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
               </g>
             );
           })}
+        </g>
+      )}
+
+      {/* Falling leaves dari area tree foliage drifting ke meja — 3
+          leaves dgn stagger delays. Hanya muncul kalau ada foliage
+          (stage >= 3) supaya gak melayang dari trunk kosong. */}
+      {stage >= 3 && (
+        <g aria-hidden="true">
+          {[
+            { x0: 220, x1: 360, y0: 90, y1: 320, rot: 540, delay: 0,   dur: 9 },
+            { x0: 250, x1: 340, y0: 110, y1: 340, rot: -480, delay: 3.2, dur: 10 },
+            { x0: 195, x1: 320, y0: 140, y1: 350, rot: 360, delay: 6.4, dur: 8.5 },
+          ].map((leaf, i) => (
+            <g
+              key={`leaf-${i}`}
+              className="eli-falling-leaf"
+              style={{
+                '--leaf-x0': `${leaf.x0}px`,
+                '--leaf-x1': `${leaf.x1}px`,
+                '--leaf-y0': `${leaf.y0}px`,
+                '--leaf-y1': `${leaf.y1}px`,
+                '--leaf-rot': `${leaf.rot}deg`,
+                animationDelay: `${leaf.delay}s`,
+                animationDuration: `${leaf.dur}s`,
+              }}
+            >
+              {/* Leaf body — elongated oval green */}
+              <ellipse cx="0" cy="0" rx="4.5" ry="2.3" fill="#7BA05B" stroke="#5a7842" strokeWidth="0.4" />
+              {/* Vein down center */}
+              <line x1="-4" y1="0" x2="4" y2="0" stroke="#3d5a2b" strokeWidth="0.4" />
+              {/* Side veins */}
+              <path d="M -2.5 -0.3 L -2 -1.5" stroke="#3d5a2b" strokeWidth="0.3" fill="none" />
+              <path d="M 0 -0.5 L 0.6 -1.7" stroke="#3d5a2b" strokeWidth="0.3" fill="none" />
+              <path d="M 2.5 -0.3 L 2.2 -1.4" stroke="#3d5a2b" strokeWidth="0.3" fill="none" />
+            </g>
+          ))}
         </g>
       )}
 

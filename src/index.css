@@ -454,6 +454,40 @@ body {
   animation: eliSignSway 5.5s ease-in-out infinite;
 }
 
+/* Honeybee buzzing — Lissajous-style drift di sekitar pile apricot.
+   4 waypoints utk feel "exploring fruits". */
+@keyframes eliBeeOrbit {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(14px, -6px); }
+  50%  { transform: translate(2px, -14px); }
+  75%  { transform: translate(-12px, -4px); }
+  100% { transform: translate(0, 0); }
+}
+.eli-bee {
+  animation: eliBeeOrbit 4.2s ease-in-out infinite;
+}
+
+/* Falling leaves dari foliage area drifting ke meja/ground. Setiap
+   leaf punya endpoints + rotation via CSS variables (inline style). */
+@keyframes eliLeafFall {
+  0%   {
+    transform: translate(var(--leaf-x0), var(--leaf-y0)) rotate(0deg);
+    opacity: 0;
+  }
+  10%  { opacity: 0.95; }
+  85%  { opacity: 0.85; }
+  100% {
+    transform: translate(var(--leaf-x1), var(--leaf-y1)) rotate(var(--leaf-rot));
+    opacity: 0;
+  }
+}
+.eli-falling-leaf {
+  animation-name: eliLeafFall;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+  animation-fill-mode: forwards;
+}
+
 /* Lantern flame flicker + halo glow pulse — warm cozy feel. Independent
    timings + reduced-motion respected. */
 @keyframes eliLanternGlow {
@@ -496,7 +530,9 @@ body {
   .eli-sign-sway,
   .eli-sign-bird,
   .eli-lantern-glow,
-  .eli-lantern-flame { animation: none !important; }
+  .eli-lantern-flame,
+  .eli-bee,
+  .eli-falling-leaf { animation: none !important; }
 }
 
 /* Water droplets — tetes air jatuh dari atas tree saat user siram.
