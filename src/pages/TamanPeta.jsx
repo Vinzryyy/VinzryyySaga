@@ -1362,9 +1362,11 @@ const PathLanterns = () => (
   </>
 );
 
-// Ground mist particles — soft drifting points di low altitude (0.2-0.8y),
-// pelan drift horizontal, wrap around viewport. Atmospheric haze yg
-// kasih depth + dreamy feel ke ground level. ~50 particles desktop.
+// Ground mist particles — soft drifting points di low altitude (0.2-0.8y)
+// di sekitar oasis (radius 13). Warm cream tone supaya nyambung sama
+// desert dusk palette (bukan cool blue mist). Sebagian besar "mist"-nya
+// dari water/wishes di petak r3 (Telaga Harapan), jadi tetap masuk akal
+// punya mist tipis di taman tengah.
 const MistParticles = ({ count = 50 }) => {
   const ref = useRef();
   const positions = useMemo(() => {
@@ -1409,11 +1411,135 @@ const MistParticles = ({ count = 50 }) => {
       </bufferGeometry>
       <pointsMaterial
         size={0.42}
-        color="#b8c4d0"
+        color="#d8c8b0"
         transparent
         opacity={0.18}
         sizeAttenuation
         depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// Sand dust particles — desert wind blowing across the wider scene.
+// Lebih luas (radius spread ~22) + lebih banyak (~80 desktop) dari mist,
+// drift uni-directional (simulasi wind dari satu arah), low altitude
+// (0.1-1.3y) supaya kerasa sand drifting ground-level. Tone warm tan,
+// medium opacity supaya kerasa hazy haze tapi belum jadi sandstorm
+// (kalau mau intens, naikin opacity & count nanti).
+const SandDust = ({ count = 80 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 44;
+      arr[i * 3 + 1] = 0.1 + Math.random() * 1.2;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 44;
+    }
+    return arr;
+  }, [count]);
+  // Drift uni-directional (wind from -X toward +X) + tiny Z jitter +
+  // tiny Y bob supaya gak kerasa flat scrolling.
+  const drifts = useMemo(() => {
+    const arr = new Float32Array(count * 3); // [vx, vy, vz]
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = 0.12 + Math.random() * 0.08; // strong horizontal wind
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 0.01;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
+    }
+    return arr;
+  }, [count]);
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] += drifts[i * 3] * delta * 60;
+      arr[i * 3 + 1] += drifts[i * 3 + 1] * delta * 60;
+      arr[i * 3 + 2] += drifts[i * 3 + 2] * delta * 60;
+      // Wrap horizontal — kalau lewat batas kanan, lompat ke kiri
+      if (arr[i * 3] > 22) arr[i * 3] = -22;
+      if (arr[i * 3 + 2] > 22) arr[i * 3 + 2] = -22;
+      if (arr[i * 3 + 2] < -22) arr[i * 3 + 2] = 22;
+      // Clamp altitude supaya tetap di low layer
+      if (arr[i * 3 + 1] < 0.05) arr[i * 3 + 1] = 1.3;
+      if (arr[i * 3 + 1] > 1.4) arr[i * 3 + 1] = 0.1;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.55}
+        color="#c89568"
+        transparent
+        opacity={0.22}
+        sizeAttenuation
+        depthWrite={false}
+      />
+    </points>
+  );
+};
+
+// High dust shimmer — sky-level (3-7y altitude) warm rose particles,
+// drift lebih pelan, lebih sparse. Kasih sense of "air berdebu di
+// atmosfer", melengkapi sand dust ground-level. Reinforces depth.
+const HighDustShimmer = ({ count = 40 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 40;
+      arr[i * 3 + 1] = 3 + Math.random() * 4;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 40;
+    }
+    return arr;
+  }, [count]);
+  const drifts = useMemo(() => {
+    const arr = new Float32Array(count * 2);
+    for (let i = 0; i < count; i++) {
+      arr[i * 2] = 0.04 + Math.random() * 0.03;
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.01;
+    }
+    return arr;
+  }, [count]);
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] += drifts[i * 2] * delta * 60;
+      arr[i * 3 + 2] += drifts[i * 2 + 1] * delta * 60;
+      if (arr[i * 3] > 20) arr[i * 3] = -20;
+      if (arr[i * 3 + 2] > 20) arr[i * 3 + 2] = -20;
+      if (arr[i * 3 + 2] < -20) arr[i * 3 + 2] = 20;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.7}
+        color="#d8a890"
+        transparent
+        opacity={0.14}
+        sizeAttenuation
+        depthWrite={false}
+        toneMapped={false}
       />
     </points>
   );
@@ -2474,6 +2600,8 @@ const TamanScene = ({
       <TreeLightCone />
       <HaloSparkles />
       <MistParticles count={isMobile ? 30 : 55} />
+      <SandDust count={isMobile ? 40 : 80} />
+      <HighDustShimmer count={isMobile ? 20 : 40} />
       <FallingPetals count={isMobile ? 50 : 80} />
       {/* Direction arrow saat hover — tunjukkan next chapter
           petak dari yg di-hover. */}
