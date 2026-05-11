@@ -53,11 +53,32 @@ export const KEBAIKAN_CATEGORIES = [
 //   contributorCredit string  ("Helismiley Fans" / "@handle" / "Anonymous")
 //   amount          number  (IDR; omit/null for non-monetary acts)
 //   recipient       string  (organization or beneficiary, e.g. "Panti Asuhan X")
-//   proofUrl        string  (optional — receipt / dokumentasi photo)
+//   proofUrl        string  (optional — receipt / dokumentasi photo, primary)
+//   gallery         string[] (optional — additional photo URLs)
 //   status          string  ('proposed' | 'approved' | 'executed')
 //   executedAt      string  (ISO date — optional, present when status=executed)
 //   proposedAt      string  (ISO date — required)
-export const KEBAIKAN_ENTRIES = [];
+export const KEBAIKAN_ENTRIES = [
+  {
+    id: 'pohon-kebaikan-lingkungan-2026',
+    title: 'Pohon Kebaikan — Penanaman Pohon',
+    category: 'lingkungan',
+    description:
+      'Penanaman pohon sebagai bentuk Harmoni Kebaikan atas nama Ceu Eli. ' +
+      'Tiga pohon ditanam sebagai simbol kebaikan yang tumbuh dari setiap dukungan komunitas.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Program Pemulihan Lahan',
+    proofUrl: '/Donasists26/Lingkungan/Pohon kebaikan 1.jpeg',
+    gallery: [
+      '/Donasists26/Lingkungan/Pohon kebaikan 1.jpeg',
+      '/Donasists26/Lingkungan/Pohon kebaikan 2.jpeg',
+      '/Donasists26/Lingkungan/Pohon kebaikan 3.jpeg',
+    ],
+    status: 'executed',
+    executedAt: '2026-05-11',
+    proposedAt: '2026-05-01',
+  },
+];
 
 export const formatRupiah = (n) => {
   if (n == null || Number.isNaN(n)) return null;

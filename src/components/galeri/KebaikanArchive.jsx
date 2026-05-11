@@ -175,6 +175,34 @@ const KebaikanArchive = () => {
                         decoding="async"
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
+                      {Array.isArray(entry.gallery) && entry.gallery.length > 1 && (
+                        <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/55 text-white text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-sm">
+                          <i className="ri-image-line" />
+                          {entry.gallery.length}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {Array.isArray(entry.gallery) && entry.gallery.length > 1 && (
+                    <div className="flex gap-1.5 px-5 pt-3">
+                      {entry.gallery.slice(0, 4).map((url, gi) => (
+                        <a
+                          key={`${entry.id}-thumb-${gi}`}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-12 h-12 rounded-md overflow-hidden border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/50 transition"
+                          aria-label={`Buka foto ${gi + 1} dari ${entry.title}`}
+                        >
+                          <img
+                            src={url}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover"
+                          />
+                        </a>
+                      ))}
                     </div>
                   )}
                   <div className="p-5 flex-1 flex flex-col">

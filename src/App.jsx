@@ -41,10 +41,10 @@ const CountdownPage = lazy(() => import('./pages/Countdown'));
 const SchedulePage = lazy(() => import('./pages/Schedule'));
 const WishesPage = lazy(() => import('./pages/Wishes'));
 const Page26 = lazy(() => import('./pages/Page26'));
-// Galeri Kebaikan — disabled sampai project resmi diumumkan. Page &
-// data file tetap di src/ supaya reaktivasi cuma uncomment lazy import,
-// kembalikan Route, dan revert hide di siteConfig nav + Page26 footer.
-// const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
+// Galeri Kebaikan — donation/kebaikan archive page utk Harmoni Kebaikan
+// project (Armeniaca × Helismiley). Enabled karena donasi pertama udah
+// dilakukan (Pohon Kebaikan — Penanaman Pohon).
+const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
 // Taman Kebaikan — fase 1 (Padang Tandus / R0 entrance) dan fase 2
 // (Peta Taman / hub denah). Lazy-loaded supaya bundle Three.js + R3F
@@ -140,9 +140,7 @@ function AppShell() {
               path="/byu"
               element={<Navigate to="/byu-music" replace />}
             />
-            {/* /galeri-kebaikan redirects to /26 while the project is
-                pre-announce — keeps any pre-shared links from 404'ing. */}
-            <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
+            <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/taman" element={<TamanPage />} />
