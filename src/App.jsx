@@ -55,10 +55,13 @@ const VivoPage = lazy(() => import('./pages/Vivo'));
 // (= perayaan ulang tahun yang tumbuh, bukan monumen perpisahan).
 // Route /museum/* di-redirect ke /taman/* untuk backward-compat link
 // yang udah pernah di-share.
-const TamanPage = lazy(() => import('./pages/Taman'));
-const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
-const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
-const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
+// Taman pages — DISABLED dari public access (semua /taman/* redirect
+// ke /). Files tetap utuh di src/pages/ + src/components/taman/
+// supaya cepat reaktivasi: uncomment lazy import + restore Route.
+// const TamanPage = lazy(() => import('./pages/Taman'));
+// const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
+// const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
+// const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
 // Denyut — heartbeat website (presence-driven pulse visual). Standalone
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
@@ -145,16 +148,15 @@ function AppShell() {
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
-            <Route path="/taman" element={<TamanPage />} />
-            <Route path="/taman/peta" element={<TamanPetaPage />} />
-            <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
-            <Route path="/taman/r3" element={<TamanKolamKataPage />} />
-            {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
-            <Route path="/museum" element={<Navigate to="/taman" replace />} />
-            <Route
-              path="/museum/denah"
-              element={<Navigate to="/taman/peta" replace />}
-            />
+            {/* Taman routes DISABLED — semua /taman/* (+ legacy
+                /museum/*) redirect ke home. Re-enable: restore lazy
+                imports + Route element={<TamanPage />} dst. */}
+            <Route path="/taman" element={<Navigate to="/" replace />} />
+            <Route path="/taman/peta" element={<Navigate to="/" replace />} />
+            <Route path="/taman/r1" element={<Navigate to="/" replace />} />
+            <Route path="/taman/r3" element={<Navigate to="/" replace />} />
+            <Route path="/museum" element={<Navigate to="/" replace />} />
+            <Route path="/museum/denah" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
