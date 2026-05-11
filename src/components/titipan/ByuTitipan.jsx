@@ -155,6 +155,109 @@ const AnatomicalHeartSvg = ({ stage = TOTAL_STAGES }) => {
   );
 };
 
+// Twinkling sparkles di sekeliling heart — gold star shapes yg
+// scale-pulse on/off dgn stagger delay. Density naik per stage:
+// stage 1 = 3 sparkles, stage 5 = 15. Bikin kerasa meriah baseline.
+const SPARKLE_POSITIONS = [
+  { x: -100, y: -40, delay: 0,    size: 6 },
+  { x: 90,   y: -60, delay: 0.4,  size: 5 },
+  { x: 110,  y: 20,  delay: 0.8,  size: 7 },
+  { x: -80,  y: 50,  delay: 1.2,  size: 5 },
+  { x: 70,   y: 90,  delay: 1.6,  size: 6 },
+  { x: -120, y: 30,  delay: 2.0,  size: 5 },
+  { x: 130,  y: 70,  delay: 0.6,  size: 6 },
+  { x: -70,  y: -90, delay: 1.0,  size: 7 },
+  { x: 0,    y: -110,delay: 1.4,  size: 5 },
+  { x: 100,  y: -100,delay: 1.8,  size: 6 },
+  { x: -110, y: -10, delay: 2.2,  size: 5 },
+  { x: 50,   y: 110, delay: 0.2,  size: 7 },
+  { x: -50,  y: 100, delay: 2.4,  size: 6 },
+  { x: 120,  y: -30, delay: 1.5,  size: 5 },
+  { x: -130, y: 60,  delay: 0.9,  size: 6 },
+];
+const Sparkles = ({ stage }) => {
+  const count = Math.max(3, Math.min(15, (stage - 1) * 3 + 3));
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute left-1/2 top-1/2 pointer-events-none"
+    >
+      {SPARKLE_POSITIONS.slice(0, count).map((s, i) => (
+        <svg
+          key={i}
+          width={s.size * 4}
+          height={s.size * 4}
+          viewBox="0 0 24 24"
+          className="absolute"
+          style={{
+            left: s.x,
+            top: s.y,
+            transform: 'translate(-50%, -50%)',
+            animation: 'byuSparkle 2.8s ease-in-out infinite',
+            animationDelay: `${s.delay}s`,
+            opacity: 0,
+          }}
+        >
+          <path
+            d="M12 2 L13.4 10.6 L22 12 L13.4 13.4 L12 22 L10.6 13.4 L2 12 L10.6 10.6 Z"
+            fill="#e8b35a"
+            stroke="rgba(255,210,140,0.8)"
+            strokeWidth="0.5"
+          />
+        </svg>
+      ))}
+    </div>
+  );
+};
+
+// Confetti rain — stage 5 only. 18 pieces (burgundy/gold/cream/pink)
+// falling dari atas card area, rotating + drifting. Loop infinite
+// supaya kerasa party kontinyu, bukan one-shot.
+const CONFETTI_PIECES = [
+  { x: -130, color: '#e85064', delay: 0,    dur: 5.2, rot: 12 },
+  { x: -100, color: '#e8b35a', delay: 0.8,  dur: 6.0, rot: -18 },
+  { x: -70,  color: '#f4d0a0', delay: 1.5,  dur: 5.5, rot: 8 },
+  { x: -40,  color: '#8b4040', delay: 2.1,  dur: 6.4, rot: -22 },
+  { x: -15,  color: '#e85064', delay: 0.3,  dur: 5.7, rot: 14 },
+  { x: 10,   color: '#e8b35a', delay: 1.1,  dur: 6.2, rot: -10 },
+  { x: 35,   color: '#f4a8c0', delay: 1.8,  dur: 5.3, rot: 18 },
+  { x: 60,   color: '#e85064', delay: 2.4,  dur: 5.9, rot: -14 },
+  { x: 90,   color: '#f4d0a0', delay: 0.6,  dur: 6.3, rot: 22 },
+  { x: 120,  color: '#8b4040', delay: 1.3,  dur: 5.6, rot: -8 },
+  { x: 150,  color: '#e8b35a', delay: 2.0,  dur: 6.1, rot: 16 },
+  { x: -150, color: '#f4a8c0', delay: 0.4,  dur: 5.8, rot: -20 },
+  { x: -85,  color: '#e85064', delay: 1.7,  dur: 5.4, rot: 10 },
+  { x: 75,   color: '#e8b35a', delay: 2.6,  dur: 6.5, rot: -16 },
+  { x: -25,  color: '#f4d0a0', delay: 0.9,  dur: 5.1, rot: 20 },
+  { x: 45,   color: '#8b4040', delay: 1.4,  dur: 6.0, rot: -12 },
+  { x: 105,  color: '#f4a8c0', delay: 2.2,  dur: 5.7, rot: 18 },
+  { x: -115, color: '#e8b35a', delay: 1.9,  dur: 6.2, rot: -22 },
+];
+const ConfettiRain = () => (
+  <div
+    aria-hidden="true"
+    className="absolute left-1/2 -top-16 w-[28rem] h-[24rem] pointer-events-none overflow-hidden -translate-x-1/2"
+  >
+    {CONFETTI_PIECES.map((c, i) => (
+      <span
+        key={i}
+        className="absolute"
+        style={{
+          left: `calc(50% + ${c.x}px)`,
+          top: 0,
+          width: '7px',
+          height: '11px',
+          background: c.color,
+          borderRadius: '1px',
+          animation: `byuConfettiFall ${c.dur}s linear infinite`,
+          animationDelay: `${c.delay}s`,
+          '--byu-confetti-rot': `${c.rot * 30}deg`,
+        }}
+      />
+    ))}
+  </div>
+);
+
 // Music notes emitted dari pusat heart — melayang radial keluar atas
 // kanan/kiri, scale-in, fade out di ujung. 7 notes dgn stagger delay
 // sync ke beat period (tiap notes muncul ~per beat). Glyph variety
@@ -549,6 +652,8 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
     >
       <StaffWithNotes stage={stage} />
       <EmittedNotes show={showNotes} />
+      <Sparkles stage={stage} />
+      {stage >= TOTAL_STAGES && <ConfettiRain />}
 
       {/* Light rays — muncul stage 5 only. 12 sinar memancar dari pusat
           heart, kerasa "lepas / siap pulang". Slow rotation supaya
@@ -599,7 +704,8 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
         className="absolute inset-0 -m-12 rounded-full blur-3xl pointer-events-none"
         style={{
           background: `radial-gradient(circle, rgba(180,40,55,${haloOpacity}) 0%, transparent 65%)`,
-          animation: 'byuHaloPulse var(--byu-beat) ease-in-out infinite',
+          animation:
+            'byuHaloPulse var(--byu-beat) ease-in-out infinite, byuHaloHue 14s linear infinite',
         }}
       />
 
@@ -691,6 +797,20 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
           0%   { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+        @keyframes byuSparkle {
+          0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+          50%      { opacity: 0.92; transform: translate(-50%, -50%) scale(1.15) rotate(45deg); }
+        }
+        @keyframes byuConfettiFall {
+          0%   { transform: translateY(-20px) rotate(0deg); opacity: 0.95; }
+          90%  { opacity: 0.85; }
+          100% { transform: translateY(380px) rotate(var(--byu-confetti-rot, 540deg)); opacity: 0; }
+        }
+        @keyframes byuHaloHue {
+          0%   { filter: hue-rotate(0deg); }
+          50%  { filter: hue-rotate(-20deg); }
+          100% { filter: hue-rotate(0deg); }
+        }
         @keyframes byuNoteEmit {
           0%   {
             transform: translate(0, 0) scale(0.5) rotate(0deg);
@@ -721,7 +841,8 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s', stage = TOTAL_STAGES }
           [class*="byuHaloPulse"], [class*="byuCorePulse"],
           [class*="byuSheen"], [class*="byuRipple"],
           [class*="byuNoteEmit"], [class*="byuStaffNoteIn"],
-          [class*="byuRaysRotate"] {
+          [class*="byuRaysRotate"], [class*="byuSparkle"],
+          [class*="byuConfettiFall"], [class*="byuHaloHue"] {
             animation: none !important;
           }
         }
