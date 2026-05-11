@@ -4090,83 +4090,6 @@ const Torii = ({ pos, rot = 0, scale = 1 }) => {
   );
 };
 
-// Sakura tree — stylized cherry blossom tree. Tall slim trunk + wide
-// crown made of pink-cream spheres (vs BankTree yang hijau). Adds
-// vertical drama + tie sama FallingPetals existing.
-const SakuraTree = ({ pos, scale = 1 }) => {
-  const blossomCount = 14;
-  const blossomDefs = useMemo(
-    () =>
-      Array.from({ length: blossomCount }, (_, i) => {
-        const angle = (i / blossomCount) * Math.PI * 2;
-        const r = 1.0 + (i % 3) * 0.4;
-        const y = 2.5 + ((i * 7) % 9) * 0.18;
-        return {
-          x: Math.cos(angle) * r,
-          y,
-          z: Math.sin(angle) * r,
-          size: 0.7 + ((i * 11) % 7) * 0.08,
-          color: ['#f4a8c0', '#f4c0d4', '#f8d4dc', '#f4b8c8'][i % 4],
-        };
-      }),
-    []
-  );
-  return (
-    <group position={pos} scale={scale}>
-      {/* Trunk */}
-      <mesh position={[0, 1.4, 0]} castShadow>
-        <cylinderGeometry args={[0.12, 0.18, 2.8, 7]} />
-        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
-      </mesh>
-      {/* Trunk branches diverging upward */}
-      <mesh position={[0.18, 2.5, 0.1]} rotation={[0, 0, -0.3]}>
-        <cylinderGeometry args={[0.04, 0.07, 0.9, 6]} />
-        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
-      </mesh>
-      <mesh position={[-0.18, 2.5, -0.1]} rotation={[0, 0, 0.3]}>
-        <cylinderGeometry args={[0.04, 0.07, 0.9, 6]} />
-        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
-      </mesh>
-      {/* Pink blossom puffs */}
-      {blossomDefs.map((b, i) => (
-        <mesh key={`bl-${i}`} position={[b.x, b.y, b.z]} castShadow>
-          <sphereGeometry args={[b.size, 8, 6]} />
-          <meshStandardMaterial
-            color={b.color}
-            emissive={b.color}
-            emissiveIntensity={0.12}
-            roughness={0.85}
-          />
-        </mesh>
-      ))}
-      {/* Center large bloom mass */}
-      <mesh position={[0, 3.0, 0]} castShadow>
-        <sphereGeometry args={[1.0, 10, 7]} />
-        <meshStandardMaterial
-          color="#f4b8c8"
-          emissive="#f4b8c8"
-          emissiveIntensity={0.1}
-          roughness={0.85}
-        />
-      </mesh>
-    </group>
-  );
-};
-const SAKURA_DEFS = [
-  { pos: [-25, 0, -4], scale: 1.1 },
-  { pos: [25, 0, 8], scale: 1.0 },
-];
-const Sakuras = ({ isMobile }) => {
-  const list = isMobile ? SAKURA_DEFS.slice(0, 1) : SAKURA_DEFS;
-  return (
-    <>
-      {list.map((d, i) => (
-        <SakuraTree key={`sakura-${i}`} pos={d.pos} scale={d.scale} />
-      ))}
-    </>
-  );
-};
-
 // Jizo statue — small stylized stone Buddha figure dengan red knit
 // bib. Iconic Japanese guardian statue, scatter di outer/path area.
 const JizoStatue = ({ pos, rot = 0 }) => (
@@ -5436,7 +5359,6 @@ const TelagaScene = ({
     <SleepingCat pos={[-19, 0, -3.5]} rot={0.6} color="#d4a868" />
     <PaperCraneGarland pos={[-8, 0, -25]} rot={0.2} isMobile={isMobile} />
     <Torii pos={[22, 0, -16]} rot={-0.5} scale={1.1} />
-    <Sakuras isMobile={isMobile} />
     <Jizos isMobile={isMobile} />
     <BambooGrove pos={[-23, 0, -4]} isMobile={isMobile} />
     <Rowboat pos={[2.5, 0, 5.5]} rot={1.2} />
