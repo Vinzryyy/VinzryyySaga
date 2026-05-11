@@ -477,6 +477,7 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
     <group
       ref={groupRef}
       position={[0, 0, 0]}
+      scale={1.55}
       onPointerOver={(e) => {
         e.stopPropagation();
         onPointerOver?.();
@@ -490,6 +491,16 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         onClick?.();
       }}
     >
+      {/* Stone pedestal di bawah trunk — kasih grandeur, kerasa
+          tree didedikasikan / monumental. */}
+      <mesh position={[0, 0.04, 0]}>
+        <cylinderGeometry args={[0.45, 0.55, 0.08, 12]} />
+        <meshStandardMaterial color="#5a5e6a" roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.35, 0.45, 0.06, 12]} />
+        <meshStandardMaterial color="#7a7e8a" roughness={0.9} />
+      </mesh>
       {/* Trunk — ramping, tinggi 1.4, taper sedikit */}
       <mesh position={[0, 0.7, 0]}>
         <cylinderGeometry args={[0.1, 0.15, 1.4, 10]} />
@@ -649,6 +660,276 @@ const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
     </Html>
   );
 };
+// Distant mountain silhouettes — 9 cones di luar drought ring (radius
+// 22-30), berbagai height + color. Kasih atmospheric depth ke horizon,
+// kerasa "ada dunia di luar taman". Tone dark blue-gray supaya recede.
+const MOUNTAIN_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 11; i++) {
+    const angle = (i / 11) * Math.PI * 2 + ((i * 19) % 9) * 0.07;
+    const r = 23 + ((i * 13) % 7);
+    const h = 2.4 + ((i * 11) % 5) * 0.55;
+    const radius = 1.6 + ((i * 17) % 4) * 0.3;
+    // Layer color — closer mountains lighter, farther darker
+    const colorIdx = (i * 7) % 3;
+    const colors = ['#2a3548', '#1f2838', '#1a2030'];
+    arr.push({
+      pos: [Math.cos(angle) * r, h / 2 - 0.3, Math.sin(angle) * r],
+      h,
+      radius,
+      color: colors[colorIdx],
+    });
+  }
+  return arr;
+})();
+const Mountains = () => (
+  <>
+    {MOUNTAIN_DEFS.map((m, i) => (
+      <mesh key={`mt-${i}`} position={m.pos}>
+        <coneGeometry args={[m.radius, m.h, 6]} />
+        <meshStandardMaterial color={m.color} roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
+// Stone path — 4 flat oval stones per spoke, dari center ke tiap
+// petak position. 6 spokes total = 24 stones. Kasih visual koneksi
+// "ini hub", path menjari ke 6 petak.
+const StonePath = ({ petakList }) => (
+  <>
+    {petakList.flatMap((petak) => {
+      const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+      const stones = [];
+      for (let i = 0; i < 4; i++) {
+        const t = 0.25 + i * 0.18; // 0.25, 0.43, 0.61, 0.79 (gak sampai pinggir)
+        const sx = px * t;
+        const sz = pz * t;
+        const jitter = ((Math.round(px * 7 + pz * 11) + i * 13) % 9 - 4) * 0.03;
+        stones.push(
+          <mesh
+            key={`stone-${petak.id}-${i}`}
+            position={[sx + jitter, 0.012, sz - jitter]}
+            rotation={[-Math.PI / 2, 0, (i * 0.4) % Math.PI]}
+          >
+            <circleGeometry args={[0.32 - i * 0.015, 8]} />
+            <meshStandardMaterial color="#6a6e7a" roughness={1} />
+          </mesh>,
+        );
+      }
+      return stones;
+    })}
+  </>
+);
+
+// Per-petak landmark — distinctive 3D element on top of each petak
+// sesuai tema-nya. Dipanggil per-petak di scene render. Posisi
+// relatif ke petak top (y ≈ 0.55).
+const PetakLandmark = ({ petak }) => {
+  const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+  const baseY = 0.55;
+  const wrap = (children) => (
+    <group position={[px, baseY, pz]}>{children}</group>
+  );
+  switch (petak.id) {
+    case 'r1':
+      // Konstelasi Perjalanan — torii gate kecil + bintang melayang.
+      return wrap(
+        <>
+          <mesh position={[-0.35, 0.4, 0]}>
+            <cylinderGeometry args={[0.05, 0.06, 0.8, 6]} />
+            <meshStandardMaterial color="#7a5840" roughness={0.9} />
+          </mesh>
+          <mesh position={[0.35, 0.4, 0]}>
+            <cylinderGeometry args={[0.05, 0.06, 0.8, 6]} />
+            <meshStandardMaterial color="#7a5840" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, 0.82, 0]}>
+            <boxGeometry args={[0.95, 0.08, 0.16]} />
+            <meshStandardMaterial color="#9b6f4a" roughness={0.85} />
+          </mesh>
+          <mesh position={[0, 0.7, 0]}>
+            <boxGeometry args={[0.75, 0.05, 0.1]} />
+            <meshStandardMaterial color="#7a5840" roughness={0.85} />
+          </mesh>
+          {/* Floating star */}
+          <mesh position={[0, 1.25, 0]}>
+            <octahedronGeometry args={[0.08, 0]} />
+            <meshStandardMaterial
+              color="#fff5c8"
+              emissive="#fff5c8"
+              emissiveIntensity={0.85}
+              toneMapped={false}
+            />
+          </mesh>
+        </>,
+      );
+    case 'r2':
+      // Petak Karya — easel A-frame + canvas kecil.
+      return wrap(
+        <>
+          <mesh position={[-0.15, 0.32, 0]} rotation={[0, 0, 0.18]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.7, 5]} />
+            <meshStandardMaterial color="#6a4a2d" roughness={0.95} />
+          </mesh>
+          <mesh position={[0.15, 0.32, 0]} rotation={[0, 0, -0.18]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.7, 5]} />
+            <meshStandardMaterial color="#6a4a2d" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0.4, 0.01]}>
+            <boxGeometry args={[0.4, 0.32, 0.04]} />
+            <meshStandardMaterial color="#f4e8d0" roughness={0.85} />
+          </mesh>
+          {/* Painted accent on canvas */}
+          <mesh position={[-0.08, 0.42, 0.04]}>
+            <boxGeometry args={[0.08, 0.06, 0.01]} />
+            <meshStandardMaterial color="#c94a4a" roughness={0.7} />
+          </mesh>
+          <mesh position={[0.06, 0.36, 0.04]}>
+            <boxGeometry args={[0.1, 0.04, 0.01]} />
+            <meshStandardMaterial color="#5aa67a" roughness={0.7} />
+          </mesh>
+        </>,
+      );
+    case 'r3':
+      // Telaga Harapan — lily pad di atas water disc.
+      return wrap(
+        <>
+          {/* Water disc */}
+          <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.55, 24]} />
+            <meshStandardMaterial
+              color="#5a8fb0"
+              emissive="#4a7090"
+              emissiveIntensity={0.25}
+              roughness={0.3}
+              metalness={0.1}
+            />
+          </mesh>
+          {/* Lily pad — 3 pads di permukaan */}
+          {[
+            [0.25, 0.1],
+            [-0.2, 0.18],
+            [-0.05, -0.25],
+          ].map(([lx, lz], i) => (
+            <mesh
+              key={`lp-${i}`}
+              position={[lx, 0.04, lz]}
+              rotation={[-Math.PI / 2, 0, i * 0.7]}
+            >
+              <circleGeometry args={[0.13, 12]} />
+              <meshStandardMaterial color="#4a8458" roughness={0.85} />
+            </mesh>
+          ))}
+          {/* Lotus center */}
+          <mesh position={[-0.05, 0.08, -0.25]}>
+            <sphereGeometry args={[0.07, 10, 8]} />
+            <meshStandardMaterial
+              color="#f4a8c0"
+              emissive="#f4a8c0"
+              emissiveIntensity={0.4}
+              roughness={0.6}
+            />
+          </mesh>
+        </>,
+      );
+    case 'r4':
+      // Kebun Kebaikan — basket of apricots.
+      return wrap(
+        <>
+          {/* Basket body */}
+          <mesh position={[0, 0.25, 0]}>
+            <cylinderGeometry args={[0.32, 0.24, 0.32, 10]} />
+            <meshStandardMaterial color="#9a7045" roughness={0.95} />
+          </mesh>
+          {/* Basket rim */}
+          <mesh position={[0, 0.41, 0]}>
+            <torusGeometry args={[0.32, 0.04, 6, 16]} />
+            <meshStandardMaterial color="#7a5530" roughness={0.95} />
+          </mesh>
+          {/* Apricots inside (3 visible) */}
+          {[
+            [0, 0.45, 0.1],
+            [0.15, 0.46, -0.06],
+            [-0.13, 0.47, -0.08],
+          ].map((p, i) => (
+            <mesh key={`apk-${i}`} position={p}>
+              <sphereGeometry args={[0.1, 10, 8]} />
+              <meshStandardMaterial
+                color="#e8a87c"
+                emissive="#e8a87c"
+                emissiveIntensity={0.18}
+                roughness={0.6}
+              />
+            </mesh>
+          ))}
+        </>,
+      );
+    case 'r5':
+      // Padang Lukis — paint brush tegak.
+      return wrap(
+        <>
+          <mesh position={[0, 0.32, 0]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.6, 6]} />
+            <meshStandardMaterial color="#8b6f47" roughness={0.95} />
+          </mesh>
+          {/* Metal ferrule */}
+          <mesh position={[0, 0.58, 0]}>
+            <cylinderGeometry args={[0.04, 0.04, 0.07, 8]} />
+            <meshStandardMaterial color="#9a9da3" roughness={0.5} metalness={0.6} />
+          </mesh>
+          {/* Brush bristles — narrowing cone */}
+          <mesh position={[0, 0.7, 0]}>
+            <coneGeometry args={[0.05, 0.18, 8]} />
+            <meshStandardMaterial color="#c94a4a" roughness={0.65} />
+          </mesh>
+          {/* Paint dab on petak */}
+          <mesh position={[0.2, 0.04, 0.18]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.1, 10]} />
+            <meshStandardMaterial color="#f4a8c0" roughness={0.7} />
+          </mesh>
+          <mesh position={[-0.18, 0.04, -0.16]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.08, 10]} />
+            <meshStandardMaterial color="#a890c8" roughness={0.7} />
+          </mesh>
+        </>,
+      );
+    case 'r6':
+      // Padang Aprikot — mini apricot tree (mirror center tree).
+      return wrap(
+        <>
+          <mesh position={[0, 0.25, 0]}>
+            <cylinderGeometry args={[0.04, 0.06, 0.5, 8]} />
+            <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0.6, 0]}>
+            <sphereGeometry args={[0.32, 14, 10]} />
+            <meshStandardMaterial color="#86a868" roughness={0.75} />
+          </mesh>
+          {/* Tiny fruits */}
+          {[
+            [0.2, 0.62, 0.1],
+            [-0.18, 0.55, 0.12],
+            [0.05, 0.78, -0.12],
+            [-0.08, 0.7, 0.18],
+          ].map((p, i) => (
+            <mesh key={`mf-${i}`} position={p}>
+              <sphereGeometry args={[0.06, 8, 6]} />
+              <meshStandardMaterial
+                color="#e8a87c"
+                emissive="#e8a87c"
+                emissiveIntensity={0.2}
+                roughness={0.55}
+              />
+            </mesh>
+          ))}
+        </>,
+      );
+    default:
+      return null;
+  }
+};
+
 // Dead tree silhouettes — pohon-pohon mati di drought ring. Cuma
 // trunk + 2-3 cabang patah, color dark brown-grey, gak bercabang
 // foliage. Visual narrative: pohon aprikot di tengah satu-satunya
@@ -963,9 +1244,11 @@ const TamanScene = ({
       />
       <TamanFloor />
       <DroughtRing />
+      <Mountains />
       <DeadTrees />
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
+      <StonePath petakList={PETAK} />
       <Fireflies isMobile={isMobile} />
       <NarrativeWhispers isMobile={isMobile} />
       <CenterTree
@@ -986,6 +1269,12 @@ const TamanScene = ({
           onPointerOut={onPetakOut}
           onClick={onPetakClick}
         />
+      ))}
+      {/* Per-petak landmark — distinctive 3D element on top of each
+          petak yg signal tema-nya (torii, easel, lily pad, basket,
+          paint brush, mini tree). */}
+      {PETAK.map((petak) => (
+        <PetakLandmark key={`${petak.id}-landmark`} petak={petak} />
       ))}
       {/* Bunga-bunga kecil di sekitar tiap petak. Render terpisah dari
           PetakPlot supaya posisinya tetap di tanah saat petak lift
