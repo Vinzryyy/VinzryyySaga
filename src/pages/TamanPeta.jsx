@@ -94,68 +94,84 @@ const HEX_RADIUS = 5;
 // 'museum-rooms-previewed') tetap kepake — ID konsisten, nama yang
 // berubah. Field `route`: kalau ada, modal nampilin CTA langsung
 // masuk; kalau null, fallback ke "akan dirilis di Fase 3".
+// Narrative arc: 6 bab tour mengelilingi pohon, mulai dari r1 (langit
+// perjalanan) → r2 (tangan membentuk) → r3 (air harapan) → r4 (aksi
+// tumbuh) → r5 (warna tinggal) → r6 (pusat kembali). Tiap petak punya
+// `chapter` 1-6, `nextId` pointer ke bab berikut (r6 loop ke r1).
 const PETAK = [
   {
     id: 'r1',
+    chapter: 1,
     name: 'Konstelasi Perjalanan',
-    eyebrow: 'Lorong Antara Waktu',
-    desc: 'Lorong dgn konstelasi perjalanan',
+    eyebrow: 'Bab 1 · Langit Perjalanan',
+    desc: 'Tujuh konstelasi tertulis di langit',
     longDesc:
-      'Lorong yang menghubungkan gerbang ini ke kenangan lain. Berdiri di taman senja, menengadah ke langit — tiap bintang adalah milestone perjalanan Eli, terajut jadi tujuh konstelasi per era. Kebaikan yang masih bercahaya, walau dunia di luar sudah lupa.',
+      'Setiap perjalanan dimulai dari satu titik. Berdiri di petak ini, langit malam menampakkan tujuh konstelasi — tiap bintang adalah milestone Eli sejak panggung pertama. Inilah bab pertama: tempat di mana cerita ditulis sebelum tangan-tangan datang membantu.',
     angle: 270,
     color: '#a8c0ff',
     route: '/taman/r1',
+    nextId: 'r2',
   },
   {
     id: 'r2',
+    chapter: 2,
     name: 'Petak Karya',
-    eyebrow: 'Kenangan Tangan',
-    desc: 'Kebun karya penggemar',
+    eyebrow: 'Bab 2 · Tangan Membentuk',
+    desc: 'Setelah langit, tangan mulai bergerak',
     longDesc:
-      'Plot kebun dari kontribusi penggemar — video, web, poster, dan lainnya tumbuh seperti tanaman di pekarangan. Bukti bahwa di tempat ini, tangan-tangan masih membentuk sesuatu.',
+      'Setelah cerita dituliskan, tangan-tangan datang membentuk. Video pertama, web pertama, poster pertama, lagu pertama yang di-cover — bukti bahwa di tempat ini, kebaikan tidak hanya disaksikan, tapi dikerjakan. Petak ini menyimpan apa yang telah dibuat penggemar atas namanya.',
     angle: 330,
     color: '#94b878',
+    nextId: 'r3',
   },
   {
     id: 'r3',
+    chapter: 3,
     name: 'Telaga Harapan',
-    eyebrow: 'Kenangan Air',
-    desc: 'Telaga sebelum padang kering',
+    eyebrow: 'Bab 3 · Air Membawa Harapan',
+    desc: 'Sebelum aksi, harapan dulu mengalir',
     longDesc:
-      'Sebelum padang di luar gerbang menguning, di sini ada air. Telaga teratai senja — tiap bunga mekar adalah satu harapan dari fans untuk Eli. Live dari wish wall, bertambah tiap submission baru di /wishes.',
+      'Tangan butuh air. Telaga ini diisi tiap kali seseorang menuliskan harapan di /wishes — tiap bunga teratai yang mekar adalah satu doa. Sebelum kebaikan jadi tanaman, harapan dulu mengalir di sini, menyirami benih yang belum terlihat.',
     angle: 30,
     color: '#86a868',
     route: '/taman/r3',
+    nextId: 'r4',
   },
   {
     id: 'r4',
+    chapter: 4,
     name: 'Kebun Kebaikan',
-    eyebrow: 'Kenangan Aksi',
-    desc: 'Aksi nyata yang tumbuh',
+    eyebrow: 'Bab 4 · Harapan Jadi Tunas',
+    desc: 'Aksi yang tumbuh dari harapan',
     longDesc:
-      'Padang yang dipenuhi tanaman dari setiap aksi kebaikan nyata — Galeri Kebaikan, program donasi, kunjungan komunitas. Tiap kebaikan menumbuhkan satu tunas. Bukti bahwa kemarau di luar tidak selalu menang.',
+      'Di mana harapan disirami, kebaikan ikut tumbuh. Tiap donasi, tiap kunjungan, tiap aksi nyata — satu tunas baru di kebun ini. Galeri Kebaikan adalah katalog tunas-tunas itu. Bab ini bukti bahwa kemarau di luar gerbang tidak selalu menang.',
     angle: 90,
     color: '#a8b870',
+    nextId: 'r5',
   },
   {
     id: 'r5',
+    chapter: 5,
     name: 'Padang Lukis',
-    eyebrow: 'Kenangan Warna',
-    desc: 'Ladang fanart',
+    eyebrow: 'Bab 5 · Warna yang Tinggal',
+    desc: 'Bukan semua kebaikan jadi angka',
     longDesc:
-      'Ladang dgn lukisan berdiri seperti bunga — fanart, ilustrasi, karya seni dari komunitas. Warna yang tertinggal sebelum padang menguning.',
+      'Bukan semua kebaikan terlihat sebagai donasi. Beberapa muncul sebagai gambar, lukisan, ilustrasi, warna — bahasa lain dari cinta. Ladang ini menyimpan fanart, sketch, karya yang lahir dari rasa. Warna yang menolak ikut padang menguning.',
     angle: 150,
     color: '#94b878',
+    nextId: 'r6',
   },
   {
     id: 'r6',
+    chapter: 6,
     name: 'Padang Aprikot',
-    eyebrow: 'Pusat Kenangan',
-    desc: 'Pohon + Langit Kontributor',
+    eyebrow: 'Bab 6 · Pusat Kembali',
+    desc: 'Akhir yang sekaligus permulaan',
     longDesc:
-      'Pusat taman: pohon aprikot besar di tengah orchard, langit malam bertabur bintang — tiap bintang adalah kontributor kebaikan. Di sinilah semua kenangan bertemu, dan benih baru bisa ditanam.',
+      'Setelah lima bab perjalanan, semua kembali ke sini: pohon aprikot di tengah, langit malam bertabur kontributor di atas. Inilah pusat — bukan akhir, melainkan tempat siklus mulai lagi. Di sinilah benih baru bisa ditanam, dan cerita berikutnya menunggu ditulis.',
     angle: 210,
     color: '#e8a87c',
+    nextId: 'r1', // loop balik ke bab 1
   },
 ];
 
@@ -416,7 +432,10 @@ const PetakPlot = ({
               hovered ? 'text-white/85' : 'text-white/55'
             }`}
           >
-            {petak.desc}
+            {petak.chapter && (
+              <span className="text-amber-200/85 mr-1">Bab {petak.chapter}</span>
+            )}
+            · {petak.desc}
           </div>
         </div>
       </Html>
@@ -1788,9 +1807,11 @@ const TamanPetaIntroTitle = () => {
             letterSpacing: '0.02em',
           }}
         >
-          Tapi tiap petak ini adalah kenangan kebaikan
+          Tapi di dalam, enam bab kenangan masih bercahaya
           <br />
-          yang masih hidup. Pilih satu untuk diingat kembali.
+          mengelilingi pohon yang menolak gugur.
+          <br />
+          Pilih satu — atau mulai dari bab pertama.
         </p>
       </div>
     </div>
@@ -1818,7 +1839,7 @@ const TamanFooter = ({ hoveredPetakId, flyInActive, previewedCount }) => {
 // dibangun (Fase 3), overlay ini sementara nampilin deskripsi + CTA
 // "Akan dirilis di Fase 3". Setelah petak jadi, ganti CTA jadi
 // "Masuk petak →" yang navigate ke route petak.
-const PetakDetailOverlay = ({ petak, onClose }) => {
+const PetakDetailOverlay = ({ petak, onClose, onJumpToPetak }) => {
   useEffect(() => {
     if (!petak) return undefined;
     const orig = document.body.style.overflow;
@@ -1829,6 +1850,10 @@ const PetakDetailOverlay = ({ petak, onClose }) => {
   }, [petak]);
 
   if (!petak) return null;
+  // Lookup next chapter petak via nextId pointer.
+  const nextPetak = petak.nextId
+    ? PETAK.find((p) => p.id === petak.nextId)
+    : null;
   return (
     <div
       className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md"
@@ -1839,10 +1864,16 @@ const PetakDetailOverlay = ({ petak, onClose }) => {
         className="bg-[#1c1f2a]/95 border border-white/15 rounded-2xl px-8 py-9 max-w-md mx-6 text-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-2 text-white/50 text-[10px] uppercase tracking-[0.25em]">
-          {petak.id.toUpperCase()}
+        {/* Chapter indicator + eyebrow */}
+        <div className="mb-2 text-white/50 text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-1.5 flex-wrap">
+          {petak.chapter && (
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/15 text-white/85 text-[9px] font-black tabular-nums">
+              {petak.chapter}
+            </span>
+          )}
+          <span>{petak.id.toUpperCase()}</span>
           {petak.eyebrow && (
-            <span className="text-white/35"> · {petak.eyebrow}</span>
+            <span className="text-white/35">· {petak.eyebrow.replace(/^Bab \d+ · /, '')}</span>
           )}
         </div>
         <h2
@@ -1865,34 +1896,47 @@ const PetakDetailOverlay = ({ petak, onClose }) => {
             >
               Masuk {petak.name} →
             </Link>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full px-5 py-2 rounded-full border border-white/20 text-white/65 text-xs hover:bg-white/10 transition"
-            >
-              Kembali ke peta taman
-            </button>
           </div>
         ) : (
-          <>
-            <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 mb-6">
-              <p className="text-white/55 text-xs leading-relaxed">
-                Petak ini sedang dalam pertumbuhan.
-                <br />
-                Akan dirilis di{' '}
-                <span className="text-white/85">Fase 3</span> —
-                kami tanam petak satu per satu.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full px-6 py-2.5 rounded-full border border-white/30 text-white/85 text-sm hover:bg-white/10 transition"
-            >
-              Kembali ke peta taman
-            </button>
-          </>
+          <div className="px-4 py-3 rounded-lg bg-white/5 border border-white/10 mb-4">
+            <p className="text-white/55 text-xs leading-relaxed">
+              Petak ini sedang dalam pertumbuhan.
+              <br />
+              Akan dirilis di{' '}
+              <span className="text-white/85">Fase 3</span>.
+            </p>
+          </div>
         )}
+
+        {/* Next chapter pointer — story flow */}
+        {nextPetak && onJumpToPetak && (
+          <button
+            type="button"
+            onClick={() => onJumpToPetak(nextPetak)}
+            className="w-full mt-3 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/35 bg-white/5 hover:bg-white/10 transition text-left flex items-center gap-3"
+          >
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/45 shrink-0">
+              Bab {nextPetak.chapter} →
+            </span>
+            <span
+              className="flex-1 text-white/85 text-[13px] truncate"
+              style={{
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+              }}
+            >
+              {nextPetak.name}
+            </span>
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full mt-3 px-5 py-2 rounded-full border border-white/20 text-white/55 text-[11px] hover:bg-white/10 transition"
+        >
+          Kembali ke peta taman
+        </button>
       </div>
     </div>
   );
@@ -2002,6 +2046,17 @@ const TamanPetaPage = () => {
         <PetakDetailOverlay
           petak={selectedPetak}
           onClose={handleCloseOverlay}
+          onJumpToPetak={(nextPetak) => {
+            // Bab → bab navigation: ganti selected petak ke next.
+            setSelectedPetak(nextPetak);
+            setPreviewedPetak((prev) => {
+              if (prev.has(nextPetak.id)) return prev;
+              const next = new Set(prev);
+              next.add(nextPetak.id);
+              writePreviewed(next);
+              return next;
+            });
+          }}
         />
         <AmbientAudio profile="taman" position="top-right" />
       </div>
