@@ -167,9 +167,11 @@ const generateEcosystem = (count) => {
     if (Math.abs(x - 200) < 26 && y < 320) return true;
     if (potVisible && y >= 318 && y <= 362 && x >= 100 && x <= 300) return true;
     // Apricot table footprint (right edge) — reserve area saat
-    // count >= BUCKET_THRESHOLD supaya ekosistem gak nimpa meja.
+    // count >= BUCKET_THRESHOLD + BUCKET_FILL_RATIO (= 1100, saat
+    // table beneran render dgn first apricot). Supaya ekosistem
+    // gak nimpa meja.
     if (
-      c >= BUCKET_THRESHOLD &&
+      c >= BUCKET_THRESHOLD + BUCKET_FILL_RATIO &&
       x >= TABLE_FOOTPRINT_X1 &&
       x <= TABLE_FOOTPRINT_X2 &&
       y >= TABLE_FOOTPRINT_Y1 &&
@@ -393,38 +395,52 @@ const POT_TOP_Y = 320;
 const POT_BOTTOM_Y = 360;
 const CENTER_X = 200;
 
-// Apricot table — muncul di samping pot/akar saat count >= 1700.
-// "Panen" — buah aprikot dipajang di meja kayu. Visual: meja kayu
-// dgn perspective (top surface trapezoid + 4 legs), apricot pile
-// pyramid di atas (cap 35 visual, counter di bawah show actual count).
-const BUCKET_THRESHOLD = 1700;
+// Apricot table — muncul di samping pot/akar saat count >= 1000
+// (MAX_STAGE udah tercapai, panen mulai dikumpulkan di meja). Tiap
+// 100 supports past 1000 = 1 apricot taruh di meja. Visual: meja
+// kayu dgn perspective, apricot pile pyramid di atas (cap 33 visual,
+// counter di bawah show actual harvest count).
+//
+// Dengan ratio 1:100, full table (33 buah) tercapai di count = 4300.
+const BUCKET_THRESHOLD = 1000;
+const BUCKET_FILL_RATIO = 100; // 1 apricot per N supports past threshold
 const BUCKET_CAPACITY = 33;
-const TABLE_CX = 348; // di tepi kanan supaya gak nimpa ekosistem
+const TABLE_CX = 342; // tepi kanan + breathing room utk sign post
 const TABLE_GROUND_Y = POT_BOTTOM_Y - 2;
-const TABLE_LEG_H = 26;
+const TABLE_LEG_H = 30; // sedikit lebih tinggi
 const TABLE_TOP_FRONT_Y = TABLE_GROUND_Y - TABLE_LEG_H;
-const TABLE_TOP_BACK_Y = TABLE_TOP_FRONT_Y - 14;
-const TABLE_FRONT_W = 96;
-const TABLE_BACK_W = 74; // narrower at back for perspective
-const TABLE_TOP_THICKNESS = 4;
-// Footprint box utk ecosystem avoidance (mencakup table + pile apricot
-// di atasnya). Lebar sedikit lebih luas dari table itu sendiri biar ada
-// margin visual.
-const TABLE_FOOTPRINT_X1 = TABLE_CX - TABLE_FRONT_W / 2 - 6;
-const TABLE_FOOTPRINT_X2 = TABLE_CX + TABLE_FRONT_W / 2 + 6;
-const TABLE_FOOTPRINT_Y1 = TABLE_TOP_BACK_Y - 52; // include pile area atas
-const TABLE_FOOTPRINT_Y2 = TABLE_GROUND_Y + 6;
+const TABLE_TOP_BACK_Y = TABLE_TOP_FRONT_Y - 16;
+const TABLE_FRONT_W = 110; // dibesarin dari 96
+const TABLE_BACK_W = 86;   // dibesarin dari 74
+const TABLE_TOP_THICKNESS = 5;
+
+// Sign post (papan pengumuman) — vertikal di tengah meja, board di
+// atas. Post sticks dari tanah, tabletop nutupin middle section,
+// board visible di atas table back.
+const SIGN_X = TABLE_CX;
+const SIGN_POST_BOTTOM_Y = TABLE_GROUND_Y;
+const SIGN_POST_TOP_Y = TABLE_TOP_BACK_Y - 36;
+const SIGN_BOARD_W = 92;
+const SIGN_BOARD_H = 32;
+const SIGN_BOARD_CY = SIGN_POST_TOP_Y - 4;
+
+// Footprint box utk ecosystem avoidance — meja + pile + sign post +
+// board area.
+const TABLE_FOOTPRINT_X1 = Math.min(TABLE_CX - TABLE_FRONT_W / 2, SIGN_X - SIGN_BOARD_W / 2) - 6;
+const TABLE_FOOTPRINT_X2 = Math.max(TABLE_CX + TABLE_FRONT_W / 2, SIGN_X + SIGN_BOARD_W / 2) + 6;
+const TABLE_FOOTPRINT_Y1 = SIGN_BOARD_CY - SIGN_BOARD_H / 2 - 6; // include board atas
+const TABLE_FOOTPRINT_Y2 = TABLE_GROUND_Y + 8;
 
 // Apricot pyramid pile di atas meja — 6 rows total 35 slots.
 // Base row sits on top front edge, naik makin kecil.
 const BUCKET_APRICOT_POSITIONS = (() => {
   const rows = [
-    { count: 9, dy: -4,  width: 72, size: 5.2 },
-    { count: 8, dy: -12, width: 62, size: 5.0 },
-    { count: 7, dy: -20, width: 50, size: 5.0 },
-    { count: 5, dy: -28, width: 36, size: 4.8 },
-    { count: 3, dy: -36, width: 20, size: 4.6 },
-    { count: 1, dy: -44, width: 0,  size: 4.4 },
+    { count: 9, dy: -5,  width: 84, size: 5.8 },
+    { count: 8, dy: -14, width: 72, size: 5.5 },
+    { count: 7, dy: -23, width: 58, size: 5.3 },
+    { count: 5, dy: -32, width: 42, size: 5.0 },
+    { count: 3, dy: -41, width: 24, size: 4.8 },
+    { count: 1, dy: -50, width: 0,  size: 4.6 },
   ];
   const arr = [];
   let idx = 0;
@@ -470,10 +486,22 @@ const ApricotBucket = ({ filled = 0 }) => {
       <ellipse
         cx={TABLE_CX}
         cy={TABLE_GROUND_Y + 3}
-        rx={TABLE_FRONT_W / 2 + 6}
-        ry="4"
+        rx={TABLE_FRONT_W / 2 + 8}
+        ry="5"
         fill="#3a2820"
         opacity="0.32"
+      />
+      {/* Sign post — drawn FIRST supaya tabletop top nutupin middle
+          section, post visible above table back & between back legs
+          di bawah. */}
+      <rect
+        x={SIGN_X - 1.8}
+        y={SIGN_POST_TOP_Y}
+        width="3.6"
+        height={SIGN_POST_BOTTOM_Y - SIGN_POST_TOP_Y}
+        fill="#6a4a2d"
+        stroke="#3a2415"
+        strokeWidth="0.6"
       />
       {/* Back legs (drawn first, partially behind tabletop) */}
       {[legXs[2], legXs[3]].map((lx, i) => (
@@ -597,6 +625,94 @@ const ApricotBucket = ({ filled = 0 }) => {
           )}
         </g>
       ))}
+
+      {/* Papan pengumuman di atas sign post — wooden board dgn text
+          "Pohon Kebaikan" + sub-line stage milestone. Slight tilt
+          -3° untuk rustic feel. */}
+      <g transform={`rotate(-3 ${SIGN_X} ${SIGN_BOARD_CY})`}>
+        {/* Drop shadow di bawah board */}
+        <rect
+          x={SIGN_X - SIGN_BOARD_W / 2 + 1.5}
+          y={SIGN_BOARD_CY - SIGN_BOARD_H / 2 + 2.5}
+          width={SIGN_BOARD_W}
+          height={SIGN_BOARD_H}
+          rx="2"
+          fill="rgba(0,0,0,0.25)"
+        />
+        {/* Board body — wooden plank */}
+        <rect
+          x={SIGN_X - SIGN_BOARD_W / 2}
+          y={SIGN_BOARD_CY - SIGN_BOARD_H / 2}
+          width={SIGN_BOARD_W}
+          height={SIGN_BOARD_H}
+          rx="2"
+          fill="#a78657"
+          stroke="#4a3220"
+          strokeWidth="1.2"
+        />
+        {/* Wood grain horizontal lines */}
+        <line
+          x1={SIGN_X - SIGN_BOARD_W / 2 + 4}
+          y1={SIGN_BOARD_CY - SIGN_BOARD_H / 2 + 8}
+          x2={SIGN_X + SIGN_BOARD_W / 2 - 4}
+          y2={SIGN_BOARD_CY - SIGN_BOARD_H / 2 + 8}
+          stroke="#5a3e25"
+          strokeWidth="0.4"
+          opacity="0.4"
+        />
+        <line
+          x1={SIGN_X - SIGN_BOARD_W / 2 + 4}
+          y1={SIGN_BOARD_CY + SIGN_BOARD_H / 2 - 8}
+          x2={SIGN_X + SIGN_BOARD_W / 2 - 4}
+          y2={SIGN_BOARD_CY + SIGN_BOARD_H / 2 - 8}
+          stroke="#5a3e25"
+          strokeWidth="0.4"
+          opacity="0.4"
+        />
+        {/* Decorative nails di pojok */}
+        {[
+          [SIGN_X - SIGN_BOARD_W / 2 + 4, SIGN_BOARD_CY - SIGN_BOARD_H / 2 + 4],
+          [SIGN_X + SIGN_BOARD_W / 2 - 4, SIGN_BOARD_CY - SIGN_BOARD_H / 2 + 4],
+          [SIGN_X - SIGN_BOARD_W / 2 + 4, SIGN_BOARD_CY + SIGN_BOARD_H / 2 - 4],
+          [SIGN_X + SIGN_BOARD_W / 2 - 4, SIGN_BOARD_CY + SIGN_BOARD_H / 2 - 4],
+        ].map(([nx, ny], i) => (
+          <circle key={`nail-${i}`} cx={nx} cy={ny} r="0.9" fill="#2a1810" />
+        ))}
+        {/* Sheen highlight kiri-atas */}
+        <line
+          x1={SIGN_X - SIGN_BOARD_W / 2 + 3}
+          y1={SIGN_BOARD_CY - SIGN_BOARD_H / 2 + 3}
+          x2={SIGN_X - SIGN_BOARD_W / 2 + 3}
+          y2={SIGN_BOARD_CY + SIGN_BOARD_H / 2 - 3}
+          stroke="rgba(255,225,180,0.35)"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        {/* Text title */}
+        <text
+          x={SIGN_X}
+          y={SIGN_BOARD_CY - 2}
+          textAnchor="middle"
+          fontSize="9"
+          fontWeight="700"
+          fill="#3a2415"
+          fontFamily="inherit"
+        >
+          Pohon Kebaikan
+        </text>
+        {/* Sub-line: panen count */}
+        <text
+          x={SIGN_X}
+          y={SIGN_BOARD_CY + 9}
+          textAnchor="middle"
+          fontSize="7"
+          fill="#5a3e25"
+          fontStyle="italic"
+          fontFamily="inherit"
+        >
+          panen · {filled.toLocaleString('id-ID')} buah
+        </text>
+      </g>
 
       {/* Counter badge di bawah meja */}
       <g>
@@ -1139,11 +1255,15 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
         </g>
       )}
 
-      {/* Apricot harvest bucket — muncul saat count >= 1700, isinya
-          1 buah aprikot per support setelah threshold (cap 30 visual,
-          actual count shown di badge bawah bucket). */}
-      {count >= BUCKET_THRESHOLD && (
-        <ApricotBucket filled={count - BUCKET_THRESHOLD} />
+      {/* Apricot harvest table 1 — muncul saat count >= 1100 (MAX_STAGE
+          + 1st harvest unit). Tiap 100 supports past 1000 → 1 apricot
+          taruh di meja. Cap visual di 33 buah (= 4300 total supports).
+          Threshold render = THRESHOLD + RATIO supaya table appears WITH
+          first apricot, gak kosong. */}
+      {count >= BUCKET_THRESHOLD + BUCKET_FILL_RATIO && (
+        <ApricotBucket
+          filled={Math.floor((count - BUCKET_THRESHOLD) / BUCKET_FILL_RATIO)}
+        />
       )}
     </svg>
   );
