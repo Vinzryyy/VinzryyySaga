@@ -95,27 +95,24 @@ const FLY_IN_DURATION = 2.5;
 const ORBIT_TARGET = [0, 1, 0];
 
 const HEX_RADIUS = 5;
-// Petak taman aktif — saat ini cuma 2 yang udah punya feature page:
-//   r1 (Konstelasi Perjalanan, /taman/r1) — Bab 1
-//   r3 (Telaga Harapan, /taman/r3)        — Bab 2
-// Petak r2/r4/r5/r6 di-remove sementara sampai fitur masing-masing
-// dibangun. ID 'r3' dipertahankan (bukan direname ke 'r2') supaya
-// progress lama di localStorage (key 'museum-rooms-previewed') tetap
-// kepake — chapter number-nya aja yang disequence ulang jadi (1, 2)
-// supaya checklist dot kelihatan rapi tanpa gap.
-// Field `route`: kalau ada, modal nampilin CTA langsung masuk; kalau
-// null (belum dipake), fallback ke "akan dirilis di Fase 3".
-// Narrative arc: 2 bab loop balik — r1 (langit perjalanan) → r3 (air
-// harapan) → r1.
+// Petak taman aktif — narrative-nya: peta ini berdiri di tengah kota
+// yang udah runtuh (city ruins silhouette di horizon). Dua petak yang
+// hidup = dua sisa peradaban yang masih bisa dimasuki:
+//   r1 (Gerbang Masuk Kota, /taman/r1)       — Bab 1, pintu masuk
+//   r3 (Taman Terakhir di Kota, /taman/r3)   — Bab 2, oasis hijau
+// ID 'r1'/'r3' dipertahankan (legacy route + localStorage progress
+// key 'museum-rooms-previewed'). Chapter number disequence (1, 2)
+// supaya checklist dot rapi tanpa gap. Petak r2/r4/r5/r6 di-remove
+// sampai fitur masing-masing dibangun.
 const PETAK = [
   {
     id: 'r1',
     chapter: 1,
-    name: 'Konstelasi Perjalanan',
-    eyebrow: 'Bab 1 · Langit Perjalanan',
-    desc: 'Tujuh konstelasi tertulis di langit',
+    name: 'Gerbang Masuk Kota',
+    eyebrow: 'Bab 1 · Gerbang Kota Lama',
+    desc: 'Lewat sini, peradaban dulu masuk',
     longDesc:
-      'Setiap perjalanan dimulai dari satu titik. Berdiri di petak ini, langit malam menampakkan tujuh konstelasi — tiap bintang adalah milestone Eli sejak panggung pertama. Inilah bab pertama: tempat di mana cerita ditulis sebelum tangan-tangan datang membantu.',
+      'Gerbang batu yang dulu menyambut peradaban kini berdiri di antara reruntuhan. Lewat sini, langit malam masih menyimpan tujuh konstelasi — setiap bintang adalah satu masa yang pernah hidup. Kotanya runtuh, tapi cerita di langit tetap utuh, menunggu diingat.',
     angle: 270,
     color: '#a8c0ff',
     route: '/taman/r1',
@@ -124,11 +121,11 @@ const PETAK = [
   {
     id: 'r3',
     chapter: 2,
-    name: 'Telaga Harapan',
-    eyebrow: 'Bab 2 · Air Membawa Harapan',
-    desc: 'Sebelum aksi, harapan dulu mengalir',
+    name: 'Taman Terakhir di Kota',
+    eyebrow: 'Bab 2 · Oasis di Reruntuhan',
+    desc: 'Hijau terakhir yang masih bernapas',
     longDesc:
-      'Tangan butuh air. Telaga ini diisi tiap kali seseorang menuliskan harapan di /wishes — tiap bunga teratai yang mekar adalah satu doa. Sebelum kebaikan jadi tanaman, harapan dulu mengalir di sini, menyirami benih yang belum terlihat.',
+      'Di tengah kota yang runtuh, satu taman bertahan hijau. Telaganya diisi tiap kali seseorang menuliskan harapan di /wishes — tiap teratai yang mekar adalah satu doa yang menolak ikut padam. Inilah taman terakhir: bukti bahwa di sisa peradaban, masih ada yang menanam.',
     angle: 90,
     color: '#86a868',
     route: '/taman/r3',
@@ -430,10 +427,11 @@ const FRUIT_POSITIONS = [
   { pos: [0.0, 1.6, -0.55], color: '#ed9b6a' },
 ];
 
-// CenterTree — pohon aprikot di pusat peta. Sekarang clickable: hover
-// kasih emissive boost di semua foliage cluster, click → navigate ke
-// /26 (Pohon Kebaikan existing). Pohon ini secara naratif **adalah**
-// Pohon Kebaikan, jadi link langsung ke modul itu via center node.
+// CenterTree — pohon aprikot di pusat peta. Naratif baru: "Pohon
+// Terakhir" — satu-satunya pohon yg masih hidup di sisa kota gurun
+// yang runtuh (city ruins di horizon). Secara modul tetep link ke
+// /26 (Pohon Kebaikan existing). Hover kasih emissive boost di semua
+// foliage cluster, click → navigate.
 const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
   const groupRef = useRef();
   const foliageMatRefs = useRef([]);
@@ -517,12 +515,14 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
           />
         </mesh>
       ))}
-      {/* Floating label saat hover — "Pohon Kebaikan" + hint klik */}
+      {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
+          Pohon aprikot tunggal yg masih hidup di sisa kota gurun, link
+          ke modul Pohon Kebaikan (/26). */}
       {hovered && (
         <Html position={[0, 2.9, 0]} center distanceFactor={10}>
           <div className="text-center pointer-events-none select-none whitespace-nowrap">
             <div className="text-white text-[12px] font-medium tracking-wide">
-              Pohon Kebaikan
+              Pohon Terakhir
             </div>
             <div className="text-emerald-300/80 text-[9px] mt-0.5 uppercase tracking-[0.15em]">
               Klik untuk siram →
@@ -3180,8 +3180,8 @@ const TamanPetaPage = () => {
   };
   const handleCloseOverlay = () => setSelectedPetak(null);
 
-  // Center tree handlers — pohon aprikot di pusat = Pohon Kebaikan
-  // (modul existing di /26). Click navigate ke sana.
+  // Center tree handlers — pohon aprikot di pusat = "Pohon Terakhir"
+  // (naratif peta), tetap link ke modul /26 Pohon Kebaikan.
   const handleCenterHover = () => {
     if (flyInActive) return;
     setHoveredCenter(true);
