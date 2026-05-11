@@ -92,6 +92,7 @@ import {
   TreeSwing,
   WindChime,
   MonumentProximity,
+  CorridorDoorway,
 } from '../components/taman/r1/landmarks';
 import {
   CAMERA_TARGETS,
@@ -265,6 +266,7 @@ const LorongScene = ({
     <Rabbits />
     {!isMobile && <Bats />}
     <DistantFigure signatureEvent={signatureEvent} />
+    <CorridorDoorway />
     <Fireflies count={isMobile ? 9 : 16} />
     <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}

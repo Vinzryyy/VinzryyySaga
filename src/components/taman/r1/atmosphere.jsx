@@ -339,6 +339,10 @@ export const FallingLeaves = ({ count = 60 }) => {
 // independent tiap N detik. Plus zoom proximity factor: lebih
 // kelihatan saat user zoom dekat ke scene.
 const MEMORY_FRAGMENTS = [
+  // Threading narrative: lorong nyambung dari dunia kering (R0) ke
+  // memori kebaikan. Fragment pertama frame "di luar masih kering",
+  // fragment terakhir "masih bercahaya" — hint menuju portal di z=-37.
+  { pos: [-1.7, 0.7, -4], text: 'di luar, padang masih kering', phase: 0.1, period: 12 },
   { pos: [-1.5, 0.7, -7], text: 'panggung pertama', phase: 0.0, period: 11 },
   { pos: [2.0, 0.8, -10], text: 'sorot lampu', phase: 0.45, period: 13 },
   {
@@ -353,6 +357,7 @@ const MEMORY_FRAGMENTS = [
   { pos: [1.5, 0.8, -25], text: 'untuk yang menunggu', phase: 0.15, period: 12 },
   { pos: [-1.8, 0.8, -28], text: 'apa kabar di sana', phase: 0.55, period: 11 },
   { pos: [-1.8, 0.7, -30], text: 'tahun yang panjang', phase: 0.8, period: 14 },
+  { pos: [1.7, 0.8, -32], text: 'di sini, masih bercahaya', phase: 0.25, period: 13 },
 ];
 
 const MemoryFragment = ({ pos, text, phase = 0, period = 10 }) => {

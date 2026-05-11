@@ -451,6 +451,63 @@ export const DistantFigure = ({ signatureEvent }) => {
   );
 };
 
+// Corridor doorway — samar arch silhouette di belakang DistantFigure,
+// hint visual bahwa lorong ini terhubung ke "ruangan lain" (memori
+// lain). Dark silhouette dgn subtle warm glow di dalamnya — yg ngasih
+// kesan "ada cahaya kebaikan di balik lorong". Pull player ke ujung.
+// Pose di z=-37 (di belakang figure z=-34 + monument z=-32).
+export const CorridorDoorway = () => {
+  const glowMatRef = useRef();
+  useFrame((state) => {
+    if (!glowMatRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Slow pulse — kerasa "bernafas", bukan static box
+    glowMatRef.current.opacity = 0.32 + Math.sin(t * 0.6) * 0.08;
+  });
+  return (
+    <group position={[0, 0, -37]}>
+      {/* Pillar kiri */}
+      <mesh position={[-1.55, 1.5, 0]}>
+        <boxGeometry args={[0.28, 3.0, 0.28]} />
+        <meshStandardMaterial color="#0a0d18" roughness={1} />
+      </mesh>
+      {/* Pillar kanan */}
+      <mesh position={[1.55, 1.5, 0]}>
+        <boxGeometry args={[0.28, 3.0, 0.28]} />
+        <meshStandardMaterial color="#0a0d18" roughness={1} />
+      </mesh>
+      {/* Top beam */}
+      <mesh position={[0, 3.15, 0]}>
+        <boxGeometry args={[3.5, 0.3, 0.32]} />
+        <meshStandardMaterial color="#0a0d18" roughness={1} />
+      </mesh>
+      {/* Inner glow plane — warm amber, opacity pulsing. Posisi
+          tepat di tengah lorong arch, kasih kesan "ada cahaya
+          ruangan lain di balik gerbang ini". */}
+      <mesh position={[0, 1.5, 0.05]}>
+        <planeGeometry args={[3.0, 2.8]} />
+        <meshBasicMaterial
+          ref={glowMatRef}
+          color="#ffaa50"
+          transparent
+          opacity={0.32}
+          fog
+        />
+      </mesh>
+      {/* Subtle pointLight di mulut arch — bikin scene sekitar dapet
+          warm rim dari portal. Lebih kuat dari horizon glow existing,
+          biar player ketarik mata ke sana. */}
+      <pointLight
+        position={[0, 1.5, 0.5]}
+        intensity={1.4}
+        color="#ffb060"
+        distance={8}
+        decay={2}
+      />
+    </group>
+  );
+};
+
 // Bat silhouette — V-shape gelap drifting di langit malam. 3 bat
 // dengan x drift speed beda, wrap saat lewat batas. Wing flap via
 

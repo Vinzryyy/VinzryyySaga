@@ -204,7 +204,7 @@ export const IntroTitle = ({ isMobile = false }) => {
         {/* Content */}
         <div className="relative text-center">
           <div className="text-white/60 text-[9px] sm:text-[10px] uppercase tracking-[0.45em] sm:tracking-[0.55em] mb-5 sm:mb-6">
-            R1 · Petak Pertama
+            R1 · Lorong Antara Waktu
           </div>
           <h1
             className="text-white text-3xl sm:text-5xl mb-5 sm:mb-6 leading-[1.1]"
@@ -221,14 +221,17 @@ export const IntroTitle = ({ isMobile = false }) => {
           {/* Inner separator line antara title & subtitle */}
           <div className="mx-auto mb-5 w-12 h-px bg-white/30" />
           <div
-            className="text-white/70 text-[13px] mb-6"
+            className="text-white/70 text-[13px] mb-6 leading-relaxed"
             style={{
               fontFamily: '"Fraunces Variable", serif',
               fontStyle: 'italic',
               letterSpacing: '0.02em',
             }}
           >
-            {ELI_TIMELINE.length} perjalanan, dirajut menjadi konstelasi di atas taman senja.
+            Lorong yang menghubungkan dunia yang lupa<br />
+            dengan kebaikan yang masih bercahaya.
+            <br />
+            <span className="text-white/50">{ELI_TIMELINE.length} jejak terajut jadi konstelasi di atasmu.</span>
           </div>
           {/* Inline tip — replace separate TutorialHint surface */}
           <div className="text-white/35 text-[9px] uppercase tracking-[0.3em]">
