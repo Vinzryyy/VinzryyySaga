@@ -5430,6 +5430,48 @@ const SceneFallback = () => (
   </div>
 );
 
+// First-visit intro title overlay — sync sama TelagaCinematicIntro
+// dolly. Frame R3 sebagai memori (masa lalu kebaikan) bukan present.
+// Tampil saat introActive, fade out saat intro complete. Skip kalo
+// udah pernah seen (localStorage check di parent via introActive).
+const TelagaIntroTitle = ({ visible }) => (
+  <div
+    className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center transition-opacity duration-[1800ms] ease-out ${
+      visible ? 'opacity-100' : 'opacity-0'
+    }`}
+  >
+    <div className="text-center max-w-md mx-6 px-8 py-9 -translate-y-12 rounded-md border border-white/10 bg-[#0a1320]/75 backdrop-blur-md shadow-2xl">
+      <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-4">
+        R3 · Kenangan
+      </div>
+      <h1
+        className="text-white text-3xl md:text-4xl mb-4 leading-[1.1]"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          letterSpacing: '0.01em',
+          textShadow: '0 0 32px rgba(244,168,192,0.18)',
+        }}
+      >
+        Telaga Harapan
+      </h1>
+      <div className="mx-auto mb-4 w-10 h-px bg-white/25" />
+      <p
+        className="text-white/65 text-[12px] md:text-[13px] leading-relaxed"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+          letterSpacing: '0.02em',
+        }}
+      >
+        Sebelum padang kering, di sini ada air.
+        <br />
+        Setiap teratai adalah harapan yang pernah hidup.
+      </p>
+    </div>
+  </div>
+);
+
 const TelagaHeader = () => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
     <div className="pointer-events-auto">
@@ -5441,14 +5483,19 @@ const TelagaHeader = () => (
         <span className="hidden md:inline">← Peta Taman</span>
       </Link>
     </div>
-    <div
-      className="text-white/85 text-[13px] md:text-sm tracking-wide"
-      style={{
-        fontFamily: '"Fraunces Variable", serif',
-        fontStyle: 'italic',
-      }}
-    >
-      Telaga Harapan
+    <div className="text-center">
+      <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
+        Kenangan
+      </div>
+      <div
+        className="text-white/85 text-[13px] md:text-sm tracking-wide"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+        }}
+      >
+        Telaga Harapan
+      </div>
     </div>
     <div className="pointer-events-auto">
       <Link
@@ -5734,6 +5781,7 @@ const TamanKolamKataPage = () => {
         </Suspense>
 
         <TelagaHeader />
+        <TelagaIntroTitle visible={introActive} />
         <TelagaFooter hoveredPadId={hoveredPadId} totalPads={pads.length} />
         <WishOverlay pad={selectedPad} onClose={handleClose} />
         <AmbientAudio profile="taman" position="top-right" />
