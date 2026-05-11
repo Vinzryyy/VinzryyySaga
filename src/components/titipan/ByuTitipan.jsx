@@ -29,6 +29,20 @@ const SUPPORT_CLICKED_KEY = 'byu-support-clicked';
 
 const formatNumber = (n) => n.toLocaleString('id-ID');
 
+// Map raw Firebase errors ke pesan ramah-pengguna. Default fallback
+// kalau pesan gak match pattern apa pun.
+const friendlyError = (raw) => {
+  if (!raw) return 'Gagal menyimpan dukungan.';
+  const lower = String(raw).toLowerCase();
+  if (lower.includes('permission_denied') || lower.includes('permission denied')) {
+    return 'Belum bisa menyimpan dukungan. Coba lagi beberapa saat.';
+  }
+  if (lower.includes('network') || lower.includes('offline')) {
+    return 'Koneksi terputus. Coba lagi setelah kembali online.';
+  }
+  return 'Gagal menyimpan dukungan. Coba lagi.';
+};
+
 const useCountdown = (target) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -92,17 +106,69 @@ const AnatomicalHeartSvg = () => (
   </svg>
 );
 
-// Centerpiece beating heart. `intensity` (0–1) scales halo glow,
-// `period` (CSS time) controls speed. Animation pakai PQRST shape
-// (spike cepat 14%, dip 28%, second spike 42%, rest 70%+) — sama
-// dgn /denyut supaya feel-nya konsisten antar fitur.
+// Floating music notes — drift up pelan dari sekitar heart, fade out
+// di atas. Deterministic positions (gak Math.random per render). Subtle,
+// gak overwhelming heart. Cuma muncul saat intensity >= 0.5.
+const NOTE_POSITIONS = [
+  { x: -90, delay: 0, dur: 7.2, glyph: '♪' },
+  { x: 82, delay: 1.8, dur: 8.1, glyph: '♫' },
+  { x: -60, delay: 3.4, dur: 6.8, glyph: '♩' },
+  { x: 110, delay: 5.2, dur: 7.6, glyph: '♪' },
+  { x: -110, delay: 4.1, dur: 8.4, glyph: '♬' },
+];
+const FloatingNotes = ({ show }) => {
+  if (!show) return null;
+  return (
+    <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+      {NOTE_POSITIONS.map((n, i) => (
+        <span
+          key={i}
+          className="absolute left-1/2 top-1/2 text-[color:var(--retro-burgundy)]/35"
+          style={{
+            fontFamily: 'serif',
+            fontSize: '18px',
+            '--byu-note-x': `${n.x}px`,
+            animation: `byuNoteFloat ${n.dur}s ease-out infinite`,
+            animationDelay: `${n.delay}s`,
+            opacity: 0,
+          }}
+        >
+          {n.glyph}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+// Centerpiece beating heart. `intensity` (0–1) scales halo glow + ripple
+// rings + floating notes density, `period` (CSS time) controls speed.
+// Animation pakai PQRST shape (spike 14%, dip 28%, second spike 42%,
+// rest 70%+) — sama dgn /denyut supaya feel-nya konsisten antar fitur.
 const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
   const haloOpacity = 0.4 + intensity * 0.5;
+  const showNotes = intensity >= 0.5;
   return (
     <div
-      className="relative flex items-center justify-center mb-8"
+      className="relative flex items-center justify-center mb-8 min-h-[14rem] sm:min-h-[15rem]"
       style={{ '--byu-beat': period }}
     >
+      <FloatingNotes show={showNotes} />
+
+      {/* Concentric ripple rings — expand outward + fade dgn rhythm
+          beat. 3 rings dgn stagger delay supaya kontinyu. */}
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          className="absolute w-44 h-44 sm:w-52 sm:h-52 rounded-full border border-[color:var(--retro-burgundy)]/35 pointer-events-none"
+          style={{
+            animation: 'byuRipple calc(var(--byu-beat) * 3) ease-out infinite',
+            animationDelay: `calc(var(--byu-beat) * ${i})`,
+            opacity: 0,
+          }}
+        />
+      ))}
+
       <div
         aria-hidden="true"
         className="absolute inset-0 -m-12 rounded-full blur-3xl pointer-events-none"
@@ -119,6 +185,7 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
       >
         <AnatomicalHeartSvg />
       </div>
+
       <style>{`
         @keyframes byuHeartBeat {
           0%   { transform: scale(1); }
@@ -133,8 +200,20 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
           14%      { opacity: 0.95; transform: scale(1.07); }
           70%      { opacity: 0.55; transform: scale(1); }
         }
+        @keyframes byuRipple {
+          0%   { transform: scale(1); opacity: 0.55; }
+          80%  { transform: scale(1.7); opacity: 0; }
+          100% { transform: scale(1.7); opacity: 0; }
+        }
+        @keyframes byuNoteFloat {
+          0%   { transform: translate(var(--byu-note-x), 30px) rotate(-6deg); opacity: 0; }
+          15%  { opacity: 0.4; }
+          70%  { opacity: 0.35; }
+          100% { transform: translate(calc(var(--byu-note-x) + 12px), -120px) rotate(8deg); opacity: 0; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          [class*="byuHeartBeat"], [class*="byuHaloPulse"] {
+          [class*="byuHeartBeat"], [class*="byuHaloPulse"],
+          [class*="byuRipple"], [class*="byuNoteFloat"] {
             animation: none !important;
           }
         }
@@ -191,7 +270,7 @@ const PreReleaseView = ({ supporters }) => {
       }
       setHasClicked(true);
     } else {
-      setError(result.error || 'Gagal menyimpan dukungan.');
+      setError(friendlyError(result.error));
     }
   };
 
@@ -203,10 +282,10 @@ const PreReleaseView = ({ supporters }) => {
       />
 
       <p className="text-center font-header italic text-base sm:text-lg text-[color:var(--retro-text-primary)] leading-relaxed mb-8 max-w-xl mx-auto">
-        Lagu ini masih tersegel. Akan dibuka pada{' '}
+        Lagu ini masih kesegel. Akan dibuka pada{' '}
         <span className="text-[color:var(--retro-burgundy)] not-italic font-bold">15 Juni 2026</span>.
         <br />
-        Sampai saat itu, kita yang menjaganya.
+        Sampai saat itu, kita yang menjaga denyutnya.
       </p>
 
       <CountdownDisplay
@@ -225,7 +304,7 @@ const PreReleaseView = ({ supporters }) => {
               Terima kasih, kau salah satu yang menjaga.
             </div>
             <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
-              {formatNumber(supporters)} orang sedang menjaga lagu ini.
+              {formatNumber(supporters)} orang sedang menjaga denyutnya.
             </div>
           </div>
         ) : (
@@ -234,15 +313,15 @@ const PreReleaseView = ({ supporters }) => {
               type="button"
               onClick={handleClick}
               disabled={submitting}
-              className="inline-flex items-center gap-2 px-7 py-3.5 border-2 border-[color:var(--retro-burgundy)] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:bg-[color:var(--retro-burgundy-light)] hover:border-[color:var(--retro-burgundy-light)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group inline-flex items-center gap-2 px-7 py-3.5 border-2 border-[color:var(--retro-burgundy)] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:bg-[color:var(--retro-burgundy-light)] hover:border-[color:var(--retro-burgundy-light)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-8px_rgba(139,64,64,0.55)] active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
             >
-              <i className="ri-mail-line text-base" aria-hidden="true" />
+              <i className="ri-heart-pulse-line text-base group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span className="font-header text-[11px] sm:text-xs font-black uppercase tracking-[0.32em]">
                 {submitting ? 'Mencatat...' : 'Saya menunggu'}
               </span>
             </button>
             <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
-              {formatNumber(supporters)} orang sedang menjaga lagu ini.
+              {formatNumber(supporters)} orang sedang menjaga denyutnya.
             </div>
             {error && (
               <div className="text-[11px] text-[color:var(--retro-burgundy)]">{error}</div>
@@ -361,7 +440,7 @@ const ReleasedView = ({ supporters }) => {
       )}
 
       <div className="text-center font-header italic text-sm text-[color:var(--color-text-secondary)]">
-        Lagu ini dijaga oleh{' '}
+        Denyutnya dijaga oleh{' '}
         <span className="text-[color:var(--retro-burgundy)] not-italic font-bold">
           {formatNumber(supporters)} orang
         </span>{' '}
