@@ -62,9 +62,6 @@ const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
 const DenyutPage = lazy(() => import('./pages/Denyut'));
-// Titipan — page dedicated utk lagu By-U Putri Helisma. Pre-release
-// support phase → auto-reveal player 15 Juni 2026.
-const TitipanPage = lazy(() => import('./pages/Titipan'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -126,7 +123,12 @@ function AppShell() {
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
-            <Route path="/titipan" element={<TitipanPage />} />
+            {/* Titipan jadi tab di /26 (Harmoni Kebaikan hub). /titipan
+                standalone diredirect ke tab langsung. */}
+            <Route
+              path="/titipan"
+              element={<Navigate to="/26#titipan" replace />}
+            />
             {/* /galeri-kebaikan redirects to /26 while the project is
                 pre-announce — keeps any pre-shared links from 404'ing. */}
             <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />

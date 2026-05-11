@@ -47,6 +47,12 @@ export const SITE_CONFIG = {
             description: 'Pohon untuk Eli yang tumbuh dari dukungan',
             icon: 'ri-plant-line',
           },
+          {
+            label: 'By-U Music',
+            hash: 'byu',
+            description: 'Lagu Putri Helisma — dibuka 15 Juni 2026',
+            icon: 'ri-music-2-line',
+          },
           // Galeri Kebaikan — hidden sampai project resmi diumumkan.
           // Untuk reaktivasi: uncomment item ini, lalu kembalikan
           // route `/galeri-kebaikan` di App.jsx + tombol di Page26.jsx

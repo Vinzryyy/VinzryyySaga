@@ -1,7 +1,8 @@
 /**
  * By-U support counter — thin wrapper around Firebase Realtime Database
- * untuk track berapa orang udah klik "Saya menunggu" di /titipan
- * sebelum tanggal rilis 15 Juni 2026.
+ * untuk track berapa orang udah klik "Saya menunggu" di tab Titipan
+ * (/26#titipan, Harmoni Kebaikan hub) sebelum tanggal rilis 15 Juni
+ * 2026.
  *
  * Exposes:
  *   subscribeToByuSupportCount(cb) — live count subscription
