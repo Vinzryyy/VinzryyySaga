@@ -3347,6 +3347,337 @@ const Kite = ({ stakePos = [-6, 0, 16], skyHeight = 8 }) => {
   );
 };
 
+// Floating water lanterns — paper bowl lanterns drifting di pond
+// surface, glow warm + subtle pointLight. Drift downstream slow
+// (FLOW_SPEED/2.5), wrap dari FLOW_END_Z balik ke FLOW_START_Z (sama
+// kayak lily pad logic). Pose offset di x untuk avoid bridge column.
+const WATER_LANTERN_DEFS = [
+  { startX: -3.5, startZ: -8, color: '#ffb070', phase: 0 },
+  { startX: 2.8, startZ: -1, color: '#ff8a70', phase: 1.2 },
+  { startX: -2.0, startZ: 5, color: '#ffcc88', phase: 2.5 },
+  { startX: 3.2, startZ: 10, color: '#ff9468', phase: 0.6 },
+];
+const WaterLantern = ({ def }) => {
+  const ref = useRef();
+  const flameRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (!ref.current) return;
+    // Drift downstream slow (z increasing)
+    const span = FLOW_END_Z - FLOW_START_Z;
+    const drifted = ((def.startZ - FLOW_START_Z) + t * FLOW_SPEED * 0.4) % span;
+    ref.current.position.z = FLOW_START_Z + drifted;
+    // Lateral wobble
+    ref.current.position.x = def.startX + Math.sin(t * 0.4 + def.phase) * 0.18;
+    // Subtle bob
+    ref.current.position.y = 0.04 + Math.sin(t * 0.9 + def.phase) * 0.015;
+    // Flame flicker
+    if (flameRef.current) {
+      flameRef.current.scale.y = 0.85 + Math.sin(t * 8 + def.phase) * 0.12;
+    }
+  });
+  return (
+    <group ref={ref}>
+      {/* Paper bowl — square base with tilted side panels (use box + cone) */}
+      <mesh position={[0, 0.08, 0]}>
+        <cylinderGeometry args={[0.16, 0.13, 0.16, 6]} />
+        <meshStandardMaterial
+          color={def.color}
+          emissive={def.color}
+          emissiveIntensity={0.6}
+          transparent
+          opacity={0.92}
+          roughness={0.6}
+        />
+      </mesh>
+      {/* Base float — small wood disc */}
+      <mesh position={[0, 0.0, 0]}>
+        <cylinderGeometry args={[0.17, 0.17, 0.025, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Flame inside */}
+      <mesh ref={flameRef} position={[0, 0.13, 0]}>
+        <coneGeometry args={[0.05, 0.1, 5]} />
+        <meshStandardMaterial
+          color="#ffd470"
+          emissive="#ffb050"
+          emissiveIntensity={1.4}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      <pointLight position={[0, 0.2, 0]} intensity={0.35} distance={2.5} color={def.color} />
+    </group>
+  );
+};
+const WaterLanterns = ({ isMobile }) => {
+  const list = isMobile ? WATER_LANTERN_DEFS.slice(0, 2) : WATER_LANTERN_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <WaterLantern key={`wlan-${i}`} def={d} />
+      ))}
+    </>
+  );
+};
+
+// Fire pit — circle of stones + animated flickering flame stack +
+// warm pointLight glow. Cozy evening landmark. Place di SW outer
+// clearing.
+const FirePit = ({ pos }) => {
+  const flameRef = useRef();
+  const flame2Ref = useRef();
+  const lightRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (flameRef.current) {
+      flameRef.current.scale.y = 0.85 + Math.sin(t * 7) * 0.18;
+      flameRef.current.rotation.y = Math.sin(t * 1.5) * 0.15;
+    }
+    if (flame2Ref.current) {
+      flame2Ref.current.scale.y = 0.9 + Math.sin(t * 9 + 1.1) * 0.2;
+      flame2Ref.current.rotation.y = Math.sin(t * 1.8 + 0.5) * 0.12;
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = 1.0 + Math.sin(t * 6) * 0.15;
+    }
+  });
+  // 8 stones around ring
+  const stoneAngles = Array.from({ length: 8 }, (_, i) => (i / 8) * Math.PI * 2);
+  return (
+    <group position={pos}>
+      {/* Ash/sand patch underneath */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
+        <circleGeometry args={[0.95, 14]} />
+        <meshStandardMaterial color="#3a322a" roughness={1} />
+      </mesh>
+      {/* Stone ring */}
+      {stoneAngles.map((a, i) => {
+        const sx = Math.cos(a) * 0.78;
+        const sz = Math.sin(a) * 0.78;
+        const sh = 0.18 + (i % 3) * 0.04;
+        return (
+          <mesh key={`fs-${i}`} position={[sx, sh / 2, sz]} rotation={[0, a, 0]} castShadow>
+            <boxGeometry args={[0.34, sh, 0.28]} />
+            <meshStandardMaterial color={['#7a7065', '#8a7d6a', '#6a605a'][i % 3]} roughness={1} />
+          </mesh>
+        );
+      })}
+      {/* Logs crossed di tengah */}
+      <mesh position={[0, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.07, 0.07, 0.9, 6]} />
+        <meshStandardMaterial color="#3d2818" roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.1, 0]} rotation={[Math.PI / 2, 0, 0.4]}>
+        <cylinderGeometry args={[0.07, 0.07, 0.9, 6]} />
+        <meshStandardMaterial color="#2a1810" roughness={1} />
+      </mesh>
+      {/* Flame inner */}
+      <mesh ref={flameRef} position={[0, 0.32, 0]}>
+        <coneGeometry args={[0.22, 0.52, 6]} />
+        <meshStandardMaterial
+          color="#ffd470"
+          emissive="#ffb050"
+          emissiveIntensity={1.6}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      {/* Flame outer (taller, more red) */}
+      <mesh ref={flame2Ref} position={[0, 0.42, 0]}>
+        <coneGeometry args={[0.16, 0.68, 6]} />
+        <meshStandardMaterial
+          color="#ff8a48"
+          emissive="#ff6028"
+          emissiveIntensity={1.3}
+          transparent
+          opacity={0.78}
+        />
+      </mesh>
+      {/* Warm glow light */}
+      <pointLight ref={lightRef} position={[0, 0.6, 0]} intensity={1.0} distance={6} color="#ff8a48" />
+    </group>
+  );
+};
+
+// Garden swing — A-frame wood structure dgn wooden plank seat hanging
+// dari rope. Gentle sway via useFrame. Different vibe dari playground
+// (lebih contemplative).
+const GardenSwing = ({ pos, rot = 0 }) => {
+  const swingRef = useRef();
+  useFrame((state) => {
+    if (swingRef.current) {
+      // Pendulum swing — slower than hammock
+      swingRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.7) * 0.12;
+    }
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* A-frame left posts (2 angled meeting at top) */}
+      <mesh position={[-0.6, 1.1, -0.6]} rotation={[0, 0, 0.22]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.4, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[-0.6, 1.1, 0.6]} rotation={[0, 0, 0.22]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.4, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* A-frame right posts */}
+      <mesh position={[0.6, 1.1, -0.6]} rotation={[0, 0, -0.22]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.4, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[0.6, 1.1, 0.6]} rotation={[0, 0, -0.22]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.4, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Top crossbar */}
+      <mesh position={[0, 2.15, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.06, 0.06, 1.6, 6]} />
+        <meshStandardMaterial color="#6a4d2f" roughness={0.95} />
+      </mesh>
+      {/* Swinging plank assembly — pivot di top */}
+      <group ref={swingRef} position={[0, 2.15, 0]}>
+        {/* Rope L */}
+        <mesh position={[0, -0.85, -0.4]}>
+          <cylinderGeometry args={[0.015, 0.015, 1.7, 4]} />
+          <meshStandardMaterial color="#5a4d3a" roughness={1} />
+        </mesh>
+        {/* Rope R */}
+        <mesh position={[0, -0.85, 0.4]}>
+          <cylinderGeometry args={[0.015, 0.015, 1.7, 4]} />
+          <meshStandardMaterial color="#5a4d3a" roughness={1} />
+        </mesh>
+        {/* Plank seat */}
+        <mesh position={[0, -1.7, 0]} castShadow>
+          <boxGeometry args={[0.7, 0.06, 1.0]} />
+          <meshStandardMaterial color="#8a6a4a" roughness={0.9} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// Mailbox — vintage red mailbox on wooden post, place dekat
+// WelcomeArch sebagai entrance accent. Curved-top box, small flag,
+// "letter slot" detail.
+const Mailbox = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Post */}
+    <mesh position={[0, 0.65, 0]} castShadow>
+      <cylinderGeometry args={[0.06, 0.07, 1.3, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Box body — half cylinder approximation (cylinder tilted) */}
+    <mesh position={[0, 1.4, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+      <cylinderGeometry args={[0.18, 0.18, 0.5, 8, 1, false, Math.PI, Math.PI]} />
+      <meshStandardMaterial color="#c84838" roughness={0.7} />
+    </mesh>
+    {/* Bottom flat plate for box */}
+    <mesh position={[0, 1.22, 0]}>
+      <boxGeometry args={[0.36, 0.02, 0.5]} />
+      <meshStandardMaterial color="#a83828" roughness={0.85} />
+    </mesh>
+    {/* Front door (slight darker) */}
+    <mesh position={[0, 1.36, 0.251]}>
+      <boxGeometry args={[0.3, 0.26, 0.01]} />
+      <meshStandardMaterial color="#a83828" roughness={0.8} />
+    </mesh>
+    {/* Letter slot (dark slit) */}
+    <mesh position={[0, 1.4, 0.258]}>
+      <boxGeometry args={[0.2, 0.04, 0.005]} />
+      <meshStandardMaterial color="#1a1410" roughness={1} />
+    </mesh>
+    {/* Knob */}
+    <mesh position={[0, 1.28, 0.258]}>
+      <sphereGeometry args={[0.025, 6, 5]} />
+      <meshStandardMaterial color="#d4c468" roughness={0.4} metalness={0.6} />
+    </mesh>
+    {/* Flag (red, raised up = mail) */}
+    <mesh position={[-0.22, 1.5, 0]}>
+      <boxGeometry args={[0.02, 0.18, 0.02]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.16, 1.55, 0]}>
+      <boxGeometry args={[0.14, 0.1, 0.01]} />
+      <meshStandardMaterial color="#ff5848" roughness={0.7} />
+    </mesh>
+  </group>
+);
+
+// Reading nook — wooden chair + side table dgn open book di atasnya +
+// teacup. Cozy spot, contemplative. Pose under tree shade ideally.
+const ReadingNook = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Chair seat */}
+    <mesh position={[0, 0.42, 0]} castShadow>
+      <boxGeometry args={[0.6, 0.08, 0.55]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Chair back */}
+    <mesh position={[0, 0.85, -0.24]} castShadow>
+      <boxGeometry args={[0.55, 0.85, 0.06]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Chair legs — 4 */}
+    {[[-0.25, -0.22], [0.25, -0.22], [-0.25, 0.22], [0.25, 0.22]].map(([x, z], i) => (
+      <mesh key={`leg-${i}`} position={[x, 0.19, z]}>
+        <boxGeometry args={[0.06, 0.4, 0.06]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Cushion */}
+    <mesh position={[0, 0.5, 0]}>
+      <boxGeometry args={[0.52, 0.08, 0.48]} />
+      <meshStandardMaterial color="#d4a8a0" roughness={0.85} />
+    </mesh>
+    {/* Side table */}
+    <mesh position={[0.85, 0.46, 0]} castShadow>
+      <boxGeometry args={[0.42, 0.05, 0.42]} />
+      <meshStandardMaterial color="#7a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Table single leg post */}
+    <mesh position={[0.85, 0.22, 0]}>
+      <cylinderGeometry args={[0.04, 0.05, 0.44, 6]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Table base disc */}
+    <mesh position={[0.85, 0.02, 0]}>
+      <cylinderGeometry args={[0.16, 0.18, 0.04, 8]} />
+      <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+    </mesh>
+    {/* Open book on table (V-shape — two slanted planes) */}
+    <mesh position={[0.78, 0.5, 0]} rotation={[-0.3, 0, 0.15]}>
+      <boxGeometry args={[0.16, 0.01, 0.22]} />
+      <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+    </mesh>
+    <mesh position={[0.92, 0.5, 0]} rotation={[-0.3, 0, -0.15]}>
+      <boxGeometry args={[0.16, 0.01, 0.22]} />
+      <meshStandardMaterial color="#f4ecd8" roughness={0.85} />
+    </mesh>
+    {/* Book spine */}
+    <mesh position={[0.85, 0.495, 0]} rotation={[-0.3, 0, 0]}>
+      <boxGeometry args={[0.04, 0.02, 0.22]} />
+      <meshStandardMaterial color="#7a4a28" roughness={0.85} />
+    </mesh>
+    {/* Teacup */}
+    <mesh position={[0.92, 0.52, 0.13]}>
+      <cylinderGeometry args={[0.05, 0.04, 0.07, 8]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.6} />
+    </mesh>
+    {/* Teacup handle */}
+    <mesh position={[0.98, 0.53, 0.13]} rotation={[0, 0, Math.PI / 2]}>
+      <torusGeometry args={[0.025, 0.008, 4, 8, Math.PI]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.6} />
+    </mesh>
+    {/* Saucer */}
+    <mesh position={[0.92, 0.49, 0.13]}>
+      <cylinderGeometry args={[0.08, 0.08, 0.008, 12]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.6} />
+    </mesh>
+  </group>
+);
+
 // Flying flock — burung yang terbang di mid altitude (y=5-9), drift
 // bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
 // udah ada (low + high).
@@ -4416,6 +4747,11 @@ const TelagaScene = ({
     <Birdhouses isMobile={isMobile} />
     <VeggiePatch pos={[16, 0, 8]} rot={0.3} />
     {!isMobile && <Kite stakePos={[-6, 0, 16]} skyHeight={8} />}
+    <WaterLanterns isMobile={isMobile} />
+    <FirePit pos={[-19, 0, 20]} />
+    <GardenSwing pos={[-12, 0, 22]} rot={-0.2} />
+    <Mailbox pos={[3, 0, -26]} rot={-0.3} />
+    <ReadingNook pos={[7, 0, -16]} rot={2.2} />
     <BankTrees count={isMobile ? 8 : 12} />
     <OuterTrees isMobile={isMobile} />
     <FlyingFlock isMobile={isMobile} />
