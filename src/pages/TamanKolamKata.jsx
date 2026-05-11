@@ -5474,14 +5474,14 @@ const TelagaIntroTitle = ({ visible }) => (
 );
 
 const TelagaHeader = () => (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-20 md:px-6 md:pt-24 pb-4 md:pb-5">
     <div className="pointer-events-auto">
       <Link
         to="/armeniacaTown/peta"
         className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         <span className="md:hidden">← Peta</span>
-        <span className="hidden md:inline">← Peta Taman</span>
+        <span className="hidden md:inline">← Peta Kota</span>
       </Link>
     </div>
     <div className="text-center">

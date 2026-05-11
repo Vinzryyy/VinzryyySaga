@@ -2974,7 +2974,7 @@ const SceneFallback = () => (
 const TamanHeader = ({ modalOpen = false }) => {
   if (modalOpen) return null;
   return (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-20 md:px-6 md:pt-24 pb-4 md:pb-5">
     <div className="pointer-events-auto">
       <Link
         to="/"
@@ -2985,7 +2985,7 @@ const TamanHeader = ({ modalOpen = false }) => {
     </div>
     <div className="text-center">
       <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
-        Peta Kenangan
+        ArmeniacaTown
       </div>
       <div
         className="text-white/85 text-[13px] md:text-sm tracking-wide"
@@ -2994,7 +2994,7 @@ const TamanHeader = ({ modalOpen = false }) => {
           fontStyle: 'italic',
         }}
       >
-        Taman Kebaikan
+        Peta Kota
       </div>
     </div>
     <div className="pointer-events-auto">
@@ -3056,7 +3056,7 @@ const TamanPetaIntroTitle = () => {
     >
       <div className="text-center max-w-md mx-6 px-8 py-9 -translate-y-10 rounded-md border border-white/12 bg-[#1c1f2a]/85 backdrop-blur-md shadow-2xl">
         <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-4">
-          Peta Kenangan
+          ArmeniacaTown
         </div>
         <p
           className="text-white text-lg md:text-xl leading-relaxed mb-3"
@@ -3419,8 +3419,8 @@ const TamanPetaPage = () => {
   return (
     <>
       <Seo
-        title="Peta Taman"
-        description="Peta Taman Kebaikan — pilih petak untuk dijelajahi."
+        title="ArmeniacaTown — Peta Kota"
+        description="Peta ArmeniacaTown — kota yang tumbuh dari siraman komunitas Helismiley."
         path="/armeniacaTown/peta"
       />
       <div className="relative w-full h-screen bg-[#2a1f30] overflow-hidden select-none">

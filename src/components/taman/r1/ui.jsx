@@ -94,13 +94,13 @@ export const handleShare = async () => {
 };
 
 export const LorongHeader = () => (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6 sm:py-5 gap-2">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-20 sm:px-6 sm:pt-24 pb-4 sm:pb-5 gap-2">
     <div className="pointer-events-auto">
       <Link
         to="/armeniacaTown/peta"
         className="text-white/50 hover:text-white/85 text-[10px] sm:text-xs tracking-[0.2em] uppercase transition"
       >
-        ← Peta Taman
+        ← Peta Kota
       </Link>
     </div>
     {/* Hide center title on narrow screens — kompetisi dgn side links
