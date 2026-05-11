@@ -97,23 +97,81 @@ const lerpHex = (a, b, t) => {
   return `#${((r << 16) | (g << 8) | bl).toString(16).padStart(6, '0')}`;
 };
 
-// Gerbang taman di kejauhan — 2 pilar + balok atas. Sengaja minimalist
-// supaya jadi siluet, bukan struktur detail. Tone weathered dark warm
-// (kayak kayu yang udah lama kena kemarau). Detail muncul di Padang
-// Aprikot (petak akhir) saat warna kembali.
+// Gerbang taman — pilar kayu weathered + 2 cross-beam (atas + tengah)
+// + plank detail + hanging cloth tirai. Tone dark warm masih sesuai
+// drought, tapi punya struktur lebih kerasa "gerbang" bukan abstract
+// rect 3 box.
 const Gate = () => (
   <group position={[0, 0, 0]}>
-    <mesh position={[-2.2, 2, 0]}>
+    {/* Stone bases di bawah pillar — kasih grounded feel */}
+    <mesh position={[-2.2, 0.2, 0]}>
+      <boxGeometry args={[0.7, 0.4, 0.7]} />
+      <meshStandardMaterial color="#3a2e22" roughness={1} />
+    </mesh>
+    <mesh position={[2.2, 0.2, 0]}>
+      <boxGeometry args={[0.7, 0.4, 0.7]} />
+      <meshStandardMaterial color="#3a2e22" roughness={1} />
+    </mesh>
+    {/* Pilar kayu */}
+    <mesh position={[-2.2, 2.2, 0]}>
       <boxGeometry args={[0.4, 4, 0.4]} />
       <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
     </mesh>
-    <mesh position={[2.2, 2, 0]}>
+    <mesh position={[2.2, 2.2, 0]}>
       <boxGeometry args={[0.4, 4, 0.4]} />
       <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
     </mesh>
-    <mesh position={[0, 4.2, 0]}>
-      <boxGeometry args={[4.8, 0.4, 0.4]} />
+    {/* Pillar plank vertical accent (slight lighter strip di sisi) */}
+    <mesh position={[-2.2, 2.2, 0.205]}>
+      <boxGeometry args={[0.08, 3.6, 0.02]} />
+      <meshStandardMaterial color="#2a1f15" roughness={0.95} />
+    </mesh>
+    <mesh position={[2.2, 2.2, 0.205]}>
+      <boxGeometry args={[0.08, 3.6, 0.02]} />
+      <meshStandardMaterial color="#2a1f15" roughness={0.95} />
+    </mesh>
+    {/* Cross-beam atas */}
+    <mesh position={[0, 4.4, 0]}>
+      <boxGeometry args={[5.2, 0.45, 0.45]} />
       <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
+    </mesh>
+    {/* Cross-beam atas atas (decorative kasagi style) */}
+    <mesh position={[0, 4.8, 0]}>
+      <boxGeometry args={[5.6, 0.18, 0.55]} />
+      <meshStandardMaterial color="#181210" roughness={0.95} />
+    </mesh>
+    {/* Cross-beam tengah */}
+    <mesh position={[0, 3.4, 0]}>
+      <boxGeometry args={[4.8, 0.18, 0.35]} />
+      <meshStandardMaterial color="#1a1410" roughness={0.95} />
+    </mesh>
+    {/* Plaque kayu di tengah cross-beam atas — sign Taman Kebaikan */}
+    <mesh position={[0, 4.4, 0.24]}>
+      <boxGeometry args={[1.2, 0.32, 0.04]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.9} />
+    </mesh>
+    <mesh position={[0, 4.4, 0.265]}>
+      <boxGeometry args={[1.0, 0.18, 0.005]} />
+      <meshStandardMaterial color="#6a4d2f" roughness={0.85} />
+    </mesh>
+    {/* Hanging cloth tirai dari cross-beam tengah — 2 strip kain
+        weathered, statis (drought feels still). */}
+    <mesh position={[-1.3, 2.7, 0.2]}>
+      <boxGeometry args={[0.4, 1.4, 0.02]} />
+      <meshStandardMaterial color="#4a3022" roughness={0.95} />
+    </mesh>
+    <mesh position={[1.3, 2.7, 0.2]}>
+      <boxGeometry args={[0.4, 1.4, 0.02]} />
+      <meshStandardMaterial color="#4a3022" roughness={0.95} />
+    </mesh>
+    {/* Small hanging chain ornament dari beam atas (silhouette ringan) */}
+    <mesh position={[0, 3.85, 0.2]}>
+      <boxGeometry args={[0.04, 0.3, 0.04]} />
+      <meshStandardMaterial color="#2a1d12" roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 3.55, 0.2]}>
+      <sphereGeometry args={[0.1, 8, 6]} />
+      <meshStandardMaterial color="#1a1410" roughness={0.95} />
     </mesh>
   </group>
 );
@@ -152,6 +210,221 @@ const DeadTree = () => (
     </mesh>
   </group>
 );
+
+// Cluster dead tree extras — beberapa pohon kering scattered di
+// kejauhan supaya padang gak kerasa cuma 1 deadtree solo. Variasi
+// scale + tilt per def.
+const EXTRA_DEAD_TREE_DEFS = [
+  { pos: [8, 0, -2], scale: 0.85, tilt: -0.12 },
+  { pos: [-12, 0, -8], scale: 1.1, tilt: 0.15 },
+  { pos: [14, 0, -10], scale: 0.9, tilt: -0.18 },
+  { pos: [-9, 0, 3], scale: 0.7, tilt: 0.05 },
+];
+const ExtraDeadTree = ({ pos, scale = 1, tilt = 0 }) => (
+  <group position={pos} scale={scale}>
+    <mesh position={[0, 1.5, 0]} rotation={[0, 0, tilt]}>
+      <cylinderGeometry args={[0.1, 0.2, 3, 6]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    <mesh position={[0.45, 2.5, 0]} rotation={[0, 0, -0.9 + tilt]}>
+      <cylinderGeometry args={[0.04, 0.08, 1.0, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    <mesh position={[-0.35, 2.4, 0]} rotation={[0, 0, 0.85 + tilt]}>
+      <cylinderGeometry args={[0.04, 0.08, 0.9, 5]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    <mesh position={[0.1, 3.1, 0]} rotation={[0.1, 0, 0.3 + tilt]}>
+      <cylinderGeometry args={[0.03, 0.05, 0.6, 4]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+  </group>
+);
+const ExtraDeadTrees = ({ isMobile }) => {
+  const list = isMobile ? EXTRA_DEAD_TREE_DEFS.slice(0, 2) : EXTRA_DEAD_TREE_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <ExtraDeadTree key={`dt-${i}`} pos={d.pos} scale={d.scale} tilt={d.tilt} />
+      ))}
+    </>
+  );
+};
+
+// Distant hills silhouette ring — siluet bukit jauh di horizon supaya
+// "padang" gak kerasa flat infinite. Pakai dome ring trick: low cone
+// rim ngitarin scene. Tone darker daripada ground.
+const DistantHills = () => {
+  const hillDefs = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, i) => {
+        const angle = (i / 14) * Math.PI * 2;
+        const r = 26;
+        const scale = 0.8 + ((i * 7) % 6) * 0.15;
+        return {
+          pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+          scale,
+          rot: angle + Math.PI / 2,
+        };
+      }),
+    []
+  );
+  return (
+    <>
+      {hillDefs.map((h, i) => (
+        <mesh key={`hill-${i}`} position={h.pos} rotation={[0, h.rot, 0]}>
+          <coneGeometry args={[3 * h.scale, 1.6 * h.scale, 5]} />
+          <meshStandardMaterial color="#3a2820" roughness={1} fog />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// Dry grass tufts — small clusters of dead yellow-brown grass blades,
+// scattered di tanah supaya gak completely barren plane.
+const DRY_GRASS_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 28; i++) {
+    const angle = (i / 28) * Math.PI * 2 + ((i * 17) % 7) * 0.1;
+    const r = 3 + ((i * 13) % 15);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      rot: ((i * 31) % 360) * (Math.PI / 180),
+      color: ['#7a6038', '#8a6c3a', '#6a5430'][i % 3],
+      h: 0.18 + ((i * 11) % 5) * 0.04,
+    });
+  }
+  return arr;
+})();
+const DryGrassTuft = ({ pos, rot, color, h }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {[0, 1, 2, 3, 4].map((i) => (
+      <mesh
+        key={i}
+        position={[(i - 2) * 0.04, h / 2, ((i * 7) % 3 - 1) * 0.03]}
+        rotation={[0, 0, (i - 2) * 0.15]}
+      >
+        <boxGeometry args={[0.015, h, 0.015]} />
+        <meshStandardMaterial color={color} roughness={1} />
+      </mesh>
+    ))}
+  </group>
+);
+const DryGrassTufts = ({ isMobile }) => {
+  const list = isMobile ? DRY_GRASS_DEFS.slice(0, 14) : DRY_GRASS_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <DryGrassTuft key={`dg-${i}`} pos={d.pos} rot={d.rot} color={d.color} h={d.h} />
+      ))}
+    </>
+  );
+};
+
+// Scattered rocks — small dark rock formations untuk variasi tanah.
+const ROCK_DEFS = [
+  { pos: [4, 0, 1], scale: 0.6, rot: 0.3 },
+  { pos: [-6, 0, -3], scale: 0.8, rot: 1.2 },
+  { pos: [9, 0, -5], scale: 0.45, rot: 0.7 },
+  { pos: [-3, 0, 4], scale: 0.55, rot: -0.4 },
+  { pos: [7, 0, 6], scale: 0.5, rot: 2.1 },
+  { pos: [-11, 0, 1], scale: 0.7, rot: 1.5 },
+];
+const Rock = ({ pos, scale, rot }) => (
+  <group position={pos} rotation={[0, rot, 0]} scale={scale}>
+    <mesh position={[0, 0.18, 0]}>
+      <dodecahedronGeometry args={[0.35, 0]} />
+      <meshStandardMaterial color="#3a2e22" roughness={1} flatShading />
+    </mesh>
+    <mesh position={[0.18, 0.12, 0.1]} scale={0.7}>
+      <dodecahedronGeometry args={[0.25, 0]} />
+      <meshStandardMaterial color="#2a2018" roughness={1} flatShading />
+    </mesh>
+  </group>
+);
+const Rocks = ({ isMobile }) => {
+  const list = isMobile ? ROCK_DEFS.slice(0, 4) : ROCK_DEFS;
+  return (
+    <>
+      {list.map((r, i) => (
+        <Rock key={`rock-${i}`} pos={r.pos} scale={r.scale} rot={r.rot} />
+      ))}
+    </>
+  );
+};
+
+// Sun mesh — low orange sun di sky behind gate, kasih visible
+// orientation light source. Hazy soft (no harsh ring).
+const Sun = () => (
+  <group position={[3, 7, -22]}>
+    {/* Sun core */}
+    <mesh>
+      <sphereGeometry args={[1.4, 16, 12]} />
+      <meshBasicMaterial color="#ffc488" fog={false} />
+    </mesh>
+    {/* Sun halo outer */}
+    <mesh>
+      <sphereGeometry args={[2.2, 14, 10]} />
+      <meshBasicMaterial color="#f4a070" transparent opacity={0.35} fog={false} />
+    </mesh>
+    <mesh>
+      <sphereGeometry args={[3.2, 14, 10]} />
+      <meshBasicMaterial color="#d4806c" transparent opacity={0.15} fog={false} />
+    </mesh>
+  </group>
+);
+
+// Tumbleweed — small ball rolling across padang, drift slow horizontal
+// across z axis. Adds movement to otherwise static scene.
+const Tumbleweed = () => {
+  const ref = useRef();
+  const rotRef = useRef(0);
+  useFrame((state, delta) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    // Drift slow across scene (x axis)
+    const cycle = 30; // 30s loop
+    const phase = (t % cycle) / cycle;
+    ref.current.position.x = -14 + phase * 28;
+    ref.current.position.y = 0.35 + Math.sin(t * 2.2) * 0.06;
+    ref.current.position.z = -1 + Math.sin(t * 0.7) * 0.8;
+    rotRef.current += delta * 4;
+    ref.current.rotation.x = rotRef.current;
+    ref.current.rotation.z = rotRef.current * 0.7;
+  });
+  return (
+    <group ref={ref} position={[-14, 0.35, -1]}>
+      {/* Tumbleweed — bundle of tiny line segments approximated dgn small box ring */}
+      {Array.from({ length: 12 }).map((_, i) => {
+        const angle = (i / 12) * Math.PI * 2;
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(angle) * 0.25, Math.sin(angle) * 0.25, 0]}
+            rotation={[0, 0, angle]}
+          >
+            <boxGeometry args={[0.32, 0.025, 0.025]} />
+            <meshStandardMaterial color="#8a6c3a" roughness={1} />
+          </mesh>
+        );
+      })}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        return (
+          <mesh
+            key={`r-${i}`}
+            position={[0, Math.cos(angle) * 0.22, Math.sin(angle) * 0.22]}
+            rotation={[angle, 0, 0]}
+          >
+            <boxGeometry args={[0.025, 0.3, 0.025]} />
+            <meshStandardMaterial color="#7a6038" roughness={1} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
 
 // Lantai dasar — tanah retak gersang. Grid tipis sebagai persepsi
 // skala, warnanya dekat sama tanah biar nggak mendominasi mood
@@ -284,6 +557,7 @@ const R0Scene = ({
   fogColor,
   resetTrigger,
   particleCount = 300,
+  isMobile = false,
   onDollyComplete,
 }) => (
   <>
@@ -307,9 +581,15 @@ const R0Scene = ({
       intensity={0.3}
       color="#a8a0c0"
     />
+    <Sun />
+    <DistantHills />
     <Ground />
     <Gate />
     <DeadTree />
+    <ExtraDeadTrees isMobile={isMobile} />
+    <DryGrassTufts isMobile={isMobile} />
+    <Rocks isMobile={isMobile} />
+    {!isMobile && <Tumbleweed />}
     <DustParticles count={particleCount} />
     <DollyCamera
       resetTrigger={resetTrigger}
@@ -552,6 +832,7 @@ const MuseumPage = () => {
               fogColor={bgColor}
               resetTrigger={resetTrigger}
               particleCount={isMobile ? 100 : 300}
+              isMobile={isMobile}
               onDollyComplete={handleDollyComplete}
             />
             <EffectComposer>
