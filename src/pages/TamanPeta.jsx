@@ -649,6 +649,91 @@ const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
     </Html>
   );
 };
+// Dead tree silhouettes — pohon-pohon mati di drought ring. Cuma
+// trunk + 2-3 cabang patah, color dark brown-grey, gak bercabang
+// foliage. Visual narrative: pohon aprikot di tengah satu-satunya
+// yg masih hidup. Spread di radius 11-17 (luar petak hexagonal,
+// dalam drought ring 9.5-19), posisi deterministic via seeded index.
+const DEAD_TREE_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 9; i++) {
+    const angle = (i / 9) * Math.PI * 2 + ((i * 17) % 13) * 0.05;
+    const r = 11.5 + ((i * 11) % 6);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      rot: ((i * 23) % 360) * (Math.PI / 180),
+      scale: 0.65 + ((i * 13) % 5) * 0.16,
+      lean: ((i * 19) % 7) * 0.04, // lean kiri/kanan dikit, kerasa rapuh
+    });
+  }
+  return arr;
+})();
+const DeadTree = ({ pos, rot, scale, lean }) => (
+  <group position={pos} rotation={[0, rot, lean]} scale={scale}>
+    {/* Trunk — taper bottom-wide top-narrow, sedikit nyangkut tanah */}
+    <mesh position={[0, 0.9, 0]}>
+      <cylinderGeometry args={[0.06, 0.14, 1.8, 6]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+    {/* Cabang utama kanan, miring 25° */}
+    <mesh position={[0.28, 1.45, 0]} rotation={[0, 0, -0.45]}>
+      <cylinderGeometry args={[0.025, 0.055, 0.85, 5]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+    {/* Cabang kiri, sedikit lebih kecil */}
+    <mesh position={[-0.22, 1.25, 0.08]} rotation={[0.15, 0, 0.5]}>
+      <cylinderGeometry args={[0.02, 0.045, 0.7, 5]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+    {/* Cabang atas patah */}
+    <mesh position={[0.08, 1.7, -0.18]} rotation={[-0.3, 0, -0.18]}>
+      <cylinderGeometry args={[0.015, 0.035, 0.55, 5]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+    {/* Cabang kecil tambahan */}
+    <mesh position={[0.4, 1.6, 0.1]} rotation={[0, 0.2, -0.7]}>
+      <cylinderGeometry args={[0.012, 0.025, 0.4, 5]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+  </group>
+);
+const DeadTrees = () => DEAD_TREE_DEFS.map((d, i) => (
+  <DeadTree key={`dt-${i}`} {...d} />
+));
+
+// Tree halo — soft glow sphere + point light di sekitar pohon aprikot
+// pusat. Visual hint: pohon ini beacon, "yg masih hidup" di dunia
+// kering. Light beneran emit warm illumination ke petak terdekat.
+const TreeHalo = () => (
+  <group position={[0, 1.6, 0]}>
+    {/* Soft glow halo — semi-transparent sphere, baking the warmth */}
+    <mesh>
+      <sphereGeometry args={[2.4, 28, 20]} />
+      <meshBasicMaterial
+        color="#ffd9a0"
+        transparent
+        opacity={0.07}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+    {/* Outer warm aura */}
+    <mesh>
+      <sphereGeometry args={[3.8, 28, 20]} />
+      <meshBasicMaterial
+        color="#ffc878"
+        transparent
+        opacity={0.04}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+    {/* Actual point light — warm warm, soft, decay sesuai jarak.
+        Distance 6 = batas iluminasi sebelum drop ke 0. */}
+    <pointLight intensity={0.55} color="#ffd6a0" distance={6} decay={2} />
+  </group>
+);
+
 // Twinkling stars di langit malam — taman senja makin malam, bintang
 // muncul di atas. Single Points mesh dgn material opacity oscillation
 // sebagai twinkle global (per-vertex twinkle butuh shader, overkill
@@ -770,10 +855,10 @@ const Fireflies = ({ isMobile }) => {
   const defs = useMemo(() => {
     const arr = [];
     for (let i = 0; i < count; i++) {
-      // Spread di dalam ring petak (radius < 9) untuk visibility.
-      // Tapi avoid pusat (tree area) supaya gak nutupin pohon.
+      // Cluster lebih dekat ke pohon tengah (radius 1.8-4.5) — kerasa
+      // mereka shelter di sekitar satu-satunya yg masih hidup.
       const theta = (i / count) * Math.PI * 2 + Math.random() * 0.6;
-      const r = 3.5 + Math.random() * 4;
+      const r = 1.8 + Math.random() * 2.7;
       arr.push({
         cx: Math.cos(theta) * r,
         cy: 1.0 + Math.random() * 1.8,
@@ -838,6 +923,7 @@ const TamanScene = ({
       />
       <TamanFloor />
       <DroughtRing />
+      <DeadTrees />
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
       <Fireflies isMobile={isMobile} />
@@ -848,6 +934,7 @@ const TamanScene = ({
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
       />
+      <TreeHalo />
       <FallingPetals count={isMobile ? 50 : 80} />
       {PETAK.map((petak) => (
         <PetakPlot
