@@ -136,13 +136,6 @@ function AppShell() {
             <Route path="/taman/peta" element={<TamanPetaPage />} />
             <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
             <Route path="/taman/r3" element={<TamanKolamKataPage />} />
-            {/* /taman/titipan dipindah ke page dedicated /titipan
-                (Harmoni Kebaikan, bukan section). Redirect supaya
-                link lama tetap valid. */}
-            <Route
-              path="/taman/titipan"
-              element={<Navigate to="/titipan" replace />}
-            />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
             <Route path="/museum" element={<Navigate to="/taman" replace />} />
             <Route

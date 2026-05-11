@@ -80,31 +80,21 @@ const Titipan = () => (
     {/* The titipan itself — card dgn state machine pre-release / released. */}
     <ByuTitipan />
 
-    {/* Closing — back to /26 hub */}
+    {/* Closing — keluar balik ke beranda (main page), bukan ke /26
+        atau ke taman. Page ini standalone. */}
     <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-20 md:pb-28">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto text-center">
         <Link
-          to="/26"
-          className="group block rounded-[2rem] bg-white border border-[color:var(--retro-brown-dark)]/10 p-8 md:p-10 hover:border-[color:var(--retro-burgundy)]/40 hover:-translate-y-1 transition-all"
+          to="/"
+          className="inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 border-2 border-[color:var(--retro-burgundy)] bg-transparent text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300 group"
         >
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
-            <i className="ri-plant-line text-base" aria-hidden="true" />
-            Kembali ke Harmoni Kebaikan
-          </p>
-          <h3 className="font-header text-2xl md:text-3xl font-black tracking-tighter leading-tight text-[color:var(--retro-text-primary)] mb-3">
-            Pohon untuk Eli <br />
-            <span className="text-[color:var(--retro-burgundy)]">tumbuh dari dukungan.</span>
-          </h3>
-          <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed">
-            Modul pertama dari Harmoni Kebaikan — kumpulkan tangan-tangan
-            menjelang 15 Juni 2026.
-          </p>
-          <span className="mt-5 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)] group-hover:gap-3 transition-all">
-            Buka Pohon Eli <i className="ri-arrow-right-line text-base" aria-hidden="true" />
+          <i className="ri-arrow-left-line text-base group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
+          <span className="font-header text-[11px] sm:text-xs font-black uppercase tracking-[0.32em]">
+            Kembali ke beranda
           </span>
         </Link>
 
-        <div className="mt-10 pt-6 border-t border-[color:var(--retro-brown-dark)]/10 text-center">
+        <div className="mt-10 pt-6 border-t border-[color:var(--retro-brown-dark)]/10">
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
             A project by Helismiley × Armeniaca
           </p>
