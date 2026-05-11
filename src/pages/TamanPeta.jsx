@@ -540,12 +540,13 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
 // pelan-pelan teduh. Pas untuk setting "taman di waktu senja".
 const TamanFloor = () => (
   <>
+    {/* Dark warm sandy floor — bukan blue museum, base buat desert dusk */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[40, 40]} />
-      <meshStandardMaterial color="#1c1f2a" roughness={1} />
+      <meshStandardMaterial color="#2a2018" roughness={1} />
     </mesh>
     <gridHelper
-      args={[40, 40, '#2c3142', '#222632']}
+      args={[40, 40, '#3a2c22', '#2a2018']}
       position={[0, 0.005, 0]}
     />
   </>
@@ -568,27 +569,29 @@ const DROUGHT_PATCH_DEFS = (() => {
   }
   return arr;
 })();
-// DroughtRing — keep always brown wasteland (visual yg user suka).
-// Pemulihan muncul lewat saplings + wildflowers yg tumbuh DI ANTARA,
-// bukan dgn ngubah desert itu sendiri.
+// DroughtRing — sand wasteland surrounding the oasis. Desert dusk
+// palette: outer ring deep amber-sand, inner ring sun-bleached
+// lighter, patches dry-amber. Pemulihan muncul lewat saplings +
+// wildflowers yg tumbuh DI ANTARA, bukan ngubah desert itu sendiri.
 const DroughtRing = () => (
   <>
-    {/* Outer drought ring — warm brown plane below twilight grid */}
+    {/* Outer drought ring — sandy amber, deep tone supaya kerasa
+        wasteland tapi warm (bukan earth-cool brown) */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
       <ringGeometry args={[9.5, 19, 64]} />
-      <meshStandardMaterial color="#3a2a1a" roughness={1} />
+      <meshStandardMaterial color="#5a3520" roughness={1} />
     </mesh>
-    {/* Slight gradient ring — lighter inner edge fade ke outer dark */}
+    {/* Inner gradient ring — sun-bleached lighter sand */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
       <ringGeometry args={[9.5, 11.5, 64]} />
       <meshStandardMaterial
-        color="#4a3525"
+        color="#7a5535"
         roughness={1}
         transparent
-        opacity={0.7}
+        opacity={0.75}
       />
     </mesh>
-    {/* Scattered dry patches di outer ring untuk texture */}
+    {/* Scattered dry patches — bleached sand spots in outer ring */}
     {DROUGHT_PATCH_DEFS.map((p, i) => (
       <mesh
         key={`dp-${i}`}
@@ -597,7 +600,7 @@ const DroughtRing = () => (
         scale={p.scale}
       >
         <circleGeometry args={[0.5, 8]} />
-        <meshStandardMaterial color="#5a3a25" roughness={1} />
+        <meshStandardMaterial color="#8a6535" roughness={1} />
       </mesh>
     ))}
   </>
@@ -870,13 +873,14 @@ const TreeLightCone = () => {
   );
 };
 
-// Aurora curtains — 3 elongated planes tilted di sky high, semi-
-// transparent emissive utk magical atmosphere. Slow horizontal drift
-// + opacity pulse. Behind mountains tapi visible dari camera angle.
+// Dust haze sheets di langit (previously "aurora") — 3 elongated planes
+// tilted di sky high, warm desert dust tones (amber, coral, rose).
+// Slow horizontal drift + opacity pulse, kerasa kayak hazy heat
+// shimmer + sand dust di horizon. Behind mountains tapi visible.
 const AURORA_DEFS = [
-  { pos: [-2, 12, -18], rotX: -Math.PI / 3.2, w: 22, h: 3.5, color: '#7ad9b3', phase: 0 },
-  { pos: [5, 11, -15], rotX: -Math.PI / 3.5, w: 18, h: 3, color: '#9abce0', phase: 1.5 },
-  { pos: [-6, 13, -20], rotX: -Math.PI / 3, w: 26, h: 4, color: '#d9a8d8', phase: 3 },
+  { pos: [-2, 12, -18], rotX: -Math.PI / 3.2, w: 22, h: 3.5, color: '#e8b07a', phase: 0 },
+  { pos: [5, 11, -15], rotX: -Math.PI / 3.5, w: 18, h: 3, color: '#d97a6a', phase: 1.5 },
+  { pos: [-6, 13, -20], rotX: -Math.PI / 3, w: 26, h: 4, color: '#c87a8a', phase: 3 },
 ];
 const AuroraCurtain = ({ pos, rotX, w, h, color, phase }) => {
   const meshRef = useRef();
@@ -2309,18 +2313,24 @@ const TamanScene = ({
 
   return (
     <>
-      <fog attach="fog" args={['#1c1f2a', 12, 35]} />
-      <color attach="background" args={['#1c1f2a']} />
-      <ambientLight intensity={0.55} />
+      {/* Desert dusk palette — warm dusty rose horizon fading into deep
+          plum zenith. Sun udah baru tenggelam, langit masih simpen sisa
+          warmth. */}
+      <fog attach="fog" args={['#5a3540', 14, 38]} />
+      <color attach="background" args={['#2a1f30']} />
+      <ambientLight intensity={0.5} color="#d8a890" />
+      {/* Key light — low sun residual, warm golden-amber */}
       <directionalLight
         position={[8, 12, 6]}
-        intensity={1.3}
-        color="#ffd9a8"
+        intensity={1.4}
+        color="#ffb878"
       />
+      {/* Fill — bounce dari sand/desert ground, warm dusty rose
+          (bukan cool blue twilight) */}
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={0.5}
-        color="#a8c5e0"
+        intensity={0.55}
+        color="#c89a8a"
       />
       <TamanFloor />
       <DroughtRing />
@@ -2861,7 +2871,7 @@ const TamanPetaPage = () => {
         description="Peta Taman Kebaikan — pilih petak untuk dijelajahi."
         path="/taman/peta"
       />
-      <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
+      <div className="relative w-full h-screen bg-[#2a1f30] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 38, position: [9, 11, 9] }}
