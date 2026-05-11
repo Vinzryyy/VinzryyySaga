@@ -1444,6 +1444,36 @@ const EliTree = () => {
                 />
               </div>
 
+              {/* Water droplets — tetes air jatuh dari atas tree ke
+                  kanopi tiap user klik support sukses. Re-mount lewat
+                  wobbleKey supaya tiap siram baru ngerasa fresh. */}
+              {wobbleKey > 0 && (
+                <div
+                  key={`drops-${wobbleKey}`}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 -top-2 -translate-x-1/2 w-80 h-72 overflow-hidden"
+                >
+                  {Array.from({ length: 10 }).map((_, i) => {
+                    // Spread horizontal -110 to +110 px relative center.
+                    const x = -110 + (i / 9) * 220 + ((i * 11) % 7 - 3);
+                    const delay = (i * 0.05).toFixed(2);
+                    const dur = (1.1 + (i % 5) * 0.12).toFixed(2);
+                    return (
+                      <span
+                        key={i}
+                        className="absolute eli-water-drop"
+                        style={{
+                          left: `calc(50% + ${x}px)`,
+                          top: '-8px',
+                          animationDelay: `${delay}s`,
+                          animationDuration: `${dur}s`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Stage advance burst — confetti + flash label di atas
                   pohon. Lebih dramatis dari chip kecil sebelumnya. */}
               {justAdvancedStage != null && (
