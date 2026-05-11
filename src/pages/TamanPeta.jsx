@@ -660,6 +660,115 @@ const NarrativeWhisper = ({ pos, text, phase = 0, period = 10 }) => {
     </Html>
   );
 };
+// Constellation lines — 3 cluster patterns di sky high, thin line
+// segments connecting "stars". Cyan-mint color, kerasa magical &
+// match theme r1 Konstelasi Perjalanan. Subtle opacity pulse.
+const CONSTELLATION_LINES = new Float32Array([
+  // Pattern 1 (top-left back): tree-like 5 lines
+  -8, 14, -16, -7, 13, -15,
+  -7, 13, -15, -6, 14, -14,
+  -6, 14, -14, -5, 13, -15,
+  -5, 13, -15, -6, 13.5, -15,
+  -6, 13.5, -15, -6.5, 12.6, -15,
+  // Pattern 2 (right back): "M" shape 4 lines
+  8, 12, -10, 9, 11.5, -11,
+  9, 11.5, -11, 10, 12.5, -10,
+  10, 12.5, -10, 11, 11.4, -11,
+  11, 11.4, -11, 11.5, 12, -10,
+  // Pattern 3 (back center): diamond 4 lines
+  -3, 14.5, -22, -1.5, 13.5, -22,
+  -1.5, 13.5, -22, 0, 14.5, -22,
+  0, 14.5, -22, -1.5, 15.5, -22,
+  -1.5, 15.5, -22, -3, 14.5, -22,
+]);
+// Endpoints utk star markers (extracted dari lines pakai unique pairs).
+const CONSTELLATION_STAR_POINTS = [
+  [-8, 14, -16], [-7, 13, -15], [-6, 14, -14], [-5, 13, -15], [-6, 13.5, -15], [-6.5, 12.6, -15],
+  [8, 12, -10], [9, 11.5, -11], [10, 12.5, -10], [11, 11.4, -11], [11.5, 12, -10],
+  [-3, 14.5, -22], [-1.5, 13.5, -22], [0, 14.5, -22], [-1.5, 15.5, -22],
+];
+const Constellations = () => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    matRef.current.opacity = 0.32 + Math.sin(t * 0.4) * 0.12;
+  });
+  return (
+    <>
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            array={CONSTELLATION_LINES}
+            count={CONSTELLATION_LINES.length / 3}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial
+          ref={matRef}
+          color="#a8e8d4"
+          transparent
+          opacity={0.4}
+          toneMapped={false}
+        />
+      </lineSegments>
+      {/* Star markers di tiap vertex — small bright points */}
+      {CONSTELLATION_STAR_POINTS.map((p, i) => (
+        <mesh key={`cstar-${i}`} position={p}>
+          <sphereGeometry args={[0.08, 6, 4]} />
+          <meshBasicMaterial color="#d4f8e8" toneMapped={false} />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// Halo sparkles — 14 small bright points di sekitar center tree halo,
+// twinkle on/off dgn random phase. Kerasa fairytale/magical feel di
+// area focal point.
+const HALO_SPARKLE_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 14; i++) {
+    const theta = (i / 14) * Math.PI * 2 + ((i * 13) % 7) * 0.1;
+    const r = 2.2 + ((i * 7) % 6) * 0.2;
+    const y = 1.0 + ((i * 11) % 9) * 0.22;
+    arr.push({
+      pos: [Math.cos(theta) * r, y, Math.sin(theta) * r],
+      phase: (i * 0.45) % (Math.PI * 2),
+      size: 0.045 + ((i * 17) % 3) * 0.015,
+    });
+  }
+  return arr;
+})();
+const HaloSparkle = ({ pos, phase, size }) => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    matRef.current.opacity = Math.max(0, Math.sin(t * 1.6 + phase) * 0.85);
+  });
+  return (
+    <mesh position={pos}>
+      <sphereGeometry args={[size, 6, 4]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color="#fff5c8"
+        transparent
+        opacity={0}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+const HaloSparkles = () => (
+  <>
+    {HALO_SPARKLE_DEFS.map((s, i) => (
+      <HaloSparkle key={`hs-${i}`} {...s} />
+    ))}
+  </>
+);
+
 // Aurora curtains — 3 elongated planes tilted di sky high, semi-
 // transparent emissive utk magical atmosphere. Slow horizontal drift
 // + opacity pulse. Behind mountains tapi visible dari camera angle.
@@ -1499,6 +1608,7 @@ const TamanScene = ({
       <DroughtRing />
       <Mountains />
       <Aurora />
+      <Constellations />
       <DeadTrees />
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
@@ -1516,6 +1626,7 @@ const TamanScene = ({
         onClick={onCenterClick}
       />
       <TreeHalo />
+      <HaloSparkles />
       <FallingPetals count={isMobile ? 50 : 80} />
       {PETAK.map((petak) => (
         <PetakPlot
