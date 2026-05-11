@@ -140,6 +140,7 @@ import {
   MilestoneOverlay,
   MonumentMomentOverlay,
   ClockSync,
+  INTRO_STORAGE_KEY,
 } from '../components/taman/r1/ui';
 import {
   isPerfEnabled,

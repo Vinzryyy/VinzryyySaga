@@ -154,7 +154,7 @@ export const LorongHeader = () => (
 // Cinematic intro title card — fade in saat first load, hold, fade
 // out. Eyebrow + title Fraunces italic + poetic subtitle. Once done,
 // removed dari DOM. User refresh untuk replay.
-const INTRO_STORAGE_KEY = 'taman-r1-intro-seen';
+export const INTRO_STORAGE_KEY = 'taman-r1-intro-seen';
 export const IntroTitle = ({ isMobile = false }) => {
   const [visible, setVisible] = useState(false);
   const [removed, setRemoved] = useState(false);
