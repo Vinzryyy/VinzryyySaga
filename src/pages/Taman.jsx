@@ -696,6 +696,159 @@ const BrokenFence = ({ isMobile }) => {
   );
 };
 
+// Footprints di dirt path — subtle oval dark marks, alternating L/R
+// pattern suggesting someone walked menuju gate. Deterministic spacing.
+const FOOTPRINT_DEFS = (() => {
+  const arr = [];
+  // 14 footprints along path z=-3 to z=11, alternating x offset
+  for (let i = 0; i < 14; i++) {
+    const z = -3 + i * 1.0;
+    const x = (i % 2 === 0 ? -0.2 : 0.2) + ((i * 7) % 5) * 0.04;
+    const rot = ((i * 23) % 30) * (Math.PI / 180) - 0.25;
+    arr.push({ x, z, rot });
+  }
+  return arr;
+})();
+const Footprints = ({ isMobile }) => {
+  const list = isMobile ? FOOTPRINT_DEFS.slice(0, 8) : FOOTPRINT_DEFS;
+  return (
+    <>
+      {list.map((f, i) => (
+        <mesh
+          key={`fp-${i}`}
+          rotation={[-Math.PI / 2, 0, f.rot]}
+          position={[f.x, 0.0035, f.z]}
+        >
+          <planeGeometry args={[0.18, 0.1]} />
+          <meshStandardMaterial color="#1d1208" roughness={1} transparent opacity={0.55} />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// Weathered sign post — wooden plank di stake, tulisan "Padang Tandus"
+// implicit (cuma dark stripe lines). Posisi di sisi path supaya jadi
+// signage entrance.
+const SignPost = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stake */}
+    <mesh position={[0, 0.55, 0]} rotation={[0, 0, 0.05]}>
+      <boxGeometry args={[0.06, 1.1, 0.06]} />
+      <meshStandardMaterial color={GATE_COLOR} roughness={1} />
+    </mesh>
+    {/* Plank board */}
+    <mesh position={[0.1, 1.0, 0]} rotation={[0, 0, -0.08]}>
+      <boxGeometry args={[0.7, 0.28, 0.04]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Text lines on board — 2 dark stripes implicating writing */}
+    <mesh position={[0.1, 1.04, 0.024]} rotation={[0, 0, -0.08]}>
+      <boxGeometry args={[0.4, 0.025, 0.005]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+    <mesh position={[0.1, 0.97, 0.024]} rotation={[0, 0, -0.08]}>
+      <boxGeometry args={[0.32, 0.02, 0.005]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+    {/* Arrow accent pointing to gate (small triangle) */}
+    <mesh position={[0.42, 1.0, 0.025]} rotation={[0, 0, -0.08 - Math.PI / 2]}>
+      <coneGeometry args={[0.04, 0.08, 3]} />
+      <meshStandardMaterial color="#5a4030" roughness={0.9} />
+    </mesh>
+  </group>
+);
+
+// Distant traveler — single figure silhouette walking slow toward
+// gate. Loop: starts far behind camera, walks ke -z direction sampai
+// distant, lalu reset. Subtle storytelling "kamu bukan satu-satunya".
+const DistantTraveler = () => {
+  const ref = useRef();
+  const legLRef = useRef();
+  const legRRef = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    // Walk cycle 40s
+    const cycle = 40;
+    const phase = (t % cycle) / cycle;
+    // z from 18 (far behind) → -2 (passing gate)
+    ref.current.position.z = 18 - phase * 20;
+    // Drift slightly to side
+    ref.current.position.x = -1.5 + Math.sin(t * 0.1) * 0.3;
+    // Walk bob
+    ref.current.position.y = Math.abs(Math.sin(t * 2)) * 0.05;
+    // Legs alternate
+    if (legLRef.current) legLRef.current.rotation.x = Math.sin(t * 4) * 0.3;
+    if (legRRef.current) legRRef.current.rotation.x = -Math.sin(t * 4) * 0.3;
+  });
+  return (
+    <group ref={ref} position={[-1.5, 0, 18]}>
+      {/* Body — long coat silhouette */}
+      <mesh position={[0, 0.7, 0]}>
+        <boxGeometry args={[0.22, 0.85, 0.16]} />
+        <meshBasicMaterial color="#0a0805" fog />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 1.25, 0]}>
+        <sphereGeometry args={[0.1, 8, 6]} />
+        <meshBasicMaterial color="#0a0805" fog />
+      </mesh>
+      {/* Hat/cap top — small box */}
+      <mesh position={[0, 1.36, 0]}>
+        <boxGeometry args={[0.22, 0.04, 0.2]} />
+        <meshBasicMaterial color="#0a0805" fog />
+      </mesh>
+      {/* Legs */}
+      <mesh ref={legLRef} position={[-0.07, 0.2, 0]}>
+        <boxGeometry args={[0.07, 0.4, 0.08]} />
+        <meshBasicMaterial color="#0a0805" fog />
+      </mesh>
+      <mesh ref={legRRef} position={[0.07, 0.2, 0]}>
+        <boxGeometry args={[0.07, 0.4, 0.08]} />
+        <meshBasicMaterial color="#0a0805" fog />
+      </mesh>
+      {/* Walking staff in hand */}
+      <mesh position={[0.15, 0.65, 0.1]} rotation={[0.1, 0, 0.1]}>
+        <cylinderGeometry args={[0.012, 0.012, 1.2, 4]} />
+        <meshBasicMaterial color="#1a1208" fog />
+      </mesh>
+    </group>
+  );
+};
+
+// Cracked urn — broken clay pottery prop, half-tilted. Suggests "ada
+// kehidupan sebelum kemarau".
+const CrackedUrn = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Main body — half buried, tilted */}
+    <mesh position={[0, 0.18, 0]} rotation={[0.3, 0, 0.15]}>
+      <cylinderGeometry args={[0.18, 0.22, 0.5, 8]} />
+      <meshStandardMaterial color="#5a3022" roughness={1} />
+    </mesh>
+    {/* Neck rim */}
+    <mesh position={[0.06, 0.42, 0]} rotation={[0.3, 0, 0.15]}>
+      <torusGeometry args={[0.14, 0.025, 4, 8]} />
+      <meshStandardMaterial color="#4a2818" roughness={1} />
+    </mesh>
+    {/* Broken chip piece di tanah */}
+    <mesh position={[0.32, 0.04, 0.18]} rotation={[1.4, 0.3, 0.6]}>
+      <boxGeometry args={[0.14, 0.04, 0.1]} />
+      <meshStandardMaterial color="#5a3022" roughness={1} />
+    </mesh>
+    {/* Another chip */}
+    <mesh position={[-0.18, 0.04, 0.25]} rotation={[1.2, -0.2, -0.4]}>
+      <boxGeometry args={[0.1, 0.04, 0.08]} />
+      <meshStandardMaterial color="#4a2818" roughness={1} />
+    </mesh>
+    {/* Crack line down side */}
+    <mesh position={[0.15, 0.25, 0.12]} rotation={[0.3, 0, 0.15]}>
+      <boxGeometry args={[0.02, 0.4, 0.005]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+  </group>
+);
+
 // Tumbleweed — small ball rolling across padang, drift slow horizontal
 // across z axis. Adds movement to otherwise static scene.
 const Tumbleweed = () => {
@@ -946,7 +1099,9 @@ const R0Scene = ({
     <DistantHills />
     <SandDunes isMobile={isMobile} />
     <Ground isMobile={isMobile} />
+    <Footprints isMobile={isMobile} />
     <Gate />
+    <SignPost pos={[-1.95, 0, 5.5]} rot={0.6} />
     <BrokenLanternPost pos={[2.95, 0, 0.4]} rot={-0.2} />
     <DeadTree />
     <PerchedCrow pos={[-5.0, 3.55, -1]} />
@@ -955,7 +1110,9 @@ const R0Scene = ({
     <Rocks isMobile={isMobile} />
     <BonesScatter isMobile={isMobile} />
     <WagonWheel pos={[5.5, 0.1, 4]} rot={0.4} />
+    <CrackedUrn pos={[-4.0, 0, 5]} rot={1.2} />
     <BrokenFence isMobile={isMobile} />
+    {!isMobile && <DistantTraveler />}
     {!isMobile && <Vulture />}
     {!isMobile && <Tumbleweed />}
     <DustParticles count={particleCount} />
@@ -1231,8 +1388,11 @@ const MuseumPage = () => {
         <ExitOverlay visible={stage === 'done'} onRestart={handleRestart} />
         <AmbientAudio profile="drought" position="top-right" />
 
+        {/* Subtle place label di bottom — dev mode tambah stage indicator
+            buat debug. Production cuma label "Padang Tandus" yg minimal. */}
         <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">
-          Padang Tandus · stage: {stage}
+          Padang Tandus
+          {import.meta.env.DEV && ` · stage: ${stage}`}
         </div>
       </div>
     </>
