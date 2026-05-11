@@ -505,6 +505,164 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
   );
 };
 
+// Gerbang petak di peta — versi mini dari Gate (Taman.jsx R0), berdiri
+// di selatan pohon supaya kerasa "pintu kembali" ke Padang Tandus.
+// Click → navigate('/taman'). Hover lift + emissive warm + label di
+// atas. Tirai swing tipis biar gak terasa statis dari isometric view.
+//
+// Scale 0.4 = pas duduk di petak ring (asli ~5.6 wide × 4.8 tall jadi
+// ~2.24 × 1.92). Posisi z=8 — di luar petak hex (radius 5), nempel
+// ujung dalam DroughtRing (radius 9.5) supaya kerasa "di tepi taman"
+// bukan crowding pohon. Camera (9,11,9) tetap nge-frame natural saat
+// fly-in landing.
+const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
+  const groupRef = useRef();
+  const tiraiLRef = useRef();
+  const tiraiRRef = useRef();
+  const matRefs = useRef([]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (tiraiLRef.current) {
+      tiraiLRef.current.rotation.x = Math.sin(t * 0.7) * 0.08;
+    }
+    if (tiraiRRef.current) {
+      tiraiRRef.current.rotation.x = Math.sin(t * 0.7 + 0.4) * 0.08;
+    }
+    if (groupRef.current) {
+      const targetY = hovered ? 0.3 : 0;
+      const factor = Math.min(delta * 8, 1);
+      groupRef.current.position.y = lerp(
+        groupRef.current.position.y,
+        targetY,
+        factor
+      );
+    }
+    const targetEm = hovered ? 0.45 : 0;
+    const factor = Math.min(delta * 8, 1);
+    matRefs.current.forEach((mat) => {
+      if (!mat) return;
+      mat.emissiveIntensity = lerp(mat.emissiveIntensity, targetEm, factor);
+    });
+  });
+
+  const regMat = (i) => (mat) => {
+    matRefs.current[i] = mat;
+  };
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0, 0, 8]}
+      scale={0.4}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {/* Stone bases */}
+      <mesh position={[-2.2, 0.2, 0]}>
+        <boxGeometry args={[0.7, 0.4, 0.7]} />
+        <meshStandardMaterial color="#3a2e22" roughness={1} />
+      </mesh>
+      <mesh position={[2.2, 0.2, 0]}>
+        <boxGeometry args={[0.7, 0.4, 0.7]} />
+        <meshStandardMaterial color="#3a2e22" roughness={1} />
+      </mesh>
+      {/* Pilar kayu — emissive di-track utk hover glow */}
+      <mesh position={[-2.2, 2.2, 0]}>
+        <boxGeometry args={[0.4, 4, 0.4]} />
+        <meshStandardMaterial
+          ref={regMat(0)}
+          color="#1f1814"
+          emissive="#f4a060"
+          emissiveIntensity={0}
+          roughness={0.95}
+        />
+      </mesh>
+      <mesh position={[2.2, 2.2, 0]}>
+        <boxGeometry args={[0.4, 4, 0.4]} />
+        <meshStandardMaterial
+          ref={regMat(1)}
+          color="#1f1814"
+          emissive="#f4a060"
+          emissiveIntensity={0}
+          roughness={0.95}
+        />
+      </mesh>
+      {/* Cross-beam atas */}
+      <mesh position={[0, 4.4, 0]}>
+        <boxGeometry args={[5.2, 0.45, 0.45]} />
+        <meshStandardMaterial
+          ref={regMat(2)}
+          color="#1f1814"
+          emissive="#f4a060"
+          emissiveIntensity={0}
+          roughness={0.95}
+        />
+      </mesh>
+      {/* Cross-beam top (kasagi) */}
+      <mesh position={[0, 4.8, 0]}>
+        <boxGeometry args={[5.6, 0.18, 0.55]} />
+        <meshStandardMaterial color="#181210" roughness={0.95} />
+      </mesh>
+      {/* Cross-beam tengah */}
+      <mesh position={[0, 3.4, 0]}>
+        <boxGeometry args={[4.8, 0.18, 0.35]} />
+        <meshStandardMaterial color="#1a1410" roughness={0.95} />
+      </mesh>
+      {/* Tirai kain weathered dengan gentle sway */}
+      <group ref={tiraiLRef} position={[-1.3, 3.4, 0.2]}>
+        <mesh position={[0, -0.7, 0]}>
+          <boxGeometry args={[0.4, 1.4, 0.02]} />
+          <meshStandardMaterial color="#4a3022" roughness={0.95} />
+        </mesh>
+      </group>
+      <group ref={tiraiRRef} position={[1.3, 3.4, 0.2]}>
+        <mesh position={[0, -0.7, 0]}>
+          <boxGeometry args={[0.4, 1.4, 0.02]} />
+          <meshStandardMaterial color="#4a3022" roughness={0.95} />
+        </mesh>
+      </group>
+      <Html
+        position={[0, 5.8, 0]}
+        center
+        distanceFactor={10}
+        occlude={false}
+      >
+        <div
+          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+            hovered ? '-translate-y-1' : ''
+          }`}
+        >
+          <div
+            className={`text-[11px] font-medium tracking-wide transition-colors ${
+              hovered ? 'text-white' : 'text-white/85'
+            }`}
+          >
+            Gerbang
+          </div>
+          <div
+            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              hovered ? 'text-amber-200/85' : 'text-white/55'
+            }`}
+          >
+            Pintu Masuk Kota
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // Lantai taman — plane besar tone twilight evening (bukan dark museum
 // hall) dengan grid tipis untuk persepsi skala. Tone biru-warm yang
 // muncul saat senja: matahari masih nyentuh sedikit di langit, tanah
@@ -2554,6 +2712,7 @@ const NarrativeWhispers = ({ isMobile }) => {
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
+  hoveredGerbang,
   previewedPetak,
   flyInActive,
   isMobile = false,
@@ -2566,13 +2725,17 @@ const TamanScene = ({
   onCenterHover,
   onCenterOut,
   onCenterClick,
+  onGerbangHover,
+  onGerbangOut,
+  onGerbangClick,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
   const [autoRotate, setAutoRotate] = useState(false);
   // Pause auto-rotate kalau user lagi hover petak — kerasa weird kalau
   // kamera bergerak sambil user fokus baca label.
-  const userIsHovering = Boolean(hoveredPetakId) || hoveredCenter;
+  const userIsHovering =
+    Boolean(hoveredPetakId) || hoveredCenter || hoveredGerbang;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
   // berputar. Resume manual control begitu user drag/zoom/touch atau
@@ -2642,6 +2805,12 @@ const TamanScene = ({
         onPointerOver={onCenterHover}
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
+      />
+      <PetaGerbang
+        hovered={hoveredGerbang}
+        onPointerOver={onGerbangHover}
+        onPointerOut={onGerbangOut}
+        onClick={onGerbangClick}
       />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
@@ -3032,6 +3201,7 @@ const TamanPetaPage = () => {
   const [searchParams] = useSearchParams();
   const [hoveredPetakId, setHoveredPetakId] = useState(null);
   const [hoveredCenter, setHoveredCenter] = useState(false);
+  const [hoveredGerbang, setHoveredGerbang] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
@@ -3053,12 +3223,12 @@ const TamanPetaPage = () => {
 
   useEffect(() => {
     const showPointer =
-      !flyInActive && (hoveredPetakId || hoveredCenter);
+      !flyInActive && (hoveredPetakId || hoveredCenter || hoveredGerbang);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hoveredPetakId, hoveredCenter, flyInActive]);
+  }, [hoveredPetakId, hoveredCenter, hoveredGerbang, flyInActive]);
 
   const handleFlyInComplete = () => setFlyInActive(false);
 
@@ -3095,6 +3265,18 @@ const TamanPetaPage = () => {
     navigate('/26');
   };
 
+  // Gerbang handlers — petak mini "Gerbang" di selatan pohon, link
+  // balik ke /taman (Padang Tandus / Pintu Masuk Kota).
+  const handleGerbangHover = () => {
+    if (flyInActive) return;
+    setHoveredGerbang(true);
+  };
+  const handleGerbangOut = () => setHoveredGerbang(false);
+  const handleGerbangClick = () => {
+    if (flyInActive) return;
+    navigate('/taman');
+  };
+
   return (
     <>
       <Seo
@@ -3119,6 +3301,7 @@ const TamanPetaPage = () => {
             <TamanScene
               hoveredPetakId={hoveredPetakId}
               hoveredCenter={hoveredCenter}
+              hoveredGerbang={hoveredGerbang}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               isMobile={isMobile}
@@ -3131,6 +3314,9 @@ const TamanPetaPage = () => {
               onCenterHover={handleCenterHover}
               onCenterOut={handleCenterOut}
               onCenterClick={handleCenterClick}
+              onGerbangHover={handleGerbangHover}
+              onGerbangOut={handleGerbangOut}
+              onGerbangClick={handleGerbangClick}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>

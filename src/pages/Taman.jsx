@@ -1,10 +1,11 @@
 /**
- * Taman Kebaikan — Fase 1, R0 "Padang Tandus".
+ * Gerbang — Fase 1, R0. Pintu masuk wilayah "Kota".
  *
- * Pintu masuk Taman Kebaikan. Dunia di sini terasa kering & terik —
- * sebelum kebaikan tumbuh, hanya ada padang yang gersang dengan
- * langit sore yang berdebu. Saat user melangkah masuk, panas mereda,
- * suhu turun, dan langit pelan-pelan jadi senja taman.
+ * Pintu masuk Kota (sebelumnya bernama "Taman Kebaikan"). Dunia di
+ * sini terasa kering & terik — sebelum gerbang dibuka, hanya ada
+ * padang yang gersang dengan langit sore yang berdebu. Saat user
+ * melangkah masuk, panas mereda, suhu turun, dan langit pelan-pelan
+ * jadi senja Kota.
  *
  * Mood shift bukan grayscale → color (kayak konsep museum awal),
  * tapi heat → cool. Drought → spring. Visual axes yang berubah saat
@@ -162,9 +163,9 @@ const Gate = ({ stage = 'idle' }) => {
       <boxGeometry args={[4.8, 0.18, 0.35]} />
       <meshStandardMaterial color="#1a1410" roughness={0.95} />
     </mesh>
-    {/* Plaque kayu di tengah cross-beam atas — sign Taman Kebaikan.
+    {/* Plaque kayu di tengah cross-beam atas — sign Gerbang.
         Saat stage='done', text-area di plaque glow warm — reveal
-        narrative "gerbang kebaikan udah terbuka". */}
+        narrative "gerbang Kota udah terbuka". */}
     <mesh position={[0, 4.4, 0.24]}>
       <boxGeometry args={[1.2, 0.32, 0.04]} />
       <meshStandardMaterial color="#3a2818" roughness={0.9} />
@@ -1593,9 +1594,9 @@ const ExitOverlay = ({ visible, onRestart }) => (
           fontStyle: 'italic',
         }}
       >
-        Gerbang Taman Kebaikan telah terbuka.
+        Gerbang Kota telah terbuka.
         <br />
-        Pilih petak untuk dijelajahi.
+        Masuk untuk menjelajahi.
       </p>
       <div className="flex flex-col gap-3 justify-center px-6">
         <Link
@@ -1727,8 +1728,8 @@ const MuseumPage = () => {
   return (
     <>
       <Seo
-        title="Taman Kebaikan"
-        description="Pengalaman taman digital — perjalanan kebaikan, kenangan, dan harapan yang tumbuh."
+        title="Gerbang"
+        description="Gerbang ke Kota — pintu masuk wilayah kebaikan, kenangan, dan harapan yang tumbuh."
         path="/taman"
       />
       <div
@@ -1777,9 +1778,9 @@ const MuseumPage = () => {
         <AmbientAudio profile="drought" position="top-right" />
 
         {/* Subtle place label di bottom — dev mode tambah stage indicator
-            buat debug. Production cuma label "Padang Tandus" yg minimal. */}
+            buat debug. Production cuma label "Gerbang" yg minimal. */}
         <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">
-          Padang Tandus
+          Gerbang
           {import.meta.env.DEV && ` · stage: ${stage}`}
         </div>
       </div>
