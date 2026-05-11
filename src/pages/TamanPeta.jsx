@@ -745,14 +745,14 @@ const PetaLorongMasuk = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
               hovered ? 'text-white' : 'text-white/80'
             }`}
           >
-            Lorong Masuk
+            Konstelasi Perjalanan
           </div>
           <div
             className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
               hovered ? 'text-amber-200/85' : 'text-white/55'
             }`}
           >
-            Konstelasi Perjalanan
+            Lorong Masuk
           </div>
         </div>
       </Html>
