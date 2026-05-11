@@ -16,6 +16,15 @@
  *     intact sebagai anchor of hope. Restorasi penuh numbuh dari sini.
  *   - Bushes, Mushrooms, Owls, Rabbits, Bats, Fireflies: di-skip
  *     (makhluk hidup absen saat ekosistem mati)
+ *   - Ground: DroughtPath + DroughtGroundPatches (inline) — warm
+ *     amber/sand tones ganti twilight purple canonical. Puddle skip.
+ *   - Atmosphere: fog warm dusty brown #2a1d15 (match R0 Padang
+ *     Tandus tone), ambientLight diturunin + di-warm shift, moon rim
+ *     diturunin drastis. Horizon glow burnt-orange (Pohon Terakhir
+ *     beacon).
+ *   - Lanterns: allDead={true} — semua lentera mati di drought (posts
+ *     berdiri tapi gak nyala — abandoned vibe).
+ *   - Decay dressing: FallenDeadwood + DriedLeafPiles + FallenTree.
  *
  * Yang tetap utuh: starfield + konstelasi milestone (cerita Eli di
  * langit masih jalan — drought-nya cuma di ground), lanterns (untuk
@@ -235,6 +244,48 @@ const DriedLeafPiles = () => (
   </>
 );
 
+// Drought ground — replace canonical Path + GroundPatches. Tone warm
+// amber/sandy (bukan twilight purple) supaya konsisten sama dead trees.
+const DroughtPath = () => (
+  <>
+    {/* Path strip — kering, lebih amber-brown */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+      <planeGeometry args={[2.2, 440]} />
+      <meshStandardMaterial color="#3a2d18" roughness={1} />
+    </mesh>
+    {/* Floor sekitar path — sand/cracked amber tone */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.001, 0]}>
+      <planeGeometry args={[40, 460]} />
+      <meshStandardMaterial color="#2c2018" roughness={1} />
+    </mesh>
+  </>
+);
+
+const DROUGHT_PATCH_DEFS = [
+  { pos: [-5.5, 0.001, -8], r: 1.6, color: '#3a2818' },
+  { pos: [5.0, 0.001, -14], r: 1.8, color: '#3a2a18' },
+  { pos: [-6.0, 0.001, -22], r: 1.4, color: '#4a3520' },
+  { pos: [4.5, 0.001, -28], r: 1.7, color: '#2a1f15' },
+  { pos: [-4.2, 0.001, -4], r: 1.3, color: '#3a2820' },
+  { pos: [6.5, 0.001, -18], r: 1.5, color: '#4a3520' },
+  { pos: [-7.0, 0.001, -26], r: 1.6, color: '#2c2018' },
+  { pos: [5.5, 0.001, -3], r: 1.2, color: '#3a2818' },
+];
+const DroughtGroundPatches = () => (
+  <>
+    {DROUGHT_PATCH_DEFS.map((p, i) => (
+      <mesh
+        key={`drought-patch-${i}`}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={p.pos}
+      >
+        <circleGeometry args={[p.r, 16]} />
+        <meshStandardMaterial color={p.color} roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
 // Satu pohon roboh besar — dramatic centerpiece dari "ekosistem rusak".
 // Trunk panjang lying horizontal + broken stub + 2 dead branch shrapnel.
 const FallenTree = () => (
@@ -291,41 +342,45 @@ const LorongScene = ({
   onReturnTrigger,
 }) => (
   <>
-    {/* Twilight purple-blue, lebih senja vibe daripada solid blue-gray */}
-    <fog attach="fog" args={['#1f2335', 13, 42]} />
-    <color attach="background" args={['#1f2335']} />
-    <ambientLight intensity={0.5} />
-    {/* Sunset key light — warm dari upper-front */}
+    {/* DROUGHT atmosphere — warm dusty brown fog (match R0 Padang Tandus
+        BG_DROUGHT), bukan twilight purple. Bikin r1 kerasa kontinu
+        secara mood dari /armeniacaTown saat ekosistem masih rusak. */}
+    <fog attach="fog" args={['#2a1d15', 12, 38]} />
+    <color attach="background" args={['#1f1410']} />
+    {/* Ambient lebih redup + warm-brown — kerasa muram, bukan ada
+        ambient hidup yang nge-fill scene */}
+    <ambientLight intensity={0.32} color="#c8a085" />
+    {/* Key light — sunset residual, sedikit lebih lemah dari canonical
+        (1.2 → 0.95), warna geser ke amber kering bukan golden */}
     <directionalLight
       position={[6, 12, 4]}
-      intensity={1.2}
-      color="#ffd9a8"
+      intensity={0.95}
+      color="#e8b078"
     />
-    {/* Moon rim light — cool blue dari upper-back-left, kasih rim
-        lighting di edge objek + silhouette pop. Posisi z=-25 supaya
-        cahaya datang dari ujung lorong (backlight terhadap camera). */}
+    {/* Moon rim light — turunin intensity drastis, color geser ke
+        warm-gray bukan cool blue. Drought = bulan keliatan sayup. */}
     <directionalLight
       position={[-8, 14, -25]}
-      intensity={0.75}
-      color="#8aa8d8"
+      intensity={0.35}
+      color="#9a8878"
     />
-    {/* Horizon glow di ujung path — point light warm amber yang
-        scatter di fog, kasih kesan "ada sesuatu di ujung" yang nge-pull
-        user untuk lihat lebih jauh. DistantFigure jadi silhouetted
-        terhadap glow ini. */}
+    {/* Horizon glow di ujung path — Pohon Terakhir di sana, jadi glow
+        tetap muncul sebagai beacon. Intensity turun sedikit, warna
+        lebih burnt-orange. */}
     <pointLight
       position={[0, 2.5, -33]}
-      intensity={2.0}
-      color="#ffaa50"
+      intensity={1.6}
+      color="#e88848"
       distance={12}
       decay={2}
     />
-    <Path />
-    <GroundPatches />
+    {/* Ground = drought versions (defined di atas, replace Path +
+        GroundPatches). Puddle di-skip — air gak ada di drought. */}
+    <DroughtPath />
+    <DroughtGroundPatches />
     <Footprints />
     <PathEdgeStones />
     <SettledLeaves />
-    <Puddle isMobile={isMobile} />
     <DistantForest isMobile={isMobile} />
     {/* Pohon-pohon dikembalikan sebagai garden filler — gak lagi
         per-milestone (milestones udah pindah ke langit), tapi sebagai
@@ -414,7 +469,14 @@ const LorongScene = ({
       </Html>
     )}
     <StoneMonument onClick={onMonumentTrigger} />
-    <Lanterns signatureEvent={signatureEvent} viewMode={viewMode} />
+    {/* Lanterns SEMUA dead di drought (allDead flag bypass per-entry
+        dead config di LANTERN_DEFS). Posts tetap berdiri tapi gak
+        nyala — abandoned vibe. */}
+    <Lanterns
+      signatureEvent={signatureEvent}
+      viewMode={viewMode}
+      allDead
+    />
     {/* Drought variant: Owls/Rabbits/Bats/Fireflies absen — gak ada
         makhluk hidup saat ekosistem mati. */}
     <DistantFigure signatureEvent={signatureEvent} />

@@ -137,14 +137,14 @@ const LanternPost = ({ pos, phase, dead = false, signatureEvent, viewMode }) => 
   );
 };
 
-export const Lanterns = ({ signatureEvent, viewMode }) => (
+export const Lanterns = ({ signatureEvent, viewMode, allDead = false }) => (
   <>
     {LANTERN_DEFS.map((l, i) => (
       <LanternPost
         key={`lantern-${i}`}
         pos={l.pos}
         phase={l.phase}
-        dead={l.dead}
+        dead={allDead || l.dead}
         signatureEvent={signatureEvent}
         viewMode={viewMode}
       />
