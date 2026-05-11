@@ -1747,6 +1747,12 @@ const SceneFallback = () => (
 const MuseumPage = () => {
   const isMobile = useIsMobile();
   const { unlocked, count } = useGateUnlock();
+  // ?clean=1 — sembunyiin semua text overlay (LockedHint, TapHint,
+  // OpeningText, OpeningCeremony, ExitOverlay, AmbientAudio button,
+  // bottom label, RotateRecommendation, dev Stats). Khusus buat
+  // screenshot poster dgn 3D scene bersih. Hapus param utk balikin.
+  const [cleanParams] = useSearchParams();
+  const cleanMode = cleanParams.get('clean') === '1';
   // Stage state machine — drives transition + UI overlays. Lihat header
   // file untuk semantik tiap stage.
   const [stage, setStage] = useState('idle');
@@ -1887,31 +1893,37 @@ const MuseumPage = () => {
                 mipmapBlur
               />
             </EffectComposer>
-            {import.meta.env.DEV && <Stats />}
+            {import.meta.env.DEV && !cleanMode && <Stats />}
           </Canvas>
         </Suspense>
 
-        <OpeningText stage={stage} resetTrigger={resetTrigger} />
-        {/* LockedHint vs TapHint mutually exclusive — LockedHint muncul
-            kalau gerbang masih terkunci, TapHint kalau udah unlocked.
-            OpeningCeremony muncul selama 3 detik transitioning sebagai
-            ritual visual pembukaan. */}
-        <LockedHint
-          visible={!unlocked && (stage === 'idle' || stage === 'active')}
-          count={count}
-        />
-        <TapHint visible={unlocked && stage === 'active'} />
-        <OpeningCeremony visible={stage === 'transitioning'} />
-        <ExitOverlay visible={stage === 'done'} onRestart={handleRestart} />
-        <AmbientAudio profile="drought" position="top-right" />
-
-        {/* Subtle place label di bottom — dev mode tambah stage indicator
-            buat debug. Production cuma label "Gerbang" yg minimal. */}
-        <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">
-          Gerbang
-          {import.meta.env.DEV && ` · stage: ${stage}`}
-        </div>
-        <RotateRecommendation />
+        {!cleanMode && (
+          <>
+            <OpeningText stage={stage} resetTrigger={resetTrigger} />
+            {/* LockedHint vs TapHint mutually exclusive — LockedHint muncul
+                kalau gerbang masih terkunci, TapHint kalau udah unlocked.
+                OpeningCeremony muncul selama 3 detik transitioning sebagai
+                ritual visual pembukaan. */}
+            <LockedHint
+              visible={!unlocked && (stage === 'idle' || stage === 'active')}
+              count={count}
+            />
+            <TapHint visible={unlocked && stage === 'active'} />
+            <OpeningCeremony visible={stage === 'transitioning'} />
+            <ExitOverlay
+              visible={stage === 'done'}
+              onRestart={handleRestart}
+            />
+            <AmbientAudio profile="drought" position="top-right" />
+            {/* Subtle place label di bottom — dev mode tambah stage indicator
+                buat debug. Production cuma label "Gerbang" yg minimal. */}
+            <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">
+              Gerbang
+              {import.meta.env.DEV && ` · stage: ${stage}`}
+            </div>
+            <RotateRecommendation />
+          </>
+        )}
       </div>
     </>
   );
