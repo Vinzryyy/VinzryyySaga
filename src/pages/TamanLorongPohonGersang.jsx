@@ -11,8 +11,9 @@
  * Perbedaan dari canonical:
  *   - SideTrees + GardenAnchorTrees: foliage → dead branches via prop
  *     restorationLevel={0}
- *   - BigTreeReturnPortal: trunk kering, cabang patah, no foliage, no
- *     beacon glow. Tetap functional sebagai exit hit-detect.
+ *   - BigTreeReturnPortal: TETAP HIDUP — narrative "Pohon Terakhir",
+ *     lone survivor di ekosistem mati. Beacon glow + foliage hijau
+ *     intact sebagai anchor of hope. Restorasi penuh numbuh dari sini.
  *   - Bushes, Mushrooms, Owls, Rabbits, Bats, Fireflies: di-skip
  *     (makhluk hidup absen saat ekosistem mati)
  *
@@ -288,11 +289,11 @@ const LorongScene = ({
     {/* Drought variant: Owls/Rabbits/Bats/Fireflies absen — gak ada
         makhluk hidup saat ekosistem mati. */}
     <DistantFigure signatureEvent={signatureEvent} />
-    <BigTreeReturnPortal
-      viewMode={viewMode}
-      onTrigger={onReturnTrigger}
-      restorationLevel={0}
-    />
+    {/* BigTreeReturnPortal sengaja DI-LEPAS dari drought — pohon di
+        ujung lorong = "Pohon Terakhir", lone survivor di ekosistem
+        mati. Foliage hijau + beacon glow tetap aktif (narrative anchor
+        of hope). Restorasi penuh ekosistem akan numbuh dari sini. */}
+    <BigTreeReturnPortal viewMode={viewMode} onTrigger={onReturnTrigger} />
     <GroundMist count={isMobile ? 22 : 38} />
     {!isMobile && <MistPools />}
     <FallingLeaves count={isMobile ? 22 : 38} />
