@@ -15,6 +15,7 @@ import Seo from '../components/Seo';
 import EliTree from '../components/home/EliTree';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import FilosofiModal from '../components/page26/FilosofiModal';
+import ByuTitipan from '../components/page26/ByuTitipan';
 
 const Page26 = () => {
   const [filosofiOpen, setFilosofiOpen] = useState(false);
@@ -84,6 +85,10 @@ const Page26 = () => {
 
     {/* The gimmick itself — tree art + counter + support button. */}
     <EliTree />
+
+    {/* Modul kedua — Titipan Lagu By-U. Pre-release: kumpulkan dukungan
+        sampai 15 Juni 2026, lalu auto-reveal player. */}
+    <ByuTitipan />
 
     {/* Closing note — frames Pohon Kebaikan as Harmoni Kebaikan's first
         module. Sub-page Galeri Kebaikan disabled until announce. */}

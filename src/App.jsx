@@ -58,7 +58,6 @@ const TamanPage = lazy(() => import('./pages/Taman'));
 const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
 const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
 const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
-const TamanTitipanPage = lazy(() => import('./pages/TamanTitipan'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -128,7 +127,12 @@ function AppShell() {
             <Route path="/taman/peta" element={<TamanPetaPage />} />
             <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
             <Route path="/taman/r3" element={<TamanKolamKataPage />} />
-            <Route path="/taman/titipan" element={<TamanTitipanPage />} />
+            {/* /taman/titipan dipindah jadi modul kedua di /26 (Harmoni
+                Kebaikan). Redirect supaya link lama tetap valid. */}
+            <Route
+              path="/taman/titipan"
+              element={<Navigate to="/26#titipan-byu" replace />}
+            />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
             <Route path="/museum" element={<Navigate to="/taman" replace />} />
             <Route
