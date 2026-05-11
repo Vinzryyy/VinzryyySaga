@@ -920,6 +920,50 @@ const Aurora = () => (
   </>
 );
 
+// HoverTrail — 5 traveling dots dari center tree ke petak yg di-hover,
+// staggered phase supaya kerasa kontinyu flow. Match petak color.
+// "Path of attention" — visual cue arah pandang user.
+const HoverTrail = ({ petak }) => {
+  const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+  const dotRefs = useRef([]);
+  const dotMatRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    dotRefs.current.forEach((ref, i) => {
+      if (!ref || !dotMatRefs.current[i]) return;
+      const cycle = ((t * 0.55) + i * 0.18) % 1;
+      ref.position.x = px * cycle;
+      ref.position.z = pz * cycle;
+      // Bell-curve opacity — full di tengah, fade di edges
+      dotMatRefs.current[i].opacity = Math.sin(cycle * Math.PI) * 0.9;
+    });
+  });
+  return (
+    <>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <mesh
+          key={`htrail-${i}`}
+          ref={(el) => {
+            dotRefs.current[i] = el;
+          }}
+          position={[0, 0.18, 0]}
+        >
+          <sphereGeometry args={[0.09, 8, 6]} />
+          <meshBasicMaterial
+            ref={(el) => {
+              dotMatRefs.current[i] = el;
+            }}
+            color={petak.color}
+            transparent
+            opacity={0}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // Hover ripple — ring expanding outward dari pusat petak yg lagi
 // di-hover. Loop cycle 0.67s, color matching petak. Visual feedback
 // kuat "you are looking at this".
@@ -2306,9 +2350,16 @@ const TamanScene = ({
       {PETAK.filter((p) => previewedPetak.has(p.id)).map((petak) => (
         <VisitedHalo key={`vh-${petak.id}`} petak={petak} />
       ))}
-      {hoveredPetakId && (
-        <HoverRipple petak={PETAK.find((p) => p.id === hoveredPetakId)} />
-      )}
+      {hoveredPetakId && (() => {
+        const hovered = PETAK.find((p) => p.id === hoveredPetakId);
+        if (!hovered) return null;
+        return (
+          <>
+            <HoverRipple petak={hovered} />
+            <HoverTrail petak={hovered} />
+          </>
+        );
+      })()}
       <Fireflies isMobile={isMobile} />
       <NarrativeWhispers isMobile={isMobile} />
       <CenterTree
@@ -2506,9 +2557,9 @@ const TamanPetaIntroTitle = () => {
 };
 
 // RestorationIndicator — UI overlay top-left showing chapter-based
-// pemulihan progress. Bar + chapters explored + narrative copy.
+// pemulihan progress. Bar + chapter checklist dots + narrative copy.
 // Hidden during fly-in.
-const RestorationIndicator = ({ level, chaptersExplored, totalChapters, flyInActive }) => {
+const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedSet, flyInActive }) => {
   if (flyInActive) return null;
   const pct = Math.round(level * 100);
   const isRecovered = level >= 1;
@@ -2522,11 +2573,36 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, flyInAct
           </span>
         </div>
         {/* Progress bar */}
-        <div className="h-1.5 rounded-full bg-white/8 overflow-hidden mb-2">
+        <div className="h-1.5 rounded-full bg-white/8 overflow-hidden mb-2.5">
           <div
             className="h-full bg-gradient-to-r from-amber-300 via-emerald-400 to-emerald-300 rounded-full transition-all duration-700"
             style={{ width: `${Math.max(2, pct)}%` }}
           />
+        </div>
+        {/* Chapter checklist — 6 dots, filled per visited */}
+        <div className="flex items-center gap-1.5 mb-2.5">
+          {PETAK.map((petak) => {
+            const visited = visitedSet?.has(petak.id);
+            return (
+              <span
+                key={`dot-${petak.id}`}
+                className={`relative w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ${
+                  visited
+                    ? 'bg-emerald-400/20 ring-1 ring-emerald-400/60'
+                    : 'bg-white/5 ring-1 ring-white/10'
+                }`}
+                title={`Bab ${petak.chapter} · ${petak.name}`}
+              >
+                <span
+                  className={`text-[9px] font-black tabular-nums ${
+                    visited ? 'text-emerald-300' : 'text-white/35'
+                  }`}
+                >
+                  {petak.chapter}
+                </span>
+              </span>
+            );
+          })}
         </div>
         <div className="flex items-baseline justify-between gap-2 mb-1.5">
           <span className="text-white/85 text-sm font-bold tabular-nums">
@@ -2790,6 +2866,7 @@ const TamanPetaPage = () => {
           level={restorationLevel}
           chaptersExplored={previewedPetak.size}
           totalChapters={PETAK.length}
+          visitedSet={previewedPetak}
           flyInActive={flyInActive}
         />
         <TamanFooter
