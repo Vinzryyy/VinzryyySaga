@@ -1430,10 +1430,11 @@ const EliTree = () => {
           <div className="relative flex flex-col items-center">
             <div className="relative w-full flex justify-center">
               {/* Wrapper untuk wobble — key bump force animation restart
-                  tiap kali user siram sukses. */}
+                  tiap kali user siram sukses. w-full supaya SVG tree
+                  tetap stretch fill parent (jangan shrink). */}
               <div
                 key={`wobble-${wobbleKey}`}
-                className={wobbleKey > 0 ? 'eli-tree-wobble' : ''}
+                className={`w-full ${wobbleKey > 0 ? 'eli-tree-wobble' : ''}`}
               >
                 <TreeArt
                   stage={stage}
