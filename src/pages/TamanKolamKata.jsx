@@ -55,7 +55,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
+import AmbientAudio from '../components/taman/AmbientAudio';
 import {
   RIVER_WIDTH,
   RIVER_LENGTH,
@@ -67,13 +67,13 @@ import {
   LEAF_COLORS,
   BLOOM_COLORS,
   WILDFLOWER_COLORS,
-} from '../components/armeniacaTown/r3/constants';
+} from '../components/taman/r3/constants';
 import {
   useIsMobile,
   lerp,
   shortLabel,
   formatDate,
-} from '../components/armeniacaTown/r3/utils';
+} from '../components/taman/r3/utils';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { subscribeToWishes } from '../lib/wishesDb';
 

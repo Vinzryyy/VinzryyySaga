@@ -51,7 +51,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
+import AmbientAudio from '../components/taman/AmbientAudio';
 
 // Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
 // untuk turunin DustParticles count dan dpr supaya R0 tetep smooth di

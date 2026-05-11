@@ -38,16 +38,16 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
-import { useIsMobile } from '../components/armeniacaTown/r3/utils';
+import AmbientAudio from '../components/taman/AmbientAudio';
+import { useIsMobile } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
 
-import { ORBIT_TARGET, playChimeTone } from '../components/armeniacaTown/r1/utils';
+import { ORBIT_TARGET, playChimeTone } from '../components/taman/r1/utils';
 import {
   ERA_LOOKUP,
   milestoneSkyPosition,
   starColorForMilestone,
-} from '../components/armeniacaTown/r1/era';
+} from '../components/taman/r1/era';
 import {
   SkyGroup,
   Stars,
@@ -55,12 +55,12 @@ import {
   Moon,
   Nebula,
   ShootingStar,
-} from '../components/armeniacaTown/r1/sky';
+} from '../components/taman/r1/sky';
 import {
   StarMilestone,
   ConstellationLines,
   ConstellationLabels,
-} from '../components/armeniacaTown/r1/constellation';
+} from '../components/taman/r1/constellation';
 import {
   Fireflies,
   GroundMist,
@@ -68,7 +68,7 @@ import {
   FallingLeaves,
   FlyingLeavesGust,
   MemoryFragments,
-} from '../components/armeniacaTown/r1/atmosphere';
+} from '../components/taman/r1/atmosphere';
 import {
   Path,
   GroundPatches,
@@ -81,7 +81,7 @@ import {
   DistantForest,
   SideTrees,
   GardenAnchorTrees,
-} from '../components/armeniacaTown/r1/ground';
+} from '../components/taman/r1/ground';
 import {
   Lanterns,
   Owls,
@@ -94,14 +94,14 @@ import {
   WindChime,
   MonumentProximity,
   BigTreeReturnPortal,
-} from '../components/armeniacaTown/r1/landmarks';
+} from '../components/taman/r1/landmarks';
 import {
   CAMERA_TARGETS,
   CinematicIntro,
   CameraSync,
   FPVMovement,
   MobileFPVMovement,
-} from '../components/armeniacaTown/r1/camera';
+} from '../components/taman/r1/camera';
 import {
   SceneFallback,
   LorongHeader,
@@ -112,12 +112,12 @@ import {
   MilestoneOverlay,
   MonumentMomentOverlay,
   ClockSync,
-} from '../components/armeniacaTown/r1/ui';
+} from '../components/taman/r1/ui';
 import {
   isPerfEnabled,
   PerfSampler,
   PerfHUD,
-} from '../components/armeniacaTown/r1/perf';
+} from '../components/taman/r1/perf';
 
 const LorongScene = ({
   trees,

@@ -38,7 +38,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
-import AmbientAudio from '../components/armeniacaTown/AmbientAudio';
+import AmbientAudio from '../components/taman/AmbientAudio';
 
 // Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
 // dijaga konsisten supaya keputusan downscale seragam antar halaman
