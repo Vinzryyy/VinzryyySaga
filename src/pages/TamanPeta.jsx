@@ -906,6 +906,46 @@ const TamanScene = ({
   onCenterOut,
   onCenterClick,
 }) => {
+  const controlsRef = useRef();
+  const idleTimerRef = useRef();
+  const [autoRotate, setAutoRotate] = useState(false);
+  // Pause auto-rotate kalau user lagi hover petak — kerasa weird kalau
+  // kamera bergerak sambil user fokus baca label.
+  const userIsHovering = Boolean(hoveredPetakId) || hoveredCenter;
+
+  // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
+  // berputar. Resume manual control begitu user drag/zoom/touch atau
+  // hover petak.
+  useEffect(() => {
+    if (flyInActive) return undefined;
+    const controls = controlsRef.current;
+    if (!controls) return undefined;
+    const armIdle = () => {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(() => setAutoRotate(true), 6000);
+    };
+    const onStart = () => {
+      setAutoRotate(false);
+      clearTimeout(idleTimerRef.current);
+    };
+    const onEnd = () => {
+      armIdle();
+    };
+    controls.addEventListener('start', onStart);
+    controls.addEventListener('end', onEnd);
+    armIdle();
+    return () => {
+      controls.removeEventListener('start', onStart);
+      controls.removeEventListener('end', onEnd);
+      clearTimeout(idleTimerRef.current);
+    };
+  }, [flyInActive]);
+
+  // Saat user mulai hover petak/center, matikan auto-rotate immediate.
+  useEffect(() => {
+    if (userIsHovering && autoRotate) setAutoRotate(false);
+  }, [userIsHovering, autoRotate]);
+
   return (
     <>
       <fog attach="fog" args={['#1c1f2a', 12, 35]} />
@@ -962,6 +1002,7 @@ const TamanScene = ({
         ruangan, tapi nggak bisa ngerusak isometrik mood.
       */}
       <OrbitControls
+        ref={controlsRef}
         enabled={!flyInActive}
         target={ORBIT_TARGET}
         enableZoom
@@ -973,6 +1014,8 @@ const TamanScene = ({
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.5}
+        autoRotate={autoRotate && !flyInActive && !userIsHovering}
+        autoRotateSpeed={0.35}
       />
     </>
   );
