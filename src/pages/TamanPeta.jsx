@@ -98,9 +98,10 @@ const PETAK = [
   {
     id: 'r1',
     name: 'Konstelasi Perjalanan',
-    desc: 'Bintang-bintang per era karier',
+    eyebrow: 'Lorong Antara Waktu',
+    desc: 'Lorong dgn konstelasi perjalanan',
     longDesc:
-      'Berdiri di taman senja, menengadah ke langit. Tiap bintang = milestone perjalanan Eli, di-group ke tujuh konstelasi per era — Trainee, Theater, Senbatsu, New Era, Mature, Variety, JKT48 Fight.',
+      'Lorong yang menghubungkan gerbang ini ke kenangan lain. Berdiri di taman senja, menengadah ke langit — tiap bintang adalah milestone perjalanan Eli, terajut jadi tujuh konstelasi per era. Kebaikan yang masih bercahaya, walau dunia di luar sudah lupa.',
     angle: 270,
     color: '#a8c0ff',
     route: '/taman/r1',
@@ -108,18 +109,20 @@ const PETAK = [
   {
     id: 'r2',
     name: 'Petak Karya',
+    eyebrow: 'Kenangan Tangan',
     desc: 'Kebun karya penggemar',
     longDesc:
-      'Plot kebun berisi karya-karya kontribusi penggemar: video, web, poster, dan lainnya — tumbuh seperti tanaman di pekarangan.',
+      'Plot kebun dari kontribusi penggemar — video, web, poster, dan lainnya tumbuh seperti tanaman di pekarangan. Bukti bahwa di tempat ini, tangan-tangan masih membentuk sesuatu.',
     angle: 330,
     color: '#94b878',
   },
   {
     id: 'r3',
     name: 'Telaga Harapan',
-    desc: 'Wish wall mengambang',
+    eyebrow: 'Kenangan Air',
+    desc: 'Telaga sebelum padang kering',
     longDesc:
-      'Telaga teratai di malam hari. Tiap bunga teratai mekar = 1 harapan dari fans untuk Eli. Live dari wish wall — bertambah tiap ada submission baru di /wishes.',
+      'Sebelum padang di luar gerbang menguning, di sini ada air. Telaga teratai senja — tiap bunga mekar adalah satu harapan dari fans untuk Eli. Live dari wish wall, bertambah tiap submission baru di /wishes.',
     angle: 30,
     color: '#86a868',
     route: '/taman/r3',
@@ -127,27 +130,30 @@ const PETAK = [
   {
     id: 'r4',
     name: 'Kebun Kebaikan',
+    eyebrow: 'Kenangan Aksi',
     desc: 'Aksi nyata yang tumbuh',
     longDesc:
-      'Padang yang dipenuhi tanaman dari setiap aksi kebaikan — Galeri Kebaikan, program donasi, kunjungan komunitas. Tiap kebaikan menumbuhkan satu tunas.',
+      'Padang yang dipenuhi tanaman dari setiap aksi kebaikan nyata — Galeri Kebaikan, program donasi, kunjungan komunitas. Tiap kebaikan menumbuhkan satu tunas. Bukti bahwa kemarau di luar tidak selalu menang.',
     angle: 90,
     color: '#a8b870',
   },
   {
     id: 'r5',
     name: 'Padang Lukis',
+    eyebrow: 'Kenangan Warna',
     desc: 'Ladang fanart',
     longDesc:
-      'Ladang dengan lukisan-lukisan berdiri seperti bunga — fanart, ilustrasi, dan karya seni dari komunitas.',
+      'Ladang dgn lukisan berdiri seperti bunga — fanart, ilustrasi, karya seni dari komunitas. Warna yang tertinggal sebelum padang menguning.',
     angle: 150,
     color: '#94b878',
   },
   {
     id: 'r6',
     name: 'Padang Aprikot',
-    desc: 'Pohon + Langit Harapan',
+    eyebrow: 'Pusat Kenangan',
+    desc: 'Pohon + Langit Kontributor',
     longDesc:
-      'Petak akhir taman: pohon aprikot besar di tengah orchard, langit malam bertabur bintang — tiap bintang adalah kontributor kebaikan.',
+      'Pusat taman: pohon aprikot besar di tengah orchard, langit malam bertabur bintang — tiap bintang adalah kontributor kebaikan. Di sinilah semua kenangan bertemu, dan benih baru bisa ditanam.',
     angle: 210,
     color: '#e8a87c',
   },
@@ -791,6 +797,9 @@ const PetakDetailOverlay = ({ petak, onClose }) => {
       >
         <div className="mb-2 text-white/50 text-[10px] uppercase tracking-[0.25em]">
           {petak.id.toUpperCase()}
+          {petak.eyebrow && (
+            <span className="text-white/35"> · {petak.eyebrow}</span>
+          )}
         </div>
         <h2
           className="text-white text-2xl mb-3 leading-tight"
