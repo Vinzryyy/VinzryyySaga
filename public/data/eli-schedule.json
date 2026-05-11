@@ -1,8 +1,8 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-05-11T07:25:23.625568Z",
-  "eventCount": 16,
+  "fetchedAt": "2026-05-11T13:10:53.987977Z",
+  "eventCount": 18,
   "events": [
     {
       "kind": "SHOW",
@@ -565,6 +565,160 @@
       "url": "https://jkt48.com/schedule/sh1723-dream-bakudan"
     },
     {
+      "kind": "SHOW",
+      "schedule_id": 3150,
+      "code": "SHEE46",
+      "title": "Cara Meminum Ramune",
+      "date": "2026-05-15T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_20",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [
+        {
+          "name": "Adeline Wijaya",
+          "member_id": 2,
+          "type": "DREAM"
+        },
+        {
+          "name": "Chelsea Davina",
+          "member_id": 48,
+          "type": "DREAM"
+        },
+        {
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
+        },
+        {
+          "name": "Freya Jayawardana",
+          "member_id": 94,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gabriela Abigail",
+          "member_id": 97,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
+        },
+        {
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
+        },
+        {
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
+        },
+        {
+          "name": "Jesslyn Elly",
+          "member_id": 131,
+          "type": "DREAM"
+        },
+        {
+          "name": "Marsha Lenathea",
+          "member_id": 152,
+          "type": "DREAM"
+        },
+        {
+          "name": "Nina Tutachia",
+          "member_id": 178,
+          "type": "DREAM"
+        },
+        {
+          "name": "Oline Manuel",
+          "member_id": 185,
+          "type": "DREAM"
+        }
+      ],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/schedule/shee46-cara-meminum-ramune"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3154,
+      "code": "SHB0EF",
+      "title": "DREAM BAKUDAN",
+      "date": "2026-05-20T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_26",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [
+        {
+          "name": "Adeline Wijaya",
+          "member_id": 2,
+          "type": "DREAM"
+        },
+        {
+          "name": "Chelsea Davina",
+          "member_id": 48,
+          "type": "DREAM"
+        },
+        {
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
+        },
+        {
+          "name": "Freya Jayawardana",
+          "member_id": 94,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gabriela Abigail",
+          "member_id": 97,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
+        },
+        {
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
+        },
+        {
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
+        },
+        {
+          "name": "Jesslyn Elly",
+          "member_id": 131,
+          "type": "DREAM"
+        },
+        {
+          "name": "Marsha Lenathea",
+          "member_id": 152,
+          "type": "DREAM"
+        },
+        {
+          "name": "Oline Manuel",
+          "member_id": 185,
+          "type": "DREAM"
+        },
+        {
+          "name": "Shabilqis Naila",
+          "member_id": 221,
+          "type": "DREAM"
+        }
+      ],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/schedule/shb0ef-dream-bakudan"
+    },
+    {
       "kind": "EXCLUSIVE",
       "schedule_id": 936,
       "code": "EXE588",
@@ -743,6 +897,9 @@
         },
         {
           "name": "Chelsea Davina"
+        },
+        {
+          "name": "Celline Thefani"
         },
         {
           "name": "Cynthia Yaputera"
