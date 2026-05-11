@@ -1064,6 +1064,96 @@ const FloatingStar = ({ position = [0, 1.25, 0] }) => {
   );
 };
 
+// Lily pond ripples — 3 concentric rings expanding dari pusat water
+// disc r3, fade out di expansion. Stagger phase supaya kerasa continuous
+// ripple wave (kayak air kena tetes).
+const LilyPondRipples = () => {
+  const refs = useRef([]);
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    refs.current.forEach((ref, i) => {
+      if (!ref || !matRefs.current[i]) return;
+      const cycle = ((t * 0.4) + i * 0.33) % 1;
+      const scale = 0.15 + cycle * 0.5;
+      ref.scale.set(scale, scale, scale);
+      matRefs.current[i].opacity = (1 - cycle) * 0.45;
+    });
+  });
+  return (
+    <>
+      {[0, 1, 2].map((i) => (
+        <mesh
+          key={`pond-ripple-${i}`}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          position={[0, 0.025, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.92, 1, 24]} />
+          <meshBasicMaterial
+            ref={(el) => {
+              matRefs.current[i] = el;
+            }}
+            color="#cfeaf0"
+            transparent
+            opacity={0}
+            toneMapped={false}
+            side={2}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// Birds flock — 5 small bird silhouettes flying across sky di V-formation.
+// Loop traversal dari kiri ke kanan tiap 40 detik. Tiap bird = 2 small
+// boxes angled sebagai V wings (silhouette far-away).
+const BIRD_FORMATION = [
+  { dx: 0, dz: 0 },
+  { dx: -0.5, dz: 0.4 },
+  { dx: 0.5, dz: 0.4 },
+  { dx: -1, dz: 0.8 },
+  { dx: 1, dz: 0.8 },
+];
+const Bird = ({ position }) => (
+  <group position={position}>
+    <mesh position={[-0.06, 0, 0]} rotation={[0, 0, -0.4]}>
+      <boxGeometry args={[0.13, 0.018, 0.018]} />
+      <meshBasicMaterial color="#0a0d14" />
+    </mesh>
+    <mesh position={[0.06, 0, 0]} rotation={[0, 0, 0.4]}>
+      <boxGeometry args={[0.13, 0.018, 0.018]} />
+      <meshBasicMaterial color="#0a0d14" />
+    </mesh>
+  </group>
+);
+const BirdsFlock = () => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const cycleDur = 38;
+    const cycleProgress = (t % cycleDur) / cycleDur;
+    // Fly across diagonal: far-left far-back → far-right closer
+    const startX = -22, endX = 22;
+    const startZ = -16, endZ = -8;
+    const baseY = 9.5;
+    groupRef.current.position.x = startX + (endX - startX) * cycleProgress;
+    groupRef.current.position.z = startZ + (endZ - startZ) * cycleProgress;
+    groupRef.current.position.y = baseY + Math.sin(t * 0.6) * 0.3;
+  });
+  return (
+    <group ref={groupRef}>
+      {BIRD_FORMATION.map((b, i) => (
+        <Bird key={`bird-${i}`} position={[b.dx, 0, b.dz]} />
+      ))}
+    </group>
+  );
+};
+
 // Pulsing lotus — emissive scale ke up/down rhythm, untuk landmark
 // telaga r3.
 const PulsingLotus = ({ position = [-0.05, 0.08, -0.25] }) => {
@@ -1313,6 +1403,8 @@ const PetakLandmark = ({ petak }) => {
               metalness={0.1}
             />
           </mesh>
+          {/* Water ripples — 3 concentric rings expanding dari center */}
+          <LilyPondRipples />
           {/* Lily pad — 3 pads di permukaan */}
           {[
             [0.25, 0.1],
@@ -1720,6 +1812,7 @@ const TamanScene = ({
       <DeadTrees />
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
+      <BirdsFlock />
       <StonePath petakList={PETAK} />
       <PetakGroundGlow petakList={PETAK} />
       <ChapterFlowRing />
