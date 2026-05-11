@@ -420,6 +420,31 @@ body {
   .eli-fruit-hover { transform: none; filter: none; }
 }
 
+/* Apricot harvest table — entrance animation saat first mount (count
+   baru saja >= 1700) + subtle pulse di apex apricot supaya kerasa
+   "freshly harvested". */
+@keyframes eliTableMount {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.eli-table-mount {
+  animation: eliTableMount 900ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+@keyframes eliTableApexGlow {
+  0%, 100% { opacity: 0.25; transform: scale(0.95); }
+  50%      { opacity: 0.55; transform: scale(1.1); }
+}
+.eli-table-apex-glow {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: eliTableApexGlow 2.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .eli-table-mount,
+  .eli-table-apex-glow { animation: none !important; }
+}
+
 /* Water droplets — tetes air jatuh dari atas tree saat user siram.
    Drop shape: thin oval (3x7 rounded teardrop) sky-blue gradient.
    Falls 200px dgn slight stretch saat impact, fade out di akhir. */

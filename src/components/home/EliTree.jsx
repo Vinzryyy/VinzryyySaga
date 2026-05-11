@@ -428,12 +428,18 @@ const BUCKET_APRICOT_POSITIONS = (() => {
   ];
   const arr = [];
   let idx = 0;
-  rows.forEach((row) => {
+  rows.forEach((row, rowIdx) => {
     for (let i = 0; i < row.count; i++) {
       const t = row.count === 1 ? 0.5 : i / (row.count - 1);
       const x = TABLE_CX - row.width / 2 + t * row.width + ((idx * 7) % 7 - 3) * 0.35;
       const y = TABLE_TOP_FRONT_Y + row.dy + ((idx * 11) % 4 - 2) * 0.4;
-      arr.push({ x, y, size: row.size + ((idx * 13) % 3) * 0.18, idx });
+      arr.push({
+        x,
+        y,
+        size: row.size + ((idx * 13) % 3) * 0.18,
+        idx,
+        isApex: rowIdx === rows.length - 1, // apex apricot (pyramid top)
+      });
       idx++;
     }
   });
@@ -454,7 +460,12 @@ const ApricotBucket = ({ filled = 0 }) => {
     TABLE_CX + TABLE_BACK_W / 2 - 5,   // back-right
   ];
   return (
-    <g aria-label={`Meja panen — ${filled} buah aprikot`}>
+    <g
+      aria-label={`Meja panen — ${filled} buah aprikot`}
+      className="eli-table-mount"
+      style={{ transformOrigin: `${TABLE_CX}px ${TABLE_GROUND_Y}px`, transformBox: 'fill-box' }}
+    >
+      <title>{`Panen Pohon Kebaikan · ${filled.toLocaleString('id-ID')} buah aprikot terkumpul`}</title>
       {/* Drop shadow di tanah */}
       <ellipse
         cx={TABLE_CX}
@@ -542,6 +553,17 @@ const ApricotBucket = ({ filled = 0 }) => {
       {/* Apricot pile di atas meja — layered render, low row first */}
       {apricots.map((a) => (
         <g key={`tab-${a.idx}`}>
+          {/* Apex glow halo (di belakang fruit body) */}
+          {a.isApex && (
+            <circle
+              cx={a.x}
+              cy={a.y}
+              r={a.size + 3.5}
+              fill="var(--retro-gold-light)"
+              opacity="0.35"
+              className="eli-table-apex-glow"
+            />
+          )}
           <circle cx={a.x} cy={a.y} r={a.size} fill="var(--retro-gold)" />
           <ellipse
             cx={a.x - a.size * 0.3}
@@ -552,7 +574,7 @@ const ApricotBucket = ({ filled = 0 }) => {
             opacity="0.85"
           />
           {/* Top apricot (pyramid apex) dapat stem + leaf */}
-          {a.size >= 4.4 && a.size <= 4.5 && (
+          {a.isApex && (
             <>
               <line
                 x1={a.x}
