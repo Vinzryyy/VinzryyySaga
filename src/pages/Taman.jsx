@@ -40,7 +40,7 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stats } from '@react-three/drei';
@@ -52,6 +52,23 @@ import {
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import { subscribeToTreeSupports } from '../lib/treeDb';
+
+// Threshold buka Gerbang = unlock peta /armeniacaTown/peta. Sinkron
+// dengan TamanPetaRouteGuard di App.jsx (jangan diubah cuma di satu
+// tempat — perlu update dua-duanya kalau threshold geser).
+const GATE_UNLOCK_THRESHOLD = 2000;
+
+const useGateUnlock = () => {
+  const [searchParams] = useSearchParams();
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const unsubscribe = subscribeToTreeSupports(setCount);
+    return unsubscribe;
+  }, []);
+  const force = searchParams.get('unlock') === '1';
+  return { unlocked: force || count >= GATE_UNLOCK_THRESHOLD, count };
+};
 
 // Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
 // untuk turunin DustParticles count dan dpr supaya R0 tetep smooth di
@@ -1514,6 +1531,101 @@ const OpeningText = ({ stage, resetTrigger }) => {
 
 // Hint "tap untuk masuk" dengan pulse subtle + small tap icon. Muncul
 // setelah dolly selesai, hilang saat user click.
+// LockedHint — pengganti TapHint saat count siraman < 2000. Kasih
+// progress bar siraman + copy "gerbang masih terkunci" supaya user
+// ngerti kenapa gak bisa masuk + dorong balik ke /26 buat nyiram lagi.
+const LockedHint = ({ visible, count }) => {
+  const pct = Math.min(100, (count / GATE_UNLOCK_THRESHOLD) * 100);
+  return (
+    <div
+      className={`pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 transition-opacity duration-1000 ${
+        visible ? 'opacity-90' : 'opacity-0'
+      }`}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="text-white/65"
+        >
+          <rect
+            x="5"
+            y="11"
+            width="14"
+            height="9"
+            rx="2"
+            stroke="currentColor"
+            strokeWidth="1.3"
+          />
+          <path
+            d="M8 11V7a4 4 0 018 0v4"
+            stroke="currentColor"
+            strokeWidth="1.3"
+            strokeLinecap="round"
+          />
+          <circle cx="12" cy="15.5" r="1" fill="currentColor" />
+        </svg>
+        <div className="text-white/75 text-sm tracking-[0.3em] uppercase">
+          Gerbang masih terkunci
+        </div>
+        <div className="text-white/55 text-xs tracking-wider">
+          {count.toLocaleString('id-ID')} / {GATE_UNLOCK_THRESHOLD.toLocaleString('id-ID')} siraman
+        </div>
+        <div className="w-56 h-px bg-white/15">
+          <div
+            className="h-full bg-amber-200/55 transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <p
+          className="text-white/45 text-[10px] mt-1 tracking-wide italic max-w-xs text-center px-4"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          Setiap siraman di Pohon Kebaikan membuka pintu ini sedikit.
+        </p>
+        <Link
+          to="/26"
+          className="pointer-events-auto mt-2 px-4 py-1.5 rounded-full border border-white/25 text-white/70 text-[11px] tracking-wider hover:bg-white/10 transition"
+        >
+          Siram di /26 →
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+// OpeningCeremony — overlay teks "Gerbang terbuka..." selama stage
+// transitioning (3 detik). Bikin user ngerti yg lagi terjadi visual
+// shift = pembukaan ritual, bukan cuma mood transition.
+const OpeningCeremony = ({ visible }) => (
+  <div
+    className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-[1200ms] ${
+      visible ? 'opacity-90' : 'opacity-0'
+    }`}
+  >
+    <div className="text-center px-6">
+      <p
+        className="text-white/95 text-2xl md:text-3xl italic"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          textShadow: '0 0 24px rgba(0,0,0,0.6), 0 0 60px rgba(255,170,80,0.35)',
+        }}
+      >
+        Gerbang terbuka.
+      </p>
+      <p
+        className="text-white/55 text-sm mt-3 tracking-[0.2em] uppercase"
+        style={{ fontFamily: '"Fraunces Variable", serif' }}
+      >
+        Kota menunggu di balik kabut.
+      </p>
+    </div>
+  </div>
+);
+
 const TapHint = ({ visible }) => (
   <div
     className={`pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 transition-opacity duration-1000 ${
@@ -1633,6 +1745,7 @@ const SceneFallback = () => (
 
 const MuseumPage = () => {
   const isMobile = useIsMobile();
+  const { unlocked, count } = useGateUnlock();
   // Stage state machine — drives transition + UI overlays. Lihat header
   // file untuk semantik tiap stage.
   const [stage, setStage] = useState('idle');
@@ -1717,6 +1830,9 @@ const MuseumPage = () => {
   };
 
   const handleClick = () => {
+    // Block transitioning kalau gerbang masih terkunci (count < 2000).
+    // LockedHint udah jelasin kenapa, jadi gak silent fail.
+    if (!unlocked) return;
     if (stage === 'active') setStage('transitioning');
   };
 
@@ -1733,7 +1849,9 @@ const MuseumPage = () => {
         path="/armeniacaTown"
       />
       <div
-        className="relative w-full h-screen overflow-hidden cursor-pointer select-none"
+        className={`relative w-full h-screen overflow-hidden select-none ${
+          unlocked ? 'cursor-pointer' : 'cursor-default'
+        }`}
         onClick={handleClick}
         role="button"
         tabIndex={0}
@@ -1773,7 +1891,16 @@ const MuseumPage = () => {
         </Suspense>
 
         <OpeningText stage={stage} resetTrigger={resetTrigger} />
-        <TapHint visible={stage === 'active'} />
+        {/* LockedHint vs TapHint mutually exclusive — LockedHint muncul
+            kalau gerbang masih terkunci, TapHint kalau udah unlocked.
+            OpeningCeremony muncul selama 3 detik transitioning sebagai
+            ritual visual pembukaan. */}
+        <LockedHint
+          visible={!unlocked && (stage === 'idle' || stage === 'active')}
+          count={count}
+        />
+        <TapHint visible={unlocked && stage === 'active'} />
+        <OpeningCeremony visible={stage === 'transitioning'} />
         <ExitOverlay visible={stage === 'done'} onRestart={handleRestart} />
         <AmbientAudio profile="drought" position="top-right" />
 
