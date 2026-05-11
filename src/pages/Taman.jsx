@@ -1569,7 +1569,7 @@ const LockedHint = ({ visible, count }) => {
           />
           <circle cx="12" cy="15.5" r="1" fill="currentColor" />
         </svg>
-        <div className="text-white/75 text-sm tracking-[0.3em] uppercase">
+        <div className="text-white/75 text-[11px] sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-center">
           Gerbang masih terkunci
         </div>
         <div className="text-white/55 text-xs tracking-wider">

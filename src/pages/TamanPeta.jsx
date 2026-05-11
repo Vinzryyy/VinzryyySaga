@@ -1347,13 +1347,17 @@ const Ruin = ({ pos, type, height, width, color, rot }) => {
   );
 };
 
-const CityRuins = () => (
-  <>
-    {RUIN_DEFS.map((r, i) => (
-      <Ruin key={`ruin-${i}`} {...r} />
-    ))}
-  </>
-);
+const CityRuins = ({ isMobile = false }) => {
+  // Mobile cull: 14 → 8 ruins (entries paling kerasa di silhouette)
+  const list = isMobile ? RUIN_DEFS.slice(0, 8) : RUIN_DEFS;
+  return (
+    <>
+      {list.map((r, i) => (
+        <Ruin key={`ruin-${i}`} {...r} />
+      ))}
+    </>
+  );
+};
 
 // Stone path — 4 flat oval stones per spoke, dari center ke tiap
 // petak position. 6 spokes total = 24 stones. Kasih visual koneksi
@@ -2269,7 +2273,7 @@ const DeadTree = ({ pos, rot, scale, lean }) => (
   </group>
 );
 // Dead trees — ALWAYS visible (user suka aesthetic gurun rusak).
-const DeadTrees = () => DEAD_TREE_DEFS.map((d, i) => (
+const DeadTrees = ({ isMobile = false }) => (isMobile ? DEAD_TREE_DEFS.slice(0, 5) : DEAD_TREE_DEFS).map((d, i) => (
   <DeadTree key={`dt-${i}`} {...d} />
 ));
 
@@ -2909,8 +2913,8 @@ const TamanScene = ({
           gersang), Stars + Moon (langit malam atas kota mati). Aurora
           + Fireflies + BirdsFlock + LilyPond sengaja di-skip — terlalu
           alive untuk vibe "tempat tidak layak huni". */}
-      <CityRuins />
-      <DeadTrees />
+      <CityRuins isMobile={isMobile} />
+      <DeadTrees isMobile={isMobile} />
       <SandDust count={isMobile ? 50 : 100} />
       {!isMobile && <HighDustShimmer count={40} />}
       <Stars count={isMobile ? 50 : 90} />
