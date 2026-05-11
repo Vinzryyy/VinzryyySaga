@@ -539,7 +539,9 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         factor
       );
     }
-    const targetEm = hovered ? 0.45 : 0;
+    // Base 0.1 emissive (subtle warm glow biar pilar gak hitam mati di
+    // ambient peta 0.42), hover boost ke 0.5
+    const targetEm = hovered ? 0.5 : 0.1;
     const factor = Math.min(delta * 8, 1);
     matRefs.current.forEach((mat) => {
       if (!mat) return;
@@ -569,23 +571,27 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         onClick?.();
       }}
     >
-      {/* Stone bases */}
+      {/* Stone bases — warna dinaikin dari #3a2e22 → #6a5440 supaya
+          gak hitam mati di ambient peta yg turun ke 0.42 */}
       <mesh position={[-2.2, 0.2, 0]}>
         <boxGeometry args={[0.7, 0.4, 0.7]} />
-        <meshStandardMaterial color="#3a2e22" roughness={1} />
+        <meshStandardMaterial color="#6a5440" roughness={1} />
       </mesh>
       <mesh position={[2.2, 0.2, 0]}>
         <boxGeometry args={[0.7, 0.4, 0.7]} />
-        <meshStandardMaterial color="#3a2e22" roughness={1} />
+        <meshStandardMaterial color="#6a5440" roughness={1} />
       </mesh>
-      {/* Pilar kayu — emissive di-track utk hover glow */}
+      {/* Pilar kayu — warna dinaikin dari #1f1814 → #4a3825 (lebih
+          coklat, masih dark warm tapi gak black). Emissive base warm
+          subtle (0.1) supaya kerasa "berdiri di sun" — hover tetap
+          boost ke 0.45 */}
       <mesh position={[-2.2, 2.2, 0]}>
         <boxGeometry args={[0.4, 4, 0.4]} />
         <meshStandardMaterial
           ref={regMat(0)}
-          color="#1f1814"
+          color="#4a3825"
           emissive="#f4a060"
-          emissiveIntensity={0}
+          emissiveIntensity={0.1}
           roughness={0.95}
         />
       </mesh>
@@ -593,9 +599,9 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         <boxGeometry args={[0.4, 4, 0.4]} />
         <meshStandardMaterial
           ref={regMat(1)}
-          color="#1f1814"
+          color="#4a3825"
           emissive="#f4a060"
-          emissiveIntensity={0}
+          emissiveIntensity={0.1}
           roughness={0.95}
         />
       </mesh>
@@ -604,21 +610,21 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         <boxGeometry args={[5.2, 0.45, 0.45]} />
         <meshStandardMaterial
           ref={regMat(2)}
-          color="#1f1814"
+          color="#4a3825"
           emissive="#f4a060"
-          emissiveIntensity={0}
+          emissiveIntensity={0.1}
           roughness={0.95}
         />
       </mesh>
       {/* Cross-beam top (kasagi) */}
       <mesh position={[0, 4.8, 0]}>
         <boxGeometry args={[5.6, 0.18, 0.55]} />
-        <meshStandardMaterial color="#181210" roughness={0.95} />
+        <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
       </mesh>
       {/* Cross-beam tengah */}
       <mesh position={[0, 3.4, 0]}>
         <boxGeometry args={[4.8, 0.18, 0.35]} />
-        <meshStandardMaterial color="#1a1410" roughness={0.95} />
+        <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
       </mesh>
       {/* Tirai kain weathered dengan gentle sway */}
       <group ref={tiraiLRef} position={[-1.3, 3.4, 0.2]}>

@@ -1502,11 +1502,11 @@ const OpeningText = ({ stage, resetTrigger }) => {
     visible && (stage === 'idle' || stage === 'active');
   return (
     <div
-      className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-[2000ms] ease-out ${
+      className={`pointer-events-none absolute inset-0 flex items-center justify-center pt-20 md:pt-24 transition-opacity duration-[2000ms] ease-out ${
         shouldShow ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="text-center max-w-md px-6 -mt-24">
+      <div className="text-center max-w-md px-6">
         <p
           className="text-white/75 text-lg md:text-2xl leading-relaxed tracking-wide"
           style={{
