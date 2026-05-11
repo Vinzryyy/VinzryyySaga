@@ -506,20 +506,20 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         <cylinderGeometry args={[0.1, 0.15, 1.4, 10]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
       </mesh>
-      {/* Foliage clusters — material ref-tracked untuk hover emissive */}
+      {/* Foliage clusters — material ref-tracked utk hover emissive +
+          breathing scale animation (per-cluster phase offset supaya
+          gak in-sync). */}
       {FOLIAGE_CLUSTERS.map((c, i) => (
-        <mesh key={`foliage-${i}`} position={c.pos}>
-          <sphereGeometry args={[c.radius, 16, 12]} />
-          <meshStandardMaterial
-            ref={(el) => {
-              foliageMatRefs.current[i] = el;
-            }}
-            color={c.color}
-            emissive={c.color}
-            emissiveIntensity={0}
-            roughness={0.75}
-          />
-        </mesh>
+        <BreathingFoliage
+          key={`foliage-${i}`}
+          position={c.pos}
+          radius={c.radius}
+          color={c.color}
+          phase={i * 1.3}
+          matRefCallback={(el) => {
+            foliageMatRefs.current[i] = el;
+          }}
+        />
       ))}
       {/* Fruit aprikot — emissive subtle untuk kerasa hidup */}
       {FRUIT_POSITIONS.map((f, i) => (
@@ -695,26 +695,26 @@ const Mountains = () => (
 
 // Stone path — 4 flat oval stones per spoke, dari center ke tiap
 // petak position. 6 spokes total = 24 stones. Kasih visual koneksi
-// "ini hub", path menjari ke 6 petak.
+// "ini hub", path menjari ke 6 petak. Tiap stone punya emissive wave
+// yg propagate dari center keluar — kerasa "path memandu, hidup".
 const StonePath = ({ petakList }) => (
   <>
     {petakList.flatMap((petak) => {
       const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
       const stones = [];
       for (let i = 0; i < 4; i++) {
-        const t = 0.25 + i * 0.18; // 0.25, 0.43, 0.61, 0.79 (gak sampai pinggir)
+        const t = 0.25 + i * 0.18;
         const sx = px * t;
         const sz = pz * t;
         const jitter = ((Math.round(px * 7 + pz * 11) + i * 13) % 9 - 4) * 0.03;
         stones.push(
-          <mesh
+          <PathStone
             key={`stone-${petak.id}-${i}`}
             position={[sx + jitter, 0.012, sz - jitter]}
             rotation={[-Math.PI / 2, 0, (i * 0.4) % Math.PI]}
-          >
-            <circleGeometry args={[0.32 - i * 0.015, 8]} />
-            <meshStandardMaterial color="#6a6e7a" roughness={1} />
-          </mesh>,
+            radius={0.32 - i * 0.015}
+            stoneIdx={i}
+          />,
         );
       }
       return stones;
@@ -823,6 +823,139 @@ const PulsingMiniFruit = ({ position }) => {
   );
 };
 
+// Wobbling canvas (r2 easel) — gentle tilt rhythm pada canvas saja
+// (easel legs static, canvas + paint accents goyang).
+const WobblingCanvas = () => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.rotation.z = Math.sin(t * 0.9) * 0.06;
+    ref.current.position.x = Math.sin(t * 0.6) * 0.015;
+  });
+  return (
+    <group ref={ref}>
+      <mesh position={[0, 0.4, 0.01]}>
+        <boxGeometry args={[0.4, 0.32, 0.04]} />
+        <meshStandardMaterial color="#f4e8d0" roughness={0.85} />
+      </mesh>
+      <mesh position={[-0.08, 0.42, 0.04]}>
+        <boxGeometry args={[0.08, 0.06, 0.01]} />
+        <meshStandardMaterial color="#c94a4a" roughness={0.7} />
+      </mesh>
+      <mesh position={[0.06, 0.36, 0.04]}>
+        <boxGeometry args={[0.1, 0.04, 0.01]} />
+        <meshStandardMaterial color="#5aa67a" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+};
+
+// Bobbing apricot — for r4 basket, tiny vertical bob per fruit dgn
+// phase shift.
+const BobbingApricot = ({ position }) => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const phase = (position[0] * 11 + position[2] * 17) % 6.28;
+    ref.current.position.y = position[1] + Math.sin(t * 0.9 + phase) * 0.018;
+  });
+  return (
+    <mesh ref={ref} position={position}>
+      <sphereGeometry args={[0.1, 10, 8]} />
+      <meshStandardMaterial
+        color="#e8a87c"
+        emissive="#e8a87c"
+        emissiveIntensity={0.2}
+        roughness={0.6}
+      />
+    </mesh>
+  );
+};
+
+// Swaying brush (r5 padang lukis) — handle + ferrule + bristles sway
+// sebagai 1 unit around basis. Origin di bottom (y=0) supaya rotasi
+// natural.
+const SwayingBrush = () => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.rotation.z = Math.sin(t * 1.2) * 0.1;
+    ref.current.rotation.x = Math.cos(t * 0.8) * 0.04;
+  });
+  return (
+    <group ref={ref} position={[0, 0, 0]}>
+      <mesh position={[0, 0.32, 0]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.6, 6]} />
+        <meshStandardMaterial color="#8b6f47" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.58, 0]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.07, 8]} />
+        <meshStandardMaterial color="#9a9da3" roughness={0.5} metalness={0.6} />
+      </mesh>
+      <mesh position={[0, 0.7, 0]}>
+        <coneGeometry args={[0.05, 0.18, 8]} />
+        <meshStandardMaterial color="#c94a4a" roughness={0.65} />
+      </mesh>
+    </group>
+  );
+};
+
+// Breathing foliage — center tree foliage clusters subtle scale pulse,
+// kerasa "pohon bernapas" idle. matRefCallback prop di-forward ke
+// material supaya parent (CenterTree) tetap bisa boost emissive on
+// hover.
+const BreathingFoliage = ({ position, radius, color, phase = 0, matRefCallback }) => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const scale = 1 + Math.sin(t * 0.7 + phase) * 0.03;
+    ref.current.scale.set(scale, scale, scale);
+  });
+  return (
+    <mesh ref={ref} position={position}>
+      <sphereGeometry args={[radius, 16, 12]} />
+      <meshStandardMaterial
+        ref={matRefCallback}
+        color={color}
+        emissive={color}
+        emissiveIntensity={0}
+        roughness={0.75}
+      />
+    </mesh>
+  );
+};
+
+// Path stone dgn emissive wave — pulse propagate dari center keluar.
+// Tiap stone dapat phase berdasar idx-nya di spoke (0 paling dekat
+// center, 3 paling jauh). Wave traveling outward kerasa "path memandu".
+const PathStone = ({ position, rotation, radius, stoneIdx }) => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    const phase = stoneIdx * 0.7;
+    // Wave dari center keluar — phase advance positive = wave outward.
+    const pulse = Math.max(0, Math.sin(t * 1.1 - phase) * 0.5 + 0.5);
+    matRef.current.emissiveIntensity = pulse * 0.55;
+  });
+  return (
+    <mesh position={position} rotation={rotation}>
+      <circleGeometry args={[radius, 8]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#6a6e7a"
+        emissive="#c9a961"
+        emissiveIntensity={0}
+        roughness={1}
+      />
+    </mesh>
+  );
+};
+
 // Per-petak landmark — distinctive 3D element on top of each petak
 // sesuai tema-nya. Dipanggil per-petak di scene render. Posisi
 // relatif ke petak top (y ≈ 0.55).
@@ -858,7 +991,7 @@ const PetakLandmark = ({ petak }) => {
         </>,
       );
     case 'r2':
-      // Petak Karya — easel A-frame + canvas kecil.
+      // Petak Karya — easel A-frame static + canvas wobbling.
       return wrap(
         <>
           <mesh position={[-0.15, 0.32, 0]} rotation={[0, 0, 0.18]}>
@@ -869,19 +1002,8 @@ const PetakLandmark = ({ petak }) => {
             <cylinderGeometry args={[0.025, 0.025, 0.7, 5]} />
             <meshStandardMaterial color="#6a4a2d" roughness={0.95} />
           </mesh>
-          <mesh position={[0, 0.4, 0.01]}>
-            <boxGeometry args={[0.4, 0.32, 0.04]} />
-            <meshStandardMaterial color="#f4e8d0" roughness={0.85} />
-          </mesh>
-          {/* Painted accent on canvas */}
-          <mesh position={[-0.08, 0.42, 0.04]}>
-            <boxGeometry args={[0.08, 0.06, 0.01]} />
-            <meshStandardMaterial color="#c94a4a" roughness={0.7} />
-          </mesh>
-          <mesh position={[0.06, 0.36, 0.04]}>
-            <boxGeometry args={[0.1, 0.04, 0.01]} />
-            <meshStandardMaterial color="#5aa67a" roughness={0.7} />
-          </mesh>
+          {/* Canvas + paint accents wobble together */}
+          <WobblingCanvas />
         </>,
       );
     case 'r3':
@@ -932,43 +1054,22 @@ const PetakLandmark = ({ petak }) => {
             <torusGeometry args={[0.32, 0.04, 6, 16]} />
             <meshStandardMaterial color="#7a5530" roughness={0.95} />
           </mesh>
-          {/* Apricots inside (3 visible) */}
+          {/* Apricots inside (3 visible) — gentle bob */}
           {[
             [0, 0.45, 0.1],
             [0.15, 0.46, -0.06],
             [-0.13, 0.47, -0.08],
           ].map((p, i) => (
-            <mesh key={`apk-${i}`} position={p}>
-              <sphereGeometry args={[0.1, 10, 8]} />
-              <meshStandardMaterial
-                color="#e8a87c"
-                emissive="#e8a87c"
-                emissiveIntensity={0.18}
-                roughness={0.6}
-              />
-            </mesh>
+            <BobbingApricot key={`apk-${i}`} position={p} />
           ))}
         </>,
       );
     case 'r5':
-      // Padang Lukis — paint brush tegak.
+      // Padang Lukis — paint brush sway + paint dabs static di petak.
       return wrap(
         <>
-          <mesh position={[0, 0.32, 0]}>
-            <cylinderGeometry args={[0.025, 0.025, 0.6, 6]} />
-            <meshStandardMaterial color="#8b6f47" roughness={0.95} />
-          </mesh>
-          {/* Metal ferrule */}
-          <mesh position={[0, 0.58, 0]}>
-            <cylinderGeometry args={[0.04, 0.04, 0.07, 8]} />
-            <meshStandardMaterial color="#9a9da3" roughness={0.5} metalness={0.6} />
-          </mesh>
-          {/* Brush bristles — narrowing cone */}
-          <mesh position={[0, 0.7, 0]}>
-            <coneGeometry args={[0.05, 0.18, 8]} />
-            <meshStandardMaterial color="#c94a4a" roughness={0.65} />
-          </mesh>
-          {/* Paint dab on petak */}
+          <SwayingBrush />
+          {/* Paint dabs on petak — static */}
           <mesh position={[0.2, 0.04, 0.18]} rotation={[-Math.PI / 2, 0, 0]}>
             <circleGeometry args={[0.1, 10]} />
             <meshStandardMaterial color="#f4a8c0" roughness={0.7} />
