@@ -160,11 +160,21 @@ const generateEcosystem = (count) => {
     [0, 0], [800, 0], [900, 2], [1000, 5],
   ]));
 
-  // Trunk + (when present) pot occupy a footprint that flowers must
-  // dodge so they don't render in front of the trunk or inside the pot.
+  // Trunk + (when present) pot + (when present) apricot table occupy
+  // footprints that flowers/grass must dodge so they don't render
+  // in front/under them.
   const inTrunkOrPot = (x, y) => {
     if (Math.abs(x - 200) < 26 && y < 320) return true;
     if (potVisible && y >= 318 && y <= 362 && x >= 100 && x <= 300) return true;
+    // Apricot table footprint (right edge) — reserve area saat
+    // count >= BUCKET_THRESHOLD supaya ekosistem gak nimpa meja.
+    if (
+      c >= BUCKET_THRESHOLD &&
+      x >= TABLE_FOOTPRINT_X1 &&
+      x <= TABLE_FOOTPRINT_X2 &&
+      y >= TABLE_FOOTPRINT_Y1 &&
+      y <= TABLE_FOOTPRINT_Y2
+    ) return true;
     return false;
   };
 
@@ -383,37 +393,47 @@ const POT_TOP_Y = 320;
 const POT_BOTTOM_Y = 360;
 const CENTER_X = 200;
 
-// Apricot bucket — muncul di samping pot/akar saat count >= 1700.
-// "Panen" — buah aprikot terkumpul. Visual: bucket kayu trapezoidal
-// dgn metal rings + handle, isinya apricot bertumpuk (cap 30 visual,
-// counter di bawah show actual count).
+// Apricot table — muncul di samping pot/akar saat count >= 1700.
+// "Panen" — buah aprikot dipajang di meja kayu. Visual: meja kayu
+// dgn perspective (top surface trapezoid + 4 legs), apricot pile
+// pyramid di atas (cap 35 visual, counter di bawah show actual count).
 const BUCKET_THRESHOLD = 1700;
-const BUCKET_CAPACITY = 48;
-const BUCKET_CX = 332; // sebelah kanan pot — kasih breathing room
-const BUCKET_BOTTOM_Y = POT_BOTTOM_Y - 2;
-const BUCKET_TOP_Y = BUCKET_BOTTOM_Y - 92; // 92px tall (sebelumnya 56)
-const BUCKET_TOP_W = 86;
-const BUCKET_BOTTOM_W = 60;
+const BUCKET_CAPACITY = 33;
+const TABLE_CX = 348; // di tepi kanan supaya gak nimpa ekosistem
+const TABLE_GROUND_Y = POT_BOTTOM_Y - 2;
+const TABLE_LEG_H = 26;
+const TABLE_TOP_FRONT_Y = TABLE_GROUND_Y - TABLE_LEG_H;
+const TABLE_TOP_BACK_Y = TABLE_TOP_FRONT_Y - 14;
+const TABLE_FRONT_W = 96;
+const TABLE_BACK_W = 74; // narrower at back for perspective
+const TABLE_TOP_THICKNESS = 4;
+// Footprint box utk ecosystem avoidance (mencakup table + pile apricot
+// di atasnya). Lebar sedikit lebih luas dari table itu sendiri biar ada
+// margin visual.
+const TABLE_FOOTPRINT_X1 = TABLE_CX - TABLE_FRONT_W / 2 - 6;
+const TABLE_FOOTPRINT_X2 = TABLE_CX + TABLE_FRONT_W / 2 + 6;
+const TABLE_FOOTPRINT_Y1 = TABLE_TOP_BACK_Y - 52; // include pile area atas
+const TABLE_FOOTPRINT_Y2 = TABLE_GROUND_Y + 6;
 
-// Layered apricot positions inside bucket — 5 rows, total 48 slots.
-// Deterministic per index. Buah lebih banyak & lebih besar dari versi
-// kecil — fill bucket-nya kerasa.
+// Apricot pyramid pile di atas meja — 6 rows total 35 slots.
+// Base row sits on top front edge, naik makin kecil.
 const BUCKET_APRICOT_POSITIONS = (() => {
   const rows = [
-    { dy: 8,  width: 60, count: 8,  size: 6.4 },   // top row — overflow rim
-    { dy: 18, width: 68, count: 10, size: 6.0 },
-    { dy: 32, width: 70, count: 11, size: 5.8 },
-    { dy: 48, width: 68, count: 11, size: 5.6 },
-    { dy: 64, width: 60, count: 8,  size: 5.2 },
+    { count: 9, dy: -4,  width: 72, size: 5.2 },
+    { count: 8, dy: -12, width: 62, size: 5.0 },
+    { count: 7, dy: -20, width: 50, size: 5.0 },
+    { count: 5, dy: -28, width: 36, size: 4.8 },
+    { count: 3, dy: -36, width: 20, size: 4.6 },
+    { count: 1, dy: -44, width: 0,  size: 4.4 },
   ];
   const arr = [];
   let idx = 0;
   rows.forEach((row) => {
     for (let i = 0; i < row.count; i++) {
       const t = row.count === 1 ? 0.5 : i / (row.count - 1);
-      const x = BUCKET_CX - row.width / 2 + t * row.width + ((idx * 7) % 7 - 3) * 0.55;
-      const y = BUCKET_TOP_Y + row.dy + ((idx * 11) % 4 - 2) * 0.5;
-      arr.push({ x, y, size: row.size + ((idx * 13) % 3) * 0.25, idx });
+      const x = TABLE_CX - row.width / 2 + t * row.width + ((idx * 7) % 7 - 3) * 0.35;
+      const y = TABLE_TOP_FRONT_Y + row.dy + ((idx * 11) % 4 - 2) * 0.4;
+      arr.push({ x, y, size: row.size + ((idx * 13) % 3) * 0.18, idx });
       idx++;
     }
   });
@@ -424,114 +444,104 @@ const ApricotBucket = ({ filled = 0 }) => {
   const visible = Math.min(BUCKET_CAPACITY, Math.max(0, filled));
   const apricots = BUCKET_APRICOT_POSITIONS.slice(0, visible);
   const isFull = filled >= BUCKET_CAPACITY;
+  // 4 leg positions relative to TABLE_CX. Front legs visible full,
+  // back legs sebagian ke-hidden di belakang tabletop.
+  const legW = 4;
+  const legXs = [
+    TABLE_CX - TABLE_FRONT_W / 2 + 6,  // front-left
+    TABLE_CX + TABLE_FRONT_W / 2 - 6,  // front-right
+    TABLE_CX - TABLE_BACK_W / 2 + 5,   // back-left
+    TABLE_CX + TABLE_BACK_W / 2 - 5,   // back-right
+  ];
   return (
-    <g aria-label={`Bucket panen — ${filled} buah aprikot`}>
-      {/* Drop shadow di tanah — lebih luas utk bucket besar */}
+    <g aria-label={`Meja panen — ${filled} buah aprikot`}>
+      {/* Drop shadow di tanah */}
       <ellipse
-        cx={BUCKET_CX}
-        cy={BUCKET_BOTTOM_Y + 5}
-        rx={BUCKET_BOTTOM_W / 2 + 8}
-        ry="5"
+        cx={TABLE_CX}
+        cy={TABLE_GROUND_Y + 3}
+        rx={TABLE_FRONT_W / 2 + 6}
+        ry="4"
         fill="#3a2820"
-        opacity="0.3"
+        opacity="0.32"
       />
-      {/* Body — wooden trapezoid */}
+      {/* Back legs (drawn first, partially behind tabletop) */}
+      {[legXs[2], legXs[3]].map((lx, i) => (
+        <rect
+          key={`bleg-${i}`}
+          x={lx - legW / 2}
+          y={TABLE_TOP_BACK_Y + 2}
+          width={legW}
+          height={TABLE_GROUND_Y - TABLE_TOP_BACK_Y - 2}
+          rx="1"
+          fill="#5a3e25"
+          stroke="#3a2415"
+          strokeWidth="0.5"
+        />
+      ))}
+      {/* Tabletop side surface — visible front edge (thickness) */}
       <path
-        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2} ${BUCKET_TOP_Y}
-           L ${BUCKET_CX + BUCKET_TOP_W / 2} ${BUCKET_TOP_Y}
-           L ${BUCKET_CX + BUCKET_BOTTOM_W / 2} ${BUCKET_BOTTOM_Y}
-           L ${BUCKET_CX - BUCKET_BOTTOM_W / 2} ${BUCKET_BOTTOM_Y} Z`}
-        fill="#8b6f47"
-        stroke="#4a3220"
-        strokeWidth="1.8"
+        d={`M ${TABLE_CX - TABLE_FRONT_W / 2} ${TABLE_TOP_FRONT_Y}
+           L ${TABLE_CX + TABLE_FRONT_W / 2} ${TABLE_TOP_FRONT_Y}
+           L ${TABLE_CX + TABLE_FRONT_W / 2} ${TABLE_TOP_FRONT_Y + TABLE_TOP_THICKNESS}
+           L ${TABLE_CX - TABLE_FRONT_W / 2} ${TABLE_TOP_FRONT_Y + TABLE_TOP_THICKNESS} Z`}
+        fill="#6a4a2d"
+        stroke="#3a2415"
+        strokeWidth="1"
       />
-      {/* Wood slats — 7 vertical lines (sebelumnya 5) untuk bigger texture */}
-      {[-0.7, -0.46, -0.22, 0, 0.22, 0.46, 0.7].map((p, i) => {
-        const xTop = BUCKET_CX + p * BUCKET_TOP_W * 0.94;
-        const xBot = BUCKET_CX + p * BUCKET_BOTTOM_W * 0.94;
+      {/* Tabletop top surface — trapezoid perspective (front wider, back narrower) */}
+      <path
+        d={`M ${TABLE_CX - TABLE_FRONT_W / 2} ${TABLE_TOP_FRONT_Y}
+           L ${TABLE_CX + TABLE_FRONT_W / 2} ${TABLE_TOP_FRONT_Y}
+           L ${TABLE_CX + TABLE_BACK_W / 2} ${TABLE_TOP_BACK_Y}
+           L ${TABLE_CX - TABLE_BACK_W / 2} ${TABLE_TOP_BACK_Y} Z`}
+        fill="#8b6f47"
+        stroke="#3a2415"
+        strokeWidth="1"
+      />
+      {/* Wood grain lines di top surface — parallel ke front edge */}
+      {[0.25, 0.5, 0.75].map((t, i) => {
+        const yLine = TABLE_TOP_BACK_Y + (TABLE_TOP_FRONT_Y - TABLE_TOP_BACK_Y) * t;
+        const wLine = TABLE_BACK_W + (TABLE_FRONT_W - TABLE_BACK_W) * t;
         return (
           <line
-            key={`slat-${i}`}
-            x1={xTop}
-            y1={BUCKET_TOP_Y + 1.5}
-            x2={xBot}
-            y2={BUCKET_BOTTOM_Y - 1.5}
+            key={`grain-${i}`}
+            x1={TABLE_CX - wLine / 2 + 3}
+            y1={yLine}
+            x2={TABLE_CX + wLine / 2 - 3}
+            y2={yLine}
             stroke="#5a3e25"
-            strokeWidth="1"
-            opacity="0.55"
+            strokeWidth="0.6"
+            opacity="0.5"
           />
         );
       })}
-      {/* Top metal ring — lebih tebal */}
-      <ellipse
-        cx={BUCKET_CX}
-        cy={BUCKET_TOP_Y}
-        rx={BUCKET_TOP_W / 2}
-        ry="4.5"
-        fill="#4a4035"
-        stroke="#2a1f15"
-        strokeWidth="1"
-      />
-      {/* Inner cavity (rim depth) */}
-      <ellipse
-        cx={BUCKET_CX}
-        cy={BUCKET_TOP_Y + 1}
-        rx={BUCKET_TOP_W / 2 - 4}
-        ry="3"
-        fill="#2a1810"
-      />
-      {/* Tengah ring — second band */}
-      <rect
-        x={BUCKET_CX - BUCKET_TOP_W * 0.42}
-        y={BUCKET_TOP_Y + (BUCKET_BOTTOM_Y - BUCKET_TOP_Y) * 0.45}
-        width={BUCKET_TOP_W * 0.84}
-        height="3.5"
-        fill="#4a4035"
-        stroke="#2a1f15"
-        strokeWidth="0.6"
-        opacity="0.85"
-      />
-      {/* Bottom metal ring — lebih tebal */}
-      <rect
-        x={BUCKET_CX - BUCKET_BOTTOM_W / 2 - 2}
-        y={BUCKET_BOTTOM_Y - 5}
-        width={BUCKET_BOTTOM_W + 4}
-        height="5"
-        rx="1.5"
-        fill="#4a4035"
-        stroke="#2a1f15"
-        strokeWidth="0.7"
-      />
-      {/* Handle — semicircle arc lebih besar */}
+      {/* Sheen highlight diagonal di top */}
       <path
-        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 6} ${BUCKET_TOP_Y}
-           Q ${BUCKET_CX} ${BUCKET_TOP_Y - 26} ${BUCKET_CX + BUCKET_TOP_W / 2 - 6} ${BUCKET_TOP_Y}`}
-        fill="none"
-        stroke="#2a1f15"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      {/* Handle inner shadow */}
-      <path
-        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 6} ${BUCKET_TOP_Y}
-           Q ${BUCKET_CX} ${BUCKET_TOP_Y - 26} ${BUCKET_CX + BUCKET_TOP_W / 2 - 6} ${BUCKET_TOP_Y}`}
-        fill="none"
-        stroke="rgba(0,0,0,0.4)"
-        strokeWidth="0.6"
-        strokeLinecap="round"
-      />
-      {/* Sheen highlight di kiri body — bigger, diagonal */}
-      <path
-        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 6} ${BUCKET_TOP_Y + 7}
-           L ${BUCKET_CX - BUCKET_BOTTOM_W / 2 + 6} ${BUCKET_BOTTOM_Y - 7}`}
-        stroke="rgba(255,225,180,0.4)"
-        strokeWidth="3"
+        d={`M ${TABLE_CX - TABLE_FRONT_W / 2 + 4} ${TABLE_TOP_FRONT_Y - 1}
+           L ${TABLE_CX - TABLE_BACK_W / 2 + 4} ${TABLE_TOP_BACK_Y + 1}`}
+        stroke="rgba(255,225,180,0.45)"
+        strokeWidth="2"
         strokeLinecap="round"
       />
 
-      {/* Apricots di dalam bucket — render layered */}
+      {/* Front legs (drawn after tabletop sehingga di depan) */}
+      {[legXs[0], legXs[1]].map((lx, i) => (
+        <rect
+          key={`fleg-${i}`}
+          x={lx - legW / 2}
+          y={TABLE_TOP_FRONT_Y + TABLE_TOP_THICKNESS}
+          width={legW}
+          height={TABLE_GROUND_Y - TABLE_TOP_FRONT_Y - TABLE_TOP_THICKNESS}
+          rx="1"
+          fill="#6a4a2d"
+          stroke="#3a2415"
+          strokeWidth="0.6"
+        />
+      ))}
+
+      {/* Apricot pile di atas meja — layered render, low row first */}
       {apricots.map((a) => (
-        <g key={`bka-${a.idx}`}>
+        <g key={`tab-${a.idx}`}>
           <circle cx={a.x} cy={a.y} r={a.size} fill="var(--retro-gold)" />
           <ellipse
             cx={a.x - a.size * 0.3}
@@ -541,8 +551,8 @@ const ApricotBucket = ({ filled = 0 }) => {
             fill="var(--retro-gold-light)"
             opacity="0.85"
           />
-          {/* Stem + leaf untuk top row (overflow rim) */}
-          {a.y < BUCKET_TOP_Y + 11 && (
+          {/* Top apricot (pyramid apex) dapat stem + leaf */}
+          {a.size >= 4.4 && a.size <= 4.5 && (
             <>
               <line
                 x1={a.x}
@@ -550,15 +560,14 @@ const ApricotBucket = ({ filled = 0 }) => {
                 x2={a.x}
                 y2={a.y - a.size - 3}
                 stroke="var(--retro-brown-dark)"
-                strokeWidth="1.1"
+                strokeWidth="1"
                 strokeLinecap="round"
               />
-              {/* Tiny leaf */}
               <ellipse
                 cx={a.x + 2}
                 cy={a.y - a.size - 2.5}
-                rx="2"
-                ry="1.3"
+                rx="2.2"
+                ry="1.4"
                 fill="#7BA05B"
                 transform={`rotate(40 ${a.x + 2} ${a.y - a.size - 2.5})`}
               />
@@ -567,11 +576,11 @@ const ApricotBucket = ({ filled = 0 }) => {
         </g>
       ))}
 
-      {/* Counter badge di bawah bucket — lebih besar match scale */}
+      {/* Counter badge di bawah meja */}
       <g>
         <rect
-          x={BUCKET_CX - 30}
-          y={BUCKET_BOTTOM_Y + 11}
+          x={TABLE_CX - 30}
+          y={TABLE_GROUND_Y + 10}
           width="60"
           height="18"
           rx="9"
@@ -579,8 +588,8 @@ const ApricotBucket = ({ filled = 0 }) => {
           opacity="0.94"
         />
         <text
-          x={BUCKET_CX}
-          y={BUCKET_BOTTOM_Y + 23.5}
+          x={TABLE_CX}
+          y={TABLE_GROUND_Y + 22.5}
           textAnchor="middle"
           fontSize="11"
           fontWeight="700"
