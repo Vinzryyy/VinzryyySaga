@@ -382,6 +382,189 @@ const markSupportedToday = () => {
 const POT_TOP_Y = 320;
 const POT_BOTTOM_Y = 360;
 const CENTER_X = 200;
+
+// Apricot bucket — muncul di samping pot/akar saat count >= 1700.
+// "Panen" — buah aprikot terkumpul. Visual: bucket kayu trapezoidal
+// dgn metal rings + handle, isinya apricot bertumpuk (cap 30 visual,
+// counter di bawah show actual count).
+const BUCKET_THRESHOLD = 1700;
+const BUCKET_CAPACITY = 30;
+const BUCKET_CX = 320; // CENTER_X + 120 — sebelah kanan pot
+const BUCKET_BOTTOM_Y = POT_BOTTOM_Y - 2;
+const BUCKET_TOP_Y = BUCKET_BOTTOM_Y - 56;
+const BUCKET_TOP_W = 52;
+const BUCKET_BOTTOM_W = 38;
+
+// Layered apricot positions inside bucket — 4 rows, total 30 slots.
+// Deterministic per index (no Math.random per render).
+const BUCKET_APRICOT_POSITIONS = (() => {
+  const rows = [
+    { dy: 6,  width: 38, count: 6, size: 4.2 },   // top — slightly above rim
+    { dy: 13, width: 42, count: 8, size: 4.0 },
+    { dy: 22, width: 42, count: 9, size: 3.8 },
+    { dy: 32, width: 38, count: 7, size: 3.6 },
+  ];
+  const arr = [];
+  let idx = 0;
+  rows.forEach((row) => {
+    for (let i = 0; i < row.count; i++) {
+      const t = row.count === 1 ? 0.5 : i / (row.count - 1);
+      const x = BUCKET_CX - row.width / 2 + t * row.width + ((idx * 7) % 5 - 2);
+      const y = BUCKET_TOP_Y + row.dy + ((idx * 11) % 4 - 2) * 0.4;
+      arr.push({ x, y, size: row.size + ((idx * 13) % 3) * 0.18, idx });
+      idx++;
+    }
+  });
+  return arr;
+})();
+
+const ApricotBucket = ({ filled = 0 }) => {
+  const visible = Math.min(BUCKET_CAPACITY, Math.max(0, filled));
+  const apricots = BUCKET_APRICOT_POSITIONS.slice(0, visible);
+  const isFull = filled >= BUCKET_CAPACITY;
+  return (
+    <g aria-label={`Bucket panen — ${filled} buah aprikot`}>
+      {/* Drop shadow di tanah */}
+      <ellipse
+        cx={BUCKET_CX}
+        cy={BUCKET_BOTTOM_Y + 4}
+        rx={BUCKET_BOTTOM_W / 2 + 4}
+        ry="3.5"
+        fill="#3a2820"
+        opacity="0.28"
+      />
+      {/* Body — wooden trapezoid */}
+      <path
+        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2} ${BUCKET_TOP_Y}
+           L ${BUCKET_CX + BUCKET_TOP_W / 2} ${BUCKET_TOP_Y}
+           L ${BUCKET_CX + BUCKET_BOTTOM_W / 2} ${BUCKET_BOTTOM_Y}
+           L ${BUCKET_CX - BUCKET_BOTTOM_W / 2} ${BUCKET_BOTTOM_Y} Z`}
+        fill="#8b6f47"
+        stroke="#4a3220"
+        strokeWidth="1.4"
+      />
+      {/* Wood slats — vertical lines untuk wood texture */}
+      {[-0.6, -0.3, 0, 0.3, 0.6].map((p, i) => {
+        const xTop = BUCKET_CX + p * BUCKET_TOP_W * 0.95;
+        const xBot = BUCKET_CX + p * BUCKET_BOTTOM_W * 0.95;
+        return (
+          <line
+            key={`slat-${i}`}
+            x1={xTop}
+            y1={BUCKET_TOP_Y + 1}
+            x2={xBot}
+            y2={BUCKET_BOTTOM_Y - 1}
+            stroke="#5a3e25"
+            strokeWidth="0.8"
+            opacity="0.55"
+          />
+        );
+      })}
+      {/* Top metal ring */}
+      <ellipse
+        cx={BUCKET_CX}
+        cy={BUCKET_TOP_Y}
+        rx={BUCKET_TOP_W / 2}
+        ry="3"
+        fill="#4a4035"
+        stroke="#2a1f15"
+        strokeWidth="0.8"
+      />
+      {/* Inner cavity (rim depth) */}
+      <ellipse
+        cx={BUCKET_CX}
+        cy={BUCKET_TOP_Y + 0.6}
+        rx={BUCKET_TOP_W / 2 - 3}
+        ry="2"
+        fill="#3a2a1c"
+      />
+      {/* Bottom metal ring */}
+      <rect
+        x={BUCKET_CX - BUCKET_BOTTOM_W / 2 - 1}
+        y={BUCKET_BOTTOM_Y - 4}
+        width={BUCKET_BOTTOM_W + 2}
+        height="3.5"
+        rx="1"
+        fill="#4a4035"
+        stroke="#2a1f15"
+        strokeWidth="0.5"
+      />
+      {/* Handle — semicircle arc dari kiri ke kanan */}
+      <path
+        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 4} ${BUCKET_TOP_Y}
+           Q ${BUCKET_CX} ${BUCKET_TOP_Y - 16} ${BUCKET_CX + BUCKET_TOP_W / 2 - 4} ${BUCKET_TOP_Y}`}
+        fill="none"
+        stroke="#2a1f15"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      {/* Sheen highlight di kiri body */}
+      <path
+        d={`M ${BUCKET_CX - BUCKET_TOP_W / 2 + 4} ${BUCKET_TOP_Y + 5}
+           L ${BUCKET_CX - BUCKET_BOTTOM_W / 2 + 4} ${BUCKET_BOTTOM_Y - 5}`}
+        stroke="rgba(255,225,180,0.35)"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+
+      {/* Apricots di dalam bucket — render layered */}
+      {apricots.map((a) => (
+        <g key={`bka-${a.idx}`}>
+          <circle cx={a.x} cy={a.y} r={a.size} fill="var(--retro-gold)" />
+          <ellipse
+            cx={a.x - a.size * 0.3}
+            cy={a.y - a.size * 0.3}
+            rx={a.size * 0.32}
+            ry={a.size * 0.32}
+            fill="var(--retro-gold-light)"
+            opacity="0.85"
+          />
+          {/* Stem mini untuk top row */}
+          {a.y < BUCKET_TOP_Y + 8 && (
+            <line
+              x1={a.x}
+              y1={a.y - a.size}
+              x2={a.x}
+              y2={a.y - a.size - 2}
+              stroke="var(--retro-brown-dark)"
+              strokeWidth="0.8"
+              strokeLinecap="round"
+            />
+          )}
+        </g>
+      ))}
+
+      {/* Counter badge di bawah bucket */}
+      <g>
+        <rect
+          x={BUCKET_CX - 22}
+          y={BUCKET_BOTTOM_Y + 8}
+          width="44"
+          height="14"
+          rx="7"
+          fill="var(--retro-burgundy)"
+          opacity="0.92"
+        />
+        <text
+          x={BUCKET_CX}
+          y={BUCKET_BOTTOM_Y + 17.5}
+          textAnchor="middle"
+          fontSize="9"
+          fontWeight="700"
+          fill="var(--retro-cream)"
+          fontFamily="inherit"
+        >
+          {filled.toLocaleString('id-ID')}
+          {isFull && (
+            <tspan opacity="0.7" dx="1" fontSize="7">
+              ✦
+            </tspan>
+          )}
+        </text>
+      </g>
+    </g>
+  );
+};
 // viewBox dimensions. The y origin is negative so the foliage +
 // hanging cards at the highest stages have headroom above y=0
 // without clipping. x range still 0..400, y range -260..400.
@@ -890,6 +1073,13 @@ const TreeArt = ({ stage, count = 0, wishes = [], onOpenWish }) => {
             );
           })}
         </g>
+      )}
+
+      {/* Apricot harvest bucket — muncul saat count >= 1700, isinya
+          1 buah aprikot per support setelah threshold (cap 30 visual,
+          actual count shown di badge bawah bucket). */}
+      {count >= BUCKET_THRESHOLD && (
+        <ApricotBucket filled={count - BUCKET_THRESHOLD} />
       )}
     </svg>
   );
