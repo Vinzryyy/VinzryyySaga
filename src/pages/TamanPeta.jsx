@@ -1108,6 +1108,120 @@ const LilyPondRipples = () => {
   );
 };
 
+// Wooden bench — rest spot di taman, kasih kerasa "safe place" /
+// sanctuary. Sederhana 4 element: seat plank + back rest + 3 slats +
+// 2 legs. Wood brown tones.
+const WoodenBench = ({ position = [3.5, 0, -1.8], rotation = [0, -Math.PI / 2.5, 0] }) => (
+  <group position={position} rotation={rotation}>
+    {/* Seat plank */}
+    <mesh position={[0, 0.32, 0]}>
+      <boxGeometry args={[1.3, 0.07, 0.3]} />
+      <meshStandardMaterial color="#7a5530" roughness={0.95} />
+    </mesh>
+    {/* Back rest panel — tilt slightly */}
+    <mesh position={[0, 0.58, -0.13]} rotation={[-0.12, 0, 0]}>
+      <boxGeometry args={[1.3, 0.42, 0.04]} />
+      <meshStandardMaterial color="#6a4a2d" roughness={0.95} />
+    </mesh>
+    {/* Back rest vertical slats — 3 spaced */}
+    {[-0.42, 0, 0.42].map((dx, i) => (
+      <mesh key={`slat-${i}`} position={[dx, 0.55, -0.13]} rotation={[-0.12, 0, 0]}>
+        <boxGeometry args={[0.05, 0.36, 0.04]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Left + right legs */}
+    {[-0.55, 0.55].map((dx, i) => (
+      <mesh key={`leg-${i}`} position={[dx, 0.16, 0]}>
+        <boxGeometry args={[0.07, 0.32, 0.28]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Subtle drop shadow */}
+    <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[1.5, 0.6]} />
+      <meshBasicMaterial color="#0a0d14" transparent opacity={0.32} depthWrite={false} />
+    </mesh>
+  </group>
+);
+
+// Path lantern — wooden post dgn lampu kaca + flame glow flicker.
+// Scattered di 3 spot antara petak utk warm atmosphere.
+const PathLantern = ({ position }) => {
+  const flameRef = useRef();
+  const haloRef = useRef();
+  useFrame((state) => {
+    if (!flameRef.current || !haloRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Flicker via phase shift dari posisi
+    const seed = position[0] * 3 + position[2] * 5;
+    flameRef.current.emissiveIntensity = 1.4 + Math.sin(t * 4 + seed) * 0.45;
+    haloRef.current.material.opacity = 0.16 + Math.sin(t * 4 + seed) * 0.05;
+  });
+  return (
+    <group position={position}>
+      {/* Post */}
+      <mesh position={[0, 0.55, 0]}>
+        <cylinderGeometry args={[0.04, 0.06, 1.1, 6]} />
+        <meshStandardMaterial color="#3a2415" roughness={1} />
+      </mesh>
+      {/* Lantern body frame — dark cube */}
+      <mesh position={[0, 1.2, 0]}>
+        <boxGeometry args={[0.2, 0.26, 0.2]} />
+        <meshStandardMaterial color="#1a0e08" roughness={1} />
+      </mesh>
+      {/* Glass center + flame */}
+      <mesh ref={flameRef} position={[0, 1.2, 0]}>
+        <sphereGeometry args={[0.085, 10, 8]} />
+        <meshStandardMaterial
+          color="#fff2c8"
+          emissive="#f9c66a"
+          emissiveIntensity={1.5}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Glow halo */}
+      <mesh ref={haloRef} position={[0, 1.2, 0]}>
+        <sphereGeometry args={[0.42, 14, 10]} />
+        <meshBasicMaterial
+          color="#f9c66a"
+          transparent
+          opacity={0.16}
+          toneMapped={false}
+          depthWrite={false}
+        />
+      </mesh>
+      {/* Top cap */}
+      <mesh position={[0, 1.37, 0]}>
+        <boxGeometry args={[0.24, 0.04, 0.24]} />
+        <meshStandardMaterial color="#3a2415" roughness={1} />
+      </mesh>
+      {/* Top pointed roof */}
+      <mesh position={[0, 1.46, 0]}>
+        <coneGeometry args={[0.14, 0.13, 4]} />
+        <meshStandardMaterial color="#2a1810" roughness={1} />
+      </mesh>
+    </group>
+  );
+};
+
+const LANTERN_POSITIONS = (() => {
+  const arr = [];
+  // 3 lanterns at midpoints antara petak — angles 60/180/300
+  [60, 180, 300].forEach((deg) => {
+    const rad = (deg * Math.PI) / 180;
+    arr.push([Math.cos(rad) * 4.5, 0, Math.sin(rad) * 4.5]);
+  });
+  return arr;
+})();
+const PathLanterns = () => (
+  <>
+    {LANTERN_POSITIONS.map((p, i) => (
+      <PathLantern key={`lantern-${i}`} position={p} />
+    ))}
+  </>
+);
+
 // Ground mist particles — soft drifting points di low altitude (0.2-0.8y),
 // pelan drift horizontal, wrap around viewport. Atmospheric haze yg
 // kasih depth + dreamy feel ke ground level. ~50 particles desktop.
@@ -1931,6 +2045,8 @@ const TamanScene = ({
       <PetakGroundGlow petakList={PETAK} />
       <ChapterFlowRing />
       <ChapterFlowBead />
+      <PathLanterns />
+      <WoodenBench />
       {/* Visited halo per petak — emerald ring di atas petak yg udah
           dibuka overlay-nya. Progress indicator visual. */}
       {PETAK.filter((p) => previewedPetak.has(p.id)).map((petak) => (
