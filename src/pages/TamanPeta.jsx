@@ -876,7 +876,7 @@ const TreeLightCone = () => {
 // Dust haze sheets di langit (previously "aurora") — 3 elongated planes
 // tilted di sky high, warm desert dust tones (amber, coral, rose).
 // Slow horizontal drift + opacity pulse, kerasa kayak hazy heat
-// shimmer + sand dust di horizon. Behind mountains tapi visible.
+// shimmer + sand dust di horizon. Di belakang silhouette ruins.
 const AURORA_DEFS = [
   { pos: [-2, 12, -18], rotX: -Math.PI / 3.2, w: 22, h: 3.5, color: '#e8b07a', phase: 0 },
   { pos: [5, 11, -15], rotX: -Math.PI / 3.5, w: 18, h: 3, color: '#d97a6a', phase: 1.5 },
@@ -993,35 +993,132 @@ const HoverRipple = ({ petak }) => {
   );
 };
 
-// Distant mountain silhouettes — 9 cones di luar drought ring (radius
-// 22-30), berbagai height + color. Kasih atmospheric depth ke horizon,
-// kerasa "ada dunia di luar taman". Tone dark blue-gray supaya recede.
-const MOUNTAIN_DEFS = (() => {
+// Ruined-city silhouettes di horizon — pillar, broken column, arch,
+// tower, wall, distributed di luar drought ring (radius 22-30). Kasih
+// sense "dunia luar = sisa peradaban yg runtuh, taman ini oasis di
+// tengahnya". Tone deep dusky rose/plum supaya recede ke fog. Mixed
+// shapes biar gak monotone — 14 ruins, 5 type variant deterministic.
+const RUIN_TYPES = ['pillar', 'broken_column', 'arch', 'tower', 'wall'];
+const RUIN_COLORS = ['#3a2535', '#2e2030', '#4a3540'];
+const RUIN_DEFS = (() => {
   const arr = [];
-  for (let i = 0; i < 11; i++) {
-    const angle = (i / 11) * Math.PI * 2 + ((i * 19) % 9) * 0.07;
-    const r = 23 + ((i * 13) % 7);
-    const h = 2.4 + ((i * 11) % 5) * 0.55;
-    const radius = 1.6 + ((i * 17) % 4) * 0.3;
-    // Layer color — closer mountains lighter, farther darker
-    const colorIdx = (i * 7) % 3;
-    const colors = ['#2a3548', '#1f2838', '#1a2030'];
+  for (let i = 0; i < 14; i++) {
+    const angle = (i / 14) * Math.PI * 2 + ((i * 19) % 9) * 0.07;
+    const r = 22 + ((i * 13) % 8);
     arr.push({
-      pos: [Math.cos(angle) * r, h / 2 - 0.3, Math.sin(angle) * r],
-      h,
-      radius,
-      color: colors[colorIdx],
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      type: RUIN_TYPES[i % RUIN_TYPES.length],
+      height: 2.2 + ((i * 11) % 6) * 0.55,
+      width: 0.45 + ((i * 7) % 4) * 0.18,
+      color: RUIN_COLORS[(i * 5) % RUIN_COLORS.length],
+      rot: ((i * 23) % 360) * (Math.PI / 180),
     });
   }
   return arr;
 })();
-const Mountains = () => (
+
+const Ruin = ({ pos, type, height, width, color, rot }) => {
+  let body = null;
+  switch (type) {
+    case 'pillar': {
+      body = (
+        <mesh position={[0, height / 2, 0]}>
+          <cylinderGeometry args={[width * 0.55, width * 0.7, height, 8]} />
+          <meshStandardMaterial color={color} roughness={1} />
+        </mesh>
+      );
+      break;
+    }
+    case 'broken_column': {
+      const colH = height * 0.7;
+      body = (
+        <>
+          <mesh position={[0, colH / 2, 0]}>
+            <cylinderGeometry args={[width * 0.55, width * 0.7, colH, 8]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+          {/* Jagged broken top — tilted slab */}
+          <mesh position={[0, colH + 0.12, 0]} rotation={[0.3, 0, 0.22]}>
+            <boxGeometry args={[width * 1.4, 0.28, width * 1.4]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+        </>
+      );
+      break;
+    }
+    case 'arch': {
+      const span = width * 3;
+      const pH = height * 0.8;
+      const pR = width * 0.42;
+      body = (
+        <>
+          <mesh position={[-span / 2, pH / 2, 0]}>
+            <cylinderGeometry args={[pR, pR * 1.1, pH, 8]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+          <mesh position={[span / 2, pH / 2, 0]}>
+            <cylinderGeometry args={[pR, pR * 1.1, pH, 8]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+          {/* Lintel — bridging top */}
+          <mesh position={[0, pH + 0.22, 0]}>
+            <boxGeometry args={[span + pR * 2.2, 0.42, pR * 1.6]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+        </>
+      );
+      break;
+    }
+    case 'tower': {
+      const tw = width * 1.5;
+      const tH = height * 0.9;
+      body = (
+        <>
+          <mesh position={[0, tH / 2, 0]}>
+            <boxGeometry args={[tw, tH, tw]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+          {/* Crown — smaller stacked box, eroded look */}
+          <mesh position={[0, tH + 0.32, 0]}>
+            <boxGeometry args={[tw * 0.72, 0.6, tw * 0.72]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+        </>
+      );
+      break;
+    }
+    case 'wall': {
+      const wW = width * 4;
+      const wH = height * 0.55;
+      body = (
+        <>
+          <mesh position={[0, wH / 2, 0]}>
+            <boxGeometry args={[wW, wH, width * 0.5]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+          {/* Broken higher segment di salah satu sisi */}
+          <mesh position={[-wW / 3, wH + 0.28, 0]}>
+            <boxGeometry args={[wW * 0.32, 0.55, width * 0.5]} />
+            <meshStandardMaterial color={color} roughness={1} />
+          </mesh>
+        </>
+      );
+      break;
+    }
+    default:
+      return null;
+  }
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {body}
+    </group>
+  );
+};
+
+const CityRuins = () => (
   <>
-    {MOUNTAIN_DEFS.map((m, i) => (
-      <mesh key={`mt-${i}`} position={m.pos}>
-        <coneGeometry args={[m.radius, m.h, 6]} />
-        <meshStandardMaterial color={m.color} roughness={1} />
-      </mesh>
+    {RUIN_DEFS.map((r, i) => (
+      <Ruin key={`ruin-${i}`} {...r} />
     ))}
   </>
 );
@@ -2334,7 +2431,7 @@ const TamanScene = ({
       />
       <TamanFloor />
       <DroughtRing />
-      <Mountains />
+      <CityRuins />
       <Aurora />
       <Constellations />
       <DeadTrees />
