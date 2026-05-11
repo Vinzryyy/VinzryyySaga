@@ -39,6 +39,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import RotateRecommendation from '../components/ui/RotateRecommendation';
 
 // Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
 // dijaga konsisten supaya keputusan downscale seragam antar halaman
@@ -3471,6 +3472,7 @@ const TamanPetaPage = () => {
             detail modal sengaja di-disable selama blank-slate mode.
             Re-enable kalau redesign udah jelas mau pakai komponen mana. */}
         <AmbientAudio profile="taman" position="top-right" />
+        <RotateRecommendation />
       </div>
     </>
   );

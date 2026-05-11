@@ -39,6 +39,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { useIsMobile } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
 
@@ -631,6 +632,7 @@ const TamanLorongPohonPage = () => {
           active={signatureEvent?.type === 'monument'}
         />
         <AmbientAudio profile="taman-r1" position="top-right" />
+        <RotateRecommendation />
         {perfEnabled && <PerfHUD statsRef={perfFpsRef} />}
       </div>
     </>

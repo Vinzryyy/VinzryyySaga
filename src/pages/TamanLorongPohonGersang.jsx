@@ -69,6 +69,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { useIsMobile } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
 
@@ -342,36 +343,38 @@ const LorongScene = ({
   onReturnTrigger,
 }) => (
   <>
-    {/* DROUGHT atmosphere — warm dusty brown fog (match R0 Padang Tandus
-        BG_DROUGHT), bukan twilight purple. Bikin r1 kerasa kontinu
-        secara mood dari /armeniacaTown saat ekosistem masih rusak. */}
-    <fog attach="fog" args={['#2a1d15', 12, 38]} />
-    <color attach="background" args={['#1f1410']} />
-    {/* Ambient lebih redup + warm-brown — kerasa muram, bukan ada
-        ambient hidup yang nge-fill scene */}
-    <ambientLight intensity={0.32} color="#c8a085" />
-    {/* Key light — sunset residual, sedikit lebih lemah dari canonical
-        (1.2 → 0.95), warna geser ke amber kering bukan golden */}
+    {/* DROUGHT atmosphere — warm dusty brown tone tapi cukup terang
+        biar visual decay (ranting jatuh, pohon mati, lentera mati)
+        keliatan jelas. Iterasi sebelumnya kegelapan (#1f1410 bg +
+        ambient 0.32) bikin scene baca sebagai "malam total" bukan
+        "siang/sore gersang". */}
+    <fog attach="fog" args={['#4a3525', 14, 46]} />
+    <color attach="background" args={['#3a2818']} />
+    {/* Ambient naikin signifikan (0.32 → 0.7) + tone amber lebih
+        bright. Pengen kerasa "siang gersang berkabut debu" bukan
+        malam mati. */}
+    <ambientLight intensity={0.7} color="#e8c098" />
+    {/* Key light — drought sun, intensity dinaikin balik biar visible.
+        Warna amber kering — kaya cahaya yang nembus debu padang. */}
     <directionalLight
       position={[6, 12, 4]}
-      intensity={0.95}
-      color="#e8b078"
+      intensity={1.35}
+      color="#f4c890"
     />
-    {/* Moon rim light — turunin intensity drastis, color geser ke
-        warm-gray bukan cool blue. Drought = bulan keliatan sayup. */}
+    {/* Side fill light — warna warm gray, ngasih balance ke sisi
+        gelap supaya silhouette pohon mati keliatan jelas. */}
     <directionalLight
       position={[-8, 14, -25]}
-      intensity={0.35}
-      color="#9a8878"
+      intensity={0.5}
+      color="#b8a090"
     />
-    {/* Horizon glow di ujung path — Pohon Terakhir di sana, jadi glow
-        tetap muncul sebagai beacon. Intensity turun sedikit, warna
-        lebih burnt-orange. */}
+    {/* Horizon glow di ujung path — Pohon Terakhir beacon. Intensity
+        dinaikin biar kerasa kontras lawan ambient siang. */}
     <pointLight
       position={[0, 2.5, -33]}
-      intensity={1.6}
-      color="#e88848"
-      distance={12}
+      intensity={2.2}
+      color="#f0a060"
+      distance={14}
       decay={2}
     />
     {/* Ground = drought versions (defined di atas, replace Path +
@@ -846,6 +849,7 @@ const TamanLorongPohonGersangPage = () => {
           active={signatureEvent?.type === 'monument'}
         />
         <AmbientAudio profile="taman-r1" position="top-right" />
+        <RotateRecommendation />
         {perfEnabled && <PerfHUD statsRef={perfFpsRef} />}
       </div>
     </>

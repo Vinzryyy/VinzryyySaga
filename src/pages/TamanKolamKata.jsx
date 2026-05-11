@@ -56,6 +56,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import RotateRecommendation from '../components/ui/RotateRecommendation';
 import {
   RIVER_WIDTH,
   RIVER_LENGTH,
@@ -5785,6 +5786,7 @@ const TamanKolamKataPage = () => {
         <TelagaFooter hoveredPadId={hoveredPadId} totalPads={pads.length} />
         <WishOverlay pad={selectedPad} onClose={handleClose} />
         <AmbientAudio profile="taman" position="top-right" />
+        <RotateRecommendation />
         {/* Skip intro button — click anywhere during cinematic lerp
             atau press dedicated button untuk fast-forward. UX win:
             user yang udah pernah liat intro gak harus nunggu 3.5s. */}

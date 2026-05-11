@@ -52,6 +52,7 @@ import {
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Threshold buka Gerbang = unlock peta /armeniacaTown/peta. Sinkron
@@ -1910,6 +1911,7 @@ const MuseumPage = () => {
           Gerbang
           {import.meta.env.DEV && ` · stage: ${stage}`}
         </div>
+        <RotateRecommendation />
       </div>
     </>
   );
