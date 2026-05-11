@@ -722,6 +722,107 @@ const StonePath = ({ petakList }) => (
   </>
 );
 
+// Petak ground glow — soft radial circle di bawah tiap petak, color
+// matching petak tone. Kerasa "pool of light" radiating dari petak
+// ke ground, kerasa hidup vs flat floor.
+const PetakGroundGlow = ({ petakList }) => (
+  <>
+    {petakList.map((petak) => {
+      const [px, pz] = polarToXZ(petak.angle, HEX_RADIUS);
+      return (
+        <mesh
+          key={`glow-${petak.id}`}
+          position={[px, 0.008, pz]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <circleGeometry args={[2.4, 24]} />
+          <meshBasicMaterial
+            color={petak.color}
+            transparent
+            opacity={0.18}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      );
+    })}
+  </>
+);
+
+// Animated floating star — bob + rotation, untuk landmark torii r1.
+const FloatingStar = ({ position = [0, 1.25, 0] }) => {
+  const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.position.y = position[1] + Math.sin(t * 1.4) * 0.08;
+    ref.current.rotation.y = t * 0.6;
+    ref.current.rotation.x = Math.sin(t * 0.8) * 0.2;
+  });
+  return (
+    <mesh ref={ref} position={position}>
+      <octahedronGeometry args={[0.08, 0]} />
+      <meshStandardMaterial
+        color="#fff5c8"
+        emissive="#fff5c8"
+        emissiveIntensity={0.95}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+
+// Pulsing lotus — emissive scale ke up/down rhythm, untuk landmark
+// telaga r3.
+const PulsingLotus = ({ position = [-0.05, 0.08, -0.25] }) => {
+  const ref = useRef();
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!ref.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
+    const pulse = 1 + Math.sin(t * 1.1) * 0.08;
+    ref.current.scale.set(pulse, pulse, pulse);
+    matRef.current.emissiveIntensity = 0.35 + Math.sin(t * 1.1) * 0.18;
+  });
+  return (
+    <mesh ref={ref} position={position}>
+      <sphereGeometry args={[0.07, 10, 8]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#f4a8c0"
+        emissive="#f4a8c0"
+        emissiveIntensity={0.4}
+        roughness={0.6}
+      />
+    </mesh>
+  );
+};
+
+// Mini-fruit pulse glow — animasi subtle emissive di buah aprikot
+// kecil, untuk landmark mini-tree r6.
+const PulsingMiniFruit = ({ position }) => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Phase shift via position hash supaya fruit gak in-sync
+    const phase = (position[0] * 7 + position[2] * 13) % (Math.PI * 2);
+    matRef.current.emissiveIntensity = 0.2 + Math.sin(t * 1.3 + phase) * 0.12;
+  });
+  return (
+    <mesh position={position}>
+      <sphereGeometry args={[0.06, 8, 6]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#e8a87c"
+        emissive="#e8a87c"
+        emissiveIntensity={0.2}
+        roughness={0.55}
+      />
+    </mesh>
+  );
+};
+
 // Per-petak landmark — distinctive 3D element on top of each petak
 // sesuai tema-nya. Dipanggil per-petak di scene render. Posisi
 // relatif ke petak top (y ≈ 0.55).
@@ -752,16 +853,8 @@ const PetakLandmark = ({ petak }) => {
             <boxGeometry args={[0.75, 0.05, 0.1]} />
             <meshStandardMaterial color="#7a5840" roughness={0.85} />
           </mesh>
-          {/* Floating star */}
-          <mesh position={[0, 1.25, 0]}>
-            <octahedronGeometry args={[0.08, 0]} />
-            <meshStandardMaterial
-              color="#fff5c8"
-              emissive="#fff5c8"
-              emissiveIntensity={0.85}
-              toneMapped={false}
-            />
-          </mesh>
+          {/* Floating star — bob + rotate animated */}
+          <FloatingStar position={[0, 1.25, 0]} />
         </>,
       );
     case 'r2':
@@ -821,16 +914,8 @@ const PetakLandmark = ({ petak }) => {
               <meshStandardMaterial color="#4a8458" roughness={0.85} />
             </mesh>
           ))}
-          {/* Lotus center */}
-          <mesh position={[-0.05, 0.08, -0.25]}>
-            <sphereGeometry args={[0.07, 10, 8]} />
-            <meshStandardMaterial
-              color="#f4a8c0"
-              emissive="#f4a8c0"
-              emissiveIntensity={0.4}
-              roughness={0.6}
-            />
-          </mesh>
+          {/* Lotus center — pulsing scale + emissive */}
+          <PulsingLotus position={[-0.05, 0.08, -0.25]} />
         </>,
       );
     case 'r4':
@@ -906,22 +991,14 @@ const PetakLandmark = ({ petak }) => {
             <sphereGeometry args={[0.32, 14, 10]} />
             <meshStandardMaterial color="#86a868" roughness={0.75} />
           </mesh>
-          {/* Tiny fruits */}
+          {/* Tiny fruits — pulsing emissive dgn phase shift per posisi */}
           {[
             [0.2, 0.62, 0.1],
             [-0.18, 0.55, 0.12],
             [0.05, 0.78, -0.12],
             [-0.08, 0.7, 0.18],
           ].map((p, i) => (
-            <mesh key={`mf-${i}`} position={p}>
-              <sphereGeometry args={[0.06, 8, 6]} />
-              <meshStandardMaterial
-                color="#e8a87c"
-                emissive="#e8a87c"
-                emissiveIntensity={0.2}
-                roughness={0.55}
-              />
-            </mesh>
+            <PulsingMiniFruit key={`mf-${i}`} position={p} />
           ))}
         </>,
       );
@@ -1249,6 +1326,7 @@ const TamanScene = ({
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
       <StonePath petakList={PETAK} />
+      <PetakGroundGlow petakList={PETAK} />
       <Fireflies isMobile={isMobile} />
       <NarrativeWhispers isMobile={isMobile} />
       <CenterTree
