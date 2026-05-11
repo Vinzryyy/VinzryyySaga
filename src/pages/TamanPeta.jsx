@@ -2367,6 +2367,108 @@ const Stars = ({ count = 80 }) => {
   );
 };
 
+// Shooting star — hero moment yg streaks across sky periodically.
+// Idle 12-37s antar shoot, active ~1.8s saat lewat. Trail dibentuk
+// dari 8 sphere yg stack di local -X, opacity & scale decay ke tail.
+// Group rotated around Y supaya trail align sama motion direction.
+// Bloom postprocessing nge-amplify cahayanya jadi "sinematik magis".
+const SHOOTING_STAR_SEGMENTS = 8;
+const SHOOTING_STAR_DURATION = 1.8;
+const ShootingStar = () => {
+  const groupRef = useRef();
+  const stateRef = useRef({
+    active: false,
+    t0: 0,
+    // First shoot fires ~5-8s after fly-in begins
+    nextAt: 5 + Math.random() * 3,
+    start: [0, 0, 0],
+    end: [0, 0, 0],
+    angle: 0,
+  });
+
+  useFrame((state) => {
+    const s = stateRef.current;
+    const t = state.clock.elapsedTime;
+    if (!s.active) {
+      if (t >= s.nextAt) {
+        // Plan a new path across sky perimeter
+        const startAngle = Math.random() * Math.PI * 2;
+        const endAngle = startAngle + Math.PI + (Math.random() - 0.5) * 1.2;
+        const startR = 22 + Math.random() * 6;
+        const endR = 22 + Math.random() * 6;
+        const startY = 11 + Math.random() * 5;
+        const endY = startY - 2 - Math.random() * 3;
+        s.start = [
+          Math.cos(startAngle) * startR,
+          startY,
+          Math.sin(startAngle) * startR,
+        ];
+        s.end = [
+          Math.cos(endAngle) * endR,
+          endY,
+          Math.sin(endAngle) * endR,
+        ];
+        const dx = s.end[0] - s.start[0];
+        const dz = s.end[2] - s.start[2];
+        s.angle = Math.atan2(dz, dx);
+        s.t0 = t;
+        s.active = true;
+        if (groupRef.current) groupRef.current.visible = true;
+      }
+      return;
+    }
+    const u = (t - s.t0) / SHOOTING_STAR_DURATION;
+    if (u >= 1) {
+      s.active = false;
+      s.nextAt = t + 12 + Math.random() * 25;
+      if (groupRef.current) groupRef.current.visible = false;
+      return;
+    }
+    if (!groupRef.current) return;
+    groupRef.current.position.set(
+      lerp(s.start[0], s.end[0], u),
+      lerp(s.start[1], s.end[1], u),
+      lerp(s.start[2], s.end[2], u),
+    );
+    groupRef.current.rotation.y = -s.angle;
+  });
+
+  const segments = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < SHOOTING_STAR_SEGMENTS; i++) {
+      const tnorm = i / (SHOOTING_STAR_SEGMENTS - 1);
+      arr.push({
+        idx: i,
+        offset: -i * 0.28,
+        scale: 1 - tnorm * 0.82,
+        opacity: 1 - tnorm * 0.95,
+      });
+    }
+    return arr;
+  }, []);
+
+  return (
+    <group ref={groupRef} visible={false}>
+      {segments.map((seg) => (
+        <mesh
+          key={`ss-${seg.idx}`}
+          position={[seg.offset, 0, 0]}
+          scale={seg.scale}
+        >
+          <sphereGeometry args={[0.16, 10, 8]} />
+          <meshBasicMaterial
+            color="#fff8e8"
+            transparent
+            opacity={seg.opacity}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 // Moon — disc kecil glow lembut di sudut atas peta. Bukan light source
 // asli (cuma visual), light asli udah dari directionalLight existing.
 const Moon = () => (
@@ -2566,6 +2668,7 @@ const TamanScene = ({
       {restorationLevel >= 1 && <RestorationCelebration />}
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
+      <ShootingStar />
       <BirdsFlock />
       <StonePath petakList={PETAK} visitedSet={previewedPetak} />
       <PetakGroundGlow petakList={PETAK} />
