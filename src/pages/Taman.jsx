@@ -101,7 +101,7 @@ const lerpHex = (a, b, t) => {
 // + plank detail + hanging cloth tirai dgn gentle wind sway. Tone
 // dark warm masih sesuai drought, tapi punya struktur lebih kerasa
 // "gerbang" bukan abstract rect 3 box.
-const Gate = () => {
+const Gate = ({ stage = 'idle' }) => {
   const tiraiLRef = useRef();
   const tiraiRRef = useRef();
   const chainRef = useRef();
@@ -161,14 +161,21 @@ const Gate = () => {
       <boxGeometry args={[4.8, 0.18, 0.35]} />
       <meshStandardMaterial color="#1a1410" roughness={0.95} />
     </mesh>
-    {/* Plaque kayu di tengah cross-beam atas — sign Taman Kebaikan */}
+    {/* Plaque kayu di tengah cross-beam atas — sign Taman Kebaikan.
+        Saat stage='done', text-area di plaque glow warm — reveal
+        narrative "gerbang kebaikan udah terbuka". */}
     <mesh position={[0, 4.4, 0.24]}>
       <boxGeometry args={[1.2, 0.32, 0.04]} />
       <meshStandardMaterial color="#3a2818" roughness={0.9} />
     </mesh>
     <mesh position={[0, 4.4, 0.265]}>
       <boxGeometry args={[1.0, 0.18, 0.005]} />
-      <meshStandardMaterial color="#6a4d2f" roughness={0.85} />
+      <meshStandardMaterial
+        color={stage === 'done' ? '#f4c478' : '#6a4d2f'}
+        emissive={stage === 'done' ? '#f4a060' : '#000000'}
+        emissiveIntensity={stage === 'done' ? 0.7 : 0}
+        roughness={0.85}
+      />
     </mesh>
     {/* Hanging cloth tirai dari cross-beam tengah — 2 strip kain
         weathered dgn gentle wind sway. Anchor di top, pivot rotation.x. */}
@@ -597,24 +604,50 @@ const Sun = () => (
 );
 
 // Crow perched on dead tree — silhouette dgn occasional wing twitch +
-// subtle head bob. Thematic top of DeadTree.
-const PerchedCrow = ({ pos }) => {
+// subtle head bob. Saat stage transition jadi 'transitioning' atau
+// 'done', burung lift off — terbang menjauh ke sky (narrative: ruang
+// bergerak dari drought ke renewal, burung gak betah di scene yg baru).
+const PerchedCrow = ({ pos, stage = 'idle' }) => {
+  const groupRef = useRef();
   const wingsRef = useRef();
   const headRef = useRef();
-  useFrame((state) => {
+  const liftStartRef = useRef(null);
+  const isFlying = stage === 'transitioning' || stage === 'done';
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
-    // Wing twitch — pulse setiap ~5s
+    // Wing twitch saat perched, full flap saat flying
     if (wingsRef.current) {
-      const twitch = Math.max(0, Math.sin(t * 0.6)) * Math.sin(t * 5);
-      wingsRef.current.rotation.z = twitch * 0.2;
+      if (isFlying) {
+        const flap = Math.sin(t * 12) * 0.8;
+        wingsRef.current.rotation.z = flap;
+      } else {
+        const twitch = Math.max(0, Math.sin(t * 0.6)) * Math.sin(t * 5);
+        wingsRef.current.rotation.z = twitch * 0.2;
+      }
     }
-    // Head bob slight
-    if (headRef.current) {
+    // Head bob slight saat perched, lock saat flying
+    if (headRef.current && !isFlying) {
       headRef.current.rotation.y = Math.sin(t * 0.4) * 0.3;
+    }
+    // Position lift off
+    if (groupRef.current) {
+      if (isFlying) {
+        if (liftStartRef.current === null) liftStartRef.current = t;
+        const elapsed = t - liftStartRef.current;
+        // Climb + drift away dari camera (x decreasing, y up)
+        groupRef.current.position.x = pos[0] - elapsed * 1.4;
+        groupRef.current.position.y = pos[1] + elapsed * 1.2;
+        groupRef.current.position.z = pos[2] - elapsed * 0.6;
+        groupRef.current.rotation.y = elapsed * 0.3;
+      } else {
+        liftStartRef.current = null;
+        groupRef.current.position.set(...pos);
+        groupRef.current.rotation.y = 0;
+      }
     }
   });
   return (
-    <group position={pos}>
+    <group ref={groupRef} position={pos}>
       {/* Body */}
       <mesh>
         <sphereGeometry args={[0.12, 8, 6]} />
@@ -652,15 +685,19 @@ const PerchedCrow = ({ pos }) => {
           <meshBasicMaterial color="#c84838" fog={false} />
         </mesh>
       </group>
-      {/* Legs (thin) */}
-      <mesh position={[0, -0.12, 0.04]}>
-        <cylinderGeometry args={[0.008, 0.008, 0.12, 4]} />
-        <meshBasicMaterial color="#0a0805" fog={false} />
-      </mesh>
-      <mesh position={[0, -0.12, -0.04]}>
-        <cylinderGeometry args={[0.008, 0.008, 0.12, 4]} />
-        <meshBasicMaterial color="#0a0805" fog={false} />
-      </mesh>
+      {/* Legs (thin) — disembunyiin saat flying biar lebih natural */}
+      {!isFlying && (
+        <>
+          <mesh position={[0, -0.12, 0.04]}>
+            <cylinderGeometry args={[0.008, 0.008, 0.12, 4]} />
+            <meshBasicMaterial color="#0a0805" fog={false} />
+          </mesh>
+          <mesh position={[0, -0.12, -0.04]}>
+            <cylinderGeometry args={[0.008, 0.008, 0.12, 4]} />
+            <meshBasicMaterial color="#0a0805" fog={false} />
+          </mesh>
+        </>
+      )}
     </group>
   );
 };
@@ -983,6 +1020,124 @@ const DustDevil = ({ pos }) => {
   );
 };
 
+// Lonely flower — single small flower clinging to life di tengah dry
+// grass. Subtle symbolic survivor: ada harapan yang masih hidup walau
+// padang kering. Tiny stem + closed-ish bloom + 2 wilted petal hint.
+const LonelyFlower = ({ pos, stage = 'idle' }) => {
+  const bloomRef = useRef();
+  // Bloom subtle scale animation — saat done, terlihat lebih hidup
+  useFrame((state) => {
+    if (!bloomRef.current) return;
+    const t = state.clock.elapsedTime;
+    const breathe = 1 + Math.sin(t * 1.5) * 0.04;
+    const baseScale = stage === 'done' ? 1.25 : 1.0;
+    bloomRef.current.scale.set(baseScale * breathe, baseScale * breathe, baseScale * breathe);
+  });
+  const bloomColor = stage === 'done' ? '#f4a8c0' : '#a87060';
+  return (
+    <group position={pos}>
+      {/* Stem — slight tilt seperti kelelahan */}
+      <mesh position={[0, 0.13, 0]} rotation={[0, 0, 0.15]}>
+        <cylinderGeometry args={[0.01, 0.014, 0.26, 4]} />
+        <meshStandardMaterial color="#6a7038" roughness={0.95} />
+      </mesh>
+      {/* 1 wilted leaf */}
+      <mesh position={[0.04, 0.1, 0]} rotation={[0, 0, -0.5]}>
+        <boxGeometry args={[0.08, 0.015, 0.04]} />
+        <meshStandardMaterial color="#5a6030" roughness={0.95} />
+      </mesh>
+      {/* Bloom — color shift based on stage (warna pulih saat done) */}
+      <mesh ref={bloomRef} position={[0.03, 0.27, 0]}>
+        <sphereGeometry args={[0.05, 8, 6]} />
+        <meshStandardMaterial
+          color={bloomColor}
+          emissive={stage === 'done' ? bloomColor : '#000000'}
+          emissiveIntensity={stage === 'done' ? 0.25 : 0}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* 2 small petal hints */}
+      <mesh position={[-0.01, 0.25, 0.04]} rotation={[0.3, 0, -0.4]}>
+        <boxGeometry args={[0.05, 0.01, 0.03]} />
+        <meshStandardMaterial color={bloomColor} roughness={0.85} />
+      </mesh>
+      <mesh position={[0.07, 0.26, -0.03]} rotation={[-0.3, 0, 0.4]}>
+        <boxGeometry args={[0.05, 0.01, 0.03]} />
+        <meshStandardMaterial color={bloomColor} roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// Stone cairn — small pyramid stack of stones, wayfinding marker
+// klasik (sering ditemuin di trail/desert). Place dekat path.
+const StoneCairn = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Base — wide irregular block */}
+    <mesh position={[0, 0.09, 0]}>
+      <dodecahedronGeometry args={[0.2, 0]} />
+      <meshStandardMaterial color="#5a4d40" roughness={1} flatShading />
+    </mesh>
+    {/* Mid */}
+    <mesh position={[0.03, 0.28, 0]} rotation={[0, 0.4, 0]}>
+      <dodecahedronGeometry args={[0.14, 0]} />
+      <meshStandardMaterial color="#4a3d32" roughness={1} flatShading />
+    </mesh>
+    {/* Upper */}
+    <mesh position={[-0.02, 0.44, 0.02]} rotation={[0, 1.1, 0]}>
+      <dodecahedronGeometry args={[0.1, 0]} />
+      <meshStandardMaterial color="#5a4d40" roughness={1} flatShading />
+    </mesh>
+    {/* Top */}
+    <mesh position={[0.01, 0.56, 0]}>
+      <dodecahedronGeometry args={[0.07, 0]} />
+      <meshStandardMaterial color="#3a2e22" roughness={1} flatShading />
+    </mesh>
+  </group>
+);
+
+// Distant lightning — one-time flash mesh yg toggle visible saat
+// transition peak. Bright white plane di horizon, opacity drop fast
+// untuk feel lightning crack. Triggered berdasar stage='transitioning'
+// + internal timer.
+const DistantLightning = ({ stage }) => {
+  const matRef = useRef();
+  const flashStartRef = useRef(null);
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    if (stage === 'transitioning') {
+      if (flashStartRef.current === null) {
+        flashStartRef.current = t + 0.8; // 0.8s after entering transition
+      }
+      const elapsed = t - flashStartRef.current;
+      if (elapsed >= 0 && elapsed < 0.35) {
+        // Flash sequence: bright pulse (0.0-0.1) + smaller follow (0.18-0.28)
+        const v1 = elapsed < 0.1 ? (1 - elapsed / 0.1) : 0;
+        const v2 = elapsed > 0.18 && elapsed < 0.28 ? (1 - (elapsed - 0.18) / 0.1) * 0.4 : 0;
+        matRef.current.opacity = Math.max(v1, v2);
+      } else {
+        matRef.current.opacity = 0;
+      }
+    } else {
+      flashStartRef.current = null;
+      matRef.current.opacity = 0;
+    }
+  });
+  return (
+    <mesh position={[-14, 6, -22]} rotation={[0, 0.3, 0.4]}>
+      <planeGeometry args={[0.4, 6]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color="#f4e8d4"
+        transparent
+        opacity={0}
+        fog={false}
+      />
+    </mesh>
+  );
+};
+
 // Tumbleweed — small ball rolling across padang, drift slow horizontal
 // across z axis. Adds movement to otherwise static scene.
 const Tumbleweed = () => {
@@ -1234,14 +1389,17 @@ const R0Scene = ({
     <Stars stage={stage} />
     <Mountains />
     <DistantHills />
+    <DistantLightning stage={stage} />
     <SandDunes isMobile={isMobile} />
     <Ground isMobile={isMobile} />
     <Footprints isMobile={isMobile} />
-    <Gate />
+    <Gate stage={stage} />
     <SignPost pos={[-1.95, 0, 5.5]} rot={0.6} />
     <BrokenLanternPost pos={[2.95, 0, 0.4]} rot={-0.2} />
     <DeadTree stage={stage} />
-    <PerchedCrow pos={[-5.0, 3.55, -1]} />
+    <PerchedCrow pos={[-5.0, 3.55, -1]} stage={stage} />
+    <LonelyFlower pos={[1.6, 0, 7]} stage={stage} />
+    <StoneCairn pos={[-2.2, 0, 9]} rot={0.4} />
     {!isMobile && <DustDevil pos={[-11, 0, 4]} />}
     <ExtraDeadTrees isMobile={isMobile} />
     <DryGrassTufts isMobile={isMobile} />
