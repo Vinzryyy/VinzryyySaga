@@ -1779,29 +1779,56 @@ const DeadTrees = () => DEAD_TREE_DEFS.map((d, i) => (
 // Recovering saplings — tumbuh di posisi BARU di drought ring (offset
 // dari dead trees, gak replacing them). N visible tergantung restoration
 // level. Each sapling = small new tree dgn foliage hijau.
-const RecoveringSapling = ({ pos, rot, scale }) => (
-  <group position={pos} rotation={[0, rot, 0]} scale={scale}>
-    {/* Small trunk */}
-    <mesh position={[0, 0.32, 0]}>
-      <cylinderGeometry args={[0.05, 0.08, 0.65, 6]} />
-      <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
-    </mesh>
-    {/* Main foliage cluster */}
-    <mesh position={[0, 0.78, 0]}>
-      <sphereGeometry args={[0.38, 12, 8]} />
-      <meshStandardMaterial color="#86a868" roughness={0.7} />
-    </mesh>
-    {/* Side leaves utk variation */}
-    <mesh position={[0.16, 0.88, 0.08]}>
-      <sphereGeometry args={[0.18, 8, 6]} />
-      <meshStandardMaterial color="#94b878" roughness={0.7} />
-    </mesh>
-    <mesh position={[-0.14, 0.68, -0.08]}>
-      <sphereGeometry args={[0.16, 8, 6]} />
-      <meshStandardMaterial color="#7a9d5e" roughness={0.75} />
-    </mesh>
-  </group>
-);
+// Growth animation: scale 0 → target dgn overshoot bounce (1.2s) saat
+// first mount. Kerasa "baru tumbuh" momentum.
+const RecoveringSapling = ({ pos, rot, scale }) => {
+  const groupRef = useRef();
+  const startTimeRef = useRef(null);
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    if (startTimeRef.current === null) {
+      startTimeRef.current = state.clock.elapsedTime;
+    }
+    const elapsed = state.clock.elapsedTime - startTimeRef.current;
+    const duration = 1.2;
+    let s;
+    if (elapsed < duration) {
+      const t = elapsed / duration;
+      const eased = 1 - Math.pow(1 - t, 3);
+      // Overshoot bounce — peak ~1.15× di tengah
+      const bounce = 1 + Math.sin(t * Math.PI) * 0.18;
+      s = scale * eased * bounce;
+    } else {
+      // Subtle idle sway after grown
+      const idle = (state.clock.elapsedTime - startTimeRef.current - duration) * 1.2;
+      s = scale * (1 + Math.sin(idle) * 0.015);
+    }
+    groupRef.current.scale.setScalar(s);
+  });
+  return (
+    <group ref={groupRef} position={pos} rotation={[0, rot, 0]} scale={0}>
+      {/* Small trunk */}
+      <mesh position={[0, 0.32, 0]}>
+        <cylinderGeometry args={[0.05, 0.08, 0.65, 6]} />
+        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+      </mesh>
+      {/* Main foliage cluster */}
+      <mesh position={[0, 0.78, 0]}>
+        <sphereGeometry args={[0.38, 12, 8]} />
+        <meshStandardMaterial color="#86a868" roughness={0.7} />
+      </mesh>
+      {/* Side leaves utk variation */}
+      <mesh position={[0.16, 0.88, 0.08]}>
+        <sphereGeometry args={[0.18, 8, 6]} />
+        <meshStandardMaterial color="#94b878" roughness={0.7} />
+      </mesh>
+      <mesh position={[-0.14, 0.68, -0.08]}>
+        <sphereGeometry args={[0.16, 8, 6]} />
+        <meshStandardMaterial color="#7a9d5e" roughness={0.75} />
+      </mesh>
+    </group>
+  );
+};
 const SAPLING_SLOT_DEFS = (() => {
   const arr = [];
   // 6 sapling slots — angles offset 20° dari dead tree angles
@@ -1829,6 +1856,90 @@ const RecoveringSaplings = ({ restorationLevel = 0 }) => {
   );
 };
 
+// RestorationCelebration — visual burst saat user mencapai 100%
+// pemulihan (semua 6 bab dijelajahi). 24 particles meletup radial dari
+// pusat tree, fade out, plus halo glow expand.
+const CELEBRATION_PARTICLE_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 24; i++) {
+    const theta = (i / 24) * Math.PI * 2;
+    const phi = ((i * 13) % 7) * 0.1 + 0.4; // vertical spread
+    const distance = 7 + ((i * 11) % 5);
+    arr.push({
+      dirX: Math.cos(theta) * Math.cos(phi) * distance,
+      dirY: Math.sin(phi) * distance * 0.5,
+      dirZ: Math.sin(theta) * Math.cos(phi) * distance,
+      colorIdx: i % 4,
+    });
+  }
+  return arr;
+})();
+const CELEBRATION_COLORS = ['#fff5c8', '#f4a8c0', '#86d68a', '#a8c0ff'];
+const RestorationCelebration = () => {
+  const groupRef = useRef();
+  const haloRef = useRef();
+  const startRef = useRef(null);
+  const particleRefs = useRef([]);
+  const particleMatRefs = useRef([]);
+  useFrame((state) => {
+    if (startRef.current === null) {
+      startRef.current = state.clock.elapsedTime;
+    }
+    const elapsed = state.clock.elapsedTime - startRef.current;
+    // Particle burst phase (0-3s), then idle loop fade in/out
+    if (haloRef.current && haloRef.current.material) {
+      const t = state.clock.elapsedTime;
+      haloRef.current.material.opacity = 0.18 + Math.sin(t * 0.6) * 0.08;
+    }
+    particleRefs.current.forEach((ref, i) => {
+      if (!ref || !particleMatRefs.current[i]) return;
+      const def = CELEBRATION_PARTICLE_DEFS[i];
+      const phase = (elapsed + i * 0.08) % 5;
+      const t = Math.min(1, phase / 3);
+      ref.position.x = def.dirX * t;
+      ref.position.y = 1.5 + def.dirY * t - t * t * 1.5; // gravity arc
+      ref.position.z = def.dirZ * t;
+      particleMatRefs.current[i].opacity = Math.max(0, 1 - t);
+    });
+  });
+  return (
+    <group ref={groupRef}>
+      {/* Wide glow halo at center */}
+      <mesh ref={haloRef} position={[0, 1.5, 0]}>
+        <sphereGeometry args={[5, 24, 16]} />
+        <meshBasicMaterial
+          color="#fff5c8"
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Looping particle bursts */}
+      {CELEBRATION_PARTICLE_DEFS.map((def, i) => (
+        <mesh
+          key={`celp-${i}`}
+          ref={(el) => {
+            particleRefs.current[i] = el;
+          }}
+          position={[0, 1.5, 0]}
+        >
+          <sphereGeometry args={[0.12, 8, 6]} />
+          <meshBasicMaterial
+            ref={(el) => {
+              particleMatRefs.current[i] = el;
+            }}
+            color={CELEBRATION_COLORS[def.colorIdx]}
+            transparent
+            opacity={1}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 // Wildflower patches — small color dot clusters yg bloom di drought
 // ring saat restoration grows. 6 patches, 1 per restoration step.
 const WILDFLOWER_DEFS = (() => {
@@ -1846,34 +1957,67 @@ const WILDFLOWER_DEFS = (() => {
   }
   return arr;
 })();
+const BloomingFlower = ({ position, color, delay }) => {
+  const ref = useRef();
+  const startRef = useRef(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    if (startRef.current === null) {
+      startRef.current = state.clock.elapsedTime;
+    }
+    const elapsed = state.clock.elapsedTime - startRef.current - delay;
+    if (elapsed < 0) {
+      ref.current.scale.setScalar(0);
+      return;
+    }
+    const duration = 0.9;
+    if (elapsed < duration) {
+      const t = elapsed / duration;
+      // cubic ease-out + overshoot bounce
+      const eased = 1 - Math.pow(1 - t, 3);
+      const bounce = 1 + Math.sin(t * Math.PI) * 0.22;
+      ref.current.scale.setScalar(eased * bounce);
+    } else {
+      // Subtle sway after bloom
+      const idle = elapsed - duration;
+      ref.current.scale.setScalar(1 + Math.sin(idle * 1.5) * 0.04);
+    }
+  });
+  return (
+    <mesh ref={ref} position={position} scale={0}>
+      <sphereGeometry args={[0.085, 8, 6]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.18}
+        roughness={0.55}
+      />
+    </mesh>
+  );
+};
 const Wildflowers = ({ restorationLevel = 0 }) => {
   const visibleCount = Math.floor(restorationLevel * WILDFLOWER_DEFS.length);
+  const FLOWER_OFFSETS = [
+    [0, 0.05, 0],
+    [0.25, 0.04, 0.1],
+    [-0.2, 0.04, 0.18],
+    [0.1, 0.05, -0.22],
+    [-0.18, 0.04, -0.1],
+  ];
   return (
     <>
-      {WILDFLOWER_DEFS.slice(0, visibleCount).map((w, i) => {
-        // Cluster: 5 small spheres around base pos
-        return (
-          <group key={`wf-${i}`} position={w.pos}>
-            {[
-              [0, 0.05, 0],
-              [0.25, 0.04, 0.1],
-              [-0.2, 0.04, 0.18],
-              [0.1, 0.05, -0.22],
-              [-0.18, 0.04, -0.1],
-            ].map(([dx, dy, dz], j) => (
-              <mesh key={`wf-${i}-${j}`} position={[dx, dy, dz]}>
-                <sphereGeometry args={[0.085, 8, 6]} />
-                <meshStandardMaterial
-                  color={w.color}
-                  emissive={w.color}
-                  emissiveIntensity={0.15}
-                  roughness={0.55}
-                />
-              </mesh>
-            ))}
-          </group>
-        );
-      })}
+      {WILDFLOWER_DEFS.slice(0, visibleCount).map((w, i) => (
+        <group key={`wf-${i}`} position={w.pos}>
+          {FLOWER_OFFSETS.map((offset, j) => (
+            <BloomingFlower
+              key={`wf-${i}-${j}`}
+              position={offset}
+              color={w.color}
+              delay={j * 0.13}
+            />
+          ))}
+        </group>
+      ))}
     </>
   );
 };
@@ -2147,6 +2291,7 @@ const TamanScene = ({
       <DeadTrees />
       <RecoveringSaplings restorationLevel={restorationLevel} />
       <Wildflowers restorationLevel={restorationLevel} />
+      {restorationLevel >= 1 && <RestorationCelebration />}
       <Stars count={isMobile ? 45 : 90} />
       <Moon />
       <BirdsFlock />
