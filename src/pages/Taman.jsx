@@ -1495,15 +1495,19 @@ const R0Scene = ({
 // trigger transisi (stage='transitioning' atau 'done'). Dipisah dari
 // Canvas (di HTML overlay) supaya sharp di semua DPR + pakai font
 // Fraunces yang udah self-hosted.
-const OpeningText = ({ stage, resetTrigger }) => {
+const OpeningText = ({ stage, resetTrigger, unlocked }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     setVisible(false);
     const t = setTimeout(() => setVisible(true), 1200);
     return () => clearTimeout(t);
   }, [resetTrigger]);
+  // Poetic intro cuma muncul kalau gerbang udah unlocked — saat locked,
+  // LockedHint yg lebih informatif udah duduk di tengah-bawah dan dua-
+  // duanya kalau dirender stacked overlap visually. Pilih satu sesuai
+  // state.
   const shouldShow =
-    visible && (stage === 'idle' || stage === 'active');
+    visible && unlocked && (stage === 'idle' || stage === 'active');
   return (
     <div
       className={`pointer-events-none absolute inset-0 flex items-center justify-center pt-20 md:pt-24 transition-opacity duration-[2000ms] ease-out ${
@@ -1708,23 +1712,49 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
   </div>
 );
 
+// Card pengantar — pill card yg lebih obvious dari icon "i" doang.
+// Ngebantu user yg udah dismiss intro overlay tau "oh, masih ada
+// cerita di balik dunia ini". Icon scroll/book + text "Cerita dunia ini".
 const ArmeniacaInfoButton = ({ onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    aria-label="Tampilkan kembali pengantar"
-    className="absolute top-20 md:top-24 left-4 md:left-6 z-20 w-8 h-8 rounded-full border border-white/20 bg-black/35 text-white/65 hover:text-white hover:bg-white/15 transition flex items-center justify-center backdrop-blur-sm"
+    aria-label="Baca cerita ArmeniacaTown"
+    className="pointer-events-auto absolute top-20 md:top-24 left-4 md:left-6 z-20 group flex items-center gap-2 pl-3 pr-4 py-2 rounded-full border border-white/20 bg-black/45 text-white/75 hover:text-white hover:bg-white/15 hover:border-white/30 transition backdrop-blur-sm shadow-lg"
   >
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-amber-200/85 group-hover:text-amber-200 transition"
+    >
       <path
-        d="M12 11v6"
+        d="M4 19V5a2 2 0 012-2h11a1 1 0 011 1v15a1 1 0 01-1 1H6a2 2 0 01-2-2z"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 7h7M8 10h7M8 13h4"
+        stroke="currentColor"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
-      <circle cx="12" cy="7.7" r="1" fill="currentColor" />
+      <path
+        d="M4 19a2 2 0 012-2h12"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
     </svg>
+    <span
+      className="text-[11px] tracking-wider uppercase"
+      style={{ fontFamily: '"Fraunces Variable", serif', fontStyle: 'italic' }}
+    >
+      Cerita dunia ini
+    </span>
   </button>
 );
 
@@ -2024,7 +2054,11 @@ const MuseumPage = () => {
               onClose={handleCloseIntro}
             />
             <ArmeniacaInfoButton onClick={handleOpenIntro} />
-            <OpeningText stage={stage} resetTrigger={resetTrigger} />
+            <OpeningText
+              stage={stage}
+              resetTrigger={resetTrigger}
+              unlocked={unlocked}
+            />
             {/* LockedHint vs TapHint mutually exclusive — LockedHint muncul
                 kalau gerbang masih terkunci, TapHint kalau udah unlocked.
                 OpeningCeremony muncul selama 3 detik transitioning sebagai
