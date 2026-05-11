@@ -3678,6 +3678,354 @@ const ReadingNook = ({ pos, rot = 0 }) => (
   </group>
 );
 
+// Ema tablets — wooden wish tablets (Japanese ema-style) hanging dari
+// horizontal beam di antara 2 post. Tiap tag punya warna soft pastel
+// + tali pendek. Soft sway via useFrame (random phase per tag).
+// Thematic core untuk "Telaga Harapan" — visualisasi harapan literal.
+const EMA_TAG_DEFS = Array.from({ length: 8 }, (_, i) => ({
+  x: -1.6 + i * 0.45,
+  color: ['#f4a8c0', '#ffd470', '#c4d8a8', '#a8c8e8', '#d4a8e0'][i % 5],
+  phase: i * 0.7,
+  rope: 0.35 + (i % 3) * 0.08,
+}));
+const EmaTablets = ({ pos, rot = 0 }) => {
+  const tagsRef = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    tagsRef.current.forEach((ref, i) => {
+      if (!ref) return;
+      const def = EMA_TAG_DEFS[i];
+      ref.rotation.z = Math.sin(t * 0.8 + def.phase) * 0.08;
+      ref.rotation.x = Math.cos(t * 0.6 + def.phase) * 0.05;
+    });
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* 2 posts */}
+      <mesh position={[-2.0, 1.1, 0]} castShadow>
+        <cylinderGeometry args={[0.07, 0.08, 2.2, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[2.0, 1.1, 0]} castShadow>
+        <cylinderGeometry args={[0.07, 0.08, 2.2, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Crossbar */}
+      <mesh position={[0, 2.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.05, 4.2, 6]} />
+        <meshStandardMaterial color="#6a4d2f" roughness={0.95} />
+      </mesh>
+      {/* Decorative top caps */}
+      <mesh position={[-2.0, 2.18, 0]}>
+        <coneGeometry args={[0.11, 0.16, 5]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.9} />
+      </mesh>
+      <mesh position={[2.0, 2.18, 0]}>
+        <coneGeometry args={[0.11, 0.16, 5]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.9} />
+      </mesh>
+      {/* Tablets hanging */}
+      {EMA_TAG_DEFS.map((def, i) => (
+        <group
+          key={`ema-${i}`}
+          ref={(el) => {
+            tagsRef.current[i] = el;
+          }}
+          position={[def.x, 2.05, 0]}
+        >
+          {/* Tali */}
+          <mesh position={[0, -def.rope / 2, 0]}>
+            <cylinderGeometry args={[0.006, 0.006, def.rope, 3]} />
+            <meshStandardMaterial color="#5a4d3a" roughness={1} />
+          </mesh>
+          {/* Wood tag — pentagon-ish: use box w/ small triangle top */}
+          <mesh position={[0, -def.rope - 0.15, 0]} castShadow>
+            <boxGeometry args={[0.26, 0.3, 0.025]} />
+            <meshStandardMaterial color={def.color} roughness={0.85} />
+          </mesh>
+          {/* Top triangle accent (small cone) */}
+          <mesh position={[0, -def.rope - 0.01, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <coneGeometry args={[0.13, 0.08, 4]} />
+            <meshStandardMaterial color={def.color} roughness={0.85} />
+          </mesh>
+          {/* Tiny "writing" dot */}
+          <mesh position={[0, -def.rope - 0.15, 0.014]}>
+            <boxGeometry args={[0.14, 0.02, 0.001]} />
+            <meshStandardMaterial color="#3d2818" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, -def.rope - 0.2, 0.014]}>
+            <boxGeometry args={[0.1, 0.02, 0.001]} />
+            <meshStandardMaterial color="#3d2818" roughness={0.95} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+};
+
+// Stone toro lantern — Japanese stone lantern. Stack: base + middle
+// shaft + chamber + roof. Soft warm pointLight di chamber utk senja
+// glow. Place sebagai pasangan flanking pond.
+const StoneToro = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Base block */}
+    <mesh position={[0, 0.12, 0]} castShadow>
+      <cylinderGeometry args={[0.4, 0.42, 0.24, 6]} />
+      <meshStandardMaterial color="#7a7065" roughness={1} />
+    </mesh>
+    {/* Lower middle */}
+    <mesh position={[0, 0.42, 0]}>
+      <cylinderGeometry args={[0.18, 0.22, 0.32, 6]} />
+      <meshStandardMaterial color="#8a7d70" roughness={1} />
+    </mesh>
+    {/* Mid platform */}
+    <mesh position={[0, 0.62, 0]}>
+      <cylinderGeometry args={[0.32, 0.32, 0.06, 6]} />
+      <meshStandardMaterial color="#7a7065" roughness={1} />
+    </mesh>
+    {/* Chamber (lantern body) — open box dgn warm glow */}
+    <mesh position={[0, 0.86, 0]}>
+      <cylinderGeometry args={[0.24, 0.24, 0.36, 6]} />
+      <meshStandardMaterial
+        color="#f4d098"
+        emissive="#ffb070"
+        emissiveIntensity={0.6}
+        transparent
+        opacity={0.85}
+      />
+    </mesh>
+    {/* Roof — wide hex cap */}
+    <mesh position={[0, 1.13, 0]} castShadow>
+      <coneGeometry args={[0.42, 0.22, 6]} />
+      <meshStandardMaterial color="#6a605a" roughness={1} />
+    </mesh>
+    {/* Top finial */}
+    <mesh position={[0, 1.32, 0]}>
+      <sphereGeometry args={[0.06, 6, 5]} />
+      <meshStandardMaterial color="#7a7065" roughness={1} />
+    </mesh>
+    {/* Warm glow */}
+    <pointLight position={[0, 0.86, 0]} intensity={0.5} distance={4.5} color="#ffb070" />
+  </group>
+);
+const STONE_TORO_DEFS = [
+  { pos: [-3, 0, 14], rot: 0.3 },
+  { pos: [3, 0, -14], rot: 2.4 },
+];
+const StoneToros = ({ isMobile }) => {
+  const list = isMobile ? STONE_TORO_DEFS.slice(0, 1) : STONE_TORO_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <StoneToro key={`toro-${i}`} pos={d.pos} rot={d.rot} />
+      ))}
+    </>
+  );
+};
+
+// Wind chime — hanging dari top short post. 5 tubes brass + circular
+// top cap + small wind catcher di bawah. Sway via useFrame. Low cost
+// detail tapi atmospheric.
+const WindChime = ({ pos, rot = 0 }) => {
+  const chimeRef = useRef();
+  useFrame((state) => {
+    if (chimeRef.current) {
+      const t = state.clock.elapsedTime;
+      chimeRef.current.rotation.z = Math.sin(t * 1.2) * 0.1;
+      chimeRef.current.rotation.x = Math.cos(t * 0.9) * 0.08;
+    }
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Tall post */}
+      <mesh position={[0, 1.3, 0]} castShadow>
+        <cylinderGeometry args={[0.06, 0.07, 2.6, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Horizontal arm */}
+      <mesh position={[0.45, 2.55, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.035, 0.035, 0.9, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[0.85, 2.55, 0]}>
+        <sphereGeometry args={[0.05, 6, 5]} />
+        <meshStandardMaterial color="#3d2818" roughness={0.9} />
+      </mesh>
+      {/* Chime assembly hanging */}
+      <group ref={chimeRef} position={[0.85, 2.5, 0]}>
+        {/* Rope from arm */}
+        <mesh position={[0, -0.06, 0]}>
+          <cylinderGeometry args={[0.005, 0.005, 0.12, 3]} />
+          <meshStandardMaterial color="#5a4d3a" roughness={1} />
+        </mesh>
+        {/* Top disc */}
+        <mesh position={[0, -0.15, 0]}>
+          <cylinderGeometry args={[0.13, 0.13, 0.02, 8]} />
+          <meshStandardMaterial color="#a8702a" roughness={0.5} metalness={0.6} />
+        </mesh>
+        {/* 5 tubes hanging */}
+        {[0, 1, 2, 3, 4].map((i) => {
+          const a = (i / 5) * Math.PI * 2;
+          const r = 0.085;
+          return (
+            <mesh key={i} position={[Math.cos(a) * r, -0.45, Math.sin(a) * r]}>
+              <cylinderGeometry args={[0.015, 0.015, 0.5 - (i % 3) * 0.05, 5]} />
+              <meshStandardMaterial color="#d4a868" roughness={0.4} metalness={0.7} />
+            </mesh>
+          );
+        })}
+        {/* Center striker disc */}
+        <mesh position={[0, -0.55, 0]}>
+          <cylinderGeometry args={[0.045, 0.045, 0.02, 8]} />
+          <meshStandardMaterial color="#8a6a3a" roughness={0.5} metalness={0.5} />
+        </mesh>
+        {/* Wind catcher leaf di bawah */}
+        <mesh position={[0, -0.78, 0]} rotation={[0, 0, 0]}>
+          <boxGeometry args={[0.12, 0.18, 0.008]} />
+          <meshStandardMaterial
+            color="#c4544c"
+            emissive="#c4544c"
+            emissiveIntensity={0.15}
+            roughness={0.7}
+          />
+        </mesh>
+        {/* String connecting striker to catcher */}
+        <mesh position={[0, -0.66, 0]}>
+          <cylinderGeometry args={[0.003, 0.003, 0.22, 3]} />
+          <meshStandardMaterial color="#5a4d3a" roughness={1} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// Sleeping cat — small curled cat on top of log pile or bench.
+// Stylized: ellipsoid body + smaller head + 2 ear cones. Subtle
+// breathing scale via useFrame.
+const SleepingCat = ({ pos, rot = 0, color = '#d4a868' }) => {
+  const bodyRef = useRef();
+  useFrame((state) => {
+    if (bodyRef.current) {
+      const t = state.clock.elapsedTime;
+      // Subtle breathing
+      const s = 1 + Math.sin(t * 1.4) * 0.025;
+      bodyRef.current.scale.set(s, s, s);
+    }
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      <group ref={bodyRef}>
+        {/* Body — curled ellipsoid (sphere scaled) */}
+        <mesh position={[0, 0.12, 0]} scale={[0.32, 0.18, 0.22]} castShadow>
+          <sphereGeometry args={[1, 10, 7]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Tail wrapped around — torus partial */}
+        <mesh position={[0.16, 0.12, 0]} rotation={[Math.PI / 2, 0, 0.4]}>
+          <torusGeometry args={[0.18, 0.04, 6, 12, Math.PI * 1.4]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Head — smaller sphere offset */}
+        <mesh position={[-0.22, 0.14, 0.04]} scale={[0.13, 0.12, 0.13]}>
+          <sphereGeometry args={[1, 8, 7]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Ear L */}
+        <mesh position={[-0.28, 0.22, 0.0]} rotation={[0, 0, -0.3]}>
+          <coneGeometry args={[0.03, 0.06, 4]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Ear R */}
+        <mesh position={[-0.28, 0.22, 0.08]} rotation={[0, 0, -0.3]}>
+          <coneGeometry args={[0.03, 0.06, 4]} />
+          <meshStandardMaterial color={color} roughness={0.85} />
+        </mesh>
+        {/* Stripe pattern accent (darker bands) */}
+        <mesh position={[0.0, 0.21, 0]} scale={[0.28, 0.05, 0.2]}>
+          <sphereGeometry args={[1, 8, 6]} />
+          <meshStandardMaterial color="#a87838" roughness={0.85} transparent opacity={0.45} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// Paper crane garland — line of origami cranes hanging dari string
+// antara 2 short posts. Cranes pakai stylized: body diamond + 2 wing
+// triangles. Gentle sway useFrame per crane dgn phase shift.
+const CRANE_COLORS = ['#f4a8c0', '#a8c8e8', '#ffd470', '#c4d8a8', '#d4a8e0', '#f4b890'];
+const PaperCraneGarland = ({ pos, rot = 0, isMobile }) => {
+  const count = isMobile ? 4 : 7;
+  const cranesRef = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    cranesRef.current.forEach((ref, i) => {
+      if (!ref) return;
+      ref.rotation.z = Math.sin(t * 0.9 + i * 0.6) * 0.18;
+      ref.rotation.y = Math.cos(t * 1.1 + i * 0.4) * 0.25;
+      ref.position.y = 1.85 + Math.sin(t * 1.3 + i * 0.5) * 0.04;
+    });
+  });
+  const span = 3.6;
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* 2 short posts */}
+      <mesh position={[-span / 2, 1.0, 0]} castShadow>
+        <cylinderGeometry args={[0.05, 0.06, 2.0, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      <mesh position={[span / 2, 1.0, 0]} castShadow>
+        <cylinderGeometry args={[0.05, 0.06, 2.0, 6]} />
+        <meshStandardMaterial color="#5a3d28" roughness={0.95} />
+      </mesh>
+      {/* Suspended string — slight sag approximated dgn straight cylinder */}
+      <mesh position={[0, 2.0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.005, 0.005, span, 3]} />
+        <meshStandardMaterial color="#f4ecd8" roughness={1} />
+      </mesh>
+      {/* Cranes */}
+      {Array.from({ length: count }).map((_, i) => {
+        const x = -span / 2 + 0.3 + (i / Math.max(count - 1, 1)) * (span - 0.6);
+        const color = CRANE_COLORS[i % CRANE_COLORS.length];
+        return (
+          <group
+            key={`crane-${i}`}
+            ref={(el) => {
+              cranesRef.current[i] = el;
+            }}
+            position={[x, 1.85, 0]}
+          >
+            {/* Hanging string */}
+            <mesh position={[0, 0.12, 0]}>
+              <cylinderGeometry args={[0.003, 0.003, 0.15, 3]} />
+              <meshStandardMaterial color="#5a4d3a" roughness={1} />
+            </mesh>
+            {/* Body — diamond approx (rotated box) */}
+            <mesh rotation={[0, 0, Math.PI / 4]}>
+              <boxGeometry args={[0.14, 0.14, 0.04]} />
+              <meshStandardMaterial color={color} roughness={0.8} side={THREE.DoubleSide} />
+            </mesh>
+            {/* Wings — 2 triangles (cones) */}
+            <mesh position={[-0.08, 0.04, 0]} rotation={[0, 0, 0.5]}>
+              <coneGeometry args={[0.06, 0.16, 3]} />
+              <meshStandardMaterial color={color} roughness={0.8} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh position={[0.08, 0.04, 0]} rotation={[0, 0, -0.5]}>
+              <coneGeometry args={[0.06, 0.16, 3]} />
+              <meshStandardMaterial color={color} roughness={0.8} side={THREE.DoubleSide} />
+            </mesh>
+            {/* Head/beak — small cone forward */}
+            <mesh position={[-0.05, 0.05, 0.05]} rotation={[0.5, 0, 0]}>
+              <coneGeometry args={[0.02, 0.08, 4]} />
+              <meshStandardMaterial color={color} roughness={0.8} />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
 // Flying flock — burung yang terbang di mid altitude (y=5-9), drift
 // bareng dalam flock pattern. Tambahan ke Birds + HighBirdFlock yang
 // udah ada (low + high).
@@ -4752,6 +5100,11 @@ const TelagaScene = ({
     <GardenSwing pos={[-12, 0, 22]} rot={-0.2} />
     <Mailbox pos={[3, 0, -26]} rot={-0.3} />
     <ReadingNook pos={[7, 0, -16]} rot={2.2} />
+    <EmaTablets pos={[-19, 0, -14]} rot={1.2} />
+    <StoneToros isMobile={isMobile} />
+    <WindChime pos={[-22, 0, 0]} rot={0.4} />
+    <SleepingCat pos={[-19, 0, -3.5]} rot={0.6} color="#d4a868" />
+    <PaperCraneGarland pos={[-8, 0, -25]} rot={0.2} isMobile={isMobile} />
     <BankTrees count={isMobile ? 8 : 12} />
     <OuterTrees isMobile={isMobile} />
     <FlyingFlock isMobile={isMobile} />
