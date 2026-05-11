@@ -338,6 +338,70 @@ body {
   .eli-butterfly { animation: none; }
 }
 
+/* Interactive apricot fruits — playable di Pohon Kebaikan. Wrapper di
+   parent <g transform="translate(cx,cy)">, jadi children positioned
+   relative ke 0,0. Hover scale up, click triggers pop animation + spark
+   particles + floating quote. */
+.eli-fruit {
+  transform-origin: center;
+  transform-box: fill-box;
+  transition: transform 200ms ease-out, filter 200ms ease-out;
+  cursor: pointer;
+}
+.eli-fruit-hover {
+  transform: scale(1.18);
+  filter: drop-shadow(0 0 4px rgba(201, 169, 97, 0.6));
+}
+@keyframes eliFruitPop {
+  0%   { transform: scale(1) rotate(0deg); }
+  18%  { transform: scale(1.35) rotate(-6deg); }
+  38%  { transform: scale(0.92) rotate(4deg); }
+  60%  { transform: scale(1.08) rotate(-2deg); }
+  80%  { transform: scale(0.98) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.eli-fruit-pop {
+  animation: eliFruitPop 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes eliFruitQuoteFloat {
+  0%   { opacity: 0; transform: translateY(2px) scale(0.85); }
+  20%  { opacity: 1; transform: translateY(0) scale(1.05); }
+  60%  { opacity: 1; transform: translateY(-6px) scale(1); }
+  100% { opacity: 0; transform: translateY(-14px) scale(0.95); }
+}
+.eli-fruit-quote {
+  animation: eliFruitQuoteFloat 1100ms ease-out forwards;
+  transform-origin: center;
+  transform-box: fill-box;
+  pointer-events: none;
+}
+@keyframes eliFruitSparkLeft {
+  0%   { opacity: 1; transform: translate(0, 0) scale(0.6); }
+  100% { opacity: 0; transform: translate(-7px, -8px) scale(1.4); }
+}
+@keyframes eliFruitSparkRight {
+  0%   { opacity: 1; transform: translate(0, 0) scale(0.6); }
+  100% { opacity: 0; transform: translate(7px, -8px) scale(1.4); }
+}
+@keyframes eliFruitSparkBottom {
+  0%   { opacity: 1; transform: translate(0, 0) scale(0.6); }
+  100% { opacity: 0; transform: translate(0, 8px) scale(1.4); }
+}
+.eli-fruit-spark {
+  transform-origin: center;
+  transform-box: fill-box;
+  pointer-events: none;
+}
+.eli-fruit-spark-l { animation: eliFruitSparkLeft 700ms ease-out forwards; }
+.eli-fruit-spark-r { animation: eliFruitSparkRight 700ms ease-out forwards; }
+.eli-fruit-spark-b { animation: eliFruitSparkBottom 700ms ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .eli-fruit-pop,
+  .eli-fruit-quote,
+  .eli-fruit-spark { animation: none !important; }
+  .eli-fruit-hover { transform: none; filter: none; }
+}
+
 /* ==========================================================================
    Scrollbar Styling
    ========================================================================== */

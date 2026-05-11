@@ -1188,21 +1188,79 @@ const Mushroom = ({ cx, cy, capColor = 'var(--retro-burgundy)' }) => (
 
 // Reusable apricot fruit. Stem + leaf included so it reads as a real
 // fruit on the branch rather than just a yellow dot.
-const Apricot = ({ cx, cy, size }) => (
-  <g>
-    <circle cx={cx} cy={cy} r={size} fill="var(--retro-gold)" />
-    <ellipse cx={cx - size * 0.3} cy={cy - size * 0.3} rx={size * 0.35} ry={size * 0.35} fill="var(--retro-gold-light)" opacity="0.85" />
-    <line x1={cx} y1={cy - size} x2={cx} y2={cy - size - 4} stroke="var(--retro-brown-dark)" strokeWidth="1.5" strokeLinecap="round" />
-    <ellipse
-      cx={cx + 3}
-      cy={cy - size - 3}
-      rx="3.5"
-      ry="2.5"
-      fill="#7BA05B"
-      transform={`rotate(35 ${cx + 3} ${cy - size - 3})`}
-    />
-  </g>
-);
+// Quotes random yg muncul saat fruit di-klik. Pendek, warm, tone
+// Helismiley/seitansai. Picked random per click.
+const FRUIT_QUOTES = [
+  '+1 doa',
+  'mekar',
+  'tumbuh',
+  '+1 ❤',
+  'kebaikan',
+  'untuk Eli',
+  'jaga ya',
+  'pop!',
+];
+
+const Apricot = ({ cx, cy, size }) => {
+  // animKey berubah tiap klik supaya CSS animation re-trigger (re-mount
+  // sub-group dgn key baru).
+  const [animKey, setAnimKey] = useState(0);
+  const [quote, setQuote] = useState(FRUIT_QUOTES[0]);
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    setQuote(FRUIT_QUOTES[Math.floor(Math.random() * FRUIT_QUOTES.length)]);
+    setAnimKey((k) => k + 1);
+  };
+
+  return (
+    <g transform={`translate(${cx} ${cy})`} style={{ cursor: 'pointer' }}>
+      <g
+        key={`fruit-${animKey}`}
+        className={animKey > 0 ? 'eli-fruit eli-fruit-pop' : 'eli-fruit'}
+        onClick={handleClick}
+        onPointerEnter={(e) => {
+          e.currentTarget.classList.add('eli-fruit-hover');
+        }}
+        onPointerLeave={(e) => {
+          e.currentTarget.classList.remove('eli-fruit-hover');
+        }}
+      >
+        <circle cx={0} cy={0} r={size} fill="var(--retro-gold)" />
+        <ellipse cx={-size * 0.3} cy={-size * 0.3} rx={size * 0.35} ry={size * 0.35} fill="var(--retro-gold-light)" opacity="0.85" />
+        <line x1={0} y1={-size} x2={0} y2={-size - 4} stroke="var(--retro-brown-dark)" strokeWidth="1.5" strokeLinecap="round" />
+        <ellipse
+          cx={3}
+          cy={-size - 3}
+          rx="3.5"
+          ry="2.5"
+          fill="#7BA05B"
+          transform="rotate(35 3 -8)"
+        />
+      </g>
+      {animKey > 0 && (
+        <g key={`fx-${animKey}`} className="eli-fruit-fx" pointerEvents="none">
+          {/* Floating quote di atas fruit */}
+          <text
+            x="0"
+            y={-size - 8}
+            fontSize="5.5"
+            textAnchor="middle"
+            fill="var(--retro-burgundy)"
+            fontWeight="700"
+            className="eli-fruit-quote"
+          >
+            {quote}
+          </text>
+          {/* 3 spark particles meletup keluar */}
+          <circle cx={-size - 1} cy={-size * 0.4} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-l" />
+          <circle cx={size + 1} cy={-size * 0.4} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-r" />
+          <circle cx="0" cy={size + 1} r="0.9" fill="var(--retro-gold-light)" className="eli-fruit-spark eli-fruit-spark-b" />
+        </g>
+      )}
+    </g>
+  );
+};
 
 const EliTree = () => {
   const [count, setCount] = useState(0);
