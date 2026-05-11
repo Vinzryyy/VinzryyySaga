@@ -106,30 +106,38 @@ const AnatomicalHeartSvg = () => (
   </svg>
 );
 
-// Floating music notes — drift up pelan dari sekitar heart, fade out
-// di atas. Deterministic positions (gak Math.random per render). Subtle,
-// gak overwhelming heart. Cuma muncul saat intensity >= 0.5.
-const NOTE_POSITIONS = [
-  { x: -90, delay: 0, dur: 7.2, glyph: '♪' },
-  { x: 82, delay: 1.8, dur: 8.1, glyph: '♫' },
-  { x: -60, delay: 3.4, dur: 6.8, glyph: '♩' },
-  { x: 110, delay: 5.2, dur: 7.6, glyph: '♪' },
-  { x: -110, delay: 4.1, dur: 8.4, glyph: '♬' },
+// Music notes emitted dari pusat heart — melayang radial keluar atas
+// kanan/kiri, scale-in, fade out di ujung. 7 notes dgn stagger delay
+// sync ke beat period (tiap notes muncul ~per beat). Glyph variety
+// utk feel musical: ♪♫♩♬♭♯. Cuma muncul saat intensity >= 0.3.
+const NOTE_EMITTERS = [
+  { ex: -130, ey: -90,  rot: -28, glyph: '♪', stagger: 0    },
+  { ex: -70,  ey: -140, rot: -10, glyph: '♫', stagger: 0.55 },
+  { ex: 25,   ey: -160, rot: 4,   glyph: '♩', stagger: 1.1  },
+  { ex: 95,   ey: -135, rot: 18,  glyph: '♬', stagger: 1.65 },
+  { ex: 140,  ey: -75,  rot: 30,  glyph: '♪', stagger: 2.2  },
+  { ex: -140, ey: -50,  rot: -34, glyph: '♭', stagger: 2.75 },
+  { ex: 60,   ey: -100, rot: 12,  glyph: '♯', stagger: 3.3  },
 ];
-const FloatingNotes = ({ show }) => {
+const EmittedNotes = ({ show }) => {
   if (!show) return null;
   return (
-    <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
-      {NOTE_POSITIONS.map((n, i) => (
+    <div aria-hidden="true" className="absolute left-1/2 top-1/2 pointer-events-none">
+      {NOTE_EMITTERS.map((n, i) => (
         <span
           key={i}
-          className="absolute left-1/2 top-1/2 text-[color:var(--retro-burgundy)]/35"
+          className="absolute text-[color:var(--retro-burgundy)]/55"
           style={{
             fontFamily: 'serif',
-            fontSize: '18px',
-            '--byu-note-x': `${n.x}px`,
-            animation: `byuNoteFloat ${n.dur}s ease-out infinite`,
-            animationDelay: `${n.delay}s`,
+            fontSize: '20px',
+            lineHeight: 1,
+            '--byu-note-ex': `${n.ex}px`,
+            '--byu-note-ey': `${n.ey}px`,
+            '--byu-note-rot': `${n.rot}deg`,
+            // dur = 3.5× beat period (semua note travel time sama),
+            // staggered delays seamless emission stream.
+            animation: 'byuNoteEmit calc(var(--byu-beat) * 3.5) ease-out infinite',
+            animationDelay: `calc(var(--byu-beat) * ${n.stagger})`,
             opacity: 0,
           }}
         >
@@ -159,13 +167,15 @@ const FloatingNotes = ({ show }) => {
 const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
   const haloOpacity = 0.4 + intensity * 0.5;
   const coreOpacity = 0.45 + intensity * 0.45;
-  const showNotes = intensity >= 0.5;
+  // Notes always emit — itu jantung lagi bikin musik. Intensitas
+  // rendah (solo waiter) tetap dapet beberapa note keluar.
+  const showNotes = intensity >= 0.3;
   return (
     <div
       className="relative flex items-center justify-center mb-8 min-h-[14rem] sm:min-h-[15rem]"
       style={{ '--byu-beat': period }}
     >
-      <FloatingNotes show={showNotes} />
+      <EmittedNotes show={showNotes} />
 
       {/* Concentric ripple rings — expand outward + fade dgn rhythm
           beat. 3 rings dgn stagger delay supaya kontinyu. */}
@@ -266,17 +276,36 @@ const BeatingHeart = ({ intensity = 0.5, period = '1.1s' }) => {
           80%  { transform: scale(1.7); opacity: 0; }
           100% { transform: scale(1.7); opacity: 0; }
         }
-        @keyframes byuNoteFloat {
-          0%   { transform: translate(var(--byu-note-x), 30px) rotate(-6deg); opacity: 0; }
-          15%  { opacity: 0.4; }
-          70%  { opacity: 0.35; }
-          100% { transform: translate(calc(var(--byu-note-x) + 12px), -120px) rotate(8deg); opacity: 0; }
+        @keyframes byuNoteEmit {
+          0%   {
+            transform: translate(0, 0) scale(0.5) rotate(0deg);
+            opacity: 0;
+          }
+          12%  {
+            transform: translate(
+              calc(var(--byu-note-ex) * 0.18),
+              calc(var(--byu-note-ey) * 0.18)
+            ) scale(1.1) rotate(calc(var(--byu-note-rot) * 0.2));
+            opacity: 0.85;
+          }
+          60%  {
+            transform: translate(
+              calc(var(--byu-note-ex) * 0.7),
+              calc(var(--byu-note-ey) * 0.7)
+            ) scale(1) rotate(calc(var(--byu-note-rot) * 0.7));
+            opacity: 0.55;
+          }
+          100% {
+            transform: translate(var(--byu-note-ex), var(--byu-note-ey))
+                       scale(0.85) rotate(var(--byu-note-rot));
+            opacity: 0;
+          }
         }
         @media (prefers-reduced-motion: reduce) {
           [class*="byuHeartBeat"], [class*="byuHeartShadow"],
           [class*="byuHaloPulse"], [class*="byuCorePulse"],
           [class*="byuSheen"], [class*="byuRipple"],
-          [class*="byuNoteFloat"] {
+          [class*="byuNoteEmit"] {
             animation: none !important;
           }
         }
