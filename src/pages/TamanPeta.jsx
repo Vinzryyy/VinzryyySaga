@@ -636,34 +636,116 @@ const SceneFallback = () => (
 );
 
 const TamanHeader = () => (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-5">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-4 md:px-6 md:py-5">
     <div className="pointer-events-auto">
       <Link
         to="/"
-        className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         ← Keluar
       </Link>
     </div>
-    <div
-      className="text-white/85 text-sm tracking-wide"
-      style={{
-        fontFamily: '"Fraunces Variable", serif',
-        fontStyle: 'italic',
-      }}
-    >
-      Peta Taman Kebaikan
+    <div className="text-center">
+      <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
+        Peta Kenangan
+      </div>
+      <div
+        className="text-white/85 text-[13px] md:text-sm tracking-wide"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+        }}
+      >
+        Taman Kebaikan
+      </div>
     </div>
     <div className="pointer-events-auto">
       <Link
         to="/taman"
-        className="text-white/50 hover:text-white/85 text-xs tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
-        Ulangi gerbang →
+        <span className="md:hidden">Gerbang →</span>
+        <span className="hidden md:inline">Ulangi gerbang →</span>
       </Link>
     </div>
   </div>
 );
+
+// First-visit intro overlay — connective tissue narasi: setelah user
+// lewat gerbang R0, peta ini reveals kenangan2 kebaikan yg bisa
+// dikunjungi. Tampil ~2.6s setelah FlyInCamera selesai. Skip kalau
+// udah pernah seen via localStorage 'taman-peta-intro-seen'.
+const PETA_INTRO_STORAGE_KEY = 'taman-peta-intro-seen';
+const TamanPetaIntroTitle = () => {
+  const [visible, setVisible] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = localStorage.getItem(PETA_INTRO_STORAGE_KEY) === '1';
+    } catch {
+      /* storage blocked */
+    }
+    if (seen) {
+      setRemoved(true);
+      return undefined;
+    }
+    // Sync ke FlyInCamera selesai (~2.5s) + small breath, lalu auto
+    // fade out 5s kemudian.
+    const t1 = setTimeout(() => setVisible(true), 2600);
+    const t2 = setTimeout(() => setVisible(false), 8400);
+    const t3 = setTimeout(() => {
+      setRemoved(true);
+      try {
+        localStorage.setItem(PETA_INTRO_STORAGE_KEY, '1');
+      } catch {
+        /* storage blocked */
+      }
+    }, 10600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+  if (removed) return null;
+  return (
+    <div
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center transition-opacity duration-[2000ms] ease-out ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div className="text-center max-w-md mx-6 px-8 py-9 -translate-y-10 rounded-md border border-white/12 bg-[#1c1f2a]/85 backdrop-blur-md shadow-2xl">
+        <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-4">
+          Peta Kenangan
+        </div>
+        <p
+          className="text-white text-lg md:text-xl leading-relaxed mb-3"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            letterSpacing: '0.01em',
+          }}
+        >
+          Di luar gerbang, padang masih kering.
+        </p>
+        <div className="mx-auto mb-3 w-10 h-px bg-white/25" />
+        <p
+          className="text-white/65 text-[12px] md:text-[13px] leading-relaxed"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            letterSpacing: '0.02em',
+          }}
+        >
+          Tapi tiap petak ini adalah kenangan kebaikan
+          <br />
+          yang masih hidup. Pilih satu untuk diingat kembali.
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const TamanFooter = ({ hoveredPetakId, flyInActive, previewedCount }) => {
   let hint;
@@ -857,6 +939,7 @@ const TamanPetaPage = () => {
         </Suspense>
 
         <TamanHeader />
+        <TamanPetaIntroTitle />
         <TamanFooter
           hoveredPetakId={hoveredPetakId}
           flyInActive={flyInActive}
