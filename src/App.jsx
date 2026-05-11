@@ -12,14 +12,16 @@
  *   target to mount).
  */
 
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
   useLocation,
+  useSearchParams,
 } from 'react-router-dom';
+import { subscribeToTreeSupports } from './lib/treeDb';
 import { HelmetProvider } from 'react-helmet-async';
 import { GalleryProvider } from './context';
 import { ThemeProvider } from './context';
@@ -58,6 +60,13 @@ const VivoPage = lazy(() => import('./pages/Vivo'));
 const TamanPage = lazy(() => import('./pages/Taman'));
 const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
 const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
+// Drought variant r1 — dirender saat count siraman < 4000. Saat hit
+// 4000, swap ke canonical restored di atas. Duplikat penuh (bukan
+// branching prop) supaya canonical bisa diiterasi tanpa risk drift
+// di drought file.
+const TamanLorongPohonGersangPage = lazy(() =>
+  import('./pages/TamanLorongPohonGersang')
+);
 const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
 // Denyut — heartbeat website (presence-driven pulse visual). Standalone
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
@@ -100,6 +109,55 @@ const ScrollManager = () => {
   }, [pathname, hash]);
 
   return null;
+};
+
+// Threshold gating berdasarkan tree support count (live dari RTDB
+// node tree_support/total, dikelola di Page26 /26):
+//   < 2000  : Peta Taman (/taman/peta) terkunci. Redirect ke /taman
+//             (Gerbang) — di sana user belum bisa masuk ke peta.
+//   < 4000  : Peta unlocked, tapi r1 (/taman/r1) masih versi gersang
+//             (ekosistem rusak: pohon mati, gak ada makhluk hidup).
+//   >= 4000 : r1 di-replace dengan canonical restored (foliage hijau,
+//             owls/rabbits/fireflies, beacon di big tree).
+//
+// URL override `?restoration=0` / `?restoration=1` memaksa pilih
+// gersang / restored — untuk preview tanpa harus nunggu count naik.
+// Override hanya berlaku di chooser r1 (gak nge-unlock map).
+const MAP_UNLOCK_THRESHOLD = 2000;
+const R1_RESTORATION_THRESHOLD = 4000;
+
+const useTreeSupportCount = () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    const unsubscribe = subscribeToTreeSupports(setCount);
+    return unsubscribe;
+  }, []);
+  return count;
+};
+
+const TamanR1RouteChooser = () => {
+  const count = useTreeSupportCount();
+  const [searchParams] = useSearchParams();
+  const override = searchParams.get('restoration');
+  let useRestored;
+  if (override !== null) {
+    const n = parseFloat(override);
+    useRestored = !Number.isNaN(n) && n >= 0.5;
+  } else {
+    useRestored = count >= R1_RESTORATION_THRESHOLD;
+  }
+  return useRestored ? <TamanLorongPohonPage /> : <TamanLorongPohonGersangPage />;
+};
+
+const TamanPetaRouteGuard = () => {
+  const count = useTreeSupportCount();
+  const [searchParams] = useSearchParams();
+  // Dev override: ?unlock=1 buka peta walau count belum 2000
+  const forceUnlock = searchParams.get('unlock') === '1';
+  if (!forceUnlock && count < MAP_UNLOCK_THRESHOLD) {
+    return <Navigate to="/taman" replace />;
+  }
+  return <TamanPetaPage />;
 };
 
 function AppShell() {
@@ -146,8 +204,8 @@ function AppShell() {
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/taman" element={<TamanPage />} />
-            <Route path="/taman/peta" element={<TamanPetaPage />} />
-            <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
+            <Route path="/taman/peta" element={<TamanPetaRouteGuard />} />
+            <Route path="/taman/r1" element={<TamanR1RouteChooser />} />
             <Route path="/taman/r3" element={<TamanKolamKataPage />} />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
             <Route path="/museum" element={<Navigate to="/taman" replace />} />

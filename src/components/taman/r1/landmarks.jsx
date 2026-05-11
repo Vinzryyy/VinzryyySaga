@@ -610,7 +610,12 @@ const BIG_TREE_FOLIAGE = [
   { pos: [-1.1, 5.5, -0.3], r: 1.6 },
   { pos: [0.3, 6.6, -0.2], r: 1.2 },
 ];
-export const BigTreeReturnPortal = ({ onTrigger, viewMode }) => {
+export const BigTreeReturnPortal = ({
+  onTrigger,
+  viewMode,
+  restorationLevel = 1,
+}) => {
+  const restored = restorationLevel >= 0.5;
   const triggeredRef = useRef(false);
   const foliageMatRefs = useRef([]);
   const TREE_POS_X = 0;
@@ -619,11 +624,13 @@ export const BigTreeReturnPortal = ({ onTrigger, viewMode }) => {
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    // Subtle living pulse on foliage emissive
-    foliageMatRefs.current.forEach((mat, i) => {
-      if (!mat) return;
-      mat.emissiveIntensity = 0.22 + Math.sin(t * 0.6 + i * 0.5) * 0.08;
-    });
+    // Subtle living pulse on foliage emissive — hanya di restored mode
+    if (restored) {
+      foliageMatRefs.current.forEach((mat, i) => {
+        if (!mat) return;
+        mat.emissiveIntensity = 0.22 + Math.sin(t * 0.6 + i * 0.5) * 0.08;
+      });
+    }
 
     if (triggeredRef.current) return;
     // Hanya trigger di FPV — orbit camera nggak pernah deket cukup
@@ -641,49 +648,80 @@ export const BigTreeReturnPortal = ({ onTrigger, viewMode }) => {
 
   return (
     <group position={[TREE_POS_X, 0, TREE_POS_Z]}>
-      {/* Trunk — tall thick, taper bawah lebih lebar */}
+      {/* Trunk — tall thick, taper bawah lebih lebar.
+          Drought: warna lebih kering/abu */}
       <mesh position={[0, 2, 0]}>
         <cylinderGeometry args={[0.45, 0.7, 4, 12]} />
-        <meshStandardMaterial color="#3a2a1f" roughness={0.95} />
+        <meshStandardMaterial
+          color={restored ? '#3a2a1f' : '#4e4030'}
+          roughness={0.95}
+        />
       </mesh>
-      {/* Foliage clusters — soft green dgn emissive warm-pale glow */}
-      {BIG_TREE_FOLIAGE.map((c, i) => (
-        <mesh key={`bigtree-foliage-${i}`} position={c.pos}>
-          <sphereGeometry args={[c.r, 16, 12]} />
-          <meshStandardMaterial
-            ref={(m) => {
-              foliageMatRefs.current[i] = m;
-            }}
-            color="#5e8470"
-            emissive="#a8d8b0"
-            emissiveIntensity={0.22}
-            roughness={0.85}
+      {restored ? (
+        <>
+          {/* Foliage clusters — soft green dgn emissive warm-pale glow */}
+          {BIG_TREE_FOLIAGE.map((c, i) => (
+            <mesh key={`bigtree-foliage-${i}`} position={c.pos}>
+              <sphereGeometry args={[c.r, 16, 12]} />
+              <meshStandardMaterial
+                ref={(m) => {
+                  foliageMatRefs.current[i] = m;
+                }}
+                color="#5e8470"
+                emissive="#a8d8b0"
+                emissiveIntensity={0.22}
+                roughness={0.85}
+              />
+            </mesh>
+          ))}
+          <pointLight
+            position={[0, 5.5, 0]}
+            intensity={1.6}
+            color="#c8e0a8"
+            distance={12}
+            decay={2}
           />
-        </mesh>
-      ))}
-      {/* Warm beacon point light di kanopi — nge-lit sekitar */}
-      <pointLight
-        position={[0, 5.5, 0]}
-        intensity={1.6}
-        color="#c8e0a8"
-        distance={12}
-        decay={2}
-      />
+        </>
+      ) : (
+        <>
+          {/* Drought big tree — pohon raksasa mati, cabang patah, gak
+              ada foliage, gak ada beacon glow. Tetap functional hit-detect. */}
+          <mesh position={[1.2, 5.5, 0.3]} rotation={[0, 0, -1.1]}>
+            <cylinderGeometry args={[0.08, 0.18, 2.4, 6]} />
+            <meshStandardMaterial color="#2a1f15" roughness={1} />
+          </mesh>
+          <mesh position={[-1.1, 5.2, -0.2]} rotation={[0, 0, 1.0]}>
+            <cylinderGeometry args={[0.08, 0.17, 2.2, 6]} />
+            <meshStandardMaterial color="#2a1f15" roughness={1} />
+          </mesh>
+          <mesh position={[0.2, 6.0, -0.4]} rotation={[0.3, 0, 0.25]}>
+            <cylinderGeometry args={[0.06, 0.12, 1.6, 6]} />
+            <meshStandardMaterial color="#2a1f15" roughness={1} />
+          </mesh>
+          <mesh position={[-0.3, 6.4, 0.3]} rotation={[-0.2, 0, -0.3]}>
+            <cylinderGeometry args={[0.05, 0.1, 1.4, 6]} />
+            <meshStandardMaterial color="#2a1f15" roughness={1} />
+          </mesh>
+        </>
+      )}
       <Html position={[0, 8.4, 0]} center distanceFactor={11} occlude={false}>
         <div
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',
-            color: 'rgba(220,255,200,0.85)',
+            color: restored ? 'rgba(220,255,200,0.85)' : 'rgba(220,200,180,0.65)',
             fontSize: '13px',
             letterSpacing: '0.05em',
-            textShadow:
-              '0 0 12px rgba(0,0,0,0.7), 0 0 24px rgba(200,255,180,0.3)',
+            textShadow: restored
+              ? '0 0 12px rgba(0,0,0,0.7), 0 0 24px rgba(200,255,180,0.3)'
+              : '0 0 12px rgba(0,0,0,0.7)',
             whiteSpace: 'nowrap',
             pointerEvents: 'none',
           }}
         >
-          dekati pohon ini untuk pulang
+          {restored
+            ? 'dekati pohon ini untuk pulang'
+            : 'sentuh apa yang tersisa untuk pulang'}
         </div>
       </Html>
     </group>

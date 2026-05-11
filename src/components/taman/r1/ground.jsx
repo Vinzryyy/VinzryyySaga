@@ -15,6 +15,32 @@ import { MeshReflectorMaterial } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { PATH_START_Z, PATH_END_Z, getWind } from './utils';
 
+// Dead branches set — 3 cabang gundul untuk gantian foliage sphere
+// saat restorationLevel < 0.5 (ekosistem mati). size param ngeskalain
+// ukuran branch sesuai pohon (SideTree kecil, GardenAnchor sedang).
+const DeadBranches = ({ size = 1 }) => (
+  <>
+    <mesh position={[0.2 * size, 0.2 * size, 0]} rotation={[0, 0, -0.7]}>
+      <cylinderGeometry args={[0.03 * size, 0.05 * size, 0.7 * size, 5]} />
+      <meshStandardMaterial color="#2a1f15" roughness={1} />
+    </mesh>
+    <mesh
+      position={[-0.22 * size, 0.05 * size, 0.05 * size]}
+      rotation={[0, 0, 0.8]}
+    >
+      <cylinderGeometry args={[0.025 * size, 0.045 * size, 0.6 * size, 5]} />
+      <meshStandardMaterial color="#2a1f15" roughness={1} />
+    </mesh>
+    <mesh
+      position={[0.05 * size, 0.35 * size, -0.1 * size]}
+      rotation={[0.2, 0, 0.2]}
+    >
+      <cylinderGeometry args={[0.02 * size, 0.035 * size, 0.45 * size, 4]} />
+      <meshStandardMaterial color="#2a1f15" roughness={1} />
+    </mesh>
+  </>
+);
+
 // Path strip — di-extend ke z=-220..220 supaya endless walk gak nimbul
 // gap. Fog far ~40 = user cuma lihat ~30 unit di depan, sisanya
 // invisible. Floor sekitar juga di-extend.
@@ -372,7 +398,8 @@ const SIDE_TREE_DEFS = (() => {
 })();
 
 const TILE_SIZE_TREES = 50; // wrap range di z direction
-export const SideTrees = ({ isMobile, viewMode }) => {
+export const SideTrees = ({ isMobile, viewMode, restorationLevel = 1 }) => {
+  const restored = restorationLevel >= 0.5;
   const list = isMobile ? SIDE_TREE_DEFS.slice(0, 8) : SIDE_TREE_DEFS;
   const foliageRefs = useRef([]);
   const groupRefs = useRef([]);
@@ -414,7 +441,10 @@ export const SideTrees = ({ isMobile, viewMode }) => {
         >
           <mesh position={[0, 0.85, 0]}>
             <cylinderGeometry args={[0.07, 0.12, 1.7, 6]} />
-            <meshStandardMaterial color="#3a2818" roughness={1} />
+            <meshStandardMaterial
+              color={restored ? '#3a2818' : '#4a3e2e'}
+              roughness={1}
+            />
           </mesh>
           <group
             ref={(el) => {
@@ -422,13 +452,17 @@ export const SideTrees = ({ isMobile, viewMode }) => {
             }}
             position={[0, 1.7, 0]}
           >
-            <mesh position={[0, 0.45, 0]}>
-              <sphereGeometry args={[0.7, 12, 8]} />
-              <meshStandardMaterial
-                color={SIDE_TREE_COLORS[tree.hueIdx]}
-                roughness={1}
-              />
-            </mesh>
+            {restored ? (
+              <mesh position={[0, 0.45, 0]}>
+                <sphereGeometry args={[0.7, 12, 8]} />
+                <meshStandardMaterial
+                  color={SIDE_TREE_COLORS[tree.hueIdx]}
+                  roughness={1}
+                />
+              </mesh>
+            ) : (
+              <DeadBranches size={0.9} />
+            )}
           </group>
         </group>
       ))}
@@ -465,7 +499,8 @@ const GARDEN_ANCHOR_TREES = [
   { pos: [3.5, 0, -22.5], scale: 1.05, hueIdx: 2 },
 ];
 
-export const GardenAnchorTrees = ({ isMobile }) => {
+export const GardenAnchorTrees = ({ isMobile, restorationLevel = 1 }) => {
+  const restored = restorationLevel >= 0.5;
   // Mobile cull: 16 → 8 (entrance + monument + bench frame).
   const list = isMobile
     ? GARDEN_ANCHOR_TREES.slice(0, 8)
@@ -487,7 +522,10 @@ export const GardenAnchorTrees = ({ isMobile }) => {
         <group key={`anchor-${i}`} position={tree.pos} scale={tree.scale}>
           <mesh position={[0, 0.95, 0]}>
             <cylinderGeometry args={[0.09, 0.14, 1.9, 6]} />
-            <meshStandardMaterial color="#3a2818" roughness={1} />
+            <meshStandardMaterial
+              color={restored ? '#3a2818' : '#4a3e2e'}
+              roughness={1}
+            />
           </mesh>
           <group
             ref={(el) => {
@@ -495,20 +533,26 @@ export const GardenAnchorTrees = ({ isMobile }) => {
             }}
             position={[0, 1.9, 0]}
           >
-            <mesh position={[0, 0.55, 0]}>
-              <sphereGeometry args={[0.85, 14, 10]} />
-              <meshStandardMaterial
-                color={SIDE_TREE_COLORS[tree.hueIdx]}
-                roughness={1}
-              />
-            </mesh>
-            <mesh position={[0.3, 0.25, 0.1]}>
-              <sphereGeometry args={[0.45, 10, 8]} />
-              <meshStandardMaterial
-                color={SIDE_TREE_COLORS[(tree.hueIdx + 2) % 4]}
-                roughness={1}
-              />
-            </mesh>
+            {restored ? (
+              <>
+                <mesh position={[0, 0.55, 0]}>
+                  <sphereGeometry args={[0.85, 14, 10]} />
+                  <meshStandardMaterial
+                    color={SIDE_TREE_COLORS[tree.hueIdx]}
+                    roughness={1}
+                  />
+                </mesh>
+                <mesh position={[0.3, 0.25, 0.1]}>
+                  <sphereGeometry args={[0.45, 10, 8]} />
+                  <meshStandardMaterial
+                    color={SIDE_TREE_COLORS[(tree.hueIdx + 2) % 4]}
+                    roughness={1}
+                  />
+                </mesh>
+              </>
+            ) : (
+              <DeadBranches size={1.15} />
+            )}
           </group>
         </group>
       ))}
