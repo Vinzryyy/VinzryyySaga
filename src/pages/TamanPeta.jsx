@@ -157,6 +157,17 @@ const PETAK = [
     angle: 210,
     color: '#e8a87c',
   },
+  {
+    id: 'r7',
+    name: 'Titipan: By-U',
+    eyebrow: 'Kenangan Tersegel',
+    desc: 'Lagu yang menunggu 15 Juni',
+    longDesc:
+      'Titipan lagu By-U oleh Putri Helisma. Masih tersegel, akan dibuka 15 Juni 2026. Sampai saat itu, kita yang menjaganya — tiap klik "Saya menunggu" jadi satu doa untuk hari rilis.',
+    angle: 0,
+    color: '#e8c878',
+    route: '/taman/titipan',
+  },
 ];
 
 const polarToXZ = (angleDeg, radius) => {

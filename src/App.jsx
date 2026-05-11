@@ -58,6 +58,7 @@ const TamanPage = lazy(() => import('./pages/Taman'));
 const TamanPetaPage = lazy(() => import('./pages/TamanPeta'));
 const TamanLorongPohonPage = lazy(() => import('./pages/TamanLorongPohon'));
 const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
+const TamanTitipanPage = lazy(() => import('./pages/TamanTitipan'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -127,6 +128,7 @@ function AppShell() {
             <Route path="/taman/peta" element={<TamanPetaPage />} />
             <Route path="/taman/r1" element={<TamanLorongPohonPage />} />
             <Route path="/taman/r3" element={<TamanKolamKataPage />} />
+            <Route path="/taman/titipan" element={<TamanTitipanPage />} />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand */}
             <Route path="/museum" element={<Navigate to="/taman" replace />} />
             <Route
