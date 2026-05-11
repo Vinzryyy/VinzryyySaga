@@ -40,6 +40,7 @@
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stats } from '@react-three/drei';
 import {
@@ -378,26 +379,41 @@ const DRY_GRASS_DEFS = (() => {
   }
   return arr;
 })();
-const DryGrassTuft = ({ pos, rot, color, h }) => (
-  <group position={pos} rotation={[0, rot, 0]}>
-    {[0, 1, 2, 3, 4].map((i) => (
-      <mesh
-        key={i}
-        position={[(i - 2) * 0.04, h / 2, ((i * 7) % 3 - 1) * 0.03]}
-        rotation={[0, 0, (i - 2) * 0.15]}
-      >
-        <boxGeometry args={[0.015, h, 0.015]} />
-        <meshStandardMaterial color={color} roughness={1} />
-      </mesh>
-    ))}
-  </group>
-);
-const DryGrassTufts = ({ isMobile }) => {
+// Color shift saat done — ~1/3 dari grass tufts pulih jadi yellow-
+// green (subtle hint kehidupan kembali), sisanya tetap dry brown.
+// Picked deterministic by index modulo 3.
+const DryGrassTuft = ({ pos, rot, color, doneColor, h, stage }) => {
+  const active = stage === 'done' && doneColor;
+  const c = active ? doneColor : color;
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <mesh
+          key={i}
+          position={[(i - 2) * 0.04, h / 2, ((i * 7) % 3 - 1) * 0.03]}
+          rotation={[0, 0, (i - 2) * 0.15]}
+        >
+          <boxGeometry args={[0.015, h, 0.015]} />
+          <meshStandardMaterial color={c} roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+const DryGrassTufts = ({ isMobile, stage }) => {
   const list = isMobile ? DRY_GRASS_DEFS.slice(0, 14) : DRY_GRASS_DEFS;
   return (
     <>
       {list.map((d, i) => (
-        <DryGrassTuft key={`dg-${i}`} pos={d.pos} rot={d.rot} color={d.color} h={d.h} />
+        <DryGrassTuft
+          key={`dg-${i}`}
+          pos={d.pos}
+          rot={d.rot}
+          color={d.color}
+          doneColor={i % 3 === 0 ? '#8aa858' : null}
+          h={d.h}
+          stage={stage}
+        />
       ))}
     </>
   );
@@ -987,12 +1003,22 @@ const Stars = ({ stage }) => {
 
 // Dust devil — single spiral particle pillar di samping (drought
 // atmosphere extra). Lazy slow rotation around y axis dgn varying
-// radius per height. Posisi off-path supaya gak overlap traveler.
-const DustDevil = ({ pos }) => {
+// radius per height. Saat stage='done', fade out (scene tenang, gak
+// ada drought wind lagi).
+const DustDevil = ({ pos, stage = 'idle' }) => {
   const ref = useRef();
-  useFrame((state) => {
+  const matsRef = useRef([]);
+  const targetMul = stage === 'done' ? 0 : 1;
+  useFrame((state, delta) => {
     if (!ref.current) return;
     ref.current.rotation.y = state.clock.elapsedTime * 1.2;
+    // Lerp opacity multiplier toward target (smooth fade)
+    matsRef.current.forEach((m, i) => {
+      if (!m) return;
+      const base = 0.5 - i * 0.022;
+      const target = base * targetMul;
+      m.opacity += (target - m.opacity) * Math.min(delta * 1.2, 1);
+    });
   });
   return (
     <group ref={ref} position={pos}>
@@ -1008,6 +1034,9 @@ const DustDevil = ({ pos }) => {
           >
             <sphereGeometry args={[0.06, 5, 4]} />
             <meshBasicMaterial
+              ref={(el) => {
+                matsRef.current[i] = el;
+              }}
               color="#c4906a"
               transparent
               opacity={0.5 - i * 0.022}
@@ -1020,10 +1049,16 @@ const DustDevil = ({ pos }) => {
   );
 };
 
-// Lonely flower — single small flower clinging to life di tengah dry
-// grass. Subtle symbolic survivor: ada harapan yang masih hidup walau
-// padang kering. Tiny stem + closed-ish bloom + 2 wilted petal hint.
-const LonelyFlower = ({ pos, stage = 'idle' }) => {
+// Lonely flowers — beberapa fragile flower scattered di padang. Saat
+// idle tampak wilted (warna dusty brown), saat done bloom pulih jadi
+// pastel hidup dengan emissive. Subtle symbolic survivor: ada harapan
+// yg masih hidup walau padang kering.
+const LONELY_FLOWER_DEFS = [
+  { pos: [1.6, 0, 7], doneColor: '#f4a8c0' },
+  { pos: [-3.5, 0, 1.5], doneColor: '#f4d870' },
+  { pos: [4.8, 0, -1.2], doneColor: '#d4a8e0' },
+];
+const LonelyFlower = ({ pos, stage = 'idle', doneColor = '#f4a8c0' }) => {
   const bloomRef = useRef();
   // Bloom subtle scale animation — saat done, terlihat lebih hidup
   useFrame((state) => {
@@ -1033,7 +1068,7 @@ const LonelyFlower = ({ pos, stage = 'idle' }) => {
     const baseScale = stage === 'done' ? 1.25 : 1.0;
     bloomRef.current.scale.set(baseScale * breathe, baseScale * breathe, baseScale * breathe);
   });
-  const bloomColor = stage === 'done' ? '#f4a8c0' : '#a87060';
+  const bloomColor = stage === 'done' ? doneColor : '#a87060';
   return (
     <group position={pos}>
       {/* Stem — slight tilt seperti kelelahan */}
@@ -1066,6 +1101,77 @@ const LonelyFlower = ({ pos, stage = 'idle' }) => {
         <meshStandardMaterial color={bloomColor} roughness={0.85} />
       </mesh>
     </group>
+  );
+};
+const LonelyFlowers = ({ stage, isMobile }) => {
+  const list = isMobile ? LONELY_FLOWER_DEFS.slice(0, 2) : LONELY_FLOWER_DEFS;
+  return (
+    <>
+      {list.map((f, i) => (
+        <LonelyFlower key={`lf-${i}`} pos={f.pos} stage={stage} doneColor={f.doneColor} />
+      ))}
+    </>
+  );
+};
+
+// Butterflies pas done — 2 fluttering subtle, life returns indicator.
+// Only rendered saat stage='done', dgn floating circular path + wing
+// flap animation.
+const Butterfly = ({ home, color, phase = 0 }) => {
+  const ref = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime + phase;
+    // Circular drift around home position
+    ref.current.position.x = home[0] + Math.cos(t * 0.4) * 0.7;
+    ref.current.position.y = home[1] + 1.0 + Math.sin(t * 0.6) * 0.2;
+    ref.current.position.z = home[2] + Math.sin(t * 0.4) * 0.7;
+    ref.current.rotation.y = -t * 0.4 - Math.PI / 2;
+    // Wing flap fast
+    const flap = Math.sin(t * 14) * 0.6;
+    if (wingLRef.current) wingLRef.current.rotation.y = flap;
+    if (wingRRef.current) wingRRef.current.rotation.y = -flap;
+  });
+  return (
+    <group ref={ref} position={home}>
+      {/* Body */}
+      <mesh>
+        <boxGeometry args={[0.04, 0.04, 0.08]} />
+        <meshStandardMaterial color="#1a1208" roughness={0.95} />
+      </mesh>
+      {/* Wings */}
+      <mesh ref={wingLRef} position={[-0.04, 0, 0]}>
+        <planeGeometry args={[0.1, 0.14]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.3}
+          side={THREE.DoubleSide}
+          roughness={0.7}
+        />
+      </mesh>
+      <mesh ref={wingRRef} position={[0.04, 0, 0]}>
+        <planeGeometry args={[0.1, 0.14]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.3}
+          side={THREE.DoubleSide}
+          roughness={0.7}
+        />
+      </mesh>
+    </group>
+  );
+};
+const Butterflies = ({ stage, isMobile }) => {
+  if (stage !== 'done' || isMobile) return null;
+  return (
+    <>
+      <Butterfly home={[1.6, 0, 7]} color="#f4a8c0" phase={0} />
+      <Butterfly home={[-3.5, 0, 1.5]} color="#f4d870" phase={1.6} />
+    </>
   );
 };
 
@@ -1398,11 +1504,12 @@ const R0Scene = ({
     <BrokenLanternPost pos={[2.95, 0, 0.4]} rot={-0.2} />
     <DeadTree stage={stage} />
     <PerchedCrow pos={[-5.0, 3.55, -1]} stage={stage} />
-    <LonelyFlower pos={[1.6, 0, 7]} stage={stage} />
+    <LonelyFlowers stage={stage} isMobile={isMobile} />
+    <Butterflies stage={stage} isMobile={isMobile} />
     <StoneCairn pos={[-2.2, 0, 9]} rot={0.4} />
-    {!isMobile && <DustDevil pos={[-11, 0, 4]} />}
+    {!isMobile && <DustDevil pos={[-11, 0, 4]} stage={stage} />}
     <ExtraDeadTrees isMobile={isMobile} />
-    <DryGrassTufts isMobile={isMobile} />
+    <DryGrassTufts isMobile={isMobile} stage={stage} />
     <Rocks isMobile={isMobile} />
     <BonesScatter isMobile={isMobile} />
     <WagonWheel pos={[5.5, 0.1, 4]} rot={0.4} />
@@ -1511,8 +1618,26 @@ const ExitOverlay = ({ visible, onRestart }) => (
     }`}
   >
     <div className="text-center max-w-md px-6 backdrop-blur-sm bg-black/30 rounded-2xl py-10 border border-white/10">
+      {/* Small bloom accent — visual echo dari LonelyFlower yg blooming
+          di scene. Tiny SVG flower icon dgn soft pulse. */}
+      <div className="flex justify-center mb-5">
+        <svg
+          width="36"
+          height="36"
+          viewBox="0 0 36 36"
+          className="text-pink-200/85 animate-pulse"
+          fill="currentColor"
+        >
+          <circle cx="18" cy="9" r="4" />
+          <circle cx="27" cy="14" r="4" />
+          <circle cx="24" cy="24" r="4" />
+          <circle cx="12" cy="24" r="4" />
+          <circle cx="9" cy="14" r="4" />
+          <circle cx="18" cy="18" r="3.5" fill="#f4d870" />
+        </svg>
+      </div>
       <p
-        className="text-white text-xl md:text-2xl leading-relaxed mb-2"
+        className="text-white text-xl md:text-2xl leading-relaxed mb-3"
         style={{
           fontFamily: '"Fraunces Variable", serif',
           fontStyle: 'italic',
@@ -1520,7 +1645,13 @@ const ExitOverlay = ({ visible, onRestart }) => (
       >
         Kehidupan telah kembali.
       </p>
-      <p className="text-white/60 text-sm leading-relaxed mb-8">
+      <p
+        className="text-white/55 text-sm leading-relaxed mb-8 tracking-wide"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+        }}
+      >
         Gerbang Taman Kebaikan telah terbuka.
         <br />
         Pilih petak untuk dijelajahi.
