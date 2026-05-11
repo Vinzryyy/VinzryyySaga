@@ -862,64 +862,6 @@ const SignPost = ({ pos, rot = 0 }) => (
   </group>
 );
 
-// Distant traveler — single figure silhouette walking slow toward
-// gate. Loop: starts far behind camera, walks ke -z direction sampai
-// distant, lalu reset. Subtle storytelling "kamu bukan satu-satunya".
-const DistantTraveler = () => {
-  const ref = useRef();
-  const legLRef = useRef();
-  const legRRef = useRef();
-  useFrame((state) => {
-    if (!ref.current) return;
-    const t = state.clock.elapsedTime;
-    // Walk cycle 40s
-    const cycle = 40;
-    const phase = (t % cycle) / cycle;
-    // z from 18 (far behind) → -2 (passing gate)
-    ref.current.position.z = 18 - phase * 20;
-    // Drift slightly to side
-    ref.current.position.x = -1.5 + Math.sin(t * 0.1) * 0.3;
-    // Walk bob
-    ref.current.position.y = Math.abs(Math.sin(t * 2)) * 0.05;
-    // Legs alternate
-    if (legLRef.current) legLRef.current.rotation.x = Math.sin(t * 4) * 0.3;
-    if (legRRef.current) legRRef.current.rotation.x = -Math.sin(t * 4) * 0.3;
-  });
-  return (
-    <group ref={ref} position={[-1.5, 0, 18]}>
-      {/* Body — long coat silhouette */}
-      <mesh position={[0, 0.7, 0]}>
-        <boxGeometry args={[0.22, 0.85, 0.16]} />
-        <meshBasicMaterial color="#0a0805" fog />
-      </mesh>
-      {/* Head */}
-      <mesh position={[0, 1.25, 0]}>
-        <sphereGeometry args={[0.1, 8, 6]} />
-        <meshBasicMaterial color="#0a0805" fog />
-      </mesh>
-      {/* Hat/cap top — small box */}
-      <mesh position={[0, 1.36, 0]}>
-        <boxGeometry args={[0.22, 0.04, 0.2]} />
-        <meshBasicMaterial color="#0a0805" fog />
-      </mesh>
-      {/* Legs */}
-      <mesh ref={legLRef} position={[-0.07, 0.2, 0]}>
-        <boxGeometry args={[0.07, 0.4, 0.08]} />
-        <meshBasicMaterial color="#0a0805" fog />
-      </mesh>
-      <mesh ref={legRRef} position={[0.07, 0.2, 0]}>
-        <boxGeometry args={[0.07, 0.4, 0.08]} />
-        <meshBasicMaterial color="#0a0805" fog />
-      </mesh>
-      {/* Walking staff in hand */}
-      <mesh position={[0.15, 0.65, 0.1]} rotation={[0.1, 0, 0.1]}>
-        <cylinderGeometry args={[0.012, 0.012, 1.2, 4]} />
-        <meshBasicMaterial color="#1a1208" fog />
-      </mesh>
-    </group>
-  );
-};
-
 // Cracked urn — broken clay pottery prop, half-tilted. Suggests "ada
 // kehidupan sebelum kemarau".
 const CrackedUrn = ({ pos, rot = 0 }) => (
@@ -1515,7 +1457,6 @@ const R0Scene = ({
     <WagonWheel pos={[5.5, 0.1, 4]} rot={0.4} />
     <CrackedUrn pos={[-4.0, 0, 5]} rot={1.2} />
     <BrokenFence isMobile={isMobile} />
-    {!isMobile && <DistantTraveler />}
     {!isMobile && <Vulture />}
     {!isMobile && <Tumbleweed />}
     <DustParticles count={particleCount} />
