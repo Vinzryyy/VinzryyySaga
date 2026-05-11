@@ -1631,6 +1631,103 @@ const OpeningCeremony = ({ visible }) => (
   </div>
 );
 
+// ArmeniacaIntroOverlay — first-visit pengantar yang ngejelasin
+// konsep ArmeniacaTown ke pengunjung baru. Tanpa ini, locked gerbang
+// keliatan kayak bug, bukan mekanika. SessionStorage flag bikin cuma
+// muncul sekali per session — return visitor langsung dapet scene
+// bersih. Bisa di-recall via InfoButton di pojok.
+const ARMENIACA_INTRO_KEY = 'armeniaca-intro-seen';
+
+const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
+  <div
+    className={`absolute inset-0 z-30 flex items-center justify-center px-4 py-20 md:py-24 transition-opacity duration-1000 ${
+      visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+    }`}
+    onClick={onClose}
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="armeniaca-intro-title"
+  >
+    <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+    <div
+      className="relative w-full max-w-xl px-6 py-8 md:px-10 md:py-12 rounded-md border border-white/15 bg-[#1c1614]/90 shadow-2xl text-center"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-5">
+        Selamat datang
+      </div>
+      <h2
+        id="armeniaca-intro-title"
+        className="text-white text-2xl md:text-3xl mb-6 leading-tight"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+        }}
+      >
+        ArmeniacaTown
+      </h2>
+      <p
+        className="text-white/85 text-sm md:text-base leading-relaxed mb-4"
+        style={{ fontFamily: '"Fraunces Variable", serif' }}
+      >
+        Sebuah dunia yang tumbuh dari kepedulian — kota mati yang hanya
+        bisa hidup kembali oleh ribuan tangan yang menyiram bersama.
+      </p>
+      <p className="text-white/65 text-xs md:text-sm leading-relaxed mb-4">
+        Setiap dukungan di Pohon Kebaikan (
+        <span className="text-amber-200/85">/26</span>) tersambung
+        langsung ke dunia ini.
+        <br />
+        Saat <strong className="text-white/90 font-medium">2.000 siraman</strong>{' '}
+        terkumpul, gerbang terbuka. Saat{' '}
+        <strong className="text-white/90 font-medium">4.000</strong>,
+        ekosistem pulih sepenuhnya.
+      </p>
+      <p
+        className="text-white/55 text-xs md:text-sm leading-relaxed mb-7 italic"
+        style={{ fontFamily: '"Fraunces Variable", serif' }}
+      >
+        Tidak ada yang bisa membukanya sendirian — termasuk kami.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition"
+        >
+          Lanjut
+        </button>
+        <Link
+          to="/26"
+          className="px-5 py-2.5 rounded-full border border-white/25 text-white/80 text-sm hover:bg-white/10 transition"
+        >
+          Siram di /26 →
+        </Link>
+      </div>
+    </div>
+  </div>
+);
+
+const ArmeniacaInfoButton = ({ onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label="Tampilkan kembali pengantar"
+    className="absolute top-20 md:top-24 left-4 md:left-6 z-20 w-8 h-8 rounded-full border border-white/20 bg-black/35 text-white/65 hover:text-white hover:bg-white/15 transition flex items-center justify-center backdrop-blur-sm"
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M12 11v6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="7.7" r="1" fill="currentColor" />
+    </svg>
+  </button>
+);
+
 const TapHint = ({ visible }) => (
   <div
     className={`pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 transition-opacity duration-1000 ${
@@ -1757,6 +1854,25 @@ const MuseumPage = () => {
   // screenshot poster dgn 3D scene bersih. Hapus param utk balikin.
   const [cleanParams] = useSearchParams();
   const cleanMode = cleanParams.get('clean') === '1';
+  // First-visit intro overlay state. sessionStorage flag bikin cuma
+  // muncul sekali per browser session — return visitor langsung dapet
+  // scene. InfoButton di pojok kiri-atas bisa re-open kapan aja.
+  const [introOpen, setIntroOpen] = useState(() => {
+    try {
+      return sessionStorage.getItem(ARMENIACA_INTRO_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+  const handleCloseIntro = () => {
+    setIntroOpen(false);
+    try {
+      sessionStorage.setItem(ARMENIACA_INTRO_KEY, '1');
+    } catch {
+      /* storage blocked — state-only close, oke */
+    }
+  };
+  const handleOpenIntro = () => setIntroOpen(true);
   // Stage state machine — drives transition + UI overlays. Lihat header
   // file untuk semantik tiap stage.
   const [stage, setStage] = useState('idle');
@@ -1903,6 +2019,11 @@ const MuseumPage = () => {
 
         {!cleanMode && (
           <>
+            <ArmeniacaIntroOverlay
+              visible={introOpen}
+              onClose={handleCloseIntro}
+            />
+            <ArmeniacaInfoButton onClick={handleOpenIntro} />
             <OpeningText stage={stage} resetTrigger={resetTrigger} />
             {/* LockedHint vs TapHint mutually exclusive — LockedHint muncul
                 kalau gerbang masih terkunci, TapHint kalau udah unlocked.
