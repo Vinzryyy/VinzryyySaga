@@ -41,26 +41,134 @@ const calcBpm = (count) =>
 const ECG_PATH =
   'M0 20 L10 20 L14 18 L18 22 L22 8 L26 32 L30 20 L40 20 L44 19 L48 21 L52 20 L65 20 L69 18 L73 22 L77 8 L81 32 L85 20 L100 20';
 
+// Anatomical jantung — bukan hati simetris ala valentine. Bentuk
+// asimetris kayak organ asli: ventricle kiri (kanan layar) lebih
+// bulk, apex condong ke bawah-kiri. Aorta arch + pulmonary trunk
+// muncul di atas, dua vena di sisi. Coronary vessels (LAD + RCA)
+// dilukis tipis di permukaan untuk detail organik.
 const HeartIcon = () => (
   <svg
-    viewBox="0 0 24 24"
+    viewBox="0 0 100 100"
     width="100%"
     height="100%"
     aria-hidden="true"
     style={{ display: 'block' }}
   >
     <defs>
-      <radialGradient id="heartGlow" cx="50%" cy="40%" r="60%">
-        <stop offset="0%" stopColor="#ff8a8a" />
-        <stop offset="55%" stopColor="#c94a4a" />
-        <stop offset="100%" stopColor="#7a2828" />
+      <radialGradient id="heartGlow" cx="55%" cy="45%" r="65%">
+        <stop offset="0%" stopColor="#ff9090" />
+        <stop offset="40%" stopColor="#d04a4a" />
+        <stop offset="85%" stopColor="#7a2020" />
+        <stop offset="100%" stopColor="#4a1010" />
       </radialGradient>
+      <radialGradient id="heartHighlight" cx="35%" cy="35%" r="40%">
+        <stop offset="0%" stopColor="rgba(255,200,200,0.55)" />
+        <stop offset="100%" stopColor="rgba(255,200,200,0)" />
+      </radialGradient>
+      <linearGradient id="aortaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#9a2828" />
+        <stop offset="100%" stopColor="#c04545" />
+      </linearGradient>
+      <linearGradient id="pulmGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#6a3a55" />
+        <stop offset="100%" stopColor="#a85575" />
+      </linearGradient>
     </defs>
+
+    {/* Vena cava superior — silinder dari atas-kanan masuk ke atrium */}
     <path
-      d="M12 21s-7-4.5-9.5-9.5C0.5 7.5 3 3 7.5 3c2 0 3.5 1 4.5 2.5C13 4 14.5 3 16.5 3 21 3 23.5 7.5 21.5 11.5 19 16.5 12 21 12 21z"
+      d="M68 6 Q70 18 64 28"
+      fill="none"
+      stroke="#7a3a48"
+      strokeWidth="5"
+      strokeLinecap="round"
+    />
+    {/* Aorta arch — lengkungan ke kanan, lebih bulk drpd pulmonary */}
+    <path
+      d="M48 26 Q48 8 60 6 Q74 6 76 22 L74 36"
+      fill="none"
+      stroke="url(#aortaGrad)"
+      strokeWidth="7"
+      strokeLinecap="round"
+    />
+    {/* Pulmonary trunk — lebih kecil, ke kiri-atas */}
+    <path
+      d="M40 28 Q34 16 26 14"
+      fill="none"
+      stroke="url(#pulmGrad)"
+      strokeWidth="5.5"
+      strokeLinecap="round"
+    />
+    {/* Branch pulmonary kecil */}
+    <path
+      d="M30 18 Q24 16 20 22"
+      fill="none"
+      stroke="url(#pulmGrad)"
+      strokeWidth="3"
+      strokeLinecap="round"
+      opacity="0.85"
+    />
+
+    {/* Main ventricle body — asimetris, apex condong ke bawah-kiri.
+        Curve disusun supaya kerasa organ, bukan symbol hati. */}
+    <path
+      d="M50 30
+         Q32 24 22 38
+         Q14 52 24 70
+         Q34 86 44 92
+         Q48 94 46 88
+         Q42 78 44 70
+         Q38 66 36 58
+         Q44 64 50 62
+         Q58 66 64 60
+         Q66 70 62 78
+         Q60 86 64 90
+         Q76 80 80 64
+         Q84 48 76 38
+         Q66 28 56 32
+         Q52 30 50 30 Z"
       fill="url(#heartGlow)"
-      stroke="rgba(255,200,200,0.55)"
-      strokeWidth="0.5"
+      stroke="#3a0808"
+      strokeWidth="0.6"
+    />
+
+    {/* Highlight — sheen kiri-atas biar kerasa volumetrik */}
+    <ellipse
+      cx="38"
+      cy="46"
+      rx="14"
+      ry="10"
+      fill="url(#heartHighlight)"
+      opacity="0.7"
+    />
+
+    {/* Coronary arteries — LAD (left anterior descending) dari atas
+        turun ke apex, RCA (right coronary) di sisi kanan. Tipis,
+        warna lebih gelap supaya kerasa pembuluh di permukaan. */}
+    <path
+      d="M48 34 Q44 50 38 70 Q42 82 46 88"
+      fill="none"
+      stroke="#5a1010"
+      strokeWidth="1.1"
+      strokeLinecap="round"
+      opacity="0.7"
+    />
+    <path
+      d="M58 36 Q66 42 70 56 Q70 70 64 84"
+      fill="none"
+      stroke="#5a1010"
+      strokeWidth="1"
+      strokeLinecap="round"
+      opacity="0.65"
+    />
+    {/* Branch kecil dari LAD */}
+    <path
+      d="M42 56 Q36 60 32 66"
+      fill="none"
+      stroke="#5a1010"
+      strokeWidth="0.7"
+      strokeLinecap="round"
+      opacity="0.55"
     />
   </svg>
 );
