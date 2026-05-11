@@ -98,11 +98,27 @@ const lerpHex = (a, b, t) => {
 };
 
 // Gerbang taman — pilar kayu weathered + 2 cross-beam (atas + tengah)
-// + plank detail + hanging cloth tirai. Tone dark warm masih sesuai
-// drought, tapi punya struktur lebih kerasa "gerbang" bukan abstract
-// rect 3 box.
-const Gate = () => (
-  <group position={[0, 0, 0]}>
+// + plank detail + hanging cloth tirai dgn gentle wind sway. Tone
+// dark warm masih sesuai drought, tapi punya struktur lebih kerasa
+// "gerbang" bukan abstract rect 3 box.
+const Gate = () => {
+  const tiraiLRef = useRef();
+  const tiraiRRef = useRef();
+  const chainRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (tiraiLRef.current) {
+      tiraiLRef.current.rotation.x = Math.sin(t * 0.7) * 0.08;
+    }
+    if (tiraiRRef.current) {
+      tiraiRRef.current.rotation.x = Math.sin(t * 0.7 + 0.4) * 0.08;
+    }
+    if (chainRef.current) {
+      chainRef.current.rotation.z = Math.sin(t * 0.9) * 0.05;
+    }
+  });
+  return (
+    <group position={[0, 0, 0]}>
     {/* Stone bases di bawah pillar — kasih grounded feel */}
     <mesh position={[-2.2, 0.2, 0]}>
       <boxGeometry args={[0.7, 0.4, 0.7]} />
@@ -155,26 +171,34 @@ const Gate = () => (
       <meshStandardMaterial color="#6a4d2f" roughness={0.85} />
     </mesh>
     {/* Hanging cloth tirai dari cross-beam tengah — 2 strip kain
-        weathered, statis (drought feels still). */}
-    <mesh position={[-1.3, 2.7, 0.2]}>
-      <boxGeometry args={[0.4, 1.4, 0.02]} />
-      <meshStandardMaterial color="#4a3022" roughness={0.95} />
-    </mesh>
-    <mesh position={[1.3, 2.7, 0.2]}>
-      <boxGeometry args={[0.4, 1.4, 0.02]} />
-      <meshStandardMaterial color="#4a3022" roughness={0.95} />
-    </mesh>
-    {/* Small hanging chain ornament dari beam atas (silhouette ringan) */}
-    <mesh position={[0, 3.85, 0.2]}>
-      <boxGeometry args={[0.04, 0.3, 0.04]} />
-      <meshStandardMaterial color="#2a1d12" roughness={0.95} />
-    </mesh>
-    <mesh position={[0, 3.55, 0.2]}>
-      <sphereGeometry args={[0.1, 8, 6]} />
-      <meshStandardMaterial color="#1a1410" roughness={0.95} />
-    </mesh>
+        weathered dgn gentle wind sway. Anchor di top, pivot rotation.x. */}
+    <group ref={tiraiLRef} position={[-1.3, 3.4, 0.2]}>
+      <mesh position={[0, -0.7, 0]}>
+        <boxGeometry args={[0.4, 1.4, 0.02]} />
+        <meshStandardMaterial color="#4a3022" roughness={0.95} />
+      </mesh>
+    </group>
+    <group ref={tiraiRRef} position={[1.3, 3.4, 0.2]}>
+      <mesh position={[0, -0.7, 0]}>
+        <boxGeometry args={[0.4, 1.4, 0.02]} />
+        <meshStandardMaterial color="#4a3022" roughness={0.95} />
+      </mesh>
+    </group>
+    {/* Small hanging chain ornament dari beam atas (silhouette ringan)
+        dgn subtle swing. Anchor top, rotate.z. */}
+    <group ref={chainRef} position={[0, 4.0, 0.2]}>
+      <mesh position={[0, -0.15, 0]}>
+        <boxGeometry args={[0.04, 0.3, 0.04]} />
+        <meshStandardMaterial color="#2a1d12" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, -0.45, 0]}>
+        <sphereGeometry args={[0.1, 8, 6]} />
+        <meshStandardMaterial color="#1a1410" roughness={0.95} />
+      </mesh>
+    </group>
   </group>
-);
+  );
+};
 
 // Pohon mati di samping gerbang — siluet yang nguatin metafor
 // "padang yang sudah lama tak hujan". Trunk bengkok + 3 ranting
@@ -354,6 +378,153 @@ const Rocks = ({ isMobile }) => {
   );
 };
 
+// Broken lantern post — di samping gate, weathered & unlit. Narrative
+// hint "dulu ada cahaya di sini". Akan jadi "alive" lagi setelah masuk
+// taman (subtle storytelling).
+const BrokenLanternPost = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stone base */}
+    <mesh position={[0, 0.15, 0]}>
+      <boxGeometry args={[0.34, 0.3, 0.34]} />
+      <meshStandardMaterial color="#2a1d12" roughness={1} />
+    </mesh>
+    {/* Pole — slight tilt seperti udah miring */}
+    <mesh position={[0.05, 1.3, 0]} rotation={[0, 0, 0.08]}>
+      <cylinderGeometry args={[0.05, 0.06, 2.2, 6]} />
+      <meshStandardMaterial color={GATE_COLOR} roughness={0.95} />
+    </mesh>
+    {/* Broken lantern body (cracked, no glow) */}
+    <mesh position={[0.18, 2.3, 0]} rotation={[0, 0, 0.08]}>
+      <boxGeometry args={[0.24, 0.28, 0.24]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+    {/* Crack accent — small offset piece, kerasa "pecah" */}
+    <mesh position={[0.32, 2.18, 0.13]} rotation={[0.3, 0.2, -0.2]}>
+      <boxGeometry args={[0.08, 0.12, 0.05]} />
+      <meshStandardMaterial color="#0d0805" roughness={1} />
+    </mesh>
+    {/* Sloped roof small */}
+    <mesh position={[0.18, 2.5, 0]} rotation={[0, 0, 0.08]}>
+      <coneGeometry args={[0.2, 0.12, 4]} />
+      <meshStandardMaterial color="#181210" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// Bones scattered — sedikit, sebagai drama akhir kemarau. Pakai
+// stylized: 2 elongated boxes (ribs) + 1 sphere (skull-ish). Subtle.
+const BONE_DEFS = [
+  { pos: [-7, 0, 5], rot: 0.5 },
+  { pos: [10, 0, 2], rot: 1.3 },
+];
+const Bones = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Skull base (sphere flatter) */}
+    <mesh position={[0, 0.06, 0]} scale={[0.18, 0.12, 0.16]}>
+      <sphereGeometry args={[1, 8, 6]} />
+      <meshStandardMaterial color="#a8a098" roughness={0.95} />
+    </mesh>
+    {/* Eye sockets (2 dark dots) */}
+    <mesh position={[-0.06, 0.08, 0.14]}>
+      <sphereGeometry args={[0.02, 6, 5]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+    <mesh position={[0.06, 0.08, 0.14]}>
+      <sphereGeometry args={[0.02, 6, 5]} />
+      <meshStandardMaterial color="#1a1208" roughness={1} />
+    </mesh>
+    {/* Rib 1 */}
+    <mesh position={[0.22, 0.04, 0.05]} rotation={[0, 0.3, -0.1]}>
+      <boxGeometry args={[0.28, 0.04, 0.04]} />
+      <meshStandardMaterial color="#9a9088" roughness={0.95} />
+    </mesh>
+    {/* Rib 2 */}
+    <mesh position={[0.25, 0.04, -0.08]} rotation={[0, 0.2, 0.05]}>
+      <boxGeometry args={[0.32, 0.04, 0.04]} />
+      <meshStandardMaterial color="#a8a098" roughness={0.95} />
+    </mesh>
+    {/* Long bone */}
+    <mesh position={[-0.25, 0.03, -0.08]} rotation={[0, 0.6, Math.PI / 2]}>
+      <cylinderGeometry args={[0.025, 0.025, 0.36, 6]} />
+      <meshStandardMaterial color="#a8a098" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const BonesScatter = ({ isMobile }) => {
+  const list = isMobile ? BONE_DEFS.slice(0, 1) : BONE_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <Bones key={`bones-${i}`} pos={b.pos} rot={b.rot} />
+      ))}
+    </>
+  );
+};
+
+// Vulture silhouette circling high di sky — drift slow di lingkaran
+// besar, kasih atmospheric drought drama. Wing flap subtle.
+const Vulture = () => {
+  const ref = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (!ref.current) return;
+    const orbitR = 14;
+    ref.current.position.x = Math.cos(t * 0.12) * orbitR;
+    ref.current.position.z = Math.sin(t * 0.12) * orbitR;
+    ref.current.position.y = 8 + Math.sin(t * 0.25) * 0.5;
+    ref.current.rotation.y = -t * 0.12 + Math.PI / 2;
+    // Wing flap — slow lazy
+    const flap = Math.sin(t * 2.4) * 0.18;
+    if (wingLRef.current) wingLRef.current.rotation.z = 0.3 + flap;
+    if (wingRRef.current) wingRRef.current.rotation.z = -0.3 - flap;
+  });
+  return (
+    <group ref={ref} position={[14, 8, 0]}>
+      {/* Body */}
+      <mesh>
+        <boxGeometry args={[0.12, 0.06, 0.32]} />
+        <meshBasicMaterial color="#1a1208" fog={false} />
+      </mesh>
+      {/* Wing L */}
+      <mesh ref={wingLRef} position={[-0.1, 0, 0]}>
+        <boxGeometry args={[0.4, 0.02, 0.1]} />
+        <meshBasicMaterial color="#1a1208" fog={false} />
+      </mesh>
+      {/* Wing R */}
+      <mesh ref={wingRRef} position={[0.1, 0, 0]}>
+        <boxGeometry args={[0.4, 0.02, 0.1]} />
+        <meshBasicMaterial color="#1a1208" fog={false} />
+      </mesh>
+      {/* Tail */}
+      <mesh position={[0, 0, -0.2]}>
+        <boxGeometry args={[0.06, 0.02, 0.12]} />
+        <meshBasicMaterial color="#1a1208" fog={false} />
+      </mesh>
+    </group>
+  );
+};
+
+// High thin clouds — flat hazy streaks di sky behind sun, kasih
+// texture langit yg dustyhot. Static (no drift) untuk perf.
+const HIGH_CLOUD_DEFS = [
+  { pos: [-8, 9, -18], scale: [3.2, 0.18, 1] },
+  { pos: [6, 11, -22], scale: [4, 0.22, 1] },
+  { pos: [-2, 10, -24], scale: [2.6, 0.16, 1] },
+  { pos: [12, 12, -20], scale: [2.2, 0.14, 1] },
+];
+const HighClouds = () => (
+  <>
+    {HIGH_CLOUD_DEFS.map((c, i) => (
+      <mesh key={`hc-${i}`} position={c.pos} scale={c.scale}>
+        <sphereGeometry args={[1, 8, 6]} />
+        <meshBasicMaterial color="#c4906a" transparent opacity={0.32} fog={false} />
+      </mesh>
+    ))}
+  </>
+);
+
 // Sun mesh — low orange sun di sky behind gate, kasih visible
 // orientation light source. Hazy soft (no harsh ring).
 const Sun = () => (
@@ -426,21 +597,60 @@ const Tumbleweed = () => {
   );
 };
 
-// Lantai dasar — tanah retak gersang. Grid tipis sebagai persepsi
-// skala, warnanya dekat sama tanah biar nggak mendominasi mood
-// "kosong & kering".
-const Ground = () => (
-  <>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-      <planeGeometry args={[80, 80]} />
-      <meshStandardMaterial color={GROUND_COLOR} roughness={1} />
-    </mesh>
-    <gridHelper
-      args={[80, 80, '#4a3525', '#3a2a1a']}
-      position={[0, 0.005, 0]}
-    />
-  </>
-);
+// Lantai dasar — tanah retak gersang. Pakai crack lines pattern
+// deterministic instead of gridHelper supaya kerasa "tanah pecah
+// kering" bukan grid debug. Plus dirt path strip menuju gate.
+const CRACK_DEFS = (() => {
+  const arr = [];
+  // 22 crack segments scattered with random length/angle, deterministic
+  // dari index supaya stable across renders.
+  for (let i = 0; i < 22; i++) {
+    const angle = (i * 137.5) * (Math.PI / 180); // golden angle scatter
+    const r = 2 + ((i * 13) % 14);
+    const x = Math.cos(angle) * r;
+    const z = Math.sin(angle) * r;
+    const len = 0.8 + ((i * 7) % 5) * 0.3;
+    const rot = ((i * 41) % 360) * (Math.PI / 180);
+    arr.push({ x, z, len, rot });
+  }
+  return arr;
+})();
+const Ground = ({ isMobile = false }) => {
+  const cracks = isMobile ? CRACK_DEFS.slice(0, 14) : CRACK_DEFS;
+  return (
+    <>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+        <planeGeometry args={[80, 80]} />
+        <meshStandardMaterial color={GROUND_COLOR} roughness={1} />
+      </mesh>
+      {/* Dirt path strip leading to gate — center alley */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 4]}>
+        <planeGeometry args={[2.6, 16]} />
+        <meshStandardMaterial color="#4a3625" roughness={1} />
+      </mesh>
+      {/* Path edges — slightly darker rim */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-1.3, 0.004, 4]}>
+        <planeGeometry args={[0.1, 16]} />
+        <meshStandardMaterial color="#2a1d12" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[1.3, 0.004, 4]}>
+        <planeGeometry args={[0.1, 16]} />
+        <meshStandardMaterial color="#2a1d12" roughness={1} />
+      </mesh>
+      {/* Crack lines — thin dark plane segments di tanah */}
+      {cracks.map((c, i) => (
+        <mesh
+          key={`crack-${i}`}
+          rotation={[-Math.PI / 2, 0, c.rot]}
+          position={[c.x, 0.002, c.z]}
+        >
+          <planeGeometry args={[c.len, 0.03]} />
+          <meshStandardMaterial color="#1a1208" roughness={1} />
+        </mesh>
+      ))}
+    </>
+  );
+};
 
 // Partikel debu drift pelan ke atas. Pakai BufferGeometry langsung
 // supaya 300 partikel bisa render 1 draw call. Reset ke y=0 saat
@@ -582,13 +792,17 @@ const R0Scene = ({
       color="#a8a0c0"
     />
     <Sun />
+    <HighClouds />
     <DistantHills />
-    <Ground />
+    <Ground isMobile={isMobile} />
     <Gate />
+    <BrokenLanternPost pos={[2.95, 0, 0.4]} rot={-0.2} />
     <DeadTree />
     <ExtraDeadTrees isMobile={isMobile} />
     <DryGrassTufts isMobile={isMobile} />
     <Rocks isMobile={isMobile} />
+    <BonesScatter isMobile={isMobile} />
+    {!isMobile && <Vulture />}
     {!isMobile && <Tumbleweed />}
     <DustParticles count={particleCount} />
     <DollyCamera
