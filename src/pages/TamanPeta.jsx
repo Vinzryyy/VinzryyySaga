@@ -3194,6 +3194,44 @@ const PetaFootprintTrail = ({ start, end, count = 9 }) => {
     </>
   );
 };
+// HoverHalo — expanding pulsing ring di ground saat petak di-hover.
+// Generic component yg di-place per petak position, di-toggle via
+// visible prop. Bukan modifying internal petak component — pure
+// additive overlay. Pulse subtle (8% scale wave at 2 hz) + opacity
+// fade smoothing supaya entrance/exit gak hard-cut.
+const HoverHalo = ({ pos, visible, color = '#f4c478' }) => {
+  const ringRef = useRef();
+  const matRef = useRef();
+  useFrame((state, delta) => {
+    if (!ringRef.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
+    const factor = Math.min(delta * 6, 1);
+    const targetScale = visible ? 1.0 + Math.sin(t * 2) * 0.08 : 0;
+    ringRef.current.scale.x = lerp(ringRef.current.scale.x, targetScale, factor);
+    ringRef.current.scale.z = lerp(ringRef.current.scale.z, targetScale, factor);
+    const targetOpacity = visible ? 0.45 : 0;
+    matRef.current.opacity = lerp(matRef.current.opacity, targetOpacity, factor);
+  });
+  return (
+    <mesh
+      ref={ringRef}
+      position={pos}
+      rotation={[-Math.PI / 2, 0, 0]}
+      scale={[0, 1, 0]}
+    >
+      <ringGeometry args={[1.2, 1.5, 32]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color={color}
+        transparent
+        opacity={0}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+
 // PathWaymarkers — small subtle glowing disc markers di sepanjang path
 // center → telaga (dan center → gerbang utara). Beda intent dari
 // footprints (personal trace memudar): waymarkers = wayfinding
@@ -3568,6 +3606,12 @@ const TamanScene = ({
       <PetaFootprintTrails />
       <PathWaymarkers />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
+      {/* Hover halo overlays — expanding ring saat petak hovered.
+          Generic additive layer, gak ngubah internal petak component. */}
+      <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
+      <HoverHalo pos={[0, 0.02, 8]} visible={hoveredGerbang} color="#f4c478" />
+      <HoverHalo pos={[0, 0.02, 4]} visible={hoveredLorong} color="#e8b878" />
+      <HoverHalo pos={[-7, 0.02, -1]} visible={hoveredTelaga} color="#8ac8e0" />
       {/* Dead-town environment re-enabled — CityRuins di luar hex ring
           (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
           SandDust + HighDustShimmer (debu beterbangan = kerasa angin
