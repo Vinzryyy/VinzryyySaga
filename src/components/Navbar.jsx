@@ -14,14 +14,6 @@ function Navbar() {
   const { eras } = useGallery();
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Hide navbar di Taman 3D scene routes (peta, r1, r2, r3, gerbang).
-  // Scene fullscreen + custom in-scene navigation (BackToPeta, Header)
-  // — navbar fixed top z-100 overlap menutupi 3D content & modal overlays.
-  // Pages tetep accessible via in-scene navigation atau direct URL.
-  const isTamanScene =
-    location.pathname === '/armeniacaTown' ||
-    location.pathname.startsWith('/armeniacaTown/');
   const activeHash = useMemo(
     () => hrefToActiveId(location.pathname, location.hash),
     [location.pathname, location.hash]
@@ -145,10 +137,6 @@ function Navbar() {
         hoverBg: "hover:bg-white/10",
         accentText: "text-white",
       };
-
-  // Skip render entirely di Taman scene routes — hindari overlap dengan
-  // 3D scene fullscreen & in-scene UI.
-  if (isTamanScene) return null;
 
   return (
     <>

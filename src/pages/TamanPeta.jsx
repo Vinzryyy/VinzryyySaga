@@ -4095,7 +4095,8 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
   if (!petak) return null;
   return (
     <div
-      className="absolute inset-0 z-40 flex items-center justify-center px-4 py-4"
+      className="absolute inset-0 z-40 flex items-center justify-center px-4 pb-4"
+      style={{ paddingTop: '6rem' }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"

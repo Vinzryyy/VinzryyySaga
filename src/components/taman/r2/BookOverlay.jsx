@@ -661,7 +661,12 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-3 py-3 sm:px-6 sm:py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-6 pb-3 sm:pb-6"
+      style={{
+        // Top offset = navbar height (~80px scrolled / ~100px expanded).
+        // Modal mulai di bawah navbar, gak overlap.
+        paddingTop: '6rem',
+      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="arsip-book-title"
