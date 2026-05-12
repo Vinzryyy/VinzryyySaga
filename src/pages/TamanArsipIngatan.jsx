@@ -2706,10 +2706,11 @@ const BookPedestalsNearMeja = ({
 // orbit ke far racks. Sisanya tetep di far racks (variety location).
 const MEJA_INTERACTIVE_IDS = ['etimologi-armeniaca', 'filosofi-armeniaca'];
 const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'suara-memanggil'];
-// Sisa 9 buku host di side table di kiri meja utama (3 row × 3 col grid).
+// Sisa 10 buku host di side table di kiri meja utama (3 row, 4-3-3 grid).
 const SIDE_TABLE_INTERACTIVE_IDS = [
   'anak-pohon',
   'jaipong-akar',
+  'panggung-kecil',
   'new-era-saat-sistem',
   'asal-nama',
   'linimasa-variety',
@@ -2981,21 +2982,22 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 9 books: 3 × 3 grid pada side table (was 7, expanded untuk
-// host 2 buku baru — anak-pohon, jaipong-akar).
+// Layout 10 books: 4 row belakang + 3 tengah + 3 depan (was 9, expanded
+// untuk host panggung-kecil).
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.35)
-  { dx: -0.65, dz: 0.35 },
-  { dx: 0, dz: 0.35 },
-  { dx: 0.65, dz: 0.35 },
-  // Row tengah (z 0)
-  { dx: -0.65, dz: 0 },
+  // Row belakang (+z 0.38) — 4 books
+  { dx: -0.7, dz: 0.38 },
+  { dx: -0.22, dz: 0.38 },
+  { dx: 0.22, dz: 0.38 },
+  { dx: 0.7, dz: 0.38 },
+  // Row tengah (z 0) — 3 books
+  { dx: -0.55, dz: 0 },
   { dx: 0, dz: 0 },
-  { dx: 0.65, dz: 0 },
-  // Row depan (-z -0.35)
-  { dx: -0.65, dz: -0.35 },
-  { dx: 0, dz: -0.35 },
-  { dx: 0.65, dz: -0.35 },
+  { dx: 0.55, dz: 0 },
+  // Row depan (-z -0.38) — 3 books
+  { dx: -0.55, dz: -0.38 },
+  { dx: 0, dz: -0.38 },
+  { dx: 0.55, dz: -0.38 },
 ];
 
 const SideTableBooks = ({

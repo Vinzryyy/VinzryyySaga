@@ -162,6 +162,34 @@ export const ARSIP_BOOKS = [
   // Linimasa kronologis udah di-cover di sana via bintang per milestone.
   // Di Arsip Ingatan, fokus ke biographical/anecdotal content.
   {
+    id: 'panggung-kecil',
+    title: 'Panggung yang Lebih Kecil, Suara yang Tetap Penuh',
+    eyebrow: 'Cerita · Realita Idol',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#5a4868',
+    preview:
+      'Saat sistem tidak memberikan spotlight, Eli memilih bikin panggungnya sendiri.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada perbedaan antara cita-cita dan kenyataan. Eli, dengan kejujurannya yang khas, pernah membicarakannya secara terbuka di salah satu live streamnya.',
+        'Cita-citanya selalu jelas: bernyanyi dan tampil untuk fans. Itu yang membuatnya memilih JKT48 dulu — bukan dengan ekspektasi instan menjadi sentral, tapi karena di sana dia bisa berdiri di atas panggung dan bertemu orang-orang yang akan menemani perjalanan.',
+        'Tapi industri idol punya logika sendiri. Spotlight terbatas. Slot solo terbatas. Kesempatan untuk menampilkan potensi penuh — bukan sesuatu yang dijamin, bahkan untuk member yang sudah konsisten sejak 2018.',
+        'Eli tahu ini. Dan dia juga tahu bahwa keputusan tentang siapa yang mendapat slot, siapa yang masuk formasi tertentu, siapa yang difokuskan untuk single mana — semua itu di luar kendalinya. Sistem akan terus berputar, fokus akan terus bergeser ke member-member baru yang baru naik. Itu cara industri ini bekerja.',
+        'Dia mengakuinya tanpa pahit, tanpa keluhan yang berlebihan. Tapi dia juga jujur: ini berdampak pada pertumbuhannya sebagai performer. Setiap kali tidak ada kesempatan untuk solo, untuk lead vocal, untuk momen spotlight — bagian dari dirinya yang sudah berlatih bertahun-tahun untuk siap dipanggung tidak terpakai.',
+        'Tapi cerita Eli tidak berakhir di sana. Dia menemukan jalannya sendiri.',
+        'Live streaming — yang dulu mungkin dianggap "panggung sampingan" — jadi panggung utamanya. Di IDN Live, di SHOWROOM, di setiap sesi live yang dia buka, dia bisa bernyanyi tanpa kompetisi slot. Dia bisa berinteraksi dengan fans tanpa harus melalui filter manajemen. Dia bisa jadi versi terbaik dari dirinya sebagai performer, dengan caranya sendiri.',
+        'Mungkin panggungnya lebih kecil. Mungkin tidak ada lampu studio yang menyorot. Mungkin tidak ada penonton ribuan di gedung theater. Tapi yang penting: ada koneksi. Ada suara yang dibagikan. Ada fans yang menunggu sesi berikutnya dengan tulus.',
+        'Sikap dewasa yang dia bawa: tidak menyerah, tidak juga keras kepala. Menerima realitas industri, sambil tetap setia pada apa yang dia cintai. Live demi live, momen demi momen, dia tetap memilih untuk hadir.',
+        'Karena pada akhirnya, panggung bukan cuma tempat di mana lampu menyala. Panggung adalah di mana kamu memilih untuk bernyanyi.',
+      ],
+    }),
+  },
+  {
     id: 'anak-pohon',
     title: 'Anak yang Lebih Suka Pohon',
     eyebrow: 'Cerita · Masa Kecil',
@@ -447,10 +475,11 @@ export const getRakSiblings = (bookId, restored = true) => {
 export const PEDESTAL_ANGLES = {
   'etimologi-armeniaca': 135,        // NW
   'filosofi-armeniaca': 165,         // W-NW
-  'anak-pohon': 180,                 // W (childhood story)
+  'anak-pohon': 180,                 // W (childhood)
   'jaipong-akar': 195,               // W-SW
   'sebelum-panggung': 105,           // N-NE
   'suara-memanggil': 75,             // NE
+  'panggung-kecil': 60,              // E-NE (industry reality reflection)
   'new-era-saat-sistem': 45,         // E-NE
   'asal-nama': 15,                   // E (restored unlock)
   'linimasa-variety': 345,           // E-SE
@@ -473,12 +502,13 @@ export const ARSIP_STORY_ORDER = [
   'halaman-terakhir',
   'etimologi-armeniaca',
   'filosofi-armeniaca',
-  'anak-pohon',           // childhood, paling awal kronologis hidup
-  'sebelum-panggung',
-  'jaipong-akar',
-  'suara-memanggil',
-  'new-era-saat-sistem',
-  'asal-nama',
+  'anak-pohon',           // childhood
+  'sebelum-panggung',     // pre-JKT48
+  'jaipong-akar',         // dance background
+  'suara-memanggil',      // vocal signature
+  'new-era-saat-sistem',  // 2021 transition
+  'asal-nama',            // names identity
+  'panggung-kecil',       // industry reality reflection (mature voice)
   'linimasa-variety',
   'era-fight-team-dream',
   'diskografi-rapsodi',
