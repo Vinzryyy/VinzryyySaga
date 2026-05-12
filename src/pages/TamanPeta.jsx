@@ -4285,6 +4285,231 @@ const PetaFootprintTrails = () => (
   </>
 );
 
+// CobblestonePath — purified-only stone slab pavers along center→petak
+// paths. Replaces footprint trail visual narrative ("ada yg ngerawat
+// taman ini") tanpa nge-hide footprint (footprint tetep kerasa
+// "personal trace" mixed dgn "infrastruktur"). Slab rounded rect
+// (boxGeometry) dgn stone tone abu-cream + tilt random per stone.
+const cobbleStoneDefs = (start, end, count) => {
+  const [sx, , sz] = start;
+  const [ex, , ez] = end;
+  const arr = [];
+  for (let i = 1; i <= count; i++) {
+    const t = i / (count + 1);
+    arr.push({
+      pos: [sx + (ex - sx) * t, 0.025, sz + (ez - sz) * t],
+      rot: ((i * 37) % 360) * (Math.PI / 180),
+      scale: 0.9 + ((i * 13) % 5) * 0.07,
+    });
+  }
+  return arr;
+};
+const COBBLE_GROUPS = [
+  cobbleStoneDefs([-0.5, 0, -0.5], [-6.5, 0, -1], 6),
+  cobbleStoneDefs([0.5, 0, -0.5], [6.5, 0, -1], 6),
+  cobbleStoneDefs([0, 0, 0.5], [0, 0, 7.5], 7),
+];
+const CobblestonePath = () => (
+  <>
+    {COBBLE_GROUPS.flat().map((s, i) => (
+      <mesh
+        key={`cobble-${i}`}
+        position={s.pos}
+        rotation={[-Math.PI / 2, 0, s.rot]}
+        scale={s.scale}
+      >
+        <boxGeometry args={[0.42, 0.08, 0.32]} />
+        <meshStandardMaterial color="#a89880" roughness={0.95} />
+      </mesh>
+    ))}
+  </>
+);
+
+// StoneLantern — Japanese toro-style stone garden lantern. Pillar
+// stone (cylinder shaft) + cap (box) + warm emissive globe glowing
+// inside roof slabs. Kerasa "ada yg ngerawat" + zen taman vibe.
+// Slow glow pulse via useFrame. 4 stand di sepanjang waymarker paths.
+const StoneLantern = ({ pos, rot = 0 }) => {
+  const lightMatRef = useRef();
+  useFrame((state) => {
+    if (!lightMatRef.current) return;
+    const t = state.clock.elapsedTime;
+    lightMatRef.current.emissiveIntensity =
+      0.55 + Math.sin(t * 0.9 + pos[0] * 1.7) * 0.18;
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Foundation stone — wider base */}
+      <mesh position={[0, 0.04, 0]}>
+        <cylinderGeometry args={[0.16, 0.18, 0.08, 8]} />
+        <meshStandardMaterial color="#8a7860" roughness={0.95} />
+      </mesh>
+      {/* Pillar shaft */}
+      <mesh position={[0, 0.38, 0]}>
+        <cylinderGeometry args={[0.08, 0.1, 0.6, 8]} />
+        <meshStandardMaterial color="#a89880" roughness={0.95} />
+      </mesh>
+      {/* Mid plate */}
+      <mesh position={[0, 0.72, 0]}>
+        <cylinderGeometry args={[0.14, 0.14, 0.04, 8]} />
+        <meshStandardMaterial color="#8a7860" roughness={0.95} />
+      </mesh>
+      {/* Lantern body — square box with hollow feel via emissive glow */}
+      <mesh position={[0, 0.86, 0]}>
+        <boxGeometry args={[0.2, 0.18, 0.2]} />
+        <meshStandardMaterial color="#9a8870" roughness={0.85} />
+      </mesh>
+      {/* Inner light — emissive cube inside, warm peach glow */}
+      <mesh position={[0, 0.86, 0]}>
+        <boxGeometry args={[0.13, 0.13, 0.13]} />
+        <meshStandardMaterial
+          ref={lightMatRef}
+          color="#f8c898"
+          emissive="#f4a060"
+          emissiveIntensity={0.6}
+          roughness={0.6}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Roof cap — flat slab + small pyramid */}
+      <mesh position={[0, 0.99, 0]}>
+        <boxGeometry args={[0.28, 0.05, 0.28]} />
+        <meshStandardMaterial color="#7a6850" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 1.07, 0]}>
+        <coneGeometry args={[0.13, 0.12, 4]} />
+        <meshStandardMaterial color="#6a5840" roughness={0.95} />
+      </mesh>
+      {/* Finial dot di puncak */}
+      <mesh position={[0, 1.17, 0]}>
+        <sphereGeometry args={[0.025, 6, 4]} />
+        <meshStandardMaterial color="#5a4830" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+const StoneLanterns = () => (
+  <>
+    {/* 4 lanterns along main waymarker path positions — tengah-jalan
+        antara hub & petak. Slight tilt rotation per lantern supaya gak
+        kerasa identical. */}
+    <StoneLantern pos={[-3.5, 0, -0.6]} rot={0.18} />
+    <StoneLantern pos={[3.5, 0, -0.6]} rot={-0.18} />
+    <StoneLantern pos={[0.4, 0, 4]} rot={0.3} />
+    <StoneLantern pos={[-0.4, 0, -3.8]} rot={-0.25} />
+  </>
+);
+
+// WoodenBridge — small arched wooden plank bridge midway antara CenterTree
+// dan Telaga (r3 di barat). Naratif: ada path proper antar petak yg
+// di-rawat, journey terasa physical. 3 support pillar + plank deck +
+// curved handrail (approximated dgn rotated boxes).
+const WoodenBridge = ({ pos = [-3.5, 0, -0.6], rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Bridge deck — slight arch via 3 plank slabs at increasing y */}
+    <mesh position={[0, 0.14, -0.3]}>
+      <boxGeometry args={[1.4, 0.06, 0.35]} />
+      <meshStandardMaterial color="#7a5530" roughness={0.9} />
+    </mesh>
+    <mesh position={[0, 0.18, 0]}>
+      <boxGeometry args={[1.4, 0.06, 0.35]} />
+      <meshStandardMaterial color="#8a6038" roughness={0.9} />
+    </mesh>
+    <mesh position={[0, 0.14, 0.3]}>
+      <boxGeometry args={[1.4, 0.06, 0.35]} />
+      <meshStandardMaterial color="#7a5530" roughness={0.9} />
+    </mesh>
+    {/* Support pillars — 4 corners */}
+    {[
+      [-0.65, 0.08, -0.42],
+      [0.65, 0.08, -0.42],
+      [-0.65, 0.08, 0.42],
+      [0.65, 0.08, 0.42],
+    ].map((p, i) => (
+      <mesh key={`pillar-${i}`} position={p}>
+        <boxGeometry args={[0.08, 0.16, 0.08]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Handrail posts — 4 vertical posts kiri-kanan */}
+    {[
+      [-0.65, 0.3, -0.42],
+      [0.65, 0.3, -0.42],
+      [-0.65, 0.3, 0.42],
+      [0.65, 0.3, 0.42],
+    ].map((p, i) => (
+      <mesh key={`post-${i}`} position={p}>
+        <boxGeometry args={[0.05, 0.28, 0.05]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Handrail beams — horizontal di kiri & kanan */}
+    <mesh position={[-0.65, 0.42, 0]}>
+      <boxGeometry args={[0.04, 0.04, 1]} />
+      <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.65, 0.42, 0]}>
+      <boxGeometry args={[0.04, 0.04, 1]} />
+      <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// MossyBoulders — 7 rounded boulders dgn moss patch on top, scatter di
+// outer ring radius 12-16. Kasih grounded weight & texture variety —
+// outer ring biar gak all-soft (flowers + grass terus). Deterministic
+// seed for stable layout. Each boulder = sphere dgn non-uniform scale
+// + small moss disc on top.
+const MOSSY_BOULDER_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 7; i++) {
+    const angle =
+      (i / 7) * Math.PI * 2 + ((i * 23) % 9) * 0.1;
+    const r = 12 + ((i * 11) % 5);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0.25, Math.sin(angle) * r],
+      scale: [
+        0.45 + ((i * 13) % 5) * 0.08,
+        0.32 + ((i * 17) % 5) * 0.06,
+        0.45 + ((i * 19) % 5) * 0.08,
+      ],
+      rot: ((i * 29) % 360) * (Math.PI / 180),
+    });
+  }
+  return arr;
+})();
+const MossyBoulder = ({ pos, scale, rot }) => (
+  <group position={pos} rotation={[0, rot, 0]} scale={scale}>
+    {/* Boulder body — rounded sphere */}
+    <mesh>
+      <sphereGeometry args={[1, 12, 8]} />
+      <meshStandardMaterial color="#6a6052" roughness={1} />
+    </mesh>
+    {/* Moss patch on top — flat-ish dome dgn green tone */}
+    <mesh position={[0, 0.55, 0]} scale={[0.95, 0.4, 0.95]}>
+      <sphereGeometry args={[1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      <meshStandardMaterial
+        color="#5a7038"
+        emissive="#4a5828"
+        emissiveIntensity={0.08}
+        roughness={1}
+      />
+    </mesh>
+  </group>
+);
+const MossyBoulders = ({ isMobile = false }) => {
+  const defs = isMobile
+    ? MOSSY_BOULDER_DEFS.slice(0, 4)
+    : MOSSY_BOULDER_DEFS;
+  return (
+    <>
+      {defs.map((d, i) => (
+        <MossyBoulder key={`mb-${i}`} {...d} />
+      ))}
+    </>
+  );
+};
+
 // DistantCrow — 1 burung silhouette terbang lazy huge-radius circle
 // di horizon jauh. Static-y altitude (~8y), radius lebar (28u),
 // kerasa "1 burung kesepian di langit kota mati". Echo dari gersang
@@ -4722,6 +4947,10 @@ const TamanScene = ({
       {/* MossOverlay sengaja gak di-render — DroughtRing purified udah
           ngasih lush meadow carpet yg lebih lebar, MossOverlay patches
           jadi keliatan banding spot di atasnya. */}
+      {purified && <CobblestonePath />}
+      {purified && <StoneLanterns />}
+      {purified && <WoodenBridge pos={[-3.5, 0, -0.6]} rot={0.18} />}
+      {purified && <MossyBoulders isMobile={isMobile} />}
       {purified && <FlowerClusters isMobile={isMobile} />}
       {purified && <GrassBlades isMobile={isMobile} />}
       <PetaFootprintTrails />
