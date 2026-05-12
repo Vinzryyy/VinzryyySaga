@@ -445,7 +445,9 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
         ))}
       </group>
 
-      {/* Lentern at table edge — keramik + glass shade */}
+      {/* Lentern at table edge — keramik + glass shade + visible flame
+          dengan flicker animation. Selalu nyala (drought atau restored)
+          karena ini source cahaya utama meja baca. */}
       <group position={[-0.85, 0.8, 0.35]}>
         <mesh>
           <cylinderGeometry args={[0.09, 0.12, 0.12, 12]} />
@@ -465,13 +467,7 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
             toneMapped={false}
           />
         </mesh>
-        <pointLight
-          position={[0, 0.18, 0]}
-          color="#f4a060"
-          intensity={0.9}
-          distance={4.5}
-          decay={2}
-        />
+        <LenternaFlame />
       </group>
 
       {/* Open book on table — focal point. Click → meja book overlay
@@ -571,6 +567,20 @@ const Bookshelf = ({
   const w = 3 * scaleH;
   const h = 3 * scaleH;
   const d = 0.6;
+  // Material refs untuk indicator orb pulse animation. Pakai callback
+  // ref biar ke-fill saat mount, dan useFrame walk-through tiap frame.
+  // Lebih efficient daripada satu useFrame per buku.
+  const indicatorRefs = useRef([]);
+  useFrame((state) => {
+    if (!indicatorRefs.current.length) return;
+    const t = state.clock.elapsedTime;
+    indicatorRefs.current.forEach((ref, idx) => {
+      if (!ref) return;
+      const phase = idx * 0.65;
+      // Pulse opacity 0.55-0.95, frequency ~1.3Hz, phase-staggered
+      ref.opacity = 0.75 + Math.sin(t * 1.3 + phase) * 0.2;
+    });
+  });
 
   // Up to 5 books per row × 2 rows. Position spine along x within shelf.
   const slots = useMemo(() => {
@@ -653,10 +663,14 @@ const Bookshelf = ({
             </mesh>
             {/* Indicator orb di atas buku — petunjuk visual "klik aku".
                 toneMapped=false + warna hangat bikin Bloom amplify jadi
-                glowing dot kerasa kayak lentera kecil mengambang. */}
+                glowing dot kerasa kayak lentera kecil mengambang. Material
+                ref di-track buat pulse animation di parent useFrame. */}
             <mesh position={[0, spineH / 2 + 0.16, 0.1]}>
               <sphereGeometry args={[0.035, 10, 8]} />
               <meshBasicMaterial
+                ref={(el) => {
+                  indicatorRefs.current[i] = el;
+                }}
                 color="#f4d090"
                 transparent
                 opacity={hovered ? 1 : 0.85}
@@ -1802,7 +1816,7 @@ const WingChair = ({ restored }) => (
   </group>
 );
 
-// 7. Hourglass — di top rak S
+// 7. Hourglass — di top rak S. Restored: sand stream falling visualisasi.
 const Hourglass = ({ restored }) => (
   <group position={[5, 2.6, -8.5]}>
     <mesh position={[0, 0.1, 0]}>
@@ -1825,8 +1839,30 @@ const Hourglass = ({ restored }) => (
       <sphereGeometry args={[0.05, 8, 6]} />
       <meshStandardMaterial color="#d4a060" roughness={0.95} />
     </mesh>
+    {/* Restored: subtle sand stream falling antara dua bulb */}
+    {restored && <HourglassSandStream />}
   </group>
 );
+
+// HourglassSandStream — thin column of sand falling antara top & bottom
+// bulb. Animation: subtle vertical drift (sand particles "ngalir"),
+// reset cycle ~0.6s.
+const HourglassSandStream = () => {
+  const streamRef = useRef();
+  useFrame((state) => {
+    if (!streamRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Subtle scale-y oscillation kerasa "sand jatuh"
+    const flow = 0.95 + Math.sin(t * 12) * 0.05;
+    streamRef.current.scale.y = flow;
+  });
+  return (
+    <mesh ref={streamRef} position={[0, -0.02, 0]}>
+      <cylinderGeometry args={[0.004, 0.006, 0.12, 6]} />
+      <meshStandardMaterial color="#d4a060" emissive="#a87850" emissiveIntensity={0.1} roughness={0.95} />
+    </mesh>
+  );
+};
 
 // 8. QuillInkwell — di meja baca, sisi back-right
 const QuillInkwell = ({ restored }) => (
@@ -1960,17 +1996,79 @@ const WaxCandle = ({ restored }) => (
       <cylinderGeometry args={[0.002, 0.002, 0.015, 6]} />
       <meshStandardMaterial color="#3a2418" roughness={0.95} />
     </mesh>
-    {restored && (
-      <>
-        <mesh position={[0, 0.16, 0]}>
-          <sphereGeometry args={[0.014, 8, 6]} />
-          <meshBasicMaterial color="#f4a060" toneMapped={false} />
-        </mesh>
-        <pointLight position={[0, 0.18, 0]} color="#f4a060" intensity={0.25} distance={1.6} decay={2} />
-      </>
-    )}
+    {restored && <CandleFlame />}
   </group>
 );
+
+// LenternaFlame — visible flame inside lentera meja shade dengan
+// flicker animation + flickering point light. Always-on (selalu nyala,
+// drought maupun restored — ini lentera utama meja baca).
+const LenternaFlame = () => {
+  const flameRef = useRef();
+  const lightRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const flicker =
+      1 + Math.sin(t * 16) * 0.07 + Math.sin(t * 6.7 + 0.8) * 0.09;
+    if (flameRef.current) {
+      flameRef.current.scale.set(flicker, flicker * 1.1, flicker);
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = 0.9 + Math.sin(t * 11) * 0.12;
+    }
+  });
+  return (
+    <>
+      <mesh ref={flameRef} position={[0, 0.2, 0]}>
+        <sphereGeometry args={[0.025, 10, 8]} />
+        <meshBasicMaterial color="#f4a060" toneMapped={false} />
+      </mesh>
+      <pointLight
+        ref={lightRef}
+        position={[0, 0.18, 0]}
+        color="#f4a060"
+        intensity={0.9}
+        distance={4.5}
+        decay={2}
+      />
+    </>
+  );
+};
+
+// CandleFlame — flame sphere dengan flicker animation (scale + opacity)
+// Pakai 2 sin freq berbeda biar kerasa naturalistic candle wobble.
+const CandleFlame = () => {
+  const flameRef = useRef();
+  const lightRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const flicker =
+      1 + Math.sin(t * 18) * 0.08 + Math.sin(t * 7.3 + 1.2) * 0.1;
+    if (flameRef.current) {
+      flameRef.current.scale.set(flicker, flicker * 1.15, flicker);
+    }
+    if (lightRef.current) {
+      // Subtle intensity flicker
+      lightRef.current.intensity = 0.25 + Math.sin(t * 9.5) * 0.05;
+    }
+  });
+  return (
+    <>
+      <mesh ref={flameRef} position={[0, 0.16, 0]}>
+        <sphereGeometry args={[0.014, 8, 6]} />
+        <meshBasicMaterial color="#f4a060" toneMapped={false} />
+      </mesh>
+      <pointLight
+        ref={lightRef}
+        position={[0, 0.18, 0]}
+        color="#f4a060"
+        intensity={0.25}
+        distance={1.6}
+        decay={2}
+      />
+    </>
+  );
+};
 
 // 16. Tapestry — wall hanging di dinding utara
 const Tapestry = ({ restored }) => (
