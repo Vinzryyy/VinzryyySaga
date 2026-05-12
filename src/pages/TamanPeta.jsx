@@ -5405,7 +5405,7 @@ const TamanScene = ({
           jadi keliatan banding spot di atasnya. */}
       {purified && <CobblestonePath />}
       {purified && <StoneLanterns />}
-      {purified && <WoodenBridge pos={[-3.5, 0, -0.6]} rot={0.18} />}
+      {purified && <WoodenBridge pos={[-5.7, 0, -0.9]} rot={0.08} />}
       {purified && <MossyBoulders isMobile={isMobile} />}
       {purified && <StoneBirdbath pos={[-1.8, 0, 1.5]} />}
       {purified && <VineCreeps />}
