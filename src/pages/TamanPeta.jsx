@@ -867,6 +867,187 @@ const PetaLorongMasuk = ({
   );
 };
 
+// PetaTelaga — petak r3 di sisi barat peta (x=-7). Visual disc/pond
+// (kolam bulat dengan rim stone-like). Punya 3 state berdasarkan tree
+// support count:
+//   locked   (count < 4000) — muted gray surface + lock cube center
+//   drought  (4000-5999)    — cracked dirt bed + 4 retak radial
+//   restored (>=6000)       — water blue + lotus mound + emissive pulse
+const PetaTelaga = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  petakState = 'locked',
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
+  const groupRef = useRef();
+  const surfaceMatRef = useRef();
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      const targetY = hovered && petakState !== 'locked' ? 0.25 : 0;
+      const factor = Math.min(delta * 8, 1);
+      groupRef.current.position.y = lerp(
+        groupRef.current.position.y,
+        targetY,
+        factor
+      );
+    }
+    if (surfaceMatRef.current && petakState === 'restored') {
+      const t = state.clock.elapsedTime;
+      surfaceMatRef.current.emissiveIntensity = 0.18 + Math.sin(t * 0.5) * 0.08;
+    }
+  });
+
+  const surfaceColor =
+    petakState === 'restored'
+      ? '#3a6485'
+      : petakState === 'drought'
+      ? '#4a3525'
+      : '#3a3530';
+  const surfaceEmissive = petakState === 'restored' ? '#4a8aa8' : '#000000';
+  const baseOpacity = petakState === 'locked' ? 0.55 : 1;
+
+  const sublabel =
+    petakState === 'locked'
+      ? 'Belum terbuka'
+      : petakState === 'drought'
+      ? 'Telaga kering'
+      : 'Telaga pulih';
+
+  return (
+    <group
+      ref={groupRef}
+      position={[-7, 0, -1]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {/* Mobile tap-target — larger invisible cylinder */}
+      <mesh position={[0, 0.5, 0]} visible={false}>
+        <cylinderGeometry args={[isMobile ? 2.3 : 1.7, isMobile ? 2.3 : 1.7, 1.5, 8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Visited halo — ring di base saat petak udah dikunjungi */}
+      {visited && petakState !== 'locked' && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+          <ringGeometry args={[1.8, 2.05, 32]} />
+          <meshStandardMaterial
+            color={petakState === 'restored' ? '#a8c8e0' : '#e0c098'}
+            emissive={petakState === 'restored' ? '#5a8aa8' : '#a87060'}
+            emissiveIntensity={0.45}
+            transparent
+            opacity={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+
+      {/* Disc rim — stone border around telaga */}
+      <mesh position={[0, 0.15, 0]}>
+        <cylinderGeometry args={[1.6, 1.7, 0.3, 32]} />
+        <meshStandardMaterial
+          color="#5a4a38"
+          roughness={1}
+          transparent
+          opacity={baseOpacity}
+        />
+      </mesh>
+      {/* Inner surface — water (restored) / cracked bed (drought) / muted (locked) */}
+      <mesh position={[0, 0.31, 0]}>
+        <cylinderGeometry args={[1.4, 1.4, 0.02, 32]} />
+        <meshStandardMaterial
+          ref={surfaceMatRef}
+          color={surfaceColor}
+          emissive={surfaceEmissive}
+          emissiveIntensity={petakState === 'restored' ? 0.2 : 0}
+          roughness={petakState === 'restored' ? 0.4 : 1}
+          metalness={petakState === 'restored' ? 0.2 : 0}
+          transparent
+          opacity={baseOpacity}
+        />
+      </mesh>
+
+      {/* Center detail per state */}
+      {petakState === 'restored' && (
+        <mesh position={[0, 0.4, 0]}>
+          <sphereGeometry args={[0.14, 10, 8]} />
+          <meshStandardMaterial
+            color="#f4c8d8"
+            emissive="#e09bb0"
+            emissiveIntensity={0.35}
+            roughness={0.6}
+          />
+        </mesh>
+      )}
+      {petakState === 'drought' &&
+        [0, 1, 2, 3].map((i) => (
+          <mesh
+            key={`crack-${i}`}
+            position={[
+              Math.cos((i * Math.PI) / 2) * 0.55,
+              0.325,
+              Math.sin((i * Math.PI) / 2) * 0.55,
+            ]}
+            rotation={[-Math.PI / 2, 0, (i * Math.PI) / 2 + 0.3]}
+          >
+            <planeGeometry args={[0.7, 0.04]} />
+            <meshStandardMaterial color="#2a1a10" roughness={1} />
+          </mesh>
+        ))}
+      {petakState === 'locked' && (
+        <mesh position={[0, 0.45, 0]}>
+          <boxGeometry args={[0.2, 0.18, 0.1]} />
+          <meshStandardMaterial color="#5a5048" roughness={1} />
+        </mesh>
+      )}
+
+      <Html position={[0, 0.95, 0]} center distanceFactor={10} occlude={false}>
+        <div
+          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+            hovered && petakState !== 'locked' ? '-translate-y-1' : ''
+          }`}
+        >
+          <div
+            className={`text-[11px] font-medium tracking-wide transition-colors ${
+              petakState === 'locked'
+                ? 'text-white/45'
+                : hovered
+                ? 'text-white'
+                : 'text-white/80'
+            }`}
+          >
+            Telaga Harapan
+          </div>
+          <div
+            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              petakState === 'locked'
+                ? 'text-white/30'
+                : hovered
+                ? 'text-amber-200/85'
+                : 'text-white/55'
+            }`}
+          >
+            {sublabel}
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // Lantai taman — plane besar tone twilight evening (bukan dark museum
 // hall) dengan grid tipis untuk persepsi skala. Tone biru-warm yang
 // muncul saat senja: matahari masih nyentuh sedikit di langit, tanah
@@ -2922,11 +3103,13 @@ const TamanScene = ({
   hoveredCenter,
   hoveredGerbang,
   hoveredLorong,
+  hoveredTelaga,
   previewedPetak,
   flyInActive,
   isMobile = false,
   restorationLevel = 0,
   modalOpen = false,
+  telagaState = 'locked',
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
@@ -2940,6 +3123,9 @@ const TamanScene = ({
   onLorongHover,
   onLorongOut,
   onLorongClick,
+  onTelagaHover,
+  onTelagaOut,
+  onTelagaClick,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -2947,7 +3133,11 @@ const TamanScene = ({
   // Pause auto-rotate kalau user lagi hover petak — kerasa weird kalau
   // kamera bergerak sambil user fokus baca label.
   const userIsHovering =
-    Boolean(hoveredPetakId) || hoveredCenter || hoveredGerbang || hoveredLorong;
+    Boolean(hoveredPetakId) ||
+    hoveredCenter ||
+    hoveredGerbang ||
+    hoveredLorong ||
+    hoveredTelaga;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
   // berputar. Resume manual control begitu user drag/zoom/touch atau
@@ -3044,6 +3234,15 @@ const TamanScene = ({
         onPointerOut={onLorongOut}
         onClick={onLorongClick}
       />
+      <PetaTelaga
+        hovered={hoveredTelaga}
+        visited={previewedPetak.has('telaga')}
+        isMobile={isMobile}
+        petakState={telagaState}
+        onPointerOver={onTelagaHover}
+        onPointerOut={onTelagaOut}
+        onClick={onTelagaClick}
+      />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
         OrbitControls dirender selalu, tapi enabled=false saat fly-in.
@@ -3111,6 +3310,38 @@ const PETA_PETAK_INFO = {
     cta: 'Siram pohon ini',
     route: '/26',
     accent: '#7aa858',
+  },
+  // Telaga punya 3 varian copy karena 3 state — pilih varian di handler
+  // berdasarkan telagaState computed dari count.
+  telagaLocked: {
+    id: 'telaga',
+    name: 'Telaga Harapan',
+    eyebrow: 'Belum terbuka',
+    longDesc:
+      'Telaga di barat kota ini masih sunyi. Pintu ke sini baru terbuka setelah 4.000 siraman terkumpul di Pohon Kebaikan. Sekarang, kita semua menunggu bersama.',
+    cta: 'Siram di /26',
+    route: '/26',
+    accent: '#9aa0a8',
+  },
+  telagaDrought: {
+    id: 'telaga',
+    name: 'Telaga Harapan',
+    eyebrow: 'Telaga kering',
+    longDesc:
+      'Telaga ini dulu penuh teratai, dengan air yang memantulkan langit. Sekarang dasarnya retak, banknya kering, dan teratai-teratai harapan menunggu untuk mekar kembali. Lewat sini untuk melihat sisa peradabannya.',
+    cta: 'Lewati telaga',
+    route: '/armeniacaTown/r3',
+    accent: '#e0c098',
+  },
+  telagaRestored: {
+    id: 'telaga',
+    name: 'Telaga Harapan',
+    eyebrow: 'Telaga pulih',
+    longDesc:
+      'Air kembali mengisi telaga, teratai-teratai mekar di permukaan. Tiap teratai = satu harapan dari komunitas. Kebaikan komunal akhirnya menumbuhkan dunia ini sepenuhnya.',
+    cta: 'Masuki telaga',
+    route: '/armeniacaTown/r3',
+    accent: '#a8c8e0',
   },
 };
 
@@ -3587,9 +3818,19 @@ const TamanPetaPage = () => {
   const [hoveredCenter, setHoveredCenter] = useState(false);
   const [hoveredGerbang, setHoveredGerbang] = useState(false);
   const [hoveredLorong, setHoveredLorong] = useState(false);
+  const [hoveredTelaga, setHoveredTelaga] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
+
+  // Compute telaga visual state dari live count:
+  //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
+  const telagaState = useMemo(() => {
+    if (!armeniacaLoaded) return 'locked';
+    if (armeniacaCount >= MAP_THRESHOLDS.fullRestore) return 'restored';
+    if (armeniacaCount >= MAP_THRESHOLDS.r3Unlock) return 'drought';
+    return 'locked';
+  }, [armeniacaCount, armeniacaLoaded]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
@@ -3610,12 +3851,23 @@ const TamanPetaPage = () => {
   useEffect(() => {
     const showPointer =
       !flyInActive &&
-      (hoveredPetakId || hoveredCenter || hoveredGerbang || hoveredLorong);
+      (hoveredPetakId ||
+        hoveredCenter ||
+        hoveredGerbang ||
+        hoveredLorong ||
+        hoveredTelaga);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hoveredPetakId, hoveredCenter, hoveredGerbang, hoveredLorong, flyInActive]);
+  }, [
+    hoveredPetakId,
+    hoveredCenter,
+    hoveredGerbang,
+    hoveredLorong,
+    hoveredTelaga,
+    flyInActive,
+  ]);
 
   const handleFlyInComplete = () => setFlyInActive(false);
 
@@ -3676,6 +3928,24 @@ const TamanPetaPage = () => {
     setPetakPreview(PETA_PETAK_INFO.lorong);
   };
 
+  // Telaga handlers — sungai di barat. Preview info dipilih dari 3
+  // varian PETA_PETAK_INFO berdasarkan computed telagaState.
+  const handleTelagaHover = () => {
+    if (flyInActive) return;
+    setHoveredTelaga(true);
+  };
+  const handleTelagaOut = () => setHoveredTelaga(false);
+  const handleTelagaClick = () => {
+    if (flyInActive) return;
+    const info =
+      telagaState === 'restored'
+        ? PETA_PETAK_INFO.telagaRestored
+        : telagaState === 'drought'
+        ? PETA_PETAK_INFO.telagaDrought
+        : PETA_PETAK_INFO.telagaLocked;
+    setPetakPreview(info);
+  };
+
   // Modal preview handlers — close (dismiss tanpa navigate) atau
   // confirm (close modal lalu navigate ke petak route).
   const handlePetakPreviewClose = () => setPetakPreview(null);
@@ -3720,11 +3990,13 @@ const TamanPetaPage = () => {
               hoveredCenter={hoveredCenter}
               hoveredGerbang={hoveredGerbang}
               hoveredLorong={hoveredLorong}
+              hoveredTelaga={hoveredTelaga}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               isMobile={isMobile}
               restorationLevel={restorationLevel}
-              modalOpen={Boolean(selectedPetak)}
+              modalOpen={Boolean(selectedPetak) || Boolean(petakPreview)}
+              telagaState={telagaState}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
@@ -3738,6 +4010,9 @@ const TamanPetaPage = () => {
               onLorongHover={handleLorongHover}
               onLorongOut={handleLorongOut}
               onLorongClick={handleLorongClick}
+              onTelagaHover={handleTelagaHover}
+              onTelagaOut={handleTelagaOut}
+              onTelagaClick={handleTelagaClick}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
