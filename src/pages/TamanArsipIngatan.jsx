@@ -2557,6 +2557,261 @@ const BookPedestalsNearMeja = ({
   );
 };
 
+// Restored-only book placement: subset interactive books pindah ke
+// posisi prominent dekat meja biar user gampang akses tanpa harus
+// orbit ke far racks. Sisanya tetep di far racks (variety location).
+const MEJA_INTERACTIVE_IDS = ['etimologi-armeniaca', 'filosofi-armeniaca'];
+const STACK_INTERACTIVE_IDS = ['linimasa-trainee', 'linimasa-theater'];
+
+// MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
+// dari open book "Halaman Terakhir." Posisi mirror lentera & teacup.
+// Restored only. Click → modal.
+const MejaInteractiveBooks = ({
+  books,
+  hoveredId,
+  readIds,
+  onHover,
+  onOut,
+  onClick,
+}) => {
+  const mejaBooks = books.filter((b) => MEJA_INTERACTIVE_IDS.includes(b.id));
+  const indicatorRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    indicatorRefs.current.forEach((ref, idx) => {
+      if (!ref) return;
+      const phase = idx * 0.65 + 2.0;
+      ref.opacity = 0.75 + Math.sin(t * 1.3 + phase) * 0.2;
+    });
+  });
+  // 2 positions di meja, di sisi yang gak ke-tumpuk sama existing items
+  // (lentera kiri-back, teacup kanan-back, quill kanan-back, glasses
+  // kiri-front, notebook kiri-back, candle kanan-front).
+  // Spots aman: kiri-front-edge & far-back-center
+  const positions = [
+    [-0.65, 0.78, 0.0],   // kiri-mid (etimologi)
+    [0.4, 0.78, 0.0],     // kanan-mid (filosofi)
+  ];
+  return (
+    <group>
+      {mejaBooks.map((book, i) => {
+        const pos = positions[i] || positions[0];
+        const hovered = hoveredId === book.id;
+        const read = readIds.has(book.id);
+        return (
+          <group
+            key={book.id}
+            position={pos}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              onHover?.(book.id);
+              document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              onOut?.(book.id);
+              document.body.style.cursor = 'auto';
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(book);
+            }}
+          >
+            {/* Click hitbox */}
+            <mesh position={[0, 0.08, 0]}>
+              <boxGeometry args={[0.22, 0.16, 0.18]} />
+              <meshBasicMaterial transparent opacity={0} />
+            </mesh>
+            {/* Book closed standing slight angle */}
+            <mesh
+              position={[0, 0.05 + (hovered ? 0.025 : 0), 0]}
+              rotation={[0, i === 0 ? 0.15 : -0.15, 0]}
+            >
+              <boxGeometry args={[0.16, 0.05, 0.22]} />
+              <meshStandardMaterial
+                color={book.spineColor}
+                emissive={hovered ? COLORS.spineHover : book.spineColor}
+                emissiveIntensity={hovered ? 0.5 : read ? 0.25 : 0.2}
+                roughness={0.75}
+              />
+            </mesh>
+            {/* Spine darker */}
+            <mesh
+              position={[i === 0 ? -0.075 : 0.075, 0.05, 0]}
+              rotation={[0, i === 0 ? 0.15 : -0.15, 0]}
+            >
+              <boxGeometry args={[0.012, 0.055, 0.22]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.85} />
+            </mesh>
+            {/* Indicator orb */}
+            <mesh position={[0, 0.18, 0]}>
+              <sphereGeometry args={[read ? 0.022 : 0.032, 10, 8]} />
+              <meshBasicMaterial
+                ref={(el) => {
+                  indicatorRefs.current[i] = el;
+                }}
+                color={read ? '#88a8c0' : '#f4d090'}
+                transparent
+                opacity={hovered ? 1 : read ? 0.65 : 0.9}
+                toneMapped={false}
+              />
+            </mesh>
+            {hovered && (
+              <Html
+                position={[0, 0.35, 0]}
+                center
+                distanceFactor={6}
+                style={{ pointerEvents: 'none' }}
+              >
+                <div
+                  style={{
+                    fontFamily: '"Fraunces Variable", serif',
+                    fontStyle: 'italic',
+                    color: 'rgba(255,232,184,0.95)',
+                    fontSize: '13px',
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap',
+                    textShadow:
+                      '0 0 14px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)',
+                  }}
+                >
+                  {book.title}
+                </div>
+              </Html>
+            )}
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
+// StackedBooksNearMeja — 3 tumpukan buku di lantai dekat meja. Top
+// book tiap stack adalah interactive (linimasa-trainee, linimasa-
+// theater), sisanya deco filler. Restored only — drought version
+// punya scattered floor books via BookPedestalsNearMeja.
+const StackedBooksNearMeja = ({
+  books,
+  hoveredId,
+  readIds,
+  onHover,
+  onOut,
+  onClick,
+}) => {
+  const stackBooks = books.filter((b) =>
+    STACK_INTERACTIVE_IDS.includes(b.id),
+  );
+  const indicatorRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    indicatorRefs.current.forEach((ref, idx) => {
+      if (!ref) return;
+      const phase = idx * 0.65 + 4.0;
+      ref.opacity = 0.75 + Math.sin(t * 1.3 + phase) * 0.2;
+    });
+  });
+  // 2 stack positions — kiri-belakang & kanan-belakang meja, lebih
+  // jauh dari kursi supaya gak overlap dengan walking path.
+  const stackPositions = [
+    { pos: [-1.6, 0, 0.7], rotY: 0.3, decoColors: ['#5a3030', '#6a4830'] },
+    { pos: [1.6, 0, 0.7], rotY: -0.3, decoColors: ['#3a3858', '#7a5840'] },
+  ];
+  return (
+    <group>
+      {stackBooks.map((book, si) => {
+        const stack = stackPositions[si] || stackPositions[0];
+        const hovered = hoveredId === book.id;
+        const read = readIds.has(book.id);
+        return (
+          <group
+            key={book.id}
+            position={stack.pos}
+            rotation={[0, stack.rotY, 0]}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              onHover?.(book.id);
+              document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              onOut?.(book.id);
+              document.body.style.cursor = 'auto';
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(book);
+            }}
+          >
+            {/* Click hitbox */}
+            <mesh position={[0, 0.15, 0]}>
+              <cylinderGeometry args={[0.28, 0.28, 0.35, 8]} />
+              <meshBasicMaterial transparent opacity={0} />
+            </mesh>
+            {/* 2 deco books di base */}
+            {stack.decoColors.map((c, di) => (
+              <mesh
+                key={`deco-${di}`}
+                position={[0, 0.04 + di * 0.06, 0]}
+                rotation={[0, (di - 0.5) * 0.1, (di - 0.5) * 0.04]}
+              >
+                <boxGeometry args={[0.3, 0.055, 0.2]} />
+                <meshStandardMaterial color={c} roughness={0.9} />
+              </mesh>
+            ))}
+            {/* Top book — interactive, sedikit terangkat saat hover */}
+            <mesh
+              position={[0, 0.18 + (hovered ? 0.025 : 0), 0]}
+              rotation={[0, 0.05, 0.02]}
+            >
+              <boxGeometry args={[0.28, 0.06, 0.2]} />
+              <meshStandardMaterial
+                color={book.spineColor}
+                emissive={hovered ? COLORS.spineHover : book.spineColor}
+                emissiveIntensity={hovered ? 0.5 : read ? 0.25 : 0.2}
+                roughness={0.75}
+              />
+            </mesh>
+            {/* Indicator orb */}
+            <mesh position={[0, 0.34, 0]}>
+              <sphereGeometry args={[read ? 0.024 : 0.036, 10, 8]} />
+              <meshBasicMaterial
+                ref={(el) => {
+                  indicatorRefs.current[si] = el;
+                }}
+                color={read ? '#88a8c0' : '#f4d090'}
+                transparent
+                opacity={hovered ? 1 : read ? 0.65 : 0.9}
+                toneMapped={false}
+              />
+            </mesh>
+            {hovered && (
+              <Html
+                position={[0, 0.5, 0]}
+                center
+                distanceFactor={6}
+                style={{ pointerEvents: 'none' }}
+              >
+                <div
+                  style={{
+                    fontFamily: '"Fraunces Variable", serif',
+                    fontStyle: 'italic',
+                    color: 'rgba(255,232,184,0.95)',
+                    fontSize: '13px',
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap',
+                    textShadow:
+                      '0 0 14px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)',
+                  }}
+                >
+                  {book.title}
+                </div>
+              </Html>
+            )}
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
 // BookStacksNearTable — 3 tumpukan buku decoratif di lantai dekat meja
 // baca, kerasa "ada yang lagi nge-review banyak referensi sekaligus."
 // Static, no interactive — purely visual narrative detail.
@@ -3192,13 +3447,21 @@ const ArsipScene = ({
   const fogFar = restored ? 30 : 18;
 
   // Books grouped by rak slot — derived from current `books` prop.
+  // Restored state: exclude books yang udah di-placed di meja & stack
+  // (MEJA_INTERACTIVE_IDS + STACK_INTERACTIVE_IDS) supaya gak render
+  // duplicate di far racks.
   const booksByRak = useMemo(() => {
     const grouped = {};
+    const placedIds = restored
+      ? new Set([...MEJA_INTERACTIVE_IDS, ...STACK_INTERACTIVE_IDS])
+      : new Set();
     Object.values(RAK_SLOTS).forEach((slot) => {
-      grouped[slot] = books.filter((b) => b.rakSlot === slot);
+      grouped[slot] = books.filter(
+        (b) => b.rakSlot === slot && !placedIds.has(b.id),
+      );
     });
     return grouped;
-  }, [books]);
+  }, [books, restored]);
 
   return (
     <>
@@ -3270,7 +3533,8 @@ const ArsipScene = ({
         onClickOpenBook={onOpenBookClick}
       />
       {/* Drought only: interactive books scattered di lantai sekitar
-          meja. Restored: books pindah ke far racks (versi rak shelf). */}
+          meja. Restored: books split antara meja (2), stack near meja
+          (2), dan far racks (sisanya). */}
       {!restored && (
         <BookPedestalsNearMeja
           books={books}
@@ -3281,6 +3545,26 @@ const ArsipScene = ({
           onOut={onBookOut}
           onClick={onBookClick}
         />
+      )}
+      {restored && (
+        <>
+          <MejaInteractiveBooks
+            books={books}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            onHover={onBookHover}
+            onOut={onBookOut}
+            onClick={onBookClick}
+          />
+          <StackedBooksNearMeja
+            books={books}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            onHover={onBookHover}
+            onOut={onBookOut}
+            onClick={onBookClick}
+          />
+        </>
       )}
 
       {/* Library landmark objects — 5 detail pengisi ruangan supaya
