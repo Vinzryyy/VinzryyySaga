@@ -1589,13 +1589,14 @@ const PetaArsip = ({
 
 // Lantai taman — plane besar dengan grid tipis untuk persepsi skala.
 //   drought  → dark warm sandy "desert dusk" (#2a2018)
-//   purified → warm-moss green (rumput segar tumbuh balik), grid match
+//   purified → warm-moss green; grid color hampir merge sama floor
+//              supaya gak kelihatan banding "lubang"
 const TamanFloor = ({ purified = false }) => (
   <>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[40, 40]} />
       <meshStandardMaterial
-        color={purified ? '#3a4628' : '#2a2018'}
+        color={purified ? '#3e4a30' : '#2a2018'}
         roughness={1}
       />
     </mesh>
@@ -1603,8 +1604,8 @@ const TamanFloor = ({ purified = false }) => (
       args={[
         40,
         40,
-        purified ? '#4a5838' : '#3a2c22',
-        purified ? '#3a4628' : '#2a2018',
+        purified ? '#3e4a30' : '#3a2c22',
+        purified ? '#3e4a30' : '#2a2018',
       ]}
       position={[0, 0.005, 0]}
     />
@@ -1632,26 +1633,34 @@ const DROUGHT_PATCH_DEFS = (() => {
 //   drought  → sand wasteland (deep amber-sand + bleached ring + dry
 //              patches). Pemulihan visible via saplings yg tumbuh
 //              DI ANTARA, gak ngubah desert itu sendiri.
-//   purified → meadow (mossy green outer + lighter grass inner +
-//              flower patches replacing dry spots).
+//   purified → meadow (lush green carpet bridging dari petak hex ke
+//              outer floor seamless, gak ada banding "lubang" gap).
+//              Patches jadi flower beds.
 const DroughtRing = ({ purified = false }) => (
   <>
-    {/* Outer ring — sand amber (drought) atau warm-moss (purified) */}
+    {/* Outer ring — sand amber (drought) atau warm-moss (purified).
+        Purified pakai tone match floor base supaya boundary radius 19
+        gak kerasa cliff color shift. */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
       <ringGeometry args={[9.5, 19, 64]} />
       <meshStandardMaterial
-        color={purified ? '#4a5d38' : '#5a3520'}
+        color={purified ? '#445230' : '#5a3520'}
         roughness={1}
       />
     </mesh>
-    {/* Inner gradient ring — sun-bleached sand atau lush meadow */}
+    {/* Inner gradient ring — purified: extend inward (5.5 → 11.5)
+        supaya nutup gap antara petak hex (radius 5) dan outer ring,
+        gak ada dark moss zone keliatan kayak "lubang". Drought tetep
+        narrow band 9.5-11.5 (sun-bleached transition). */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
-      <ringGeometry args={[9.5, 11.5, 64]} />
+      <ringGeometry
+        args={purified ? [5.5, 11.5, 64] : [9.5, 11.5, 64]}
+      />
       <meshStandardMaterial
-        color={purified ? '#6a8048' : '#7a5535'}
+        color={purified ? '#5a7038' : '#7a5535'}
         roughness={1}
         transparent
-        opacity={0.75}
+        opacity={purified ? 0.85 : 0.75}
       />
     </mesh>
     {/* Scattered patches — dry sand (drought) atau flower bed (purified) */}
