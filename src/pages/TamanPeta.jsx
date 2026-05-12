@@ -3081,6 +3081,73 @@ const ShootingStar = () => {
 
 // Moon — disc kecil glow lembut di sudut atas peta. Bukan light source
 // asli (cuma visual), light asli udah dari directionalLight existing.
+// HopeEcho — counter-narrative tipis di peta level, echo dari gersang
+// HopeSignals. 2 tier scaled ke peta thresholds:
+//   T0 (always loaded): PetaSprout — 1 tunas hijau tunggal dekat
+//     CenterTree, seed of hope diam2 di hub.
+//   T1 (count >= 4000 / r1Restore): PetaBloom — 1 bunga colorful kecil
+//     dekat lorong stones, "kehidupan mulai balik sejak r1 restored".
+// Peta gak butuh 4 tier seperti gersang krn threshold meta-level
+// beda — 6000+ peta sendiri transition state lewat telagaState.
+const PetaSprout = ({ pos }) => (
+  <group position={pos}>
+    <mesh position={[0, 0.06, 0]}>
+      <boxGeometry args={[0.018, 0.12, 0.018]} />
+      <meshStandardMaterial color="#4a7a3a" roughness={0.85} />
+    </mesh>
+    <mesh position={[0.025, 0.085, 0]} rotation={[0, 0, -0.5]}>
+      <boxGeometry args={[0.05, 0.012, 0.035]} />
+      <meshStandardMaterial color="#5a8a3e" roughness={0.85} />
+    </mesh>
+    <mesh position={[-0.025, 0.11, 0]} rotation={[0, 0, 0.5]}>
+      <boxGeometry args={[0.04, 0.012, 0.03]} />
+      <meshStandardMaterial color="#5a8a3e" roughness={0.85} />
+    </mesh>
+  </group>
+);
+const PetaBloom = ({ pos }) => (
+  <group position={pos}>
+    <mesh position={[0, 0.1, 0]}>
+      <boxGeometry args={[0.02, 0.2, 0.02]} />
+      <meshStandardMaterial color="#5a7a3a" roughness={0.85} />
+    </mesh>
+    <mesh position={[0, 0.22, 0]}>
+      <sphereGeometry args={[0.035, 8, 6]} />
+      <meshStandardMaterial
+        color="#d48028"
+        roughness={0.7}
+        emissive="#3a1804"
+        emissiveIntensity={0.3}
+      />
+    </mesh>
+    {[0, 1, 2, 3, 4].map((i) => {
+      const angle = (i / 5) * Math.PI * 2;
+      return (
+        <mesh
+          key={`peta-petal-${i}`}
+          position={[Math.cos(angle) * 0.05, 0.22, Math.sin(angle) * 0.05]}
+          rotation={[0, -angle, 0.15]}
+        >
+          <boxGeometry args={[0.05, 0.012, 0.035]} />
+          <meshStandardMaterial color="#f4b048" roughness={0.7} />
+        </mesh>
+      );
+    })}
+  </group>
+);
+const HopeEcho = ({ count, loaded }) => {
+  if (!loaded) return null;
+  return (
+    <>
+      {/* T0 always: sprout dekat center tree base */}
+      <PetaSprout pos={[0.4, 0, 0.6]} />
+      {/* T1 >= 4000: bloom dekat lorong stones area (r1 restored,
+          hint kehidupan balik) */}
+      {count >= 4000 && <PetaBloom pos={[1.4, 0, 3.5]} />}
+    </>
+  );
+};
+
 // FootprintTrail — pair jejak alternate kiri-kanan dari start→end,
 // opacity fade. Echo dari gersang storytelling — kerasa "ada
 // perjalanan dari petak satu ke lainnya". Scale lebih kecil dari
@@ -3444,6 +3511,7 @@ const TamanScene = ({
       <TamanFloor />
       <DroughtRing />
       <PetaFootprintTrails />
+      <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* Dead-town environment re-enabled — CityRuins di luar hex ring
           (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
           SandDust + HighDustShimmer (debu beterbangan = kerasa angin
