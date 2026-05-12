@@ -76,7 +76,7 @@ const buildDroughtNodes = (ctx, master) => {
   return [osc, lfo];
 };
 
-const buildTamanNodes = (ctx, master) => {
+const buildTamanNodes = (ctx, master, { purified = false } = {}) => {
   // Triad A-minor (A3, C4, E4). Sine + triangle untuk pad lembut.
   const freqs = [220, 261.63, 329.63];
   const nodes = [];
@@ -100,6 +100,22 @@ const buildTamanNodes = (ctx, master) => {
   lfoGain.connect(nodes[1].detune);
   lfo.start();
   nodes.push(lfo);
+  // Purified shimmer — octave-up triad (A4, C5, E5) sine super tipis,
+  // gain 0.04 per voice. Kerasa "harapan ngelapis pad utama dari atas",
+  // bukan tambahan instrumen baru — masih ambient, cuma lebih open.
+  if (purified) {
+    [440, 523.25, 659.25].forEach((f) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      const g = ctx.createGain();
+      g.gain.value = 0.04;
+      osc.connect(g);
+      g.connect(master);
+      osc.start();
+      nodes.push(osc);
+    });
+  }
   return nodes;
 };
 
@@ -310,7 +326,11 @@ const SoundOffIcon = () => (
   </svg>
 );
 
-const AmbientAudio = ({ profile = 'taman', position = 'top-right' }) => {
+const AmbientAudio = ({
+  profile = 'taman',
+  position = 'top-right',
+  purified = false,
+}) => {
   const [enabled, setEnabled] = useState(false);
   // Persist preference, tapi nggak auto-start (browser policy).
   // Indikator 'pending' berarti user pernah enable, tapi session
@@ -363,7 +383,12 @@ const AmbientAudio = ({ profile = 'taman', position = 'top-right' }) => {
 
     const master = ctx.createGain();
     master.gain.value = 0;
-    master.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 1.5);
+    // Purified swell: master gain naik 0.18 → 0.22 + ramp lebih panjang
+    // (2.4s vs 1.5s) supaya entry kerasa more deliberate, kayak harapan
+    // perlahan dilepas balik ke kota.
+    const targetGain = purified ? 0.22 : 0.18;
+    const rampDur = purified ? 2.4 : 1.5;
+    master.gain.linearRampToValueAtTime(targetGain, ctx.currentTime + rampDur);
     master.connect(ctx.destination);
     masterRef.current = master;
 
@@ -374,10 +399,10 @@ const AmbientAudio = ({ profile = 'taman', position = 'top-right' }) => {
           ? buildTamanR1Nodes(ctx, master)
           : profile === 'taman-r2'
             ? buildTamanR2Nodes(ctx, master)
-            : buildTamanNodes(ctx, master);
+            : buildTamanNodes(ctx, master, { purified });
 
     return undefined;
-  }, [enabled, profile]);
+  }, [enabled, profile, purified]);
 
   const handleToggle = () => {
     const next = !enabled;

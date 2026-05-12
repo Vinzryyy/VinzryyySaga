@@ -436,6 +436,7 @@ const CenterTree = ({
   hovered,
   visited = false,
   isMobile = false,
+  purified = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -448,8 +449,10 @@ const CenterTree = ({
     groupRef.current.rotation.y =
       Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
 
-    // Emissive boost saat hover — foliage glow hijau lembut
-    const targetEm = hovered ? 0.35 : 0;
+    // Emissive baseline + hover boost. Purified naikin baseline 0 → 0.12
+    // (pohon "bernafas" sendiri walau gak di-hover), hover state tetep
+    // top di 0.35.
+    const targetEm = hovered ? 0.35 : purified ? 0.12 : 0;
     const factor = Math.min(delta * 6, 1);
     foliageMatRefs.current.forEach((mat) => {
       if (!mat) return;
@@ -531,19 +534,58 @@ const CenterTree = ({
           }}
         />
       ))}
-      {/* Fruit aprikot — emissive subtle untuk kerasa hidup */}
+      {/* Fruit aprikot — emissive subtle untuk kerasa hidup. Purified
+          bump intensity +0.15 (buah pulih kelihatan ranum, gak setengah
+          mati). */}
       {FRUIT_POSITIONS.map((f, i) => (
         <mesh key={`fruit-${i}`} position={f.pos}>
           <sphereGeometry args={[0.11, 12, 10]} />
           <meshStandardMaterial
             color={f.color}
             emissive={f.color}
-            emissiveIntensity={0.15}
+            emissiveIntensity={purified ? 0.3 : 0.15}
             roughness={0.55}
             metalness={0.05}
           />
         </mesh>
       ))}
+      {/* Purified bloom halo — 4 ring concentric translucent di base
+          pohon (radius 0.7→2.0), peach-amber gradient. Kerasa "aura
+          mekarnya pohon kebaikan", sinyal puncak restorasi. */}
+      {purified && (
+        <>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+            <ringGeometry args={[0.7, 0.95, 48]} />
+            <meshBasicMaterial
+              color="#f8c8a0"
+              transparent
+              opacity={0.32}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
+            <ringGeometry args={[1.0, 1.35, 48]} />
+            <meshBasicMaterial
+              color="#f4b890"
+              transparent
+              opacity={0.22}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+            <ringGeometry args={[1.4, 1.75, 48]} />
+            <meshBasicMaterial
+              color="#e8a888"
+              transparent
+              opacity={0.14}
+              depthWrite={false}
+              toneMapped={false}
+            />
+          </mesh>
+        </>
+      )}
       {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
           Pohon aprikot tunggal yg masih hidup di sisa kota gurun, link
           ke modul Pohon Kebaikan (/26). */}
@@ -2455,6 +2497,81 @@ const HighDustShimmer = ({ count = 40 }) => {
   );
 };
 
+// MossOverlay — purified-only. Scatter translucent moss/grass patches
+// di luar hex inner area (radius 10-17) supaya outer ring drought tetep
+// gak hilang teksturnya tapi kerasa "tanaman pertama merangkak balik".
+// Deterministic seed via index — gak random tiap render (stable layout).
+const MOSS_PATCH_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 14; i++) {
+    const angle = (i / 14) * Math.PI * 2 + ((i * 31) % 11) * 0.07;
+    const r = 10.5 + ((i * 13) % 6);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0.018, Math.sin(angle) * r],
+      scale: 0.7 + ((i * 17) % 5) * 0.22,
+      rot: ((i * 41) % 360) * (Math.PI / 180),
+      tint: i % 3 === 0 ? '#6a8a58' : i % 3 === 1 ? '#7a9560' : '#8aa468',
+    });
+  }
+  return arr;
+})();
+const MossOverlay = () => (
+  <>
+    {MOSS_PATCH_DEFS.map((p, i) => (
+      <mesh
+        key={`moss-${i}`}
+        rotation={[-Math.PI / 2, 0, p.rot]}
+        position={p.pos}
+        scale={p.scale}
+      >
+        <circleGeometry args={[0.7, 10]} />
+        <meshStandardMaterial
+          color={p.tint}
+          roughness={1}
+          transparent
+          opacity={0.55}
+          depthWrite={false}
+        />
+      </mesh>
+    ))}
+  </>
+);
+
+// SkyBeacon — vertical light shaft dari atas CenterTree menuju langit.
+// Cone tegak tipis transparent (radius bawah 0.05, atas 0.6, height 14),
+// warm peach gradient. Kerasa "ada cahaya akhirnya nembus ke atas",
+// signal ritual restorasi tercapai. Slow opacity pulse + slight rotation
+// untuk gentle living feel.
+const SkyBeacon = () => {
+  const matRef = useRef();
+  const groupRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (matRef.current) {
+      matRef.current.opacity = 0.16 + Math.sin(t * 0.5) * 0.05;
+    }
+    if (groupRef.current) {
+      groupRef.current.rotation.y = t * 0.05;
+    }
+  });
+  return (
+    <group ref={groupRef} position={[0, 7.5, 0]}>
+      <mesh>
+        <coneGeometry args={[0.6, 14, 24, 1, true]} />
+        <meshBasicMaterial
+          ref={matRef}
+          color="#f8c898"
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+          side={2}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
 // ApricotPetals — purified-only falling petals dari sky high (10-14y)
 // turun perlahan ke 0.2y, kemudian respawn di atas. Drift X tipis +
 // gentle rotation (handled via Y bob since particle is point, not mesh).
@@ -3664,28 +3781,34 @@ const HoverHalo = ({ pos, visible, color = '#f4c478' }) => {
 // infrastructure "ini path official". Pulse subtle untuk gentle
 // guidance feel. Coexist dgn footprints — dua layer storytelling:
 // jejak orang + jalur peta itself.
-const PathWaymarker = ({ pos, phase = 0 }) => {
+//
+// Purified: ganti palette dari amber dusty (#a87850) ke peach-bloom
+// (#f4b090) + opacity baseline naik + radius dikit lebih lebar. Path
+// kerasa "ditandain bunga" bukan cuma jejak debu.
+const PathWaymarker = ({ pos, phase = 0, purified = false }) => {
   const matRef = useRef();
   useFrame((state) => {
     if (!matRef.current) return;
+    const base = purified ? 0.42 : 0.25;
+    const amp = purified ? 0.14 : 0.1;
     matRef.current.opacity =
-      0.25 + Math.sin(state.clock.elapsedTime * 1.2 + phase) * 0.1;
+      base + Math.sin(state.clock.elapsedTime * 1.2 + phase) * amp;
   });
   return (
     <mesh position={pos} rotation={[-Math.PI / 2, 0, 0]}>
-      <circleGeometry args={[0.16, 14]} />
+      <circleGeometry args={[purified ? 0.22 : 0.16, 14]} />
       <meshBasicMaterial
         ref={matRef}
-        color="#a87850"
+        color={purified ? '#f4b090' : '#a87850'}
         transparent
-        opacity={0.3}
+        opacity={purified ? 0.45 : 0.3}
         depthWrite={false}
         toneMapped={false}
       />
     </mesh>
   );
 };
-const PathWaymarkers = () => {
+const PathWaymarkers = ({ purified = false }) => {
   // Center [0,0,0] → Telaga [-7,0,-1] di barat
   const toTelaga = [];
   for (let i = 1; i <= 3; i++) {
@@ -3707,10 +3830,20 @@ const PathWaymarkers = () => {
   return (
     <>
       {toTelaga.map((m, i) => (
-        <PathWaymarker key={`wm-telaga-${i}`} pos={m.pos} phase={m.phase} />
+        <PathWaymarker
+          key={`wm-telaga-${i}`}
+          pos={m.pos}
+          phase={m.phase}
+          purified={purified}
+        />
       ))}
       {toArsip.map((m, i) => (
-        <PathWaymarker key={`wm-arsip-${i}`} pos={m.pos} phase={m.phase} />
+        <PathWaymarker
+          key={`wm-arsip-${i}`}
+          pos={m.pos}
+          phase={m.phase}
+          purified={purified}
+        />
       ))}
     </>
   );
@@ -4058,8 +4191,9 @@ const TamanScene = ({
       />
       <TamanFloor />
       <DroughtRing />
+      {purified && <MossOverlay />}
       <PetaFootprintTrails />
-      <PathWaymarkers />
+      <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
@@ -4088,10 +4222,12 @@ const TamanScene = ({
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
       {!purified && <DistantCrow />}
+      {purified && <SkyBeacon />}
       <CenterTree
         hovered={hoveredCenter}
         visited={previewedPetak.has('pohon')}
         isMobile={isMobile}
+        purified={purified}
         onPointerOver={onCenterHover}
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
@@ -4774,6 +4910,9 @@ const TamanPetaPage = () => {
     if (armeniacaCount >= MAP_THRESHOLDS.r2Unlock) return 'drought';
     return 'locked';
   }, [armeniacaCount, armeniacaLoaded]);
+  // Purified — full city restoration (count >= 7000). Diteruskan ke
+  // AmbientAudio (swell + shimmer) di samping dipakai di scene.
+  const purified = armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore;
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
@@ -5023,7 +5162,7 @@ const TamanPetaPage = () => {
         {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
             selesai, persisted via localStorage. */}
         {!petakPreview && <TamanPetaIntroTitle />}
-        <AmbientAudio profile="taman" position="top-right" />
+        <AmbientAudio profile="taman" position="top-right" purified={purified} />
         <RotateRecommendation />
         {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
             via CompassTracker (useFrame ref-mutation, no React re-render). */}
