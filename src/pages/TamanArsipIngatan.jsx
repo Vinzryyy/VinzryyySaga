@@ -2232,6 +2232,74 @@ const LenternaSparks = () => {
   );
 };
 
+// DoorFrame — kayu trim di sekitar opening pintu south + door panel
+// terbuka miring + welcome mat di lantai. Sekarang area entrance gak
+// bare (cuma wall opening), kerasa "ada pintu masuk beneran."
+const DoorFrame = ({ restored }) => (
+  <group>
+    {/* Frame trim atas (di bawah transom) */}
+    <mesh position={[0, 4.5, -ROOM_D / 2 + 0.15]}>
+      <boxGeometry args={[3.4, 0.18, 0.18]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.85} />
+    </mesh>
+    {/* Frame trim kiri */}
+    <mesh position={[-1.6, 2.3, -ROOM_D / 2 + 0.15]}>
+      <boxGeometry args={[0.18, 4.6, 0.18]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.85} />
+    </mesh>
+    {/* Frame trim kanan */}
+    <mesh position={[1.6, 2.3, -ROOM_D / 2 + 0.15]}>
+      <boxGeometry args={[0.18, 4.6, 0.18]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.85} />
+    </mesh>
+    {/* Door panel kayu — half-open swing inward kiri.
+        Hinge di kiri (x=-1.5), swing 25° ke dalam (-z). */}
+    <group
+      position={[-1.5, 2.2, -ROOM_D / 2 + 0.2]}
+      rotation={[0, restored ? Math.PI / 6 : Math.PI / 4, 0]}
+    >
+      <mesh position={[1.4, 0, 0]}>
+        <boxGeometry args={[2.8, 4.3, 0.08]} />
+        <meshStandardMaterial color={COLORS.shelfWood} roughness={0.9} />
+      </mesh>
+      {/* Door panel vertical seams (3 panels) */}
+      {[0, 1, 2].map((i) => (
+        <mesh
+          key={`dp-${i}`}
+          position={[0.55 + i * 0.85, 0, 0.045]}
+        >
+          <boxGeometry args={[0.04, 4.0, 0.02]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Door handle */}
+      <mesh position={[2.6, -0.3, 0.06]}>
+        <sphereGeometry args={[0.06, 10, 8]} />
+        <meshStandardMaterial color="#a87850" metalness={0.5} roughness={0.4} />
+      </mesh>
+    </group>
+    {/* Welcome mat — flat rectangle di lantai inside door */}
+    <mesh
+      position={[0, 0.008, -ROOM_D / 2 + 1.2]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <planeGeometry args={[2.4, 1.4]} />
+      <meshStandardMaterial
+        color={restored ? '#5a4030' : '#3a2820'}
+        roughness={0.98}
+      />
+    </mesh>
+    {/* Mat fringe edge — slightly darker border */}
+    <mesh
+      position={[0, 0.009, -ROOM_D / 2 + 1.2]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <ringGeometry args={[1.3, 1.36, 4, 1, 0, Math.PI * 2]} />
+      <meshStandardMaterial color="#2a1812" roughness={1} />
+    </mesh>
+  </group>
+);
+
 // FloorShadows — fake ambient occlusion via dark soft circle plane di
 // lantai bawah objek yang punya weight (table, chair, wing-chair,
 // catalog, lectern, globe, dst). Karena shadows={false} di Canvas
@@ -2526,16 +2594,24 @@ const CandleFlame = () => {
   );
 };
 
-// 16. Tapestry — wall hanging di dinding utara
-const Tapestry = ({ restored }) => (
+// 16. Tapestry — wall hanging di dinding utara dengan subtle sway
+const Tapestry = ({ restored }) => {
+  const fabricRef = useRef();
+  useFrame((state) => {
+    if (!fabricRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Subtle sway via rotation Z + scale Y (kerasa angin tipis)
+    fabricRef.current.rotation.z = Math.sin(t * 0.45) * 0.012;
+  });
+  return (
   <group position={[-2, 4.2, ROOM_D / 2 - 0.12]}>
     {/* Top rod */}
     <mesh position={[0, 0.72, 0]} rotation={[0, 0, Math.PI / 2]}>
       <cylinderGeometry args={[0.025, 0.025, 1.3, 8]} />
       <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
     </mesh>
-    {/* Fabric */}
-    <mesh>
+    {/* Fabric — ref untuk sway animation */}
+    <mesh ref={fabricRef}>
       <planeGeometry args={[1.2, 1.4]} />
       <meshStandardMaterial
         color={restored ? '#7a3030' : '#5a3025'}
@@ -2564,7 +2640,8 @@ const Tapestry = ({ restored }) => (
       </mesh>
     )}
   </group>
-);
+  );
+};
 
 // 17. PlantPot — pot kecil di lantai, antara meja & rak NE.
 // Restored: tunas hijau dengan 3 daun yang sway pelan via useFrame.
@@ -2859,6 +2936,7 @@ const ArsipScene = ({
       <FloorShadows />
       <LightPoolFloor restored={restored} />
       <Walls restored={restored} />
+      <DoorFrame restored={restored} />
       <Ceiling />
       <WallCracks />
       {/* GodRayCone di-disable — terlalu dominan di scene, lewat Bloom
