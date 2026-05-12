@@ -4,6 +4,8 @@ import { SITE_CONFIG } from "../config/siteConfig";
 import { useGallery } from "../context";
 import { hashToHref, hrefToActiveId } from "../utils/routes";
 
+const NAVBAR_HIDDEN_KEY = 'navbar-hidden';
+
 function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -14,6 +16,26 @@ function Navbar() {
   const { eras } = useGallery();
   const location = useLocation();
   const navigate = useNavigate();
+  // Hide/show navbar manual toggle, persist localStorage. Saat hidden,
+  // navbar slide ke atas leaving small tab buat re-show.
+  const [hidden, setHidden] = useState(() => {
+    try {
+      return localStorage.getItem(NAVBAR_HIDDEN_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleHidden = () => {
+    setHidden((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem(NAVBAR_HIDDEN_KEY, next ? '1' : '0');
+      } catch {
+        /* storage blocked */
+      }
+      return next;
+    });
+  };
   const activeHash = useMemo(
     () => hrefToActiveId(location.pathname, location.hash),
     [location.pathname, location.hash]
@@ -140,10 +162,27 @@ function Navbar() {
 
   return (
     <>
+      {/* Re-show tab — render saat navbar hidden. Small clickable strip
+          di top-center. */}
+      {hidden && (
+        <button
+          type="button"
+          onClick={toggleHidden}
+          className="fixed top-0 left-1/2 -translate-x-1/2 z-[101] px-4 py-1 rounded-b-lg bg-black/60 backdrop-blur-sm border-x border-b border-white/15 text-white/65 hover:text-white hover:bg-black/80 text-[10px] tracking-[0.3em] uppercase transition"
+          aria-label="Tampilkan navbar"
+          title="Tampilkan navbar"
+        >
+          ▾ menu
+        </button>
+      )}
       <nav
-        className={`fixed top-0 z-[100] w-full transition-all duration-500 ${
+        className={`fixed top-0 z-[100] w-full transition-transform duration-300 ease-out ${
           scrolled ? "py-3" : "py-5"
-        }`}
+        } ${hidden ? "-translate-y-full" : "translate-y-0"}`}
+        style={{
+          transitionProperty: 'transform, padding',
+          transitionDuration: '300ms, 500ms',
+        }}
       >
         <div className="container-custom">
           <div
@@ -297,6 +336,17 @@ function Navbar() {
               })}
             </ul>
 
+            {/* Hide navbar toggle — small button di kanan, sebelah
+                hamburger. Klik → navbar slide up, re-show via top tab. */}
+            <button
+              type="button"
+              onClick={toggleHidden}
+              className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${palette.text} ${palette.hoverBg} transition`}
+              aria-label="Sembunyikan navbar"
+              title="Sembunyikan navbar"
+            >
+              <span className="text-[14px] leading-none">▴</span>
+            </button>
             {/* Mobile hamburger */}
             <button
               type="button"
