@@ -801,27 +801,292 @@ const DustMotes = ({ count, isMobile }) => {
   );
 };
 
-// Cobwebs — drought only. 4 triangular plane di pojok atas ruangan
-// (corner-mounted), translucent off-white. Subtle abandoned hint.
+// Cobwebs — drought only. Banyak triangular plane translucent off-white
+// di lokasi yang masuk akal sarang laba-laba: pojok atas ruangan,
+// sepanjang beam ceiling, sudut antara rak & dinding, sekitar wall
+// breach, plus hanging drape dari ceiling.
 const Cobwebs = () => {
-  // 4 upper corners: NE, NW, SE, SW
-  const corners = [
-    { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, Math.PI / 4, 0] },
-    { pos: [ROOM_W / 2 - 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, -Math.PI / 4, 0] },
-    { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, -ROOM_D / 2 + 0.4], rot: [0, -Math.PI / 4, 0] },
-    { pos: [ROOM_W / 2 - 0.4, ROOM_H - 0.4, -ROOM_D / 2 + 0.4], rot: [0, Math.PI / 4, 0] },
+  const webs = [
+    // 4 upper room corners — biggest webs
+    { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, Math.PI / 4, 0], size: 0.95 },
+    { pos: [ROOM_W / 2 - 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, -Math.PI / 4, 0], size: 0.95 },
+    { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, -ROOM_D / 2 + 0.4], rot: [0, -Math.PI / 4, 0], size: 0.85 },
+    { pos: [ROOM_W / 2 - 0.4, ROOM_H - 0.4, -ROOM_D / 2 + 0.4], rot: [0, Math.PI / 4, 0], size: 0.85 },
+    // Along ceiling beam edges — between beams and walls
+    { pos: [-7, 5.5, -7], rot: [0, Math.PI / 4, Math.PI / 3], size: 0.55 },
+    { pos: [7, 5.5, -2], rot: [0, -Math.PI / 4, Math.PI / 3], size: 0.5 },
+    { pos: [-4, 5.5, 3.5], rot: [0, 0, Math.PI / 2.5], size: 0.6 },
+    { pos: [3, 5.5, 7], rot: [0, Math.PI / 3, Math.PI / 2.5], size: 0.55 },
+    { pos: [-6, 5.5, 0], rot: [0, Math.PI / 6, Math.PI / 2.5], size: 0.5 },
+    // Between rak NW dan dinding utara — sudut pojok rak
+    { pos: [-6.3, 2.8, 9.5], rot: [0, Math.PI / 4, 0.3], size: 0.55 },
+    { pos: [-3, 2.6, 9.5], rot: [0, -Math.PI / 6, -0.2], size: 0.4 },
+    // Between rak NE dan dinding utara
+    { pos: [6.3, 2.8, 9.5], rot: [0, -Math.PI / 4, -0.3], size: 0.55 },
+    { pos: [3, 2.6, 9.5], rot: [0, Math.PI / 6, 0.2], size: 0.4 },
+    // Near wall breach (-X, z=4-6) — sarang besar karena lama gak diganggu
+    { pos: [-7.6, 4.2, 5], rot: [0, Math.PI / 2, 0], size: 0.8 },
+    { pos: [-7.6, 2.2, 5.5], rot: [0, Math.PI / 2, 0.3], size: 0.55 },
+    { pos: [-7.6, 3.5, 3.5], rot: [0, Math.PI / 2, -0.4], size: 0.5 },
+    // Hanging cobweb dari ceiling beam — drape ke bawah (di area god ray)
+    { pos: [-3, 4.7, 5.5], rot: [0.2, 0.5, 0.3], size: 0.45 },
+    { pos: [2, 4.5, -3], rot: [-0.2, 0, 0.3], size: 0.4 },
+    { pos: [5, 4.6, 4], rot: [0.3, -0.4, 0.2], size: 0.42 },
+    // Between rak E miring dan dinding timur
+    { pos: [7.5, 3.5, -3.5], rot: [0, -Math.PI / 2, 0.4], size: 0.5 },
+    // Sekitar rak W tumbang
+    { pos: [-7.5, 2.0, 0.5], rot: [0, Math.PI / 2, -0.3], size: 0.55 },
+    // Above reading table (faint, sky-net feel)
+    { pos: [0.5, 4.6, 0.5], rot: [Math.PI / 2.5, 0.3, 0], size: 0.5 },
   ];
   return (
     <group>
-      {corners.map((c, i) => (
+      {webs.map((c, i) => (
         <mesh key={`cob-${i}`} position={c.pos} rotation={c.rot}>
-          <planeGeometry args={[0.9, 0.9]} />
+          <planeGeometry args={[c.size, c.size]} />
           <meshBasicMaterial
             color="#c8b8a0"
             transparent
-            opacity={0.18}
+            opacity={0.18 + hashSeed(`cob-${i}`) * 0.06}
             depthWrite={false}
             side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// TwigDebris — drought only. Ranting-ranting kayu kering yang tertiup
+// masuk lewat wall breach + ceiling jebol. Dibuat dari thin cylinder
+// (atau elongated box) dengan tilt + rotation random. Cluster utama
+// dekat wall breach + sisa scattered di lantai.
+const TwigDebris = ({ isMobile }) => {
+  const count = isMobile ? 12 : 22;
+  const twigs = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      const seed = hashSeed(`tw-${i}`);
+      const seedR = hashSeed(`tw-r-${i}`);
+      const seedA = hashSeed(`tw-a-${i}`);
+      // 50% dekat wall breach pile, 30% dekat ceiling hole area,
+      // 20% scattered di ruangan
+      let cx, cz, range;
+      if (seed < 0.5) {
+        cx = -6.5;
+        cz = 4.5;
+        range = 2.0;
+      } else if (seed < 0.8) {
+        cx = -3;
+        cz = 5;
+        range = 2.2;
+      } else {
+        cx = (hashSeed(`tw-cx-${i}`) - 0.5) * 12;
+        cz = (hashSeed(`tw-cz-${i}`) - 0.5) * 16;
+        range = 0.3;
+      }
+      const r = hashSeed(`tw-rr-${i}`) * range;
+      const a = seedA * Math.PI * 2;
+      const length = 0.25 + seedR * 0.4;
+      const thick = 0.018 + seed * 0.015;
+      arr.push({
+        x: cx + Math.cos(a) * r,
+        z: cz + Math.sin(a) * r,
+        rotY: seedA * Math.PI * 2,
+        tilt: (seed - 0.5) * 0.4,
+        length,
+        thick,
+        color: seed > 0.5 ? '#4a3020' : '#3a2418',
+      });
+    }
+    return arr;
+  }, [count]);
+
+  return (
+    <group>
+      {twigs.map((t, i) => (
+        <mesh
+          key={`tw-${i}`}
+          position={[t.x, t.thick / 2 + 0.003, t.z]}
+          rotation={[t.tilt * 0.2, t.rotY, t.tilt * 0.6]}
+        >
+          <boxGeometry args={[t.length, t.thick, t.thick * 0.9]} />
+          <meshStandardMaterial color={t.color} roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// DamagedBooks — drought only. Buku-buku yang rusak parah: cover lepas
+// dari spine, halaman terbuka & robek, atau crumpled. Beda dari
+// BookScatter (utuh tapi jatuh) — ini buku yang udah hancur.
+const DamagedBooks = ({ isMobile }) => {
+  const count = isMobile ? 5 : 9;
+  const books = useMemo(() => {
+    const arr = [];
+    const colors = ['#7a3030', '#5a4030', '#3a4858', '#c8a060', '#5a3025', '#7a5840'];
+    for (let i = 0; i < count; i++) {
+      const seed = hashSeed(`db-${i}`);
+      const seedA = hashSeed(`db-a-${i}`);
+      const seedR = hashSeed(`db-r-${i}`);
+      // Scattered di area "high damage": dekat rak W (40%), rak E (25%),
+      // breach (20%), tengah-tengah (15%)
+      let cx, cz, range;
+      if (seed < 0.4) {
+        cx = -6.5;
+        cz = 2;
+        range = 1.8;
+      } else if (seed < 0.65) {
+        cx = 6.5;
+        cz = -2;
+        range = 1.6;
+      } else if (seed < 0.85) {
+        cx = -5.5;
+        cz = 5;
+        range = 1.5;
+      } else {
+        cx = (hashSeed(`db-cx-${i}`) - 0.5) * 6;
+        cz = (hashSeed(`db-cz-${i}`) - 0.5) * 8;
+        range = 0.4;
+      }
+      const r = seedR * range;
+      const a = seedA * Math.PI * 2;
+      arr.push({
+        x: cx + Math.cos(a) * r,
+        z: cz + Math.sin(a) * r,
+        rotY: seedA * Math.PI * 2,
+        tilt: (seed - 0.5) * 0.4,
+        color: colors[Math.floor(seed * colors.length)],
+        type: i % 3, // 3 jenis kerusakan
+      });
+    }
+    return arr;
+  }, [count]);
+
+  return (
+    <group>
+      {books.map((b, i) => {
+        if (b.type === 0) {
+          // Type 0: cover lepas dari spine — 2 mesh terpisah, cover
+          // di samping spine
+          return (
+            <group key={`db-${i}`} position={[b.x, 0, b.z]} rotation={[0, b.rotY, 0]}>
+              {/* Spine bare (no cover) — kertas terlihat */}
+              <mesh position={[0, 0.04, 0]} rotation={[0, 0, b.tilt]}>
+                <boxGeometry args={[0.22, 0.06, 0.16]} />
+                <meshStandardMaterial color="#e8d4a8" roughness={0.95} />
+              </mesh>
+              {/* Cover yang terlepas, posisi samping */}
+              <mesh
+                position={[0.25, 0.02, 0.05]}
+                rotation={[0, b.rotY * 0.5, b.tilt * 2]}
+              >
+                <boxGeometry args={[0.16, 0.025, 0.22]} />
+                <meshStandardMaterial color={b.color} roughness={0.9} />
+              </mesh>
+            </group>
+          );
+        }
+        if (b.type === 1) {
+          // Type 1: open book — 2 page planes membentuk V terbuka
+          return (
+            <group key={`db-${i}`} position={[b.x, 0.04, b.z]} rotation={[0, b.rotY, 0]}>
+              {/* Left page */}
+              <mesh position={[-0.08, 0.02, 0]} rotation={[-Math.PI / 2 + 0.15, 0, b.tilt]}>
+                <planeGeometry args={[0.18, 0.24]} />
+                <meshStandardMaterial
+                  color="#e8d4a8"
+                  roughness={0.95}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+              {/* Right page */}
+              <mesh position={[0.08, 0.02, 0]} rotation={[-Math.PI / 2 - 0.15, 0, b.tilt]}>
+                <planeGeometry args={[0.18, 0.24]} />
+                <meshStandardMaterial
+                  color="#e8d4a8"
+                  roughness={0.95}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+              {/* Spine ridge */}
+              <mesh position={[0, 0.025, 0]} rotation={[0, 0, b.tilt]}>
+                <boxGeometry args={[0.018, 0.012, 0.24]} />
+                <meshStandardMaterial color={b.color} roughness={0.85} />
+              </mesh>
+            </group>
+          );
+        }
+        // Type 2: crumpled / squashed — flat box tipis dengan tilt agresif
+        return (
+          <mesh
+            key={`db-${i}`}
+            position={[b.x, 0.025, b.z]}
+            rotation={[b.tilt * 0.5, b.rotY, b.tilt * 1.5]}
+          >
+            <boxGeometry args={[0.24, 0.04, 0.18]} />
+            <meshStandardMaterial color={b.color} roughness={0.95} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
+// TornPaperPieces — drought only. Plane kecil ireguler-ish dari kertas
+// yang robek (smaller than PaperDrift sheets, lebih banyak). Scattered
+// di seluruh ruangan, mostly cluster ke arah breach (tertiup angin).
+const TornPaperPieces = ({ isMobile }) => {
+  const count = isMobile ? 18 : 36;
+  const pieces = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      const seed = hashSeed(`tp-${i}`);
+      const seedX = hashSeed(`tp-x-${i}`);
+      const seedZ = hashSeed(`tp-z-${i}`);
+      // 40% dekat breach area, 60% scattered
+      let x, z;
+      if (seed < 0.4) {
+        const r = hashSeed(`tp-r-${i}`) * 2.8;
+        const a = hashSeed(`tp-a-${i}`) * Math.PI * 2;
+        x = -5 + Math.cos(a) * r;
+        z = 4 + Math.sin(a) * r;
+      } else {
+        x = (seedX * 2 - 1) * (ROOM_W / 2 - 1);
+        z = (seedZ * 2 - 1) * (ROOM_D / 2 - 1);
+      }
+      // Skip dekat reading table
+      if (Math.hypot(x, z) < 1.5) {
+        x = x * 2;
+        z = z * 2;
+      }
+      arr.push({
+        x,
+        z,
+        rotY: seed * Math.PI * 2,
+        size: 0.06 + seed * 0.07,
+        opacity: 0.7 + seed * 0.3,
+      });
+    }
+    return arr;
+  }, [count]);
+
+  return (
+    <group>
+      {pieces.map((p, i) => (
+        <mesh
+          key={`tp-${i}`}
+          position={[p.x, 0.004, p.z]}
+          rotation={[-Math.PI / 2 + (hashSeed(`tp-rx-${i}`) - 0.5) * 0.2, p.rotY, 0]}
+        >
+          <planeGeometry args={[p.size, p.size * (0.7 + hashSeed(`tp-ar-${i}`) * 0.5)]} />
+          <meshStandardMaterial
+            color="#e8d4a8"
+            roughness={0.95}
+            side={THREE.DoubleSide}
+            transparent
+            opacity={p.opacity}
           />
         </mesh>
       ))}
@@ -1334,6 +1599,9 @@ const ArsipScene = ({
           <BookScatter isMobile={isMobile} />
           <PlasterChunks isMobile={isMobile} />
           <WoodDebris isMobile={isMobile} />
+          <TwigDebris isMobile={isMobile} />
+          <DamagedBooks isMobile={isMobile} />
+          <TornPaperPieces isMobile={isMobile} />
           <TippedChair />
         </>
       )}
