@@ -2232,6 +2232,50 @@ const LenternaSparks = () => {
   );
 };
 
+// FloorShadows — fake ambient occlusion via dark soft circle plane di
+// lantai bawah objek yang punya weight (table, chair, wing-chair,
+// catalog, lectern, globe, dst). Karena shadows={false} di Canvas
+// (perf budget), AO real gak ada. Disc subtle ini grounding visual:
+// objek kerasa "duduk di lantai," bukan mengambang.
+const FloorShadows = () => {
+  // [x, z, radius] — match posisi objek di scene
+  const shadows = [
+    [0, 0, 1.45],          // reading table
+    [0, -1.6, 0.4],         // reading chair
+    [5, -5, 0.55],          // wing chair (with skirt area)
+    [-5.5, -3, 0.28],       // globe stand
+    [-5.5, -6, 0.7],        // card catalog
+    [-2, -2.5, 0.22],       // vase
+    [5.5, 5, 0.36],         // reading lectern
+    [1.7, -0.7, 0.25],      // scroll holder
+    [3.5, 4, 0.22],         // plant pot
+    [5, -8.5, 0.4],         // rak S
+    [-4.5, 8.5, 0.9],       // rak NW (big)
+    [4.5, 8.5, 0.9],        // rak NE (big)
+    [-6.5, 2, 0.85],        // rak W (tumbang area)
+    [6.5, -2, 0.85],        // rak E
+  ];
+  return (
+    <group>
+      {shadows.map(([x, z, r], i) => (
+        <mesh
+          key={`fs-${i}`}
+          position={[x, 0.004, z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <circleGeometry args={[r, 18]} />
+          <meshBasicMaterial
+            color="#000000"
+            transparent
+            opacity={0.28}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 // LightPoolFloor — soft radial gradient circle di lantai bawah lentera
 // & wax candle (saat restored), simulate "pool of light" yang real lights
 // kasih (postprocessing Bloom + point light kerasa ke radial decal).
@@ -2812,6 +2856,7 @@ const ArsipScene = ({
       <CameraFlyIn onComplete={onFlyInComplete} />
 
       <Floor />
+      <FloorShadows />
       <LightPoolFloor restored={restored} />
       <Walls restored={restored} />
       <Ceiling />
