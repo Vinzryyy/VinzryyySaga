@@ -1147,74 +1147,74 @@ const PetaArsip = ({
         </mesh>
       )}
 
-      {/* Foundation — segi-empat low di base */}
+      {/* Foundation — segi-empat low di base. Dark warm tone match
+          peta dusty palette (bukan cream cerah — bangunan harus
+          kerasa "weathered ruin" bukan landmark utama). */}
       <mesh position={[0, 0.1, 0]}>
         <boxGeometry args={[1.6, 0.2, 1.3]} />
-        <meshStandardMaterial color="#5a4030" roughness={0.95} />
+        <meshStandardMaterial color="#3a2820" roughness={0.95} />
       </mesh>
 
-      {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong */}
-      {/* Back wall (+x dari camera = +x lokal building) */}
+      {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong.
+          Tone selaras CityRuins/Telaga (`#3-5x3-4x2-3x` warm browns) —
+          biar gak nge-glow di scene yang dusty. */}
       <mesh position={[0.6, 0.65, 0]}>
         <boxGeometry args={[0.12, 0.9, 1.3]} />
-        <meshStandardMaterial color="#9a6e58" roughness={0.92} />
+        <meshStandardMaterial color="#4a3528" roughness={0.95} />
       </mesh>
-      {/* Side wall front (south) */}
       <mesh position={[0, 0.65, -0.6]}>
         <boxGeometry args={[1.32, 0.9, 0.12]} />
-        <meshStandardMaterial color="#d4b8a0" roughness={0.85} />
+        <meshStandardMaterial color="#5a4030" roughness={0.95} />
       </mesh>
-      {/* Side wall back (north) — utuh */}
       <mesh position={[0, 0.65, 0.6]}>
         <boxGeometry args={[1.32, 0.9, 0.12]} />
-        <meshStandardMaterial color="#d4b8a0" roughness={0.85} />
+        <meshStandardMaterial color="#5a4030" roughness={0.95} />
       </mesh>
-      {/* Front wall (-x lokal) — dipotong di setengah (cuma sebagian) */}
       <mesh position={[-0.6, 0.4, -0.3]}>
         <boxGeometry args={[0.12, 0.4, 0.6]} />
-        <meshStandardMaterial color="#9a6e58" roughness={0.92} />
+        <meshStandardMaterial color="#4a3528" roughness={0.95} />
       </mesh>
 
-      {/* Window dengan emissive (restored only) */}
+      {/* Window — restored state nyala warm tapi intensity diturunin
+          0.4 → 0.22 supaya hint glow, bukan dominate scene. Drought:
+          gelap solid. */}
       <mesh position={[0.54, 0.6, 0]}>
         <boxGeometry args={[0.04, 0.35, 0.5]} />
         <meshStandardMaterial
           ref={windowMatRef}
-          color={petakState === 'restored' ? '#f4a060' : '#3a2418'}
-          emissive={petakState === 'restored' ? '#f4a060' : '#000000'}
-          emissiveIntensity={petakState === 'restored' ? 0.4 : 0}
-          roughness={0.5}
-          toneMapped={false}
+          color={petakState === 'restored' ? '#d49060' : '#2a1812'}
+          emissive={petakState === 'restored' ? '#d49060' : '#000000'}
+          emissiveIntensity={petakState === 'restored' ? 0.22 : 0}
+          roughness={0.6}
         />
       </mesh>
 
       {/* Atap — beam kayu paralel sumbu z. Pojok depan-atas sengaja
           tidak ditutup (atap jebol signature). */}
-      {/* Main roof — 3 segment, gap di pojok front */}
       <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
         <boxGeometry args={[1.1, 0.08, 1.4]} />
-        <meshStandardMaterial color="#4a3020" roughness={0.9} />
+        <meshStandardMaterial color="#3a2820" roughness={0.95} />
       </mesh>
-      {/* Broken beam menjuntai di celah */}
       <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
         <boxGeometry args={[0.5, 0.06, 0.06]} />
-        <meshStandardMaterial color="#4a3020" roughness={0.9} />
+        <meshStandardMaterial color="#3a2820" roughness={0.95} />
       </mesh>
       <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
         <boxGeometry args={[0.06, 0.06, 0.4]} />
-        <meshStandardMaterial color="#4a3020" roughness={0.9} />
+        <meshStandardMaterial color="#3a2820" roughness={0.95} />
       </mesh>
 
-      {/* 4 paper plane mengambang */}
+      {/* 4 paper plane mengambang — pakai standard tone-mapping (gak
+          override toneMapped=false) supaya gak lewatin Bloom threshold
+          0.78 jadi 4 bright dots. Warna sepia muted, bukan cream cerah. */}
       <group ref={papersRef}>
         {[0, 1, 2, 3].map((i) => (
           <mesh key={`pp-${i}`} position={[0, 0.3, 0]}>
-            <planeGeometry args={[0.18, 0.12]} />
+            <planeGeometry args={[0.16, 0.1]} />
             <meshStandardMaterial
-              color="#e8d4a8"
+              color="#9a7a58"
               roughness={0.95}
               side={THREE.DoubleSide}
-              toneMapped={false}
             />
           </mesh>
         ))}
