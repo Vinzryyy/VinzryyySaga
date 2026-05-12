@@ -2043,15 +2043,15 @@ const Cloud = ({ pos, scale }) => (
   <group position={pos} scale={scale}>
     <mesh>
       <sphereGeometry args={[1.5, 12, 10]} />
-      <meshStandardMaterial color="#ffd8c0" roughness={1} />
+      <meshStandardMaterial color="#7a6a58" roughness={1} />
     </mesh>
     <mesh position={[1.0, 0.1, 0.2]}>
       <sphereGeometry args={[1.1, 12, 10]} />
-      <meshStandardMaterial color="#ffd8c0" roughness={1} />
+      <meshStandardMaterial color="#7a6a58" roughness={1} />
     </mesh>
     <mesh position={[-0.9, -0.1, 0.1]}>
       <sphereGeometry args={[1.0, 12, 10]} />
-      <meshStandardMaterial color="#ffd8c0" roughness={1} />
+      <meshStandardMaterial color="#7a6a58" roughness={1} />
     </mesh>
   </group>
 );
@@ -2086,12 +2086,13 @@ const SkyDome = () => {
     // Senja palette tanpa area hitam — horizon warm orange → mid
     // dusty pink-purple → zenith soft lavender (gak deep dark).
     // Atmosphere "matahari hampir tenggelam" tapi sky tetap glow.
-    // DROUGHT palette: horizon dusty amber → mid muted gray-amber →
-    // zenith dark warm-gray. Tone shifted dari warm pink-lavender
-    // canonical ke "siang gersang berkabut debu di kota mati".
-    const horizonR = 0.62, horizonG = 0.46, horizonB = 0.32; // dusty amber-brown
-    const midR = 0.46, midG = 0.38, midB = 0.32; // muted gray-amber
-    const zenithR = 0.30, zenithG = 0.26, zenithB = 0.24; // dark warm-gray
+    // POLUTED palette: smog yellow-brown horizon → dirty brown-gray
+    // mid → very dark muddy gray zenith. Push lebih jauh dari drought
+    // ke "polluted sky" — kerasa langit ke-cover smog tebel, gak ada
+    // celah biru sama sekali, matahari nembus tipis aja.
+    const horizonR = 0.58, horizonG = 0.48, horizonB = 0.28; // sickly yellow-brown smog
+    const midR = 0.40, midG = 0.34, midB = 0.28; // dirty brown-gray
+    const zenithR = 0.22, zenithG = 0.20, zenithB = 0.20; // very dark muddy gray
     for (let i = 0; i < positions.count; i++) {
       const y = positions.getY(i);
       // Normalize y to 0..1 across dome height (radius 32, so y goes 0..32)
@@ -2136,6 +2137,25 @@ const SkyDome = () => {
   );
 };
 
+// HorizonSmogBand — ring/band tipis di horizon, tone sickly yellow-
+// brown, fade ke transparent ke atas. Bikin "smog layer" yg kentel
+// di tepi pandang — kerasa pencemaran nge-tebel di garis horizon.
+// Pakai cylinder dome (back side) radius ~30, tinggi 6 supaya
+// nge-cover horizon band aja, gak ke zenith.
+const HorizonSmogBand = () => (
+  <mesh position={[0, 3, 0]}>
+    <cylinderGeometry args={[30, 30, 6, 32, 1, true]} />
+    <meshBasicMaterial
+      color="#8a6840"
+      transparent
+      opacity={0.45}
+      side={THREE.BackSide}
+      depthWrite={false}
+      fog={false}
+    />
+  </mesh>
+);
+
 // Sun — visible disc + 3-layer halo, mirip r1 Moon tapi warm yellow
 // dan posisi upper-front (afternoon sun). Slow pulse di outer haze.
 const Sun = () => {
@@ -2147,30 +2167,30 @@ const Sun = () => {
   });
   return (
     <group position={[8, 16, -10]}>
-      {/* DROUGHT: Sun body shifted ke amber kering pucat (gak golden
-          bright). Body sedikit lebih kecil. */}
+      {/* POLUTED: Sun body shifted ke sickly amber-brown (smog filter).
+          Body lebih kecil lagi — matahari "nembus" smog tipis2 aja. */}
       <mesh>
-        <sphereGeometry args={[1.4, 24, 16]} />
-        <meshBasicMaterial color="#d4a878" toneMapped={false} fog={false} />
+        <sphereGeometry args={[1.2, 24, 16]} />
+        <meshBasicMaterial color="#b88858" toneMapped={false} fog={false} />
       </mesh>
-      {/* Tight halo — muted amber, opacity rendah (debu nyaring) */}
+      {/* Tight halo — dim brown-amber */}
       <mesh>
-        <sphereGeometry args={[2.0, 18, 14]} />
+        <sphereGeometry args={[1.8, 18, 14]} />
         <meshBasicMaterial
-          color="#b88858"
+          color="#8a6440"
           transparent
-          opacity={0.22}
+          opacity={0.18}
           depthWrite={false}
           fog={false}
         />
       </mesh>
-      {/* Soft outer haze — brown-amber, lebih kecil dari canonical */}
+      {/* Soft outer haze — sickly brown, sangat lemah */}
       <mesh ref={outerHaloRef}>
-        <sphereGeometry args={[3.2, 16, 12]} />
+        <sphereGeometry args={[2.8, 16, 12]} />
         <meshBasicMaterial
-          color="#8a6438"
+          color="#5a3e20"
           transparent
-          opacity={0.10}
+          opacity={0.08}
           depthWrite={false}
           fog={false}
         />
@@ -5512,6 +5532,7 @@ const TelagaScene = ({
     {/* Sky layers — dome gradient + sun + far cloud backdrop + high
         birds. Setara r1 multi-layer langit, palette daytime. */}
     <SkyDome />
+    <HorizonSmogBand />
     <Sun />
     <FarClouds isMobile={isMobile} />
     {/* DROUGHT-SKIP: HighBirdFlock — burung tinggi alive */}
