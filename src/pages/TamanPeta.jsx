@@ -40,6 +40,26 @@ import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
+import { subscribeToTreeSupports } from '../lib/treeDb';
+
+// Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
+// di-extract ke shared config nanti). 2000 = gerbang buka, 4000 =
+// r1 canonical restored, peta full pulih.
+const MAP_THRESHOLDS = {
+  mapUnlock: 2000,
+  fullRestore: 4000,
+};
+
+const useArmeniacaProgress = () => {
+  const [state, setState] = useState({ count: 0, loaded: false });
+  useEffect(() => {
+    const unsubscribe = subscribeToTreeSupports((count) => {
+      setState({ count, loaded: true });
+    });
+    return unsubscribe;
+  }, []);
+  return state;
+};
 
 // Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
 // dijaga konsisten supaya keputusan downscale seragam antar halaman
@@ -404,7 +424,14 @@ const FRUIT_POSITIONS = [
 // yang runtuh (city ruins di horizon). Secara modul tetep link ke
 // /26 (Pohon Kebaikan existing). Hover kasih emissive boost di semua
 // foliage cluster, click → navigate.
-const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
+const CenterTree = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
   const groupRef = useRef();
   const foliageMatRefs = useRef([]);
 
@@ -444,6 +471,28 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         onClick?.();
       }}
     >
+      {/* Tap-target hitbox mobile — invisible larger box, thumb-friendly */}
+      {isMobile && (
+        <mesh position={[0, 1.2, 0]} visible={false}>
+          <cylinderGeometry args={[1.3, 1.3, 3, 8]} />
+          <meshBasicMaterial transparent opacity={0} />
+        </mesh>
+      )}
+      {/* Visited halo — green glow ring di base, beda warna dari Gerbang
+          (amber) + Lorong (warm yellow) supaya gampang dibedain. */}
+      {visited && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+          <ringGeometry args={[0.6, 0.7, 32]} />
+          <meshStandardMaterial
+            color="#a8d8b0"
+            emissive="#7aa858"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.55}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
       {/* Stone pedestal di bawah trunk — kasih grandeur, kerasa
           tree didedikasikan / monumental. */}
       <mesh position={[0, 0.04, 0]}>
@@ -516,7 +565,14 @@ const CenterTree = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
 // ujung dalam DroughtRing (radius 9.5) supaya kerasa "di tepi taman"
 // bukan crowding pohon. Camera (9,11,9) tetap nge-frame natural saat
 // fly-in landing.
-const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
+const PetaGerbang = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
   const groupRef = useRef();
   const tiraiLRef = useRef();
   const tiraiRRef = useRef();
@@ -571,6 +627,27 @@ const PetaGerbang = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
         onClick?.();
       }}
     >
+      {/* Invisible tap-target hitbox — diperbesar di mobile biar
+          thumb-friendly. Cover entire gate footprint + margin. */}
+      <mesh position={[0, 2.5, 0]} visible={false}>
+        <boxGeometry args={isMobile ? [7, 6, 2.5] : [5.6, 5.2, 1.5]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      {/* Visited halo — ring di base saat petak udah pernah dikunjungi.
+          Subtle warm glow, gak ganggu visual hierarchy. */}
+      {visited && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+          <ringGeometry args={[2.7, 3.0, 32]} />
+          <meshStandardMaterial
+            color="#f4c478"
+            emissive="#f4a060"
+            emissiveIntensity={0.55}
+            transparent
+            opacity={0.55}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
       {/* Stone bases — warna dinaikin dari #3a2e22 → #6a5440 supaya
           gak hitam mati di ambient peta yg turun ke 0.42 */}
       <mesh position={[-2.2, 0.2, 0]}>
@@ -683,7 +760,14 @@ const LORONG_STONE_DEFS = [
   { pos: [-0.25, 0.06, 2.0], r: 0.3, rot: 1.4 },
   { pos: [0.18, 0.06, 1.0], r: 0.28, rot: 0.6 },
 ];
-const PetaLorongMasuk = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
+const PetaLorongMasuk = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
   const stoneMatRefs = useRef([]);
 
   useFrame((_, delta) => {
@@ -728,13 +812,27 @@ const PetaLorongMasuk = ({ hovered, onPointerOver, onPointerOut, onClick }) => {
           />
         </mesh>
       ))}
-      {/* Hit-area volume — invisible cylinder yg ngecover seluruh path
-          biar hover ke setapak gampang dipick dari kamera isometrik
-          (tanpa harus tepat ke stone kecil). */}
+      {/* Hit-area volume — invisible box ngecover seluruh path. Mobile
+          dimensions dilebarin biar thumb-friendly (1.2 → 2.0 wide). */}
       <mesh position={[0, 0.4, 4]} visible={false}>
-        <boxGeometry args={[1.2, 0.8, 7]} />
+        <boxGeometry args={isMobile ? [2.2, 1.5, 7.5] : [1.2, 0.8, 7]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
+      {/* Visited halo — flat ring sepanjang path saat udah dikunjungi.
+          Ngasih hint "kamu udah masuk ke sini sebelumnya". */}
+      {visited && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 4]}>
+          <ringGeometry args={[1.3, 1.5, 32]} />
+          <meshStandardMaterial
+            color="#fff5c8"
+            emissive="#f4d870"
+            emissiveIntensity={0.45}
+            transparent
+            opacity={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
       <Html
         position={[0, 0.7, 4]}
         center
@@ -2921,18 +3019,24 @@ const TamanScene = ({
       <Moon />
       <CenterTree
         hovered={hoveredCenter}
+        visited={previewedPetak.has('pohon')}
+        isMobile={isMobile}
         onPointerOver={onCenterHover}
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
       />
       <PetaGerbang
         hovered={hoveredGerbang}
+        visited={previewedPetak.has('gerbang')}
+        isMobile={isMobile}
         onPointerOver={onGerbangHover}
         onPointerOut={onGerbangOut}
         onClick={onGerbangClick}
       />
       <PetaLorongMasuk
         hovered={hoveredLorong}
+        visited={previewedPetak.has('lorong')}
+        isMobile={isMobile}
         onPointerOver={onLorongHover}
         onPointerOut={onLorongOut}
         onClick={onLorongClick}
@@ -2970,6 +3074,156 @@ const SceneFallback = () => (
     Memuat peta taman...
   </div>
 );
+
+// Petak metadata buat preview modal — click petak → modal show first,
+// "Lanjut" button → actual navigate. Menghindari accidental navigation
+// + kasih konteks dulu sebelum user pindah halaman.
+const PETA_PETAK_INFO = {
+  gerbang: {
+    id: 'gerbang',
+    name: 'Gerbang',
+    eyebrow: 'Pintu Masuk Kota',
+    longDesc:
+      'Gerbang kayu yang berdiri di tepi Padang Tandus. Lewat sini, peradaban masuk dan keluar dari kota. Sekarang tinggal sisa — pilar kering, kain weathered, dan angin yang membawa debu.',
+    cta: 'Lewati gerbang',
+    route: '/armeniacaTown',
+    accent: '#f4a060',
+  },
+  lorong: {
+    id: 'lorong',
+    name: 'Konstelasi Perjalanan',
+    eyebrow: 'Lorong Masuk',
+    longDesc:
+      'Lorong batu yang dulu jadi jalan utama. Di langit malamnya, milestone perjalanan karier Eli berdiri sebagai konstelasi bintang per era. Walau tanah di bawah rusak, cerita di atas tetap utuh.',
+    cta: 'Masuki lorong',
+    route: '/armeniacaTown/r1',
+    accent: '#fff5c8',
+  },
+  pohon: {
+    id: 'pohon',
+    name: 'Pohon Terakhir',
+    eyebrow: 'Pohon Kebaikan',
+    longDesc:
+      'Satu pohon aprikot yang masih hidup di pusat kota — penjaga harapan terakhir. Setiap siraman komunitas di sini ikut membangkitkan dunia di sekitarnya, sedikit demi sedikit.',
+    cta: 'Siram pohon ini',
+    route: '/26',
+    accent: '#7aa858',
+  },
+};
+
+// PetakPreviewModal — info panel yg muncul saat user click petak.
+// Show name + description + CTA "Lanjut" yang trigger navigate. Modal
+// dismiss via tap luar, button Batal, atau Escape.
+const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
+  if (!petak) return null;
+  return (
+    <div
+      className="absolute inset-0 z-40 flex items-center justify-center px-4 py-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="petak-preview-title"
+    >
+      <div className="absolute inset-0 bg-black/65 backdrop-blur-md" />
+      <div
+        className="relative w-full max-w-md max-h-full overflow-y-auto rounded-2xl border border-white/15 bg-[#1c1614]/92 px-5 py-6 sm:px-7 sm:py-8 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="text-[9px] uppercase tracking-[0.4em] mb-2"
+          style={{ color: petak.accent + 'cc' }}
+        >
+          {petak.eyebrow}
+        </div>
+        <h3
+          id="petak-preview-title"
+          className="text-white text-2xl sm:text-3xl mb-4 leading-tight"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+          }}
+        >
+          {petak.name}
+        </h3>
+        <p
+          className="text-white/75 text-[12px] sm:text-sm leading-relaxed mb-6"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          {petak.longDesc}
+        </p>
+        <div className="flex flex-row gap-2 sm:gap-3 justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/20 text-white/70 text-xs sm:text-sm hover:bg-white/10 transition"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-black text-xs sm:text-sm font-medium hover:bg-white/90 transition"
+          >
+            {petak.cta} →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// PetaRestorationIndicator — bottom-center pill yg live-update dari
+// RTDB tree_support. Show count, threshold next, percent pulih. Bikin
+// user yang udah masuk peta tetep aware sama progress restorasi.
+const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
+  if (modalOpen || !loaded) return null;
+  const fullRestore = MAP_THRESHOLDS.fullRestore;
+  const pct = Math.min(100, (count / fullRestore) * 100);
+  const restored = count >= fullRestore;
+  const nextLabel = restored
+    ? 'Ekosistem pulih sepenuhnya'
+    : `Pulih sepenuhnya di ${fullRestore.toLocaleString('id-ID')}`;
+  return (
+    <div className="pointer-events-none absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[92vw]">
+      <div className="flex flex-col items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">
+        <div className="flex items-center gap-2.5 sm:gap-3 text-[10px] sm:text-[11px] tracking-wider">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-emerald-300/85 flex-shrink-0"
+          >
+            <path
+              d="M12 3C9 6 7 9 7 13a5 5 0 0010 0c0-4-2-7-5-10z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="text-white/85">
+            {count.toLocaleString('id-ID')}
+            <span className="text-white/45"> / {fullRestore.toLocaleString('id-ID')} siraman</span>
+          </span>
+          <span className="text-amber-200/80 font-medium hidden sm:inline">
+            · {Math.round(pct)}% pulih
+          </span>
+        </div>
+        <div className="w-40 sm:w-56 h-px bg-white/15 overflow-hidden rounded-full">
+          <div
+            className={`h-full transition-all duration-700 ease-out ${
+              restored ? 'bg-emerald-300/75' : 'bg-amber-200/65'
+            }`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <p className="text-white/45 text-[9px] sm:text-[10px] tracking-wide italic">
+          {nextLabel}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const TamanHeader = ({ modalOpen = false }) => {
   if (modalOpen) return null;
@@ -3324,11 +3578,14 @@ const TamanPetaPage = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
+  const { count: armeniacaCount, loaded: armeniacaLoaded } =
+    useArmeniacaProgress();
   const [hoveredPetakId, setHoveredPetakId] = useState(null);
   const [hoveredCenter, setHoveredCenter] = useState(false);
   const [hoveredGerbang, setHoveredGerbang] = useState(false);
   const [hoveredLorong, setHoveredLorong] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
+  const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
@@ -3389,7 +3646,7 @@ const TamanPetaPage = () => {
   const handleCenterOut = () => setHoveredCenter(false);
   const handleCenterClick = () => {
     if (flyInActive) return;
-    navigate('/26');
+    setPetakPreview(PETA_PETAK_INFO.pohon);
   };
 
   // Gerbang handlers — petak mini "Gerbang" di selatan pohon, link
@@ -3401,7 +3658,7 @@ const TamanPetaPage = () => {
   const handleGerbangOut = () => setHoveredGerbang(false);
   const handleGerbangClick = () => {
     if (flyInActive) return;
-    navigate('/armeniacaTown');
+    setPetakPreview(PETA_PETAK_INFO.gerbang);
   };
 
   // Lorong Masuk handlers — stepping stones antara gerbang dan pohon,
@@ -3413,7 +3670,25 @@ const TamanPetaPage = () => {
   const handleLorongOut = () => setHoveredLorong(false);
   const handleLorongClick = () => {
     if (flyInActive) return;
-    navigate('/armeniacaTown/r1');
+    setPetakPreview(PETA_PETAK_INFO.lorong);
+  };
+
+  // Modal preview handlers — close (dismiss tanpa navigate) atau
+  // confirm (close modal lalu navigate ke petak route).
+  const handlePetakPreviewClose = () => setPetakPreview(null);
+  const handlePetakPreviewConfirm = () => {
+    if (!petakPreview) return;
+    const { route, id } = petakPreview;
+    setPetakPreview(null);
+    // Mark visited — halo ring akan muncul saat user balik ke peta.
+    setPreviewedPetak((prev) => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      writePreviewed(next);
+      return next;
+    });
+    navigate(route);
   };
 
   return (
@@ -3485,7 +3760,17 @@ const TamanPetaPage = () => {
           </Canvas>
         </Suspense>
 
-        <TamanHeader />
+        <TamanHeader modalOpen={Boolean(petakPreview)} />
+        <PetaRestorationIndicator
+          count={armeniacaCount}
+          loaded={armeniacaLoaded}
+          modalOpen={Boolean(petakPreview)}
+        />
+        <PetakPreviewModal
+          petak={petakPreview}
+          onClose={handlePetakPreviewClose}
+          onConfirm={handlePetakPreviewConfirm}
+        />
         {/* Intro title, restoration indicator, footer hint, dan petak
             detail modal sengaja di-disable selama blank-slate mode.
             Re-enable kalau redesign udah jelas mau pakai komponen mana. */}
