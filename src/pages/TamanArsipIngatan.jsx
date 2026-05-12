@@ -524,7 +524,7 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
             toneMapped={false}
           />
         </mesh>
-        {/* Floating hover label */}
+        {/* Floating hover label dengan card backdrop */}
         {hoveredOpenBook && (
           <Html
             position={[0, 0.3, 0]}
@@ -534,18 +534,39 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
           >
             <div
               style={{
-                fontFamily: '"Fraunces Variable", serif',
-                fontStyle: 'italic',
-                color: 'rgba(255,228,178,0.95)',
-                fontSize: '14px',
+                backgroundColor: 'rgba(20, 14, 8, 0.65)',
+                padding: '5px 12px',
+                borderRadius: '4px',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                border: '1px solid rgba(244, 208, 144, 0.2)',
                 whiteSpace: 'nowrap',
-                textShadow: '0 0 8px rgba(0,0,0,0.8)',
               }}
             >
-              Halaman Terakhir
+              <div
+                style={{
+                  fontFamily: '"Fraunces Variable", serif',
+                  fontStyle: 'italic',
+                  color: 'rgba(255,228,178,0.95)',
+                  fontSize: '14px',
+                }}
+              >
+                Halaman Terakhir
+              </div>
             </div>
           </Html>
         )}
+        {/* Bookmark ribbon — pita kain merah dangling dari edge bawah
+            open book. Detail dekoratif kerasa "sedang dibaca, ada
+            penanda halaman." Static. */}
+        <mesh position={[0.08, -0.005, 0.28]} rotation={[0, 0, 0.03]}>
+          <boxGeometry args={[0.015, 0.006, 0.18]} />
+          <meshStandardMaterial color="#8B4040" roughness={0.85} />
+        </mesh>
+        <mesh position={[0.075, -0.01, 0.4]} rotation={[0.15, 0, 0.05]}>
+          <boxGeometry args={[0.018, 0.005, 0.04]} />
+          <meshStandardMaterial color="#8B4040" roughness={0.85} />
+        </mesh>
       </group>
     </group>
   );
@@ -696,15 +717,25 @@ const Bookshelf = ({
               >
                 <div
                   style={{
-                    fontFamily: '"Fraunces Variable", serif',
-                    fontStyle: 'italic',
-                    color: 'rgba(255,228,178,0.95)',
-                    fontSize: '13px',
+                    backgroundColor: 'rgba(20, 14, 8, 0.65)',
+                    padding: '4px 10px',
+                    borderRadius: '4px',
+                    backdropFilter: 'blur(6px)',
+                    WebkitBackdropFilter: 'blur(6px)',
+                    border: '1px solid rgba(244, 208, 144, 0.2)',
                     whiteSpace: 'nowrap',
-                    textShadow: '0 0 8px rgba(0,0,0,0.9)',
                   }}
                 >
-                  {book.title}
+                  <div
+                    style={{
+                      fontFamily: '"Fraunces Variable", serif',
+                      fontStyle: 'italic',
+                      color: 'rgba(255,228,178,0.95)',
+                      fontSize: '13px',
+                    }}
+                  >
+                    {book.title}
+                  </div>
                 </div>
               </Html>
             )}

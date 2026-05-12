@@ -628,11 +628,11 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
         }
       }}
     >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
+      <div className="arsipBackdropEnter absolute inset-0 bg-black/70 backdrop-blur-md" />
 
       {/* Custom scrollbar styling untuk modal body — biar lebih kerasa
           "buku" daripada default browser. Sepia tone, slim, tanpa
-          arrow buttons. Pakai class arsipBookScroll. */}
+          arrow buttons. Plus entrance animations untuk modal & backdrop. */}
       <style>{`
         .arsipBookScroll::-webkit-scrollbar { width: 6px; }
         .arsipBookScroll::-webkit-scrollbar-track { background: transparent; }
@@ -647,10 +647,30 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
           scrollbar-width: thin;
           scrollbar-color: rgba(139, 64, 64, 0.22) transparent;
         }
+        @keyframes arsipBackdropEnter {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .arsipBackdropEnter {
+          animation: arsipBackdropEnter 280ms ease-out both;
+        }
+        @keyframes arsipModalEnter {
+          from {
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+        .arsipModalEnter {
+          animation: arsipModalEnter 400ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+        }
       `}</style>
 
       <article
-        className="relative w-full max-w-2xl max-h-full flex flex-col rounded-lg sm:rounded-2xl overflow-hidden shadow-2xl"
+        className="arsipModalEnter relative w-full max-w-2xl max-h-full flex flex-col rounded-lg sm:rounded-2xl overflow-hidden shadow-2xl"
         style={{
           backgroundColor: '#FDF6E3',
           // Layered background: SVG fractal noise (paper grain) +
