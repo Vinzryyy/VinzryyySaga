@@ -112,7 +112,8 @@ const lerp = (a, b, t) => a + (b - a) * t;
 // =====================================================================
 
 // Floor — papan kayu lebar. Single plane dengan slight darker grain di
-// edge via overlay sub-plane.
+// edge via overlay sub-plane. Plus rug di tengah bawah meja baca sebagai
+// visual anchor focal point.
 const Floor = () => (
   <group>
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
@@ -129,8 +130,52 @@ const Floor = () => (
         </mesh>
       );
     })}
+    {/* Rug kain pudar di bawah meja baca — kerasa "ada ruang baca yang
+        dipersiapkan." Warna burgundy worn, fringe edge slightly darker. */}
+    <mesh
+      position={[0, 0.005, -0.3]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <planeGeometry args={[3.6, 3.0]} />
+      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+    </mesh>
+    {/* Rug border ring — sedikit lebih gelap, kerasa motif tepi */}
+    <mesh
+      position={[0, 0.006, -0.3]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <ringGeometry args={[1.65, 1.78, 32]} />
+      <meshStandardMaterial color="#3a2228" roughness={0.95} />
+    </mesh>
   </group>
 );
+
+// WallCracks — diagonal dark lines pada dinding plaster (east/west)
+// sebagai hint "weathered ruin" lebih kuat. Sparse, 2-3 per dinding.
+const WallCracks = () => {
+  const cracks = [
+    // East wall (x=+8) — cracks di plaster
+    { pos: [ROOM_W / 2 - 0.11, 3.2, -4], rot: [0, Math.PI / 2, 0.3], size: [0.04, 2.6, 0.02] },
+    { pos: [ROOM_W / 2 - 0.11, 4.0, 2], rot: [0, Math.PI / 2, -0.18], size: [0.03, 1.8, 0.02] },
+    { pos: [ROOM_W / 2 - 0.11, 2.0, 6], rot: [0, Math.PI / 2, 0.5], size: [0.03, 1.2, 0.02] },
+    // South wall, west of door (z=-10)
+    { pos: [-4, 3.5, -ROOM_D / 2 + 0.11], rot: [0, 0, 0.4], size: [0.04, 2.0, 0.02] },
+    // South wall, east of door
+    { pos: [3.5, 4.2, -ROOM_D / 2 + 0.11], rot: [0, 0, -0.25], size: [0.03, 1.6, 0.02] },
+    // West wall (x=-8) south segment
+    { pos: [-ROOM_W / 2 + 0.11, 3.0, -5], rot: [0, Math.PI / 2, -0.3], size: [0.04, 2.2, 0.02] },
+  ];
+  return (
+    <group>
+      {cracks.map((c, i) => (
+        <mesh key={`crack-${i}`} position={c.pos} rotation={c.rot}>
+          <boxGeometry args={c.size} />
+          <meshStandardMaterial color="#2a1812" roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
 
 // Wall — bata pucat dengan plaster terkelupas. Brick wall paksa
 // receiveShadow=false (semua light kita non-shadow).
@@ -258,6 +303,33 @@ const Ceiling = () => {
       </mesh>
       <mesh position={[-5, -0.5, 7]} rotation={[0.3, 0, 0.2]}>
         <boxGeometry args={[0.15, 0.15, 1.5]} />
+        {beamMat}
+      </mesh>
+
+      {/* Visible cross-beams — 4 balok kayu menggantung sedikit di bawah
+          ceiling, paralel sumbu X. Kasih architectural depth saat user
+          ngeliat ke atas (atau dari camera elevated). Posisi z: -7, -2,
+          3, 8 (hindari hole z=4..8 di pojok NW, balok z=3 dan z=8 cuma
+          render di sisi yang gak overlap dengan hole). */}
+      {[
+        { z: -7, fullSpan: true },
+        { z: -2, fullSpan: true },
+        { z: 3, fullSpan: true },
+        // z=8 cuma render dari x:-2..8 (sisi timur, hindari hole) +
+        // x:-8..-6 (segmen kecil di luar hole)
+      ].map((b, i) => (
+        <mesh key={`beam-full-${i}`} position={[0, -0.18, b.z]}>
+          <boxGeometry args={[ROOM_W - 0.4, 0.18, 0.18]} />
+          {beamMat}
+        </mesh>
+      ))}
+      {/* Beam z=8 split: sisi timur (panjang) + sisi barat (pendek) */}
+      <mesh position={[3, -0.18, 8]}>
+        <boxGeometry args={[10, 0.18, 0.18]} />
+        {beamMat}
+      </mesh>
+      <mesh position={[-7, -0.18, 8]}>
+        <boxGeometry args={[2, 0.18, 0.18]} />
         {beamMat}
       </mesh>
     </group>
@@ -523,16 +595,24 @@ const Bookshelf = ({
         <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
       </mesh>
 
-      {/* Books on shelves */}
+      {/* Books on shelves — spine height & width sedikit di-variate per
+          book (deterministic per id) supaya rak gak kerasa robotic uniform.
+          Per-book offset: height 0.42-0.52, width 0.12-0.16. */}
       {slots.map((slot, i) => {
         const book = books[i];
         if (!book) return null;
         const hovered = hoveredId === book.id;
         const read = readIds.has(book.id);
+        const variant = hashSeed(book.id);
+        const spineH = 0.42 + variant * 0.1;
+        const spineW = 0.12 + hashSeed(`${book.id}-w`) * 0.04;
+        // Anchor base ke posisi shelf, biar buku pendek/tinggi dasarnya
+        // sama-rata di rak (gak ngambang).
+        const yAdjust = (spineH - 0.5) / 2;
         return (
           <group
             key={book.id}
-            position={[slot.x, slot.y + (hovered ? 0.03 : 0), slot.z]}
+            position={[slot.x, slot.y + yAdjust + (hovered ? 0.03 : 0), slot.z]}
             onPointerOver={(e) => {
               e.stopPropagation();
               onHover?.(book.id);
@@ -548,7 +628,7 @@ const Bookshelf = ({
             }}
           >
             <mesh>
-              <boxGeometry args={[0.14, 0.5, 0.36]} />
+              <boxGeometry args={[spineW, spineH, 0.36]} />
               <meshStandardMaterial
                 color={book.spineColor}
                 emissive={hovered ? COLORS.spineHover : '#000'}
@@ -721,6 +801,63 @@ const DustMotes = ({ count, isMobile }) => {
   );
 };
 
+// FallenBookPile — drought-only narrative detail. Tumpukan buku yang
+// jatuh dari rak W tumbang, berhamburan di lantai sekitar rak. Bukan
+// interactive — purely visual storytelling "buku-buku tumpah pas rak
+// runtuh." Restored state: papan-papan disusun balik, pile ilang.
+const FallenBookPile = () => {
+  const books = useMemo(() => {
+    const arr = [];
+    const seedColors = ['#7a3030', '#5a4030', '#3a4858', '#c8a060', '#5a3025', '#7a5840'];
+    // Cluster di sekitar rak W (x:-6.5, z:2). 10 buku scattered dalam
+    // radius ~1.5 unit, mixed orientation (some flat, some leaning).
+    for (let i = 0; i < 10; i++) {
+      const seed = hashSeed(`fbp-${i}`);
+      const seedR = hashSeed(`fbp-r-${i}`);
+      const seedA = hashSeed(`fbp-a-${i}`);
+      const r = 0.6 + seedR * 1.2;
+      const a = seedA * Math.PI * 2;
+      arr.push({
+        x: -6.5 + Math.cos(a) * r,
+        z: 2 + Math.sin(a) * r,
+        rotY: seed * Math.PI * 2,
+        rotZ: (seed - 0.5) * 0.3,
+        color: seedColors[Math.floor(seed * seedColors.length)],
+        flat: seed > 0.4,
+      });
+    }
+    return arr;
+  }, []);
+
+  return (
+    <group>
+      {books.map((b, i) =>
+        b.flat ? (
+          // Flat (terbuka, tersungkur ke lantai)
+          <mesh
+            key={`fb-${i}`}
+            position={[b.x, 0.04, b.z]}
+            rotation={[0, b.rotY, b.rotZ]}
+          >
+            <boxGeometry args={[0.28, 0.06, 0.2]} />
+            <meshStandardMaterial color={b.color} roughness={0.9} />
+          </mesh>
+        ) : (
+          // Standing / leaning (slight tilt)
+          <mesh
+            key={`fb-${i}`}
+            position={[b.x, 0.12, b.z]}
+            rotation={[(b.rotZ || 0) * 0.5, b.rotY, b.rotZ * 1.5]}
+          >
+            <boxGeometry args={[0.1, 0.24, 0.16]} />
+            <meshStandardMaterial color={b.color} roughness={0.9} />
+          </mesh>
+        ),
+      )}
+    </group>
+  );
+};
+
 // Wall sconces — only restored. 4 lentera dinding nyala redup.
 const WallSconces = () => {
   const sconces = [
@@ -854,9 +991,11 @@ const ArsipScene = ({
       <Floor />
       <Walls restored={restored} />
       <Ceiling />
+      <WallCracks />
       <GodRayCone restored={restored} />
       <DustMotes count={200} isMobile={isMobile} />
       <PaperDrift count={restored ? 4 : 14} isMobile={isMobile} />
+      {!restored && <FallenBookPile />}
       {restored && <WallSconces />}
 
       <ReadingTable
