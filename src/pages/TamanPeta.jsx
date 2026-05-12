@@ -3194,6 +3194,51 @@ const PetaFootprintTrail = ({ start, end, count = 9 }) => {
     </>
   );
 };
+// PrasastiQuote — 1 baris puisi pendek floating di lokasi tertentu,
+// kerasa kayak prasasti weathered. Pakai Html drei dgn distanceFactor
+// + occlude false. Subtle italic, warna faded supaya ngebaur ambient
+// scene (bukan teriak attention). 3 spot scattered per worldbuilding
+// fragmen — fans nemuin saat orbit kamera.
+const PrasastiQuote = ({ pos, text }) => (
+  <Html
+    position={pos}
+    center
+    distanceFactor={11}
+    occlude={false}
+    style={{ pointerEvents: 'none' }}
+  >
+    <div
+      className="text-white/40 text-[10px] sm:text-[11px] tracking-wide whitespace-nowrap select-none"
+      style={{
+        fontFamily: '"Fraunces Variable", serif',
+        fontStyle: 'italic',
+        textShadow: '0 1px 3px rgba(0,0,0,0.6)',
+      }}
+    >
+      — {text} —
+    </div>
+  </Html>
+);
+const PrasastiQuotes = () => (
+  <>
+    {/* Dekat gerbang (south, [0,0,8]) — di samping kiri jalan */}
+    <PrasastiQuote
+      pos={[3.5, 0.4, 9]}
+      text="Apa yang dibangun dari cinta, gak hilang"
+    />
+    {/* Dekat center tree — di samping kanan, slightly elevated */}
+    <PrasastiQuote
+      pos={[2.2, 0.4, -1.8]}
+      text="Yang setia, ditunggu kembalinya"
+    />
+    {/* Dekat telaga (west, [-7,0,-1]) — antara center dan telaga */}
+    <PrasastiQuote
+      pos={[-4.5, 0.4, 1.5]}
+      text="Setiap teratai, satu doa yang gak dilupakan"
+    />
+  </>
+);
+
 // CompassTracker — inside-Canvas component yg baca camera azimuth tiap
 // frame dan update DOM ref rotation imperatively (avoid React re-render
 // per frame). Compass DOM widget di luar Canvas pakai ref ini.
@@ -3626,6 +3671,8 @@ const TamanScene = ({
       <HoverHalo pos={[0, 0.02, 4]} visible={hoveredLorong} color="#e8b878" />
       <HoverHalo pos={[-7, 0.02, -1]} visible={hoveredTelaga} color="#8ac8e0" />
       <CompassTracker targetRef={compassRotateRef} />
+      {/* Prasasti quotes — 3 fragmen worldbuilding scattered di scene */}
+      <PrasastiQuotes />
       {/* Dead-town environment re-enabled — CityRuins di luar hex ring
           (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
           SandDust + HighDustShimmer (debu beterbangan = kerasa angin
