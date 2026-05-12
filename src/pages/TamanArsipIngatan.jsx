@@ -12,14 +12,14 @@
  * src/data/arsipBooks.js. Konstelasi tampilkan title bintang;
  * Perpustakaan buka body-nya sebagai halaman.
  *
- * State: prop `restored` dari RouteChooser di App.jsx.
- *   drought  (2000 ≤ count < 5000) — rak W tumbang, rak E miring,
- *                                    papers berserakan, 6 buku interactive
- *   restored (count ≥ 5000)        — rak tegak, papers settled,
- *                                    11 buku interactive
- *
- * Tidak ada locked tier — Arsip selaras dengan Konstelasi (pasangan
- * langit-halaman). Jika langit accessible, halaman juga accessible.
+ * State: prop `restored` dari RouteChooser di App.jsx (3-tier gating,
+ * mirror Telaga). Page sendiri cuma render drought/restored — locked
+ * tier ditangani di chooser (redirect ke /armeniacaTown/peta).
+ *   locked   (count < 5000)         — chooser redirect ke peta
+ *   drought  (5000 ≤ count < 7000)  — rak W tumbang, rak E miring,
+ *                                     papers berserakan, 6 buku interactive
+ *   restored (count ≥ 7000)         — rak tegak, papers settled,
+ *                                     11 buku interactive
  *
  * Beda dari pattern r1/r3 (dua file gersang + restored): Arsip diff
  * antar state-nya kecil (rotasi rak + paper count + lighting + book

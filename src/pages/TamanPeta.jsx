@@ -45,14 +45,17 @@ import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
-// 4000 = r1 restored + r3 unlocked drought, 5000 = r2 (Arsip) restored,
-// 6000 = r3 restored (ekosistem pulih penuh).
+// 4000 = r1 restored + r3 unlocked drought, 5000 = r2 (Perpustakaan)
+// unlocked drought, 6000 = r3 restored, 7000 = r2 restored (pulih
+// penuh — milestone akhir).
 const MAP_THRESHOLDS = {
   mapUnlock: 2000,
   r1Restore: 4000,
   r3Unlock: 4000,
-  r2Restore: 5000,
-  fullRestore: 6000,
+  r2Unlock: 5000,
+  r3Restore: 6000,
+  r2Restore: 7000,
+  fullRestore: 7000,
 };
 
 const useArmeniacaProgress = () => {
@@ -1053,17 +1056,19 @@ const PetaTelaga = ({
 // PetaArsip — petak r2 di sisi timur peta (x=+7), mirror Telaga di
 // barat. Visual: bangunan perpustakaan mini dengan pojok atap hilang
 // (atap jebol signature) + 4 paper plane mengambang di sekitarnya.
-// 2 state berdasarkan tree support count:
-//   drought  (2000-4999) — paper berserakan random drift, atap rusak,
-//                          tidak ada glow dari dalam
-//   restored (>=5000)    — paper drift teratur orbit, atap masih jebol
-//                          (luka kota gak dihapus), warm window glow
-//                          dari dalam ruangan
+// 3 state berdasarkan tree support count:
+//   locked   (count < 5000)  — bangunan muted opacity + lock cube di doorway,
+//                              interior buku & glow disembunyiin
+//   drought  (5000-6999)     — paper berserakan random drift, atap rusak,
+//                              tidak ada glow dari dalam
+//   restored (>=7000)        — paper drift teratur orbit, atap masih jebol
+//                              (luka kota gak dihapus), warm window glow
+//                              dari dalam ruangan
 const PetaArsip = ({
   hovered,
   visited = false,
   isMobile = false,
-  petakState = 'drought',
+  petakState = 'locked',
   onPointerOver,
   onPointerOut,
   onClick,
@@ -1073,7 +1078,7 @@ const PetaArsip = ({
 
   useFrame((state, delta) => {
     if (groupRef.current) {
-      const targetY = hovered ? 0.25 : 0;
+      const targetY = hovered && petakState !== 'locked' ? 0.25 : 0;
       const factor = Math.min(delta * 8, 1);
       groupRef.current.position.y = lerp(
         groupRef.current.position.y,
@@ -1087,6 +1092,11 @@ const PetaArsip = ({
         0.22 + Math.sin(t * 0.6) * 0.06;
     }
   });
+
+  // Locked: building muted (translucent), interior decals hidden, lock cube
+  // di depan doorway. Mirror PetaTelaga locked treatment.
+  const baseOpacity = petakState === 'locked' ? 0.55 : 1;
+  const isLocked = petakState === 'locked';
 
   return (
     <group
@@ -1116,8 +1126,9 @@ const PetaArsip = ({
           Telaga (radius rim ~1.6) di sisi timur — bangunan jadi sekitar
           2.5 × 2.1 × 2.4 footprint dari sebelumnya 1.6 × 1.3 × 1.4. */}
       <group scale={1.6}>
-        {/* Visited halo — sepia ring di base saat udah dikunjungi */}
-        {visited && (
+        {/* Visited halo — sepia ring di base saat udah dikunjungi.
+            Skip kalau locked (consistent dgn Telaga locked behavior). */}
+        {visited && !isLocked && (
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
             <ringGeometry args={[1.05, 1.2, 32]} />
             <meshStandardMaterial
@@ -1136,7 +1147,12 @@ const PetaArsip = ({
             kerasa "weathered ruin" bukan landmark utama). */}
         <mesh position={[0, 0.1, 0]}>
           <boxGeometry args={[1.6, 0.2, 1.3]} />
-          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+          <meshStandardMaterial
+            color="#3a2820"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
 
         {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong.
@@ -1144,76 +1160,112 @@ const PetaArsip = ({
             biar gak nge-glow di scene yang dusty. */}
         <mesh position={[0.6, 0.65, 0]}>
           <boxGeometry args={[0.12, 0.9, 1.3]} />
-          <meshStandardMaterial color="#4a3528" roughness={0.95} />
+          <meshStandardMaterial
+            color="#4a3528"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
         <mesh position={[0, 0.65, -0.6]}>
           <boxGeometry args={[1.32, 0.9, 0.12]} />
-          <meshStandardMaterial color="#5a4030" roughness={0.95} />
+          <meshStandardMaterial
+            color="#5a4030"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
         <mesh position={[0, 0.65, 0.6]}>
           <boxGeometry args={[1.32, 0.9, 0.12]} />
-          <meshStandardMaterial color="#5a4030" roughness={0.95} />
+          <meshStandardMaterial
+            color="#5a4030"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
         <mesh position={[-0.6, 0.4, -0.3]}>
           <boxGeometry args={[0.12, 0.4, 0.6]} />
-          <meshStandardMaterial color="#4a3528" roughness={0.95} />
-        </mesh>
-
-        {/* Doorway frame di celah front wall (-x side, opening z=0..0.6).
-            2 vertical pillars + top beam — kerasa "ini pintu masuk
-            perpustakaan" dari kejauhan, bukan sekadar dinding rusak. */}
-        <mesh position={[-0.66, 0.45, 0.55]}>
-          <boxGeometry args={[0.06, 0.5, 0.06]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <mesh position={[-0.66, 0.45, 0.05]}>
-          <boxGeometry args={[0.06, 0.5, 0.06]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <mesh position={[-0.66, 0.78, 0.3]}>
-          <boxGeometry args={[0.06, 0.08, 0.6]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-
-        {/* Sign plaque di atas doorway — papan kayu kecil yang menggantung.
-            Tone match doorway frame. Di restored, sedikit lebih bright
-            hint "ada yang nyalakan plang lagi". */}
-        <mesh position={[-0.72, 0.93, 0.3]}>
-          <boxGeometry args={[0.03, 0.15, 0.32]} />
           <meshStandardMaterial
-            color={petakState === 'restored' ? '#7a5a40' : '#4a3528'}
-            roughness={0.85}
+            color="#4a3528"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
           />
         </mesh>
-        {/* 2 string tipis nyatuin plaque ke top beam */}
-        <mesh position={[-0.69, 0.86, 0.2]}>
-          <boxGeometry args={[0.012, 0.05, 0.012]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <mesh position={[-0.69, 0.86, 0.4]}>
-          <boxGeometry args={[0.012, 0.05, 0.012]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
 
-        {/* Tumpukan buku samar di interior, visible lewat doorway.
-            3 buku — 2 ditumpuk horizontal + 1 berdiri leaning. Spine
-            colors muted (match peta dusty palette, gak loud). */}
-        <mesh position={[-0.35, 0.27, 0.3]} rotation={[0, 0.2, 0]}>
-          <boxGeometry args={[0.18, 0.05, 0.13]} />
-          <meshStandardMaterial color="#5a3025" roughness={0.9} />
-        </mesh>
-        <mesh position={[-0.34, 0.32, 0.32]} rotation={[0, -0.1, 0.05]}>
-          <boxGeometry args={[0.17, 0.05, 0.12]} />
-          <meshStandardMaterial color="#3a3858" roughness={0.9} />
-        </mesh>
-        <mesh position={[-0.28, 0.39, 0.42]} rotation={[0, 0.6, 0.4]}>
-          <boxGeometry args={[0.12, 0.18, 0.04]} />
-          <meshStandardMaterial color="#5a4830" roughness={0.9} />
-        </mesh>
+        {/* Doorway frame + sign plaque + interior books — skip kalau
+            locked. Building shape doang yang muncul (silhouette), detail
+            "ada kehidupan di dalam" disembunyiin sampai unlock. */}
+        {!isLocked && (
+          <>
+            {/* Doorway frame di celah front wall (-x side, opening z=0..0.6).
+                2 vertical pillars + top beam — kerasa "ini pintu masuk
+                perpustakaan" dari kejauhan, bukan sekadar dinding rusak. */}
+            <mesh position={[-0.66, 0.45, 0.55]}>
+              <boxGeometry args={[0.06, 0.5, 0.06]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+            <mesh position={[-0.66, 0.45, 0.05]}>
+              <boxGeometry args={[0.06, 0.5, 0.06]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+            <mesh position={[-0.66, 0.78, 0.3]}>
+              <boxGeometry args={[0.06, 0.08, 0.6]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+
+            {/* Sign plaque di atas doorway — papan kayu kecil yang menggantung.
+                Tone match doorway frame. Di restored, sedikit lebih bright
+                hint "ada yang nyalakan plang lagi". */}
+            <mesh position={[-0.72, 0.93, 0.3]}>
+              <boxGeometry args={[0.03, 0.15, 0.32]} />
+              <meshStandardMaterial
+                color={petakState === 'restored' ? '#7a5a40' : '#4a3528'}
+                roughness={0.85}
+              />
+            </mesh>
+            {/* 2 string tipis nyatuin plaque ke top beam */}
+            <mesh position={[-0.69, 0.86, 0.2]}>
+              <boxGeometry args={[0.012, 0.05, 0.012]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+            <mesh position={[-0.69, 0.86, 0.4]}>
+              <boxGeometry args={[0.012, 0.05, 0.012]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+
+            {/* Tumpukan buku samar di interior, visible lewat doorway.
+                3 buku — 2 ditumpuk horizontal + 1 berdiri leaning. Spine
+                colors muted (match peta dusty palette, gak loud). */}
+            <mesh position={[-0.35, 0.27, 0.3]} rotation={[0, 0.2, 0]}>
+              <boxGeometry args={[0.18, 0.05, 0.13]} />
+              <meshStandardMaterial color="#5a3025" roughness={0.9} />
+            </mesh>
+            <mesh position={[-0.34, 0.32, 0.32]} rotation={[0, -0.1, 0.05]}>
+              <boxGeometry args={[0.17, 0.05, 0.12]} />
+              <meshStandardMaterial color="#3a3858" roughness={0.9} />
+            </mesh>
+            <mesh position={[-0.28, 0.39, 0.42]} rotation={[0, 0.6, 0.4]}>
+              <boxGeometry args={[0.12, 0.18, 0.04]} />
+              <meshStandardMaterial color="#5a4830" roughness={0.9} />
+            </mesh>
+          </>
+        )}
+
+        {/* Lock cube di depan doorway — sinyal visual "belum bisa masuk",
+            mirror Telaga locked treatment. */}
+        {isLocked && (
+          <mesh position={[-0.5, 0.45, 0.3]}>
+            <boxGeometry args={[0.18, 0.18, 0.1]} />
+            <meshStandardMaterial color="#5a5048" roughness={1} />
+          </mesh>
+        )}
 
         {/* Window — restored state nyala warm tapi intensity diturunin
             0.4 → 0.22 supaya hint glow, bukan dominate scene. Drought:
-            gelap solid. */}
+            gelap solid. Locked: solid + muted opacity (gak ada glow). */}
         <mesh position={[0.54, 0.6, 0]}>
           <boxGeometry args={[0.04, 0.35, 0.5]} />
           <meshStandardMaterial
@@ -1222,6 +1274,8 @@ const PetaArsip = ({
             emissive={petakState === 'restored' ? '#d49060' : '#000000'}
             emissiveIntensity={petakState === 'restored' ? 0.22 : 0}
             roughness={0.6}
+            transparent
+            opacity={baseOpacity}
           />
         </mesh>
 
@@ -1229,37 +1283,64 @@ const PetaArsip = ({
             tidak ditutup (atap jebol signature). */}
         <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
           <boxGeometry args={[1.1, 0.08, 1.4]} />
-          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+          <meshStandardMaterial
+            color="#3a2820"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
         <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
           <boxGeometry args={[0.5, 0.06, 0.06]} />
-          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+          <meshStandardMaterial
+            color="#3a2820"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
         <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
           <boxGeometry args={[0.06, 0.06, 0.4]} />
-          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+          <meshStandardMaterial
+            color="#3a2820"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
         </mesh>
       </group>
 
       <Html position={[0, 2.3, 0]} center distanceFactor={10} occlude={false}>
         <div
           className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
-            hovered ? '-translate-y-1' : ''
+            hovered && !isLocked ? '-translate-y-1' : ''
           }`}
         >
           <div
             className={`text-[11px] font-medium tracking-wide transition-colors ${
-              hovered ? 'text-white' : 'text-white/80'
+              isLocked
+                ? 'text-white/45'
+                : hovered
+                ? 'text-white'
+                : 'text-white/80'
             }`}
           >
             Perpustakaan
           </div>
           <div
             className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
-              hovered ? 'text-amber-200/85' : 'text-white/55'
+              isLocked
+                ? 'text-white/30'
+                : hovered
+                ? 'text-amber-200/85'
+                : 'text-white/55'
             }`}
           >
-            {petakState === 'restored' ? 'Rak berdiri lagi' : 'Setengah runtuh'}
+            {petakState === 'restored'
+              ? 'Rak berdiri lagi'
+              : petakState === 'drought'
+              ? 'Setengah runtuh'
+              : 'Belum terbuka'}
           </div>
         </div>
       </Html>
@@ -4064,8 +4145,18 @@ const PETA_PETAK_INFO = {
     route: '/armeniacaTown/r3',
     accent: '#a8c8e0',
   },
-  // Arsip Ingatan punya 2 varian copy karena 2 state — drought sejak
-  // peta open (gak ada locked), restored saat count >= 5000.
+  // Perpustakaan punya 3 varian copy karena 3 state — pilih varian di
+  // handler berdasarkan arsipState computed dari count.
+  arsipLocked: {
+    id: 'arsip',
+    name: 'Perpustakaan',
+    eyebrow: 'Belum terbuka',
+    longDesc:
+      'Perpustakaan kota di timur ini masih terkunci. Pintunya nungguin 5.000 kebaikan terkumpul di Pohon. Sampai saat itu — halaman-halamannya tertidur dulu.',
+    cta: 'Siram di /26',
+    route: '/26',
+    accent: '#9aa0a8',
+  },
   arsipDrought: {
     id: 'arsip',
     name: 'Perpustakaan',
@@ -4162,11 +4253,14 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
   // restorasi, bukan cuma "X dari Y". Tone match intro/petak (cerita-
   // rakyat omniscient, simple casual Indonesian).
   const nextLabel = (() => {
-    if (count >= fullRestore) return 'Air kembali ke telaga. Kota hidup.';
-    if (count >= MAP_THRESHOLDS.r2Restore)
-      return 'Rak perpustakaan berdiri lagi. Tinggal telaga yang nungguin air.';
+    if (count >= fullRestore)
+      return 'Rak perpustakaan berdiri lagi. Kota pulih sepenuhnya.';
+    if (count >= MAP_THRESHOLDS.r3Restore)
+      return 'Telaga terisi air, teratai mekar. Lanjut ke 7.000 untuk perpustakaan pulih.';
+    if (count >= MAP_THRESHOLDS.r2Unlock)
+      return 'Perpustakaan terbuka — rak masih runtuh. Lanjut ke 6.000 untuk telaga pulih.';
     if (count >= MAP_THRESHOLDS.r3Unlock)
-      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 5.000 untuk arsip pulih.';
+      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 5.000 untuk perpustakaan buka.';
     if (count >= MAP_THRESHOLDS.mapUnlock)
       return 'Peta terbuka — kota mulai inget bentuknya. Lanjut ke 4.000 untuk lorong & telaga.';
     return `Pulih sepenuhnya di ${fullRestore.toLocaleString('id-ID')}`;
@@ -4583,16 +4677,17 @@ const TamanPetaPage = () => {
   //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
   const telagaState = useMemo(() => {
     if (!armeniacaLoaded) return 'locked';
-    if (armeniacaCount >= MAP_THRESHOLDS.fullRestore) return 'restored';
+    if (armeniacaCount >= MAP_THRESHOLDS.r3Restore) return 'restored';
     if (armeniacaCount >= MAP_THRESHOLDS.r3Unlock) return 'drought';
     return 'locked';
   }, [armeniacaCount, armeniacaLoaded]);
-  // Arsip visual state — drought sejak peta open (gak ada locked),
-  // restored saat count >= 5000.
+  // Arsip visual state (mirror Telaga 3-tier):
+  //   <5000 = locked, 5000-6999 = drought, >=7000 = restored
   const arsipState = useMemo(() => {
-    if (!armeniacaLoaded) return 'drought';
+    if (!armeniacaLoaded) return 'locked';
     if (armeniacaCount >= MAP_THRESHOLDS.r2Restore) return 'restored';
-    return 'drought';
+    if (armeniacaCount >= MAP_THRESHOLDS.r2Unlock) return 'drought';
+    return 'locked';
   }, [armeniacaCount, armeniacaLoaded]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
@@ -4712,7 +4807,7 @@ const TamanPetaPage = () => {
   };
 
   // Arsip handlers — perpustakaan di timur (mirror Telaga). Preview info
-  // dipilih dari 2 varian (drought/restored) berdasarkan computed arsipState.
+  // dipilih dari 3 varian (locked/drought/restored) berdasarkan computed arsipState.
   const handleArsipHover = () => {
     if (flyInActive) return;
     setHoveredArsip(true);
@@ -4723,7 +4818,9 @@ const TamanPetaPage = () => {
     const info =
       arsipState === 'restored'
         ? PETA_PETAK_INFO.arsipRestored
-        : PETA_PETAK_INFO.arsipDrought;
+        : arsipState === 'drought'
+        ? PETA_PETAK_INFO.arsipDrought
+        : PETA_PETAK_INFO.arsipLocked;
     setPetakPreview(info);
   };
 

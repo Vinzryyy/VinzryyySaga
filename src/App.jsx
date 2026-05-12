@@ -139,11 +139,13 @@ const ScrollManager = () => {
 // Override hanya berlaku di chooser r1 / r3 (gak nge-unlock map).
 const MAP_UNLOCK_THRESHOLD = 2000;
 const R1_RESTORATION_THRESHOLD = 4000;
-// r2 (Arsip Ingatan) — pattern sama dengan r1: accessible saat peta
-// terbuka (>=2000), drought sampai 4999, restored di 5000. Mengisi gap
-// pacing antara r1 restored (4000) dan r3 restored (6000) — tiap 1000
-// count ada milestone restorasi.
-const R2_RESTORATION_THRESHOLD = 5000;
+// r2 (Perpustakaan) — pattern sama dengan r3: punya unlock tier sendiri.
+// Locked <5000 (redirect ke peta), drought 5000-6999 (perpustakaan buka
+// tapi masih runtuh), restored di 7000 (purify). Milestone pacing:
+// 4000 r1 restore + r3 unlock, 5000 r2 unlock, 6000 r3 restore, 7000 r2
+// restore — tiap 1000 count satu milestone.
+const R2_UNLOCK_THRESHOLD = 5000;
+const R2_RESTORATION_THRESHOLD = 7000;
 const R3_UNLOCK_THRESHOLD = 4000;
 const R3_RESTORATION_THRESHOLD = 6000;
 
@@ -211,13 +213,14 @@ const TamanPetaRouteGuard = () => {
 //   count >= 6000 → render canonical (TamanKolamKata)
 // Dev override ?restoration=0|1 paksa pilih variant (gak bypass unlock —
 // route guard pakai R3_UNLOCK_THRESHOLD, terpisah dari restorasi).
-// r2 (Arsip Ingatan) chooser — accessible bareng peta (>=2000), gak
-// punya locked tier (selaras r1). Drought sampai 4999, restored di
-// 5000. Pakai single file dengan prop `restored` (beda dari r1/r3 yang
-// chooser-nya swap component file).
-//
-// Pre-peta (count < 2000) akses langsung /armeniacaTown/r2 di-redirect
-// ke /armeniacaTown — sama treatment dengan r1/r3 sebelum peta open.
+// r2 (Perpustakaan) chooser — punya unlock tier (selaras r3):
+//   count < 5000 → redirect ke /armeniacaTown/peta (perpustakaan locked)
+//   5000-6999    → drought (perpustakaan buka, rak runtuh, sebagian halaman)
+//   count >= 7000 → restored (purify — rak berdiri lagi, kupu-kupu, glow)
+// Pakai single file dengan prop `restored` (beda dari r1/r3 yang
+// chooser-nya swap component file). Dev override ?restoration=0|1
+// paksa pilih variant (bypass unlock). ?unlock=1 buka drought variant
+// walau count belum 5000.
 const TamanR2RouteChooser = () => {
   const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
@@ -236,8 +239,8 @@ const TamanR2RouteChooser = () => {
     return <TamanArsipIngatanPage restored={false} />;
   }
   if (!loaded) return <PageLoader />;
-  if (count < MAP_UNLOCK_THRESHOLD) {
-    return <Navigate to="/armeniacaTown" replace />;
+  if (count < R2_UNLOCK_THRESHOLD) {
+    return <Navigate to="/armeniacaTown/peta" replace />;
   }
   const restored = count >= R2_RESTORATION_THRESHOLD;
   return <TamanArsipIngatanPage restored={restored} />;
