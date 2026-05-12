@@ -2436,7 +2436,11 @@ const BookPedestalsNearMeja = ({
         const angle = PEDESTAL_ANGLES[book.id];
         if (angle == null) return null;
         const rad = (angle * Math.PI) / 180;
-        const r = 2.4;
+        // Radius push 2.4 → 3.0 supaya floor books drought gak overlap
+        // visual dengan meja utama (edge max x=1.2). Restored pakai
+        // radius sama supaya layout consistent — pedestals juga jauh
+        // dari meja.
+        const r = 3.0;
         const x = Math.cos(rad) * r;
         const z = Math.sin(rad) * r;
         const hovered = hoveredId === book.id;
