@@ -662,18 +662,21 @@ const Bookshelf = ({
               />
             </mesh>
             {/* Indicator orb di atas buku — petunjuk visual "klik aku".
-                toneMapped=false + warna hangat bikin Bloom amplify jadi
-                glowing dot kerasa kayak lentera kecil mengambang. Material
-                ref di-track buat pulse animation di parent useFrame. */}
+                Unread: gold warm pulsing, "look at me." Read: muted
+                blue-grey lebih kecil, "udah dibuka tapi tetep ada di
+                rak." Material ref di-track buat pulse animation di
+                parent useFrame. */}
             <mesh position={[0, spineH / 2 + 0.16, 0.1]}>
-              <sphereGeometry args={[0.035, 10, 8]} />
+              <sphereGeometry
+                args={[read ? 0.022 : 0.035, 10, 8]}
+              />
               <meshBasicMaterial
                 ref={(el) => {
                   indicatorRefs.current[i] = el;
                 }}
-                color="#f4d090"
+                color={read ? '#88a8c0' : '#f4d090'}
                 transparent
-                opacity={hovered ? 1 : 0.85}
+                opacity={hovered ? 1 : read ? 0.6 : 0.85}
                 toneMapped={false}
               />
             </mesh>
@@ -2110,34 +2113,15 @@ const Tapestry = ({ restored }) => (
   </group>
 );
 
-// 17. PlantPot — pot kecil di lantai, antara meja & rak NE
+// 17. PlantPot — pot kecil di lantai, antara meja & rak NE.
+// Restored: tunas hijau dengan 3 daun yang sway pelan via useFrame.
 const PlantPot = ({ restored }) => (
   <group position={[3.5, 0, 4]}>
     <mesh position={[0, 0.15, 0]}>
       <cylinderGeometry args={[0.16, 0.12, 0.3, 12]} />
       <meshStandardMaterial color="#7a4030" roughness={0.85} />
     </mesh>
-    {restored ? (
-      <group position={[0, 0.32, 0]}>
-        {/* Main stem */}
-        <mesh position={[0, 0.1, 0]}>
-          <cylinderGeometry args={[0.018, 0.022, 0.22, 6]} />
-          <meshStandardMaterial color="#4a7a3a" roughness={0.85} />
-        </mesh>
-        {/* Leaves */}
-        {[
-          { x: 0.06, y: 0.15, rot: [0, 0, -0.6] },
-          { x: -0.06, y: 0.1, rot: [0, 0, 0.65] },
-          { x: 0.04, y: 0.21, rot: [0, 0.5, -0.3] },
-        ].map((leaf, i) => (
-          <mesh key={`lf-${i}`} position={[leaf.x, leaf.y, 0]} rotation={leaf.rot}>
-            <planeGeometry args={[0.1, 0.05]} />
-            <meshStandardMaterial color="#5a8a4a" roughness={0.85} side={THREE.DoubleSide} />
-          </mesh>
-        ))}
-      </group>
-    ) : (
-      // Drought: dead stem
+    {restored ? <PlantLeaves /> : (
       <mesh position={[0.04, 0.42, 0]} rotation={[0, 0, 0.7]}>
         <cylinderGeometry args={[0.012, 0.018, 0.25, 6]} />
         <meshStandardMaterial color="#3a2418" roughness={0.95} />
@@ -2145,6 +2129,51 @@ const PlantPot = ({ restored }) => (
     )}
   </group>
 );
+
+// PlantLeaves — extracted dari PlantPot supaya bisa add useFrame sway
+// animation. Tiap daun rotate sedikit pakai sin offset per leaf id.
+const PlantLeaves = () => {
+  const leafRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    leafRefs.current.forEach((ref, i) => {
+      if (!ref) return;
+      const phase = i * 1.3;
+      const sway = Math.sin(t * 0.8 + phase) * 0.08;
+      ref.rotation.z = leafRefs.current[i].userData.baseRotZ + sway;
+    });
+  });
+  const leaves = [
+    { x: 0.06, y: 0.15, baseRotZ: -0.6, rotY: 0 },
+    { x: -0.06, y: 0.1, baseRotZ: 0.65, rotY: 0 },
+    { x: 0.04, y: 0.21, baseRotZ: -0.3, rotY: 0.5 },
+  ];
+  return (
+    <group position={[0, 0.32, 0]}>
+      {/* Main stem */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.018, 0.022, 0.22, 6]} />
+        <meshStandardMaterial color="#4a7a3a" roughness={0.85} />
+      </mesh>
+      {leaves.map((leaf, i) => (
+        <mesh
+          key={`lf-${i}`}
+          ref={(el) => {
+            if (el) {
+              el.userData.baseRotZ = leaf.baseRotZ;
+              leafRefs.current[i] = el;
+            }
+          }}
+          position={[leaf.x, leaf.y, 0]}
+          rotation={[0, leaf.rotY, leaf.baseRotZ]}
+        >
+          <planeGeometry args={[0.1, 0.05]} />
+          <meshStandardMaterial color="#5a8a4a" roughness={0.85} side={THREE.DoubleSide} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
 
 // 18. BreachCurtain — kain tergantung dari edge atas wall breach
 const BreachCurtain = ({ restored }) => (
@@ -2571,8 +2600,9 @@ const ArsipHeader = ({ restored }) => (
   </div>
 );
 
-const ArsipFooter = ({ hoveredId, books, isMobile }) => {
+const ArsipFooter = ({ hoveredId, books, readIds, isMobile }) => {
   const hovered = books.find((b) => b.id === hoveredId);
+  const readCount = books.filter((b) => readIds.has(b.id)).length;
   return (
     <div
       className="pointer-events-none absolute z-20 text-white/70 text-[11px] sm:text-xs"
@@ -2593,9 +2623,20 @@ const ArsipFooter = ({ hoveredId, books, isMobile }) => {
           “{hovered.preview}”
         </div>
       ) : (
-        <div className="opacity-70">
-          Cari titik cahaya di rak — klik buku yang bersinar untuk
-          membaca halamannya.
+        <div className="space-y-1">
+          <div className="opacity-70">
+            Cari titik cahaya di rak — klik buku yang bersinar untuk
+            membaca halamannya.
+          </div>
+          <div
+            className="text-white/45 text-[10px] sm:text-[11px]"
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+            }}
+          >
+            {readCount} dari {books.length} buku dibaca.
+          </div>
         </div>
       )}
     </div>
@@ -2802,6 +2843,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
         <ArsipFooter
           hoveredId={hoveredId}
           books={interactiveBooks}
+          readIds={readIds}
           isMobile={isMobile}
         />
 
