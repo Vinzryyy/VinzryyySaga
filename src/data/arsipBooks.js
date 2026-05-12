@@ -6,17 +6,9 @@
  * Semua konten yang sumbernya juga ditampilkan di /about, /profil,
  * /armeniacaTown/r1 (Konstelasi), /26, dst — DIHAPUS dari Arsip.
  *
- * Surviving books: 6 prose-story berdasarkan funfact unik yang
- * di-curate dari Eli livestream + observation Armeniaca:
- *   1. Anak yang Lebih Suka Pohon — masa kecil di TK
- *   2. Sebelum Panggung — pre-JKT48 (teknik elektro + pramugari)
- *   3. Akar Jaipong yang Tidak Mau Diam — bahasa tubuh
- *   4. Suaranya yang Memanggil — observasi vokal
- *   5. Asal Nama, Asal Cerita — Helisma + Ceu Eli origin
- *   6. Panggung yang Lebih Kecil, Suara yang Tetap Penuh — industry reality
- *
- * State tier: 5 drought + 1 restored. Drought = always accessible
- * sejak peta open. Restored unlock saat count >= 5000.
+ * Kurasi akhir: 13 buku terbaik dari batch funfact yang user kasih
+ * (sumber: Eli IDN Live + Showroom Live, plus 1-2 dari interviews).
+ * 5 S-tier + 5 A-tier + 2 B-tier + 1 C-tier.
  */
 
 export const RAK_SLOTS = {
@@ -38,51 +30,52 @@ export const CATEGORIES = {
 };
 
 // Pedestal angles untuk drought floor layout (radius 3.0 dari meja).
+// 13 slots melingkari meja.
 export const PEDESTAL_ANGLES = {
   'anak-pohon': 135,              // NW
-  'bukan-kolonial': 120,          // NW (introvert)
-  'sebelum-panggung': 105,        // N-NE
-  'jaipong-akar': 75,             // NE
-  'bosenan-multitask': 60,        // NE (cognitive habit)
-  'suara-memanggil': 45,          // E-NE
-  'salah-langganan': 30,          // E-NE (gaptek)
-  'panggung-kecil': 15,           // E
-  'sepuluh-pagi': 345,            // E-SE
-  'tas-tiga-kilo': 330,           // E-SE (self-reliance)
-  'pengangguran-dananya': 315,    // SE
-  'stay-in-place': 300,           // SE
-  'catok-jinak': 285,             // SSE
-  'prp-kulit': 270,               // S (skincare serious)
-  'fangirl-dewasa': 255,          // SSW
-  'vocal-bertanya': 240,          // SW (professionalism)
-  'language-interference': 225,   // SW
-  'enjoy-the-work': 210,          // W-SW (coping mindset)
-  'culture-shock': 195,           // W-SW
-  'asal-nama': 165,               // W-NW (restored unlock)
-  'revenge-2023': 150,            // NW (reclaim performer pride)
+  'bukan-kolonial': 100,          // N-NE (introvert)
+  'sebelum-panggung': 75,         // NE (pre-JKT48)
+  'jaipong-akar': 50,             // E-NE (bahasa tubuh)
+  'culture-shock': 25,            // E (Bandung→Jakarta)
+  'panggung-kecil': 0,            // E (industry reality)
+  'vocal-bertanya': 335,          // E-SE (professionalism)
+  'stay-in-place': 305,           // SE (backstage discipline)
+  'fangirl-dewasa': 275,          // S (perspektif fan)
+  'tas-tiga-kilo': 245,           // SW (self-reliance)
+  'pengangguran-dananya': 215,    // SW (escapist dream)
+  'revenge-2023': 185,            // W (reclaim performer pride)
+  'asal-nama': 160,               // W-NW (identitas, restored unlock)
 };
+
+// Decoratif floor books — model buku yang tampil di lantai drought
+// tapi gak punya story (gak bisa dibuka). Filler visual supaya floor
+// gak kosong setelah cleanup 21 → 13 interactive books. Drought-only
+// (gak render di restored). 8 buku berbeda spine color biar varied
+// visual scatter.
+export const DECORATIVE_BOOKS = [
+  { id: 'deco-1', spineColor: '#e8b878', angle: 117 },  // antara anak-pohon & bukan-kolonial
+  { id: 'deco-2', spineColor: '#6a5878', angle: 87 },   // antara bukan-kolonial & sebelum-panggung
+  { id: 'deco-3', spineColor: '#b88858', angle: 62 },   // antara sebelum-panggung & jaipong-akar
+  { id: 'deco-4', spineColor: '#c08858', angle: 350 },  // antara panggung-kecil & vocal-bertanya
+  { id: 'deco-5', spineColor: '#b07878', angle: 290 },  // antara stay-in-place & fangirl-dewasa
+  { id: 'deco-6', spineColor: '#7a6848', angle: 260 },  // antara fangirl-dewasa & tas-tiga-kilo
+  { id: 'deco-7', spineColor: '#5a8aa8', angle: 230 },  // antara tas-tiga-kilo & pengangguran
+  { id: 'deco-8', spineColor: '#a05848', angle: 200 },  // antara pengangguran & revenge-2023
+];
 
 // Reading order — narrative arc kronologis hidup Eli.
 export const ARSIP_STORY_ORDER = [
-  'anak-pohon',            // masa TK
-  'bukan-kolonial',        // adult introvert
+  'anak-pohon',            // masa TK (childhood)
+  'bukan-kolonial',        // adult introvert (continuation)
   'sebelum-panggung',      // pre-JKT48
   'culture-shock',         // adaptasi Bandung→Jakarta
-  'bosenan-multitask',     // cognitive habit
-  'jaipong-akar',          // bahasa tubuh
-  'suara-memanggil',       // vokal
-  'catok-jinak',           // idol skill
-  'prp-kulit',             // skincare serius (idol skill cluster)
-  'salah-langganan',       // gaptek (+ TikTok confusion paragraph)
-  'asal-nama',             // identitas
-  'language-interference', // bahasa lengket otak
-  'sepuluh-pagi',          // academic burnout
-  'tas-tiga-kilo',         // self-reliance / hidup sendiri
-  'enjoy-the-work',        // coping mindset
-  'fangirl-dewasa',        // perspektif fan changing
-  'vocal-bertanya',        // professionalism
+  'jaipong-akar',          // bahasa tubuh Sundanese
+  'asal-nama',             // identitas (Helisma + Ceu Eli)
+  'vocal-bertanya',        // professionalism (cara bertanya)
   'stay-in-place',         // backstage discipline
-  'revenge-2023',          // reclaim performer pride (2022 health → bangkit)
+  'fangirl-dewasa',        // perspektif fan changing
+  'tas-tiga-kilo',         // self-reliance / hidup sendiri
+  'revenge-2023',          // reclaim performer pride
   'panggung-kecil',        // industry reality (mature)
   'pengangguran-dananya',  // escapist dream (closing)
 ];
@@ -164,80 +157,6 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
-    id: 'jaipong-akar',
-    title: 'Akar Jaipong yang Tidak Mau Diam',
-    eyebrow: 'Cerita · Bahasa Tubuh',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#c8a060',
-    preview:
-      'Saat dia hype di panggung, gerakan Jaipong-nya muncul tanpa diminta.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Sebelum panggung JKT48, sebelum koreografi J-Pop yang presisi dan seragam, Eli sudah punya satu bahasa tubuh yang lain: Tari Jaipong. Tari tradisional Sunda yang akar gerakannya — pinggul yang berputar, tangan yang bercerita, kepala yang bergerak dengan tegas — sudah lebih dulu nempel di tubuhnya sebelum dia mengenal istilah "8 hitungan" atau "8 count."',
-        'Di JKT48, koreografi adalah ilmu yang berbeda. Setiap gerakan harus seragam dengan member lain. Setiap detail — angle tangan, tinggi lompatan, arah kepala — diukur. Tidak ada ruang untuk improvisasi. Bahkan ekspresi wajah ada bagiannya sendiri.',
-        'Dan di situlah cerita ini muncul: Jaipong yang sudah dia pelajari sejak kecil ternyata punya pikiran sendiri.',
-        'Pernah, saat membawakan lagu "Kinjirareta Futari," gerakan-gerakan khas Jaipong terbawa secara tidak sadar ke tengah koreografi. Bukan sengaja. Bukan rebellious. Hanya tubuhnya yang, di tengah keseruan momen, kembali ke bahasa yang paling dia kenal.',
-        'Dan ini bukan kejadian sekali. Eli menyadari pola tersebut setelah menonton ulang video penampilannya. Setiap kali dia merasa terlalu bersemangat, terlalu energetik, terlalu hype di panggung — gerakan Jaipong itu yang muncul ke permukaan. Tubuhnya, saat akal pelannya lengah, langsung berbicara dalam dialek Sunda.',
-        'Sekarang, dia tahu. Saat energinya memuncak di panggung, ada bagian dari dirinya yang harus berbisik: "tetap ikuti porsi koreografi." Karena kalau tidak, akar Jaipongnya yang akan mengambil alih.',
-        'Mungkin itu juga yang membuatnya begitu khas. Bahkan ketika dia sangat patuh pada koreografi, ada sesuatu di gerakannya yang berbeda — sesuatu yang lebih hidup, lebih bercerita, lebih akar. Bandung yang kadang-kadang bocor ke panggung Jakarta. Tari yang tidak mau diam, karena tubuhnya sudah lebih dulu mengenalnya sebelum koreografi yang sekarang dia bawakan.',
-      ],
-    }),
-  },
-  {
-    id: 'suara-memanggil',
-    title: 'Suaranya yang Memanggil',
-    eyebrow: 'Cerita · Vokal',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Armeniaca · curated observation',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#e8b878',
-    preview:
-      'Bukan suara paling melengking, tapi yang menenangkan dengan kejujurannya.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Sebelum jadi senbatsu, sebelum jadi shonichi singer — Eli punya satu hal yang langsung dikenali sejak masa trainee: suaranya.',
-        'Vokalnya yang menonjol. Bukan suara paling melengking, bukan suara paling tinggi, bukan teknik vokal yang paling sempurna. Tapi ada kehangatan dan kejernihan tertentu di suaranya yang membuat orang di Theater berhenti sebentar saat dia menyanyi solo. Kerasa seperti suara yang memanggil pulang — bukan suara yang menarik perhatian dengan kemewahan, tapi suara yang menenangkan dengan kejujurannya.',
-        'Vokalnya kemudian membawanya ke partisipasi di banyak single. Tiap penampilan bukan sekadar slot — ada bagian solo atau bridge yang dia bawa dengan cara yang khas dirinya.',
-        'Dan tidak hanya di studio. Di theater, di event, di live streaming — suaranya yang membuat fans betah. Bahkan ketika hanya ngobrol di IDN Live, ada nada di suaranya yang membuat orang merasa diajak ngobrol oleh teman lama, bukan oleh idol di layar.',
-        'Suara itu yang membawa dirinya melewati transisi-transisi besar JKT48. Tim berganti, sistem berganti, tapi suara yang membawa pesan tetap sama. Suara yang memanggil pulang.',
-      ],
-    }),
-  },
-  {
-    id: 'asal-nama',
-    title: 'Asal Nama, Asal Cerita',
-    eyebrow: 'Cerita · Identitas',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Armeniaca · curated trivia',
-    rakSlot: RAK_SLOTS.W,
-    unlockTier: UNLOCK_TIERS.RESTORED,
-    spineColor: '#7a3030',
-    preview:
-      'Dua nama melekat: yang dibuat ayahnya, dan yang lahir dari komunitas.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Ada dua nama yang melekat ke Eli: nama yang dia bawa sejak lahir, dan nama yang diberikan oleh komunitas.',
-        '— Helisma Mauludzunia Putri Kurnia.',
-        'Nama "Helisma" bukan nama yang umum. Bahkan jarang ditemukan di luar diri Eli sendiri. Ada cerita di balik itu: nama ini dibuat oleh ayahnya, dirakit secara spontan dari gabungan nama keluarga dan beberapa kata tambahan. Tidak dari kitab nama bayi, tidak dari nama tokoh, tidak dari nama yang sedang trend pada masanya. Dirakit. Dari potongan-potongan keluarga + intuisi ayah pada satu momen tertentu.',
-        'Mungkin itu sebabnya namanya terasa khusus. Karena memang dibuat khusus untuknya saja.',
-        '— Ceu Eli.',
-        'Tapi ada nama kedua yang membuat namanya melekat di hati banyak orang. Bukan nama lahir, tapi nama yang lahir dari komunitas: "Ceu Eli."',
-        'Awalnya julukan ini muncul dari senior di Team T. "Ceu" dalam bahasa Sunda berarti "kakak perempuan" — bentuk penyebutan hormat yang akrab. Mungkin sekadar candaan di awal, mungkin sekadar penegasan tentang asal-usulnya yang Bandung. Tapi entah bagaimana, julukan itu melekat. Pelan-pelan menyebar dari senior, ke teman segen, ke fans, sampai sekarang lebih banyak orang yang memanggilnya "Ceu Eli" daripada memanggilnya "Helisma."',
-        'Dua nama, dua cerita. Yang pertama menandai dia sebagai anak yang istimewa di keluarganya. Yang kedua menandai dia sebagai sosok kakak perempuan yang dijaga oleh komunitasnya. Tidak ada yang lebih sah dari yang lain — keduanya benar.',
-      ],
-    }),
-  },
-  {
     id: 'culture-shock',
     title: 'Aku-Kamu di Tengah Gue-Elo',
     eyebrow: 'Cerita · Pindah ke Jakarta',
@@ -265,135 +184,53 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
-    id: 'language-interference',
-    title: 'Korea yang Ikut ke Thailand',
-    eyebrow: 'Cerita · Mahasiswi Sastra Korea',
+    id: 'jaipong-akar',
+    title: 'Akar Jaipong yang Tidak Mau Diam',
+    eyebrow: 'Cerita · Bahasa Tubuh',
     category: CATEGORIES.REFLEKSI,
     era: null,
     source: 'Eli IDN Live · curated by Armeniaca',
     rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#5a8aa8',
+    spineColor: '#c8a060',
     preview:
-      'Otaknya lengket di mode Korea. Saat dia ke Thailand, refleksnya keluar Hangeul.',
+      'Saat dia hype di panggung, gerakan Jaipong-nya muncul tanpa diminta.',
     getBody: () => ({
       type: 'prose-story',
       paragraphs: [
-        'Sebagai mahasiswi Sastra Korea, Eli memang intensif belajar bahasa Korea. Tapi ada efek samping yang dia gak duga sebelumnya — efek samping yang baru ketahuan saat dia traveling.',
-        'Suatu kali, sebelum ujian besar bahasa Korea, dia belajar habis-habisan. Hangeul, kosakata, percakapan, drama — semua dimasukkan ke otak intensif selama berhari-hari. Otaknya, secara tidak sadar, masuk ke "mode Korea." Semua input bahasa di sekitarnya diparsing sebagai Korea, semua output dia juga keluar dalam pola Korea.',
-        'Lalu dia traveling ke Thailand. Mestinya simple — dengar Thai, jawab pakai English atau gesture. Tapi otak Eli punya rencana lain.',
-        'Saat orang Thailand bicara di sebelahnya, otaknya otomatis coba parse: "ini Korea ya? Kok beda cadence-nya?" Bukan karena dia bingung — tapi karena telinganya sudah terlalu tuned ke fonetik Korea. Cadence dan pronunciation Thai yang berbeda banget bikin otaknya pause sebentar setiap kali ada percakapan.',
-        'Worse — saat dia mau jawab, kata pertama yang muncul di pikirannya keluar dalam bentuk Hangeul. Refleks. Otomatis. Bukan English, bukan body language, bukan Thai. Korea.',
-        'Dia describe sensasi ini sebagai "pusing" — kepalanya struggle rekonsiliasi sistem linguistik yang sedang ditampung. Pivot dari Korea ke Thai, atau ke English, atau ke Indonesia — semua butuh effort yang gak biasa. Otaknya kerasa mixed-up, kayak dua channel radio bocor jadi satu.',
-        'Cerita ini kecil, lucu, tapi ada poin yang lebih dalam. Bahasa bukan saklar yang bisa di-on/off. Kalau kamu invest ke satu bahasa secara intensif, dia akan tinggal di otakmu cukup lama setelahnya. Eli mengalaminya bukan karena dia gak bisa multitask — justru karena dia terlalu fokus dan dedikatif belajar.',
-        'Banyak orang membayangkan belajar bahasa itu glamor — bisa ngobrol fluent, bisa nonton drakor tanpa subtitle, bisa kerja di Korea. Tapi Eli juga punya sisi yang jarang dibicarain: ada masa-masa di mana belajar terlalu keras, otakmu lengket di satu bahasa, dan kamu jadi "pusing" saat lo di negara lain. Dedikasi punya harganya sendiri, bahkan dalam hal yang kelihatan sepele kayak ngobrol di luar negeri.',
+        'Sebelum panggung JKT48, sebelum koreografi J-Pop yang presisi dan seragam, Eli sudah punya satu bahasa tubuh yang lain: Tari Jaipong. Tari tradisional Sunda yang akar gerakannya — pinggul yang berputar, tangan yang bercerita, kepala yang bergerak dengan tegas — sudah lebih dulu nempel di tubuhnya sebelum dia mengenal istilah "8 hitungan" atau "8 count."',
+        'Di JKT48, koreografi adalah ilmu yang berbeda. Setiap gerakan harus seragam dengan member lain. Setiap detail — angle tangan, tinggi lompatan, arah kepala — diukur. Tidak ada ruang untuk improvisasi. Bahkan ekspresi wajah ada bagiannya sendiri.',
+        'Dan di situlah cerita ini muncul: Jaipong yang sudah dia pelajari sejak kecil ternyata punya pikiran sendiri.',
+        'Pernah, saat membawakan lagu "Kinjirareta Futari," gerakan-gerakan khas Jaipong terbawa secara tidak sadar ke tengah koreografi. Bukan sengaja. Bukan rebellious. Hanya tubuhnya yang, di tengah keseruan momen, kembali ke bahasa yang paling dia kenal.',
+        'Dan ini bukan kejadian sekali. Eli menyadari pola tersebut setelah menonton ulang video penampilannya. Setiap kali dia merasa terlalu bersemangat, terlalu energetik, terlalu hype di panggung — gerakan Jaipong itu yang muncul ke permukaan. Tubuhnya, saat akal pelannya lengah, langsung berbicara dalam dialek Sunda.',
+        'Sekarang, dia tahu. Saat energinya memuncak di panggung, ada bagian dari dirinya yang harus berbisik: "tetap ikuti porsi koreografi." Karena kalau tidak, akar Jaipongnya yang akan mengambil alih.',
+        'Mungkin itu juga yang membuatnya begitu khas. Bahkan ketika dia sangat patuh pada koreografi, ada sesuatu di gerakannya yang berbeda — sesuatu yang lebih hidup, lebih bercerita, lebih akar. Bandung yang kadang-kadang bocor ke panggung Jakarta. Tari yang tidak mau diam, karena tubuhnya sudah lebih dulu mengenalnya sebelum koreografi yang sekarang dia bawakan.',
       ],
     }),
   },
   {
-    id: 'fangirl-dewasa',
-    title: 'Bintang yang Pernah Jauh, Sekarang Sebelah Meja',
-    eyebrow: 'Cerita · Perspektif Fan',
+    id: 'asal-nama',
+    title: 'Asal Nama, Asal Cerita',
+    eyebrow: 'Cerita · Identitas',
     category: CATEGORIES.REFLEKSI,
     era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#3a4858',
+    source: 'Armeniaca · curated trivia',
+    rakSlot: RAK_SLOTS.W,
+    unlockTier: UNLOCK_TIERS.RESTORED,
+    spineColor: '#7a3030',
     preview:
-      'Dia hilang spark fangirling. Kecuali untuk NCT 127.',
+      'Dua nama melekat: yang dibuat ayahnya, dan yang lahir dari komunitas.',
     getBody: () => ({
       type: 'prose-story',
       paragraphs: [
-        'Sebagai fan K-Pop sejak lama, Eli punya sisi yang familiar buat banyak orang: pernah dia juga jadi fangirl. Mata bersinar saat lihat idol favorit, jantung berdebar di MV release, hidup penuh oleh jadwal "comeback."',
-        'Tapi waktu berjalan. Eli sekarang bukan cuma fan — dia juga ada di industri ini. Member JKT48, bertahun-tahun. Tahu rasanya backstage, tahu rasanya promosi single, tahu rasanya nyiapin choreography sampai larut malam.',
-        'Dan dengan pengetahuan itu, ada sesuatu yang berubah.',
-        'Idol yang dulu kerasa jauh, sekarang gak sejauh itu. Bukan karena dia gak appreciate karya mereka — tapi karena dia tahu sekarang gimana karya itu dibuat. Bisa lihat behind-the-scenes proses. Bisa bayangkan choreography practice, vocal coach session, comeback prep yang melelahkan.',
-        'Pernah dia kebetulan ketemu beberapa idol di setting di luar panggung — entah event entertainment, atau di sela acara TV, atau di tempat-tempat industri. Dan saat lihat mereka tanpa makeup pekat, tanpa lighting studio, tanpa choreography — mereka cuma orang biasa. Manusia yang capek, manusia yang ada masalahnya sendiri, manusia yang sama-sama bekerja keras seperti dia.',
-        'Insight ini bikin "spark" fangirling dia berubah. Bukan hilang sepenuhnya — tapi maturing. Dari "wow, mereka super-human!" jadi "wow, mereka super-talented dan super-keras-kerja, tapi tetap manusia."',
-        'Tapi ada satu pengecualian yang masih bikin dia bersinar: NCT 127. Sampai sekarang, dia masih merasa "spark" itu untuk musik dan karya mereka. Mungkin karena Jaehyun bias yang udah lama. Mungkin karena musik NCT 127 secara objektif memang nyentuh telinga Eli yang sudah tuned ke industri ini. Apapun alasannya — ada satu grup yang masih bisa nge-trigger reaksi fan-mode lama dia.',
-        'Mungkin itu juga sebabnya cerita ini relatable. Sebagai pekerja di industri, dia gak naif lagi. Tapi sebagai manusia yang masih punya selera musik dan apresiasi pada karya — dia masih bisa jatuh cinta sama sesuatu yang luar biasa.',
-        'Tidak ada yang lebih dewasa daripada bisa appreciate sesuatu tanpa harus naif. Idol bukan lagi figur ideal yang tidak tersentuh, tapi karya yang bagus tetap karya yang bagus. NCT 127 yang bagus tetap NCT 127 yang bagus. Dan Eli yang sekarang bisa lihat dua sisi itu sekaligus.',
-      ],
-    }),
-  },
-  {
-    id: 'catok-jinak',
-    title: 'Catok yang Akhirnya Jinak',
-    eyebrow: 'Cerita · Idol Skills',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#b88858',
-    preview:
-      'Bertahun-tahun struggle, akhirnya dia bisa nyatok rambut sendiri.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Ada bayangan tertentu yang orang punya tentang idol — mereka selalu polish, selalu rapi, selalu siap di panggung. Tapi kalau cerita-cerita di balik layar bocor, ada satu hal yang Eli akui dengan ringan: dia struggle lama dengan catokan.',
-        'Untuk waktu yang lumayan panjang, Eli gak bisa nyatok dengan baik. Bukan teknik vokal yang dia struggle. Bukan choreography. Bukan vocal coach session. Tapi alat yang basic banget untuk seorang idol: alat catok rambut.',
-        'Mungkin terdengar lucu. Tapi siapa yang gak relate? Pakai catokan bukan skill bawaan lahir — itu skill yang harus dipelajari, dipraktikkan, jangan-jangan dibuang ke percobaan berulang sampai berhasil.',
-        'Lalu ada pilihan style. Eli akui — dia bukan fan curls yang ketat. Dia lebih suka style "curly gantung bawah" — yang volume-nya cenderung di bawah, bukan ketat di seluruh kepala. Itu beda dari "catok masuk" yang sering dipakai member-member yang lebih muda. Dua style berbeda untuk dua generasi yang berbeda.',
-        'Tapi pelan-pelan, Eli akhirnya jinakin catoknya. Setelah bertahun-tahun struggle, dia bilang sekarang udah pinter. Lebih familiar dengan teknik. Lebih ngerti gimana catok bersikap di rambutnya. Dan style yang dia mau itu sekarang bisa dia eksekusi sendiri tanpa minta tolong.',
-        'Ada poin yang lebih dalam di sini. Di dunia idol yang menuntut polish konstan, ada banyak skill kecil-kecil yang harus dipelajari di luar latihan main. Makeup. Hair. Wardrobe coordination. Skin care. Semua butuh waktu. Dan gak semua orang punya talent bawaan untuk semuanya.',
-        'Eli yang biasa membicarain hal ini dengan humble — bukan dia perfectionist yang nyamarin struggle. Dia mengakui awalnya sulit, sekarang baru bisa. That\'s the most relatable kind of progress: pelan tapi nyata.',
-        'Jadi kalau lo lihat Eli dengan rambut yang cantik di panggung, ingat satu hal kecil: itu hasil dari bertahun-tahun belajar pakai catokan. Idol pun harus practice skill basic, bukan dapet semuanya gratis.',
-      ],
-    }),
-  },
-  {
-    id: 'sepuluh-pagi',
-    title: 'Sepuluh Pagi: Rutinitas yang Membuatnya Muak',
-    eyebrow: 'Cerita · Akademis',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#7a6848',
-    preview:
-      'Setiap pagi jam 10, listening bahasa Korea. Sampai akhirnya muak.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Selain JKT48, Eli juga kuliah Sastra Korea. Itu bukan rahasia — di profilnya sudah ditulis. Tapi ada sisi yang jarang dibicarain di balik label "mahasiswi Sastra Korea": rasanya gak selalu indah.',
-        'Pernah Eli curhat soal rutinitas kuliahnya. Setiap hari, mulai jam 10 pagi, dia ada sesi listening bahasa Korea. Itu bukan latihan kasual yang sekali-sekali — itu rutin, setiap hari, dengan intensitas yang tinggi.',
-        'Dan dia mengakui — dia muak. Bukan dengan bahasanya. Bukan dengan kuliahnya. Tapi dengan intensitas yang gak ada habisnya. Berjam-jam mendengarkan, menerjemahkan, menyerap fonetik Korea. Setiap hari.',
-        'Buat orang yang gak pernah belajar bahasa dengan intensitas seperti itu, mungkin sulit relate. Tapi siapa pun yang pernah kuliah bahasa asing tahu rasanya — telinga capek, otak overheating, kemampuan fokus turun pelan-pelan setelah setiap sesi panjang.',
-        'Kombinasi dengan jadwal idol bikin makin berat. Pagi listening Korea, siang theater, sore latihan, malam event. Tidak ada banyak ruang untuk istirahat di antara komitmen-komitmen itu.',
-        'Tapi Eli juga sadar tentang batasan dirinya. Setelah sesi listening yang melelahkan, dia merasa perlu memberi dirinya waktu untuk "menenangkan diri" dari paparan bahasa Korea. Ini bukan pengakuan kelemahan — ini self-awareness yang dewasa: tahu kapan tubuhmu butuh recover supaya gak burnout.',
-        'Ada beautiful tension di cerita ini. Eli yang dedikatif terhadap Korean studies — buktinya dia masih kuliah, masih konsisten, masih bisa ngomong Korea — tapi juga manusia yang merasa muak. Yang gak nyamarin lelahnya, yang ngomong jujur tentang batas.',
-        'Mungkin itu juga sebabnya dia bisa terus jalan. Karena dia tahu kapan harus push, kapan harus rehat. Idol yang sustainable bukan idol yang gak pernah lelah — tapi idol yang tahu cara menjaga energinya supaya bisa bertahan untuk waktu yang lama.',
-        'Setiap kali kamu lihat Eli ngomong sedikit Korea di livestream, ada cerita di belakangnya: bertahun-tahun rutin listening jam 10 pagi, kuliah yang melelahkan, dan moment-moment muak yang dia hadapi dengan dewasa. Tidak ada yang instant.',
-      ],
-    }),
-  },
-  {
-    id: 'bosenan-multitask',
-    title: 'Otaknya Butuh Dua Channel',
-    eyebrow: 'Cerita · Cara Kerja Otak',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#6a5878',
-    preview:
-      'Satu tangan buku kuliah, satu tangan scroll TikTok. Cara dia tetap engaged.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Eli pernah cerita sesuatu tentang dirinya yang bikin banyak orang relate: dia "bosenan." Personality yang ngebuat dia sulit fokus pada satu task dalam waktu lama tanpa stimulasi tambahan.',
-        'Untuk orang yang bisa fokus deep selama berjam-jam pada satu hal, mungkin Eli kerasa hectic. Tapi untuk Eli, butuh dua-tiga channel berjalan bersamaan supaya otaknya tetap engaged.',
-        'Cerita spesifik: ketika dia ngerjain tugas kuliah, dia akan sambil scroll TikTok atau nonton Asmara Genzy di sisi lain. Bukan dua-duanya 100% — tapi cukup untuk membuat dia gak merasa stuck di satu hal.',
-        'Bahkan saat belajar pun pakai metode dua channel ini. Satu tangan pegang materi belajar — buku, catatan, slide kuliah. Satu tangan lagi scroll TikTok atau platform lain. Otaknya, secara seimbang, ditampung dua stream of information sekaligus.',
-        'Buat banyak orang, metode ini mungkin terdengar destruktif. "Kamu gak bisa fokus kalau gitu!" Tapi untuk Eli, ini cara dia bekerja efektif. Tanpa stimulasi dua channel, dia justru hilang fokus — pikiran melayang, motivasi turun, tugas gak selesai.',
-        'Mungkin ini juga sebabnya dia bisa survive di industri idol yang penuh aktivitas. Otaknya udah ter-program untuk handle multiple inputs sekaligus. Theater, kuliah, livestream, MnG, latihan — semua dilewati dengan kepala yang terbiasa juggle banyak hal.',
-        'Bukan dia sok multitask. Bukan dia bangga karena bisa lakukan banyak hal sekaligus. Ini lebih ke acceptance — dia tahu personality-nya, dia tahu trik yang cocok untuk dirinya, dan dia pakai trik itu.',
-        'Asmara Genzy yang nemenin tugas kuliah. TikTok yang nemenin sesi belajar. Bukan distraksi dalam arti negatif — tapi background noise yang justru bantu dia tetap engaged.',
-        'Kadang yang dunia anggap "kurang fokus" sebenarnya adalah cara seseorang yang berbeda untuk fokus. Eli yang multitasker bukan Eli yang tidak serius. Dia cuma punya cara sendiri untuk membuat otaknya bisa beresin tugas tanpa terbosanin.',
+        'Ada dua nama yang melekat ke Eli: nama yang dia bawa sejak lahir, dan nama yang diberikan oleh komunitas.',
+        '— Helisma Mauludzunia Putri Kurnia.',
+        'Nama "Helisma" bukan nama yang umum. Bahkan jarang ditemukan di luar diri Eli sendiri. Ada cerita di balik itu: nama ini dibuat oleh ayahnya, dirakit secara spontan dari gabungan nama keluarga dan beberapa kata tambahan. Tidak dari kitab nama bayi, tidak dari nama tokoh, tidak dari nama yang sedang trend pada masanya. Dirakit. Dari potongan-potongan keluarga + intuisi ayah pada satu momen tertentu.',
+        'Mungkin itu sebabnya namanya terasa khusus. Karena memang dibuat khusus untuknya saja.',
+        '— Ceu Eli.',
+        'Tapi ada nama kedua yang membuat namanya melekat di hati banyak orang. Bukan nama lahir, tapi nama yang lahir dari komunitas: "Ceu Eli."',
+        'Awalnya julukan ini muncul dari senior di Team T. "Ceu" dalam bahasa Sunda berarti "kakak perempuan" — bentuk penyebutan hormat yang akrab. Mungkin sekadar candaan di awal, mungkin sekadar penegasan tentang asal-usulnya yang Bandung. Tapi entah bagaimana, julukan itu melekat. Pelan-pelan menyebar dari senior, ke teman segen, ke fans, sampai sekarang lebih banyak orang yang memanggilnya "Ceu Eli" daripada memanggilnya "Helisma."',
+        'Dua nama, dua cerita. Yang pertama menandai dia sebagai anak yang istimewa di keluarganya. Yang kedua menandai dia sebagai sosok kakak perempuan yang dijaga oleh komunitasnya. Tidak ada yang lebih sah dari yang lain — keduanya benar.',
       ],
     }),
   },
@@ -454,29 +291,56 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
-    id: 'enjoy-the-work',
-    title: 'Enjoy the Work — Mindset di Tengah Jadwal yang Tak Berhenti',
-    eyebrow: 'Cerita · Cara Bertahan',
+    id: 'fangirl-dewasa',
+    title: 'Bintang yang Pernah Jauh, Sekarang Sebelah Meja',
+    eyebrow: 'Cerita · Perspektif Fan',
     category: CATEGORIES.REFLEKSI,
     era: null,
     source: 'Eli IDN Live · curated by Armeniaca',
     rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#c08858',
+    spineColor: '#3a4858',
     preview:
-      'Gak punya waktu untuk istirahat. Jadi dia ubah pekerjaan jadi sumber kesenangan.',
+      'Dia hilang spark fangirling. Kecuali untuk NCT 127.',
     getBody: () => ({
       type: 'prose-story',
       paragraphs: [
-        'Eli pernah cerita tentang cara dia survive di tengah jadwal yang gak ada habisnya. Bukan dengan ambil break sering-sering. Bukan dengan time off. Tapi dengan mindset tertentu yang dia pilih: "enjoy the work."',
-        'Sebagai member JKT48 plus mahasiswi Sastra Korea, harinya udah penuh dari pagi sampai malam. Pagi listening Korea. Siang theater. Sore latihan. Malam event atau live stream. Dan itu rutin. Hari demi hari.',
-        'Dalam realita itu, "personal time" jadi konsep yang langka. Eli mengakui — dia sering gak punya waktu untuk dirinya sendiri. Bahkan untuk minat-minat pribadinya yang sederhana — nonton drakor, scroll TikTok lebih lama, ngobrol panjang dengan teman — semua itu jadi luxury.',
-        'Jadi gimana caranya tetap waras? Eli pilih satu strategi yang cukup harsh kalau dipikir-pikir: dia ubah pekerjaan jadi sumber kesenangan.',
-        '"Enjoy the work." Bukan cuma slogan. Itu mindset yang dia pakai setiap hari. Kalau dia gak punya waktu off, paling tidak waktu on harus menyenangkan. Kalau pekerjaan adalah satu-satunya tempat dia berada, paling tidak dia harus menemukan cara untuk menikmati berada di sana.',
-        'Ada beautiful trick di sini. Banyak orang lihat work sebagai sesuatu yang harus dihadapi sambil mengharap weekend. Tapi Eli — yang weekend-nya sering juga work — gak punya luxury itu. Jadi alih-alih melawan realita, dia adopt mindset yang membuat realita itu lebih bisa dihidupi.',
-        'Bukan dia lari dari kelelahan. Cerita-cerita lain dia juga jujur tentang muak, lelah, perlu rehat. Tapi di tengah semua itu, "enjoy the work" menjadi anchor — sesuatu yang dia pegang supaya gak hanyut.',
-        'Mungkin ini juga sebabnya energi panggungnya stay genuine. Bukan dipaksakan dari kondisi "lelah tapi harus ngedance." Tapi dari posisi "lelah tapi pilih untuk menikmati momen ini juga." Dua kata yang sama, tapi sangat berbeda.',
-        'Kadang yang dunia anggap "tidak punya hidup" sebenarnya adalah orang yang punya cara berbeda untuk hidup. Eli yang bekerja terus bukan Eli yang menyerah pada hidup pribadinya. Dia cuma menemukan bahwa kerja bisa juga jadi tempat dia menemukan kesenangan, asal dia memilih untuk itu.',
+        'Sebagai fan K-Pop sejak lama, Eli punya sisi yang familiar buat banyak orang: pernah dia juga jadi fangirl. Mata bersinar saat lihat idol favorit, jantung berdebar di MV release, hidup penuh oleh jadwal "comeback."',
+        'Tapi waktu berjalan. Eli sekarang bukan cuma fan — dia juga ada di industri ini. Member JKT48, bertahun-tahun. Tahu rasanya backstage, tahu rasanya promosi single, tahu rasanya nyiapin choreography sampai larut malam.',
+        'Dan dengan pengetahuan itu, ada sesuatu yang berubah.',
+        'Idol yang dulu kerasa jauh, sekarang gak sejauh itu. Bukan karena dia gak appreciate karya mereka — tapi karena dia tahu sekarang gimana karya itu dibuat. Bisa lihat behind-the-scenes proses. Bisa bayangkan choreography practice, vocal coach session, comeback prep yang melelahkan.',
+        'Pernah dia kebetulan ketemu beberapa idol di setting di luar panggung — entah event entertainment, atau di sela acara TV, atau di tempat-tempat industri. Dan saat lihat mereka tanpa makeup pekat, tanpa lighting studio, tanpa choreography — mereka cuma orang biasa. Manusia yang capek, manusia yang ada masalahnya sendiri, manusia yang sama-sama bekerja keras seperti dia.',
+        'Insight ini bikin "spark" fangirling dia berubah. Bukan hilang sepenuhnya — tapi maturing. Dari "wow, mereka super-human!" jadi "wow, mereka super-talented dan super-keras-kerja, tapi tetap manusia."',
+        'Tapi ada satu pengecualian yang masih bikin dia bersinar: NCT 127. Sampai sekarang, dia masih merasa "spark" itu untuk musik dan karya mereka. Mungkin karena Jaehyun bias yang udah lama. Mungkin karena musik NCT 127 secara objektif memang nyentuh telinga Eli yang sudah tuned ke industri ini. Apapun alasannya — ada satu grup yang masih bisa nge-trigger reaksi fan-mode lama dia.',
+        'Mungkin itu juga sebabnya cerita ini relatable. Sebagai pekerja di industri, dia gak naif lagi. Tapi sebagai manusia yang masih punya selera musik dan apresiasi pada karya — dia masih bisa jatuh cinta sama sesuatu yang luar biasa.',
+        'Tidak ada yang lebih dewasa daripada bisa appreciate sesuatu tanpa harus naif. Idol bukan lagi figur ideal yang tidak tersentuh, tapi karya yang bagus tetap karya yang bagus. NCT 127 yang bagus tetap NCT 127 yang bagus. Dan Eli yang sekarang bisa lihat dua sisi itu sekaligus.',
+      ],
+    }),
+  },
+  {
+    id: 'stay-in-place',
+    title: 'Stay in Place — Sudut yang Ditugaskan',
+    eyebrow: 'Cerita · Backstage Discipline',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#5a6878',
+    preview:
+      'Setelah make-up siap, member-member JKT48 wajib diam di satu sudut.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada peraturan tak tertulis yang jarang dibahas tentang JKT48 backstage. Eli pernah cerita: setelah member tiba di tempat event, ada protokol disiplin yang harus diikuti.',
+        'Bayangkan: jam 18.30 atau sekitarnya, member-member JKT48 sampai di venue acara. Bukan langsung tampil. Pertama-tama, mereka ke ruang dressing untuk make-up dan hair styling. Itu rutinitas standar.',
+        'Tapi setelah make-up dan rambut siap, ada satu instruksi tersirat: stay in place. Tetap di satu spot. Jangan jalan-jalan, jangan keliling venue, jangan mingling dengan orang-orang di area lain.',
+        'Eli describe pengalaman ini sebagai "caged" — seperti dikurung di satu area. Mereka gak boleh wander off. Gak boleh pindah-pindah antar area venue. Ada sudut tertentu yang ditetapkan untuk mereka, dan di situlah mereka menunggu sampai giliran tampil.',
+        'Buat orang yang belum kenal industri ini, mungkin kedengarannya restriktif. Tapi Eli jelaskan dengan sederhana — ini ada alasannya.',
+        'Pertama, logistik. Mengatur grup besar performer butuh struktur. Kalau setiap member jalan-jalan kemana mereka mau, manajemen susah ngumpulin mereka pas waktunya tampil. Stay in place = standby siap dipanggil.',
+        'Kedua, energi. Member-member JKT48 sering punya jadwal yang back-to-back. Sebelum event tertentu, mereka mungkin udah baru pulang dari theater atau acara lain. Mingling, jalan-jalan, ngobrol panjang dengan banyak orang — itu menghabiskan energi yang sudah tipis. Lebih bijak menyimpan energi untuk panggung.',
+        'Jadi yang fans lihat sebagai "energi tinggi di panggung" itu hasil dari disiplin diam di backstage. Bukan kebetulan, bukan natural-state. Disiplin yang sengaja, dengan tujuan yang jelas: tampil maksimal saat waktunya.',
+        'Mungkin ini juga sebabnya beberapa member kerasa sangat "on" saat panggung, dan sangat "off" di sela-sela. Bukan dua-muka — itu profesionalisme. Energi yang dijaga, dipanggil keluar pas dibutuhkan, lalu disimpan kembali.',
       ],
     }),
   },
@@ -509,86 +373,30 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
-    id: 'stay-in-place',
-    title: 'Stay in Place — Sudut yang Ditugaskan',
-    eyebrow: 'Cerita · Backstage Discipline',
+    id: 'panggung-kecil',
+    title: 'Panggung yang Lebih Kecil, Suara yang Tetap Penuh',
+    eyebrow: 'Cerita · Realita Idol',
     category: CATEGORIES.REFLEKSI,
     era: null,
     source: 'Eli IDN Live · curated by Armeniaca',
     rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#5a6878',
+    spineColor: '#5a4868',
     preview:
-      'Setelah make-up siap, member-member JKT48 wajib diam di satu sudut.',
+      'Saat sistem tidak memberikan spotlight, Eli memilih bikin panggungnya sendiri.',
     getBody: () => ({
       type: 'prose-story',
       paragraphs: [
-        'Ada peraturan tak tertulis yang jarang dibahas tentang JKT48 backstage. Eli pernah cerita: setelah member tiba di tempat event, ada protokol disiplin yang harus diikuti.',
-        'Bayangkan: jam 18.30 atau sekitarnya, member-member JKT48 sampai di venue acara. Bukan langsung tampil. Pertama-tama, mereka ke ruang dressing untuk make-up dan hair styling. Itu rutinitas standar.',
-        'Tapi setelah make-up dan rambut siap, ada satu instruksi tersirat: stay in place. Tetap di satu spot. Jangan jalan-jalan, jangan keliling venue, jangan mingling dengan orang-orang di area lain.',
-        'Eli describe pengalaman ini sebagai "caged" — seperti dikurung di satu area. Mereka gak boleh wander off. Gak boleh pindah-pindah antar area venue. Ada sudut tertentu yang ditetapkan untuk mereka, dan di situlah mereka menunggu sampai giliran tampil.',
-        'Buat orang yang belum kenal industri ini, mungkin kedengarannya restriktif. Tapi Eli jelaskan dengan sederhana — ini ada alasannya.',
-        'Pertama, logistik. Mengatur grup besar performer butuh struktur. Kalau setiap member jalan-jalan kemana mereka mau, manajemen susah ngumpulin mereka pas waktunya tampil. Stay in place = standby siap dipanggil.',
-        'Kedua, energi. Member-member JKT48 sering punya jadwal yang back-to-back. Sebelum event tertentu, mereka mungkin udah baru pulang dari theater atau acara lain. Mingling, jalan-jalan, ngobrol panjang dengan banyak orang — itu menghabiskan energi yang sudah tipis. Lebih bijak menyimpan energi untuk panggung.',
-        'Jadi yang fans lihat sebagai "energi tinggi di panggung" itu hasil dari disiplin diam di backstage. Bukan kebetulan, bukan natural-state. Disiplin yang sengaja, dengan tujuan yang jelas: tampil maksimal saat waktunya.',
-        'Mungkin ini juga sebabnya beberapa member kerasa sangat "on" saat panggung, dan sangat "off" di sela-sela. Bukan dua-muka — itu profesionalisme. Energi yang dijaga, dipanggil keluar pas dibutuhkan, lalu disimpan kembali.',
-      ],
-    }),
-  },
-  {
-    id: 'prp-kulit',
-    title: 'PRP — Saat Krim Sudah Tidak Cukup',
-    eyebrow: 'Cerita · Skincare Serius',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli Showroom Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#b07878',
-    preview:
-      'Bopeng yang dalam butuh treatment profesional, bukan cuma topical.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Banyak orang lihat idol di panggung dengan kulit yang halus dan mulus, dan mengira itu bawaan. Tapi Eli pernah cerita sisi yang lebih jujur — tentang perjuangan dia dengan kulit sendiri.',
-        'Eli ngomong soal bopeng — bekas jerawat yang tertinggal sebagai pockmark di kulit. Dan dia jujur: ini bukan masalah yang bisa selesai dengan skincare biasa saja. Krim, serum, toner — semua punya batasan. Kalau bopeng sudah dalam, topical products tidak akan cukup.',
-        'Dia recommend pendekatan yang lebih serius: cari treatment profesional. Spesifik dia sebut PRP — Platelet-Rich Plasma — atau prosedur dermatologi sejenis. Jenis perawatan medis yang dilakukan dengan supervisi dokter, bukan DIY di rumah.',
-        'Dan ini bukan saran abstrak. Eli ngomong dari pengalaman pribadi. Dia sendiri pernah jalani treatment untuk handle scarring kulitnya. Bukan sebagai shortcut — sebagai investment dalam perawatan diri yang serius.',
-        'Buat banyak orang, treatment profesional terdengar exclusive — sesuatu untuk orang yang punya uang lebih atau profesional yang butuh tampilan tertentu. Eli, sebagai idol, mungkin termasuk yang kedua. Tapi cerita ini relatable buat siapa pun yang udah lama struggle dengan acne scarring dan merasa skincare yang dijual di mall gak nyelesain.',
-        'Ada pelajaran subtle di sini: bukan setiap masalah bisa diselesaikan dengan produk yang lebih murah atau lebih banyak. Beberapa masalah butuh approach yang lebih besar. Untuk skin, itu mungkin PRP. Untuk hal lain, mungkin terapi, mentor, profesional di bidangnya. Tidak ada salahnya mencari yang lebih ahli.',
-        'Eli — yang selalu tampak cantik di panggung — gak nyamarin perjuangannya. Dia akui bopeng pernah jadi concern. Dia akui treatment profesional adalah jalan keluarnya. Dia akui ini butuh effort di luar krim biasa.',
-        'Mungkin itu juga sebabnya banyak fans yang merasa dekat dengan dia. Karena Eli gak posing sebagai "born perfect" — dia menunjukkan bagian dari perjalanan yang banyak orang juga lewati. Acne scars, treatment plan, professional help. Hal-hal yang sangat human.',
-        'Idol pun punya kulit yang harus dirawat. Idol pun punya bopeng yang perlu di-treat. Idol pun harus mencari ahli yang bisa bantu. Dan Eli, dengan kejujurannya, share approach yang dia ambil — supaya orang lain yang struggle dengan hal yang sama tahu: PRP atau prosedur sejenis mungkin worth investigating.',
-      ],
-    }),
-  },
-  {
-    id: 'salah-langganan',
-    title: 'Salah Langganan — Sinetron yang Berubah Jadi F1',
-    eyebrow: 'Cerita · Gaptek yang Jujur',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#a05848',
-    preview:
-      'Mau nonton sinetron, malah ke-subscribe package F1 + MotoGP.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Ada satu cerita kecil dari Eli yang gak ada hubungannya dengan panggung, dengan vokal, dengan industri idol. Cerita yang sangat manusiawi: dia gaptek.',
-        'Sebagai mahasiswa Sastra Korea yang juga full-time idol, Eli punya jadwal padat. Tapi dia juga manusia yang ingin sekali-sekali nonton TV, relax, ikut sinetron favorit. Hak setiap orang.',
-        'Suatu kali, dia coba langganan sebuah platform streaming. Niatnya satu: ingin nonton sinetron yang dia ikutin. Tapi platformnya punya menu yang gak straightforward, package-package yang bersaing untuk ke-pilih.',
-        'Dan Eli, dengan kejujurannya yang familiar, salah klik. Bukan package sinetron yang ke-subscribe — tapi package sports premium. Lengkap dengan football, F1, dan MotoGP.',
-        'Hasil dari klik yang salah: Eli yang ingin nonton drama romantis, malah dapet jadwal balap mobil sepanjang weekend. Penonton yang ingin lihat tokoh sinetron jatuh cinta, malah lihat Lewis Hamilton dan Max Verstappen rebutan pole position.',
-        'Yang lebih lucu lagi: dia gak tahu cara unsubscribe atau switch package. Eli mengaku — dia kesulitan menavigasi app jenis itu. Setting yang berlapis-lapis, opsi yang gak intuitive, tombol yang sembunyi di sub-menu. Dia bingung.',
-        'Jadi sementara langganannya jalan terus, dengan content yang gak dia mau. Setiap kali dia buka platform, F1 dan MotoGP yang muncul di trending. Sinetron yang dia tunggu, masih di balik tembok package yang gak sengaja dia tinggalkan.',
-        'Eli ketawa pas cerita ini. Bukan frustration mendalam, lebih ke acceptance kalau ya, dia memang gaptek. Bukan teknologi besar — bukan dia gak bisa pakai laptop atau handphone. Tapi navigasi UI yang penuh trik psikologi memang bikin pusing.',
-        'Cerita ini relatable banget. Berapa banyak dari kita yang udah salah langganan sesuatu, lalu kesulitan unsubscribe? Berapa banyak dari kita yang sebenarnya gak suka dengan platform yang sengaja bikin sulit cancel? Eli, dengan jujur, mengakui: dia salah satunya.',
-        'Idol pun gaptek. Idol pun bisa salah klik. Idol pun bisa terjebak langganan F1 padahal mau sinetron. Itulah salah satu hal yang membuat Eli relatable — dia gak nyamarin sisi yang gak sempurna. Dia ketawa-in.',
-        'Cerita serupa muncul lagi di kasus TikTok. Padahal dia user TikTok rutin (sehari-hari pakai sambil ngerjain tugas), tapi pernah dia frustrasi pas mau setup fitur story atau video — interface-nya berubah lagi, tombol yang dulu familiar pindah ke sub-menu yang asing. Kenapa app keep changing? Eli mengaku kesulitan dengan fitur basic sekalipun. Sama frustrasinya dengan ibu-ibu yang baru install TikTok pertama kali.',
-        'Mungkin teknologi besar memang punya kebiasaan ngubah-ngubah. Tapi kebiasaan manusia adalah merasa bingung tiap kali itu terjadi. Eli — terkenal sekalipun — juga di-include dalam kebingungan itu.',
+        'Ada perbedaan antara cita-cita dan kenyataan. Eli, dengan kejujurannya yang khas, pernah membicarakannya secara terbuka di salah satu live streamnya.',
+        'Cita-citanya selalu jelas: bernyanyi dan tampil untuk fans. Itu yang membuatnya memilih JKT48 dulu — bukan dengan ekspektasi instan menjadi sentral, tapi karena di sana dia bisa berdiri di atas panggung dan bertemu orang-orang yang akan menemani perjalanan.',
+        'Tapi industri idol punya logika sendiri. Spotlight terbatas. Slot solo terbatas. Kesempatan untuk menampilkan potensi penuh — bukan sesuatu yang dijamin, bahkan untuk member yang sudah konsisten sejak bertahun-tahun.',
+        'Eli tahu ini. Dan dia juga tahu bahwa keputusan tentang siapa yang mendapat slot, siapa yang masuk formasi tertentu, siapa yang difokuskan untuk single mana — semua itu di luar kendalinya. Sistem akan terus berputar, fokus akan terus bergeser ke member-member baru yang baru naik. Itu cara industri ini bekerja.',
+        'Dia mengakuinya tanpa pahit, tanpa keluhan yang berlebihan. Tapi dia juga jujur: ini berdampak pada pertumbuhannya sebagai performer. Setiap kali tidak ada kesempatan untuk solo, untuk lead vocal, untuk momen spotlight — bagian dari dirinya yang sudah berlatih bertahun-tahun untuk siap dipanggung tidak terpakai.',
+        'Tapi cerita Eli tidak berakhir di sana. Dia menemukan jalannya sendiri.',
+        'Live streaming — yang dulu mungkin dianggap "panggung sampingan" — jadi panggung utamanya. Di IDN Live, di SHOWROOM, di setiap sesi live yang dia buka, dia bisa bernyanyi tanpa kompetisi slot. Dia bisa berinteraksi dengan fans tanpa harus melalui filter manajemen. Dia bisa jadi versi terbaik dari dirinya sebagai performer, dengan caranya sendiri.',
+        'Mungkin panggungnya lebih kecil. Mungkin tidak ada lampu studio yang menyorot. Mungkin tidak ada penonton ribuan di gedung theater. Tapi yang penting: ada koneksi. Ada suara yang dibagikan. Ada fans yang menunggu sesi berikutnya dengan tulus.',
+        'Sikap dewasa yang dia bawa: tidak menyerah, tidak juga keras kepala. Menerima realitas industri, sambil tetap setia pada apa yang dia cintai. Live demi live, momen demi momen, dia tetap memilih untuk hadir.',
+        'Karena pada akhirnya, panggung bukan cuma tempat di mana lampu menyala. Panggung adalah di mana kamu memilih untuk bernyanyi.',
       ],
     }),
   },
@@ -616,34 +424,6 @@ export const ARSIP_BOOKS = [
         'Sebenarnya ini bukan mimpi escapist murni. Ini cara Eli menjaga kewarasan. Bisa membayangkan masa depan yang lebih tenang membuat masa sekarang yang penuh kerja jadi lebih bisa dihadapi. Mimpi ini berfungsi seperti pulang ke rumah — tempat yang dia bisa kunjungi secara mental sambil ngerjain hal di realita.',
         'Jadi setiap kali Eli kerja keras di panggung, di backstage, di studio — ada bagian dari dirinya yang masih menyimpan mimpi sederhana itu. Mimpi tentang hari di mana dia bisa leha-leha, lihat hewan, tanpa jadwal yang mengejar.',
         'Mungkin itulah mimpi yang paling jujur. Bukan ingin lebih banyak. Tapi ingin cukup untuk bisa diam dan menikmati.',
-      ],
-    }),
-  },
-  {
-    id: 'panggung-kecil',
-    title: 'Panggung yang Lebih Kecil, Suara yang Tetap Penuh',
-    eyebrow: 'Cerita · Realita Idol',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#5a4868',
-    preview:
-      'Saat sistem tidak memberikan spotlight, Eli memilih bikin panggungnya sendiri.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Ada perbedaan antara cita-cita dan kenyataan. Eli, dengan kejujurannya yang khas, pernah membicarakannya secara terbuka di salah satu live streamnya.',
-        'Cita-citanya selalu jelas: bernyanyi dan tampil untuk fans. Itu yang membuatnya memilih JKT48 dulu — bukan dengan ekspektasi instan menjadi sentral, tapi karena di sana dia bisa berdiri di atas panggung dan bertemu orang-orang yang akan menemani perjalanan.',
-        'Tapi industri idol punya logika sendiri. Spotlight terbatas. Slot solo terbatas. Kesempatan untuk menampilkan potensi penuh — bukan sesuatu yang dijamin, bahkan untuk member yang sudah konsisten sejak bertahun-tahun.',
-        'Eli tahu ini. Dan dia juga tahu bahwa keputusan tentang siapa yang mendapat slot, siapa yang masuk formasi tertentu, siapa yang difokuskan untuk single mana — semua itu di luar kendalinya. Sistem akan terus berputar, fokus akan terus bergeser ke member-member baru yang baru naik. Itu cara industri ini bekerja.',
-        'Dia mengakuinya tanpa pahit, tanpa keluhan yang berlebihan. Tapi dia juga jujur: ini berdampak pada pertumbuhannya sebagai performer. Setiap kali tidak ada kesempatan untuk solo, untuk lead vocal, untuk momen spotlight — bagian dari dirinya yang sudah berlatih bertahun-tahun untuk siap dipanggung tidak terpakai.',
-        'Tapi cerita Eli tidak berakhir di sana. Dia menemukan jalannya sendiri.',
-        'Live streaming — yang dulu mungkin dianggap "panggung sampingan" — jadi panggung utamanya. Di IDN Live, di SHOWROOM, di setiap sesi live yang dia buka, dia bisa bernyanyi tanpa kompetisi slot. Dia bisa berinteraksi dengan fans tanpa harus melalui filter manajemen. Dia bisa jadi versi terbaik dari dirinya sebagai performer, dengan caranya sendiri.',
-        'Mungkin panggungnya lebih kecil. Mungkin tidak ada lampu studio yang menyorot. Mungkin tidak ada penonton ribuan di gedung theater. Tapi yang penting: ada koneksi. Ada suara yang dibagikan. Ada fans yang menunggu sesi berikutnya dengan tulus.',
-        'Sikap dewasa yang dia bawa: tidak menyerah, tidak juga keras kepala. Menerima realitas industri, sambil tetap setia pada apa yang dia cintai. Live demi live, momen demi momen, dia tetap memilih untuk hadir.',
-        'Karena pada akhirnya, panggung bukan cuma tempat di mana lampu menyala. Panggung adalah di mana kamu memilih untuk bernyanyi.',
       ],
     }),
   },

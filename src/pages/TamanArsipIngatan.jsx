@@ -50,6 +50,7 @@ import {
   markBookRead,
   RAK_SLOTS,
   PEDESTAL_ANGLES,
+  DECORATIVE_BOOKS,
 } from '../data/arsipBooks';
 import BookOverlay from '../components/taman/r2/BookOverlay';
 
@@ -2527,6 +2528,43 @@ const BookPedestalsNearMeja = ({
 
   return (
     <group>
+      {/* Decoratif books — drought only, no click handler, no indicator.
+          Model visual aja biar lantai gak terlalu kosong setelah cleanup
+          21 → 13 interactive books. */}
+      {!restored &&
+        DECORATIVE_BOOKS.map((book) => {
+          const rad = (book.angle * Math.PI) / 180;
+          const r = 3.0;
+          const x = Math.cos(rad) * r;
+          const z = Math.sin(rad) * r;
+          const seed = hashSeed(`deco-${book.id}`);
+          const seedZ = hashSeed(`deco-z-${book.id}`);
+          const seedRot = hashSeed(`deco-rot-${book.id}`);
+          // Slight jitter biar gak perfectly aligned dengan ring radius 3.0
+          const jx = (seed - 0.5) * 0.4;
+          const jz = (seedZ - 0.5) * 0.4;
+          const tilt = (seedRot - 0.5) * 0.3;
+          const flat = seed > 0.4;
+          return flat ? (
+            <mesh
+              key={book.id}
+              position={[x + jx, 0.04, z + jz]}
+              rotation={[0, seedRot * Math.PI * 2, tilt]}
+            >
+              <boxGeometry args={[0.26, 0.06, 0.2]} />
+              <meshStandardMaterial color={book.spineColor} roughness={0.9} />
+            </mesh>
+          ) : (
+            <mesh
+              key={book.id}
+              position={[x + jx, 0.12, z + jz]}
+              rotation={[tilt * 0.5, seedRot * Math.PI * 2, tilt * 1.5]}
+            >
+              <boxGeometry args={[0.1, 0.24, 0.16]} />
+              <meshStandardMaterial color={book.spineColor} roughness={0.9} />
+            </mesh>
+          );
+        })}
       {visibleBooks.map((book, i) => {
         const angle = PEDESTAL_ANGLES[book.id];
         if (angle == null) return null;
