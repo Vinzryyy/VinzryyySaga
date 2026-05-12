@@ -4083,6 +4083,7 @@ const TamanScene = ({
   arsipState = 'drought',
   armeniacaCount = 0,
   armeniacaLoaded = false,
+  purified = false,
   compassRotateRef,
   onFlyInComplete,
   onPetakHover,
@@ -4150,12 +4151,13 @@ const TamanScene = ({
     if (userIsHovering && autoRotate) setAutoRotate(false);
   }, [userIsHovering, autoRotate]);
 
-  // Purified = full city restoration (count >= fullRestore / 7000).
+  // Purified = full city restoration (count >= fullRestore / 7000) atau
+  // ?purified=1 dev override. Computed di page level + passed via prop —
+  // override consistency antara scene visuals + AmbientAudio swell.
   // Trigger lighting/particle/landmark swap ke "kota hidup lagi" state.
   // Wounds (CityRuins, DeadTrees) tetap visible — luka kota gak dihapus,
   // tapi atmosfer + life-layer berubah (less dust, more fireflies +
   // petals, dawn palette).
-  const purified = armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore;
 
   return (
     <>
@@ -4912,7 +4914,13 @@ const TamanPetaPage = () => {
   }, [armeniacaCount, armeniacaLoaded]);
   // Purified — full city restoration (count >= 7000). Diteruskan ke
   // AmbientAudio (swell + shimmer) di samping dipakai di scene.
-  const purified = armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore;
+  // Dev override `?purified=1` paksa state purified utk preview tanpa
+  // nunggu count naik. Gated import.meta.env.DEV — production diabaikan.
+  const purifiedOverride =
+    import.meta.env.DEV && searchParams.get('purified') === '1';
+  const purified =
+    purifiedOverride ||
+    (armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
@@ -5103,6 +5111,7 @@ const TamanPetaPage = () => {
               arsipState={arsipState}
               armeniacaCount={armeniacaCount}
               armeniacaLoaded={armeniacaLoaded}
+              purified={purified}
               compassRotateRef={compassRotateRef}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
