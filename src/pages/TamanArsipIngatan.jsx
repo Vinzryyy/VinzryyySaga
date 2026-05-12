@@ -848,8 +848,21 @@ const DustMotes = ({ count, isMobile }) => {
 // Cobwebs — drought only. Banyak triangular plane translucent off-white
 // di lokasi yang masuk akal sarang laba-laba: pojok atas ruangan,
 // sepanjang beam ceiling, sudut antara rak & dinding, sekitar wall
-// breach, plus hanging drape dari ceiling.
+// breach, plus hanging drape dari ceiling. Subtle sway animation
+// (~0.4Hz) via single useFrame walking children — kerasa angin tipis
+// lewat.
 const Cobwebs = () => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.children.forEach((c, i) => {
+      const phase = i * 0.55;
+      const sway = Math.sin(t * 0.4 + phase) * 0.04;
+      // Tambah sway ke baseRotZ yang disimpan di userData saat mount
+      c.rotation.z = (c.userData.baseRotZ || 0) + sway;
+    });
+  });
   const webs = [
     // 4 upper room corners — biggest webs
     { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, Math.PI / 4, 0], size: 0.95 },
@@ -884,9 +897,14 @@ const Cobwebs = () => {
     { pos: [0.5, 4.6, 0.5], rot: [Math.PI / 2.5, 0.3, 0], size: 0.5 },
   ];
   return (
-    <group>
+    <group ref={groupRef}>
       {webs.map((c, i) => (
-        <mesh key={`cob-${i}`} position={c.pos} rotation={c.rot}>
+        <mesh
+          key={`cob-${i}`}
+          position={c.pos}
+          rotation={c.rot}
+          userData={{ baseRotZ: c.rot[2] }}
+        >
           <planeGeometry args={[c.size, c.size]} />
           <meshBasicMaterial
             color="#c8b8a0"
@@ -1691,9 +1709,101 @@ const VaseDecoration = ({ restored }) => (
   </group>
 );
 
+// TeaSteam — 4 small sphere rising & fading dari cup top. Restored only.
+// Single useFrame walking children for performance.
+const TeaSteam = () => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.children.forEach((p, i) => {
+      const phase = i * 0.7;
+      const cycle = (((t * 0.4 + phase) % 1) + 1) % 1;
+      p.position.y = cycle * 0.22;
+      p.position.x = Math.sin(t * 0.8 + phase) * 0.015;
+      if (p.material) p.material.opacity = (1 - cycle) * 0.32;
+    });
+  });
+  return (
+    <group ref={groupRef} position={[0, 0.08, 0]}>
+      {[0, 1, 2, 3].map((i) => (
+        <mesh key={`ts-${i}`}>
+          <sphereGeometry args={[0.012, 6, 6]} />
+          <meshBasicMaterial
+            color="#f4e8d4"
+            transparent
+            opacity={0.25}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// Butterfly — kupu-kupu kecil fluttering dekat vase saat restored.
+// Tie-in ke Armeniaca etymology motif: "kupu-kupu = Eli akan terbang
+// jauh seperti kupu-kupu." Dua wing planes yang flap via rotation
+// useFrame, plus subtle orbit-like drift.
+const Butterfly = () => {
+  const groupRef = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (groupRef.current) {
+      // Orbit drift di sekitar position [-2, 1.0, -2.5] (atas vase)
+      groupRef.current.position.x = Math.cos(t * 0.6) * 0.35;
+      groupRef.current.position.y = 0.45 + Math.sin(t * 0.9) * 0.12;
+      groupRef.current.position.z = Math.sin(t * 0.5) * 0.3;
+      // Face direction
+      groupRef.current.rotation.y = t * 0.6 + Math.PI / 2;
+    }
+    // Wing flap — fast frequency, opposing rotation
+    const flap = Math.sin(t * 18) * 0.7;
+    if (wingLRef.current) wingLRef.current.rotation.y = flap;
+    if (wingRRef.current) wingRRef.current.rotation.y = -flap;
+  });
+  return (
+    <group position={[-2, 0.45, -2.5]}>
+      <group ref={groupRef}>
+        {/* Body */}
+        <mesh>
+          <boxGeometry args={[0.015, 0.015, 0.05]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.85} />
+        </mesh>
+        {/* Left wing */}
+        <mesh ref={wingLRef} position={[-0.025, 0, 0]}>
+          <planeGeometry args={[0.05, 0.04]} />
+          <meshStandardMaterial
+            color="#f4c8d8"
+            emissive="#e09bb0"
+            emissiveIntensity={0.1}
+            roughness={0.8}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        {/* Right wing */}
+        <mesh ref={wingRRef} position={[0.025, 0, 0]}>
+          <planeGeometry args={[0.05, 0.04]} />
+          <meshStandardMaterial
+            color="#f4c8d8"
+            emissive="#e09bb0"
+            emissiveIntensity={0.1}
+            roughness={0.8}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
 // ForgottenTeacup — cangkir keramik kecil + tatakan di tepi meja baca,
 // sisi berlawanan dari lentera. Hint "ada yang ngebaca di sini, lalu
-// pergi." Drought: residu tinta-coklat tea kering. Restored: tea hangat.
+// pergi." Drought: residu tinta-coklat tea kering. Restored: tea hangat
+// + steam rising.
 const ForgottenTeacup = ({ restored }) => (
   <group position={[0.85, 0.78, -0.4]}>
     {/* Saucer */}
@@ -1724,6 +1834,8 @@ const ForgottenTeacup = ({ restored }) => (
         roughness={restored ? 0.4 : 0.95}
       />
     </mesh>
+    {/* Steam rising — restored only, hint tea masih hangat */}
+    {restored && <TeaSteam />}
   </group>
 );
 
@@ -2429,6 +2541,9 @@ const ArsipScene = ({
         </>
       )}
       {restored && <WallSconces />}
+      {/* Butterfly fluttering dekat vase — restored only. Tie-in ke
+          Armeniaca motif "kupu-kupu = Eli akan terbang jauh." */}
+      {restored && <Butterfly />}
 
       <ReadingTable
         hoveredOpenBook={hoveredOpenBook}
