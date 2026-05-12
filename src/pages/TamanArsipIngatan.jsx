@@ -2718,8 +2718,10 @@ const SIDE_TABLE_INTERACTIVE_IDS = [
   'panggung-kecil',
   'asal-nama',
   'language-interference',
+  'sepuluh-pagi',
   'fangirl-dewasa',
   'catok-jinak',
+  'pengangguran-dananya',
 ];
 
 // MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
@@ -2984,20 +2986,22 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 9 books: 3 × 3 grid.
+// Layout 11 books: 4-3-4 row grid.
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.35) — 3 books
-  { dx: -0.7, dz: 0.35 },
-  { dx: 0, dz: 0.35 },
-  { dx: 0.7, dz: 0.35 },
+  // Row belakang (+z 0.4) — 4 books
+  { dx: -0.75, dz: 0.4 },
+  { dx: -0.25, dz: 0.4 },
+  { dx: 0.25, dz: 0.4 },
+  { dx: 0.75, dz: 0.4 },
   // Row tengah (z 0) — 3 books
-  { dx: -0.7, dz: 0 },
+  { dx: -0.55, dz: 0 },
   { dx: 0, dz: 0 },
-  { dx: 0.7, dz: 0 },
-  // Row depan (-z -0.35) — 3 books
-  { dx: -0.7, dz: -0.35 },
-  { dx: 0, dz: -0.35 },
-  { dx: 0.7, dz: -0.35 },
+  { dx: 0.55, dz: 0 },
+  // Row depan (-z -0.4) — 4 books
+  { dx: -0.75, dz: -0.4 },
+  { dx: -0.25, dz: -0.4 },
+  { dx: 0.25, dz: -0.4 },
+  { dx: 0.75, dz: -0.4 },
 ];
 
 const SideTableBooks = ({

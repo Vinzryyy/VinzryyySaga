@@ -40,11 +40,13 @@ export const CATEGORIES = {
 // Pedestal angles untuk drought floor layout (radius 3.0 dari meja).
 export const PEDESTAL_ANGLES = {
   'anak-pohon': 135,              // NW
-  'bukan-kolonial': 120,           // NW (introvert nature, dekat anak-pohon karena thematic)
+  'bukan-kolonial': 120,          // NW (introvert nature)
   'sebelum-panggung': 105,        // N-NE
   'jaipong-akar': 75,             // NE
   'suara-memanggil': 45,          // E-NE
   'panggung-kecil': 15,           // E
+  'sepuluh-pagi': 345,            // E-SE (academic burnout)
+  'pengangguran-dananya': 315,    // SE (escapist dream)
   'catok-jinak': 285,             // SSE (idol skill)
   'fangirl-dewasa': 255,          // SSW
   'language-interference': 225,   // SW
@@ -55,16 +57,18 @@ export const PEDESTAL_ANGLES = {
 // Reading order — narrative arc kronologis hidup Eli.
 export const ARSIP_STORY_ORDER = [
   'anak-pohon',            // masa TK
-  'bukan-kolonial',        // adult introvert nature (root continuation)
+  'bukan-kolonial',        // adult introvert
   'sebelum-panggung',      // pre-JKT48
   'culture-shock',         // adaptasi Bandung→Jakarta
   'jaipong-akar',          // bahasa tubuh
   'suara-memanggil',       // vokal
   'catok-jinak',           // idol skill: catokan
   'asal-nama',             // identitas
-  'language-interference', // mahasiswi Sastra Korea
+  'language-interference', // bahasa lengket otak
+  'sepuluh-pagi',          // academic burnout (cluster Korean studies)
   'fangirl-dewasa',        // perspektif fan changing
   'panggung-kecil',        // industry reality (mature)
+  'pengangguran-dananya',  // escapist dream (closing reflection)
 ];
 
 export const ARSIP_BOOKS = [
@@ -320,6 +324,60 @@ export const ARSIP_BOOKS = [
         'Ada poin yang lebih dalam di sini. Di dunia idol yang menuntut polish konstan, ada banyak skill kecil-kecil yang harus dipelajari di luar latihan main. Makeup. Hair. Wardrobe coordination. Skin care. Semua butuh waktu. Dan gak semua orang punya talent bawaan untuk semuanya.',
         'Eli yang biasa membicarain hal ini dengan humble — bukan dia perfectionist yang nyamarin struggle. Dia mengakui awalnya sulit, sekarang baru bisa. That\'s the most relatable kind of progress: pelan tapi nyata.',
         'Jadi kalau lo lihat Eli dengan rambut yang cantik di panggung, ingat satu hal kecil: itu hasil dari bertahun-tahun belajar pakai catokan. Idol pun harus practice skill basic, bukan dapet semuanya gratis.',
+      ],
+    }),
+  },
+  {
+    id: 'sepuluh-pagi',
+    title: 'Sepuluh Pagi: Rutinitas yang Membuatnya Muak',
+    eyebrow: 'Cerita · Akademis',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#7a6848',
+    preview:
+      'Setiap pagi jam 10, listening bahasa Korea. Sampai akhirnya muak.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Selain JKT48, Eli juga kuliah Sastra Korea. Itu bukan rahasia — di profilnya sudah ditulis. Tapi ada sisi yang jarang dibicarain di balik label "mahasiswi Sastra Korea": rasanya gak selalu indah.',
+        'Pernah Eli curhat soal rutinitas kuliahnya. Setiap hari, mulai jam 10 pagi, dia ada sesi listening bahasa Korea. Itu bukan latihan kasual yang sekali-sekali — itu rutin, setiap hari, dengan intensitas yang tinggi.',
+        'Dan dia mengakui — dia muak. Bukan dengan bahasanya. Bukan dengan kuliahnya. Tapi dengan intensitas yang gak ada habisnya. Berjam-jam mendengarkan, menerjemahkan, menyerap fonetik Korea. Setiap hari.',
+        'Buat orang yang gak pernah belajar bahasa dengan intensitas seperti itu, mungkin sulit relate. Tapi siapa pun yang pernah kuliah bahasa asing tahu rasanya — telinga capek, otak overheating, kemampuan fokus turun pelan-pelan setelah setiap sesi panjang.',
+        'Kombinasi dengan jadwal idol bikin makin berat. Pagi listening Korea, siang theater, sore latihan, malam event. Tidak ada banyak ruang untuk istirahat di antara komitmen-komitmen itu.',
+        'Tapi Eli juga sadar tentang batasan dirinya. Setelah sesi listening yang melelahkan, dia merasa perlu memberi dirinya waktu untuk "menenangkan diri" dari paparan bahasa Korea. Ini bukan pengakuan kelemahan — ini self-awareness yang dewasa: tahu kapan tubuhmu butuh recover supaya gak burnout.',
+        'Ada beautiful tension di cerita ini. Eli yang dedikatif terhadap Korean studies — buktinya dia masih kuliah, masih konsisten, masih bisa ngomong Korea — tapi juga manusia yang merasa muak. Yang gak nyamarin lelahnya, yang ngomong jujur tentang batas.',
+        'Mungkin itu juga sebabnya dia bisa terus jalan. Karena dia tahu kapan harus push, kapan harus rehat. Idol yang sustainable bukan idol yang gak pernah lelah — tapi idol yang tahu cara menjaga energinya supaya bisa bertahan untuk waktu yang lama.',
+        'Setiap kali kamu lihat Eli ngomong sedikit Korea di livestream, ada cerita di belakangnya: bertahun-tahun rutin listening jam 10 pagi, kuliah yang melelahkan, dan moment-moment muak yang dia hadapi dengan dewasa. Tidak ada yang instant.',
+      ],
+    }),
+  },
+  {
+    id: 'pengangguran-dananya',
+    title: 'Pengangguran yang Banyak Dananya',
+    eyebrow: 'Cerita · Mimpi Sederhana',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#6a8868',
+    preview:
+      'Saldo unlimited, keliling dunia lihat hewan. Mimpi yang menjaga kewarasannya.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Setelah obrolan tentang industri yang melelahkan, Eli pernah bicara soal "mimpi"-nya — mimpi yang berbeda dari ambisi karier idol pada umumnya.',
+        '"Pengangguran yang banyak dananya." Kalimat lucu, tapi serius juga di baliknya. Eli mengakui dia ingin jadi pengangguran — bukan pengangguran yang susah, tapi pengangguran yang punya saldo unlimited. Bisa rehat, bisa santai, tanpa harus mikirin jadwal kerja besok.',
+        'Sebagai member JKT48 selama bertahun-tahun, Eli tahu rasanya hidup dengan kalender yang penuh: theater show, latihan choreography, vocal coach, event, live stream, MnG, photoshoot single, comeback prep. Energi yang luar biasa harus terus dipanggil keluar.',
+        'Mimpinya bukan ambisi besar tentang ladder karier. Bukan "saya ingin jadi sentral terus." Bukan "saya ingin populer setinggi-tingginya." Mimpinya, dengan jujur, lebih sederhana: hidup tenang dengan finansial yang aman, tanpa beban kerja.',
+        'Dan dengan saldo unlimited itu, dia mau apa? Keliling dunia. Tapi bukan untuk wisata mewah atau pemandangan ikonik. Eli ingin keliling dunia khusus untuk lihat hewan. Singa di Afrika, panda di China, koala di Australia, paus di Atlantik. Hewan yang gak bisa dia temui dalam kehidupan sehari-hari.',
+        'Cinta dia ke hewan bukan rahasia — di profilnya tertulis dia punya kucing peliharaan. Tapi mimpi keliling dunia untuk lihat hewan-hewan yang jauh menambahkan satu lapisan lagi: ingin tahu, ingin melihat, ingin merasakan dunia yang berisi lebih dari sekadar manusia dan jadwal kerja.',
+        'Sebenarnya ini bukan mimpi escapist murni. Ini cara Eli menjaga kewarasan. Bisa membayangkan masa depan yang lebih tenang membuat masa sekarang yang penuh kerja jadi lebih bisa dihadapi. Mimpi ini berfungsi seperti pulang ke rumah — tempat yang dia bisa kunjungi secara mental sambil ngerjain hal di realita.',
+        'Jadi setiap kali Eli kerja keras di panggung, di backstage, di studio — ada bagian dari dirinya yang masih menyimpan mimpi sederhana itu. Mimpi tentang hari di mana dia bisa leha-leha, lihat hewan, tanpa jadwal yang mengejar.',
+        'Mungkin itulah mimpi yang paling jujur. Bukan ingin lebih banyak. Tapi ingin cukup untuk bisa diam dan menikmati.',
       ],
     }),
   },
