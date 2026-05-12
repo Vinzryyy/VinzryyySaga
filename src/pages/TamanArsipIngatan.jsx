@@ -586,7 +586,7 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
             toneMapped={false}
           />
         </mesh>
-        {/* Floating hover label dengan card backdrop */}
+        {/* Floating hover label */}
         {hoveredOpenBook && (
           <Html
             position={[0, 0.3, 0]}
@@ -596,25 +596,17 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
           >
             <div
               style={{
-                backgroundColor: 'rgba(20, 14, 8, 0.65)',
-                padding: '5px 12px',
-                borderRadius: '4px',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                border: '1px solid rgba(244, 208, 144, 0.2)',
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+                color: 'rgba(255,232,184,0.95)',
+                fontSize: '14px',
+                letterSpacing: '0.01em',
                 whiteSpace: 'nowrap',
+                textShadow:
+                  '0 0 14px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85), 0 1px 2px rgba(0,0,0,0.9)',
               }}
             >
-              <div
-                style={{
-                  fontFamily: '"Fraunces Variable", serif',
-                  fontStyle: 'italic',
-                  color: 'rgba(255,228,178,0.95)',
-                  fontSize: '14px',
-                }}
-              >
-                Halaman Terakhir
-              </div>
+              Tentang Ruangan Ini
             </div>
           </Html>
         )}
@@ -2522,9 +2514,9 @@ const BookPedestalsNearMeja = ({
     });
   });
 
-  // Halaman Terakhir gak di-host di pedestal — dia di meja sebagai
-  // focal open book.
-  const visibleBooks = books.filter((b) => b.id !== 'halaman-terakhir');
+  // Halaman Pembuka gak di-host di pedestal — dia di meja sebagai
+  // focal open book (meta-intro tentang ruangan ini).
+  const visibleBooks = books.filter((b) => b.id !== 'halaman-pembuka');
 
   return (
     <group>
@@ -4325,8 +4317,9 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
   };
 
   const handleOpenBookClick = () => {
-    // Open book di meja sekarang purely decoratif — "Halaman Terakhir"
-    // udah dihapus karena konten-nya duplikat dengan /about. Click no-op.
+    // Open book di meja = "Tentang Ruangan Ini" — meta intro tentang
+    // Arsip Ingatan sebagai konsep.
+    setSelectedBookId('halaman-pembuka');
   };
 
   const handleCloseModal = () => {

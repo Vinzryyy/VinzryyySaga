@@ -64,7 +64,9 @@ export const DECORATIVE_BOOKS = [
 ];
 
 // Reading order — narrative arc kronologis hidup Eli.
+// Halaman Pembuka di paling depan sebagai meta-intro ruangan ini.
 export const ARSIP_STORY_ORDER = [
+  'halaman-pembuka',       // intro ruangan ini (focal di meja)
   'anak-pohon',            // masa TK (childhood)
   'bukan-kolonial',        // adult introvert (continuation)
   'sebelum-panggung',      // pre-JKT48
@@ -81,6 +83,33 @@ export const ARSIP_STORY_ORDER = [
 ];
 
 export const ARSIP_BOOKS = [
+  {
+    id: 'halaman-pembuka',
+    title: 'Tentang Ruangan Ini',
+    eyebrow: 'Pengantar · Arsip Ingatan',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Armeniaca',
+    rakSlot: RAK_SLOTS.MEJA,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#8B4040',
+    preview:
+      'Sebelum kamu mulai baca yang lain, pahami dulu kenapa ruangan ini ada.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Selamat datang di Arsip Ingatan. Sebelum kamu mulai baca buku-buku lain di ruangan ini, baca yang ini dulu — untuk paham kenapa ruangan ini ada.',
+        'Arsip Ingatan adalah ruang khusus untuk cerita-cerita Eli yang TIDAK ditampilkan di tempat lain di project Armeniaca. Di Konstelasi Perjalanan ada milestone karier yang sudah dikenal banyak orang. Di Profil ada data dasar. Di Pohon Kebaikan ada aksi kebaikan. Di About ada cerita Armeniaca sebagai project itu sendiri.',
+        'Tapi Eli yang sebenarnya — bukan Eli yang ada di press release, bukan Eli yang ada di profile box — adalah orang yang punya cerita di luar semua itu. Cerita pohon yang dipanjat saat TK. Cerita teknik elektro yang ditinggalkan. Cerita Jaipong yang bocor ke koreografi JKT48. Cerita "vocal" yang bukan oposisi tapi cara dia bertanya. Cerita-cerita yang dia bagikan secara organik di livestream, di interview, di obrolan dengan fans.',
+        'Inilah yang Arsip Ingatan kumpulkan. Cerita-cerita kecil yang gak banyak dibahas, tapi yang membuatnya kerasa lebih utuh sebagai manusia. Tiap buku di rak adalah satu cerita panjang — bukan rangkuman, bukan list bullet, tapi narasi yang dirajut dari kalimat-kalimat yang Eli sendiri keluarkan.',
+        'Konten di sini gak duplikat dengan apa pun di project. Kalau kamu udah baca milestone karier di Konstelasi, di sini kamu akan menemukan apa yang TIDAK ada di sana. Kalau kamu udah lihat fakta profil, di sini kamu temui cerita di balik fakta itu.',
+        'Tiap buku interactive punya indicator orb gold mengambang di atasnya — itu tanda buku yang bisa dibuka. Buku yang gak punya indicator hanya visual filler, gak ada cerita di dalamnya. Cari titik cahaya, klik bukunya, baca pelan-pelan.',
+        'Ada urutan baca yang disarankan — dari masa kecil ke perjalanan dewasa, lewat persimpangan-persimpangan yang membentuk dia. Tapi gak harus berurutan. Pilih buku yang resonance dengan kamu, baca dengan cara kamu.',
+        'Inilah yang tersisa dari apa yang tidak boleh hilang. Sebagian rak masih berdiri. Sebagian halaman masih bisa dibaca. Silakan.',
+        'Yang lebih penting daripada menyelesaikan semua buku adalah menemukan satu yang membuatmu lebih kenal Eli sebagai manusia. Karena pada akhirnya, itulah tujuan Arsip Ingatan ada.',
+      ],
+    }),
+  },
   {
     id: 'anak-pohon',
     title: 'Anak yang Lebih Suka Pohon',
