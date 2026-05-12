@@ -4510,6 +4510,247 @@ const MossyBoulders = ({ isMobile = false }) => {
   );
 };
 
+// StoneBirdbath — fokal kecil dekat CenterTree (utara, jalan menuju
+// gerbang). Cup-shape stone basin dgn water reflection inside (calm
+// pool). Tempat berhenti, "ada burung yg minum di sini". Subtle water
+// ripple via useFrame opacity pulse.
+const StoneBirdbath = ({ pos = [-1.8, 0, 1.5] }) => {
+  const waterMatRef = useRef();
+  useFrame((state) => {
+    if (!waterMatRef.current) return;
+    const t = state.clock.elapsedTime;
+    waterMatRef.current.emissiveIntensity =
+      0.18 + Math.sin(t * 0.5) * 0.05;
+  });
+  return (
+    <group position={pos}>
+      {/* Pedestal base — wider bottom */}
+      <mesh position={[0, 0.06, 0]}>
+        <cylinderGeometry args={[0.22, 0.26, 0.12, 10]} />
+        <meshStandardMaterial color="#7a6850" roughness={1} />
+      </mesh>
+      {/* Column shaft */}
+      <mesh position={[0, 0.28, 0]}>
+        <cylinderGeometry args={[0.1, 0.13, 0.32, 10]} />
+        <meshStandardMaterial color="#8a7860" roughness={0.95} />
+      </mesh>
+      {/* Cup basin outer */}
+      <mesh position={[0, 0.5, 0]}>
+        <cylinderGeometry args={[0.32, 0.24, 0.12, 16]} />
+        <meshStandardMaterial color="#9a8870" roughness={0.9} />
+      </mesh>
+      {/* Cup basin inner rim — slightly recessed */}
+      <mesh position={[0, 0.55, 0]}>
+        <cylinderGeometry args={[0.28, 0.28, 0.04, 16]} />
+        <meshStandardMaterial color="#7a6850" roughness={0.95} />
+      </mesh>
+      {/* Water inside — soft blue disc dgn emissive subtle (sky reflection
+          feel) */}
+      <mesh position={[0, 0.575, 0]}>
+        <cylinderGeometry args={[0.26, 0.26, 0.02, 16]} />
+        <meshStandardMaterial
+          ref={waterMatRef}
+          color="#8ab8d0"
+          emissive="#6a8aa0"
+          emissiveIntensity={0.2}
+          roughness={0.3}
+          metalness={0.25}
+          transparent
+          opacity={0.85}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// VineDrape — hanging vines + small leaves attached ke target position.
+// Cluster 3-4 vertical thin strands dgn leaf nodes scattered. Pakai di
+// CityRuins + Perpustakaan corners — "kehidupan literally merangkak
+// balik" via tanaman creep.
+const VineDrape = ({ pos, length = 0.8, leafCount = 4 }) => {
+  const leaves = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < leafCount; i++) {
+      arr.push({
+        y: -((i + 1) / (leafCount + 1)) * length,
+        offsetX: ((i * 13) % 5) * 0.02 - 0.04,
+        offsetZ: ((i * 17) % 5) * 0.02 - 0.04,
+        rot: ((i * 41) % 360) * (Math.PI / 180),
+      });
+    }
+    return arr;
+  }, [leafCount, length]);
+  return (
+    <group position={pos}>
+      {/* Main vine strand — thin vertical cylinder */}
+      <mesh position={[0, -length / 2, 0]}>
+        <cylinderGeometry args={[0.008, 0.008, length, 5]} />
+        <meshStandardMaterial color="#4a6028" roughness={0.95} />
+      </mesh>
+      {/* Side strand offset */}
+      <mesh position={[0.04, -length / 2 - 0.05, 0.02]}>
+        <cylinderGeometry args={[0.006, 0.006, length * 0.85, 5]} />
+        <meshStandardMaterial color="#5a7038" roughness={0.95} />
+      </mesh>
+      {/* Leaves — small flat planes along the strand */}
+      {leaves.map((l, i) => (
+        <mesh
+          key={`leaf-${i}`}
+          position={[l.offsetX, l.y, l.offsetZ]}
+          rotation={[0, l.rot, 0.3]}
+        >
+          <boxGeometry args={[0.06, 0.02, 0.04]} />
+          <meshStandardMaterial
+            color="#5a7838"
+            roughness={0.9}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+// VineCreeps — 6 vine drapes scattered di tepi CityRuins (yg ada di
+// luar hex ring). Deterministic pos dari outer radius 14-18.
+const VINE_CREEP_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2 + ((i * 19) % 7) * 0.13;
+    const r = 13 + ((i * 11) % 5);
+    arr.push({
+      pos: [Math.cos(angle) * r, 1.6 + ((i * 13) % 4) * 0.3, Math.sin(angle) * r],
+      length: 0.7 + ((i * 17) % 5) * 0.12,
+      leafCount: 3 + (i % 3),
+    });
+  }
+  return arr;
+})();
+const VineCreeps = () => (
+  <>
+    {VINE_CREEP_DEFS.map((v, i) => (
+      <VineDrape key={`vine-${i}`} {...v} />
+    ))}
+  </>
+);
+
+// WildflowerBush — shrub-shape (rounded foliage sphere) dgn cluster
+// petal blooms densely packed di atas. Beda dari FlowerCluster (single
+// stem) — ini volume bush 0.4-0.6 radius. 4-6 di pinggir peta sebagai
+// "patches of wild garden growth".
+const WILDFLOWER_BUSH_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2 + ((i * 23) % 11) * 0.16;
+    const r = 9 + ((i * 13) % 4);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      scale: 0.85 + ((i * 11) % 5) * 0.1,
+      bloomColor: FLOWER_PALETTE[i % FLOWER_PALETTE.length],
+      accentColor: FLOWER_PALETTE[(i + 3) % FLOWER_PALETTE.length],
+    });
+  }
+  return arr;
+})();
+const WildflowerBush = ({ pos, scale, bloomColor, accentColor }) => (
+  <group position={pos} scale={scale}>
+    {/* Foliage base — green rounded sphere (squashed) */}
+    <mesh position={[0, 0.18, 0]} scale={[1, 0.7, 1]}>
+      <sphereGeometry args={[0.36, 12, 8]} />
+      <meshStandardMaterial color="#4a6028" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.12, 0.22, 0.08]} scale={[0.85, 0.65, 0.85]}>
+      <sphereGeometry args={[0.3, 10, 8]} />
+      <meshStandardMaterial color="#5a7038" roughness={0.95} />
+    </mesh>
+    {/* Bloom cluster atas — multiple petal spheres densely packed */}
+    {[
+      [0, 0.36, 0],
+      [0.14, 0.34, 0.08],
+      [-0.14, 0.34, -0.08],
+      [0.08, 0.38, -0.12],
+      [-0.08, 0.32, 0.14],
+    ].map((p, i) => (
+      <mesh key={`bloom-${i}`} position={p}>
+        <sphereGeometry args={[0.08 + (i % 2) * 0.02, 8, 6]} />
+        <meshStandardMaterial
+          color={i % 2 === 0 ? bloomColor : accentColor}
+          emissive={i % 2 === 0 ? bloomColor : accentColor}
+          emissiveIntensity={0.2}
+          roughness={0.6}
+        />
+      </mesh>
+    ))}
+  </group>
+);
+const WildflowerBushes = ({ isMobile = false }) => {
+  const defs = isMobile
+    ? WILDFLOWER_BUSH_DEFS.slice(0, 3)
+    : WILDFLOWER_BUSH_DEFS;
+  return (
+    <>
+      {defs.map((b, i) => (
+        <WildflowerBush key={`wfb-${i}`} {...b} />
+      ))}
+    </>
+  );
+};
+
+// StringLights — strands of small warm bulbs hanging between DeadTrees
+// & DroughtRing radius. Single horizontal strand line dgn 6-8 bulb
+// points emissive warm peach. Slight bob + bulb flicker random.
+const StringLightStrand = ({ start, end, bulbCount = 7 }) => {
+  const bulbMatRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    bulbMatRefs.current.forEach((mat, i) => {
+      if (!mat) return;
+      // Slight per-bulb flicker, deterministic phase
+      mat.emissiveIntensity = 0.7 + Math.sin(t * 1.6 + i * 0.7) * 0.18;
+    });
+  });
+  const bulbs = useMemo(() => {
+    const arr = [];
+    const [sx, sy, sz] = start;
+    const [ex, ey, ez] = end;
+    for (let i = 0; i < bulbCount; i++) {
+      const t = (i + 1) / (bulbCount + 1);
+      // Sag curve — y dip in middle via sin t * pi
+      const sag = Math.sin(t * Math.PI) * 0.15;
+      arr.push({
+        pos: [
+          sx + (ex - sx) * t,
+          sy + (ey - sy) * t - sag,
+          sz + (ez - sz) * t,
+        ],
+      });
+    }
+    return arr;
+  }, [start, end, bulbCount]);
+  return (
+    <>
+      {bulbs.map((b, i) => (
+        <mesh key={`bulb-${i}`} position={b.pos}>
+          <sphereGeometry args={[0.04, 8, 6]} />
+          <meshStandardMaterial
+            ref={(el) => (bulbMatRefs.current[i] = el)}
+            color="#fff0c8"
+            emissive="#f8c898"
+            emissiveIntensity={0.75}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+const StringLights = () => (
+  <>
+    {/* 3 strands antara berbagai outer-ring landmark positions */}
+    <StringLightStrand start={[-9, 2.2, -6]} end={[-5, 2.1, -9]} bulbCount={6} />
+    <StringLightStrand start={[6, 2.0, 6]} end={[10, 2.2, 3]} bulbCount={7} />
+    <StringLightStrand start={[-2, 2.0, 9]} end={[4, 2.2, 9]} bulbCount={7} />
+  </>
+);
+
 // DistantCrow — 1 burung silhouette terbang lazy huge-radius circle
 // di horizon jauh. Static-y altitude (~8y), radius lebar (28u),
 // kerasa "1 burung kesepian di langit kota mati". Echo dari gersang
@@ -4951,6 +5192,10 @@ const TamanScene = ({
       {purified && <StoneLanterns />}
       {purified && <WoodenBridge pos={[-3.5, 0, -0.6]} rot={0.18} />}
       {purified && <MossyBoulders isMobile={isMobile} />}
+      {purified && <StoneBirdbath pos={[-1.8, 0, 1.5]} />}
+      {purified && <VineCreeps />}
+      {purified && <WildflowerBushes isMobile={isMobile} />}
+      {purified && !isMobile && <StringLights />}
       {purified && <FlowerClusters isMobile={isMobile} />}
       {purified && <GrassBlades isMobile={isMobile} />}
       <PetaFootprintTrails />
