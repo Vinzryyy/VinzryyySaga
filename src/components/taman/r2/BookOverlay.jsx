@@ -468,6 +468,12 @@ const BookBody = ({ book }) => {
 const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
   const scrollRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  // bookId di-extract supaya useEffect deps tracking identity-only,
+  // bukan referensi object. Buku itu sendiri reused antar render (objek
+  // di ARSIP_BOOKS array stabil), tapi pakai ?.id biar lint happy +
+  // jelas intent: re-run saat user pindah buku, bukan saat React
+  // re-render dengan same book object.
+  const bookId = book?.id ?? null;
 
   // Compute prev/next within same rak
   const siblings = useMemo(() => {
@@ -502,10 +508,10 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
 
   // Reset scroll + progress saat ganti buku
   useEffect(() => {
-    if (!book) return;
+    if (!bookId) return;
     setProgress(0);
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
-  }, [book?.id]);
+  }, [bookId]);
 
   // Scroll progress tracking + mark-as-read at >80%
   const handleScroll = () => {
@@ -524,14 +530,14 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
 
   // Mark short books as read on open (no scroll needed)
   useEffect(() => {
-    if (!book || !scrollRef.current) return;
+    if (!bookId || !scrollRef.current) return;
     const el = scrollRef.current;
     const max = el.scrollHeight - el.clientHeight;
     if (max <= 0) {
       setProgress(1);
-      onMarkRead?.(book.id);
+      onMarkRead?.(bookId);
     }
-  }, [book?.id, onMarkRead]);
+  }, [bookId, onMarkRead]);
 
   if (!book) return null;
 

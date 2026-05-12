@@ -46,7 +46,6 @@ import { useIsMobile } from '../components/taman/r3/utils';
 import {
   ARSIP_BOOKS,
   getInteractiveBooks,
-  getRakSiblings,
   getReadBookIds,
   markBookRead,
   RAK_SLOTS,
@@ -325,7 +324,7 @@ const GodRayCone = ({ restored }) => {
 // Centered position (0, 0, 0).
 const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOutOpenBook }) => {
   const openBookRef = useRef();
-  useFrame((state) => {
+  useFrame(() => {
     if (!openBookRef.current) return;
     // Subtle hover lift saat hovered
     const targetY = hoveredOpenBook ? 0.83 : 0.78;
