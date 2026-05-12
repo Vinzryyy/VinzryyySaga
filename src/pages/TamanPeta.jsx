@@ -4455,6 +4455,233 @@ const WoodenBridge = ({ pos = [-3.5, 0, -0.6], rot = 0 }) => (
   </group>
 );
 
+// LotusPads — flat lily pad discs di permukaan air Telaga + 1-2 lotus
+// blooms scattered. Justify ulang fungsi WoodenBridge sebagai "over
+// water" + classic zen garden element matching StoneLantern toro.
+const LOTUS_PAD_DEFS = [
+  { pos: [-5.85, 0.34, -0.85], scale: 0.28, bloom: true },
+  { pos: [-5.6, 0.34, -0.3], scale: 0.22, bloom: false },
+  { pos: [-6.2, 0.34, -0.2], scale: 0.2, bloom: false },
+  { pos: [-5.9, 0.34, 0.2], scale: 0.24, bloom: false },
+  { pos: [-6.4, 0.34, -1.4], scale: 0.25, bloom: true },
+  { pos: [-5.7, 0.34, -1.3], scale: 0.21, bloom: false },
+  { pos: [-7.2, 0.34, -0.5], scale: 0.23, bloom: false },
+];
+const LotusPads = () => (
+  <>
+    {LOTUS_PAD_DEFS.map((p, i) => (
+      <group key={`lotus-${i}`} position={p.pos}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[p.scale, 12]} />
+          <meshStandardMaterial color="#5a8458" roughness={0.85} side={2} />
+        </mesh>
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[p.scale * 0.7, 0.001, 0]}
+        >
+          <circleGeometry args={[p.scale * 0.25, 8]} />
+          <meshStandardMaterial color="#3a5a3a" roughness={0.9} />
+        </mesh>
+        {p.bloom && (
+          <>
+            <mesh position={[0, 0.06, 0]}>
+              <sphereGeometry args={[0.08, 8, 6]} />
+              <meshStandardMaterial
+                color="#f4c8d0"
+                emissive="#e8a8b8"
+                emissiveIntensity={0.2}
+                roughness={0.6}
+              />
+            </mesh>
+            <mesh position={[0, 0.11, 0]}>
+              <coneGeometry args={[0.06, 0.1, 6]} />
+              <meshStandardMaterial color="#f8d8e0" roughness={0.5} />
+            </mesh>
+          </>
+        )}
+      </group>
+    ))}
+  </>
+);
+
+// Cattails — tall reed clusters di rim Telaga (north + east section).
+// Vertical accent + naturalist water-edge marker. Each cluster = 3-4
+// stalks dgn slight offset & tilt.
+const CATTAIL_DEFS = [
+  { pos: [-5.45, 0, -0.5], count: 3, seed: 1 },
+  { pos: [-5.7, 0, 0.05], count: 4, seed: 2 },
+  { pos: [-5.95, 0, 0.4], count: 3, seed: 3 },
+  { pos: [-6.6, 0, 0.55], count: 4, seed: 4 },
+  { pos: [-7.2, 0, 0.55], count: 3, seed: 5 },
+  { pos: [-7.8, 0, 0.25], count: 3, seed: 6 },
+];
+const Cattails = () => (
+  <>
+    {CATTAIL_DEFS.map((c, ci) => (
+      <group key={`cattails-${ci}`} position={c.pos}>
+        {Array.from({ length: c.count }).map((_, j) => {
+          const k = j + c.seed * 7;
+          const offX = ((k * 37) % 5) * 0.04 - 0.08;
+          const offZ = ((k * 53) % 5) * 0.04 - 0.08;
+          const height = 0.45 + ((k * 13) % 4) * 0.08;
+          const tilt = ((k * 17) % 5) * 0.03 - 0.06;
+          return (
+            <group
+              key={j}
+              position={[offX, 0, offZ]}
+              rotation={[tilt, 0, tilt * 0.6]}
+            >
+              <mesh position={[0, height / 2, 0]}>
+                <cylinderGeometry args={[0.012, 0.018, height, 5]} />
+                <meshStandardMaterial color="#6a8048" roughness={0.95} />
+              </mesh>
+              <mesh position={[0, height + 0.06, 0]}>
+                <cylinderGeometry args={[0.025, 0.025, 0.12, 6]} />
+                <meshStandardMaterial color="#7a5028" roughness={0.95} />
+              </mesh>
+              <mesh position={[0, height + 0.15, 0]}>
+                <coneGeometry args={[0.012, 0.05, 5]} />
+                <meshStandardMaterial color="#6a4528" roughness={0.95} />
+              </mesh>
+            </group>
+          );
+        })}
+      </group>
+    ))}
+  </>
+);
+
+// SteppingStones — 4 flat slate stones connecting bridge north end
+// (~-5.3, 1.5) ke PicnicSet (-2.5, 2.2). Bridge jadi connector, bukan
+// dead-end. Slight tilt rotation per stone supaya organik.
+const STEPPING_STONE_DEFS = [
+  { pos: [-4.7, 0.04, 1.65], rot: 0.4, scale: 1.0 },
+  { pos: [-4.05, 0.04, 1.78], rot: -0.2, scale: 0.95 },
+  { pos: [-3.4, 0.04, 1.92], rot: 0.6, scale: 1.05 },
+  { pos: [-2.8, 0.04, 2.08], rot: -0.3, scale: 0.95 },
+];
+const SteppingStones = () => (
+  <>
+    {STEPPING_STONE_DEFS.map((s, i) => (
+      <mesh
+        key={`step-${i}`}
+        position={s.pos}
+        rotation={[-Math.PI / 2, 0, s.rot]}
+        scale={[s.scale * 0.55, 1, s.scale * 0.46]}
+      >
+        <boxGeometry args={[1, 0.07, 1]} />
+        <meshStandardMaterial color="#9a8b78" roughness={0.95} />
+      </mesh>
+    ))}
+  </>
+);
+
+// Tsukubai — Japanese stone water basin Jepang dgn bamboo spout drip
+// (kakei). Mini ornament di sisi timur jembatan, matching toro
+// lantern aesthetic — kerasa "ada yg ngerawat zen taman."
+const Tsukubai = ({ pos = [-4.5, 0, 1.4], rot = 0.3 }) => {
+  const dropRef = useRef();
+  useFrame((state) => {
+    if (!dropRef.current) return;
+    const t = state.clock.elapsedTime;
+    dropRef.current.material.opacity =
+      0.5 + Math.sin(t * 2.5 + pos[0]) * 0.4;
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Foundation stone */}
+      <mesh position={[0, 0.05, 0]}>
+        <cylinderGeometry args={[0.25, 0.3, 0.1, 10]} />
+        <meshStandardMaterial color="#7a6a58" roughness={0.95} />
+      </mesh>
+      {/* Basin bowl */}
+      <mesh position={[0, 0.18, 0]}>
+        <cylinderGeometry args={[0.2, 0.22, 0.14, 12]} />
+        <meshStandardMaterial color="#8a7a68" roughness={0.95} />
+      </mesh>
+      {/* Water surface inside bowl */}
+      <mesh position={[0, 0.235, 0]}>
+        <cylinderGeometry args={[0.16, 0.16, 0.02, 12]} />
+        <meshStandardMaterial
+          color="#3a5a68"
+          roughness={0.4}
+          metalness={0.2}
+          transparent
+          opacity={0.9}
+        />
+      </mesh>
+      {/* Bamboo support post (vertical) */}
+      <mesh position={[-0.35, 0.3, 0]}>
+        <cylinderGeometry args={[0.03, 0.03, 0.6, 6]} />
+        <meshStandardMaterial color="#8a7050" roughness={0.85} />
+      </mesh>
+      {/* Bamboo spout (angled, kakei) */}
+      <mesh position={[-0.2, 0.42, 0]} rotation={[0, 0, -Math.PI / 3]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.35, 6]} />
+        <meshStandardMaterial color="#a89060" roughness={0.85} />
+      </mesh>
+      {/* Drip droplet (pulse opacity utk fake drip) */}
+      <mesh position={[-0.06, 0.3, 0]}>
+        <sphereGeometry args={[0.015, 6, 5]} />
+        <meshStandardMaterial
+          ref={dropRef}
+          color="#aac8d8"
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// BambooCluster — 4 thin tall bamboo stalks dgn horizontal joint rings.
+// Vertical accent matching zen vibe, fill open space east of bridge.
+const BAMBOO_STALK_DEFS = [
+  { offset: [0, 0, 0], height: 1.8, tilt: 0.04 },
+  { offset: [0.18, 0, 0.08], height: 1.6, tilt: -0.05 },
+  { offset: [-0.12, 0, 0.15], height: 1.95, tilt: 0.03 },
+  { offset: [0.06, 0, -0.14], height: 1.7, tilt: -0.03 },
+];
+const BambooCluster = ({ pos = [-3.8, 0, 0.5] }) => (
+  <group position={pos}>
+    {BAMBOO_STALK_DEFS.map((s, i) => (
+      <group
+        key={`bamboo-${i}`}
+        position={s.offset}
+        rotation={[s.tilt, 0, s.tilt * 0.7]}
+      >
+        <mesh position={[0, s.height / 2, 0]}>
+          <cylinderGeometry args={[0.04, 0.05, s.height, 6]} />
+          <meshStandardMaterial color="#8aa860" roughness={0.85} />
+        </mesh>
+        {[0.25, 0.55, 0.85, 1.15, 1.45, 1.75].map(
+          (y, j) =>
+            y < s.height && (
+              <mesh key={j} position={[0, y, 0]}>
+                <cylinderGeometry args={[0.055, 0.055, 0.04, 6]} />
+                <meshStandardMaterial color="#6a8848" roughness={0.9} />
+              </mesh>
+            ),
+        )}
+        <mesh
+          position={[0.08, s.height + 0.05, 0]}
+          rotation={[0, 0, -0.5]}
+        >
+          <planeGeometry args={[0.04, 0.3]} />
+          <meshStandardMaterial color="#7aa848" roughness={0.85} side={2} />
+        </mesh>
+        <mesh
+          position={[-0.08, s.height + 0.05, 0]}
+          rotation={[0, 0, 0.5]}
+        >
+          <planeGeometry args={[0.04, 0.3]} />
+          <meshStandardMaterial color="#7aa848" roughness={0.85} side={2} />
+        </mesh>
+      </group>
+    ))}
+  </group>
+);
+
 // MossyBoulders — 7 rounded boulders dgn moss patch on top, scatter di
 // outer ring radius 12-16. Kasih grounded weight & texture variety —
 // outer ring biar gak all-soft (flowers + grass terus). Deterministic
@@ -5406,6 +5633,11 @@ const TamanScene = ({
       {purified && <CobblestonePath />}
       {purified && <StoneLanterns />}
       {purified && <WoodenBridge pos={[-5.3, 0, 0.8]} rot={Math.PI / 2 + 0.08} />}
+      {purified && <LotusPads />}
+      {purified && <Cattails />}
+      {purified && <SteppingStones />}
+      {purified && <Tsukubai />}
+      {purified && !isMobile && <BambooCluster />}
       {purified && <MossyBoulders isMobile={isMobile} />}
       {purified && <StoneBirdbath pos={[-1.8, 0, 1.5]} />}
       {purified && <VineCreeps />}
