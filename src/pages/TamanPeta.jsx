@@ -1641,6 +1641,45 @@ const CityRuins = ({ isMobile = false }) => {
   );
 };
 
+// DistantCityRuins — layer kedua di radius 40-50 (di belakang CityRuins
+// 22-30). Mostly fog-absorbed silhouette (fog far=38), kerasa kota
+// sprawl jauh, depth atmospheric. Simple box shapes, single dark color,
+// no variation detail — pure silhouette role.
+const DISTANT_RUIN_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 28; i++) {
+    const angle = (i / 28) * Math.PI * 2 + ((i * 23) % 11) * 0.05;
+    const r = 40 + ((i * 17) % 10);
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      h: 0.8 + ((i * 7) % 18) * 0.1, // 0.8-2.6 range
+      w: 0.6 + ((i * 11) % 7) * 0.15, // 0.6-1.5 range
+      rot: ((i * 13) % 31) * 0.1,
+    });
+  }
+  return arr;
+})();
+const DistantCityRuins = ({ isMobile = false }) => {
+  // Mobile cull: 28 → 16
+  const list = isMobile
+    ? DISTANT_RUIN_DEFS.slice(0, 16)
+    : DISTANT_RUIN_DEFS;
+  return (
+    <>
+      {list.map((r, i) => (
+        <mesh
+          key={`distant-ruin-${i}`}
+          position={[r.pos[0], r.h / 2, r.pos[2]]}
+          rotation={[0, r.rot, 0]}
+        >
+          <boxGeometry args={[r.w, r.h, r.w]} />
+          <meshStandardMaterial color="#3a1f24" roughness={1} />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // Stone path — 4 flat oval stones per spoke, dari center ke tiap
 // petak position. 6 spokes total = 24 stones. Kasih visual koneksi
 // "ini hub", path menjari ke 6 petak. Tiap stone punya emissive wave
@@ -3258,6 +3297,7 @@ const TamanScene = ({
           + Fireflies + BirdsFlock + LilyPond sengaja di-skip — terlalu
           alive untuk vibe "tempat tidak layak huni". */}
       <CityRuins isMobile={isMobile} />
+      <DistantCityRuins isMobile={isMobile} />
       <DeadTrees isMobile={isMobile} />
       <SandDust count={isMobile ? 50 : 100} />
       {!isMobile && <WindStreaks count={12} />}
