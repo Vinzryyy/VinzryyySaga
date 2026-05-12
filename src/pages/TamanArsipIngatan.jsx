@@ -446,8 +446,9 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
       </group>
 
       {/* Lentern at table edge — keramik + glass shade + visible flame
-          dengan flicker animation. Selalu nyala (drought atau restored)
-          karena ini source cahaya utama meja baca. */}
+          dengan flicker animation + halo glow billboard. Selalu nyala
+          (drought atau restored) karena ini source cahaya utama meja
+          baca. */}
       <group position={[-0.85, 0.8, 0.35]}>
         <mesh>
           <cylinderGeometry args={[0.09, 0.12, 0.12, 12]} />
@@ -464,6 +465,19 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
             transparent
             opacity={0.55}
             side={THREE.DoubleSide}
+            toneMapped={false}
+          />
+        </mesh>
+        {/* Halo glow — large soft sphere additive, kerasa "cahaya
+            mengembun di udara sekitar lentera." Toneless + low opacity. */}
+        <mesh position={[0, 0.2, 0]}>
+          <sphereGeometry args={[0.55, 14, 10]} />
+          <meshBasicMaterial
+            color="#f4a060"
+            transparent
+            opacity={0.08}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
             toneMapped={false}
           />
         </mesh>
@@ -2218,6 +2232,91 @@ const LenternaSparks = () => {
   );
 };
 
+// WaterDripFromCeiling — drought only. Single droplet jatuh dari atap
+// jebol (~-3, 6, 6) ke lantai (-3, 0, 6) di interval random. Hint
+// "atap bocor, hujan udah pernah masuk." 3 droplet di-stagger phase.
+const WaterDripFromCeiling = () => {
+  const dropRefs = useRef([]);
+  const splashRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    dropRefs.current.forEach((ref, i) => {
+      if (!ref) return;
+      const cycleSec = 4.5 + i * 1.3;
+      const phase = i * 2.1;
+      const cycleT = ((t + phase) % cycleSec) / cycleSec;
+      // Drop falls in first 30% of cycle (0..0.3), rest is invisible
+      if (cycleT < 0.3) {
+        const fallT = cycleT / 0.3;
+        ref.position.y = 6 - fallT * 5.8; // 6 → 0.2
+        if (ref.material) ref.material.opacity = 0.55;
+      } else {
+        if (ref.material) ref.material.opacity = 0;
+      }
+    });
+    splashRefs.current.forEach((ref, i) => {
+      if (!ref) return;
+      const cycleSec = 4.5 + i * 1.3;
+      const phase = i * 2.1;
+      const cycleT = ((t + phase) % cycleSec) / cycleSec;
+      // Splash visible briefly at moment of impact (0.28-0.36)
+      if (cycleT > 0.28 && cycleT < 0.5) {
+        const splashT = (cycleT - 0.28) / 0.22;
+        const scale = splashT * 0.4;
+        ref.scale.set(scale, 1, scale);
+        if (ref.material)
+          ref.material.opacity = (1 - splashT) * 0.45;
+      } else {
+        ref.scale.set(0, 1, 0);
+      }
+    });
+  });
+  const drops = [
+    { x: -3.2, z: 5.8 },
+    { x: -2.4, z: 6.4 },
+    { x: -3.8, z: 5.2 },
+  ];
+  return (
+    <group>
+      {drops.map((d, i) => (
+        <React.Fragment key={`drip-${i}`}>
+          <mesh
+            ref={(el) => {
+              dropRefs.current[i] = el;
+            }}
+            position={[d.x, 6, d.z]}
+          >
+            <sphereGeometry args={[0.018, 6, 4]} />
+            <meshStandardMaterial
+              color="#7a8a98"
+              transparent
+              opacity={0}
+              roughness={0.2}
+              metalness={0.4}
+            />
+          </mesh>
+          {/* Splash ring at impact point */}
+          <mesh
+            ref={(el) => {
+              splashRefs.current[i] = el;
+            }}
+            position={[d.x, 0.01, d.z]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <ringGeometry args={[0.06, 0.1, 12]} />
+            <meshBasicMaterial
+              color="#7a8a98"
+              transparent
+              opacity={0}
+              depthWrite={false}
+            />
+          </mesh>
+        </React.Fragment>
+      ))}
+    </group>
+  );
+};
+
 // Spiders — drought only. 3 titik kecil hitam di sudut atas ruangan
 // dekat cobweb cluster, kerasa "yang bikin sarang masih ada di sini."
 // Statis (gak gerak — laba-laba diam menunggu).
@@ -2629,6 +2728,7 @@ const ArsipScene = ({
         <>
           <Cobwebs />
           <Spiders />
+          <WaterDripFromCeiling />
           <WindStreamlines isMobile={isMobile} />
           <DustFootprints />
           <FallenBookPile />
