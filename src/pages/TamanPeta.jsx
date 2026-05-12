@@ -3081,6 +3081,45 @@ const ShootingStar = () => {
 
 // Moon — disc kecil glow lembut di sudut atas peta. Bukan light source
 // asli (cuma visual), light asli udah dari directionalLight existing.
+// DistantCrow — 1 burung silhouette terbang lazy huge-radius circle
+// di horizon jauh. Static-y altitude (~8y), radius lebar (28u),
+// kerasa "1 burung kesepian di langit kota mati". Echo dari gersang
+// CrowsFlock — peta level dapet 1 watcher minimal.
+const DistantCrow = () => {
+  const groupRef = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime * 0.08;
+    groupRef.current.position.x = Math.cos(t) * 28;
+    groupRef.current.position.y = 8 + Math.sin(t * 0.7) * 0.6;
+    groupRef.current.position.z = Math.sin(t) * 28;
+    groupRef.current.rotation.y = -t + Math.PI / 2;
+    if (wingLRef.current && wingRRef.current) {
+      const flap = Math.sin(state.clock.elapsedTime * 1.8) * 0.4;
+      wingLRef.current.rotation.z = 0.3 + flap;
+      wingRRef.current.rotation.z = -0.3 - flap;
+    }
+  });
+  return (
+    <group ref={groupRef}>
+      <mesh>
+        <boxGeometry args={[0.5, 0.14, 0.18]} />
+        <meshBasicMaterial color="#1a0f12" fog />
+      </mesh>
+      <mesh ref={wingLRef} position={[0, 0, 0.1]}>
+        <boxGeometry args={[0.42, 0.025, 0.55]} />
+        <meshBasicMaterial color="#1a0f12" fog />
+      </mesh>
+      <mesh ref={wingRRef} position={[0, 0, -0.1]}>
+        <boxGeometry args={[0.42, 0.025, 0.55]} />
+        <meshBasicMaterial color="#1a0f12" fog />
+      </mesh>
+    </group>
+  );
+};
+
 // MoonShafts — light shaft volumetric dari moon position menembus
 // dust haze ke ground. 4 cone-shaped beams angled berbeda, additive
 // blend supaya glow tipis (bukan solid block). Open-ended cylinder
@@ -3361,6 +3400,7 @@ const TamanScene = ({
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
       {!isMobile && <MoonShafts />}
+      <DistantCrow />
       <CenterTree
         hovered={hoveredCenter}
         visited={previewedPetak.has('pohon')}
