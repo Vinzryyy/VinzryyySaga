@@ -801,6 +801,142 @@ const DustMotes = ({ count, isMobile }) => {
   );
 };
 
+// Cobwebs — drought only. 4 triangular plane di pojok atas ruangan
+// (corner-mounted), translucent off-white. Subtle abandoned hint.
+const Cobwebs = () => {
+  // 4 upper corners: NE, NW, SE, SW
+  const corners = [
+    { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, Math.PI / 4, 0] },
+    { pos: [ROOM_W / 2 - 0.4, ROOM_H - 0.4, ROOM_D / 2 - 0.4], rot: [0, -Math.PI / 4, 0] },
+    { pos: [-ROOM_W / 2 + 0.4, ROOM_H - 0.4, -ROOM_D / 2 + 0.4], rot: [0, -Math.PI / 4, 0] },
+    { pos: [ROOM_W / 2 - 0.4, ROOM_H - 0.4, -ROOM_D / 2 + 0.4], rot: [0, Math.PI / 4, 0] },
+  ];
+  return (
+    <group>
+      {corners.map((c, i) => (
+        <mesh key={`cob-${i}`} position={c.pos} rotation={c.rot}>
+          <planeGeometry args={[0.9, 0.9]} />
+          <meshBasicMaterial
+            color="#c8b8a0"
+            transparent
+            opacity={0.18}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// WindStreamlines — drought only. 6 horizontal streaks tipis dari wall
+// breach (-X di z=4-6) drift ke kanan + fade out. Kerasa "angin lewat
+// dari celah dinding." Lebih kerasa abandoned + open-to-elements.
+const WindStreamlines = ({ isMobile }) => {
+  const count = isMobile ? 4 : 8;
+  const groupRef = useRef();
+  const streaks = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      const seed = hashSeed(`ws-${i}`);
+      arr.push({
+        baseY: 1.0 + seed * 2.5,
+        baseZ: 4 + hashSeed(`ws-z-${i}`) * 2,
+        phase: seed * Math.PI * 2,
+        speed: 0.5 + seed * 0.4,
+        length: 0.6 + hashSeed(`ws-l-${i}`) * 0.8,
+      });
+    }
+    return arr;
+  }, [count]);
+
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.children.forEach((child, i) => {
+      const s = streaks[i];
+      if (!s) return;
+      // Cycle: dari x=-7 ke x=+3, total 10 units, ~speed s.speed per sec
+      const cycle = 6;
+      const localT = ((t * s.speed + s.phase) % cycle) / cycle;
+      child.position.x = -7 + localT * 10;
+      child.position.y = s.baseY + Math.sin(t * 0.7 + s.phase) * 0.05;
+      // Fade in di awal, fade out di akhir
+      const opacity =
+        localT < 0.15
+          ? (localT / 0.15) * 0.25
+          : localT > 0.7
+            ? ((1 - localT) / 0.3) * 0.25
+            : 0.25;
+      if (child.material) child.material.opacity = opacity;
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {streaks.map((s, i) => (
+        <mesh
+          key={`ws-${i}`}
+          position={[-7, s.baseY, s.baseZ]}
+          rotation={[0, 0, 0]}
+        >
+          <boxGeometry args={[s.length, 0.008, 0.008]} />
+          <meshBasicMaterial
+            color="#f4d090"
+            transparent
+            opacity={0.2}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// DustFootprints — drought only. Trail jejak debu dari south door
+// (z=-9, x=0) ke meja baca (z=0). Sparse circles deterministic-
+// distributed, subtle. Hint "ada yang lewat sini sebelum kota mati."
+const DustFootprints = () => {
+  const prints = useMemo(() => {
+    const arr = [];
+    const step = 0.8;
+    for (let z = -8.5; z < -1; z += step) {
+      const i = (z + 8.5) / step;
+      const side = i % 2 === 0 ? 0.18 : -0.18; // alternate kiri-kanan
+      const jitterX = (hashSeed(`fp-x-${i}`) - 0.5) * 0.3;
+      const jitterZ = (hashSeed(`fp-z-${i}`) - 0.5) * 0.2;
+      arr.push({
+        x: side + jitterX,
+        z: z + jitterZ,
+        size: 0.12 + hashSeed(`fp-s-${i}`) * 0.06,
+        opacity: 0.15 + hashSeed(`fp-o-${i}`) * 0.1,
+      });
+    }
+    return arr;
+  }, []);
+  return (
+    <group>
+      {prints.map((p, i) => (
+        <mesh
+          key={`fp-${i}`}
+          position={[p.x, 0.008, p.z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <circleGeometry args={[p.size, 10]} />
+          <meshBasicMaterial
+            color="#d4b8a0"
+            transparent
+            opacity={p.opacity}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 // FallenBookPile — drought-only narrative detail. Tumpukan buku yang
 // jatuh dari rak W tumbang, berhamburan di lantai sekitar rak. Bukan
 // interactive — purely visual storytelling "buku-buku tumpah pas rak
@@ -995,7 +1131,15 @@ const ArsipScene = ({
       <GodRayCone restored={restored} />
       <DustMotes count={200} isMobile={isMobile} />
       <PaperDrift count={restored ? 4 : 14} isMobile={isMobile} />
-      {!restored && <FallenBookPile />}
+      {/* Drought-only atmospheric storytelling layer */}
+      {!restored && (
+        <>
+          <Cobwebs />
+          <WindStreamlines isMobile={isMobile} />
+          <DustFootprints />
+          <FallenBookPile />
+        </>
+      )}
       {restored && <WallSconces />}
 
       <ReadingTable
