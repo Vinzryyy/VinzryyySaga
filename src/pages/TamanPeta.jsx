@@ -1111,80 +1111,85 @@ const PetaArsip = ({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Visited halo — sepia ring di base saat udah dikunjungi */}
-      {visited && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
-          <ringGeometry args={[1.6, 1.85, 32]} />
+      {/* Building meshes di-wrap di inner group dengan scale uniform.
+          1.6x dipilih supaya footprint Arsip kerasa landmark setara
+          Telaga (radius rim ~1.6) di sisi timur — bangunan jadi sekitar
+          2.5 × 2.1 × 2.4 footprint dari sebelumnya 1.6 × 1.3 × 1.4. */}
+      <group scale={1.6}>
+        {/* Visited halo — sepia ring di base saat udah dikunjungi */}
+        {visited && (
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
+            <ringGeometry args={[1.05, 1.2, 32]} />
+            <meshStandardMaterial
+              color={petakState === 'restored' ? '#e8d4a8' : '#c8a060'}
+              emissive="#a87060"
+              emissiveIntensity={0.4}
+              transparent
+              opacity={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+        )}
+
+        {/* Foundation — segi-empat low di base. Dark warm tone match
+            peta dusty palette (bukan cream cerah — bangunan harus
+            kerasa "weathered ruin" bukan landmark utama). */}
+        <mesh position={[0, 0.1, 0]}>
+          <boxGeometry args={[1.6, 0.2, 1.3]} />
+          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+        </mesh>
+
+        {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong.
+            Tone selaras CityRuins/Telaga (`#3-5x3-4x2-3x` warm browns) —
+            biar gak nge-glow di scene yang dusty. */}
+        <mesh position={[0.6, 0.65, 0]}>
+          <boxGeometry args={[0.12, 0.9, 1.3]} />
+          <meshStandardMaterial color="#4a3528" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 0.65, -0.6]}>
+          <boxGeometry args={[1.32, 0.9, 0.12]} />
+          <meshStandardMaterial color="#5a4030" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 0.65, 0.6]}>
+          <boxGeometry args={[1.32, 0.9, 0.12]} />
+          <meshStandardMaterial color="#5a4030" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.6, 0.4, -0.3]}>
+          <boxGeometry args={[0.12, 0.4, 0.6]} />
+          <meshStandardMaterial color="#4a3528" roughness={0.95} />
+        </mesh>
+
+        {/* Window — restored state nyala warm tapi intensity diturunin
+            0.4 → 0.22 supaya hint glow, bukan dominate scene. Drought:
+            gelap solid. */}
+        <mesh position={[0.54, 0.6, 0]}>
+          <boxGeometry args={[0.04, 0.35, 0.5]} />
           <meshStandardMaterial
-            color={petakState === 'restored' ? '#e8d4a8' : '#c8a060'}
-            emissive="#a87060"
-            emissiveIntensity={0.4}
-            transparent
-            opacity={0.5}
-            toneMapped={false}
+            ref={windowMatRef}
+            color={petakState === 'restored' ? '#d49060' : '#2a1812'}
+            emissive={petakState === 'restored' ? '#d49060' : '#000000'}
+            emissiveIntensity={petakState === 'restored' ? 0.22 : 0}
+            roughness={0.6}
           />
         </mesh>
-      )}
 
-      {/* Foundation — segi-empat low di base. Dark warm tone match
-          peta dusty palette (bukan cream cerah — bangunan harus
-          kerasa "weathered ruin" bukan landmark utama). */}
-      <mesh position={[0, 0.1, 0]}>
-        <boxGeometry args={[1.6, 0.2, 1.3]} />
-        <meshStandardMaterial color="#3a2820" roughness={0.95} />
-      </mesh>
+        {/* Atap — beam kayu paralel sumbu z. Pojok depan-atas sengaja
+            tidak ditutup (atap jebol signature). */}
+        <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
+          <boxGeometry args={[1.1, 0.08, 1.4]} />
+          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
+          <boxGeometry args={[0.5, 0.06, 0.06]} />
+          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
+          <boxGeometry args={[0.06, 0.06, 0.4]} />
+          <meshStandardMaterial color="#3a2820" roughness={0.95} />
+        </mesh>
+      </group>
 
-      {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong.
-          Tone selaras CityRuins/Telaga (`#3-5x3-4x2-3x` warm browns) —
-          biar gak nge-glow di scene yang dusty. */}
-      <mesh position={[0.6, 0.65, 0]}>
-        <boxGeometry args={[0.12, 0.9, 1.3]} />
-        <meshStandardMaterial color="#4a3528" roughness={0.95} />
-      </mesh>
-      <mesh position={[0, 0.65, -0.6]}>
-        <boxGeometry args={[1.32, 0.9, 0.12]} />
-        <meshStandardMaterial color="#5a4030" roughness={0.95} />
-      </mesh>
-      <mesh position={[0, 0.65, 0.6]}>
-        <boxGeometry args={[1.32, 0.9, 0.12]} />
-        <meshStandardMaterial color="#5a4030" roughness={0.95} />
-      </mesh>
-      <mesh position={[-0.6, 0.4, -0.3]}>
-        <boxGeometry args={[0.12, 0.4, 0.6]} />
-        <meshStandardMaterial color="#4a3528" roughness={0.95} />
-      </mesh>
-
-      {/* Window — restored state nyala warm tapi intensity diturunin
-          0.4 → 0.22 supaya hint glow, bukan dominate scene. Drought:
-          gelap solid. */}
-      <mesh position={[0.54, 0.6, 0]}>
-        <boxGeometry args={[0.04, 0.35, 0.5]} />
-        <meshStandardMaterial
-          ref={windowMatRef}
-          color={petakState === 'restored' ? '#d49060' : '#2a1812'}
-          emissive={petakState === 'restored' ? '#d49060' : '#000000'}
-          emissiveIntensity={petakState === 'restored' ? 0.22 : 0}
-          roughness={0.6}
-        />
-      </mesh>
-
-      {/* Atap — beam kayu paralel sumbu z. Pojok depan-atas sengaja
-          tidak ditutup (atap jebol signature). */}
-      <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
-        <boxGeometry args={[1.1, 0.08, 1.4]} />
-        <meshStandardMaterial color="#3a2820" roughness={0.95} />
-      </mesh>
-      <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
-        <boxGeometry args={[0.5, 0.06, 0.06]} />
-        <meshStandardMaterial color="#3a2820" roughness={0.95} />
-      </mesh>
-      <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
-        <boxGeometry args={[0.06, 0.06, 0.4]} />
-        <meshStandardMaterial color="#3a2820" roughness={0.95} />
-      </mesh>
-
-
-      <Html position={[0, 1.5, 0]} center distanceFactor={10} occlude={false}>
+      <Html position={[0, 2.3, 0]} center distanceFactor={10} occlude={false}>
         <div
           className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
             hovered ? '-translate-y-1' : ''
