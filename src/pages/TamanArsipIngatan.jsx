@@ -1946,6 +1946,51 @@ const CardCatalog = () => (
   </group>
 );
 
+// FloorLamp — standing lamp di samping wing chair. Restored: nyala
+// hangat. Drought: gelap (no light). Bikin pojok wing chair gak
+// terlalu gelap, kerasa "ada reading nook proper."
+const FloorLamp = ({ restored }) => (
+  <group position={[5.7, 0, -4.3]}>
+    {/* Base */}
+    <mesh position={[0, 0.03, 0]}>
+      <cylinderGeometry args={[0.18, 0.22, 0.06, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.85} />
+    </mesh>
+    {/* Pole */}
+    <mesh position={[0, 0.85, 0]}>
+      <cylinderGeometry args={[0.025, 0.025, 1.7, 8]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.7} metalness={0.2} />
+    </mesh>
+    {/* Lampshade — cone shape */}
+    <mesh position={[0, 1.78, 0]}>
+      <cylinderGeometry args={[0.18, 0.26, 0.2, 14, 1, true]} />
+      <meshStandardMaterial
+        color={restored ? '#d4b890' : '#5a4030'}
+        roughness={0.85}
+        side={THREE.DoubleSide}
+        emissive={restored ? '#a87850' : '#000'}
+        emissiveIntensity={restored ? 0.25 : 0}
+      />
+    </mesh>
+    {/* Bulb inside shade — restored only */}
+    {restored && (
+      <>
+        <mesh position={[0, 1.78, 0]}>
+          <sphereGeometry args={[0.06, 10, 8]} />
+          <meshBasicMaterial color="#f4d090" toneMapped={false} />
+        </mesh>
+        <pointLight
+          position={[0, 1.78, 0]}
+          color="#f4c080"
+          intensity={0.6}
+          distance={3.5}
+          decay={2}
+        />
+      </>
+    )}
+  </group>
+);
+
 // 5. WingChair — kursi besar di pojok southeast dengan throw blanket
 const WingChair = ({ restored }) => (
   <group position={[5, 0, -5]} rotation={[0, -0.9, 0]}>
@@ -2826,7 +2871,10 @@ const StackedBooksNearMeja = ({
 // dengan main meja di edge x=-1.2). Isi 7 buku sisanya yang belum ada di
 // meja/stack. Restored only. Side table dimensi 2.0 × 1.2 (depth sama
 // dengan main meja biar visual nyambung perfect).
-const SIDE_TABLE_POS = [-2.2, 0, 0];
+// Side table edge at x=-1.2 (sama dengan main meja edge kiri), tables
+// touching tanpa gap. Position x = -1.8 setelah rotation 90° → table
+// width 1.2 di world X, spans -2.4..-1.2.
+const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
@@ -2889,6 +2937,39 @@ const SideTableBooks = ({
         <boxGeometry args={[SIDE_TABLE_W - 0.1, 0.02, SIDE_TABLE_D - 0.1]} />
         <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
       </mesh>
+      {/* Small lentera di edge timur side table — kasih warm light
+          ke books, kerasa "ada yang baca di sini." */}
+      <group position={[0.9, 0.79, 0.4]}>
+        <mesh>
+          <cylinderGeometry args={[0.06, 0.08, 0.08, 10]} />
+          <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.7} />
+        </mesh>
+        <mesh position={[0, 0.085, 0]}>
+          <cylinderGeometry args={[0.035, 0.035, 0.04, 10]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.14, 0]}>
+          <cylinderGeometry args={[0.07, 0.05, 0.1, 10, 1, true]} />
+          <meshBasicMaterial
+            color="#f4d090"
+            transparent
+            opacity={0.5}
+            side={THREE.DoubleSide}
+            toneMapped={false}
+          />
+        </mesh>
+        <mesh position={[0, 0.13, 0]}>
+          <sphereGeometry args={[0.016, 8, 6]} />
+          <meshBasicMaterial color="#f4a060" toneMapped={false} />
+        </mesh>
+        <pointLight
+          position={[0, 0.13, 0]}
+          color="#f4a060"
+          intensity={0.55}
+          distance={3.0}
+          decay={2}
+        />
+      </group>
 
       {/* 7 books arranged di top */}
       {sideBooks.map((book, i) => {
@@ -3771,6 +3852,7 @@ const ArsipScene = ({
       <Globe restored={restored} />
       <CardCatalog />
       <WingChair restored={restored} />
+      <FloorLamp restored={restored} />
       <Hourglass restored={restored} />
       <PlantPot restored={restored} />
 
