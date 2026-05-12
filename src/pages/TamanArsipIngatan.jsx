@@ -790,7 +790,7 @@ const Bookshelf = ({
 // Paper drift — sheet kertas berserakan di lantai (drought heavier,
 // restored sparse). Tiap sheet plane tipis dengan deterministic position.
 const PaperDrift = ({ count, isMobile }) => {
-  const actualCount = isMobile ? Math.floor(count * 0.4) : count;
+  const actualCount = isMobile ? Math.floor(count * 0.3) : count;
   const papers = useMemo(() => {
     const arr = [];
     for (let i = 0; i < actualCount; i++) {
@@ -837,7 +837,7 @@ const PaperDrift = ({ count, isMobile }) => {
 // Dust motes — sphere kecil di sinar cone, additive blending biar
 // kerasa "debu di sinar matahari."
 const DustMotes = ({ count, isMobile }) => {
-  const actualCount = isMobile ? Math.floor(count * 0.4) : count;
+  const actualCount = isMobile ? Math.floor(count * 0.25) : count;
   const motesRef = useRef();
   const motes = useMemo(() => {
     const arr = [];
@@ -891,15 +891,13 @@ const DustMotes = ({ count, isMobile }) => {
 };
 
 // Cobwebs — drought only. Banyak triangular plane translucent off-white
-// di lokasi yang masuk akal sarang laba-laba: pojok atas ruangan,
-// sepanjang beam ceiling, sudut antara rak & dinding, sekitar wall
-// breach, plus hanging drape dari ceiling. Subtle sway animation
-// (~0.4Hz) via single useFrame walking children — kerasa angin tipis
-// lewat.
-const Cobwebs = () => {
+// di lokasi yang masuk akal sarang laba-laba. Sway animation cuma jalan
+// di desktop (mobile: static). Mobile juga cuma render subset webs (8
+// dari 22) buat reduce transparent mesh count.
+const Cobwebs = ({ isMobile = false }) => {
   const groupRef = useRef();
   useFrame((state) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || isMobile) return;
     const t = state.clock.elapsedTime;
     groupRef.current.children.forEach((c, i) => {
       const phase = i * 0.55;
@@ -941,9 +939,12 @@ const Cobwebs = () => {
     // Above reading table (faint, sky-net feel)
     { pos: [0.5, 4.6, 0.5], rot: [Math.PI / 2.5, 0.3, 0], size: 0.5 },
   ];
+  // Mobile: subset 8 webs (corner + breach area only) — skip ceiling
+  // beam edges + drape (less impact, more cost karena transparency).
+  const visibleWebs = isMobile ? webs.slice(0, 8) : webs;
   return (
     <group ref={groupRef}>
-      {webs.map((c, i) => (
+      {visibleWebs.map((c, i) => (
         <mesh
           key={`cob-${i}`}
           position={c.pos}
@@ -1145,7 +1146,7 @@ const DamagedBooks = ({ isMobile }) => {
 // yang robek (smaller than PaperDrift sheets, lebih banyak). Scattered
 // di seluruh ruangan, mostly cluster ke arah breach (tertiup angin).
 const TornPaperPieces = ({ isMobile }) => {
-  const count = isMobile ? 18 : 36;
+  const count = isMobile ? 12 : 36;
   const pieces = useMemo(() => {
     const arr = [];
     for (let i = 0; i < count; i++) {
@@ -1313,13 +1314,14 @@ const DustFootprints = () => {
 // jatuh dari rak W tumbang, berhamburan di lantai sekitar rak. Bukan
 // interactive — purely visual storytelling "buku-buku tumpah pas rak
 // runtuh." Restored state: papan-papan disusun balik, pile ilang.
-const FallenBookPile = () => {
+const FallenBookPile = ({ isMobile = false }) => {
+  const count = isMobile ? 5 : 10;
   const books = useMemo(() => {
     const arr = [];
     const seedColors = ['#7a3030', '#5a4030', '#3a4858', '#c8a060', '#5a3025', '#7a5840'];
-    // Cluster di sekitar rak W (x:-6.5, z:2). 10 buku scattered dalam
+    // Cluster di sekitar rak W (x:-6.5, z:2). N buku scattered dalam
     // radius ~1.5 unit, mixed orientation (some flat, some leaning).
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < count; i++) {
       const seed = hashSeed(`fbp-${i}`);
       const seedR = hashSeed(`fbp-r-${i}`);
       const seedA = hashSeed(`fbp-a-${i}`);
@@ -1335,7 +1337,7 @@ const FallenBookPile = () => {
       });
     }
     return arr;
-  }, []);
+  }, [count]);
 
   return (
     <group>
@@ -2305,9 +2307,9 @@ const DoorFrame = ({ restored }) => (
 // catalog, lectern, globe, dst). Karena shadows={false} di Canvas
 // (perf budget), AO real gak ada. Disc subtle ini grounding visual:
 // objek kerasa "duduk di lantai," bukan mengambang.
-const FloorShadows = () => {
+const FloorShadows = ({ isMobile = false }) => {
   // [x, z, radius] — match posisi objek di scene
-  const shadows = [
+  const allShadows = [
     [0, 0, 1.45],          // reading table
     [0, -1.6, 0.4],         // reading chair
     [5, -5, 0.55],          // wing chair (with skirt area)
@@ -2323,6 +2325,11 @@ const FloorShadows = () => {
     [-6.5, 2, 0.85],        // rak W (tumbang area)
     [6.5, -2, 0.85],        // rak E
   ];
+  // Mobile: skip small object shadows (vase, globe, plant), keep
+  // major ones (rak + table + chair + card catalog + wing chair)
+  const shadows = isMobile
+    ? allShadows.filter((s) => s[2] >= 0.4)
+    : allShadows;
   return (
     <group>
       {shadows.map(([x, z, r], i) => (
@@ -2442,10 +2449,10 @@ const DistantBird = () => {
   );
 };
 
-// WaterDripFromCeiling — drought only. Single droplet jatuh dari atap
-// jebol (~-3, 6, 6) ke lantai (-3, 0, 6) di interval random. Hint
-// "atap bocor, hujan udah pernah masuk." 3 droplet di-stagger phase.
-const WaterDripFromCeiling = () => {
+// WaterDripFromCeiling — drought only. Droplet jatuh dari atap jebol
+// ke lantai di interval random. Hint "atap bocor, hujan udah pernah
+// masuk." Desktop: 3 droplet stagger phase. Mobile: 1 droplet (perf).
+const WaterDripFromCeiling = ({ isMobile = false }) => {
   const dropRefs = useRef([]);
   const splashRefs = useRef([]);
   useFrame((state) => {
@@ -2481,11 +2488,12 @@ const WaterDripFromCeiling = () => {
       }
     });
   });
-  const drops = [
+  const allDrops = [
     { x: -3.2, z: 5.8 },
     { x: -2.4, z: 6.4 },
     { x: -3.8, z: 5.2 },
   ];
+  const drops = isMobile ? allDrops.slice(0, 1) : allDrops;
   return (
     <group>
       {drops.map((d, i) => (
@@ -2933,7 +2941,7 @@ const ArsipScene = ({
       <CameraFlyIn onComplete={onFlyInComplete} />
 
       <Floor />
-      <FloorShadows />
+      <FloorShadows isMobile={isMobile} />
       <LightPoolFloor restored={restored} />
       <Walls restored={restored} />
       <DoorFrame restored={restored} />
@@ -2948,13 +2956,14 @@ const ArsipScene = ({
       {/* Drought-only atmospheric storytelling layer */}
       {!restored && (
         <>
-          <Cobwebs />
+          <Cobwebs isMobile={isMobile} />
           <Spiders />
-          <WaterDripFromCeiling />
-          <DistantBird />
+          <WaterDripFromCeiling isMobile={isMobile} />
+          {/* DistantBird gak essential, skip mobile */}
+          {!isMobile && <DistantBird />}
           <WindStreamlines isMobile={isMobile} />
           <DustFootprints />
-          <FallenBookPile />
+          <FallenBookPile isMobile={isMobile} />
           <BookScatter isMobile={isMobile} />
           <PlasterChunks isMobile={isMobile} />
           <WoodDebris isMobile={isMobile} />
@@ -2965,9 +2974,10 @@ const ArsipScene = ({
         </>
       )}
       {restored && <WallSconces />}
-      {/* Butterfly fluttering dekat vase — restored only. Tie-in ke
-          Armeniaca motif "kupu-kupu = Eli akan terbang jauh." */}
-      {restored && <Butterfly />}
+      {/* Butterfly fluttering dekat vase — restored only, desktop only.
+          Tie-in ke Armeniaca motif. Skip mobile (1 extra animation +
+          gak essential). */}
+      {restored && !isMobile && <Butterfly />}
 
       <ReadingTable
         hoveredOpenBook={hoveredOpenBook}
