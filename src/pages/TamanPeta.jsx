@@ -1587,19 +1587,25 @@ const PetaArsip = ({
   );
 };
 
-// Lantai taman — plane besar tone twilight evening (bukan dark museum
-// hall) dengan grid tipis untuk persepsi skala. Tone biru-warm yang
-// muncul saat senja: matahari masih nyentuh sedikit di langit, tanah
-// pelan-pelan teduh. Pas untuk setting "taman di waktu senja".
-const TamanFloor = () => (
+// Lantai taman — plane besar dengan grid tipis untuk persepsi skala.
+//   drought  → dark warm sandy "desert dusk" (#2a2018)
+//   purified → warm-moss green (rumput segar tumbuh balik), grid match
+const TamanFloor = ({ purified = false }) => (
   <>
-    {/* Dark warm sandy floor — bukan blue museum, base buat desert dusk */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[40, 40]} />
-      <meshStandardMaterial color="#2a2018" roughness={1} />
+      <meshStandardMaterial
+        color={purified ? '#3a4628' : '#2a2018'}
+        roughness={1}
+      />
     </mesh>
     <gridHelper
-      args={[40, 40, '#3a2c22', '#2a2018']}
+      args={[
+        40,
+        40,
+        purified ? '#4a5838' : '#3a2c22',
+        purified ? '#3a4628' : '#2a2018',
+      ]}
       position={[0, 0.005, 0]}
     />
   </>
@@ -1622,29 +1628,33 @@ const DROUGHT_PATCH_DEFS = (() => {
   }
   return arr;
 })();
-// DroughtRing — sand wasteland surrounding the oasis. Desert dusk
-// palette: outer ring deep amber-sand, inner ring sun-bleached
-// lighter, patches dry-amber. Pemulihan muncul lewat saplings +
-// wildflowers yg tumbuh DI ANTARA, bukan ngubah desert itu sendiri.
-const DroughtRing = () => (
+// DroughtRing — outer ground surrounding the inner petak hex.
+//   drought  → sand wasteland (deep amber-sand + bleached ring + dry
+//              patches). Pemulihan visible via saplings yg tumbuh
+//              DI ANTARA, gak ngubah desert itu sendiri.
+//   purified → meadow (mossy green outer + lighter grass inner +
+//              flower patches replacing dry spots).
+const DroughtRing = ({ purified = false }) => (
   <>
-    {/* Outer drought ring — sandy amber, deep tone supaya kerasa
-        wasteland tapi warm (bukan earth-cool brown) */}
+    {/* Outer ring — sand amber (drought) atau warm-moss (purified) */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
       <ringGeometry args={[9.5, 19, 64]} />
-      <meshStandardMaterial color="#5a3520" roughness={1} />
+      <meshStandardMaterial
+        color={purified ? '#4a5d38' : '#5a3520'}
+        roughness={1}
+      />
     </mesh>
-    {/* Inner gradient ring — sun-bleached lighter sand */}
+    {/* Inner gradient ring — sun-bleached sand atau lush meadow */}
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
       <ringGeometry args={[9.5, 11.5, 64]} />
       <meshStandardMaterial
-        color="#7a5535"
+        color={purified ? '#6a8048' : '#7a5535'}
         roughness={1}
         transparent
         opacity={0.75}
       />
     </mesh>
-    {/* Scattered dry patches — bleached sand spots in outer ring */}
+    {/* Scattered patches — dry sand (drought) atau flower bed (purified) */}
     {DROUGHT_PATCH_DEFS.map((p, i) => (
       <mesh
         key={`dp-${i}`}
@@ -1653,11 +1663,152 @@ const DroughtRing = () => (
         scale={p.scale}
       >
         <circleGeometry args={[0.5, 8]} />
-        <meshStandardMaterial color="#8a6535" roughness={1} />
+        <meshStandardMaterial
+          color={purified ? '#7a9858' : '#8a6535'}
+          roughness={1}
+        />
       </mesh>
     ))}
   </>
 );
+
+// FlowerClusters — purified-only. ~24 small flower bouquet clusters
+// scatter di outer ring + petak-adjacent area. Tiap cluster = 1 stem
+// (thin green cylinder) + 3 petal spheres di top dgn warna acak dari
+// palette (peach apricot, soft pink, cream white, warm amber).
+// Deterministic seed via index supaya stable layout tiap render.
+const FLOWER_PALETTE = [
+  '#f4a8a0', // peach apricot
+  '#f8c4a0', // soft peach
+  '#fbd8d8', // soft pink
+  '#fff0d8', // cream
+  '#f4b890', // warm amber
+  '#e88a98', // dusty rose
+];
+const FLOWER_CLUSTER_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 24; i++) {
+    const angle =
+      (i / 24) * Math.PI * 2 + ((i * 19) % 13) * 0.09;
+    // Radius distribution: 60% di outer ring (10-15), 40% inner edge (7-9.5)
+    const inner = i % 5 < 2;
+    const r = inner ? 7 + ((i * 7) % 5) * 0.5 : 10.5 + ((i * 11) % 9) * 0.6;
+    const tilt = ((i * 29) % 12) * 0.04 - 0.2;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      scale: 0.7 + ((i * 13) % 5) * 0.15,
+      tilt,
+      colors: [
+        FLOWER_PALETTE[i % FLOWER_PALETTE.length],
+        FLOWER_PALETTE[(i + 2) % FLOWER_PALETTE.length],
+        FLOWER_PALETTE[(i + 4) % FLOWER_PALETTE.length],
+      ],
+    });
+  }
+  return arr;
+})();
+const FlowerCluster = ({ pos, scale, tilt, colors }) => (
+  <group position={pos} scale={scale} rotation={[0, 0, tilt]}>
+    {/* Stem — thin tall green cylinder */}
+    <mesh position={[0, 0.18, 0]}>
+      <cylinderGeometry args={[0.012, 0.018, 0.36, 5]} />
+      <meshStandardMaterial color="#4a6838" roughness={0.95} />
+    </mesh>
+    {/* 2 small leaves di mid-stem */}
+    <mesh position={[0.05, 0.15, 0]} rotation={[0, 0, -0.6]}>
+      <boxGeometry args={[0.08, 0.025, 0.015]} />
+      <meshStandardMaterial color="#5a7a48" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.05, 0.2, 0.02]} rotation={[0, 0, 0.7]}>
+      <boxGeometry args={[0.07, 0.022, 0.015]} />
+      <meshStandardMaterial color="#5a7a48" roughness={0.95} />
+    </mesh>
+    {/* 3 petal blooms di top, sedikit offset utk volume */}
+    <mesh position={[0, 0.38, 0]}>
+      <sphereGeometry args={[0.075, 8, 6]} />
+      <meshStandardMaterial
+        color={colors[0]}
+        emissive={colors[0]}
+        emissiveIntensity={0.18}
+        roughness={0.6}
+      />
+    </mesh>
+    <mesh position={[0.06, 0.36, 0.04]}>
+      <sphereGeometry args={[0.055, 8, 6]} />
+      <meshStandardMaterial
+        color={colors[1]}
+        emissive={colors[1]}
+        emissiveIntensity={0.15}
+        roughness={0.6}
+      />
+    </mesh>
+    <mesh position={[-0.05, 0.36, -0.04]}>
+      <sphereGeometry args={[0.05, 8, 6]} />
+      <meshStandardMaterial
+        color={colors[2]}
+        emissive={colors[2]}
+        emissiveIntensity={0.15}
+        roughness={0.6}
+      />
+    </mesh>
+  </group>
+);
+const FlowerClusters = ({ isMobile = false }) => {
+  const defs = isMobile
+    ? FLOWER_CLUSTER_DEFS.slice(0, 14)
+    : FLOWER_CLUSTER_DEFS;
+  return (
+    <>
+      {defs.map((d, i) => (
+        <FlowerCluster key={`flower-${i}`} {...d} />
+      ))}
+    </>
+  );
+};
+
+// GrassBlades — purified-only. Thin vertical green plane sprites
+// scattered di outer ring, kasih hint "rumput tumbuh segar lagi". Tinggi
+// rendah (0.12-0.2y) supaya gak crowding peta — accent texture, bukan
+// hero element. Deterministic seed.
+const GRASS_BLADE_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 40; i++) {
+    const angle =
+      (i / 40) * Math.PI * 2 + ((i * 7) % 11) * 0.08;
+    const r = 9.8 + ((i * 13) % 9) * 0.5;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0.06, Math.sin(angle) * r],
+      rot: ((i * 31) % 360) * (Math.PI / 180),
+      height: 0.12 + ((i * 17) % 5) * 0.02,
+    });
+  }
+  return arr;
+})();
+const GrassBlades = ({ isMobile = false }) => {
+  const defs = isMobile
+    ? GRASS_BLADE_DEFS.slice(0, 20)
+    : GRASS_BLADE_DEFS;
+  return (
+    <>
+      {defs.map((d, i) => (
+        <mesh
+          key={`grass-${i}`}
+          position={d.pos}
+          rotation={[0, d.rot, 0]}
+        >
+          <planeGeometry args={[0.05, d.height]} />
+          <meshStandardMaterial
+            color="#5a7848"
+            roughness={1}
+            side={2}
+            transparent
+            opacity={0.85}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
 
 // Narrative whispers — 4 floating Html text fragments di antara petak,
 // pulsing fade in/out dengan phase offset per fragment. Kasih voice
@@ -4388,9 +4539,11 @@ const TamanScene = ({
         intensity={purified ? 0.72 : 0.6}
         color={purified ? '#c8a890' : '#b8907a'}
       />
-      <TamanFloor />
-      <DroughtRing />
+      <TamanFloor purified={purified} />
+      <DroughtRing purified={purified} />
       {purified && <MossOverlay />}
+      {purified && <FlowerClusters isMobile={isMobile} />}
+      {purified && <GrassBlades isMobile={isMobile} />}
       <PetaFootprintTrails />
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
