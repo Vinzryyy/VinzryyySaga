@@ -4469,6 +4469,10 @@ const River = ({ isMobile = false }) => (
 // jalan setapak rect strips di 3 sisi pond (sisi kiri sudah covered
 // oleh WalkPath existing). 4 sisi total surround pond untuk perimeter
 // walkway feel.
+// DROUGHT VARIANT: Banks main ground circle warna green grass (#5b7544
+// canonical) diganti sandy-brown tandus #5a4530. Gravel bank strips di
+// 3 sisi pond shifted ke warm-gray-brown lebih kering. Konsisten sama
+// fog brown dusty + DriedLakeBed.
 const Banks = () => (
   <>
     <mesh
@@ -4477,19 +4481,16 @@ const Banks = () => (
       receiveShadow
     >
       <circleGeometry args={[36, 56]} />
-      <meshStandardMaterial color="#5b7544" roughness={1} />
+      <meshStandardMaterial color="#5a4530" roughness={1} />
     </mesh>
-    {/* Jalan setapak — gravel strips di 3 sisi pond (top, bottom,
-        right). Sisi kiri WalkPath existing. Lebar 1.4 untuk feel
-        bank path yg cukup wide. */}
-    {/* Top (z<0 side) */}
+    {/* Top (z<0 side) — dried gravel strip */}
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, -0.05, -(RIVER_LENGTH / 2 + 0.8)]}
       receiveShadow
     >
       <planeGeometry args={[RIVER_WIDTH + 2.8, 1.4]} />
-      <meshStandardMaterial color="#7e6e58" roughness={0.95} />
+      <meshStandardMaterial color="#6a5440" roughness={0.95} />
     </mesh>
     {/* Bottom (z>0 side) */}
     <mesh
@@ -4498,7 +4499,7 @@ const Banks = () => (
       receiveShadow
     >
       <planeGeometry args={[RIVER_WIDTH + 2.8, 1.4]} />
-      <meshStandardMaterial color="#7e6e58" roughness={0.95} />
+      <meshStandardMaterial color="#6a5440" roughness={0.95} />
     </mesh>
     {/* Right (+x side, di belakang dock) */}
     <mesh
@@ -4507,7 +4508,7 @@ const Banks = () => (
       receiveShadow
     >
       <planeGeometry args={[1.4, RIVER_LENGTH + 2]} />
-      <meshStandardMaterial color="#7e6e58" roughness={0.95} />
+      <meshStandardMaterial color="#6a5440" roughness={0.95} />
     </mesh>
   </>
 );
@@ -4943,21 +4944,25 @@ const GrassBlades = ({ densityScale = 1 }) => {
 
 // Patches tanah lebih gelap/cerah untuk pecahin uniform green plane —
 // lingkaran datar dengan tone variasi. Posisi deterministik.
+// DROUGHT VARIANT: GROUND_PATCH_DEFS warna canonical (green grass
+// #5a7a45/#4f6c3c/#6e9358/#557240) diganti mix sandy-brown tandus
+// untuk variasi tone tanah kering — beberapa lebih amber, beberapa
+// lebih gelap soil, satu-dua patch crackled tone.
 const GROUND_PATCH_DEFS = [
-  { pos: [-9, -0.035, -10], r: 1.6, color: '#5a7a45' },
-  { pos: [-12, -0.035, 2], r: 2.0, color: '#4f6c3c' },
-  { pos: [-10, -0.035, 8], r: 1.4, color: '#6e9358' },
-  { pos: [-13, -0.035, -4], r: 1.8, color: '#557240' },
-  { pos: [10, -0.035, -10], r: 1.6, color: '#4f6c3c' },
-  { pos: [12, -0.035, -2], r: 1.5, color: '#6e9358' },
-  { pos: [13, -0.035, 8], r: 1.7, color: '#5a7a45' },
-  { pos: [11, -0.035, 12], r: 1.4, color: '#557240' },
-  { pos: [-2, -0.035, -16], r: 1.8, color: '#5a7a45' },
-  { pos: [5, -0.035, -16.5], r: 1.5, color: '#4f6c3c' },
-  { pos: [-5, -0.035, 16.5], r: 1.6, color: '#6e9358' },
-  { pos: [3, -0.035, 17], r: 1.5, color: '#557240' },
-  { pos: [-9, -0.035, 13], r: 1.3, color: '#5a7a45' },
-  { pos: [9, -0.035, -14], r: 1.4, color: '#6e9358' },
+  { pos: [-9, -0.035, -10], r: 1.6, color: '#6a4f30' },
+  { pos: [-12, -0.035, 2], r: 2.0, color: '#4a3520' },
+  { pos: [-10, -0.035, 8], r: 1.4, color: '#7a5f40' },
+  { pos: [-13, -0.035, -4], r: 1.8, color: '#5a4028' },
+  { pos: [10, -0.035, -10], r: 1.6, color: '#4a3520' },
+  { pos: [12, -0.035, -2], r: 1.5, color: '#7a5f40' },
+  { pos: [13, -0.035, 8], r: 1.7, color: '#6a4f30' },
+  { pos: [11, -0.035, 12], r: 1.4, color: '#5a4028' },
+  { pos: [-2, -0.035, -16], r: 1.8, color: '#6a4f30' },
+  { pos: [5, -0.035, -16.5], r: 1.5, color: '#4a3520' },
+  { pos: [-5, -0.035, 16.5], r: 1.6, color: '#7a5f40' },
+  { pos: [3, -0.035, 17], r: 1.5, color: '#5a4028' },
+  { pos: [-9, -0.035, 13], r: 1.3, color: '#6a4f30' },
+  { pos: [9, -0.035, -14], r: 1.4, color: '#7a5f40' },
 ];
 
 const GroundPatches = () => (
