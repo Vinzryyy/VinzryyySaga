@@ -4021,8 +4021,10 @@ const ArsipScene = ({
           maxDistance 6.5 (was 9): di max polar/azimuth ekstrem camera
             tetep dalam x=±8 / z=±10 bounds.
           minPolarAngle ~58° (was 30°): di max distance camera y ≤ 4.2,
-            jauh di bawah ceiling y=6. 30° lama bikin camera bisa naik
-            ke y=8.6, nembus atap. */}
+            jauh di bawah ceiling y=6.
+          Azimuth: gak dibatasi (full 360°) supaya user bisa rotate
+            kemanapun — termasuk lihat ke arah pintu masuk / side table /
+            wing chair nook. */}
       <OrbitControls
         enabled={flyInComplete}
         target={[0, 0.9, 0]}
@@ -4030,8 +4032,6 @@ const ArsipScene = ({
         maxDistance={6.5}
         minPolarAngle={(Math.PI * 58) / 180}
         maxPolarAngle={(Math.PI * 86) / 180}
-        minAzimuthAngle={(-Math.PI * 140) / 180}
-        maxAzimuthAngle={(Math.PI * 140) / 180}
         enablePan={false}
       />
     </>
