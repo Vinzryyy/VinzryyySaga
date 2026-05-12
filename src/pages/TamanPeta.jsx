@@ -1709,12 +1709,16 @@ const FLOWER_PALETTE = [
 ];
 const FLOWER_CLUSTER_DEFS = (() => {
   const arr = [];
-  for (let i = 0; i < 28; i++) {
+  for (let i = 0; i < 42; i++) {
     const angle =
-      (i / 28) * Math.PI * 2 + ((i * 19) % 13) * 0.09;
-    // Radius distribution: 60% di outer ring (10-15), 40% inner edge (7-9.5)
-    const inner = i % 5 < 2;
-    const r = inner ? 7 + ((i * 7) % 5) * 0.5 : 10.5 + ((i * 11) % 9) * 0.6;
+      (i / 42) * Math.PI * 2 + ((i * 19) % 13) * 0.09;
+    // Radius distribution mixed: inner near hex edge, outer in ring,
+    // a few near the dome-perpustakaan / telaga / pohon path edges.
+    const band = i % 7;
+    let r;
+    if (band < 2) r = 6 + ((i * 7) % 5) * 0.5; // inner edge
+    else if (band < 5) r = 10.5 + ((i * 11) % 9) * 0.6; // outer ring
+    else r = 8 + ((i * 13) % 5) * 0.4; // intermediate
     const tilt = ((i * 29) % 12) * 0.04 - 0.2;
     arr.push({
       pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
@@ -1789,7 +1793,7 @@ const FlowerCluster = ({ pos, scale, tilt, swayPhase, colors }) => {
 };
 const FlowerClusters = ({ isMobile = false }) => {
   const defs = isMobile
-    ? FLOWER_CLUSTER_DEFS.slice(0, 14)
+    ? FLOWER_CLUSTER_DEFS.slice(0, 22)
     : FLOWER_CLUSTER_DEFS;
   return (
     <>
@@ -4474,6 +4478,110 @@ const Fireflies = ({ isMobile }) => {
   return defs.map((def, i) => <Firefly key={`ff-${i}`} def={def} />);
 };
 
+// Butterflies — purified-only kupu-kupu fluttering scatter di scene.
+// Tiap kupu: 2 box wings dengan flap animation (rotation Y sin freq
+// 6-9Hz), low-mid altitude Lissajous orbit dgn larger amplitude dari
+// firefly (8-14 radius). Palette warm peach/pink/cream/amber.
+// Bigger dari firefly (size 0.12 vs 0.055) supaya keliatan dari peta
+// scale. Deterministic seed for stable layout.
+const BUTTERFLY_PALETTE = [
+  '#f4a8a0', // peach
+  '#fbd8d8', // soft pink
+  '#fff0d8', // cream
+  '#f4b890', // warm amber
+  '#e88a98', // dusty rose
+  '#f8c4a0', // soft peach
+];
+const Butterfly = ({ def }) => {
+  const ref = useRef();
+  const leftWingRef = useRef();
+  const rightWingRef = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    // Lissajous body motion
+    ref.current.position.x =
+      def.cx + Math.sin(t * def.freqX + def.phaseX) * def.ampX;
+    ref.current.position.y =
+      def.cy + Math.sin(t * def.freqY + def.phaseY) * def.ampY;
+    ref.current.position.z =
+      def.cz + Math.cos(t * def.freqZ + def.phaseZ) * def.ampZ;
+    // Body yaw — turn toward direction of travel (tangent to Lissajous)
+    const vx = Math.cos(t * def.freqX + def.phaseX) * def.freqX * def.ampX;
+    const vz = -Math.sin(t * def.freqZ + def.phaseZ) * def.freqZ * def.ampZ;
+    ref.current.rotation.y = Math.atan2(vx, vz);
+    // Wing flap — fast oscillation rotation around z
+    const flap = Math.sin(t * def.flapFreq + def.flapPhase) * 0.7;
+    if (leftWingRef.current) leftWingRef.current.rotation.y = flap;
+    if (rightWingRef.current) rightWingRef.current.rotation.y = -flap;
+  });
+  return (
+    <group ref={ref}>
+      {/* Body — tiny dark line */}
+      <mesh>
+        <boxGeometry args={[0.012, 0.012, 0.06]} />
+        <meshStandardMaterial color="#2a1810" roughness={0.9} />
+      </mesh>
+      {/* Left wing pivot */}
+      <group ref={leftWingRef} position={[-0.005, 0, 0]}>
+        <mesh position={[-0.06, 0, 0]}>
+          <boxGeometry args={[0.12, 0.006, 0.08]} />
+          <meshStandardMaterial
+            color={def.color}
+            emissive={def.color}
+            emissiveIntensity={0.2}
+            roughness={0.6}
+            side={2}
+          />
+        </mesh>
+      </group>
+      {/* Right wing pivot */}
+      <group ref={rightWingRef} position={[0.005, 0, 0]}>
+        <mesh position={[0.06, 0, 0]}>
+          <boxGeometry args={[0.12, 0.006, 0.08]} />
+          <meshStandardMaterial
+            color={def.color}
+            emissive={def.color}
+            emissiveIntensity={0.2}
+            roughness={0.6}
+            side={2}
+          />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+const Butterflies = ({ isMobile }) => {
+  const count = isMobile ? 6 : 12;
+  const defs = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      // Scatter wider than fireflies — kupu-kupu jelajahin seluruh peta
+      const theta = (i / count) * Math.PI * 2 + ((i * 19) % 13) * 0.18;
+      const r = 4 + ((i * 7) % 9);
+      arr.push({
+        cx: Math.cos(theta) * r,
+        cy: 0.6 + ((i * 11) % 5) * 0.25,
+        cz: Math.sin(theta) * r,
+        ampX: 1.2 + ((i * 13) % 5) * 0.4,
+        ampY: 0.3 + ((i * 17) % 4) * 0.15,
+        ampZ: 1.2 + ((i * 23) % 5) * 0.4,
+        freqX: 0.18 + ((i * 19) % 7) * 0.04,
+        freqY: 0.35 + ((i * 29) % 7) * 0.05,
+        freqZ: 0.2 + ((i * 31) % 7) * 0.04,
+        phaseX: ((i * 37) % 100) * 0.063,
+        phaseY: ((i * 41) % 100) * 0.063,
+        phaseZ: ((i * 43) % 100) * 0.063,
+        flapFreq: 7 + ((i * 11) % 4) * 0.5,
+        flapPhase: ((i * 53) % 100) * 0.063,
+        color: BUTTERFLY_PALETTE[i % BUTTERFLY_PALETTE.length],
+      });
+    }
+    return arr;
+  }, [count]);
+  return defs.map((def, i) => <Butterfly key={`bf-${i}`} def={def} />);
+};
+
 const NarrativeWhispers = ({ isMobile }) => {
   const list = isMobile ? NARRATIVE_WHISPERS.slice(0, 2) : NARRATIVE_WHISPERS;
   return (
@@ -4642,6 +4750,8 @@ const TamanScene = ({
       {!purified && !isMobile && <WindStreaks count={12} />}
       {!purified && !isMobile && <HighDustShimmer count={40} />}
       {purified && <Fireflies isMobile={isMobile} />}
+      {purified && <Butterflies isMobile={isMobile} />}
+      {purified && <BirdsFlock />}
       {purified && <ApricotPetals count={isMobile ? 30 : 50} />}
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
