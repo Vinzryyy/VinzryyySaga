@@ -728,13 +728,16 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
           </div>
         </header>
 
-        {/* Scrollable body */}
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="arsipBookScroll flex-1 overflow-y-auto px-6 sm:px-10 py-6 sm:py-8"
-          style={{ paddingLeft: 'calc(1.5rem + 8px)' }}
-        >
+        {/* Scrollable body container — relative untuk scroll fade indicator
+            ditempel di bottom edge. */}
+        <div className="relative flex-1 min-h-0">
+          {/* Scrollable body */}
+          <div
+            ref={scrollRef}
+            onScroll={handleScroll}
+            className="arsipBookScroll absolute inset-0 overflow-y-auto px-6 sm:px-10 py-6 sm:py-8"
+            style={{ paddingLeft: 'calc(1.5rem + 8px)' }}
+          >
           <div className="mb-6">
             <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
               {book.eyebrow}
@@ -766,6 +769,19 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
               Untuk buku refleksi (tanpa era), kasih link ke /about
               (Armeniaca etymology fuller version). */}
           <CrossLinkFooter book={book} onClose={onClose} />
+          </div>
+          {/* Bottom scroll fade indicator — subtle gradient di edge bawah
+              container scrollable, hint "ada konten lebih di bawah."
+              Pointer-events none supaya gak block scroll. */}
+          <div
+            className="pointer-events-none absolute left-0 right-0 bottom-0 h-8"
+            style={{
+              background:
+                'linear-gradient(to top, rgba(253, 246, 227, 0.95) 0%, rgba(253, 246, 227, 0) 100%)',
+              opacity: progress >= 0.95 ? 0 : 1,
+              transition: 'opacity 200ms ease-out',
+            }}
+          />
         </div>
 
         {/* Footer prev/next */}
