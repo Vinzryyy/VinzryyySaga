@@ -2525,25 +2525,17 @@ const BookPedestalsNearMeja = ({
               >
                 <div
                   style={{
-                    backgroundColor: 'rgba(20, 14, 8, 0.7)',
-                    padding: '5px 12px',
-                    borderRadius: '4px',
-                    backdropFilter: 'blur(6px)',
-                    WebkitBackdropFilter: 'blur(6px)',
-                    border: '1px solid rgba(244, 208, 144, 0.25)',
+                    fontFamily: '"Fraunces Variable", serif',
+                    fontStyle: 'italic',
+                    color: 'rgba(255,232,184,0.95)',
+                    fontSize: '14px',
+                    letterSpacing: '0.01em',
                     whiteSpace: 'nowrap',
+                    textShadow:
+                      '0 0 14px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85), 0 1px 2px rgba(0,0,0,0.9)',
                   }}
                 >
-                  <div
-                    style={{
-                      fontFamily: '"Fraunces Variable", serif',
-                      fontStyle: 'italic',
-                      color: 'rgba(255,228,178,0.95)',
-                      fontSize: '14px',
-                    }}
-                  >
-                    {book.title}
-                  </div>
+                  {book.title}
                 </div>
               </Html>
             )}
@@ -3266,18 +3258,19 @@ const ArsipScene = ({
         onOutOpenBook={onOpenBookOut}
         onClickOpenBook={onOpenBookClick}
       />
-      {/* Interactive books di sekitar meja. Restored: di pedestal kayu
-          melingkar rapi. Drought: tersebar di lantai dengan sisa pecahan
-          pedestal — kerasa "pedestal udah roboh, buku jatuh berserakan." */}
-      <BookPedestalsNearMeja
-        books={books}
-        restored={restored}
-        hoveredId={hoveredId}
-        readIds={readIds}
-        onHover={onBookHover}
-        onOut={onBookOut}
-        onClick={onBookClick}
-      />
+      {/* Drought only: interactive books scattered di lantai sekitar
+          meja. Restored: books pindah ke far racks (versi rak shelf). */}
+      {!restored && (
+        <BookPedestalsNearMeja
+          books={books}
+          restored={false}
+          hoveredId={hoveredId}
+          readIds={readIds}
+          onHover={onBookHover}
+          onOut={onBookOut}
+          onClick={onBookClick}
+        />
+      )}
 
       {/* Library landmark objects — 5 detail pengisi ruangan supaya
           kerasa "perpustakaan beneran" bukan ruangan kosong dgn rak.
@@ -3316,14 +3309,13 @@ const ArsipScene = ({
       <BreachCurtain restored={restored} />
       <HangingTelescope />
 
-      {/* Far racks sekarang deco-only (pass empty books). Interactive
-          books udah dipindah ke BookPedestalsNearMeja. Rak tetep render
-          biar visual library/ruangan utuh — Bookshelf fill 10 slot
-          dengan deco books otomatis kalau books prop kosong. */}
+      {/* Far racks. Restored: books interactive di rak (versi shelf
+          beneran, sesuai rakSlot data). Drought: deco-only — books
+          udah scattered di lantai via BookPedestalsNearMeja. */}
       <Bookshelf
         position={RAK_LAYOUT.nw.pos}
         rotation={RAK_LAYOUT.nw.rot}
-        books={[]}
+        books={restored ? booksByRak.nw : []}
         hoveredId={hoveredId}
         readIds={readIds}
         onHover={onBookHover}
@@ -3333,7 +3325,7 @@ const ArsipScene = ({
       <Bookshelf
         position={RAK_LAYOUT.ne.pos}
         rotation={RAK_LAYOUT.ne.rot}
-        books={[]}
+        books={restored ? booksByRak.ne : []}
         hoveredId={hoveredId}
         readIds={readIds}
         onHover={onBookHover}
@@ -3345,7 +3337,7 @@ const ArsipScene = ({
         rotation={
           restored ? RAK_LAYOUT.w.rotRestored : RAK_LAYOUT.w.rotDrought
         }
-        books={[]}
+        books={restored ? booksByRak.w : []}
         hoveredId={hoveredId}
         readIds={readIds}
         onHover={onBookHover}
@@ -3357,7 +3349,7 @@ const ArsipScene = ({
         rotation={
           restored ? RAK_LAYOUT.e.rotRestored : RAK_LAYOUT.e.rotDrought
         }
-        books={[]}
+        books={restored ? booksByRak.e : []}
         hoveredId={hoveredId}
         readIds={readIds}
         onHover={onBookHover}
@@ -3367,7 +3359,7 @@ const ArsipScene = ({
       <Bookshelf
         position={RAK_LAYOUT.s.pos}
         rotation={RAK_LAYOUT.s.rot}
-        books={[]}
+        books={restored ? booksByRak.s : []}
         hoveredId={hoveredId}
         readIds={readIds}
         onHover={onBookHover}
