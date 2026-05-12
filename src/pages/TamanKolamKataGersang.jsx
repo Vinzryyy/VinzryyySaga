@@ -4834,6 +4834,66 @@ const CrowsFlock = ({ isMobile }) => {
   );
 };
 
+// DROUGHT PerchedCrow — gagak diam hinggap di atas pillar tertinggi.
+// Static (no useFrame) — kerasa "watching, waiting" vs flock yg terbang
+// lazy circles. Static perch = ominous still, hugging silhouette. Body
+// hunched (taller than flying variant), wings tucked flat samping body,
+// kepala forward, beak tipis nongol.
+const PerchedCrow = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Body — hunched perched posture, slightly tall */}
+    <mesh>
+      <boxGeometry args={[0.36, 0.2, 0.18]} />
+      <meshBasicMaterial color="#0d0a08" fog />
+    </mesh>
+    {/* Head — cube forward */}
+    <mesh position={[0.22, 0.1, 0]}>
+      <boxGeometry args={[0.14, 0.14, 0.14]} />
+      <meshBasicMaterial color="#0d0a08" fog />
+    </mesh>
+    {/* Beak — tiny dark pointer */}
+    <mesh position={[0.32, 0.08, 0]}>
+      <boxGeometry args={[0.07, 0.04, 0.04]} />
+      <meshBasicMaterial color="#1a1208" fog />
+    </mesh>
+    {/* Wings tucked — folded flat against body sides */}
+    <mesh position={[-0.02, 0, 0.1]}>
+      <boxGeometry args={[0.32, 0.18, 0.04]} />
+      <meshBasicMaterial color="#0d0a08" fog />
+    </mesh>
+    <mesh position={[-0.02, 0, -0.1]}>
+      <boxGeometry args={[0.32, 0.18, 0.04]} />
+      <meshBasicMaterial color="#0d0a08" fog />
+    </mesh>
+    {/* Tail — small protrusion belakang */}
+    <mesh position={[-0.24, -0.04, 0]}>
+      <boxGeometry args={[0.14, 0.06, 0.12]} />
+      <meshBasicMaterial color="#0d0a08" fog />
+    </mesh>
+  </group>
+);
+// Posisi sesuai 3 pillar tertinggi (h>=1.5) di BROKEN_PILLAR_DEFS:
+//   #0 [-9, 0, -7]   h=1.8 → y = 1.8 + 0.45 = 2.25
+//   #4 [-15, 0, -1]  h=1.5 → y = 1.95
+//   #6 [-7, 0, -20]  h=1.6 → y = 2.05
+// y = h + 0.45 (clear cap + body half + small gap). rot variasi
+// supaya tiap gagak menatap arah beda.
+const PERCHED_CROW_DEFS = [
+  { pos: [-9, 2.25, -7], rot: 0.6 },
+  { pos: [-15, 1.95, -1], rot: 2.4 },
+  { pos: [-7, 2.05, -20], rot: -1.2 },
+];
+const PerchedCrows = ({ isMobile }) => {
+  const list = isMobile ? PERCHED_CROW_DEFS.slice(0, 2) : PERCHED_CROW_DEFS;
+  return (
+    <>
+      {list.map((c, i) => (
+        <PerchedCrow key={`pcrow-${i}`} pos={c.pos} rot={c.rot} />
+      ))}
+    </>
+  );
+};
+
 // DROUGHT polusi — soft round particles drifting di udara, warna
 // dirty smog brown. Pattern sama dgn r1 gersang PollutedAir, tapi
 // count + spread di-tune buat luas r3 (40×40 area, vs r1 corridor
@@ -5953,6 +6013,9 @@ const TelagaScene = ({
     {/* Gagak silhouette terbang lazy circles di atas lake — abandoned
         dead-town visual signature, unique ke r3 gersang. */}
     <CrowsFlock isMobile={isMobile} />
+    {/* Gagak hinggap diam di atas 3 pillar tertinggi — ominous still
+        watcher counterpoint ke flock yg gerak. */}
+    <PerchedCrows isMobile={isMobile} />
     {/* DROUGHT-SKIP: GrassTufts + GrassBlades — rumput hijau gak ada,
         ground tone udah cracked dirt sendiri. */}
     <Bench />
