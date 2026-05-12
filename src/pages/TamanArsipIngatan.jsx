@@ -801,12 +801,38 @@ const Bookshelf = ({
       {/* Decorative non-interactive books — fill empty slots dengan
           spine warna acak buat estetika rak yang "penuh". Restored:
           tightly-packed dgn cols=7 supaya rak kerasa fully stocked
-          (~14 per shelf). Drought: cols=5 (sparser, beberapa empty
-          slot tetap kerasa "ada buku yang ilang"). */}
+          (~14 per shelf) + vibrant warna-warni palette (burgundy,
+          emerald, ochre, navy, rose, cream — kerasa perpustakaan
+          hidup). Drought: cols=5 (sparser) + muted palette (faded,
+          dust-covered, kerasa "ada buku yang udah lama gak diurus"). */}
       {(() => {
         const fillCols = restored ? 7 : 5;
         const fillCap = fillCols * 2;
         if (slots.length >= fillCap) return null;
+        // Vibrant warna-warni palette untuk restored — aged leather
+        // bindings di berbagai warna klasik library.
+        const restoredColors = [
+          '#8a2030', // deep cranberry
+          '#a83040', // burgundy
+          '#3a6048', // forest green
+          '#2a5a4a', // emerald dark
+          '#3a4878', // navy
+          '#2a3a68', // indigo deep
+          '#c8a060', // mustard ochre
+          '#a87030', // saffron
+          '#7a3858', // vintage rose
+          '#5a3858', // dark mauve
+          '#4a7858', // sage
+          '#a85040', // terracotta
+          '#d4b890', // cream/ivory
+          '#3a6878', // teal slate
+          '#6a4830', // brown leather
+          '#7a5840', // light brown
+        ];
+        // Muted/faded palette untuk drought — same hues tapi heavily
+        // desaturated, kerasa dust-covered.
+        const droughtColors = ['#7a5840', '#5a4030', '#a08068', '#6a4830', '#3a4858'];
+        const palette = restored ? restoredColors : droughtColors;
         return Array.from({ length: fillCap - slots.length }, (_, i) => {
           const idx = slots.length + i;
           const row = Math.floor(idx / fillCols);
@@ -815,20 +841,40 @@ const Bookshelf = ({
           const y = -h / 2 + 0.3 + row * (h / 2);
           const z = -d / 2 + 0.2;
           const seed = hashSeed(`deco-${position[0]}-${idx}`);
-          const colors = ['#7a5840', '#5a4030', '#a08068', '#6a4830', '#3a4858'];
+          const seed2 = hashSeed(`deco-${position[0]}-${idx}-band`);
           const bookW = restored ? 0.1 + seed * 0.03 : 0.13;
+          const bookH = 0.48 - seed * 0.1;
+          const spineColor = palette[Math.floor(seed * palette.length)];
+          // ~30% buku restored punya gold/silver title band di tengah
+          // spine — kerasa "leather-bound classics."
+          const hasTitleBand = restored && seed2 > 0.7;
+          const bandColor = seed2 > 0.85 ? '#d4b060' : '#b8a890';
           return (
-            <mesh
+            <group
               key={`deco-${i}`}
               position={[x, y + seed * 0.04, z]}
               rotation={[0, 0, (seed - 0.5) * 0.06]}
             >
-              <boxGeometry args={[bookW, 0.48 - seed * 0.1, 0.32]} />
-              <meshStandardMaterial
-                color={colors[Math.floor(seed * colors.length)]}
-                roughness={0.85}
-              />
-            </mesh>
+              <mesh>
+                <boxGeometry args={[bookW, bookH, 0.32]} />
+                <meshStandardMaterial
+                  color={spineColor}
+                  roughness={0.85}
+                />
+              </mesh>
+              {hasTitleBand && (
+                <mesh position={[0, bookH * 0.15, 0.161]}>
+                  <boxGeometry args={[bookW * 0.85, 0.05, 0.002]} />
+                  <meshStandardMaterial
+                    color={bandColor}
+                    metalness={0.3}
+                    roughness={0.5}
+                    emissive={bandColor}
+                    emissiveIntensity={0.08}
+                  />
+                </mesh>
+              )}
+            </group>
           );
         });
       })()}
@@ -836,10 +882,14 @@ const Bookshelf = ({
       {/* Restored only: extra leaning books + stacks horizontal di
           edges supaya rak gak cuma rigid grid — kerasa lived-in.
           1 horizontal stack di pojok bawah, 2 leaning books di top
-          shelf. Deterministic via hashSeed(position). */}
+          shelf. Deterministic via hashSeed(position). Pakai palette
+          warna-warni vibrant juga. */}
       {restored && (() => {
         const baseSeed = hashSeed(`extra-${position[0]}-${position[2]}`);
-        const horizColors = ['#5a3a25', '#7a5840', '#a08068', '#3a4858'];
+        // Vibrant palette buat horizontal stack & leaning books
+        const horizColors = ['#8a2030', '#3a6048', '#c8a060', '#3a4878', '#a85040', '#2a5a4a'];
+        const leanColor1 = ['#8a2030', '#a83040', '#7a3858'][Math.floor(baseSeed * 3)];
+        const leanColor2 = ['#3a4878', '#3a6048', '#c8a060'][Math.floor(hashSeed(`lean2-${position[0]}`) * 3)];
         return (
           <>
             {/* Horizontal book stack di bottom shelf */}
@@ -855,7 +905,7 @@ const Bookshelf = ({
               >
                 <boxGeometry args={[0.3, 0.06, 0.34]} />
                 <meshStandardMaterial
-                  color={horizColors[(i + Math.floor(baseSeed * 4)) % horizColors.length]}
+                  color={horizColors[(i + Math.floor(baseSeed * horizColors.length)) % horizColors.length]}
                   roughness={0.88}
                 />
               </mesh>
@@ -870,7 +920,7 @@ const Bookshelf = ({
               rotation={[0, 0, 0.25]}
             >
               <boxGeometry args={[0.12, 0.44, 0.32]} />
-              <meshStandardMaterial color="#5a3030" roughness={0.85} />
+              <meshStandardMaterial color={leanColor1} roughness={0.85} />
             </mesh>
             <mesh
               position={[
@@ -881,7 +931,7 @@ const Bookshelf = ({
               rotation={[0, 0, 0.18]}
             >
               <boxGeometry args={[0.11, 0.42, 0.32]} />
-              <meshStandardMaterial color="#3a4858" roughness={0.85} />
+              <meshStandardMaterial color={leanColor2} roughness={0.85} />
             </mesh>
           </>
         );
@@ -2540,12 +2590,12 @@ const TeaCart = () => (
       <cylinderGeometry args={[0.015, 0.015, 0.6, 8]} />
       <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
     </mesh>
-    {/* Books on top shelf */}
+    {/* Books on top shelf — warna warni vibrant */}
     {[
-      { c: '#5a3030', dx: -0.2 },
-      { c: '#3a4858', dx: -0.08 },
-      { c: '#7a5840', dx: 0.06 },
-      { c: '#c8a060', dx: 0.2 },
+      { c: '#8a2030', dx: -0.2 }, // cranberry
+      { c: '#3a6048', dx: -0.08 }, // forest green
+      { c: '#c8a060', dx: 0.06 }, // ochre
+      { c: '#3a4878', dx: 0.2 }, // navy
     ].map((b, i) => (
       <mesh key={`tcb-${i}`} position={[b.dx, 0.86, 0]}>
         <boxGeometry args={[0.08, 0.16, 0.2]} />
@@ -2557,10 +2607,10 @@ const TeaCart = () => (
       <cylinderGeometry args={[0.04, 0.035, 0.05, 12]} />
       <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
     </mesh>
-    {/* Books on lower shelf */}
+    {/* Books on lower shelf — warna warni */}
     {[
-      { c: '#7a3030', dx: -0.15, dz: -0.1 },
-      { c: '#5a4030', dx: 0.1, dz: 0.05 },
+      { c: '#7a3858', dx: -0.15, dz: -0.1 }, // vintage rose
+      { c: '#2a5a4a', dx: 0.1, dz: 0.05 }, // emerald
     ].map((b, i) => (
       <mesh key={`tcbl-${i}`} position={[b.dx, 0.26, b.dz]} rotation={[0, 0.2, 0]}>
         <boxGeometry args={[0.18, 0.05, 0.14]} />
