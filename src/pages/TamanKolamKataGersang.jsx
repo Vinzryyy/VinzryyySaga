@@ -5361,7 +5361,7 @@ const TelagaScene = ({
     {/* DROUGHT-SKIP: GrassTufts + GrassBlades — rumput hijau gak ada,
         ground tone udah cracked dirt sendiri. */}
     <Bench />
-    <BenchVisitor />
+    {/* DROUGHT-SKIP: BenchVisitor — orang duduk di bench, alive */}
     <Dock />
     <Bridge />
     <SignPost />
@@ -5382,13 +5382,13 @@ const TelagaScene = ({
     <TreeStumps isMobile={isMobile} />
     <Wheelbarrows />
     <BirdBaths />
-    <Pinwheels isMobile={isMobile} />
+    {/* DROUGHT-SKIP: Pinwheels — kincir colorful playful, alive feel */}
     <WishingWell pos={[-22, 0, -16]} rot={0.4} />
     <WelcomeArch pos={[0, 0, -28]} rot={0} />
-    <PicnicBlankets isMobile={isMobile} />
+    {/* DROUGHT-SKIP: PicnicBlankets — kain colorful, festive */}
     <Gazebo pos={[0, 0, 25]} rot={0} />
-    <Hammock pos={[-19, 0, -12]} rot={0.3} color="#c4685a" />
-    <Birdhouses isMobile={isMobile} />
+    {/* DROUGHT-SKIP: Hammock — implies rest/people */}
+    {/* DROUGHT-SKIP: Birdhouses — implies birds */}
     {/* DROUGHT-SKIP: VeggiePatch — sayuran hidup */}
     {/* DROUGHT-SKIP: Kite — alive scene (anak main layangan) */}
     {/* DROUGHT-SKIP: WaterLanterns — perlu air, di drought lake kering */}
@@ -5400,15 +5400,17 @@ const TelagaScene = ({
     <StoneToros isMobile={isMobile} />
     <WindChime pos={[-22, 0, 0]} rot={0.4} />
     {/* DROUGHT-SKIP: SleepingCat — alive */}
-    <PaperCraneGarland pos={[-8, 0, -25]} rot={0.2} isMobile={isMobile} />
+    {/* DROUGHT-SKIP: PaperCraneGarland — colorful festive crane string */}
     <Torii pos={[22, 0, -16]} rot={-0.5} scale={1.1} />
     <Jizos isMobile={isMobile} />
     {/* DROUGHT-SKIP: BambooGrove — bambu hidup */}
     {/* DROUGHT-SKIP: Rowboat — perlu air */}
-    <BankTrees count={isMobile ? 8 : 12} />
-    <OuterTrees isMobile={isMobile} />
+    {/* DROUGHT-SKIP: BankTrees + OuterTrees — green foliage alive, gak
+        ada drought-variant prop. Drought = pure dead ecosystem, gak ada
+        pohon hidup. Perimeter dihandle pure oleh fog brown dusty + far
+        clouds (atmospheric depth). */}
     {/* DROUGHT-SKIP: FlyingFlock — alive */}
-    <Playground pos={[-16, 0, 6]} rot={0.4} />
+    {/* DROUGHT-SKIP: Playground — colorful play equipment, kids alive */}
     {/* DROUGHT-SKIP: PicnicGroups — alive people */}
     {/* DROUGHT-SKIP: Animals (Ducks, Fish, Pigeons, Butterflies,
         Dragonflies, Fireflies) — ekosistem mati */}
