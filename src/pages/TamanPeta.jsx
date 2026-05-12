@@ -3194,6 +3194,19 @@ const PetaFootprintTrail = ({ start, end, count = 9 }) => {
     </>
   );
 };
+// CompassTracker — inside-Canvas component yg baca camera azimuth tiap
+// frame dan update DOM ref rotation imperatively (avoid React re-render
+// per frame). Compass DOM widget di luar Canvas pakai ref ini.
+const CompassTracker = ({ targetRef }) => {
+  const { camera } = useThree();
+  useFrame(() => {
+    if (!targetRef.current) return;
+    const theta = Math.atan2(camera.position.x, camera.position.z);
+    targetRef.current.style.transform = `rotate(${-theta}rad)`;
+  });
+  return null;
+};
+
 // HoverHalo — expanding pulsing ring di ground saat petak di-hover.
 // Generic component yg di-place per petak position, di-toggle via
 // visible prop. Bukan modifying internal petak component — pure
@@ -3612,6 +3625,7 @@ const TamanScene = ({
       <HoverHalo pos={[0, 0.02, 8]} visible={hoveredGerbang} color="#f4c478" />
       <HoverHalo pos={[0, 0.02, 4]} visible={hoveredLorong} color="#e8b878" />
       <HoverHalo pos={[-7, 0.02, -1]} visible={hoveredTelaga} color="#8ac8e0" />
+      <CompassTracker targetRef={compassRotateRef} />
       {/* Dead-town environment re-enabled — CityRuins di luar hex ring
           (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
           SandDust + HighDustShimmer (debu beterbangan = kerasa angin
@@ -4240,6 +4254,7 @@ const TamanPetaPage = () => {
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
+  const compassRotateRef = useRef(null);
 
   // Compute telaga visual state dari live count:
   //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
@@ -4472,6 +4487,31 @@ const TamanPetaPage = () => {
             Re-enable kalau redesign udah jelas mau pakai komponen mana. */}
         <AmbientAudio profile="taman" position="top-right" />
         <RotateRecommendation />
+        {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
+            via CompassTracker (useFrame ref-mutation, no React re-render). */}
+        <div className="pointer-events-none absolute bottom-6 right-4 md:bottom-8 md:right-6 z-10 w-12 h-12 md:w-14 md:h-14">
+          <div className="relative w-full h-full rounded-full bg-black/35 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center">
+            <div
+              ref={compassRotateRef}
+              className="absolute inset-1"
+              style={{ willChange: 'transform' }}
+            >
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 text-white/85 text-[9px] md:text-[10px] font-bold leading-none">
+                N
+              </span>
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-white/45 text-[8px] md:text-[9px] leading-none">
+                S
+              </span>
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-white/45 text-[8px] md:text-[9px] leading-none">
+                W
+              </span>
+              <span className="absolute right-0 top-1/2 -translate-y-1/2 text-white/45 text-[8px] md:text-[9px] leading-none">
+                E
+              </span>
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white/50" />
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
