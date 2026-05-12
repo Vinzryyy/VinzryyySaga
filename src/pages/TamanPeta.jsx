@@ -3718,7 +3718,7 @@ const PETA_PETAK_INFO = {
     name: 'Gerbang',
     eyebrow: 'Pintu Masuk Kota',
     longDesc:
-      'Gerbang kayu yang berdiri di tepi Padang Tandus. Lewat sini, peradaban masuk dan keluar dari kota. Sekarang tinggal sisa — pilar kering, kain weathered, dan angin yang membawa debu.',
+      'Gerbang di tepi padang. Dulu, setiap orang yang lewat sini bawa cerita masuk ke kota. Sekarang, cuma angin yang lewat — bawa debu, bawa sisa lagu yang gak selesai dinyanyiin.',
     cta: 'Lewati gerbang',
     route: '/armeniacaTown',
     accent: '#f4a060',
@@ -3728,7 +3728,7 @@ const PETA_PETAK_INFO = {
     name: 'Konstelasi Perjalanan',
     eyebrow: 'Lorong Masuk',
     longDesc:
-      'Lorong batu yang dulu jadi jalan utama. Di langit malamnya, milestone perjalanan karier Eli berdiri sebagai konstelasi bintang per era. Walau tanah di bawah rusak, cerita di atas tetap utuh.',
+      'Jalan setapak ke pusat kota. Di tanahnya, batu-batu yang dulu rame diinjak. Di langitnya, konstelasi yang gak pernah padam — perjalanan satu jiwa, dipatri jadi bintang.',
     cta: 'Masuki lorong',
     route: '/armeniacaTown/r1',
     accent: '#fff5c8',
@@ -3738,7 +3738,7 @@ const PETA_PETAK_INFO = {
     name: 'Pohon Terakhir',
     eyebrow: 'Pohon Kebaikan',
     longDesc:
-      'Satu pohon aprikot yang masih hidup di pusat kota — penjaga harapan terakhir. Setiap siraman komunitas di sini ikut membangkitkan dunia di sekitarnya, sedikit demi sedikit.',
+      'Di tengah kota, satu pohon aprikot yang menolak mati. Akarnya nahan tanah, dahannya nahan langit. Setiap orang yang nyiramnya, ikut nahan dunia ini dari hilang.',
     cta: 'Siram pohon ini',
     route: '/26',
     accent: '#7aa858',
@@ -3750,7 +3750,7 @@ const PETA_PETAK_INFO = {
     name: 'Telaga Harapan',
     eyebrow: 'Belum terbuka',
     longDesc:
-      'Telaga di barat kota ini masih sunyi. Pintu ke sini baru terbuka setelah 4.000 siraman terkumpul di Pohon Kebaikan. Sekarang, kita semua menunggu bersama.',
+      'Telaga di barat ini belum bisa diakses. Pintunya nungguin 4.000 kebaikan terkumpul di Pohon. Sampai saat itu — kita semua sama-sama nungguin.',
     cta: 'Siram di /26',
     route: '/26',
     accent: '#9aa0a8',
@@ -3760,7 +3760,7 @@ const PETA_PETAK_INFO = {
     name: 'Telaga Harapan',
     eyebrow: 'Telaga kering',
     longDesc:
-      'Telaga ini dulu penuh teratai, dengan air yang memantulkan langit. Sekarang dasarnya retak, banknya kering, dan teratai-teratai harapan menunggu untuk mekar kembali. Lewat sini untuk melihat sisa peradabannya.',
+      'Telaga ini dulu penuh teratai — setiap bunga, satu harapan. Sekarang dasarnya retak, banknya kering. Tapi harapan-harapan itu belum hilang. Mereka cuma nungguin air kembali.',
     cta: 'Lewati telaga',
     route: '/armeniacaTown/r3',
     accent: '#e0c098',
@@ -3770,7 +3770,7 @@ const PETA_PETAK_INFO = {
     name: 'Telaga Harapan',
     eyebrow: 'Telaga pulih',
     longDesc:
-      'Air kembali mengisi telaga, teratai-teratai mekar di permukaan. Tiap teratai = satu harapan dari komunitas. Kebaikan komunal akhirnya menumbuhkan dunia ini sepenuhnya.',
+      'Air kembali. Teratai mekar lagi, satu per satu, seperti yang dulu. Setiap kuncup yang buka — satu harapan yang akhirnya disampaikan. Dunia ini hidup lagi, karena kalian.',
     cta: 'Masuki telaga',
     route: '/armeniacaTown/r3',
     accent: '#a8c8e0',
