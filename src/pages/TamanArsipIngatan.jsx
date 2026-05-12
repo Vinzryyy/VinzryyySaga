@@ -994,6 +994,199 @@ const FallenBookPile = () => {
   );
 };
 
+// BookScatter — drought only. ~14 buku tersebar di seluruh ruangan
+// (bukan cluster di rak W aja). Random positions menghindari meja
+// baca (radius 2 dari origin) + footprint trail di selatan. Mix
+// orientation: 70% flat, 30% standing/leaning.
+const BookScatter = ({ isMobile }) => {
+  const count = isMobile ? 8 : 16;
+  const books = useMemo(() => {
+    const arr = [];
+    const colors = [
+      '#7a3030', '#5a4030', '#3a4858', '#c8a060', '#5a3025',
+      '#7a5840', '#3a3858', '#a07868', '#6a4830', '#7a3a3a',
+    ];
+    let i = 0;
+    let attempts = 0;
+    while (i < count && attempts < count * 20) {
+      attempts += 1;
+      const seedX = hashSeed(`bs-x-${i}-${attempts}`);
+      const seedZ = hashSeed(`bs-z-${i}-${attempts}`);
+      const x = (seedX * 2 - 1) * (ROOM_W / 2 - 1);
+      const z = (seedZ * 2 - 1) * (ROOM_D / 2 - 1);
+      // Avoid reading table area + footprint trail spine + Fallen pile cluster
+      if (Math.hypot(x, z) < 2) continue;
+      if (Math.abs(x) < 0.5 && z < -1) continue; // footprint spine
+      if (Math.hypot(x + 6.5, z - 2) < 1.5) continue; // W pile
+      const seed = hashSeed(`bs-${i}`);
+      arr.push({
+        x,
+        z,
+        rotY: seed * Math.PI * 2,
+        tilt: (seed - 0.5) * 0.2,
+        color: colors[Math.floor(seed * colors.length)],
+        flat: seed > 0.3,
+      });
+      i += 1;
+    }
+    return arr;
+  }, [count]);
+
+  return (
+    <group>
+      {books.map((b, i) =>
+        b.flat ? (
+          <mesh
+            key={`bs-${i}`}
+            position={[b.x, 0.04, b.z]}
+            rotation={[0, b.rotY, b.tilt]}
+          >
+            <boxGeometry args={[0.22, 0.05, 0.16]} />
+            <meshStandardMaterial color={b.color} roughness={0.9} />
+          </mesh>
+        ) : (
+          <mesh
+            key={`bs-${i}`}
+            position={[b.x, 0.1, b.z]}
+            rotation={[b.tilt * 0.6, b.rotY, b.tilt * 1.6]}
+          >
+            <boxGeometry args={[0.09, 0.2, 0.13]} />
+            <meshStandardMaterial color={b.color} roughness={0.9} />
+          </mesh>
+        ),
+      )}
+    </group>
+  );
+};
+
+// PlasterChunks — drought only. ~16 chunk plaster/bata yang lepas dari
+// dinding, scattered dekat wall breach (-X) dan di sepanjang dinding
+// yang punya cracks. Warna campur antara plaster cream pucat + bata
+// merah-coklat. Kerasa "dinding rontok ke lantai."
+const PlasterChunks = ({ isMobile }) => {
+  const count = isMobile ? 10 : 18;
+  const chunks = useMemo(() => {
+    const arr = [];
+    // Spawn zones: near breach (-X, z=4-6), near east wall, near south wall
+    const zones = [
+      { cx: -6.5, cz: 4.5, range: 1.5, density: 0.45 }, // breach pile area
+      { cx: 6.5, cz: 0, range: 2.5, density: 0.25 }, // east wall scatter
+      { cx: 0, cz: -8, range: 3, density: 0.3 }, // south wall scatter
+    ];
+    for (let i = 0; i < count; i++) {
+      const seedZ = hashSeed(`pc-zone-${i}`);
+      let cum = 0;
+      let zone = zones[0];
+      for (const z of zones) {
+        cum += z.density;
+        if (seedZ < cum) {
+          zone = z;
+          break;
+        }
+      }
+      const seed = hashSeed(`pc-${i}`);
+      const seed2 = hashSeed(`pc-a-${i}`);
+      const r = hashSeed(`pc-r-${i}`) * zone.range;
+      const a = seed2 * Math.PI * 2;
+      const isPlaster = seed > 0.45;
+      arr.push({
+        x: zone.cx + Math.cos(a) * r,
+        z: zone.cz + Math.sin(a) * r,
+        size: 0.1 + seed * 0.12,
+        rotY: seed2 * Math.PI * 2,
+        tilt: (seed - 0.5) * 0.3,
+        color: isPlaster ? '#c8a890' : '#8a6258',
+      });
+    }
+    return arr;
+  }, [count]);
+  return (
+    <group>
+      {chunks.map((c, i) => (
+        <mesh
+          key={`pc-${i}`}
+          position={[c.x, c.size / 2, c.z]}
+          rotation={[c.tilt, c.rotY, c.tilt]}
+        >
+          <boxGeometry args={[c.size, c.size * 0.6, c.size * 0.9]} />
+          <meshStandardMaterial color={c.color} roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// WoodDebris — drought only. 10 potongan kayu kecil dari beam atau
+// shelf yang patah, scattered di sekitar rak W tumbang & E miring
+// + sedikit di tengah ruangan. Match COLORS.shelfWood / ceiling tone.
+const WoodDebris = ({ isMobile }) => {
+  const count = isMobile ? 7 : 12;
+  const pieces = useMemo(() => {
+    const arr = [];
+    // 60% near W rak (tumbang area), 40% near E rak (miring area)
+    for (let i = 0; i < count; i++) {
+      const seed = hashSeed(`wd-${i}`);
+      const seedR = hashSeed(`wd-r-${i}`);
+      const seedA = hashSeed(`wd-a-${i}`);
+      const nearW = seed > 0.4;
+      const cx = nearW ? -6 : 6;
+      const cz = nearW ? 2 : -2;
+      const r = 0.8 + seedR * 1.4;
+      const a = seedA * Math.PI * 2;
+      const long = hashSeed(`wd-l-${i}`) > 0.5;
+      arr.push({
+        x: cx + Math.cos(a) * r,
+        z: cz + Math.sin(a) * r,
+        rotY: seedA * Math.PI * 2,
+        tilt: (seed - 0.5) * 0.5,
+        size: long ? [0.35 + seed * 0.2, 0.05, 0.05] : [0.2, 0.06, 0.06],
+      });
+    }
+    return arr;
+  }, [count]);
+  return (
+    <group>
+      {pieces.map((p, i) => (
+        <mesh
+          key={`wd-${i}`}
+          position={[p.x, p.size[1] / 2 + 0.005, p.z]}
+          rotation={[p.tilt * 0.3, p.rotY, p.tilt]}
+        >
+          <boxGeometry args={p.size} />
+          <meshStandardMaterial color={COLORS.shelfWood} roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// TippedChair — drought only. Satu kursi tambahan (selain reading
+// chair) yang terjungkal di sekitar rak E miring. Match chair material.
+// Restored: ilang (kursi ditegakkan kembali).
+const TippedChair = () => (
+  <group position={[5, 0.15, -3]} rotation={[Math.PI / 2.3, 0.3, 0.4]}>
+    {/* Seat */}
+    <mesh position={[0, 0.4, 0]}>
+      <boxGeometry args={[0.55, 0.08, 0.55]} />
+      <meshStandardMaterial color={COLORS.chairWood} roughness={0.78} />
+    </mesh>
+    {/* Backrest */}
+    <mesh position={[0, 0.85, -0.25]}>
+      <boxGeometry args={[0.55, 0.85, 0.06]} />
+      <meshStandardMaterial color={COLORS.chairWood} roughness={0.8} />
+    </mesh>
+    {/* Legs */}
+    {[[0.22, 0.22], [-0.22, 0.22], [0.22, -0.22], [-0.22, -0.22]].map(
+      ([x, z], i) => (
+        <mesh key={`tcleg-${i}`} position={[x, 0.2, z]}>
+          <boxGeometry args={[0.06, 0.4, 0.06]} />
+          <meshStandardMaterial color={COLORS.chairWood} roughness={0.85} />
+        </mesh>
+      ),
+    )}
+  </group>
+);
+
 // Wall sconces — only restored. 4 lentera dinding nyala redup.
 const WallSconces = () => {
   const sconces = [
@@ -1130,7 +1323,7 @@ const ArsipScene = ({
       <WallCracks />
       <GodRayCone restored={restored} />
       <DustMotes count={200} isMobile={isMobile} />
-      <PaperDrift count={restored ? 4 : 14} isMobile={isMobile} />
+      <PaperDrift count={restored ? 4 : 26} isMobile={isMobile} />
       {/* Drought-only atmospheric storytelling layer */}
       {!restored && (
         <>
@@ -1138,6 +1331,10 @@ const ArsipScene = ({
           <WindStreamlines isMobile={isMobile} />
           <DustFootprints />
           <FallenBookPile />
+          <BookScatter isMobile={isMobile} />
+          <PlasterChunks isMobile={isMobile} />
+          <WoodDebris isMobile={isMobile} />
+          <TippedChair />
         </>
       )}
       {restored && <WallSconces />}
