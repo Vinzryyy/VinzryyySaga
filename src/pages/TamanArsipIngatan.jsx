@@ -2721,6 +2721,8 @@ const SIDE_TABLE_INTERACTIVE_IDS = [
   'sepuluh-pagi',
   'fangirl-dewasa',
   'catok-jinak',
+  'salah-langganan',
+  'stay-in-place',
   'pengangguran-dananya',
 ];
 
@@ -2986,22 +2988,24 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 11 books: 4-3-4 row grid.
+// Layout 13 books: 5-3-5 row grid (asymmetric, tengah lebih jarang).
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.4) — 4 books
-  { dx: -0.75, dz: 0.4 },
-  { dx: -0.25, dz: 0.4 },
-  { dx: 0.25, dz: 0.4 },
-  { dx: 0.75, dz: 0.4 },
+  // Row belakang (+z 0.4) — 5 books
+  { dx: -0.8, dz: 0.4 },
+  { dx: -0.4, dz: 0.4 },
+  { dx: 0, dz: 0.4 },
+  { dx: 0.4, dz: 0.4 },
+  { dx: 0.8, dz: 0.4 },
   // Row tengah (z 0) — 3 books
   { dx: -0.55, dz: 0 },
   { dx: 0, dz: 0 },
   { dx: 0.55, dz: 0 },
-  // Row depan (-z -0.4) — 4 books
-  { dx: -0.75, dz: -0.4 },
-  { dx: -0.25, dz: -0.4 },
-  { dx: 0.25, dz: -0.4 },
-  { dx: 0.75, dz: -0.4 },
+  // Row depan (-z -0.4) — 5 books
+  { dx: -0.8, dz: -0.4 },
+  { dx: -0.4, dz: -0.4 },
+  { dx: 0, dz: -0.4 },
+  { dx: 0.4, dz: -0.4 },
+  { dx: 0.8, dz: -0.4 },
 ];
 
 const SideTableBooks = ({

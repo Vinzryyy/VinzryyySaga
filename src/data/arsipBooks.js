@@ -40,13 +40,15 @@ export const CATEGORIES = {
 // Pedestal angles untuk drought floor layout (radius 3.0 dari meja).
 export const PEDESTAL_ANGLES = {
   'anak-pohon': 135,              // NW
-  'bukan-kolonial': 120,          // NW (introvert nature)
+  'bukan-kolonial': 120,          // NW (introvert)
   'sebelum-panggung': 105,        // N-NE
   'jaipong-akar': 75,             // NE
   'suara-memanggil': 45,          // E-NE
+  'salah-langganan': 30,          // E-NE (gaptek admission)
   'panggung-kecil': 15,           // E
   'sepuluh-pagi': 345,            // E-SE (academic burnout)
   'pengangguran-dananya': 315,    // SE (escapist dream)
+  'stay-in-place': 300,           // SE (backstage discipline)
   'catok-jinak': 285,             // SSE (idol skill)
   'fangirl-dewasa': 255,          // SSW
   'language-interference': 225,   // SW
@@ -63,12 +65,14 @@ export const ARSIP_STORY_ORDER = [
   'jaipong-akar',          // bahasa tubuh
   'suara-memanggil',       // vokal
   'catok-jinak',           // idol skill: catokan
+  'salah-langganan',       // gaptek (light/humor break)
   'asal-nama',             // identitas
   'language-interference', // bahasa lengket otak
-  'sepuluh-pagi',          // academic burnout (cluster Korean studies)
+  'sepuluh-pagi',          // academic burnout
   'fangirl-dewasa',        // perspektif fan changing
+  'stay-in-place',         // backstage discipline
   'panggung-kecil',        // industry reality (mature)
-  'pengangguran-dananya',  // escapist dream (closing reflection)
+  'pengangguran-dananya',  // escapist dream (closing)
 ];
 
 export const ARSIP_BOOKS = [
@@ -351,6 +355,61 @@ export const ARSIP_BOOKS = [
         'Ada beautiful tension di cerita ini. Eli yang dedikatif terhadap Korean studies — buktinya dia masih kuliah, masih konsisten, masih bisa ngomong Korea — tapi juga manusia yang merasa muak. Yang gak nyamarin lelahnya, yang ngomong jujur tentang batas.',
         'Mungkin itu juga sebabnya dia bisa terus jalan. Karena dia tahu kapan harus push, kapan harus rehat. Idol yang sustainable bukan idol yang gak pernah lelah — tapi idol yang tahu cara menjaga energinya supaya bisa bertahan untuk waktu yang lama.',
         'Setiap kali kamu lihat Eli ngomong sedikit Korea di livestream, ada cerita di belakangnya: bertahun-tahun rutin listening jam 10 pagi, kuliah yang melelahkan, dan moment-moment muak yang dia hadapi dengan dewasa. Tidak ada yang instant.',
+      ],
+    }),
+  },
+  {
+    id: 'stay-in-place',
+    title: 'Stay in Place — Sudut yang Ditugaskan',
+    eyebrow: 'Cerita · Backstage Discipline',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#5a6878',
+    preview:
+      'Setelah make-up siap, member-member JKT48 wajib diam di satu sudut.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada peraturan tak tertulis yang jarang dibahas tentang JKT48 backstage. Eli pernah cerita: setelah member tiba di tempat event, ada protokol disiplin yang harus diikuti.',
+        'Bayangkan: jam 18.30 atau sekitarnya, member-member JKT48 sampai di venue acara. Bukan langsung tampil. Pertama-tama, mereka ke ruang dressing untuk make-up dan hair styling. Itu rutinitas standar.',
+        'Tapi setelah make-up dan rambut siap, ada satu instruksi tersirat: stay in place. Tetap di satu spot. Jangan jalan-jalan, jangan keliling venue, jangan mingling dengan orang-orang di area lain.',
+        'Eli describe pengalaman ini sebagai "caged" — seperti dikurung di satu area. Mereka gak boleh wander off. Gak boleh pindah-pindah antar area venue. Ada sudut tertentu yang ditetapkan untuk mereka, dan di situlah mereka menunggu sampai giliran tampil.',
+        'Buat orang yang belum kenal industri ini, mungkin kedengarannya restriktif. Tapi Eli jelaskan dengan sederhana — ini ada alasannya.',
+        'Pertama, logistik. Mengatur grup besar performer butuh struktur. Kalau setiap member jalan-jalan kemana mereka mau, manajemen susah ngumpulin mereka pas waktunya tampil. Stay in place = standby siap dipanggil.',
+        'Kedua, energi. Member-member JKT48 sering punya jadwal yang back-to-back. Sebelum event tertentu, mereka mungkin udah baru pulang dari theater atau acara lain. Mingling, jalan-jalan, ngobrol panjang dengan banyak orang — itu menghabiskan energi yang sudah tipis. Lebih bijak menyimpan energi untuk panggung.',
+        'Jadi yang fans lihat sebagai "energi tinggi di panggung" itu hasil dari disiplin diam di backstage. Bukan kebetulan, bukan natural-state. Disiplin yang sengaja, dengan tujuan yang jelas: tampil maksimal saat waktunya.',
+        'Mungkin ini juga sebabnya beberapa member kerasa sangat "on" saat panggung, dan sangat "off" di sela-sela. Bukan dua-muka — itu profesionalisme. Energi yang dijaga, dipanggil keluar pas dibutuhkan, lalu disimpan kembali.',
+      ],
+    }),
+  },
+  {
+    id: 'salah-langganan',
+    title: 'Salah Langganan — Sinetron yang Berubah Jadi F1',
+    eyebrow: 'Cerita · Gaptek yang Jujur',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#a05848',
+    preview:
+      'Mau nonton sinetron, malah ke-subscribe package F1 + MotoGP.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada satu cerita kecil dari Eli yang gak ada hubungannya dengan panggung, dengan vokal, dengan industri idol. Cerita yang sangat manusiawi: dia gaptek.',
+        'Sebagai mahasiswa Sastra Korea yang juga full-time idol, Eli punya jadwal padat. Tapi dia juga manusia yang ingin sekali-sekali nonton TV, relax, ikut sinetron favorit. Hak setiap orang.',
+        'Suatu kali, dia coba langganan sebuah platform streaming. Niatnya satu: ingin nonton sinetron yang dia ikutin. Tapi platformnya punya menu yang gak straightforward, package-package yang bersaing untuk ke-pilih.',
+        'Dan Eli, dengan kejujurannya yang familiar, salah klik. Bukan package sinetron yang ke-subscribe — tapi package sports premium. Lengkap dengan football, F1, dan MotoGP.',
+        'Hasil dari klik yang salah: Eli yang ingin nonton drama romantis, malah dapet jadwal balap mobil sepanjang weekend. Penonton yang ingin lihat tokoh sinetron jatuh cinta, malah lihat Lewis Hamilton dan Max Verstappen rebutan pole position.',
+        'Yang lebih lucu lagi: dia gak tahu cara unsubscribe atau switch package. Eli mengaku — dia kesulitan menavigasi app jenis itu. Setting yang berlapis-lapis, opsi yang gak intuitive, tombol yang sembunyi di sub-menu. Dia bingung.',
+        'Jadi sementara langganannya jalan terus, dengan content yang gak dia mau. Setiap kali dia buka platform, F1 dan MotoGP yang muncul di trending. Sinetron yang dia tunggu, masih di balik tembok package yang gak sengaja dia tinggalkan.',
+        'Eli ketawa pas cerita ini. Bukan frustration mendalam, lebih ke acceptance kalau ya, dia memang gaptek. Bukan teknologi besar — bukan dia gak bisa pakai laptop atau handphone. Tapi navigasi UI yang penuh trik psikologi memang bikin pusing.',
+        'Cerita ini relatable banget. Berapa banyak dari kita yang udah salah langganan sesuatu, lalu kesulitan unsubscribe? Berapa banyak dari kita yang sebenarnya gak suka dengan platform yang sengaja bikin sulit cancel? Eli, dengan jujur, mengakui: dia salah satunya.',
+        'Idol pun gaptek. Idol pun bisa salah klik. Idol pun bisa terjebak langganan F1 padahal mau sinetron. Itulah salah satu hal yang membuat Eli relatable — dia gak nyamarin sisi yang gak sempurna. Dia ketawa-in.',
       ],
     }),
   },
