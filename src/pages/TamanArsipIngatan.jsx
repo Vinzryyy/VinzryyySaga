@@ -2147,8 +2147,9 @@ const WaxCandle = ({ restored }) => (
 );
 
 // LenternaFlame — visible flame inside lentera meja shade dengan
-// flicker animation + flickering point light. Always-on (selalu nyala,
-// drought maupun restored — ini lentera utama meja baca).
+// flicker animation + flickering point light + rising spark motes.
+// Always-on (selalu nyala, drought maupun restored — ini lentera utama
+// meja baca).
 const LenternaFlame = () => {
   const flameRef = useRef();
   const lightRef = useRef();
@@ -2177,7 +2178,75 @@ const LenternaFlame = () => {
         distance={4.5}
         decay={2}
       />
+      <LenternaSparks />
     </>
+  );
+};
+
+// LenternaSparks — 5 micro motes rising dari flame, fade per cycle.
+// Tiap mote independent phase, recycle saat sampai atas. Halus, lebih
+// kerasa "flame breathing" daripada literal sparks.
+const LenternaSparks = () => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.children.forEach((p, i) => {
+      const phase = i * 0.42;
+      const cycle = (((t * 0.7 + phase) % 1) + 1) % 1;
+      p.position.y = 0.22 + cycle * 0.35;
+      p.position.x = Math.sin(t * 1.8 + phase) * 0.025;
+      p.position.z = Math.cos(t * 1.4 + phase * 0.7) * 0.025;
+      if (p.material) p.material.opacity = (1 - cycle) * 0.5;
+    });
+  });
+  return (
+    <group ref={groupRef}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <mesh key={`spark-${i}`}>
+          <sphereGeometry args={[0.007, 6, 4]} />
+          <meshBasicMaterial
+            color="#f4c890"
+            transparent
+            opacity={0.4}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// Spiders — drought only. 3 titik kecil hitam di sudut atas ruangan
+// dekat cobweb cluster, kerasa "yang bikin sarang masih ada di sini."
+// Statis (gak gerak — laba-laba diam menunggu).
+const Spiders = () => {
+  const positions = [
+    // Sudut NE upper (dekat cobweb pojok NE)
+    [ROOM_W / 2 - 0.6, ROOM_H - 0.7, ROOM_D / 2 - 0.6],
+    // Dekat breach (sarang besar di -X area)
+    [-ROOM_W / 2 + 0.5, 4.0, 4.8],
+    // Hanging area ceiling near reading table
+    [0.7, 4.55, 0.6],
+  ];
+  return (
+    <group>
+      {positions.map((pos, i) => (
+        <group key={`sp-${i}`} position={pos}>
+          {/* Body */}
+          <mesh>
+            <sphereGeometry args={[0.018, 6, 4]} />
+            <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+          </mesh>
+          {/* Head (smaller) */}
+          <mesh position={[0, 0, 0.018]}>
+            <sphereGeometry args={[0.011, 6, 4]} />
+            <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+          </mesh>
+        </group>
+      ))}
+    </group>
   );
 };
 
@@ -2559,6 +2628,7 @@ const ArsipScene = ({
       {!restored && (
         <>
           <Cobwebs />
+          <Spiders />
           <WindStreamlines isMobile={isMobile} />
           <DustFootprints />
           <FallenBookPile />
