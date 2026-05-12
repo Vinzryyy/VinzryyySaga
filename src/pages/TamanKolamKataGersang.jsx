@@ -2313,36 +2313,66 @@ const Lanterns = () => (
 // useFrame: foliage group rotation Y di-osilasi sin wave halus dengan
 // phase berbeda per tree (deterministik dari posisi). Cast shadow ke
 // banks supaya kerasa solid.
+// DROUGHT VARIANT: BankTree canonical (trunk + 2 green foliage sphere
+// dgn wind sway) diganti dead tree — trunk gray + 3 cabang gundul
+// sticking out di angles. Phase wind sway tetap, tapi yg goyang
+// cabang-cabang (skeletal silhouette di wind).
 const BankTree = ({ pos, scale = 1 }) => {
-  const foliageRef = useRef();
-  // Phase deterministik dari position — supaya 2 tree dengan posisi
-  // sama selalu sync, tapi tree berbeda nggak.
+  const branchRef = useRef();
   const phase = (pos[0] + pos[2]) * 0.3;
 
   useFrame((state) => {
-    if (!foliageRef.current) return;
+    if (!branchRef.current) return;
     const t = state.clock.elapsedTime;
-    foliageRef.current.rotation.z = Math.sin(t * 0.6 + phase) * 0.025;
-    foliageRef.current.rotation.x = Math.cos(t * 0.5 + phase) * 0.02;
+    branchRef.current.rotation.z = Math.sin(t * 0.6 + phase) * 0.025;
+    branchRef.current.rotation.x = Math.cos(t * 0.5 + phase) * 0.02;
   });
 
   return (
     <group position={pos} scale={scale}>
-      <mesh position={[0, 0.8, 0]} castShadow>
-        <cylinderGeometry args={[0.08, 0.13, 1.6, 8]} />
-        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+      {/* Trunk — color shifted ke gray kering, sedikit lebih lebar
+          (gak ada foliage di atas, jadi trunk perlu lebih prominent) */}
+      <mesh position={[0, 0.95, 0]} castShadow>
+        <cylinderGeometry args={[0.09, 0.16, 1.9, 8]} />
+        <meshStandardMaterial color="#4a3a2a" roughness={1} />
       </mesh>
-      {/* Foliage group — sway via parent rotation di useFrame.
-          Anchor rotation di base pohon (y=0) supaya pohon "goyang"
-          di atasnya, bukan rotate di tengah. */}
-      <group ref={foliageRef} position={[0, 1.6, 0]}>
-        <mesh position={[0, 0.25, 0]} castShadow>
-          <sphereGeometry args={[0.55, 12, 10]} />
-          <meshStandardMaterial color="#5a8045" roughness={0.8} />
+      {/* Dead branches group — sway tipis ngikut wind */}
+      <group ref={branchRef} position={[0, 1.9, 0]}>
+        {/* Cabang utama kanan */}
+        <mesh
+          position={[0.32, 0.15, 0]}
+          rotation={[0, 0, -0.95]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.04, 0.07, 1.0, 6]} />
+          <meshStandardMaterial color="#3a2818" roughness={1} />
         </mesh>
-        <mesh position={[0.18, 0.45, 0.05]} castShadow>
-          <sphereGeometry args={[0.4, 12, 10]} />
-          <meshStandardMaterial color="#6e9358" roughness={0.8} />
+        {/* Cabang utama kiri */}
+        <mesh
+          position={[-0.28, 0.1, 0.05]}
+          rotation={[0, 0, 0.85]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.04, 0.065, 0.9, 6]} />
+          <meshStandardMaterial color="#3a2818" roughness={1} />
+        </mesh>
+        {/* Cabang atas kecil */}
+        <mesh
+          position={[0.08, 0.42, -0.1]}
+          rotation={[0.2, 0, 0.3]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.03, 0.05, 0.65, 5]} />
+          <meshStandardMaterial color="#3a2818" roughness={1} />
+        </mesh>
+        {/* Sub-cabang dari cabang kanan — kasih variasi silhouette */}
+        <mesh
+          position={[0.65, 0.45, 0]}
+          rotation={[0, 0, -0.5]}
+          castShadow
+        >
+          <cylinderGeometry args={[0.025, 0.04, 0.5, 4]} />
+          <meshStandardMaterial color="#3a2818" roughness={1} />
         </mesh>
       </group>
     </group>
@@ -5410,10 +5440,12 @@ const TelagaScene = ({
     <Jizos isMobile={isMobile} />
     {/* DROUGHT-SKIP: BambooGrove — bambu hidup */}
     {/* DROUGHT-SKIP: Rowboat — perlu air */}
-    {/* DROUGHT-SKIP: BankTrees + OuterTrees — green foliage alive, gak
-        ada drought-variant prop. Drought = pure dead ecosystem, gak ada
-        pohon hidup. Perimeter dihandle pure oleh fog brown dusty + far
-        clouds (atmospheric depth). */}
+    {/* BankTrees + OuterTrees re-enabled — pakai dead-tree version
+        (BankTree component di file ini overrided ke trunk + dead
+        branches, no foliage). Pohon mati ngebatesin perimeter, kerasa
+        "dulu ada hutan, sekarang tinggal kerangka". */}
+    <BankTrees count={isMobile ? 8 : 12} />
+    <OuterTrees isMobile={isMobile} />
     {/* DROUGHT-SKIP: FlyingFlock — alive */}
     {/* DROUGHT-SKIP: Playground — colorful play equipment, kids alive */}
     {/* DROUGHT-SKIP: PicnicGroups — alive people */}
