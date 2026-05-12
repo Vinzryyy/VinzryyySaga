@@ -4751,6 +4751,221 @@ const StringLights = () => (
   </>
 );
 
+// MushroomCluster — purified-only fairy-tale touch di base DeadTrees.
+// 3-4 small mushroom (stem + cap) per cluster, varied size + tilt.
+// Tones orange/cream/warm peach, kerasa hutan fairy-tale subtle.
+const Mushroom = ({ pos, scale = 1, tilt = 0, capColor = '#d48050' }) => (
+  <group position={pos} scale={scale} rotation={[0, 0, tilt]}>
+    {/* Stem — cream cylinder */}
+    <mesh position={[0, 0.06, 0]}>
+      <cylinderGeometry args={[0.03, 0.035, 0.12, 6]} />
+      <meshStandardMaterial color="#f0e0c8" roughness={0.9} />
+    </mesh>
+    {/* Cap — half-sphere dome */}
+    <mesh position={[0, 0.14, 0]}>
+      <sphereGeometry args={[0.07, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      <meshStandardMaterial
+        color={capColor}
+        emissive={capColor}
+        emissiveIntensity={0.12}
+        roughness={0.7}
+      />
+    </mesh>
+  </group>
+);
+const MUSHROOM_CLUSTER_DEFS = (() => {
+  const arr = [];
+  // 5 clusters di pos dekat DeadTree positions (sample from DEAD_TREE_DEFS
+  // tapi offset tipis ke samping supaya gak overlap trunk)
+  const clusterPositions = [
+    [-9, 0, -4.5],
+    [4.5, 0, 8.5],
+    [9.5, 0, 4],
+    [-4, 0, -10],
+    [-7, 0, 7],
+  ];
+  clusterPositions.forEach((basePos, ci) => {
+    const colors = ['#d48050', '#e09060', '#c87045'];
+    const cluster = [];
+    const count = 3 + (ci % 2);
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const r = 0.18 + ((i * 11) % 3) * 0.05;
+      cluster.push({
+        pos: [
+          basePos[0] + Math.cos(angle) * r,
+          0,
+          basePos[2] + Math.sin(angle) * r,
+        ],
+        scale: 0.7 + ((i * 13) % 4) * 0.15,
+        tilt: ((i * 17) % 5) * 0.06 - 0.12,
+        capColor: colors[i % colors.length],
+      });
+    }
+    arr.push(cluster);
+  });
+  return arr;
+})();
+const MushroomClusters = () => (
+  <>
+    {MUSHROOM_CLUSTER_DEFS.flat().map((m, i) => (
+      <Mushroom key={`mush-${i}`} {...m} />
+    ))}
+  </>
+);
+
+// PicnicSet — kasur jalin (blanket) plus basket plus item kecil di rumput
+// dekat WoodenBridge. Naratif: domestic life balik, ada yg sempetin
+// piknik di taman.
+const PicnicSet = ({ pos = [-2.5, 0, 2.2], rot = 0.4 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Blanket — checkered cream/peach square */}
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
+      <planeGeometry args={[1.2, 1.0]} />
+      <meshStandardMaterial color="#f4d8b0" roughness={0.95} />
+    </mesh>
+    {/* Checkered overlay — 4 lighter squares */}
+    {[
+      [-0.3, 0.014, -0.25],
+      [0.3, 0.014, -0.25],
+      [-0.3, 0.014, 0.25],
+      [0.3, 0.014, 0.25],
+    ].map((p, i) => (
+      <mesh
+        key={`check-${i}`}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={p}
+      >
+        <planeGeometry args={[0.5, 0.4]} />
+        <meshStandardMaterial color="#f8e8c8" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Basket — woven brown cube + handle arch */}
+    <group position={[-0.35, 0.1, -0.15]}>
+      <mesh position={[0, 0.06, 0]}>
+        <boxGeometry args={[0.22, 0.16, 0.18]} />
+        <meshStandardMaterial color="#8a6038" roughness={0.95} />
+      </mesh>
+      {/* Handle — torus arch */}
+      <mesh position={[0, 0.18, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.11, 0.012, 6, 12, Math.PI]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+    </group>
+    {/* Apple — small red sphere on blanket */}
+    <mesh position={[0.2, 0.05, 0.1]}>
+      <sphereGeometry args={[0.05, 8, 6]} />
+      <meshStandardMaterial color="#d44848" roughness={0.7} />
+    </mesh>
+    {/* Bread loaf — small oblong */}
+    <mesh position={[0.05, 0.04, -0.2]} rotation={[0, 0.3, 0]}>
+      <boxGeometry args={[0.18, 0.08, 0.1]} />
+      <meshStandardMaterial color="#d8a868" roughness={0.85} />
+    </mesh>
+    {/* Mug — small cylinder */}
+    <mesh position={[0.3, 0.05, -0.05]}>
+      <cylinderGeometry args={[0.04, 0.04, 0.08, 8]} />
+      <meshStandardMaterial color="#e8e8e0" roughness={0.7} />
+    </mesh>
+  </group>
+);
+
+// WindChimes — gantung dari branch DeadTree yg revived. 1 string + 4-5
+// thin rod cylinder, slight sway anim via useFrame. Sebagai poetry
+// touch — angin yg dulu cuma debu sekarang bunyi pelan kayak music.
+const WindChimes = ({ pos = [-6.5, 1.6, -3.5] }) => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.rotation.z = Math.sin(t * 1.3) * 0.12;
+  });
+  return (
+    <group ref={groupRef} position={pos}>
+      {/* String holder */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[0.01, 0.18, 0.01]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Top cross-piece (disc holding rods) */}
+      <mesh position={[0, -0.1, 0]}>
+        <cylinderGeometry args={[0.07, 0.07, 0.015, 8]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+      {/* 5 chime rods hanging different lengths */}
+      {[
+        { x: 0.05, z: 0, len: 0.22 },
+        { x: -0.05, z: 0, len: 0.18 },
+        { x: 0, z: 0.05, len: 0.24 },
+        { x: 0, z: -0.05, len: 0.2 },
+        { x: 0.03, z: 0.03, len: 0.16 },
+      ].map((r, i) => (
+        <mesh
+          key={`chime-${i}`}
+          position={[r.x, -0.12 - r.len / 2, r.z]}
+        >
+          <cylinderGeometry args={[0.008, 0.008, r.len, 6]} />
+          <meshStandardMaterial
+            color="#d4a868"
+            emissive="#d4a868"
+            emissiveIntensity={0.15}
+            metalness={0.5}
+            roughness={0.4}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// Hammock — gantung antara 2 sapling/tree position. Curved plane (slight
+// sag) + 2 attachment ropes ujung. Color cream-peach woven. Kerasa
+// "ada yg istirahat di sini, taman jadi tempat".
+const Hammock = ({ start = [-7, 1.4, 6], end = [-4, 1.4, 8] }) => {
+  const midX = (start[0] + end[0]) / 2;
+  const midY = (start[1] + end[1]) / 2 - 0.35; // sag down 0.35y
+  const midZ = (start[2] + end[2]) / 2;
+  const dx = end[0] - start[0];
+  const dz = end[2] - start[2];
+  const len = Math.sqrt(dx * dx + dz * dz);
+  const rotY = Math.atan2(dx, dz);
+  return (
+    <group position={[midX, midY, midZ]} rotation={[0, rotY, 0]}>
+      {/* Hammock bed — flat plane curved slightly via tilt */}
+      <mesh rotation={[0, 0, 0]}>
+        <boxGeometry args={[0.5, 0.04, len * 0.85]} />
+        <meshStandardMaterial color="#f0c898" roughness={0.95} />
+      </mesh>
+      {/* Edge ropes — kiri/kanan along length */}
+      <mesh position={[-0.25, 0.025, 0]}>
+        <boxGeometry args={[0.015, 0.015, len * 0.85]} />
+        <meshStandardMaterial color="#8a6038" roughness={0.95} />
+      </mesh>
+      <mesh position={[0.25, 0.025, 0]}>
+        <boxGeometry args={[0.015, 0.015, len * 0.85]} />
+        <meshStandardMaterial color="#8a6038" roughness={0.95} />
+      </mesh>
+      {/* Attachment ropes — angled up to start/end pos. Group rotation
+          udah orient sumbu Z = along hammock length, jadi ropes pakai
+          rotation X tilt up. */}
+      <mesh
+        position={[0, 0.2, -len * 0.42]}
+        rotation={[Math.atan2(0.4, 0.2), 0, 0]}
+      >
+        <boxGeometry args={[0.012, 0.5, 0.012]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+      <mesh
+        position={[0, 0.2, len * 0.42]}
+        rotation={[-Math.atan2(0.4, 0.2), 0, 0]}
+      >
+        <boxGeometry args={[0.012, 0.5, 0.012]} />
+        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+
 // DistantCrow — 1 burung silhouette terbang lazy huge-radius circle
 // di horizon jauh. Static-y altitude (~8y), radius lebar (28u),
 // kerasa "1 burung kesepian di langit kota mati". Echo dari gersang
@@ -5196,6 +5411,10 @@ const TamanScene = ({
       {purified && <VineCreeps />}
       {purified && <WildflowerBushes isMobile={isMobile} />}
       {purified && !isMobile && <StringLights />}
+      {purified && <MushroomClusters />}
+      {purified && <PicnicSet pos={[-2.5, 0, 2.2]} rot={0.4} />}
+      {purified && !isMobile && <WindChimes pos={[-6.5, 1.6, -3.5]} />}
+      {purified && !isMobile && <Hammock start={[-7, 1.4, 6]} end={[-4, 1.4, 8]} />}
       {purified && <FlowerClusters isMobile={isMobile} />}
       {purified && <GrassBlades isMobile={isMobile} />}
       <PetaFootprintTrails />
