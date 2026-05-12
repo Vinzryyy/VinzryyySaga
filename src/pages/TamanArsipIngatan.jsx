@@ -2562,6 +2562,16 @@ const BookPedestalsNearMeja = ({
 // orbit ke far racks. Sisanya tetep di far racks (variety location).
 const MEJA_INTERACTIVE_IDS = ['etimologi-armeniaca', 'filosofi-armeniaca'];
 const STACK_INTERACTIVE_IDS = ['linimasa-trainee', 'linimasa-theater'];
+// 7 buku sisanya host di side table baru di utara meja utama.
+const SIDE_TABLE_INTERACTIVE_IDS = [
+  'linimasa-senbatsu-newera',
+  'linimasa-mature',
+  'linimasa-variety',
+  'era-fight-team-dream',
+  'diskografi-rapsodi',
+  'diskografi-bibir',
+  'kebaikan-pohon',
+];
 
 // MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
 // dari open book "Halaman Terakhir." Posisi mirror lentera & teacup.
@@ -2785,6 +2795,159 @@ const StackedBooksNearMeja = ({
             {hovered && (
               <Html
                 position={[0, 0.5, 0]}
+                center
+                distanceFactor={6}
+                style={{ pointerEvents: 'none' }}
+              >
+                <div
+                  style={{
+                    fontFamily: '"Fraunces Variable", serif',
+                    fontStyle: 'italic',
+                    color: 'rgba(255,232,184,0.95)',
+                    fontSize: '13px',
+                    letterSpacing: '0.01em',
+                    whiteSpace: 'nowrap',
+                    textShadow:
+                      '0 0 14px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)',
+                  }}
+                >
+                  {book.title}
+                </div>
+              </Html>
+            )}
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
+// SideTableBooks — 1 meja tambahan di utara meja utama, isi 7 buku
+// sisanya yang belum ada di meja/stack/floor. Restored only. Tiap buku
+// interactive dengan indicator orb. Side table dimensi 2.6 × 1.1,
+// books arranged 2 rows.
+const SIDE_TABLE_POS = [0, 0, 2.8]; // 2.8 unit utara dari meja utama
+const SIDE_TABLE_TOP_Y = 0.75;
+// Layout 7 books: 4 di row belakang (+z), 3 di row depan (-z)
+const SIDE_TABLE_BOOK_SLOTS = [
+  // Row belakang (+z from table center)
+  { dx: -0.9, dz: 0.3 },
+  { dx: -0.3, dz: 0.3 },
+  { dx: 0.3, dz: 0.3 },
+  { dx: 0.9, dz: 0.3 },
+  // Row depan (-z from table center)
+  { dx: -0.6, dz: -0.3 },
+  { dx: 0, dz: -0.3 },
+  { dx: 0.6, dz: -0.3 },
+];
+
+const SideTableBooks = ({
+  books,
+  hoveredId,
+  readIds,
+  onHover,
+  onOut,
+  onClick,
+}) => {
+  // Filter books yang assigned ke side table, preserve order yang
+  // di SIDE_TABLE_INTERACTIVE_IDS biar layout consistent.
+  const sideBooks = SIDE_TABLE_INTERACTIVE_IDS.map((id) =>
+    books.find((b) => b.id === id),
+  ).filter(Boolean);
+  const indicatorRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    indicatorRefs.current.forEach((ref, idx) => {
+      if (!ref) return;
+      const phase = idx * 0.55 + 6.0;
+      ref.opacity = 0.75 + Math.sin(t * 1.3 + phase) * 0.2;
+    });
+  });
+  return (
+    <group position={SIDE_TABLE_POS}>
+      {/* Side table top */}
+      <mesh position={[0, SIDE_TABLE_TOP_Y, 0]}>
+        <boxGeometry args={[2.6, 0.04, 1.1]} />
+        <meshStandardMaterial color={COLORS.tableWood} roughness={0.75} />
+      </mesh>
+      {/* 4 legs */}
+      {[[1.2, 0.45], [-1.2, 0.45], [1.2, -0.45], [-1.2, -0.45]].map(
+        ([x, z], i) => (
+          <mesh key={`stleg-${i}`} position={[x, 0.375, z]}>
+            <boxGeometry args={[0.08, 0.75, 0.08]} />
+            <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
+          </mesh>
+        ),
+      )}
+      {/* Lower shelf — sedikit di bawah top, kasih structure */}
+      <mesh position={[0, 0.18, 0]}>
+        <boxGeometry args={[2.5, 0.02, 1.0]} />
+        <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+      </mesh>
+
+      {/* 7 books arranged di top */}
+      {sideBooks.map((book, i) => {
+        const slot = SIDE_TABLE_BOOK_SLOTS[i];
+        if (!slot) return null;
+        const hovered = hoveredId === book.id;
+        const read = readIds.has(book.id);
+        const seedR = hashSeed(`st-${book.id}`);
+        const tilt = (seedR - 0.5) * 0.1;
+        return (
+          <group
+            key={book.id}
+            position={[slot.dx, SIDE_TABLE_TOP_Y + 0.04, slot.dz]}
+            rotation={[0, tilt, 0]}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              onHover?.(book.id);
+              document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              onOut?.(book.id);
+              document.body.style.cursor = 'auto';
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(book);
+            }}
+          >
+            {/* Hitbox generous */}
+            <mesh position={[0, 0.07, 0]}>
+              <boxGeometry args={[0.28, 0.18, 0.24]} />
+              <meshBasicMaterial transparent opacity={0} />
+            </mesh>
+            {/* Book lying flat */}
+            <mesh position={[0, 0.03 + (hovered ? 0.025 : 0), 0]}>
+              <boxGeometry args={[0.22, 0.05, 0.18]} />
+              <meshStandardMaterial
+                color={book.spineColor}
+                emissive={hovered ? COLORS.spineHover : book.spineColor}
+                emissiveIntensity={hovered ? 0.5 : read ? 0.25 : 0.2}
+                roughness={0.75}
+              />
+            </mesh>
+            {/* Spine ridge — di sisi facing south (toward main meja) */}
+            <mesh position={[0, 0.033, -0.085]}>
+              <boxGeometry args={[0.22, 0.055, 0.015]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.85} />
+            </mesh>
+            {/* Indicator orb */}
+            <mesh position={[0, 0.18, 0]}>
+              <sphereGeometry args={[read ? 0.022 : 0.034, 10, 8]} />
+              <meshBasicMaterial
+                ref={(el) => {
+                  indicatorRefs.current[i] = el;
+                }}
+                color={read ? '#88a8c0' : '#f4d090'}
+                transparent
+                opacity={hovered ? 1 : read ? 0.65 : 0.9}
+                toneMapped={false}
+              />
+            </mesh>
+            {hovered && (
+              <Html
+                position={[0, 0.35, 0]}
                 center
                 distanceFactor={6}
                 style={{ pointerEvents: 'none' }}
@@ -3453,7 +3616,11 @@ const ArsipScene = ({
   const booksByRak = useMemo(() => {
     const grouped = {};
     const placedIds = restored
-      ? new Set([...MEJA_INTERACTIVE_IDS, ...STACK_INTERACTIVE_IDS])
+      ? new Set([
+          ...MEJA_INTERACTIVE_IDS,
+          ...STACK_INTERACTIVE_IDS,
+          ...SIDE_TABLE_INTERACTIVE_IDS,
+        ])
       : new Set();
     Object.values(RAK_SLOTS).forEach((slot) => {
       grouped[slot] = books.filter(
@@ -3557,6 +3724,14 @@ const ArsipScene = ({
             onClick={onBookClick}
           />
           <StackedBooksNearMeja
+            books={books}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            onHover={onBookHover}
+            onOut={onBookOut}
+            onClick={onBookClick}
+          />
+          <SideTableBooks
             books={books}
             hoveredId={hoveredId}
             readIds={readIds}
