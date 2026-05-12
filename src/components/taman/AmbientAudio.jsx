@@ -14,6 +14,10 @@
  *                 cricket chirps (synth band-pass envelope, ~3s
  *                 interval). Layered atmosphere untuk Pohon-Pohon yang
  *                 Mengingat. Dipake di /taman/r1.
+ *   - 'taman-r2'→ taman pad lebih lirih + faint wind drone (kerasa
+ *                 lewat celah dinding) + occasional paper rustle (band-
+ *                 pass mid-high noise burst tiap 7-17s). Indoor library
+ *                 ambient untuk Arsip Ingatan. Dipake di /armeniacaTown/r2.
  *
  * UX constraints:
  * - Browser autoplay policy: AudioContext nggak bisa dimulai tanpa
@@ -190,6 +194,86 @@ const buildTamanR1Nodes = (ctx, master) => {
   return nodes;
 };
 
+// taman-r2 builder — indoor library ambient. Pad lirih (gain reduced
+// dari base) + faint wind drone (kerasa angin masuk lewat wall breach)
+// + occasional paper rustle (band-pass mid-high noise burst, random
+// interval 7-17s). Lebih intimate & "tertutup ruangan" daripada r1.
+const buildTamanR2Nodes = (ctx, master) => {
+  // Layer 1: pad triad — pakai builder existing, slight overall gain
+  // reduction biar kerasa lebih dim/intim daripada outdoor r1.
+  const padNodes = buildTamanNodes(ctx, master);
+  const nodes = [...padNodes];
+
+  // Layer 2: faint low wind drone — pink-ish noise low-passed.
+  // Frequency lebih rendah dari r1 (180Hz vs 260Hz) supaya kerasa
+  // "angin lewat celah" jauh, bukan angin terbuka.
+  const buffer = makeNoiseBuffer(ctx);
+  const noiseSrc = ctx.createBufferSource();
+  noiseSrc.buffer = buffer;
+  noiseSrc.loop = true;
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'lowpass';
+  noiseFilter.frequency.value = 180;
+  noiseFilter.Q.value = 0.6;
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.value = 0.05;
+  // LFO breathing di gain — kerasa angin "naik-turun" pelan
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 0.06;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.value = 0.02;
+  lfo.connect(lfoGain);
+  lfoGain.connect(noiseGain.gain);
+  lfo.start();
+  noiseSrc.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(master);
+  noiseSrc.start();
+  nodes.push(noiseSrc, lfo);
+
+  // Layer 3: paper rustle — short noise burst band-passed di mid-high
+  // freq (3-4.5kHz) dengan envelope cepat. Trigger random 7-17 detik.
+  let cancelled = false;
+  const rustleGain = ctx.createGain();
+  rustleGain.gain.value = 0.5;
+  rustleGain.connect(master);
+  const scheduleRustle = () => {
+    if (cancelled) return;
+    if (ctx.state === 'closed') {
+      cancelled = true;
+      return;
+    }
+    try {
+      const startTime = ctx.currentTime + 0.05;
+      const duration = 0.25 + Math.random() * 0.25;
+      const rustleSrc = ctx.createBufferSource();
+      rustleSrc.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 3000 + Math.random() * 1500;
+      filter.Q.value = 4;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, startTime);
+      g.gain.linearRampToValueAtTime(0.014, startTime + 0.06);
+      g.gain.exponentialRampToValueAtTime(0.0005, startTime + duration);
+      rustleSrc.connect(filter);
+      filter.connect(g);
+      g.connect(rustleGain);
+      rustleSrc.start(startTime);
+      rustleSrc.stop(startTime + duration + 0.1);
+    } catch {
+      /* ctx closed mid-build */
+    }
+    const nextDelay = 7000 + Math.random() * 10000;
+    setTimeout(scheduleRustle, nextDelay);
+  };
+  // Stagger first rustle 3-7s after enable
+  setTimeout(scheduleRustle, 3000 + Math.random() * 4000);
+  nodes.push({ stop: () => { cancelled = true; } });
+
+  return nodes;
+};
+
 const SoundOnIcon = () => (
   <svg
     width="16"
@@ -288,7 +372,9 @@ const AmbientAudio = ({ profile = 'taman', position = 'top-right' }) => {
         ? buildDroughtNodes(ctx, master)
         : profile === 'taman-r1'
           ? buildTamanR1Nodes(ctx, master)
-          : buildTamanNodes(ctx, master);
+          : profile === 'taman-r2'
+            ? buildTamanR2Nodes(ctx, master)
+            : buildTamanNodes(ctx, master);
 
     return undefined;
   }, [enabled, profile]);

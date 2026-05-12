@@ -2602,6 +2602,82 @@ const ArsipFooter = ({ hoveredId, books, isMobile }) => {
   );
 };
 
+// ArsipIntroTitle — first-visit narrative card fade-in. Same pattern
+// dengan TamanPetaIntroTitle: muncul ~2.6s setelah mount, auto-fade
+// out ~5.5s setelah visible, persist via localStorage 'taman-r2-intro-
+// seen'. Connective tissue narasi pas user pertama masuk Arsip.
+const ARSIP_INTRO_STORAGE_KEY = 'taman-r2-intro-seen';
+const ArsipIntroTitle = () => {
+  const [visible, setVisible] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = localStorage.getItem(ARSIP_INTRO_STORAGE_KEY) === '1';
+    } catch {
+      /* storage blocked */
+    }
+    if (seen) {
+      setRemoved(true);
+      return undefined;
+    }
+    const t1 = setTimeout(() => setVisible(true), 2600);
+    const t2 = setTimeout(() => setVisible(false), 8400);
+    const t3 = setTimeout(() => {
+      setRemoved(true);
+      try {
+        localStorage.setItem(ARSIP_INTRO_STORAGE_KEY, '1');
+      } catch {
+        /* storage blocked */
+      }
+    }, 10600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, []);
+  if (removed) return null;
+  return (
+    <div
+      className={`pointer-events-none absolute inset-0 z-20 flex items-center justify-center transition-opacity duration-[2000ms] ease-out ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div className="text-center max-w-md mx-4 sm:mx-6 max-h-full overflow-y-auto px-5 py-5 sm:px-8 sm:py-9 sm:-translate-y-10 rounded-md border border-white/12 bg-[#1c1614]/85 backdrop-blur-md shadow-2xl">
+        <div className="text-amber-200/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-4">
+          Arsip Ingatan
+        </div>
+        <p
+          className="text-white text-base sm:text-lg md:text-xl leading-relaxed mb-3"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            letterSpacing: '0.01em',
+          }}
+        >
+          Sebagian rak masih berdiri.
+        </p>
+        <div className="mx-auto mb-3 w-10 h-px bg-white/25" />
+        <p
+          className="text-white/65 text-[11px] sm:text-[12px] md:text-[13px] leading-relaxed"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            fontStyle: 'italic',
+            letterSpacing: '0.02em',
+          }}
+        >
+          Sebagian halaman masih bisa dibaca.
+          <br className="hidden sm:inline" />
+          {' '}Cari titik cahaya di rak —
+          <br className="hidden sm:inline" />
+          {' '}buku yang bersinar boleh dibuka.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const BackToPeta = () => (
   <Link
     to="/armeniacaTown/peta"
@@ -2737,7 +2813,8 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
           onMarkRead={handleMarkRead}
         />
 
-        <AmbientAudio profile="taman" position="bottom-right" />
+        <ArsipIntroTitle />
+        <AmbientAudio profile="taman-r2" position="bottom-right" />
         <RotateRecommendation />
       </div>
     </>
