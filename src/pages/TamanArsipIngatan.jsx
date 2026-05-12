@@ -204,9 +204,12 @@ const Walls = ({ restored }) => {
         <boxGeometry args={[6.5, ROOM_H, 0.2]} />
         {wallMat}
       </mesh>
-      {/* Top transom above door */}
-      <mesh position={[0, ROOM_H - 1.25, -ROOM_D / 2]}>
-        <boxGeometry args={[3, 1.5, 0.2]} />
+      {/* Top transom above door — full height dari door top (y=4) ke
+          ceiling (y=6). Sebelumnya cuma 1.5 tall (spans 4..5.5), ada
+          gap 0.5 unit di atas — void terlihat lewat. Extend ke 2 tall
+          biar nyambung ke ceiling. */}
+      <mesh position={[0, ROOM_H - 1, -ROOM_D / 2]}>
+        <boxGeometry args={[3, 2, 0.2]} />
         {wallMat}
       </mesh>
 
