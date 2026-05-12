@@ -715,7 +715,7 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
       `}</style>
 
       <article
-        className="arsipModalEnter relative w-full max-w-2xl max-h-full flex flex-col rounded-lg sm:rounded-2xl overflow-hidden shadow-2xl"
+        className="arsipModalEnter relative w-full max-w-2xl max-h-full flex flex-col rounded-sm overflow-hidden shadow-2xl"
         style={{
           backgroundColor: '#FDF6E3',
           // Layered background: SVG fractal noise (paper grain) +
@@ -726,13 +726,47 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
           radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
           radial-gradient(circle at 70% 80%, rgba(139, 64, 64, 0.05) 0%, transparent 60%)`,
           backgroundBlendMode: 'multiply, normal, normal',
+          border: '1px solid rgba(58, 36, 24, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Spine accent strip */}
+        {/* Book spine — left edge, lebar 8px dengan gradient ke kanan
+            biar kerasa "ridge of book binding" (3D depth illusion).
+            pointer-events-none supaya gak block click pada header buttons. */}
         <div
-          className="absolute top-0 bottom-0 left-0 w-1"
-          style={{ backgroundColor: book.spineColor }}
+          className="pointer-events-none absolute top-0 bottom-0 left-0 w-2"
+          style={{
+            background: `linear-gradient(to right, ${book.spineColor}, ${book.spineColor}cc 70%, rgba(58, 36, 24, 0.5))`,
+            boxShadow: 'inset -1px 0 0 rgba(0,0,0,0.15)',
+          }}
+        />
+        {/* Page depth shadow — gradient gelap di sebelah kanan spine,
+            kerasa "halaman bertemu binding." */}
+        <div
+          className="pointer-events-none absolute top-0 bottom-0"
+          style={{
+            left: '8px',
+            width: '12px',
+            background:
+              'linear-gradient(to right, rgba(58, 36, 24, 0.18) 0%, rgba(58, 36, 24, 0.06) 50%, transparent 100%)',
+          }}
+        />
+        {/* Page edge texture — top edge tipis darker, kerasa "tepi
+            halaman kertas tebal." */}
+        <div
+          className="pointer-events-none absolute top-0 left-0 right-0 h-1"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(139, 90, 60, 0.3), transparent)',
+          }}
+        />
+        {/* Bottom page edge */}
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 right-0 h-1"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(139, 90, 60, 0.25), transparent)',
+          }}
         />
 
         {/* Header bar */}
