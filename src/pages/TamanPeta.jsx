@@ -3846,9 +3846,19 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
   const fullRestore = MAP_THRESHOLDS.fullRestore;
   const pct = Math.min(100, (count / fullRestore) * 100);
   const restored = count >= fullRestore;
-  const nextLabel = restored
-    ? 'Ekosistem pulih sepenuhnya'
-    : `Pulih sepenuhnya di ${fullRestore.toLocaleString('id-ID')}`;
+  // Tiered milestone narrative — kasih konteks naratif per tahap progress
+  // restorasi, bukan cuma "X dari Y". Tone match intro/petak (cerita-
+  // rakyat omniscient, simple casual Indonesian).
+  const nextLabel = (() => {
+    if (count >= fullRestore) return 'Air kembali ke telaga. Kota hidup.';
+    if (count >= 5000)
+      return 'Telaga makin dekat ke pulih. Sedikit lagi, teratai mekar.';
+    if (count >= MAP_THRESHOLDS.r3Unlock)
+      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 6.000 untuk air kembali.';
+    if (count >= MAP_THRESHOLDS.mapUnlock)
+      return 'Peta terbuka — kota mulai inget bentuknya. Lanjut ke 4.000 untuk lorong & telaga.';
+    return `Pulih sepenuhnya di ${fullRestore.toLocaleString('id-ID')}`;
+  })();
   return (
     <div className="pointer-events-none absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[92vw]">
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">
