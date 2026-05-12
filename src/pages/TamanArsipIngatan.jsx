@@ -2747,27 +2747,21 @@ const BookPedestalsNearMeja = ({
 // - Stack: 2 buku (sebelum-panggung, suara-memanggil)
 // - Side table: 6 buku (sisanya)
 const MEJA_INTERACTIVE_IDS = [];
-const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'suara-memanggil'];
+const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'jaipong-akar'];
+// 11 buku interactive di side table (sisa setelah 2 buku di stack
+// dan halaman-terakhir dihapus).
 const SIDE_TABLE_INTERACTIVE_IDS = [
   'anak-pohon',
   'bukan-kolonial',
   'culture-shock',
-  'bosenan-multitask',
-  'jaipong-akar',
   'panggung-kecil',
   'asal-nama',
-  'language-interference',
-  'sepuluh-pagi',
   'tas-tiga-kilo',
-  'enjoy-the-work',
-  'fangirl-dewasa',
+  'pengangguran-dananya',
   'vocal-bertanya',
-  'catok-jinak',
-  'prp-kulit',
-  'salah-langganan',
+  'fangirl-dewasa',
   'stay-in-place',
   'revenge-2023',
-  'pengangguran-dananya',
 ];
 
 // MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
@@ -3029,35 +3023,26 @@ const StackedBooksNearMeja = ({
 // touching tanpa gap. Position x = -1.8 setelah rotation 90° → table
 // width 1.2 di world X, spans -2.4..-1.2.
 const SIDE_TABLE_POS = [-1.8, 0, 0];
-// Side table dimensions expanded dari 2.0 → 2.6 supaya muat lebih
-// banyak buku (user terus tambah funfact baru, stok udah 21 buku).
-const SIDE_TABLE_W = 2.6;
+// Side table 2.0 × 1.2 — pas untuk 11 buku interactive di grid 4-3-4.
+const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 19 books: 7-5-7 grid pada side table 2.6 × 1.2.
+// Layout 11 books: 4-3-4 grid pada side table 2.0 × 1.2.
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.4) — 7 books
-  { dx: -1.1, dz: 0.4 },
-  { dx: -0.73, dz: 0.4 },
-  { dx: -0.37, dz: 0.4 },
-  { dx: 0, dz: 0.4 },
-  { dx: 0.37, dz: 0.4 },
-  { dx: 0.73, dz: 0.4 },
-  { dx: 1.1, dz: 0.4 },
-  // Row tengah (z 0) — 5 books
-  { dx: -0.96, dz: 0 },
-  { dx: -0.48, dz: 0 },
+  // Row belakang (+z 0.4) — 4 books
+  { dx: -0.75, dz: 0.4 },
+  { dx: -0.25, dz: 0.4 },
+  { dx: 0.25, dz: 0.4 },
+  { dx: 0.75, dz: 0.4 },
+  // Row tengah (z 0) — 3 books
+  { dx: -0.55, dz: 0 },
   { dx: 0, dz: 0 },
-  { dx: 0.48, dz: 0 },
-  { dx: 0.96, dz: 0 },
-  // Row depan (-z -0.4) — 7 books
-  { dx: -1.1, dz: -0.4 },
-  { dx: -0.73, dz: -0.4 },
-  { dx: -0.37, dz: -0.4 },
-  { dx: 0, dz: -0.4 },
-  { dx: 0.37, dz: -0.4 },
-  { dx: 0.73, dz: -0.4 },
-  { dx: 1.1, dz: -0.4 },
+  { dx: 0.55, dz: 0 },
+  // Row depan (-z -0.4) — 4 books
+  { dx: -0.75, dz: -0.4 },
+  { dx: -0.25, dz: -0.4 },
+  { dx: 0.25, dz: -0.4 },
+  { dx: 0.75, dz: -0.4 },
 ];
 
 const SideTableBooks = ({
