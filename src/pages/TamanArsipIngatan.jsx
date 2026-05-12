@@ -1710,6 +1710,441 @@ const ForgottenTeacup = ({ restored }) => (
   </group>
 );
 
+// ================== Library landmarks (batch 2) =====================
+// Set kedua 16 objek — bersama 5 di atas + 5 di scene asli, total 26
+// interior detail. Posisi di-spread strategis biar gak overlap dengan
+// rak/meja/lectern existing.
+
+// 3. Globe — bola dunia di stand kayu, posisi southwest area
+const Globe = ({ restored }) => (
+  <group position={[-5.5, 0, -3]}>
+    <mesh position={[0, 0.05, 0]}>
+      <cylinderGeometry args={[0.18, 0.22, 0.1, 12]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0, 0.4, 0]}>
+      <boxGeometry args={[0.05, 0.6, 0.05]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0, 0.85, 0]} rotation={[0.4, 0.3, 0]}>
+      <sphereGeometry args={[0.22, 16, 12]} />
+      <meshStandardMaterial color={restored ? '#5a7888' : '#3a4858'} roughness={0.8} />
+    </mesh>
+    <mesh position={[0, 0.85, 0]} rotation={[0, 0, 0.3]}>
+      <torusGeometry args={[0.24, 0.012, 6, 24]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+  </group>
+);
+
+// 4. CardCatalog — cabinet 12 drawer untuk index buku, southwest
+const CardCatalog = () => (
+  <group position={[-5.5, 0, -6]} rotation={[0, 0.3, 0]}>
+    <mesh position={[0, 0.6, 0]}>
+      <boxGeometry args={[1.1, 1.2, 0.6]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {Array.from({ length: 12 }, (_, i) => {
+      const col = i % 3;
+      const row = Math.floor(i / 3);
+      const x = -0.36 + col * 0.36;
+      const y = 0.15 + row * 0.3;
+      return (
+        <group key={`dr-${i}`} position={[x, y, 0.32]}>
+          <mesh>
+            <boxGeometry args={[0.32, 0.26, 0.04]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0, 0.025]}>
+            <boxGeometry args={[0.06, 0.02, 0.01]} />
+            <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.6} />
+          </mesh>
+        </group>
+      );
+    })}
+    <mesh position={[0, 1.21, 0]}>
+      <boxGeometry args={[1.15, 0.03, 0.65]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
+    </mesh>
+  </group>
+);
+
+// 5. WingChair — kursi besar di pojok southeast dengan throw blanket
+const WingChair = ({ restored }) => (
+  <group position={[5, 0, -5]} rotation={[0, -0.9, 0]}>
+    <mesh position={[0, 0.45, 0]}>
+      <boxGeometry args={[0.7, 0.15, 0.6]} />
+      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 0.95, -0.28]}>
+      <boxGeometry args={[0.7, 1.05, 0.1]} />
+      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.36, 0.95, 0]}>
+      <boxGeometry args={[0.1, 0.95, 0.5]} />
+      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.36, 0.95, 0]}>
+      <boxGeometry args={[0.1, 0.95, 0.5]} />
+      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+    </mesh>
+    {[[0.28, 0.25], [-0.28, 0.25], [0.28, -0.25], [-0.28, -0.25]].map(([x, z], i) => (
+      <mesh key={`wcleg-${i}`} position={[x, 0.18, z]}>
+        <boxGeometry args={[0.06, 0.36, 0.06]} />
+        <meshStandardMaterial color={COLORS.chairWood} roughness={0.85} />
+      </mesh>
+    ))}
+    {/* Throw blanket draped across seat & arm */}
+    <mesh position={[0.18, 0.55, 0.08]} rotation={[0, 0.4, 0.25]}>
+      <boxGeometry args={[0.5, 0.06, 0.4]} />
+      <meshStandardMaterial color={restored ? '#7a5840' : '#5a3a25'} roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// 7. Hourglass — di top rak S
+const Hourglass = ({ restored }) => (
+  <group position={[5, 2.6, -8.5]}>
+    <mesh position={[0, 0.1, 0]}>
+      <sphereGeometry args={[0.07, 12, 8]} />
+      <meshStandardMaterial color={restored ? '#f4e4c8' : '#3a2418'} transparent opacity={0.4} roughness={0.3} />
+    </mesh>
+    <mesh position={[0, -0.1, 0]}>
+      <sphereGeometry args={[0.07, 12, 8]} />
+      <meshStandardMaterial color={restored ? '#f4e4c8' : '#3a2418'} transparent opacity={0.4} roughness={0.3} />
+    </mesh>
+    <mesh position={[0, 0.18, 0]}>
+      <cylinderGeometry args={[0.08, 0.08, 0.02, 12]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0, -0.18, 0]}>
+      <cylinderGeometry args={[0.08, 0.08, 0.02, 12]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0, -0.13, 0]}>
+      <sphereGeometry args={[0.05, 8, 6]} />
+      <meshStandardMaterial color="#d4a060" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// 8. QuillInkwell — di meja baca, sisi back-right
+const QuillInkwell = ({ restored }) => (
+  <group position={[0.6, 0.78, 0.32]}>
+    <mesh position={[0, 0.04, 0]}>
+      <cylinderGeometry args={[0.04, 0.045, 0.06, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.6} />
+    </mesh>
+    <mesh position={[0, 0.075, 0]}>
+      <cylinderGeometry args={[0.038, 0.038, 0.005, 12]} />
+      <meshStandardMaterial
+        color={restored ? '#1a0808' : '#2a1808'}
+        roughness={restored ? 0.3 : 0.95}
+        metalness={restored ? 0.2 : 0}
+      />
+    </mesh>
+    <mesh position={[0.04, 0.18, 0]} rotation={[0, 0, -0.4]}>
+      <cylinderGeometry args={[0.005, 0.003, 0.3, 6]} />
+      <meshStandardMaterial color="#d4b890" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.1, 0.27, 0]} rotation={[0, 0, -0.4]}>
+      <planeGeometry args={[0.06, 0.14]} />
+      <meshStandardMaterial color="#d4b890" roughness={0.95} side={THREE.DoubleSide} />
+    </mesh>
+  </group>
+);
+
+// 9. MagnifyingGlass — di atas open book di meja
+const MagnifyingGlass = () => (
+  <group position={[0.18, 0.84, 0.18]} rotation={[Math.PI / 3, 0, 0.4]}>
+    <mesh>
+      <torusGeometry args={[0.06, 0.008, 8, 16]} />
+      <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.5} />
+    </mesh>
+    <mesh>
+      <circleGeometry args={[0.058, 16]} />
+      <meshBasicMaterial color="#a8c0d4" transparent opacity={0.25} side={THREE.DoubleSide} />
+    </mesh>
+    <mesh position={[0, -0.11, 0]}>
+      <cylinderGeometry args={[0.008, 0.008, 0.14, 8]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.7} />
+    </mesh>
+  </group>
+);
+
+// 10. WallMap — peta kuno di dinding timur
+const WallMap = ({ restored }) => (
+  <group position={[ROOM_W / 2 - 0.12, 3.2, -4]} rotation={[0, -Math.PI / 2, 0]}>
+    <mesh>
+      <boxGeometry args={[1.6, 1.2, 0.04]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0, 0, 0.025]}>
+      <planeGeometry args={[1.4, 1.0]} />
+      <meshStandardMaterial color={restored ? '#d4b890' : '#7a5840'} roughness={0.95} side={THREE.DoubleSide} />
+    </mesh>
+    {!restored && (
+      <mesh position={[0.55, 0.4, 0.026]} rotation={[0, 0, 0.5]}>
+        <planeGeometry args={[0.4, 0.3]} />
+        <meshStandardMaterial color="#3a2418" roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+    )}
+  </group>
+);
+
+// 12. ReadingGlasses — di meja baca, left-front
+const ReadingGlasses = () => (
+  <group position={[-0.35, 0.785, -0.32]} rotation={[0, 0.3, 0]}>
+    <mesh position={[-0.045, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[0.025, 0.005, 6, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.5} />
+    </mesh>
+    <mesh position={[0.045, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[0.025, 0.005, 6, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.5} />
+    </mesh>
+    <mesh position={[0, 0, 0]}>
+      <boxGeometry args={[0.04, 0.005, 0.005]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.5} />
+    </mesh>
+  </group>
+);
+
+// 13. OpenNotebook — buku jurnal di meja, left-back
+const OpenNotebook = () => (
+  <group position={[-0.5, 0.78, 0.28]} rotation={[0, 0.4, 0]}>
+    <mesh position={[-0.08, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0.02]}>
+      <planeGeometry args={[0.14, 0.2]} />
+      <meshStandardMaterial color="#f6e8c8" side={THREE.DoubleSide} roughness={0.95} />
+    </mesh>
+    <mesh position={[0.08, 0.005, 0]} rotation={[-Math.PI / 2, 0, -0.02]}>
+      <planeGeometry args={[0.14, 0.2]} />
+      <meshStandardMaterial color="#f6e8c8" side={THREE.DoubleSide} roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 0.008, 0]}>
+      <boxGeometry args={[0.015, 0.01, 0.2]} />
+      <meshStandardMaterial color="#7a3030" roughness={0.7} />
+    </mesh>
+    {/* Handwritten lines hint */}
+    {[-0.08, 0.08].map((px, j) =>
+      [0, 1, 2].map((row) => (
+        <mesh
+          key={`nl-${j}-${row}`}
+          position={[px, 0.011, -0.07 + row * 0.04]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <planeGeometry args={[0.1, 0.004]} />
+          <meshBasicMaterial color="#3a2418" transparent opacity={0.45} />
+        </mesh>
+      )),
+    )}
+  </group>
+);
+
+// 14. WaxCandle — di tepi meja baca, right-front
+const WaxCandle = ({ restored }) => (
+  <group position={[0.65, 0.78, -0.15]}>
+    <mesh position={[0, 0.01, 0]}>
+      <cylinderGeometry args={[0.07, 0.07, 0.02, 12]} />
+      <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.5} />
+    </mesh>
+    <mesh position={[0, 0.025, 0]}>
+      <cylinderGeometry args={[0.05, 0.06, 0.015, 12]} />
+      <meshStandardMaterial color="#d4b890" roughness={0.7} />
+    </mesh>
+    <mesh position={[0, 0.08, 0]}>
+      <cylinderGeometry args={[0.022, 0.024, 0.12, 12]} />
+      <meshStandardMaterial color="#e8d4a8" roughness={0.6} />
+    </mesh>
+    <mesh position={[0, 0.143, 0]}>
+      <cylinderGeometry args={[0.002, 0.002, 0.015, 6]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.95} />
+    </mesh>
+    {restored && (
+      <>
+        <mesh position={[0, 0.16, 0]}>
+          <sphereGeometry args={[0.014, 8, 6]} />
+          <meshBasicMaterial color="#f4a060" toneMapped={false} />
+        </mesh>
+        <pointLight position={[0, 0.18, 0]} color="#f4a060" intensity={0.25} distance={1.6} decay={2} />
+      </>
+    )}
+  </group>
+);
+
+// 16. Tapestry — wall hanging di dinding utara
+const Tapestry = ({ restored }) => (
+  <group position={[-2, 4.2, ROOM_D / 2 - 0.12]}>
+    {/* Top rod */}
+    <mesh position={[0, 0.72, 0]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.025, 0.025, 1.3, 8]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Fabric */}
+    <mesh>
+      <planeGeometry args={[1.2, 1.4]} />
+      <meshStandardMaterial
+        color={restored ? '#7a3030' : '#5a3025'}
+        roughness={0.95}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    {/* Apricot motif (restored) */}
+    {restored && (
+      <>
+        <mesh position={[0, 0.2, 0.01]}>
+          <circleGeometry args={[0.18, 12]} />
+          <meshStandardMaterial color="#f4c8d8" emissive="#e09bb0" emissiveIntensity={0.12} roughness={0.7} />
+        </mesh>
+        <mesh position={[0, -0.2, 0.01]}>
+          <circleGeometry args={[0.15, 12]} />
+          <meshStandardMaterial color="#f4c8d8" emissive="#e09bb0" emissiveIntensity={0.12} roughness={0.7} />
+        </mesh>
+      </>
+    )}
+    {/* Drought: torn bottom edge */}
+    {!restored && (
+      <mesh position={[0.35, -0.75, 0.01]} rotation={[0, 0, 0.3]}>
+        <planeGeometry args={[0.5, 0.18]} />
+        <meshStandardMaterial color={COLORS.fogDrought} roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+    )}
+  </group>
+);
+
+// 17. PlantPot — pot kecil di lantai, antara meja & rak NE
+const PlantPot = ({ restored }) => (
+  <group position={[3.5, 0, 4]}>
+    <mesh position={[0, 0.15, 0]}>
+      <cylinderGeometry args={[0.16, 0.12, 0.3, 12]} />
+      <meshStandardMaterial color="#7a4030" roughness={0.85} />
+    </mesh>
+    {restored ? (
+      <group position={[0, 0.32, 0]}>
+        {/* Main stem */}
+        <mesh position={[0, 0.1, 0]}>
+          <cylinderGeometry args={[0.018, 0.022, 0.22, 6]} />
+          <meshStandardMaterial color="#4a7a3a" roughness={0.85} />
+        </mesh>
+        {/* Leaves */}
+        {[
+          { x: 0.06, y: 0.15, rot: [0, 0, -0.6] },
+          { x: -0.06, y: 0.1, rot: [0, 0, 0.65] },
+          { x: 0.04, y: 0.21, rot: [0, 0.5, -0.3] },
+        ].map((leaf, i) => (
+          <mesh key={`lf-${i}`} position={[leaf.x, leaf.y, 0]} rotation={leaf.rot}>
+            <planeGeometry args={[0.1, 0.05]} />
+            <meshStandardMaterial color="#5a8a4a" roughness={0.85} side={THREE.DoubleSide} />
+          </mesh>
+        ))}
+      </group>
+    ) : (
+      // Drought: dead stem
+      <mesh position={[0.04, 0.42, 0]} rotation={[0, 0, 0.7]}>
+        <cylinderGeometry args={[0.012, 0.018, 0.25, 6]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+    )}
+  </group>
+);
+
+// 18. BreachCurtain — kain tergantung dari edge atas wall breach
+const BreachCurtain = ({ restored }) => (
+  <group position={[-ROOM_W / 2 + 0.1, 4.5, 4.5]}>
+    {/* Rod above breach */}
+    <mesh position={[0, 1, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[0.025, 0.025, 2.5, 8]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Curtain fabric */}
+    <mesh rotation={[0, Math.PI / 2, 0]}>
+      <planeGeometry args={[2.2, 2.4]} />
+      <meshStandardMaterial
+        color={restored ? '#7a5840' : '#5a4030'}
+        roughness={0.95}
+        side={THREE.DoubleSide}
+        transparent
+        opacity={restored ? 0.9 : 0.72}
+      />
+    </mesh>
+    {/* Drought: torn jagged extra at bottom */}
+    {!restored && (
+      <mesh position={[0.5, -1.3, 0]} rotation={[0, Math.PI / 2, 0.3]}>
+        <planeGeometry args={[0.8, 0.35]} />
+        <meshStandardMaterial color={COLORS.fogDrought} roughness={1} side={THREE.DoubleSide} />
+      </mesh>
+    )}
+  </group>
+);
+
+// 19. WallArtFrame — frame portrait pudar di dinding timur (selain map)
+const WallArtFrame = () => (
+  <group position={[ROOM_W / 2 - 0.12, 2.5, 2]} rotation={[0, -Math.PI / 2, 0]}>
+    <mesh>
+      <boxGeometry args={[0.7, 0.9, 0.04]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0, 0, 0.025]}>
+      <planeGeometry args={[0.55, 0.75]} />
+      <meshStandardMaterial color="#7a5840" roughness={0.95} side={THREE.DoubleSide} />
+    </mesh>
+    {/* Faded face suggestion */}
+    <mesh position={[0, 0.1, 0.026]}>
+      <circleGeometry args={[0.12, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={1} side={THREE.DoubleSide} />
+    </mesh>
+  </group>
+);
+
+// 20. HangingTelescope — di pojok dekat breach (-X)
+const HangingTelescope = () => (
+  <group position={[-5.5, 1.0, 3]} rotation={[0, 0.5, -0.3]}>
+    {/* Telescope tube */}
+    <mesh rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.04, 0.05, 0.5, 12]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.6} metalness={0.2} />
+    </mesh>
+    {/* Tripod 3 legs */}
+    {[0, 1, 2].map((i) => {
+      const angle = (i * Math.PI * 2) / 3;
+      return (
+        <mesh
+          key={`tl-${i}`}
+          position={[Math.cos(angle) * 0.18, -0.55, Math.sin(angle) * 0.18]}
+          rotation={[Math.cos(angle) * 0.3, 0, Math.sin(angle) * 0.3]}
+        >
+          <cylinderGeometry args={[0.012, 0.014, 1.1, 6]} />
+          <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+        </mesh>
+      );
+    })}
+    {/* Eyepiece */}
+    <mesh position={[0.27, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.025, 0.03, 0.08, 8]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.7} />
+    </mesh>
+  </group>
+);
+
+// 21. WallPlate — keramik antik di dinding selatan (samping pintu)
+const WallPlate = () => (
+  <group position={[3, 3.5, -ROOM_D / 2 + 0.12]} rotation={[Math.PI / 2, 0, 0]}>
+    <mesh>
+      <cylinderGeometry args={[0.25, 0.25, 0.03, 16]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+    </mesh>
+    <mesh position={[0, 0.02, 0]}>
+      <cylinderGeometry args={[0.12, 0.12, 0.005, 12]} />
+      <meshStandardMaterial color="#8B4040" roughness={0.7} />
+    </mesh>
+    {/* Outer ring decoration */}
+    <mesh position={[0, 0.015, 0]}>
+      <torusGeometry args={[0.2, 0.008, 6, 24]} />
+      <meshStandardMaterial color="#8B4040" roughness={0.7} />
+    </mesh>
+  </group>
+);
+
 // Wall sconces — only restored. 4 lentera dinding nyala redup.
 const WallSconces = () => {
   const sconces = [
@@ -1883,6 +2318,15 @@ const ArsipScene = ({
       <ScrollHolder restored={restored} />
       <VaseDecoration restored={restored} />
       <ForgottenTeacup restored={restored} />
+
+      {/* Desk items batch — 5 detail kecil di meja baca yang kerasa
+          "scholar moment frozen mid-reading." Personal narrative subtle:
+          ada yang baru aja berhenti baca. */}
+      <QuillInkwell restored={restored} />
+      <MagnifyingGlass />
+      <ReadingGlasses />
+      <OpenNotebook />
+      <WaxCandle restored={restored} />
 
       {/* Rak NW (utuh) */}
       {booksByRak.nw.length > 0 && (
