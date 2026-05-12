@@ -3859,7 +3859,6 @@ const TamanScene = ({
       {!isMobile && <HighDustShimmer count={40} />}
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
-      {!isMobile && <MoonShafts />}
       <DistantCrow />
       <CenterTree
         hovered={hoveredCenter}
