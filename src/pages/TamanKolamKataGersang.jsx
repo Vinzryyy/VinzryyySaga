@@ -5302,9 +5302,11 @@ const TelagaScene = ({
       rayleigh={2.8}
       turbidity={7}
     />
-    {/* IBL preset 'park' (lebih netral) bukan 'sunset' (over-warm).
-        Match late afternoon, bukan extreme golden hour. */}
-    {!isMobile && <Environment preset="park" background={false} />}
+    {/* DROUGHT-SKIP: Environment preset="park" — di canonical load HDR
+        dari CDN untuk IBL realistic lighting "park siang". Di drought:
+        (1) suspend Canvas forever kalau CDN lambat / blocked (user lapor
+        "memuat trs"), (2) palette HDR park bright/green gak match drought
+        atmosphere brown dusty. Atmosphere udah cukup via fog + lights. */}
     {/* Fog lebih dense — distant elements fade ke haze, kasih sense
         atmospheric depth & "world has limits". Far 55 (was 75) bikin
         ground mist + distant trees + hills nyatu di horizon haze. */}
