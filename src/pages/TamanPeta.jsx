@@ -4896,22 +4896,6 @@ const TamanPetaPage = () => {
   const [flyInActive, setFlyInActive] = useState(true);
   const compassRotateRef = useRef(null);
 
-  // Compute telaga visual state dari live count:
-  //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
-  const telagaState = useMemo(() => {
-    if (!armeniacaLoaded) return 'locked';
-    if (armeniacaCount >= MAP_THRESHOLDS.r3Restore) return 'restored';
-    if (armeniacaCount >= MAP_THRESHOLDS.r3Unlock) return 'drought';
-    return 'locked';
-  }, [armeniacaCount, armeniacaLoaded]);
-  // Arsip visual state (mirror Telaga 3-tier):
-  //   <5000 = locked, 5000-6999 = drought, >=7000 = restored
-  const arsipState = useMemo(() => {
-    if (!armeniacaLoaded) return 'locked';
-    if (armeniacaCount >= MAP_THRESHOLDS.r2Restore) return 'restored';
-    if (armeniacaCount >= MAP_THRESHOLDS.r2Unlock) return 'drought';
-    return 'locked';
-  }, [armeniacaCount, armeniacaLoaded]);
   // Purified — full city restoration (count >= 7000). Diteruskan ke
   // AmbientAudio (swell + shimmer) di samping dipakai di scene.
   // Dev override `?purified=1` paksa state purified utk preview tanpa
@@ -4921,6 +4905,27 @@ const TamanPetaPage = () => {
   const purified =
     purifiedOverride ||
     (armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore);
+  // Compute telaga visual state dari live count:
+  //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
+  // Purified override: paksa 'restored' supaya petak konsisten sama
+  // ambient state (kalau full purified, semua petak emang udah restored
+  // by count anyway — override cuma matter di dev preview).
+  const telagaState = useMemo(() => {
+    if (purified) return 'restored';
+    if (!armeniacaLoaded) return 'locked';
+    if (armeniacaCount >= MAP_THRESHOLDS.r3Restore) return 'restored';
+    if (armeniacaCount >= MAP_THRESHOLDS.r3Unlock) return 'drought';
+    return 'locked';
+  }, [armeniacaCount, armeniacaLoaded, purified]);
+  // Arsip visual state (mirror Telaga 3-tier):
+  //   <5000 = locked, 5000-6999 = drought, >=7000 = restored
+  const arsipState = useMemo(() => {
+    if (purified) return 'restored';
+    if (!armeniacaLoaded) return 'locked';
+    if (armeniacaCount >= MAP_THRESHOLDS.r2Restore) return 'restored';
+    if (armeniacaCount >= MAP_THRESHOLDS.r2Unlock) return 'drought';
+    return 'locked';
+  }, [armeniacaCount, armeniacaLoaded, purified]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
