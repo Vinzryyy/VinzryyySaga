@@ -1586,7 +1586,10 @@ const ArsipScene = ({
       <Walls restored={restored} />
       <Ceiling />
       <WallCracks />
-      <GodRayCone restored={restored} />
+      {/* GodRayCone di-disable — terlalu dominan di scene, lewat Bloom
+          jadi gold pillar yang nutup view meja & rak. Directional light
+          dari arah atap jebol tetep aktif untuk pencahayaan natural,
+          tapi shaft volumetric visualnya dilepas. */}
       <DustMotes count={200} isMobile={isMobile} />
       <PaperDrift count={restored ? 4 : 26} isMobile={isMobile} />
       {/* Drought-only atmospheric storytelling layer */}
