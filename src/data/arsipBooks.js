@@ -156,11 +156,61 @@ export const ARSIP_BOOKS = [
     },
   },
 
-  // === RAK NE (utuh, drought) — Origin stories ===
+  // === RAK NE (utuh, drought) — Origin & behind-the-scenes stories ===
   // Buku-buku linimasa lama (trainee, theater, senbatsu-newera) diganti
   // dengan stories yang gak duplikat dengan Konstelasi Perjalanan (r1).
   // Linimasa kronologis udah di-cover di sana via bintang per milestone.
   // Di Arsip Ingatan, fokus ke biographical/anecdotal content.
+  {
+    id: 'anak-pohon',
+    title: 'Anak yang Lebih Suka Pohon',
+    eyebrow: 'Cerita · Masa Kecil',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#7aa858',
+    preview:
+      'Saat TK, dia lebih suka memanjat pohon atau sembunyi di pasir.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Sebelum dipanggil "Ceu Eli," sebelum jadi member JKT48, sebelum pelajaran-pelajaran panggung yang akan datang — Eli kecil sudah punya kepribadian yang khas.',
+        'Di Taman Kanak-Kanak, sementara teman-teman lain duduk anteng di kelas, mengikuti aktivitas terstruktur yang sudah disiapkan guru — Eli lebih banyak di luar. Bukan karena dia gak mau ikut. Tapi karena ada satu hal yang lebih menarik baginya: dunia di luar kelas.',
+        'Ada satu pohon besar yang jadi tempat favorit. Pohon yang cukup tinggi untuk dipanjat, cukup teduh untuk diduduki, cukup tersembunyi untuk membuatnya merasa di tempat sendiri. Dia bisa naik ke atas pohon itu, lalu duduk berjam-jam. Dunia di bawah dia abaikan — yang penting dia di atas, di tempat yang dia pilih sendiri.',
+        'Kalau bukan di pohon, dia ada di area pasir di bawah perosotan. Tempat tersembunyi — kebanyakan anak lewat begitu saja, gak terpikir buat berhenti. Tapi Eli tahu: di bawah perosotan itu ada ruang kecil yang cukup untuk satu anak yang ingin punya dunia sendiri.',
+        'Ini bukan kejadian sekali atau dua kali. Ini kebiasaan yang bertahan untuk waktu yang cukup lama di masa kanak-kanak awal. Bukan karena dia menolak teman-temannya — dia hanya sudah punya dunia sendiri yang dia sukai lebih dari ruang kelas yang seragam.',
+        'Bertahun-tahun setelahnya, kita bisa lihat: kepribadian itu gak hilang. Eli yang sekarang tampil di panggung Theater JKT48 punya energi yang sama dengan anak kecil yang naik pohon di TK. Masih punya dunia sendiri di tengah keramaian, masih bikin ruang kecilnya sendiri walau dikelilingi banyak member dan ribuan penonton.',
+        'Pohon yang dulu jadi tempat naik, sekarang jadi panggung. Pasir yang dulu tempat sembunyi, sekarang jadi setlist. Tapi yang naik dan yang sembunyi, masih orang yang sama: anak kecil yang sudah lebih dulu tahu bahwa kadang-kadang dunia yang paling menarik adalah yang dia bikin sendiri.',
+      ],
+    }),
+  },
+  {
+    id: 'jaipong-akar',
+    title: 'Akar Jaipong yang Tidak Mau Diam',
+    eyebrow: 'Cerita · Bahasa Tubuh',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#c8a060',
+    preview:
+      'Saat dia hype di panggung, gerakan Jaipong-nya muncul tanpa diminta.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Sebelum panggung JKT48, sebelum koreografi J-Pop yang presisi dan seragam, Eli sudah punya satu bahasa tubuh yang lain: Tari Jaipong. Tari tradisional Sunda yang akar gerakannya — pinggul yang berputar, tangan yang bercerita, kepala yang bergerak dengan tegas — sudah lebih dulu nempel di tubuhnya sebelum dia mengenal istilah "8 hitungan" atau "8 count."',
+        'Di JKT48, koreografi adalah ilmu yang berbeda. Setiap gerakan harus seragam dengan member lain. Setiap detail — angle tangan, tinggi lompatan, arah kepala — diukur. Tidak ada ruang untuk improvisasi. Bahkan ekspresi wajah ada bagiannya sendiri.',
+        'Dan di situlah cerita ini muncul: Jaipong yang sudah dia pelajari sejak kecil ternyata punya pikiran sendiri.',
+        'Pernah, saat membawakan lagu "Kinjirareta Futari," gerakan-gerakan khas Jaipong terbawa secara tidak sadar ke tengah koreografi. Bukan sengaja. Bukan rebellious. Hanya tubuhnya yang, di tengah keseruan momen, kembali ke bahasa yang paling dia kenal.',
+        'Dan ini bukan kejadian sekali. Eli menyadari pola tersebut setelah menonton ulang video penampilannya. Setiap kali dia merasa terlalu bersemangat, terlalu energetik, terlalu hype di panggung — gerakan Jaipong itu yang muncul ke permukaan. Tubuhnya, saat akal pelannya lengah, langsung berbicara dalam dialek Sunda.',
+        'Sekarang, dia tahu. Saat energinya memuncak di panggung, ada bagian dari dirinya yang harus berbisik: "tetap ikuti porsi koreografi." Karena kalau tidak, akar Jaipongnya yang akan mengambil alih.',
+        'Mungkin itu juga yang membuatnya begitu khas. Bahkan ketika dia sangat patuh pada koreografi, ada sesuatu di gerakannya yang berbeda — sesuatu yang lebih hidup, lebih bercerita, lebih akar. Bandung yang kadang-kadang bocor ke panggung Jakarta. Tari yang tidak mau diam, karena tubuhnya sudah lebih dulu mengenalnya sebelum koreografi yang sekarang dia bawakan.',
+      ],
+    }),
+  },
   {
     id: 'sebelum-panggung',
     title: 'Sebelum Panggung — Jalan yang Hampir Berbeda',
@@ -397,6 +447,8 @@ export const getRakSiblings = (bookId, restored = true) => {
 export const PEDESTAL_ANGLES = {
   'etimologi-armeniaca': 135,        // NW
   'filosofi-armeniaca': 165,         // W-NW
+  'anak-pohon': 180,                 // W (childhood story)
+  'jaipong-akar': 195,               // W-SW
   'sebelum-panggung': 105,           // N-NE
   'suara-memanggil': 75,             // NE
   'new-era-saat-sistem': 45,         // E-NE
@@ -421,7 +473,9 @@ export const ARSIP_STORY_ORDER = [
   'halaman-terakhir',
   'etimologi-armeniaca',
   'filosofi-armeniaca',
+  'anak-pohon',           // childhood, paling awal kronologis hidup
   'sebelum-panggung',
+  'jaipong-akar',
   'suara-memanggil',
   'new-era-saat-sistem',
   'asal-nama',
