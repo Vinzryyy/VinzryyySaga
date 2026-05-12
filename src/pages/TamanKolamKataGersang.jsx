@@ -4557,6 +4557,68 @@ const Bones = () => (
   </>
 );
 
+// DROUGHT FootprintTrail — pair jejak kaki kiri-kanan alternate
+// sepanjang line start→end. Opacity fade dari 0.6 (start) ke 0.08
+// (end) — kerasa "ada orang jalan lewat sini lama banget, jejak
+// hampir hilang ditelan pasir". Rotation match arah jalan (atan2
+// dari delta). Strideh width 0.09 dari centerline (alternate kiri-
+// kanan), step distribusi merata along line.
+const FootprintTrail = ({ start, end, count = 8 }) => {
+  const [sx, , sz] = start;
+  const [ex, , ez] = end;
+  const dx = ex - sx;
+  const dz = ez - sz;
+  const angle = Math.atan2(dz, dx);
+  const perpX = -Math.sin(angle);
+  const perpZ = Math.cos(angle);
+  const strideWidth = 0.09;
+  const prints = [];
+  for (let i = 0; i < count; i++) {
+    const t = i / (count - 1);
+    const cx = sx + dx * t;
+    const cz = sz + dz * t;
+    const opacity = 0.6 - t * 0.52;
+    const sideSign = i % 2 === 0 ? 1 : -1;
+    prints.push({
+      x: cx + perpX * strideWidth * sideSign,
+      z: cz + perpZ * strideWidth * sideSign,
+      opacity,
+    });
+  }
+  return (
+    <>
+      {prints.map((p, i) => (
+        <mesh
+          key={`fp-${i}`}
+          position={[p.x, 0.002, p.z]}
+          rotation={[-Math.PI / 2, 0, -angle]}
+        >
+          <planeGeometry args={[0.22, 0.1]} />
+          <meshStandardMaterial
+            color="#2a1c0c"
+            roughness={1}
+            transparent
+            opacity={p.opacity}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+// 3 trail di bank — semua dari arah lake menuju luar (orang ninggalin
+// telaga). Positions hindari lake (radius >=14 dari center), gazebo
+// (0,0,25), DryWell (-22,0,-16).
+const FootprintTrails = () => (
+  <>
+    {/* Trail 1: NE bank, jalan keluar arah northeast */}
+    <FootprintTrail start={[8, 0, 12]} end={[16, 0, 19]} count={8} />
+    {/* Trail 2: SW bank, jalan keluar arah barat (menjauhi DryWell) */}
+    <FootprintTrail start={[-14, 0, -12]} end={[-19, 0, -8]} count={7} />
+    {/* Trail 3: NW bank, jalan keluar arah utara */}
+    <FootprintTrail start={[-10, 0, 18]} end={[-15, 0, 22]} count={6} />
+  </>
+);
+
 // DROUGHT DryWell — replacement utk WishingWell di gersang variant.
 // Sumur kering: post kanan patah pendek, crossbar miring jatuh, roof
 // tilt dramatic, bucket terguling di tanah (bukan dangling), rope putus
@@ -6006,6 +6068,10 @@ const TelagaScene = ({
     {/* Bones — 4 cluster fragment tulang scattered di banks. Subtle
         decay marker, hint of past life. */}
     <Bones />
+    {/* Footprint trails — 3 jejak kaki memudar di pasir, semua arah
+        meninggalkan lake. Opacity fade 0.6 → 0.08 sepanjang trail —
+        kerasa "ada orang di sini, udah lama pergi". */}
+    <FootprintTrails />
     {/* Polusi — soft round particles drifting warna dirty smog brown,
         match r1 gersang PollutedAir. Spread di area 50×50 (lebih luas
         dari r1 karena r3 area gede). */}
