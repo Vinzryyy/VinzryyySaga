@@ -353,6 +353,25 @@ export const getRakSiblings = (bookId, restored = true) => {
   };
 };
 
+// Pedestal positions — angle dalam derajat dari +X axis CCW di sekitar
+// meja baca. Tiap buku interactive (kecuali Halaman Terakhir yang udah
+// di meja) di-host di pedestal kayu radius 2.2 dari meja. Layout:
+// utara (depan) untuk era awal/refleksi, timur untuk linimasa tengah,
+// selatan untuk diskografi + kebaikan.
+export const PEDESTAL_ANGLES = {
+  'etimologi-armeniaca': 135,        // NW
+  'filosofi-armeniaca': 165,         // W-NW
+  'linimasa-trainee': 105,           // N-NE
+  'linimasa-theater': 75,            // NE
+  'linimasa-senbatsu-newera': 45,    // E-NE
+  'linimasa-mature': 15,             // E
+  'linimasa-variety': 345,           // E-SE
+  'era-fight-team-dream': 315,       // SE
+  'diskografi-rapsodi': 285,         // S-SE
+  'diskografi-bibir': 255,           // SSW
+  'kebaikan-pohon': 225,             // SW
+};
+
 // Reading order — narrative arc untuk user. Mulai dari "Halaman Terakhir"
 // (manifesto Armeniaca, focal di meja) → 2 refleksi tentang project →
 // 3 linimasa kronologis era awal → 3 linimasa kronologis era akhir

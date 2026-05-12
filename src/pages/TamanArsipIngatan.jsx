@@ -49,6 +49,7 @@ import {
   getReadBookIds,
   markBookRead,
   RAK_SLOTS,
+  PEDESTAL_ANGLES,
 } from '../data/arsipBooks';
 import BookOverlay from '../components/taman/r2/BookOverlay';
 
@@ -2351,6 +2352,155 @@ const FloorShadows = ({ isMobile = false }) => {
   );
 };
 
+// BookPedestalsNearMeja — interactive books di-host di pedestal kayu
+// melingkar di sekitar meja baca (radius ~2.2). Setiap pedestal punya
+// buku di atas + indicator orb glow. Layout angle per book via
+// PEDESTAL_ANGLES di arsipBooks.js.
+//
+// Sebelumnya interactive books di-host di rak2 jauh (8.5 unit dari
+// meja) — user sulit nemu indicator-nya karena kecil + scene cluttered.
+// Pedestal di sekitar meja bikin semua hint visible dari pose camera
+// awal. Far racks tetap render dengan deco books (visual library).
+const BookPedestalsNearMeja = ({
+  books,
+  hoveredId,
+  readIds,
+  onHover,
+  onOut,
+  onClick,
+}) => {
+  const indicatorRefs = useRef([]);
+  useFrame((state) => {
+    if (!indicatorRefs.current.length) return;
+    const t = state.clock.elapsedTime;
+    indicatorRefs.current.forEach((ref, idx) => {
+      if (!ref) return;
+      const phase = idx * 0.65;
+      ref.opacity = 0.75 + Math.sin(t * 1.3 + phase) * 0.2;
+    });
+  });
+
+  // Halaman Terakhir gak di-host di pedestal — dia di meja sebagai
+  // focal open book.
+  const visibleBooks = books.filter((b) => b.id !== 'halaman-terakhir');
+
+  return (
+    <group>
+      {visibleBooks.map((book, i) => {
+        const angle = PEDESTAL_ANGLES[book.id];
+        if (angle == null) return null;
+        const rad = (angle * Math.PI) / 180;
+        const r = 2.4;
+        const x = Math.cos(rad) * r;
+        const z = Math.sin(rad) * r;
+        const hovered = hoveredId === book.id;
+        const read = readIds.has(book.id);
+        return (
+          <group
+            key={book.id}
+            position={[x, 0, z]}
+            // Rotate group sehingga "depan" pedestal menghadap meja
+            rotation={[0, -rad + Math.PI / 2, 0]}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              onHover?.(book.id);
+              document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              onOut?.(book.id);
+              document.body.style.cursor = 'auto';
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(book);
+            }}
+          >
+            {/* Pedestal post — wooden stand */}
+            <mesh position={[0, 0.3, 0]}>
+              <cylinderGeometry args={[0.13, 0.16, 0.6, 10]} />
+              <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+            </mesh>
+            {/* Pedestal top platform */}
+            <mesh position={[0, 0.62, 0]}>
+              <cylinderGeometry args={[0.18, 0.18, 0.04, 10]} />
+              <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
+            </mesh>
+            {/* Book lying flat di top — cover up, spine ke arah meja
+                (depan pedestal). Slight lift saat hover. */}
+            <mesh position={[0, 0.66 + (hovered ? 0.03 : 0), 0]}>
+              <boxGeometry args={[0.26, 0.06, 0.2]} />
+              <meshStandardMaterial
+                color={book.spineColor}
+                emissive={hovered ? COLORS.spineHover : book.spineColor}
+                emissiveIntensity={hovered ? 0.5 : read ? 0.25 : 0.18}
+                roughness={0.7}
+              />
+            </mesh>
+            {/* Spine ridge di samping ke arah meja */}
+            <mesh position={[0, 0.665, -0.08]}>
+              <boxGeometry args={[0.26, 0.066, 0.018]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.85} />
+            </mesh>
+            {/* Read marker — small dot near edge book saat udah dibaca */}
+            {read && !hovered && (
+              <mesh position={[0.08, 0.7, 0.06]}>
+                <sphereGeometry args={[0.015, 6, 6]} />
+                <meshBasicMaterial color="#88a8c0" toneMapped={false} />
+              </mesh>
+            )}
+            {/* Indicator orb mengambang di atas pedestal. Unread:
+                gold warm. Read: muted blue-grey smaller. */}
+            <mesh position={[0, 0.85, 0]}>
+              <sphereGeometry args={[read ? 0.024 : 0.038, 10, 8]} />
+              <meshBasicMaterial
+                ref={(el) => {
+                  indicatorRefs.current[i] = el;
+                }}
+                color={read ? '#88a8c0' : '#f4d090'}
+                transparent
+                opacity={hovered ? 1 : read ? 0.65 : 0.9}
+                toneMapped={false}
+              />
+            </mesh>
+            {/* Hover label card */}
+            {hovered && (
+              <Html
+                position={[0, 1.1, 0]}
+                center
+                distanceFactor={6}
+                style={{ pointerEvents: 'none' }}
+              >
+                <div
+                  style={{
+                    backgroundColor: 'rgba(20, 14, 8, 0.7)',
+                    padding: '5px 12px',
+                    borderRadius: '4px',
+                    backdropFilter: 'blur(6px)',
+                    WebkitBackdropFilter: 'blur(6px)',
+                    border: '1px solid rgba(244, 208, 144, 0.25)',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: '"Fraunces Variable", serif',
+                      fontStyle: 'italic',
+                      color: 'rgba(255,228,178,0.95)',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {book.title}
+                  </div>
+                </div>
+              </Html>
+            )}
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
 // BookStacksNearTable — 3 tumpukan buku decoratif di lantai dekat meja
 // baca, kerasa "ada yang lagi nge-review banyak referensi sekaligus."
 // Static, no interactive — purely visual narrative detail.
@@ -3063,7 +3213,17 @@ const ArsipScene = ({
         onOutOpenBook={onOpenBookOut}
         onClickOpenBook={onOpenBookClick}
       />
-      <BookStacksNearTable restored={restored} />
+      {/* Interactive books di-host di pedestal melingkar di sekitar
+          meja — biar semua hint indicator visible dari pose camera awal,
+          gak ke-sebar ke rak jauh yang sulit dilihat. */}
+      <BookPedestalsNearMeja
+        books={books}
+        hoveredId={hoveredId}
+        readIds={readIds}
+        onHover={onBookHover}
+        onOut={onBookOut}
+        onClick={onBookClick}
+      />
 
       {/* Library landmark objects — 5 detail pengisi ruangan supaya
           kerasa "perpustakaan beneran" bukan ruangan kosong dgn rak.
@@ -3102,80 +3262,65 @@ const ArsipScene = ({
       <BreachCurtain restored={restored} />
       <HangingTelescope />
 
-      {/* Rak NW (utuh) */}
-      {booksByRak.nw.length > 0 && (
-        <Bookshelf
-          position={RAK_LAYOUT.nw.pos}
-          rotation={RAK_LAYOUT.nw.rot}
-          books={booksByRak.nw}
-          hoveredId={hoveredId}
-          readIds={readIds}
-          onHover={onBookHover}
-          onOut={onBookOut}
-          onClick={onBookClick}
-        />
-      )}
-
-      {/* Rak NE (utuh) */}
-      {booksByRak.ne.length > 0 && (
-        <Bookshelf
-          position={RAK_LAYOUT.ne.pos}
-          rotation={RAK_LAYOUT.ne.rot}
-          books={booksByRak.ne}
-          hoveredId={hoveredId}
-          readIds={readIds}
-          onHover={onBookHover}
-          onOut={onBookOut}
-          onClick={onBookClick}
-        />
-      )}
-
-      {/* Rak W — drought: tumbang miring, restored: tegak */}
-      {(booksByRak.w.length > 0 || !restored) && (
-        <Bookshelf
-          position={RAK_LAYOUT.w.pos}
-          rotation={
-            restored ? RAK_LAYOUT.w.rotRestored : RAK_LAYOUT.w.rotDrought
-          }
-          books={booksByRak.w}
-          hoveredId={hoveredId}
-          readIds={readIds}
-          onHover={onBookHover}
-          onOut={onBookOut}
-          onClick={onBookClick}
-        />
-      )}
-
-      {/* Rak E — drought: miring sedikit, restored: tegak */}
-      {(booksByRak.e.length > 0 || !restored) && (
-        <Bookshelf
-          position={RAK_LAYOUT.e.pos}
-          rotation={
-            restored ? RAK_LAYOUT.e.rotRestored : RAK_LAYOUT.e.rotDrought
-          }
-          books={booksByRak.e}
-          hoveredId={hoveredId}
-          readIds={readIds}
-          onHover={onBookHover}
-          onOut={onBookOut}
-          onClick={onBookClick}
-        />
-      )}
-
-      {/* Rak S kecil — selalu utuh */}
-      {booksByRak.s.length > 0 && (
-        <Bookshelf
-          position={RAK_LAYOUT.s.pos}
-          rotation={RAK_LAYOUT.s.rot}
-          books={booksByRak.s}
-          hoveredId={hoveredId}
-          readIds={readIds}
-          onHover={onBookHover}
-          onOut={onBookOut}
-          onClick={onBookClick}
-          scaleH={0.75}
-        />
-      )}
+      {/* Far racks sekarang deco-only (pass empty books). Interactive
+          books udah dipindah ke BookPedestalsNearMeja. Rak tetep render
+          biar visual library/ruangan utuh — Bookshelf fill 10 slot
+          dengan deco books otomatis kalau books prop kosong. */}
+      <Bookshelf
+        position={RAK_LAYOUT.nw.pos}
+        rotation={RAK_LAYOUT.nw.rot}
+        books={[]}
+        hoveredId={hoveredId}
+        readIds={readIds}
+        onHover={onBookHover}
+        onOut={onBookOut}
+        onClick={onBookClick}
+      />
+      <Bookshelf
+        position={RAK_LAYOUT.ne.pos}
+        rotation={RAK_LAYOUT.ne.rot}
+        books={[]}
+        hoveredId={hoveredId}
+        readIds={readIds}
+        onHover={onBookHover}
+        onOut={onBookOut}
+        onClick={onBookClick}
+      />
+      <Bookshelf
+        position={RAK_LAYOUT.w.pos}
+        rotation={
+          restored ? RAK_LAYOUT.w.rotRestored : RAK_LAYOUT.w.rotDrought
+        }
+        books={[]}
+        hoveredId={hoveredId}
+        readIds={readIds}
+        onHover={onBookHover}
+        onOut={onBookOut}
+        onClick={onBookClick}
+      />
+      <Bookshelf
+        position={RAK_LAYOUT.e.pos}
+        rotation={
+          restored ? RAK_LAYOUT.e.rotRestored : RAK_LAYOUT.e.rotDrought
+        }
+        books={[]}
+        hoveredId={hoveredId}
+        readIds={readIds}
+        onHover={onBookHover}
+        onOut={onBookOut}
+        onClick={onBookClick}
+      />
+      <Bookshelf
+        position={RAK_LAYOUT.s.pos}
+        rotation={RAK_LAYOUT.s.rot}
+        books={[]}
+        hoveredId={hoveredId}
+        readIds={readIds}
+        onHover={onBookHover}
+        onOut={onBookOut}
+        onClick={onBookClick}
+        scaleH={0.75}
+      />
 
       {/* OrbitControls — constraints calibrated supaya camera stay inside
           room (16w × 20d × 6h) di semua kombinasi distance+polar+azimuth.
