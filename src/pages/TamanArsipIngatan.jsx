@@ -2674,24 +2674,27 @@ const StainedGlassWindow = () => {
   );
 };
 
-// 5. WingChair — kursi besar di pojok southeast dengan throw blanket
+// 5. WingChair — kursi reading nook di pojok southeast. Posisi lebih
+// jauh ke pojok (x=6, z=-6.5) dan scale 0.78 supaya gak nge-blok view
+// utama dari camera entry. Tone lebih warm (cream-peach mauve) bukan
+// dark monolithic supaya kerasa cozy reading nook.
 const WingChair = ({ restored }) => (
-  <group position={[5, 0, -5]} rotation={[0, -0.9, 0]}>
+  <group position={[6, 0, -6.5]} rotation={[0, -0.7, 0]} scale={0.78}>
     <mesh position={[0, 0.45, 0]}>
       <boxGeometry args={[0.7, 0.15, 0.6]} />
-      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+      <meshStandardMaterial color="#9a6868" roughness={0.95} />
     </mesh>
     <mesh position={[0, 0.95, -0.28]}>
       <boxGeometry args={[0.7, 1.05, 0.1]} />
-      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+      <meshStandardMaterial color="#9a6868" roughness={0.95} />
     </mesh>
     <mesh position={[-0.36, 0.95, 0]}>
       <boxGeometry args={[0.1, 0.95, 0.5]} />
-      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+      <meshStandardMaterial color="#9a6868" roughness={0.95} />
     </mesh>
     <mesh position={[0.36, 0.95, 0]}>
       <boxGeometry args={[0.1, 0.95, 0.5]} />
-      <meshStandardMaterial color="#5a3a3a" roughness={0.95} />
+      <meshStandardMaterial color="#9a6868" roughness={0.95} />
     </mesh>
     {[[0.28, 0.25], [-0.28, 0.25], [0.28, -0.25], [-0.28, -0.25]].map(([x, z], i) => (
       <mesh key={`wcleg-${i}`} position={[x, 0.18, z]}>
@@ -2702,7 +2705,7 @@ const WingChair = ({ restored }) => (
     {/* Throw blanket draped across seat & arm */}
     <mesh position={[0.18, 0.55, 0.08]} rotation={[0, 0.4, 0.25]}>
       <boxGeometry args={[0.5, 0.06, 0.4]} />
-      <meshStandardMaterial color={restored ? '#7a5840' : '#5a3a25'} roughness={0.95} />
+      <meshStandardMaterial color={restored ? '#e4b890' : '#7a5840'} roughness={0.95} />
     </mesh>
   </group>
 );
