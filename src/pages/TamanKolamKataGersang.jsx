@@ -1489,7 +1489,7 @@ const BikeParking = ({ bikeCount = 2 }) => (
       <Bike
         position={[11.4, 0, -7.5]}
         rotation={[0.12, Math.PI / 2, 0]}
-        color="#c44a3e"
+        color="#6a4030"
       />
     )}
     {bikeCount >= 2 && (
@@ -1767,9 +1767,9 @@ const Mushroom = ({ size = 1 }) => (
     <mesh position={[0, 0.16, 0]}>
       <sphereGeometry args={[0.1, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
       <meshStandardMaterial
-        color="#c84838"
+        color="#8a5a3a"
         roughness={0.7}
-        emissive="#c84838"
+        emissive="#8a5a3a"
         emissiveIntensity={0.1}
       />
     </mesh>
@@ -2878,15 +2878,14 @@ const BirdBath = ({ pos, rot = 0 }) => (
       <cylinderGeometry args={[0.42, 0.32, 0.1, 16]} />
       <meshStandardMaterial color="#7a7065" roughness={0.95} />
     </mesh>
-    {/* Basin water */}
+    {/* Basin dry — air canonical #a8d4e8 ke cracked dirt #4a3520
+        karena drought (kering, gak ada air). Material standard non-
+        reflective. */}
     <mesh position={[0, 0.97, 0]}>
       <cylinderGeometry args={[0.36, 0.36, 0.04, 16]} />
       <meshStandardMaterial
-        color="#a8d4e8"
-        roughness={0.2}
-        metalness={0.1}
-        transparent
-        opacity={0.85}
+        color="#4a3520"
+        roughness={1}
       />
     </mesh>
   </group>
@@ -3649,17 +3648,17 @@ const Mailbox = ({ pos, rot = 0 }) => (
     {/* Box body — half cylinder approximation (cylinder tilted) */}
     <mesh position={[0, 1.4, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
       <cylinderGeometry args={[0.18, 0.18, 0.5, 8, 1, false, Math.PI, Math.PI]} />
-      <meshStandardMaterial color="#c84838" roughness={0.7} />
+      <meshStandardMaterial color="#8a5a3a" roughness={0.7} />
     </mesh>
     {/* Bottom flat plate for box */}
     <mesh position={[0, 1.22, 0]}>
       <boxGeometry args={[0.36, 0.02, 0.5]} />
-      <meshStandardMaterial color="#a83828" roughness={0.85} />
+      <meshStandardMaterial color="#6a4028" roughness={0.85} />
     </mesh>
     {/* Front door (slight darker) */}
     <mesh position={[0, 1.36, 0.251]}>
       <boxGeometry args={[0.3, 0.26, 0.01]} />
-      <meshStandardMaterial color="#a83828" roughness={0.8} />
+      <meshStandardMaterial color="#6a4028" roughness={0.8} />
     </mesh>
     {/* Letter slot (dark slit) */}
     <mesh position={[0, 1.4, 0.258]}>
@@ -3966,7 +3965,7 @@ const WindChime = ({ pos, rot = 0 }) => {
         <mesh position={[0, -0.78, 0]} rotation={[0, 0, 0]}>
           <boxGeometry args={[0.12, 0.18, 0.008]} />
           <meshStandardMaterial
-            color="#c4544c"
+            color="#6a4838"
             emissive="#c4544c"
             emissiveIntensity={0.15}
             roughness={0.7}
@@ -4120,11 +4119,11 @@ const Torii = ({ pos, rot = 0, scale = 1 }) => {
       {/* Pillars (slightly tilted inward for authentic shape) */}
       <mesh position={[-SPAN / 2, PILLAR_H / 2, 0]} rotation={[0, 0, 0.025]} castShadow>
         <cylinderGeometry args={[0.18 * scale, 0.22 * scale, PILLAR_H, 8]} />
-        <meshStandardMaterial color="#c84838" roughness={0.6} />
+        <meshStandardMaterial color="#8a5a3a" roughness={0.6} />
       </mesh>
       <mesh position={[SPAN / 2, PILLAR_H / 2, 0]} rotation={[0, 0, -0.025]} castShadow>
         <cylinderGeometry args={[0.18 * scale, 0.22 * scale, PILLAR_H, 8]} />
-        <meshStandardMaterial color="#c84838" roughness={0.6} />
+        <meshStandardMaterial color="#8a5a3a" roughness={0.6} />
       </mesh>
       {/* Shimaki — straight beam below curved top */}
       <mesh position={[0, PILLAR_H - 0.45 * scale, 0]} castShadow>
@@ -4134,7 +4133,7 @@ const Torii = ({ pos, rot = 0, scale = 1 }) => {
       {/* Kasagi — curved top beam (approximated dgn wider box + 2 end caps) */}
       <mesh position={[0, PILLAR_H - 0.15 * scale, 0]} castShadow>
         <boxGeometry args={[SPAN + 1.0 * scale, 0.28 * scale, 0.45 * scale]} />
-        <meshStandardMaterial color="#c84838" roughness={0.6} />
+        <meshStandardMaterial color="#8a5a3a" roughness={0.6} />
       </mesh>
       {/* Upturned end caps on kasagi */}
       <mesh
@@ -4142,14 +4141,14 @@ const Torii = ({ pos, rot = 0, scale = 1 }) => {
         rotation={[0, 0, 0.3]}
       >
         <boxGeometry args={[0.4 * scale, 0.28 * scale, 0.45 * scale]} />
-        <meshStandardMaterial color="#c84838" roughness={0.6} />
+        <meshStandardMaterial color="#8a5a3a" roughness={0.6} />
       </mesh>
       <mesh
         position={[(SPAN + 1.0 * scale) / 2 - 0.08, PILLAR_H + 0.02 * scale, 0]}
         rotation={[0, 0, -0.3]}
       >
         <boxGeometry args={[0.4 * scale, 0.28 * scale, 0.45 * scale]} />
-        <meshStandardMaterial color="#c84838" roughness={0.6} />
+        <meshStandardMaterial color="#8a5a3a" roughness={0.6} />
       </mesh>
       {/* Center plaque (gakuzuka) */}
       <mesh position={[0, PILLAR_H - 0.85 * scale, 0]}>
@@ -4209,12 +4208,12 @@ const JizoStatue = ({ pos, rot = 0 }) => (
     {/* Red knit bib — soft hanging cloth */}
     <mesh position={[0, 0.5, 0.08]} rotation={[0.3, 0, 0]}>
       <boxGeometry args={[0.28, 0.14, 0.02]} />
-      <meshStandardMaterial color="#c84838" roughness={0.85} />
+      <meshStandardMaterial color="#8a5a3a" roughness={0.85} />
     </mesh>
     {/* Bib bottom — slightly wider */}
     <mesh position={[0, 0.42, 0.1]} rotation={[0.4, 0, 0]}>
       <boxGeometry args={[0.3, 0.08, 0.02]} />
-      <meshStandardMaterial color="#a83828" roughness={0.85} />
+      <meshStandardMaterial color="#6a4028" roughness={0.85} />
     </mesh>
   </group>
 );
@@ -4456,6 +4455,71 @@ const BankTrees = ({ count }) => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
+// DROUGHT CrowsFlock — 5 burung gagak silhouette terbang lazy circles
+// di atas lake. Black-on-smoggy-sky kerasa banget abandoned dead-town
+// vibe. Lazy circle motion (slow lissajous), wing flap subtle, dark
+// near-black material.
+const CROW_DEFS = [
+  { center: [0, 14, -2], radiusX: 12, radiusZ: 10, speed: 0.12, phase: 0 },
+  { center: [-3, 16, 2], radiusX: 10, radiusZ: 9, speed: 0.1, phase: 1.7 },
+  { center: [4, 13, -4], radiusX: 14, radiusZ: 11, speed: 0.14, phase: 3.4 },
+  { center: [2, 17, 5], radiusX: 11, radiusZ: 10, speed: 0.09, phase: 5.0 },
+  { center: [-6, 15, -3], radiusX: 13, radiusZ: 12, speed: 0.11, phase: 2.2 },
+];
+const Crow = ({ def }) => {
+  const groupRef = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime * def.speed + def.phase;
+    // Lazy circle gerak dengan slight figure-8 (sin*2 di z)
+    groupRef.current.position.x =
+      def.center[0] + Math.cos(t) * def.radiusX;
+    groupRef.current.position.y =
+      def.center[1] + Math.sin(t * 0.7) * 0.5;
+    groupRef.current.position.z =
+      def.center[2] + Math.sin(t) * def.radiusZ;
+    // Face direction of travel — tangent ke lingkaran
+    groupRef.current.rotation.y = -t + Math.PI / 2;
+    // Wing flap (subtle, slow — kerasa gliding bukan ngepak cepat)
+    if (wingLRef.current && wingRRef.current) {
+      const flap = Math.sin(state.clock.elapsedTime * 2.2 + def.phase) * 0.35;
+      wingLRef.current.rotation.z = 0.3 + flap;
+      wingRRef.current.rotation.z = -0.3 - flap;
+    }
+  });
+  return (
+    <group ref={groupRef}>
+      {/* Body — small elongated box */}
+      <mesh>
+        <boxGeometry args={[0.4, 0.12, 0.16]} />
+        <meshBasicMaterial color="#0d0a08" fog />
+      </mesh>
+      {/* Wing kiri */}
+      <mesh ref={wingLRef} position={[0, 0, 0.08]}>
+        <boxGeometry args={[0.35, 0.02, 0.45]} />
+        <meshBasicMaterial color="#0d0a08" fog />
+      </mesh>
+      {/* Wing kanan */}
+      <mesh ref={wingRRef} position={[0, 0, -0.08]}>
+        <boxGeometry args={[0.35, 0.02, 0.45]} />
+        <meshBasicMaterial color="#0d0a08" fog />
+      </mesh>
+    </group>
+  );
+};
+const CrowsFlock = ({ isMobile }) => {
+  const list = isMobile ? CROW_DEFS.slice(0, 3) : CROW_DEFS;
+  return (
+    <>
+      {list.map((def, i) => (
+        <Crow key={`crow-${i}`} def={def} />
+      ))}
+    </>
+  );
+};
+
 // DROUGHT polusi — soft round particles drifting di udara, warna
 // dirty smog brown. Pattern sama dgn r1 gersang PollutedAir, tapi
 // count + spread di-tune buat luas r3 (40×40 area, vs r1 corridor
@@ -5554,6 +5618,9 @@ const TelagaScene = ({
         match r1 gersang PollutedAir. Spread di area 50×50 (lebih luas
         dari r1 karena r3 area gede). */}
     <PollutedAir count={180} isMobile={isMobile} />
+    {/* Gagak silhouette terbang lazy circles di atas lake — abandoned
+        dead-town visual signature, unique ke r3 gersang. */}
+    <CrowsFlock isMobile={isMobile} />
     {/* DROUGHT-SKIP: GrassTufts + GrassBlades — rumput hijau gak ada,
         ground tone udah cracked dirt sendiri. */}
     <Bench />
