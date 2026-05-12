@@ -4682,6 +4682,220 @@ const BambooCluster = ({ pos = [-3.8, 0, 0.5] }) => (
   </group>
 );
 
+// FloatingPaperLanterns — 4 paper lantern mengambang di permukaan air
+// Telaga dgn warm emissive glow. Slow drift + vertical bob. Inspired
+// shoryo nagashi (Japanese floating lantern ceremony). Reflection di
+// air + cohesion sama toro lantern + StringLights.
+const FLOATING_LANTERN_DEFS = [
+  { basePos: [-6.5, 0.4, -1.0], hue: '#f4a060', driftSpeed: 0.08, phase: 0 },
+  { basePos: [-7.2, 0.4, -0.4], hue: '#f8b070', driftSpeed: 0.06, phase: 1.2 },
+  { basePos: [-7.5, 0.4, -1.5], hue: '#f0a058', driftSpeed: 0.05, phase: 2.4 },
+  { basePos: [-6.8, 0.4, -1.8], hue: '#f4a868', driftSpeed: 0.07, phase: 3.6 },
+];
+const FloatingPaperLanterns = () => {
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    FLOATING_LANTERN_DEFS.forEach((def, i) => {
+      const ref = refs.current[i];
+      if (!ref) return;
+      ref.position.y = def.basePos[1] + Math.sin(t * 1.2 + def.phase) * 0.02;
+      ref.position.x =
+        def.basePos[0] + Math.sin(t * def.driftSpeed + def.phase) * 0.15;
+      ref.position.z =
+        def.basePos[2] + Math.cos(t * def.driftSpeed + def.phase) * 0.15;
+      ref.rotation.y = t * def.driftSpeed * 0.5 + def.phase;
+    });
+  });
+  return (
+    <>
+      {FLOATING_LANTERN_DEFS.map((def, i) => (
+        <group
+          key={`flantern-${i}`}
+          ref={(r) => (refs.current[i] = r)}
+          position={def.basePos}
+        >
+          {/* Wooden raft base */}
+          <mesh position={[0, -0.05, 0]}>
+            <boxGeometry args={[0.18, 0.04, 0.18]} />
+            <meshStandardMaterial color="#6a4828" roughness={0.9} />
+          </mesh>
+          {/* Paper body — translucent emissive box */}
+          <mesh position={[0, 0.07, 0]}>
+            <boxGeometry args={[0.14, 0.18, 0.14]} />
+            <meshStandardMaterial
+              color="#f8e0c0"
+              emissive={def.hue}
+              emissiveIntensity={0.7}
+              roughness={0.6}
+              transparent
+              opacity={0.85}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Top cap */}
+          <mesh position={[0, 0.18, 0]}>
+            <boxGeometry args={[0.16, 0.03, 0.16]} />
+            <meshStandardMaterial color="#5a3818" roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// JizoStatue — small zen guardian statue (stone figure) dgn moss cap +
+// red bib di rim Telaga east. Micro-narrative "ada figur penjaga".
+const JizoStatue = ({ pos = [-5.55, 0, 0.4], rot = 0.3 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Foundation stone */}
+    <mesh position={[0, 0.04, 0]}>
+      <cylinderGeometry args={[0.12, 0.14, 0.08, 8]} />
+      <meshStandardMaterial color="#6a5a48" roughness={0.95} />
+    </mesh>
+    {/* Body — rounded stone column */}
+    <mesh position={[0, 0.22, 0]}>
+      <cylinderGeometry args={[0.08, 0.1, 0.3, 10]} />
+      <meshStandardMaterial color="#9a8a78" roughness={0.95} />
+    </mesh>
+    {/* Head — rounded sphere */}
+    <mesh position={[0, 0.42, 0]}>
+      <sphereGeometry args={[0.09, 12, 10]} />
+      <meshStandardMaterial color="#9a8a78" roughness={0.95} />
+    </mesh>
+    {/* Red bib — small fabric strip */}
+    <mesh position={[0, 0.32, 0.07]} rotation={[0.25, 0, 0]}>
+      <planeGeometry args={[0.14, 0.1]} />
+      <meshStandardMaterial color="#c43030" roughness={0.7} side={2} />
+    </mesh>
+    {/* Moss cap on head */}
+    <mesh position={[0, 0.5, 0]}>
+      <sphereGeometry
+        args={[0.07, 8, 5, 0, Math.PI * 2, 0, Math.PI / 3]}
+      />
+      <meshStandardMaterial color="#5a8048" roughness={0.95} />
+    </mesh>
+    {/* Subtle face — two eye dots */}
+    <mesh position={[-0.03, 0.43, 0.085]}>
+      <sphereGeometry args={[0.008, 4, 3]} />
+      <meshStandardMaterial color="#2a1810" />
+    </mesh>
+    <mesh position={[0.03, 0.43, 0.085]}>
+      <sphereGeometry args={[0.008, 4, 3]} />
+      <meshStandardMaterial color="#2a1810" />
+    </mesh>
+  </group>
+);
+
+// WoodenTorii — Japanese gate frame di approach timur ke WoodenBridge.
+// Two vertical posts + kasagi (top beam) + shimaki (lower beam) +
+// tablet plaque. Formalize entry, kerasa "ambang sakral."
+const WoodenTorii = ({ pos = [-4.2, 0, 1.2], rot = -0.35 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Left post */}
+    <mesh position={[-0.55, 0.6, 0]}>
+      <cylinderGeometry args={[0.06, 0.07, 1.2, 8]} />
+      <meshStandardMaterial color="#8a3828" roughness={0.85} />
+    </mesh>
+    {/* Right post */}
+    <mesh position={[0.55, 0.6, 0]}>
+      <cylinderGeometry args={[0.06, 0.07, 1.2, 8]} />
+      <meshStandardMaterial color="#8a3828" roughness={0.85} />
+    </mesh>
+    {/* Lower beam (shimaki) — horizontal */}
+    <mesh position={[0, 1.05, 0]}>
+      <boxGeometry args={[1.28, 0.08, 0.12]} />
+      <meshStandardMaterial color="#8a3828" roughness={0.85} />
+    </mesh>
+    {/* Tablet plaque between beams */}
+    <mesh position={[0, 1.16, 0]}>
+      <boxGeometry args={[0.2, 0.12, 0.04]} />
+      <meshStandardMaterial color="#5a2818" roughness={0.9} />
+    </mesh>
+    {/* Top beam (kasagi) — wider */}
+    <mesh position={[0, 1.3, 0]}>
+      <boxGeometry args={[1.5, 0.1, 0.14]} />
+      <meshStandardMaterial color="#7a2818" roughness={0.85} />
+    </mesh>
+    {/* Top beam end caps (upturn) */}
+    <mesh position={[-0.78, 1.32, 0]} rotation={[0, 0, 0.18]}>
+      <boxGeometry args={[0.14, 0.08, 0.14]} />
+      <meshStandardMaterial color="#7a2818" roughness={0.85} />
+    </mesh>
+    <mesh position={[0.78, 1.32, 0]} rotation={[0, 0, -0.18]}>
+      <boxGeometry args={[0.14, 0.08, 0.14]} />
+      <meshStandardMaterial color="#7a2818" roughness={0.85} />
+    </mesh>
+  </group>
+);
+
+// KoiShadows — 3 koi (orange + cream) berenang slowly di permukaan
+// air Telaga. Stretched ellipsoid, circular paths beda radius/speed.
+// Sense of life returning to water.
+const KOI_CENTER = [-7, 0.33, -1];
+const KOI_DEFS = [
+  {
+    offset: [0, 0],
+    radius: 1.0,
+    speed: 0.18,
+    phase: 0,
+    color: '#d8602c',
+    scale: [0.18, 0.04, 0.08],
+  },
+  {
+    offset: [-0.3, 0.2],
+    radius: 0.7,
+    speed: -0.22,
+    phase: 1.5,
+    color: '#f4e8d0',
+    scale: [0.16, 0.04, 0.075],
+  },
+  {
+    offset: [0.4, -0.3],
+    radius: 1.2,
+    speed: 0.14,
+    phase: 3.0,
+    color: '#c84020',
+    scale: [0.2, 0.04, 0.085],
+  },
+];
+const KoiShadows = () => {
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    KOI_DEFS.forEach((def, i) => {
+      const ref = refs.current[i];
+      if (!ref) return;
+      const angle = t * def.speed + def.phase;
+      ref.position.x =
+        KOI_CENTER[0] + def.offset[0] + Math.cos(angle) * def.radius;
+      ref.position.z =
+        KOI_CENTER[2] + def.offset[1] + Math.sin(angle) * def.radius;
+      ref.rotation.y = -angle + (def.speed > 0 ? Math.PI / 2 : -Math.PI / 2);
+    });
+  });
+  return (
+    <>
+      {KOI_DEFS.map((def, i) => (
+        <mesh
+          key={`koi-${i}`}
+          ref={(r) => (refs.current[i] = r)}
+          position={[KOI_CENTER[0], KOI_CENTER[1], KOI_CENTER[2]]}
+          scale={def.scale}
+        >
+          <sphereGeometry args={[1, 10, 8]} />
+          <meshStandardMaterial
+            color={def.color}
+            roughness={0.6}
+            transparent
+            opacity={0.85}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // MossyBoulders — 7 rounded boulders dgn moss patch on top, scatter di
 // outer ring radius 12-16. Kasih grounded weight & texture variety —
 // outer ring biar gak all-soft (flowers + grass terus). Deterministic
@@ -5638,6 +5852,10 @@ const TamanScene = ({
       {purified && <SteppingStones />}
       {purified && <Tsukubai />}
       {purified && !isMobile && <BambooCluster />}
+      {purified && <FloatingPaperLanterns />}
+      {purified && <JizoStatue />}
+      {purified && <WoodenTorii />}
+      {purified && <KoiShadows />}
       {purified && <MossyBoulders isMobile={isMobile} />}
       {purified && <StoneBirdbath pos={[-1.8, 0, 1.5]} />}
       {purified && <VineCreeps />}
