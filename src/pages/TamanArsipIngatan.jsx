@@ -2337,6 +2337,16 @@ const ArsipScene = ({
       <Hourglass restored={restored} />
       <PlantPot restored={restored} />
 
+      {/* Wall & hanging batch — 6 dekorasi vertikal yang ngisi dinding
+          kosong. Sebagian state-aware (map, tapestry, curtain berubah
+          drought↔restored). */}
+      <WallMap restored={restored} />
+      <Tapestry restored={restored} />
+      <WallArtFrame />
+      <WallPlate />
+      <BreachCurtain restored={restored} />
+      <HangingTelescope />
+
       {/* Rak NW (utuh) */}
       {booksByRak.nw.length > 0 && (
         <Bookshelf
