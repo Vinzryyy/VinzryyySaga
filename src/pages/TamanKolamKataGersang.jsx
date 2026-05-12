@@ -4557,6 +4557,71 @@ const Bones = () => (
   </>
 );
 
+// DROUGHT DryWell — replacement utk WishingWell di gersang variant.
+// Sumur kering: post kanan patah pendek, crossbar miring jatuh, roof
+// tilt dramatic, bucket terguling di tanah (bukan dangling), rope putus
+// fray pendek, dasar lumpur kering brown (bukan air hitam). Plus 2
+// chipped stone fragments scattered di samping base — sisa puing yg
+// rontok. Stronger storytelling vs canonical WishingWell: "dulu ada
+// air, sekarang sumur pun mati".
+const DryWell = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stone base ring — weathered lighter gray-brown */}
+    <mesh position={[0, 0.4, 0]} castShadow>
+      <cylinderGeometry args={[0.7, 0.75, 0.8, 12]} />
+      <meshStandardMaterial color="#7a6c58" roughness={1} />
+    </mesh>
+    {/* Chipped stone fragments — sisa puing yg rontok dari base */}
+    <mesh position={[0.62, 0.16, 0.55]} rotation={[0.3, 0.4, 0.2]} castShadow>
+      <boxGeometry args={[0.22, 0.18, 0.16]} />
+      <meshStandardMaterial color="#6a5d4a" roughness={1} />
+    </mesh>
+    <mesh position={[-0.52, 0.13, -0.6]} rotation={[0.1, -0.5, 0.3]} castShadow>
+      <boxGeometry args={[0.18, 0.14, 0.14]} />
+      <meshStandardMaterial color="#6a5d4a" roughness={1} />
+    </mesh>
+    {/* Dasar — cracked dry mud bukan air, brown tone */}
+    <mesh position={[0, 0.78, 0]}>
+      <cylinderGeometry args={[0.55, 0.55, 0.05, 12]} />
+      <meshStandardMaterial color="#4a3825" roughness={1} />
+    </mesh>
+    {/* Left post — masih berdiri tapi tilted slight */}
+    <mesh position={[-0.55, 1.4, 0]} rotation={[0, 0, 0.08]}>
+      <cylinderGeometry args={[0.05, 0.06, 1.4, 6]} />
+      <meshStandardMaterial color="#4a3220" roughness={0.95} />
+    </mesh>
+    {/* Right post — patah pendek, jagged stub */}
+    <mesh position={[0.55, 0.95, 0]} rotation={[0, 0, -0.12]}>
+      <cylinderGeometry args={[0.05, 0.06, 0.7, 6]} />
+      <meshStandardMaterial color="#4a3220" roughness={0.95} />
+    </mesh>
+    {/* Crossbar — miring krn right post collapse, ujung jatuh */}
+    <mesh position={[-0.1, 2.0, 0]} rotation={[0, 0, -0.35]}>
+      <cylinderGeometry args={[0.04, 0.04, 1.0, 6]} />
+      <meshStandardMaterial color="#2d1d10" roughness={0.95} />
+    </mesh>
+    {/* Roof — peaked tilted dramatic (collapsed sideways) */}
+    <mesh position={[0.15, 2.45, 0]} rotation={[0, 0, 0.25]} castShadow>
+      <coneGeometry args={[0.85, 0.5, 4]} />
+      <meshStandardMaterial color="#4a3520" roughness={0.95} />
+    </mesh>
+    {/* Bucket — tipped over di tanah samping well */}
+    <mesh
+      position={[0.85, 0.16, 0.7]}
+      rotation={[Math.PI / 2 - 0.2, 0, 0.4]}
+      castShadow
+    >
+      <cylinderGeometry args={[0.16, 0.14, 0.22, 8]} />
+      <meshStandardMaterial color="#5a3d24" roughness={1} />
+    </mesh>
+    {/* Rope putus — short frayed end dangling dari crossbar */}
+    <mesh position={[-0.25, 1.75, 0]} rotation={[0, 0, 0.1]}>
+      <cylinderGeometry args={[0.012, 0.014, 0.4, 4]} />
+      <meshStandardMaterial color="#4a3d2a" roughness={1} />
+    </mesh>
+  </group>
+);
+
 // DROUGHT GroundCracks — garis tipis gelap di tanah bank, kasih
 // texture "tanah retak karena kekeringan". Distribusi deterministic
 // via seeded RNG, hindari path & lake footprint.
@@ -5913,7 +5978,9 @@ const TelagaScene = ({
     <Wheelbarrows />
     <BirdBaths />
     {/* DROUGHT-SKIP: Pinwheels — kincir colorful playful, alive feel */}
-    <WishingWell pos={[-22, 0, -16]} rot={0.4} />
+    {/* DROUGHT: WishingWell diganti DryWell — post patah, bucket terguling,
+        rope putus, dasar lumpur kering bukan air. Narrative focal point. */}
+    <DryWell pos={[-22, 0, -16]} rot={0.4} />
     <WelcomeArch pos={[0, 0, -28]} rot={0} />
     {/* DROUGHT-SKIP: PicnicBlankets — kain colorful, festive */}
     <Gazebo pos={[0, 0, 25]} rot={0} />
