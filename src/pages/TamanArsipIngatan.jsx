@@ -2704,17 +2704,19 @@ const BookPedestalsNearMeja = ({
 // Restored-only book placement: subset interactive books pindah ke
 // posisi prominent dekat meja biar user gampang akses tanpa harus
 // orbit ke far racks. Sisanya tetep di far racks (variety location).
-// Restored state placement — 6 buku unique funfact:
+// Restored state placement — 8 buku unique funfact:
 // - Meja: kosong (Halaman Terakhir dihapus, open book = dekoratif)
 // - Stack: 2 buku (sebelum-panggung, suara-memanggil)
-// - Side table: 4 buku (anak-pohon, jaipong-akar, panggung-kecil, asal-nama)
+// - Side table: 6 buku (sisanya)
 const MEJA_INTERACTIVE_IDS = [];
 const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'suara-memanggil'];
 const SIDE_TABLE_INTERACTIVE_IDS = [
   'anak-pohon',
+  'culture-shock',
   'jaipong-akar',
   'panggung-kecil',
   'asal-nama',
+  'language-interference',
 ];
 
 // MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
@@ -2979,15 +2981,17 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 4 books: 2 row × 2 col. Side table sekarang hanya 4 buku
-// unique funfact yang tidak duplikat di page lain.
+// Layout 6 books: 2 row × 3 col. Side table host 6 buku unique funfact
+// (sisanya yang gak di stack atau meja).
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.3) — 2 books
-  { dx: -0.5, dz: 0.3 },
-  { dx: 0.5, dz: 0.3 },
-  // Row depan (-z -0.3) — 2 books
-  { dx: -0.5, dz: -0.3 },
-  { dx: 0.5, dz: -0.3 },
+  // Row belakang (+z 0.3) — 3 books
+  { dx: -0.65, dz: 0.3 },
+  { dx: 0, dz: 0.3 },
+  { dx: 0.65, dz: 0.3 },
+  // Row depan (-z -0.3) — 3 books
+  { dx: -0.65, dz: -0.3 },
+  { dx: 0, dz: -0.3 },
+  { dx: 0.65, dz: -0.3 },
 ];
 
 const SideTableBooks = ({

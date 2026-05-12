@@ -39,22 +39,26 @@ export const CATEGORIES = {
 
 // Pedestal angles untuk drought floor layout (radius 3.0 dari meja).
 export const PEDESTAL_ANGLES = {
-  'anak-pohon': 135,              // NW (kronologis paling awal)
+  'anak-pohon': 135,              // NW
   'sebelum-panggung': 105,        // N-NE
   'jaipong-akar': 75,             // NE
   'suara-memanggil': 45,          // E-NE
   'panggung-kecil': 15,           // E
-  'asal-nama': 195,               // W-SW (restored unlock)
+  'language-interference': 225,   // SW
+  'asal-nama': 165,               // W-NW (restored unlock)
+  'culture-shock': 195,           // W-SW
 };
 
 // Reading order — narrative arc kronologis hidup Eli.
 export const ARSIP_STORY_ORDER = [
-  'anak-pohon',          // masa TK
-  'sebelum-panggung',    // pre-JKT48
-  'jaipong-akar',        // bahasa tubuh
-  'suara-memanggil',     // vokal
-  'asal-nama',           // identitas
-  'panggung-kecil',      // industry reality (mature)
+  'anak-pohon',            // masa TK
+  'sebelum-panggung',      // pre-JKT48
+  'culture-shock',         // adaptasi Bandung→Jakarta
+  'jaipong-akar',          // bahasa tubuh
+  'suara-memanggil',       // vokal
+  'asal-nama',             // identitas
+  'language-interference', // mahasiswi Sastra Korea
+  'panggung-kecil',        // industry reality (mature)
 ];
 
 export const ARSIP_BOOKS = [
@@ -178,6 +182,59 @@ export const ARSIP_BOOKS = [
         'Tapi ada nama kedua yang membuat namanya melekat di hati banyak orang. Bukan nama lahir, tapi nama yang lahir dari komunitas: "Ceu Eli."',
         'Awalnya julukan ini muncul dari senior di Team T. "Ceu" dalam bahasa Sunda berarti "kakak perempuan" — bentuk penyebutan hormat yang akrab. Mungkin sekadar candaan di awal, mungkin sekadar penegasan tentang asal-usulnya yang Bandung. Tapi entah bagaimana, julukan itu melekat. Pelan-pelan menyebar dari senior, ke teman segen, ke fans, sampai sekarang lebih banyak orang yang memanggilnya "Ceu Eli" daripada memanggilnya "Helisma."',
         'Dua nama, dua cerita. Yang pertama menandai dia sebagai anak yang istimewa di keluarganya. Yang kedua menandai dia sebagai sosok kakak perempuan yang dijaga oleh komunitasnya. Tidak ada yang lebih sah dari yang lain — keduanya benar.',
+      ],
+    }),
+  },
+  {
+    id: 'culture-shock',
+    title: 'Aku-Kamu di Tengah Gue-Elo',
+    eyebrow: 'Cerita · Pindah ke Jakarta',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#7a5840',
+    preview:
+      'Klakson sopan, salim ke semua orang, dan kata ganti yang bikin bingung di kota baru.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Pindah dari Bandung ke Jakarta bukan cuma perpindahan kota. Itu perpindahan budaya yang kecil-kecil tapi terus-menerus. Eli pernah cerita tentang kejutan-kejutan yang dia alami di awal.',
+        'Bahasa, untuk satu. Di Bandung, dia tumbuh dengan "aku-kamu" — pasangan kata ganti yang sopan, akrab tapi gak terlalu kasar. Wajar dipakai dengan teman, dengan keluarga, dengan siapa saja yang dia kenal. Tapi di Jakarta, dia disambut dengan reaksi aneh saat pakai "aku-kamu." Norma sosial di sini "gue-elo" — kata ganti yang lebih kasual, sedikit lebih kasar di telinga orang luar. Setiap kali dia bilang "aku," ada yang reaksinya heran. Setiap kali dia bilang "kamu," ada yang ngerasa terlalu formal.',
+        'Lalu klakson. Di Bandung, klakson dipakai sebagai sapaan tetangga, tanda kecil yang akrab. Lewat depan rumah teman, sapa pakai klakson. Di Jakarta, klakson adalah bahasa ketidaksabaran. Setiap lampu merah berubah hijau, sebelum mobil di depan bahkan sempat ngegas, klakson sudah berbunyi. Dan bukan satu kali. Berkali-kali, dari mobil yang berbeda, dari arah yang berbeda. Bandung yang santai vs Jakarta yang buru-buru.',
+        'Salim — tradisi cium tangan ke orang yang lebih tua sebagai bentuk hormat. Di Bandung, ini lazim. Eli melakukannya ke siapa saja yang dia anggap lebih tua atau lebih senior. Tapi di Jakarta, kebiasaan ini malah kadang dianggap "caper" — cari perhatian. Sopan santun yang di tempat asalnya wajar, di tempat baru dianggap pretensius.',
+        'Plus hal-hal kecil lain. Cara orang Jakarta lebih kasual dalam hal pinjam barang — kadang tanpa nanya dulu. Itu hal yang asing buat etika hidupnya yang dibesarkan di Bandung.',
+        'Tapi ini bukan cerita keluhan. Bukan "Jakarta jelek, Bandung lebih baik." Ini cerita tentang adaptasi yang sederhana, tapi yang bikin orang bertumbuh.',
+        'Eli belajar pelan-pelan. "Gue-elo" dia adopsi untuk percakapan kasual. Klakson Jakarta dia terima sebagai bahasa kota besar. Salim dia kurangi di setting tertentu — bukan menghilang, tapi disesuaikan dengan konteks.',
+        'Pelan-pelan, Bandung di dalam dirinya tetap ada — tapi sekarang ditemani Jakarta yang dia kenal lewat tinggal di sini bertahun-tahun. Dua budaya yang dia bawa, dengan caranya sendiri menemukan damai di tubuh yang sama.',
+        'Mungkin itu juga sebabnya banyak fans yang merasa dekat dengan dia. Karena ada bagian dari Eli yang masih "aku-kamu," masih sapa-tetangga, masih salim ke siapa saja. Hometown yang gak hilang walau pindah, akar yang tetap di tanah walaupun cabangnya tumbuh ke arah yang lain.',
+      ],
+    }),
+  },
+  {
+    id: 'language-interference',
+    title: 'Korea yang Ikut ke Thailand',
+    eyebrow: 'Cerita · Mahasiswi Sastra Korea',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#5a8aa8',
+    preview:
+      'Otaknya lengket di mode Korea. Saat dia ke Thailand, refleksnya keluar Hangeul.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Sebagai mahasiswi Sastra Korea, Eli memang intensif belajar bahasa Korea. Tapi ada efek samping yang dia gak duga sebelumnya — efek samping yang baru ketahuan saat dia traveling.',
+        'Suatu kali, sebelum ujian besar bahasa Korea, dia belajar habis-habisan. Hangeul, kosakata, percakapan, drama — semua dimasukkan ke otak intensif selama berhari-hari. Otaknya, secara tidak sadar, masuk ke "mode Korea." Semua input bahasa di sekitarnya diparsing sebagai Korea, semua output dia juga keluar dalam pola Korea.',
+        'Lalu dia traveling ke Thailand. Mestinya simple — dengar Thai, jawab pakai English atau gesture. Tapi otak Eli punya rencana lain.',
+        'Saat orang Thailand bicara di sebelahnya, otaknya otomatis coba parse: "ini Korea ya? Kok beda cadence-nya?" Bukan karena dia bingung — tapi karena telinganya sudah terlalu tuned ke fonetik Korea. Cadence dan pronunciation Thai yang berbeda banget bikin otaknya pause sebentar setiap kali ada percakapan.',
+        'Worse — saat dia mau jawab, kata pertama yang muncul di pikirannya keluar dalam bentuk Hangeul. Refleks. Otomatis. Bukan English, bukan body language, bukan Thai. Korea.',
+        'Dia describe sensasi ini sebagai "pusing" — kepalanya struggle rekonsiliasi sistem linguistik yang sedang ditampung. Pivot dari Korea ke Thai, atau ke English, atau ke Indonesia — semua butuh effort yang gak biasa. Otaknya kerasa mixed-up, kayak dua channel radio bocor jadi satu.',
+        'Cerita ini kecil, lucu, tapi ada poin yang lebih dalam. Bahasa bukan saklar yang bisa di-on/off. Kalau kamu invest ke satu bahasa secara intensif, dia akan tinggal di otakmu cukup lama setelahnya. Eli mengalaminya bukan karena dia gak bisa multitask — justru karena dia terlalu fokus dan dedikatif belajar.',
+        'Banyak orang membayangkan belajar bahasa itu glamor — bisa ngobrol fluent, bisa nonton drakor tanpa subtitle, bisa kerja di Korea. Tapi Eli juga punya sisi yang jarang dibicarain: ada masa-masa di mana belajar terlalu keras, otakmu lengket di satu bahasa, dan kamu jadi "pusing" saat lo di negara lain. Dedikasi punya harganya sendiri, bahkan dalam hal yang kelihatan sepele kayak ngobrol di luar negeri.',
       ],
     }),
   },
