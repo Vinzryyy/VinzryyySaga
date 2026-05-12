@@ -4833,7 +4833,7 @@ const SceneFallback = () => (
 const ArsipHeader = ({ restored }) => (
   <div className="pointer-events-none absolute top-5 left-5 z-20 text-white/85 max-w-[280px]">
     <div className="text-[9px] uppercase tracking-[0.4em] text-amber-200/70 mb-1">
-      Petak R2 · Arsip Ingatan
+      Petak R2 · Perpustakaan
     </div>
     <div
       className="text-base sm:text-lg leading-tight"
@@ -4936,7 +4936,7 @@ const ArsipIntroTitle = () => {
     >
       <div className="text-center max-w-md mx-4 sm:mx-6 max-h-full overflow-y-auto px-5 py-5 sm:px-8 sm:py-9 sm:-translate-y-10 rounded-md border border-white/12 bg-[#1c1614]/85 backdrop-blur-md shadow-2xl">
         <div className="text-amber-200/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-4">
-          Arsip Ingatan
+          Perpustakaan
         </div>
         <p
           className="text-white text-base sm:text-lg md:text-xl leading-relaxed mb-3"
@@ -5039,7 +5039,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
   return (
     <>
       <Seo
-        title="Arsip Ingatan"
+        title="Perpustakaan"
         description="Perpustakaan kota yang setengah runtuh — rak yang masih berdiri menyimpan halaman-halaman tentang perjalanan Eli dan Armeniaca."
         path="/armeniacaTown/r2"
       />

@@ -1252,14 +1252,14 @@ const PetaArsip = ({
               hovered ? 'text-white' : 'text-white/80'
             }`}
           >
-            Arsip Ingatan
+            Perpustakaan
           </div>
           <div
             className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
               hovered ? 'text-amber-200/85' : 'text-white/55'
             }`}
           >
-            {petakState === 'restored' ? 'Perpustakaan pulih' : 'Setengah runtuh'}
+            {petakState === 'restored' ? 'Rak berdiri lagi' : 'Setengah runtuh'}
           </div>
         </div>
       </Html>
@@ -4068,7 +4068,7 @@ const PETA_PETAK_INFO = {
   // peta open (gak ada locked), restored saat count >= 5000.
   arsipDrought: {
     id: 'arsip',
-    name: 'Arsip Ingatan',
+    name: 'Perpustakaan',
     eyebrow: 'Setengah runtuh',
     longDesc:
       'Perpustakaan kota — sebagian rak masih berdiri, sebagian halaman masih bisa dibaca. Atapnya jebol di pojok, dindingnya ambruk di satu sisi. Tapi seseorang menyelamatkan apa yang tersisa. Yang tertinggal, menunggu siapa saja yang mau membaca.',
@@ -4078,8 +4078,8 @@ const PETA_PETAK_INFO = {
   },
   arsipRestored: {
     id: 'arsip',
-    name: 'Arsip Ingatan',
-    eyebrow: 'Perpustakaan pulih',
+    name: 'Perpustakaan',
+    eyebrow: 'Rak berdiri lagi',
     longDesc:
       'Rak berdiri lagi. Kertas balik ke tempat. Atap tetap jebol — luka itu sengaja ditinggal, biar yang baca di sini ingat: ini bukan ruangan yang utuh dari awal. Ini ruangan yang bertahan.',
     cta: 'Masuki perpustakaan',
