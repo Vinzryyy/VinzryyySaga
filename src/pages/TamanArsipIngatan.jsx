@@ -2351,6 +2351,84 @@ const FloorShadows = ({ isMobile = false }) => {
   );
 };
 
+// BookStacksNearTable — 3 tumpukan buku decoratif di lantai dekat meja
+// baca, kerasa "ada yang lagi nge-review banyak referensi sekaligus."
+// Static, no interactive — purely visual narrative detail.
+const BookStacksNearTable = ({ restored }) => {
+  // 3 cluster positions di sekitar meja, jauh dari kursi (z=-1.6) +
+  // dari path camera-to-table.
+  const stacks = [
+    // Stack 1 — sisi barat meja, dekat lantai
+    {
+      pos: [-1.5, 0, 0.6],
+      rotY: 0.3,
+      books: [
+        { color: '#7a3030', h: 0.06, w: 0.32, d: 0.22, tilt: 0 },
+        { color: '#5a4030', h: 0.06, w: 0.3, d: 0.2, tilt: 0.06 },
+        { color: '#c8a060', h: 0.05, w: 0.28, d: 0.21, tilt: -0.04 },
+        { color: '#3a4858', h: 0.06, w: 0.3, d: 0.2, tilt: 0.03 },
+      ],
+    },
+    // Stack 2 — sisi timur meja, lebih kecil
+    {
+      pos: [1.4, 0, 0.8],
+      rotY: -0.2,
+      books: [
+        { color: '#5a3025', h: 0.06, w: 0.3, d: 0.21, tilt: 0.02 },
+        { color: '#7a5840', h: 0.05, w: 0.28, d: 0.2, tilt: -0.05 },
+        { color: '#3a3858', h: 0.06, w: 0.29, d: 0.2, tilt: 0.04 },
+      ],
+    },
+    // Stack 3 — kursi-side, behind reading chair
+    {
+      pos: [-0.6, 0, -2.3],
+      rotY: 0.5,
+      books: [
+        { color: '#a07868', h: 0.05, w: 0.26, d: 0.2, tilt: 0 },
+        { color: '#6a4830', h: 0.06, w: 0.28, d: 0.2, tilt: 0.05 },
+      ],
+    },
+  ];
+
+  return (
+    <group>
+      {stacks.map((stack, si) => (
+        <group key={`stack-${si}`} position={stack.pos} rotation={[0, stack.rotY, 0]}>
+          {stack.books.map((book, bi) => {
+            // Compute cumulative y position based on previous book heights
+            let y = 0;
+            for (let i = 0; i < bi; i++) y += stack.books[i].h;
+            y += book.h / 2; // center of current book
+            return (
+              <mesh
+                key={`stb-${si}-${bi}`}
+                position={[0, y, 0]}
+                rotation={[0, book.tilt, 0]}
+              >
+                <boxGeometry args={[book.w, book.h, book.d]} />
+                <meshStandardMaterial
+                  color={book.color}
+                  roughness={restored ? 0.85 : 0.95}
+                />
+              </mesh>
+            );
+          })}
+          {/* Top book — bookmark ribbon untuk stack pertama (most prominent) */}
+          {si === 0 && (
+            <mesh
+              position={[0.08, stack.books.reduce((s, b) => s + b.h, 0) - 0.02, 0]}
+              rotation={[0, 0, 0]}
+            >
+              <boxGeometry args={[0.012, 0.005, 0.14]} />
+              <meshStandardMaterial color="#8B4040" roughness={0.85} />
+            </mesh>
+          )}
+        </group>
+      ))}
+    </group>
+  );
+};
+
 // LightPoolFloor — soft radial gradient circle di lantai bawah lentera
 // & wax candle (saat restored), simulate "pool of light" yang real lights
 // kasih (postprocessing Bloom + point light kerasa ke radial decal).
@@ -2985,6 +3063,7 @@ const ArsipScene = ({
         onOutOpenBook={onOpenBookOut}
         onClickOpenBook={onOpenBookClick}
       />
+      <BookStacksNearTable restored={restored} />
 
       {/* Library landmark objects — 5 detail pengisi ruangan supaya
           kerasa "perpustakaan beneran" bukan ruangan kosong dgn rak.

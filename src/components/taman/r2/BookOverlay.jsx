@@ -20,7 +20,10 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getRakSiblings } from '../../../data/arsipBooks';
+import {
+  getRakSiblings,
+  getNextStoryBook,
+} from '../../../data/arsipBooks';
 
 // =====================================================================
 // Body type renderers
@@ -468,37 +471,79 @@ const buildCrossLinks = (book) => {
   return links;
 };
 
-const CrossLinkFooter = ({ book, onClose }) => {
+const CrossLinkFooter = ({ book, onClose, onNavigate, restored }) => {
   const links = useMemo(() => buildCrossLinks(book), [book]);
-  if (links.length === 0) return null;
+  const nextStoryBook = useMemo(
+    () => getNextStoryBook(book.id, restored),
+    [book.id, restored],
+  );
+  if (links.length === 0 && !nextStoryBook) return null;
   return (
-    <div className="mt-8 pt-5 border-t border-[color:var(--retro-brown-dark)]/15">
-      <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/55 mb-3">
-        Lihat juga
-      </div>
-      <div className="space-y-2">
-        {links.map((l) => (
-          <Link
-            key={l.key}
-            to={l.to}
-            onClick={() => onClose?.()}
-            className="block px-4 py-3 rounded-lg border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-cream)]/60 transition group"
+    <div className="mt-8 pt-5 border-t border-[color:var(--retro-brown-dark)]/15 space-y-4">
+      {/* "Lanjut baca" — primary CTA narrative arc */}
+      {nextStoryBook && (
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/70 mb-3">
+            Lanjut baca
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate?.(nextStoryBook.id)}
+            className="w-full text-left block px-4 py-3 rounded-lg border-2 border-[color:var(--retro-burgundy)]/30 hover:border-[color:var(--retro-burgundy)]/60 hover:bg-[color:var(--retro-burgundy)]/5 transition group"
           >
-            <div className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/75 mb-1">
-              {l.eyebrow}
+            <div className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/85 mb-1">
+              {nextStoryBook.eyebrow}
             </div>
             <div
-              className="text-[color:var(--retro-brown-dark)]/90 group-hover:text-[color:var(--retro-burgundy)] text-sm transition"
+              className="text-[color:var(--retro-burgundy)] text-base transition"
               style={{
                 fontFamily: '"Fraunces Variable", serif',
                 fontStyle: 'italic',
+                fontWeight: 500,
               }}
             >
-              {l.label} →
+              {nextStoryBook.title} →
             </div>
-          </Link>
-        ))}
-      </div>
+            <div
+              className="text-[color:var(--retro-brown-dark)]/60 text-xs mt-1 italic"
+              style={{ fontFamily: '"Fraunces Variable", serif' }}
+            >
+              {nextStoryBook.preview}
+            </div>
+          </button>
+        </div>
+      )}
+      {/* Cross-room links (Konstelasi, Pohon, About) — secondary */}
+      {links.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/55 mb-3">
+            Lihat juga
+          </div>
+          <div className="space-y-2">
+            {links.map((l) => (
+              <Link
+                key={l.key}
+                to={l.to}
+                onClick={() => onClose?.()}
+                className="block px-4 py-3 rounded-lg border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-cream)]/60 transition group"
+              >
+                <div className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/75 mb-1">
+                  {l.eyebrow}
+                </div>
+                <div
+                  className="text-[color:var(--retro-brown-dark)]/90 group-hover:text-[color:var(--retro-burgundy)] text-sm transition"
+                  style={{
+                    fontFamily: '"Fraunces Variable", serif',
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {l.label} →
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -768,7 +813,12 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
               Konstelasi (via book.era) & Pohon (via category kebaikan).
               Untuk buku refleksi (tanpa era), kasih link ke /about
               (Armeniaca etymology fuller version). */}
-          <CrossLinkFooter book={book} onClose={onClose} />
+          <CrossLinkFooter
+            book={book}
+            onClose={onClose}
+            onNavigate={onNavigate}
+            restored={restored}
+          />
           </div>
           {/* Bottom scroll fade indicator — subtle gradient di edge bawah
               container scrollable, hint "ada konten lebih di bawah."
