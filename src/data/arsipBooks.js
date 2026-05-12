@@ -1,60 +1,24 @@
 /**
  * Arsip Ingatan — book registry for /armeniacaTown/r2.
  *
- * Konten 100% derived dari sumber existing — gak ada copy baru di sini.
- * Tiap entry punya `getBody()` yang resolve isi dari ELI_TIMELINE,
- * ELI_DISCOGRAPHY, ELI_FIGHT_2026, SITE_CONFIG.about, atau
- * KEBAIKAN_ENTRIES. Saat sumber data tumbuh (timeline tambah entry,
- * kebaikan tambah aksi), Perpustakaan otomatis ikut tumbuh tanpa
- * sync manual.
+ * KEBIJAKAN KONTEN (per user instruction): Perpustakaan ini eksklusif
+ * funfact tentang Eli yang TIDAK ADA di page lain di project ini.
+ * Semua konten yang sumbernya juga ditampilkan di /about, /profil,
+ * /armeniacaTown/r1 (Konstelasi), /26, dst — DIHAPUS dari Arsip.
  *
- * State tier: drought (rak utuh + meja + S — 6 buku) vs restored
- * (semua rak — 11 buku). Drought tier diatur supaya cerita "selamat
- * dari kehancuran" konsisten: Etimologi/Filosofi (rooting Armeniaca),
- * 3 era awal Eli (Trainee/Theater/Senbatsu-NewEra), dan satu cross-
- * link Galeri Kebaikan. Era akhir (Mature/Variety/Fight + diskografi)
- * unlock setelah ruangan pulih (count >= 5000).
+ * Surviving books: 6 prose-story berdasarkan funfact unik yang
+ * di-curate dari Eli livestream + observation Armeniaca:
+ *   1. Anak yang Lebih Suka Pohon — masa kecil di TK
+ *   2. Sebelum Panggung — pre-JKT48 (teknik elektro + pramugari)
+ *   3. Akar Jaipong yang Tidak Mau Diam — bahasa tubuh
+ *   4. Suaranya yang Memanggil — observasi vokal
+ *   5. Asal Nama, Asal Cerita — Helisma + Ceu Eli origin
+ *   6. Panggung yang Lebih Kecil, Suara yang Tetap Penuh — industry reality
+ *
+ * State tier: 5 drought + 1 restored. Drought = always accessible
+ * sejak peta open. Restored unlock saat count >= 5000.
  */
 
-import { ELI_TIMELINE, ELI_DISCOGRAPHY, ELI_FIGHT_2026 } from './eliProfile';
-import { SITE_CONFIG } from '../config/siteConfig';
-import { KEBAIKAN_ENTRIES } from './galeriKebaikan';
-
-// Era groupings — milestone IDs di ELI_TIMELINE dikelompokin ke buku.
-// Sinkron dengan ERA_DEFS Konstelasi tapi gak hard-import (avoid coupling
-// — kalau ERA_DEFS pivot, buku-buku Perpustakaan tetap stabil).
-const ERA_GROUPS = {
-  trainee: ['audition', 'sousenkyo-2018', 'class-a'],
-  theater: ['theater-debut', 'team-kiii', 'show-100'],
-  'senbatsu-newera': [
-    'first-senbatsu',
-    'new-formation-2021',
-    'darashinai-aishikata',
-    'show-200',
-  ],
-  mature: [
-    'sayonara-crawl',
-    'spv-langit-biru-2024',
-    'show-300',
-    'undergirl-bibir-2024',
-  ],
-  variety: ['belajar-konseling'],
-  fight: [
-    'pertaruhan-cinta-shonichi',
-    'three-team-announce',
-    'fight-tagline',
-    'team-dream',
-    'dream-bakudan-shonichi',
-    'show-400',
-  ],
-};
-
-const getTimelineByEra = (eraKey) => {
-  const ids = ERA_GROUPS[eraKey] || [];
-  return ELI_TIMELINE.filter((m) => ids.includes(m.id));
-};
-
-// Rak slot constants — match dengan posisi 3D di TamanArsipIngatan scene.
 export const RAK_SLOTS = {
   MEJA: 'meja',
   NW: 'nw',
@@ -64,8 +28,6 @@ export const RAK_SLOTS = {
   S: 's',
 };
 
-// Tier unlock — drought tier accessible dari count >= 2000 (peta open),
-// restored tier accessible dari count >= 5000 (r2Restore threshold).
 export const UNLOCK_TIERS = {
   DROUGHT: 'drought',
   RESTORED: 'restored',
@@ -73,122 +35,29 @@ export const UNLOCK_TIERS = {
 
 export const CATEGORIES = {
   REFLEKSI: 'refleksi',
-  LINIMASA: 'linimasa',
-  DISKOGRAFI: 'diskografi',
-  ERA: 'era',
-  KEBAIKAN: 'kebaikan',
 };
 
-// Book registry. Order dalam array juga = order prev/next dalam rak
-// yang sama (sortable by rakSlot lalu by position dalam array).
+// Pedestal angles untuk drought floor layout (radius 3.0 dari meja).
+export const PEDESTAL_ANGLES = {
+  'anak-pohon': 135,              // NW (kronologis paling awal)
+  'sebelum-panggung': 105,        // N-NE
+  'jaipong-akar': 75,             // NE
+  'suara-memanggil': 45,          // E-NE
+  'panggung-kecil': 15,           // E
+  'asal-nama': 195,               // W-SW (restored unlock)
+};
+
+// Reading order — narrative arc kronologis hidup Eli.
+export const ARSIP_STORY_ORDER = [
+  'anak-pohon',          // masa TK
+  'sebelum-panggung',    // pre-JKT48
+  'jaipong-akar',        // bahasa tubuh
+  'suara-memanggil',     // vokal
+  'asal-nama',           // identitas
+  'panggung-kecil',      // industry reality (mature)
+];
+
 export const ARSIP_BOOKS = [
-  // === MEJA (focal point — pertama dilihat saat masuk) ===
-  {
-    id: 'halaman-terakhir',
-    title: 'Halaman Terakhir',
-    eyebrow: 'Filosofi · Halaman Pembuka',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Armeniaca',
-    rakSlot: RAK_SLOTS.MEJA,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#8B4040',
-    preview:
-      'Buku ini terbuka di meja, menunggu siapa pun yang melangkah masuk.',
-    getBody: () => {
-      const phil = SITE_CONFIG.about.philosophy;
-      return {
-        type: 'quote',
-        quote: phil.quote,
-        author: phil.author,
-        epilogue:
-          'Inilah yang tersisa dari apa yang tidak boleh hilang. ' +
-          'Sebagian rak masih berdiri. Sebagian halaman masih bisa dibaca. ' +
-          'Silakan.',
-      };
-    },
-  },
-
-  // === RAK NW (utuh, drought) — Tentang Armeniaca (root identity) ===
-  {
-    id: 'etimologi-armeniaca',
-    title: 'Setelah Musim Dingin, yang Mekar',
-    eyebrow: 'Refleksi · Etimologi',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'siteConfig.about.etymology',
-    rakSlot: RAK_SLOTS.NW,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#C9A961',
-    preview: 'Kenapa "Armeniaca"? Apa arti tiap simbol di logo?',
-    getBody: () => {
-      const ety = SITE_CONFIG.about.etymology;
-      return {
-        type: 'prose-with-motifs',
-        paragraphs: ety.paragraphs,
-        motifsTitle: ety.motifsTitle,
-        motifs: ety.motifs,
-      };
-    },
-  },
-  {
-    id: 'filosofi-armeniaca',
-    title: 'Filosofi Armeniaca',
-    eyebrow: 'Refleksi · Voice',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'siteConfig.about.philosophy',
-    rakSlot: RAK_SLOTS.NW,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#D4A574',
-    preview:
-      'Setiap panggung Eli adalah momen yang sekejap. Tugas Armeniaca...',
-    getBody: () => {
-      const phil = SITE_CONFIG.about.philosophy;
-      const community = SITE_CONFIG.home.community;
-      return {
-        type: 'philosophy',
-        quote: phil.quote,
-        author: phil.author,
-        communityTitle: community.title,
-        communityBody: community.body,
-      };
-    },
-  },
-
-  // === RAK NE (utuh, drought) — Origin & behind-the-scenes stories ===
-  // Buku-buku linimasa lama (trainee, theater, senbatsu-newera) diganti
-  // dengan stories yang gak duplikat dengan Konstelasi Perjalanan (r1).
-  // Linimasa kronologis udah di-cover di sana via bintang per milestone.
-  // Di Arsip Ingatan, fokus ke biographical/anecdotal content.
-  {
-    id: 'panggung-kecil',
-    title: 'Panggung yang Lebih Kecil, Suara yang Tetap Penuh',
-    eyebrow: 'Cerita · Realita Idol',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Eli IDN Live · curated by Armeniaca',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#5a4868',
-    preview:
-      'Saat sistem tidak memberikan spotlight, Eli memilih bikin panggungnya sendiri.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Ada perbedaan antara cita-cita dan kenyataan. Eli, dengan kejujurannya yang khas, pernah membicarakannya secara terbuka di salah satu live streamnya.',
-        'Cita-citanya selalu jelas: bernyanyi dan tampil untuk fans. Itu yang membuatnya memilih JKT48 dulu — bukan dengan ekspektasi instan menjadi sentral, tapi karena di sana dia bisa berdiri di atas panggung dan bertemu orang-orang yang akan menemani perjalanan.',
-        'Tapi industri idol punya logika sendiri. Spotlight terbatas. Slot solo terbatas. Kesempatan untuk menampilkan potensi penuh — bukan sesuatu yang dijamin, bahkan untuk member yang sudah konsisten sejak 2018.',
-        'Eli tahu ini. Dan dia juga tahu bahwa keputusan tentang siapa yang mendapat slot, siapa yang masuk formasi tertentu, siapa yang difokuskan untuk single mana — semua itu di luar kendalinya. Sistem akan terus berputar, fokus akan terus bergeser ke member-member baru yang baru naik. Itu cara industri ini bekerja.',
-        'Dia mengakuinya tanpa pahit, tanpa keluhan yang berlebihan. Tapi dia juga jujur: ini berdampak pada pertumbuhannya sebagai performer. Setiap kali tidak ada kesempatan untuk solo, untuk lead vocal, untuk momen spotlight — bagian dari dirinya yang sudah berlatih bertahun-tahun untuk siap dipanggung tidak terpakai.',
-        'Tapi cerita Eli tidak berakhir di sana. Dia menemukan jalannya sendiri.',
-        'Live streaming — yang dulu mungkin dianggap "panggung sampingan" — jadi panggung utamanya. Di IDN Live, di SHOWROOM, di setiap sesi live yang dia buka, dia bisa bernyanyi tanpa kompetisi slot. Dia bisa berinteraksi dengan fans tanpa harus melalui filter manajemen. Dia bisa jadi versi terbaik dari dirinya sebagai performer, dengan caranya sendiri.',
-        'Mungkin panggungnya lebih kecil. Mungkin tidak ada lampu studio yang menyorot. Mungkin tidak ada penonton ribuan di gedung theater. Tapi yang penting: ada koneksi. Ada suara yang dibagikan. Ada fans yang menunggu sesi berikutnya dengan tulus.',
-        'Sikap dewasa yang dia bawa: tidak menyerah, tidak juga keras kepala. Menerima realitas industri, sambil tetap setia pada apa yang dia cintai. Live demi live, momen demi momen, dia tetap memilih untuk hadir.',
-        'Karena pada akhirnya, panggung bukan cuma tempat di mana lampu menyala. Panggung adalah di mana kamu memilih untuk bernyanyi.',
-      ],
-    }),
-  },
   {
     id: 'anak-pohon',
     title: 'Anak yang Lebih Suka Pohon',
@@ -211,6 +80,30 @@ export const ARSIP_BOOKS = [
         'Ini bukan kejadian sekali atau dua kali. Ini kebiasaan yang bertahan untuk waktu yang cukup lama di masa kanak-kanak awal. Bukan karena dia menolak teman-temannya — dia hanya sudah punya dunia sendiri yang dia sukai lebih dari ruang kelas yang seragam.',
         'Bertahun-tahun setelahnya, kita bisa lihat: kepribadian itu gak hilang. Eli yang sekarang tampil di panggung Theater JKT48 punya energi yang sama dengan anak kecil yang naik pohon di TK. Masih punya dunia sendiri di tengah keramaian, masih bikin ruang kecilnya sendiri walau dikelilingi banyak member dan ribuan penonton.',
         'Pohon yang dulu jadi tempat naik, sekarang jadi panggung. Pasir yang dulu tempat sembunyi, sekarang jadi setlist. Tapi yang naik dan yang sembunyi, masih orang yang sama: anak kecil yang sudah lebih dulu tahu bahwa kadang-kadang dunia yang paling menarik adalah yang dia bikin sendiri.',
+      ],
+    }),
+  },
+  {
+    id: 'sebelum-panggung',
+    title: 'Sebelum Panggung — Jalan yang Hampir Berbeda',
+    eyebrow: 'Cerita · Sebelum JKT48',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli interviews · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#fff5c8',
+    preview:
+      'Teknik elektro, akademi pramugari, dan pilihan terakhir yang membawanya ke panggung.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Cerita yang jarang diceritakan: sebelum Eli dikenal sebagai idol JKT48, hidupnya hampir mengalir ke dua jalan yang sama sekali berbeda.',
+        'Pertama, teknik elektro. Eli sempat masuk jurusan teknik elektro — pilihan yang praktis, jalur yang aman. Tapi rutinitas kuliah teknik bukan tempat yang membuat suaranya didengar. Akademisnya jalan, tapi bagian yang paling hidup dalam dirinya — bagian yang ingin tampil, ingin bernyanyi, ingin bertemu banyak orang — tetap diam.',
+        'Kedua, pramugari. Eli hampir saja menempuh jalan ini. Sudah sampai tahap akan training di Malaysia. Hampir terbang. Bayangkan kalau cerita itu yang jadi: Eli dengan seragam pramugari, melayani penumpang di kabin pesawat, melintasi negara-negara, hidup yang glamor tapi anonim.',
+        'Tapi entah bagaimana — di tengah persimpangan itu — audisi JKT48 muncul. Dan Eli memilih panggung.',
+        'Pilihan itu bukan tanpa risiko. JKT48 berarti meninggalkan teknik, meninggalkan rencana pramugari, meninggalkan jalur yang sudah hampir terlihat ujungnya. Tapi Eli memilih cahaya panggung yang belum pernah dia rasakan, daripada langit yang sudah pernah dia bayangkan.',
+        'Sekarang, bertahun-tahun setelahnya, kita bisa lihat: pilihan itu yang membuat kita mengenalnya sebagai Ceu Eli, bukan sebagai Pramugari Helisma Putri Kurnia di salah satu maskapai. Dan dunia, di area kecilnya yang bernama Theater JKT48, jadi sedikit lebih hangat karena pilihan itu.',
       ],
     }),
   },
@@ -240,30 +133,6 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
-    id: 'sebelum-panggung',
-    title: 'Sebelum Panggung — Jalan yang Hampir Berbeda',
-    eyebrow: 'Cerita · Sebelum JKT48',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Armeniaca · curated trivia',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#fff5c8',
-    preview:
-      'Teknik elektro, akademi pramugari, dan pilihan terakhir yang membawanya ke panggung.',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Cerita yang jarang diceritakan: sebelum Eli dikenal sebagai idol JKT48, hidupnya hampir mengalir ke dua jalan yang sama sekali berbeda.',
-        'Pertama, teknik elektro. Eli sempat masuk jurusan teknik elektro — pilihan yang praktis, jalur yang aman. Tapi rutinitas kuliah teknik bukan tempat yang membuat suaranya didengar. Akademisnya jalan, tapi bagian yang paling hidup dalam dirinya — bagian yang ingin tampil, ingin bernyanyi, ingin bertemu banyak orang — tetap diam.',
-        'Kedua, pramugari. Eli hampir saja menempuh jalan ini. Sudah sampai tahap akan training di Malaysia. Hampir terbang. Bayangkan kalau cerita itu yang jadi: Eli dengan seragam pramugari, melayani penumpang di kabin pesawat, melintasi negara-negara, hidup yang glamor tapi anonim.',
-        'Tapi entah bagaimana — di tengah persimpangan itu — audisi JKT48 muncul. Dan Eli memilih panggung.',
-        'Pilihan itu bukan tanpa risiko. JKT48 berarti meninggalkan teknik, meninggalkan rencana pramugari, meninggalkan jalur yang sudah hampir terlihat ujungnya. Tapi Eli memilih cahaya panggung yang belum pernah dia rasakan, daripada langit yang sudah pernah dia bayangkan.',
-        'Sekarang, bertahun-tahun setelahnya, kita bisa lihat: pilihan itu yang membuat kita mengenalnya sebagai Ceu Eli, bukan sebagai Pramugari Helisma Putri Kurnia di salah satu maskapai. Dan dunia, di area kecilnya yang bernama Theater JKT48, jadi sedikit lebih hangat karena pilihan itu.',
-      ],
-    }),
-  },
-  {
     id: 'suara-memanggil',
     title: 'Suaranya yang Memanggil',
     eyebrow: 'Cerita · Vokal',
@@ -280,38 +149,12 @@ export const ARSIP_BOOKS = [
       paragraphs: [
         'Sebelum jadi senbatsu, sebelum jadi shonichi singer — Eli punya satu hal yang langsung dikenali sejak masa trainee: suaranya.',
         'Vokalnya yang menonjol. Bukan suara paling melengking, bukan suara paling tinggi, bukan teknik vokal yang paling sempurna. Tapi ada kehangatan dan kejernihan tertentu di suaranya yang membuat orang di Theater berhenti sebentar saat dia menyanyi solo. Kerasa seperti suara yang memanggil pulang — bukan suara yang menarik perhatian dengan kemewahan, tapi suara yang menenangkan dengan kejujurannya.',
-        'Vokalnya kemudian membawanya ke partisipasi di banyak single — dari Rapsodi sebagai senbatsu pertama, ke Darashinai Aishikata di era New Era, Sayonara Crawl, sampai SPV Langit Biru Cinta Searah. Tiap penampilan bukan sekadar slot — ada bagian solo atau bridge yang dia bawa dengan cara yang khas dirinya.',
+        'Vokalnya kemudian membawanya ke partisipasi di banyak single. Tiap penampilan bukan sekadar slot — ada bagian solo atau bridge yang dia bawa dengan cara yang khas dirinya.',
         'Dan tidak hanya di studio. Di theater, di event, di live streaming — suaranya yang membuat fans betah. Bahkan ketika hanya ngobrol di IDN Live, ada nada di suaranya yang membuat orang merasa diajak ngobrol oleh teman lama, bukan oleh idol di layar.',
-        'Suara itu yang membawa dirinya melewati transisi besar JKT48 — dari Team KIII, ke New Era, sampai Team Dream di era Fight 2026. Tim berganti, sistem berganti, tapi suara yang membawa pesan tetap sama. Suara yang memanggil pulang.',
+        'Suara itu yang membawa dirinya melewati transisi-transisi besar JKT48. Tim berganti, sistem berganti, tapi suara yang membawa pesan tetap sama. Suara yang memanggil pulang.',
       ],
     }),
   },
-  {
-    id: 'new-era-saat-sistem',
-    title: 'New Era — Saat Sistem Lama Bubar',
-    eyebrow: 'Cerita · Transisi 2021',
-    category: CATEGORIES.REFLEKSI,
-    era: null,
-    source: 'Armeniaca · curated reflection',
-    rakSlot: RAK_SLOTS.NE,
-    unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#3a4858',
-    preview:
-      'Saat Team J, KIII, dan T dibubarkan. Apa rasanya bertahan ketika rumahmu hilang?',
-    getBody: () => ({
-      type: 'prose-story',
-      paragraphs: [
-        'Maret 2021, JKT48 mengumumkan sesuatu yang mengejutkan: sistem Team J, Team KIII, dan Team T resmi dibubarkan. Tidak ada lagi tim. Semua member dilebur menjadi satu formasi tunggal — JKT48 New Era.',
-        'Bagi member yang sudah lama berada di tim tertentu, ini bukan sekadar reshuffle administratif. Ini perubahan identitas. Selama bertahun-tahun, "Team KIII" bukan cuma label — itu adalah keluarga harian, jadwal harian, bahkan kostum harian. Dan tiba-tiba semua itu hilang.',
-        'Eli, yang sudah promosi dari Academy ke Team KIII pada Juli 2019, ikut melewati transisi ini. Dari segi karier, dia sudah punya momentum: senbatsu pertama di Rapsodi (Januari 2020), 100 show theater di Saka Agari (Desember 2019). Tapi New Era artinya semua momentum itu di-reset — bukan diturunkan, tapi dimasukkan ke wadah baru yang belum dikenal siapa-siapa.',
-        'Era New Era bukan masa yang glamor. Pandemi membatasi aktivitas live, jadwal theater dikurangi, sosial media jadi panggung utama. Single Darashinai Aishikata dirilis di tengah masa yang penuh ketidakpastian. Tapi Eli tetap konsisten — penampilannya di theater terus berlanjut, sampai akhirnya mencapai 200 show pada November 2021 di setlist Renai Kinshi Jourei.',
-        'Dari sudut pandang penggemar, era New Era adalah masa krisis identitas grup. Tapi dari sudut pandang Eli secara personal, era ini adalah ujian kesabaran: bertahan ketika sistem yang membentukmu tiba-tiba dibubarkan, dan tetap bekerja seperti tidak ada yang berubah.',
-        'Era ini berlangsung sampai akhir 2025, sebelum sistem 3 tim dibangkitkan kembali dalam format JKT48 Fight. Tapi Eli yang melewati New Era bukan Eli yang masuk audisi 2018. Dia sudah jadi Eli yang lain — Eli yang tahu rasanya sistem yang dia kenal hilang, dan tetap memilih untuk bertahan.',
-      ],
-    }),
-  },
-
-  // === RAK W (tumbang, restored) — Origin story tambahan ===
   {
     id: 'asal-nama',
     title: 'Asal Nama, Asal Cerita',
@@ -339,100 +182,35 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
-    id: 'linimasa-variety',
-    title: 'Era Variety — Belajar Konseling',
-    eyebrow: 'Linimasa · 2025',
-    category: CATEGORIES.LINIMASA,
-    era: 'variety',
-    source: 'ELI_TIMELINE',
-    rakSlot: RAK_SLOTS.W,
-    unlockTier: UNLOCK_TIERS.RESTORED,
-    spineColor: '#c8a060',
-    preview:
-      'Buna Eli, host JKT48 TV, format yang menemukan tone-nya sendiri.',
-    getBody: () => ({
-      type: 'timeline-section',
-      milestones: getTimelineByEra('variety'),
-    }),
-  },
-
-  // === RAK E (miring, restored) — Era Fight + Diskografi ===
-  {
-    id: 'era-fight-team-dream',
-    title: 'Era JKT48 Fight — Team Dream',
-    eyebrow: 'Era Terkini · 2026',
-    category: CATEGORIES.ERA,
-    era: 'fight',
-    source: 'ELI_FIGHT_2026 + ELI_TIMELINE',
-    rakSlot: RAK_SLOTS.E,
-    unlockTier: UNLOCK_TIERS.RESTORED,
-    spineColor: '#5a8aa8',
-    preview:
-      'Format kompetisi tiga tim, line-up Team Dream, era baru bersama Freya.',
-    getBody: () => ({
-      type: 'era-fight',
-      fight: ELI_FIGHT_2026,
-      milestones: getTimelineByEra('fight'),
-    }),
-  },
-  {
-    id: 'diskografi-rapsodi',
-    title: 'Diskografi — Rapsodi',
-    eyebrow: 'Single · 2020 · Senbatsu',
-    category: CATEGORIES.DISKOGRAFI,
-    era: 'senbatsu-newera',
-    source: 'ELI_DISCOGRAPHY',
-    rakSlot: RAK_SLOTS.E,
-    unlockTier: UNLOCK_TIERS.RESTORED,
-    spineColor: '#e8d4a8',
-    preview:
-      'Senbatsu pertama Eli — original song pertama JKT48, posisi 15.',
-    getBody: () => ({
-      type: 'diskografi',
-      entry: ELI_DISCOGRAPHY.find((e) => e.title === 'Rapsodi'),
-    }),
-  },
-  {
-    id: 'diskografi-bibir',
-    title: 'Diskografi — Bibir yang Telah Dicuri',
-    eyebrow: 'Single · 2025 · Undergirls',
-    category: CATEGORIES.DISKOGRAFI,
-    era: 'mature',
-    source: 'ELI_DISCOGRAPHY',
-    rakSlot: RAK_SLOTS.E,
-    unlockTier: UNLOCK_TIERS.RESTORED,
-    spineColor: '#8B4040',
-    preview:
-      'Undergirls Sousenkyo 2024 — #Semangka, posisi 22 dengan 28.925 suara.',
-    getBody: () => ({
-      type: 'diskografi',
-      entry: ELI_DISCOGRAPHY.find((e) =>
-        (e.title || '').startsWith('Bibir'),
-      ),
-    }),
-  },
-
-  // === RAK S (kecil, drought) — Cross-link Galeri Kebaikan ===
-  {
-    id: 'kebaikan-pohon',
-    title: 'Lembar Kebaikan — Pohon Lingkungan',
-    eyebrow: 'Aksi · Harmoni Kebaikan',
-    category: CATEGORIES.KEBAIKAN,
+    id: 'panggung-kecil',
+    title: 'Panggung yang Lebih Kecil, Suara yang Tetap Penuh',
+    eyebrow: 'Cerita · Realita Idol',
+    category: CATEGORIES.REFLEKSI,
     era: null,
-    source: 'KEBAIKAN_ENTRIES',
-    rakSlot: RAK_SLOTS.S,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
-    spineColor: '#7aa858',
+    spineColor: '#5a4868',
     preview:
-      'Tiga pohon ditanam atas nama Eli — kebaikan yang akarnya tumbuh.',
+      'Saat sistem tidak memberikan spotlight, Eli memilih bikin panggungnya sendiri.',
     getBody: () => ({
-      type: 'kebaikan',
-      entries: KEBAIKAN_ENTRIES,
+      type: 'prose-story',
+      paragraphs: [
+        'Ada perbedaan antara cita-cita dan kenyataan. Eli, dengan kejujurannya yang khas, pernah membicarakannya secara terbuka di salah satu live streamnya.',
+        'Cita-citanya selalu jelas: bernyanyi dan tampil untuk fans. Itu yang membuatnya memilih JKT48 dulu — bukan dengan ekspektasi instan menjadi sentral, tapi karena di sana dia bisa berdiri di atas panggung dan bertemu orang-orang yang akan menemani perjalanan.',
+        'Tapi industri idol punya logika sendiri. Spotlight terbatas. Slot solo terbatas. Kesempatan untuk menampilkan potensi penuh — bukan sesuatu yang dijamin, bahkan untuk member yang sudah konsisten sejak bertahun-tahun.',
+        'Eli tahu ini. Dan dia juga tahu bahwa keputusan tentang siapa yang mendapat slot, siapa yang masuk formasi tertentu, siapa yang difokuskan untuk single mana — semua itu di luar kendalinya. Sistem akan terus berputar, fokus akan terus bergeser ke member-member baru yang baru naik. Itu cara industri ini bekerja.',
+        'Dia mengakuinya tanpa pahit, tanpa keluhan yang berlebihan. Tapi dia juga jujur: ini berdampak pada pertumbuhannya sebagai performer. Setiap kali tidak ada kesempatan untuk solo, untuk lead vocal, untuk momen spotlight — bagian dari dirinya yang sudah berlatih bertahun-tahun untuk siap dipanggung tidak terpakai.',
+        'Tapi cerita Eli tidak berakhir di sana. Dia menemukan jalannya sendiri.',
+        'Live streaming — yang dulu mungkin dianggap "panggung sampingan" — jadi panggung utamanya. Di IDN Live, di SHOWROOM, di setiap sesi live yang dia buka, dia bisa bernyanyi tanpa kompetisi slot. Dia bisa berinteraksi dengan fans tanpa harus melalui filter manajemen. Dia bisa jadi versi terbaik dari dirinya sebagai performer, dengan caranya sendiri.',
+        'Mungkin panggungnya lebih kecil. Mungkin tidak ada lampu studio yang menyorot. Mungkin tidak ada penonton ribuan di gedung theater. Tapi yang penting: ada koneksi. Ada suara yang dibagikan. Ada fans yang menunggu sesi berikutnya dengan tulus.',
+        'Sikap dewasa yang dia bawa: tidak menyerah, tidak juga keras kepala. Menerima realitas industri, sambil tetap setia pada apa yang dia cintai. Live demi live, momen demi momen, dia tetap memilih untuk hadir.',
+        'Karena pada akhirnya, panggung bukan cuma tempat di mana lampu menyala. Panggung adalah di mana kamu memilih untuk bernyanyi.',
+      ],
     }),
   },
 ];
 
-// Books interactive berdasarkan tier ruangan.
 export const getInteractiveBooks = (restored) => {
   if (restored) return ARSIP_BOOKS;
   return ARSIP_BOOKS.filter(
@@ -440,7 +218,6 @@ export const getInteractiveBooks = (restored) => {
   );
 };
 
-// Books grouped by rakSlot — untuk render di scene.
 export const groupBooksByRak = (restored) => {
   const interactive = getInteractiveBooks(restored);
   const grouped = {};
@@ -450,9 +227,6 @@ export const groupBooksByRak = (restored) => {
   return grouped;
 };
 
-// Prev/next dalam rak yang sama. Scope sengaja dibatasi per-rak (bukan
-// global) supaya kerasa "ambil buku berikutnya dari rak yang sama,"
-// bukan teleport ke rak lain.
 export const getRakSiblings = (bookId, restored = true) => {
   const interactive = getInteractiveBooks(restored);
   const book = interactive.find((b) => b.id === bookId);
@@ -467,69 +241,14 @@ export const getRakSiblings = (bookId, restored = true) => {
   };
 };
 
-// Pedestal positions — angle dalam derajat dari +X axis CCW di sekitar
-// meja baca. Tiap buku interactive (kecuali Halaman Terakhir yang udah
-// di meja) di-host di pedestal kayu radius 2.2 dari meja. Layout:
-// utara (depan) untuk era awal/refleksi, timur untuk linimasa tengah,
-// selatan untuk diskografi + kebaikan.
-export const PEDESTAL_ANGLES = {
-  'etimologi-armeniaca': 135,        // NW
-  'filosofi-armeniaca': 165,         // W-NW
-  'anak-pohon': 180,                 // W (childhood)
-  'jaipong-akar': 195,               // W-SW
-  'sebelum-panggung': 105,           // N-NE
-  'suara-memanggil': 75,             // NE
-  'panggung-kecil': 60,              // E-NE (industry reality reflection)
-  'new-era-saat-sistem': 45,         // E-NE
-  'asal-nama': 15,                   // E (restored unlock)
-  'linimasa-variety': 345,           // E-SE
-  'era-fight-team-dream': 315,       // SE
-  'diskografi-rapsodi': 285,         // S-SE
-  'diskografi-bibir': 255,           // SSW
-  'kebaikan-pohon': 225,             // SW
-};
-
-// Reading order — narrative arc untuk user. Mulai dari "Halaman Terakhir"
-// (manifesto Armeniaca, focal di meja) → 2 refleksi tentang project →
-// 3 linimasa kronologis era awal → 3 linimasa kronologis era akhir
-// (restored unlock) → 2 diskografi → 1 era fight terkini → closing
-// dengan call-to-action kebaikan.
-//
-// Drought tier (saat count < 5000): user disarankan ke kebaikan-pohon
-// di akhir drought arc (jangan terlantar di tengah).
-// Restored tier (count >= 5000): full arc 12 buku.
-export const ARSIP_STORY_ORDER = [
-  'halaman-terakhir',
-  'etimologi-armeniaca',
-  'filosofi-armeniaca',
-  'anak-pohon',           // childhood
-  'sebelum-panggung',     // pre-JKT48
-  'jaipong-akar',         // dance background
-  'suara-memanggil',      // vocal signature
-  'new-era-saat-sistem',  // 2021 transition
-  'asal-nama',            // names identity
-  'panggung-kecil',       // industry reality reflection (mature voice)
-  'linimasa-variety',
-  'era-fight-team-dream',
-  'diskografi-rapsodi',
-  'diskografi-bibir',
-  'kebaikan-pohon',
-];
-
-// Get next book di narrative arc setelah bookId. Restored gate: kalau
-// next book restored tier dan user belum restored, skip ke kebaikan
-// (drought closing).
 export const getNextStoryBook = (bookId, restored = true) => {
   const idx = ARSIP_STORY_ORDER.indexOf(bookId);
   if (idx === -1 || idx === ARSIP_STORY_ORDER.length - 1) return null;
-  // Find next book yang masuk current tier
   for (let i = idx + 1; i < ARSIP_STORY_ORDER.length; i++) {
     const nextId = ARSIP_STORY_ORDER[i];
     const nextBook = ARSIP_BOOKS.find((b) => b.id === nextId);
     if (!nextBook) continue;
     if (nextBook.unlockTier === UNLOCK_TIERS.RESTORED && !restored) {
-      // Skip restored book di drought tier — lompat ke kebaikan
-      // (story closing untuk drought arc)
       continue;
     }
     return nextBook;
@@ -537,8 +256,6 @@ export const getNextStoryBook = (bookId, restored = true) => {
   return null;
 };
 
-// Persistence — track buku yang udah dibaca lewat localStorage.
-// Marker visual di rak (subtle emissive) + counter di petak peta.
 const READ_KEY = 'arsip-books-read';
 
 export const getReadBookIds = () => {

@@ -2704,20 +2704,17 @@ const BookPedestalsNearMeja = ({
 // Restored-only book placement: subset interactive books pindah ke
 // posisi prominent dekat meja biar user gampang akses tanpa harus
 // orbit ke far racks. Sisanya tetep di far racks (variety location).
-const MEJA_INTERACTIVE_IDS = ['etimologi-armeniaca', 'filosofi-armeniaca'];
+// Restored state placement — 6 buku unique funfact:
+// - Meja: kosong (Halaman Terakhir dihapus, open book = dekoratif)
+// - Stack: 2 buku (sebelum-panggung, suara-memanggil)
+// - Side table: 4 buku (anak-pohon, jaipong-akar, panggung-kecil, asal-nama)
+const MEJA_INTERACTIVE_IDS = [];
 const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'suara-memanggil'];
-// Sisa 10 buku host di side table di kiri meja utama (3 row, 4-3-3 grid).
 const SIDE_TABLE_INTERACTIVE_IDS = [
   'anak-pohon',
   'jaipong-akar',
   'panggung-kecil',
-  'new-era-saat-sistem',
   'asal-nama',
-  'linimasa-variety',
-  'era-fight-team-dream',
-  'diskografi-rapsodi',
-  'diskografi-bibir',
-  'kebaikan-pohon',
 ];
 
 // MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
@@ -2982,22 +2979,15 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 10 books: 4 row belakang + 3 tengah + 3 depan (was 9, expanded
-// untuk host panggung-kecil).
+// Layout 4 books: 2 row × 2 col. Side table sekarang hanya 4 buku
+// unique funfact yang tidak duplikat di page lain.
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.38) — 4 books
-  { dx: -0.7, dz: 0.38 },
-  { dx: -0.22, dz: 0.38 },
-  { dx: 0.22, dz: 0.38 },
-  { dx: 0.7, dz: 0.38 },
-  // Row tengah (z 0) — 3 books
-  { dx: -0.55, dz: 0 },
-  { dx: 0, dz: 0 },
-  { dx: 0.55, dz: 0 },
-  // Row depan (-z -0.38) — 3 books
-  { dx: -0.55, dz: -0.38 },
-  { dx: 0, dz: -0.38 },
-  { dx: 0.55, dz: -0.38 },
+  // Row belakang (+z 0.3) — 2 books
+  { dx: -0.5, dz: 0.3 },
+  { dx: 0.5, dz: 0.3 },
+  // Row depan (-z -0.3) — 2 books
+  { dx: -0.5, dz: -0.3 },
+  { dx: 0.5, dz: -0.3 },
 ];
 
 const SideTableBooks = ({
@@ -4280,8 +4270,8 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
   };
 
   const handleOpenBookClick = () => {
-    // Meja open book = "halaman-terakhir"
-    setSelectedBookId('halaman-terakhir');
+    // Open book di meja sekarang purely decoratif — "Halaman Terakhir"
+    // udah dihapus karena konten-nya duplikat dengan /about. Click no-op.
   };
 
   const handleCloseModal = () => {
