@@ -2232,6 +2232,104 @@ const LenternaSparks = () => {
   );
 };
 
+// LightPoolFloor — soft radial gradient circle di lantai bawah lentera
+// & wax candle (saat restored), simulate "pool of light" yang real lights
+// kasih (postprocessing Bloom + point light kerasa ke radial decal).
+const LightPoolFloor = ({ restored }) => (
+  <>
+    {/* Pool dari lentera meja — always-on, posisi mirror lentera xz */}
+    <mesh
+      position={[-0.85, 0.012, 0.35]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <circleGeometry args={[1.3, 28]} />
+      <meshBasicMaterial
+        color="#f4a060"
+        transparent
+        opacity={0.07}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+    {/* Pool dari wax candle — restored only, posisi mirror candle xz */}
+    {restored && (
+      <mesh
+        position={[0.65, 0.012, -0.15]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <circleGeometry args={[0.5, 20]} />
+        <meshBasicMaterial
+          color="#f4a060"
+          transparent
+          opacity={0.06}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+    )}
+  </>
+);
+
+// DistantBird — drought only. 1 bird silhouette lewat di luar wall
+// breach setiap ~22 detik (slow rare event, kerasa "kota mati tapi
+// ada makhluk lewat sesekali"). Pas lewat sebentar (3.3s), abis itu
+// hidden. Pakai 2 plane wing yang flap via rotation.
+const DistantBird = () => {
+  const groupRef = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const cycleSec = 22;
+    const cycleT = (t % cycleSec) / cycleSec;
+    if (cycleT < 0.15) {
+      const localT = cycleT / 0.15;
+      // Move right to left di luar breach (-X side, z=4-6)
+      // Bird visible from inside ruangan lewat breach gap
+      groupRef.current.position.set(
+        -ROOM_W / 2 - 6 + localT * 14,
+        4.5 + Math.sin(localT * 6) * 0.4,
+        4.5,
+      );
+      groupRef.current.visible = true;
+      // Wing flap fast
+      const flap = Math.sin(t * 14) * 0.5;
+      if (wingLRef.current) wingLRef.current.rotation.z = Math.PI / 8 + flap;
+      if (wingRRef.current) wingRRef.current.rotation.z = -Math.PI / 8 - flap;
+    } else {
+      groupRef.current.visible = false;
+    }
+  });
+  return (
+    <group ref={groupRef} visible={false}>
+      {/* Body */}
+      <mesh>
+        <boxGeometry args={[0.08, 0.025, 0.04]} />
+        <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+      </mesh>
+      {/* Left wing */}
+      <mesh ref={wingLRef} position={[0, 0.01, 0]}>
+        <planeGeometry args={[0.24, 0.05]} />
+        <meshStandardMaterial
+          color="#1a0e08"
+          roughness={0.95}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* Right wing — mirrored */}
+      <mesh ref={wingRRef} position={[0, 0.01, 0]} rotation={[0, Math.PI, 0]}>
+        <planeGeometry args={[0.24, 0.05]} />
+        <meshStandardMaterial
+          color="#1a0e08"
+          roughness={0.95}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+};
+
 // WaterDripFromCeiling — drought only. Single droplet jatuh dari atap
 // jebol (~-3, 6, 6) ke lantai (-3, 0, 6) di interval random. Hint
 // "atap bocor, hujan udah pernah masuk." 3 droplet di-stagger phase.
@@ -2714,6 +2812,7 @@ const ArsipScene = ({
       <CameraFlyIn onComplete={onFlyInComplete} />
 
       <Floor />
+      <LightPoolFloor restored={restored} />
       <Walls restored={restored} />
       <Ceiling />
       <WallCracks />
@@ -2729,6 +2828,7 @@ const ArsipScene = ({
           <Cobwebs />
           <Spiders />
           <WaterDripFromCeiling />
+          <DistantBird />
           <WindStreamlines isMobile={isMobile} />
           <DustFootprints />
           <FallenBookPile />
