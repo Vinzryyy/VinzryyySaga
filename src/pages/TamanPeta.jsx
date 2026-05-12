@@ -3986,7 +3986,7 @@ const TamanPetaIntroTitle = () => {
             letterSpacing: '0.01em',
           }}
         >
-          Bencana datang. Padang di luar pun kering.
+          Dulu, di sini, ada kota yang dibangun dari cinta.
         </p>
         <div className="mx-auto mb-3 w-10 h-px bg-white/25" />
         <p
@@ -3997,13 +3997,13 @@ const TamanPetaIntroTitle = () => {
             letterSpacing: '0.02em',
           }}
         >
-          Tapi di sini — pohon ini menolak gugur,
+          Sekarang sunyi — pohon-pohon mati,
           <br className="hidden sm:inline" />
-          {' '}enam bab kenangan masih bercahaya di sekelilingnya.
+          {' '}telaga mengering, jejak hilang ditelan pasir.
           <br className="hidden sm:inline" />
-          {' '}Tiap bab yang kau baca menumbuhkan satu pohon
+          {' '}Tapi kota ini gak bener-bener mati.
           <br className="hidden sm:inline" />
-          {' '}di padang yang rusak. Mulai dari bab pertama.
+          {' '}Dia cuma nungguin kebaikan kembali datang.
         </p>
       </div>
     </div>
@@ -4482,9 +4482,9 @@ const TamanPetaPage = () => {
           onClose={handlePetakPreviewClose}
           onConfirm={handlePetakPreviewConfirm}
         />
-        {/* Intro title, restoration indicator, footer hint, dan petak
-            detail modal sengaja di-disable selama blank-slate mode.
-            Re-enable kalau redesign udah jelas mau pakai komponen mana. */}
+        {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
+            selesai, persisted via localStorage. */}
+        {!petakPreview && <TamanPetaIntroTitle />}
         <AmbientAudio profile="taman" position="top-right" />
         <RotateRecommendation />
         {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
