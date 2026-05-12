@@ -1648,22 +1648,35 @@ const DroughtRing = ({ purified = false }) => (
         roughness={1}
       />
     </mesh>
-    {/* Inner gradient ring — purified: extend inward (5.5 → 11.5)
-        supaya nutup gap antara petak hex (radius 5) dan outer ring,
-        gak ada dark moss zone keliatan kayak "lubang". Drought tetep
-        narrow band 9.5-11.5 (sun-bleached transition). */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
-      <ringGeometry
-        args={purified ? [5.5, 11.5, 64] : [9.5, 11.5, 64]}
-      />
-      <meshStandardMaterial
-        color={purified ? '#5a7038' : '#7a5535'}
-        roughness={1}
-        transparent
-        opacity={purified ? 0.85 : 0.75}
-      />
-    </mesh>
-    {/* Scattered patches — dry sand (drought) atau flower bed (purified) */}
+    {/* Inner meadow carpet — purified: full disc (0-11.5) nutup pusat
+        hex juga supaya gak ada dark moss "hole" di tengah scene yang
+        keliatan kayak floor base color bocor. Drought tetep narrow
+        band 9.5-11.5 (sun-bleached transition). Y=0.0015 di bawah
+        petak pedestal (0.04+) + visited halo (0.025+), gak z-fight. */}
+    {purified ? (
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+        <circleGeometry args={[11.5, 64]} />
+        <meshStandardMaterial
+          color="#5a7038"
+          roughness={1}
+          transparent
+          opacity={0.92}
+        />
+      </mesh>
+    ) : (
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+        <ringGeometry args={[9.5, 11.5, 64]} />
+        <meshStandardMaterial
+          color="#7a5535"
+          roughness={1}
+          transparent
+          opacity={0.75}
+        />
+      </mesh>
+    )}
+    {/* Scattered patches — dry sand (drought) atau flower bed (purified).
+        Purified: tone shift closer to meadow (#6a8848) supaya gak
+        kerasa "spot" terang nge-pop kayak lubang/bercak. */}
     {DROUGHT_PATCH_DEFS.map((p, i) => (
       <mesh
         key={`dp-${i}`}
@@ -1673,7 +1686,7 @@ const DroughtRing = ({ purified = false }) => (
       >
         <circleGeometry args={[0.5, 8]} />
         <meshStandardMaterial
-          color={purified ? '#7a9858' : '#8a6535'}
+          color={purified ? '#6a8848' : '#8a6535'}
           roughness={1}
         />
       </mesh>
@@ -4598,7 +4611,9 @@ const TamanScene = ({
       />
       <TamanFloor purified={purified} />
       <DroughtRing purified={purified} />
-      {purified && <MossOverlay />}
+      {/* MossOverlay sengaja gak di-render — DroughtRing purified udah
+          ngasih lush meadow carpet yg lebih lebar, MossOverlay patches
+          jadi keliatan banding spot di atasnya. */}
       {purified && <FlowerClusters isMobile={isMobile} />}
       {purified && <GrassBlades isMobile={isMobile} />}
       <PetaFootprintTrails />
