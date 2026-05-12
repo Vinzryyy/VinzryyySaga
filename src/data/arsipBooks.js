@@ -156,72 +156,108 @@ export const ARSIP_BOOKS = [
     },
   },
 
-  // === RAK NE (utuh, drought) — Linimasa era awal ===
+  // === RAK NE (utuh, drought) — Origin stories ===
+  // Buku-buku linimasa lama (trainee, theater, senbatsu-newera) diganti
+  // dengan stories yang gak duplikat dengan Konstelasi Perjalanan (r1).
+  // Linimasa kronologis udah di-cover di sana via bintang per milestone.
+  // Di Arsip Ingatan, fokus ke biographical/anecdotal content.
   {
-    id: 'linimasa-trainee',
-    title: 'Era Trainee — Akademi & Audisi',
-    eyebrow: 'Linimasa · 2018',
-    category: CATEGORIES.LINIMASA,
-    era: 'trainee',
-    source: 'ELI_TIMELINE',
+    id: 'sebelum-panggung',
+    title: 'Sebelum Panggung — Jalan yang Hampir Berbeda',
+    eyebrow: 'Cerita · Sebelum JKT48',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Armeniaca · curated trivia',
     rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
     spineColor: '#fff5c8',
-    preview: 'Tiga langkah pertama: audisi, sousenkyo perdana, naik kelas.',
+    preview:
+      'Teknik elektro, akademi pramugari, dan pilihan terakhir yang membawanya ke panggung.',
     getBody: () => ({
-      type: 'timeline-section',
-      milestones: getTimelineByEra('trainee'),
+      type: 'prose-story',
+      paragraphs: [
+        'Cerita yang jarang diceritakan: sebelum Eli dikenal sebagai idol JKT48, hidupnya hampir mengalir ke dua jalan yang sama sekali berbeda.',
+        'Pertama, teknik elektro. Eli sempat masuk jurusan teknik elektro — pilihan yang praktis, jalur yang aman. Tapi rutinitas kuliah teknik bukan tempat yang membuat suaranya didengar. Akademisnya jalan, tapi bagian yang paling hidup dalam dirinya — bagian yang ingin tampil, ingin bernyanyi, ingin bertemu banyak orang — tetap diam.',
+        'Kedua, pramugari. Eli hampir saja menempuh jalan ini. Sudah sampai tahap akan training di Malaysia. Hampir terbang. Bayangkan kalau cerita itu yang jadi: Eli dengan seragam pramugari, melayani penumpang di kabin pesawat, melintasi negara-negara, hidup yang glamor tapi anonim.',
+        'Tapi entah bagaimana — di tengah persimpangan itu — audisi JKT48 muncul. Dan Eli memilih panggung.',
+        'Pilihan itu bukan tanpa risiko. JKT48 berarti meninggalkan teknik, meninggalkan rencana pramugari, meninggalkan jalur yang sudah hampir terlihat ujungnya. Tapi Eli memilih cahaya panggung yang belum pernah dia rasakan, daripada langit yang sudah pernah dia bayangkan.',
+        'Sekarang, bertahun-tahun setelahnya, kita bisa lihat: pilihan itu yang membuat kita mengenalnya sebagai Ceu Eli, bukan sebagai Pramugari Helisma Putri Kurnia di salah satu maskapai. Dan dunia, di area kecilnya yang bernama Theater JKT48, jadi sedikit lebih hangat karena pilihan itu.',
+      ],
     }),
   },
   {
-    id: 'linimasa-theater',
-    title: 'Era Theater — Panggung Pertama',
-    eyebrow: 'Linimasa · 2018-2019',
-    category: CATEGORIES.LINIMASA,
-    era: 'theater',
-    source: 'ELI_TIMELINE',
+    id: 'suara-memanggil',
+    title: 'Suaranya yang Memanggil',
+    eyebrow: 'Cerita · Vokal',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Armeniaca · curated observation',
     rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
     spineColor: '#e8b878',
-    preview: 'Theater no Megami, Team KIII, dan 100 show pertama.',
+    preview:
+      'Bukan suara paling melengking, tapi yang menenangkan dengan kejujurannya.',
     getBody: () => ({
-      type: 'timeline-section',
-      milestones: getTimelineByEra('theater'),
+      type: 'prose-story',
+      paragraphs: [
+        'Sebelum jadi senbatsu, sebelum jadi shonichi singer — Eli punya satu hal yang langsung dikenali sejak masa trainee: suaranya.',
+        'Vokalnya yang menonjol. Bukan suara paling melengking, bukan suara paling tinggi, bukan teknik vokal yang paling sempurna. Tapi ada kehangatan dan kejernihan tertentu di suaranya yang membuat orang di Theater berhenti sebentar saat dia menyanyi solo. Kerasa seperti suara yang memanggil pulang — bukan suara yang menarik perhatian dengan kemewahan, tapi suara yang menenangkan dengan kejujurannya.',
+        'Vokalnya kemudian membawanya ke partisipasi di banyak single — dari Rapsodi sebagai senbatsu pertama, ke Darashinai Aishikata di era New Era, Sayonara Crawl, sampai SPV Langit Biru Cinta Searah. Tiap penampilan bukan sekadar slot — ada bagian solo atau bridge yang dia bawa dengan cara yang khas dirinya.',
+        'Dan tidak hanya di studio. Di theater, di event, di live streaming — suaranya yang membuat fans betah. Bahkan ketika hanya ngobrol di IDN Live, ada nada di suaranya yang membuat orang merasa diajak ngobrol oleh teman lama, bukan oleh idol di layar.',
+        'Suara itu yang membawa dirinya melewati transisi besar JKT48 — dari Team KIII, ke New Era, sampai Team Dream di era Fight 2026. Tim berganti, sistem berganti, tapi suara yang membawa pesan tetap sama. Suara yang memanggil pulang.',
+      ],
     }),
   },
   {
-    id: 'linimasa-senbatsu-newera',
-    title: 'Era Senbatsu & New Era',
-    eyebrow: 'Linimasa · 2020-2021',
-    category: CATEGORIES.LINIMASA,
-    era: 'senbatsu-newera',
-    source: 'ELI_TIMELINE',
+    id: 'new-era-saat-sistem',
+    title: 'New Era — Saat Sistem Lama Bubar',
+    eyebrow: 'Cerita · Transisi 2021',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Armeniaca · curated reflection',
     rakSlot: RAK_SLOTS.NE,
     unlockTier: UNLOCK_TIERS.DROUGHT,
     spineColor: '#3a4858',
     preview:
-      'Rapsodi, restrukturisasi besar, Darashinai Aishikata, 200 show.',
+      'Saat Team J, KIII, dan T dibubarkan. Apa rasanya bertahan ketika rumahmu hilang?',
     getBody: () => ({
-      type: 'timeline-section',
-      milestones: getTimelineByEra('senbatsu-newera'),
+      type: 'prose-story',
+      paragraphs: [
+        'Maret 2021, JKT48 mengumumkan sesuatu yang mengejutkan: sistem Team J, Team KIII, dan Team T resmi dibubarkan. Tidak ada lagi tim. Semua member dilebur menjadi satu formasi tunggal — JKT48 New Era.',
+        'Bagi member yang sudah lama berada di tim tertentu, ini bukan sekadar reshuffle administratif. Ini perubahan identitas. Selama bertahun-tahun, "Team KIII" bukan cuma label — itu adalah keluarga harian, jadwal harian, bahkan kostum harian. Dan tiba-tiba semua itu hilang.',
+        'Eli, yang sudah promosi dari Academy ke Team KIII pada Juli 2019, ikut melewati transisi ini. Dari segi karier, dia sudah punya momentum: senbatsu pertama di Rapsodi (Januari 2020), 100 show theater di Saka Agari (Desember 2019). Tapi New Era artinya semua momentum itu di-reset — bukan diturunkan, tapi dimasukkan ke wadah baru yang belum dikenal siapa-siapa.',
+        'Era New Era bukan masa yang glamor. Pandemi membatasi aktivitas live, jadwal theater dikurangi, sosial media jadi panggung utama. Single Darashinai Aishikata dirilis di tengah masa yang penuh ketidakpastian. Tapi Eli tetap konsisten — penampilannya di theater terus berlanjut, sampai akhirnya mencapai 200 show pada November 2021 di setlist Renai Kinshi Jourei.',
+        'Dari sudut pandang penggemar, era New Era adalah masa krisis identitas grup. Tapi dari sudut pandang Eli secara personal, era ini adalah ujian kesabaran: bertahan ketika sistem yang membentukmu tiba-tiba dibubarkan, dan tetap bekerja seperti tidak ada yang berubah.',
+        'Era ini berlangsung sampai akhir 2025, sebelum sistem 3 tim dibangkitkan kembali dalam format JKT48 Fight. Tapi Eli yang melewati New Era bukan Eli yang masuk audisi 2018. Dia sudah jadi Eli yang lain — Eli yang tahu rasanya sistem yang dia kenal hilang, dan tetap memilih untuk bertahan.',
+      ],
     }),
   },
 
-  // === RAK W (tumbang, restored) — Era tengah ===
+  // === RAK W (tumbang, restored) — Origin story tambahan ===
   {
-    id: 'linimasa-mature',
-    title: 'Era Mature — Konsistensi',
-    eyebrow: 'Linimasa · 2023-2024',
-    category: CATEGORIES.LINIMASA,
-    era: 'mature',
-    source: 'ELI_TIMELINE',
+    id: 'asal-nama',
+    title: 'Asal Nama, Asal Cerita',
+    eyebrow: 'Cerita · Identitas',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Armeniaca · curated trivia',
     rakSlot: RAK_SLOTS.W,
     unlockTier: UNLOCK_TIERS.RESTORED,
     spineColor: '#7a3030',
-    preview: 'Sayonara Crawl, SPV Langit Biru, 300 show, Undergirls.',
+    preview:
+      'Dua nama melekat: yang dibuat ayahnya, dan yang lahir dari komunitas.',
     getBody: () => ({
-      type: 'timeline-section',
-      milestones: getTimelineByEra('mature'),
+      type: 'prose-story',
+      paragraphs: [
+        'Ada dua nama yang melekat ke Eli: nama yang dia bawa sejak lahir, dan nama yang diberikan oleh komunitas.',
+        '— Helisma Mauludzunia Putri Kurnia.',
+        'Nama "Helisma" bukan nama yang umum. Bahkan jarang ditemukan di luar diri Eli sendiri. Ada cerita di balik itu: nama ini dibuat oleh ayahnya, dirakit secara spontan dari gabungan nama keluarga dan beberapa kata tambahan. Tidak dari kitab nama bayi, tidak dari nama tokoh, tidak dari nama yang sedang trend pada masanya. Dirakit. Dari potongan-potongan keluarga + intuisi ayah pada satu momen tertentu.',
+        'Mungkin itu sebabnya namanya terasa khusus. Karena memang dibuat khusus untuknya saja.',
+        '— Ceu Eli.',
+        'Tapi ada nama kedua yang membuat namanya melekat di hati banyak orang. Bukan nama lahir, tapi nama yang lahir dari komunitas: "Ceu Eli."',
+        'Awalnya julukan ini muncul dari senior di Team T. "Ceu" dalam bahasa Sunda berarti "kakak perempuan" — bentuk penyebutan hormat yang akrab. Mungkin sekadar candaan di awal, mungkin sekadar penegasan tentang asal-usulnya yang Bandung. Tapi entah bagaimana, julukan itu melekat. Pelan-pelan menyebar dari senior, ke teman segen, ke fans, sampai sekarang lebih banyak orang yang memanggilnya "Ceu Eli" daripada memanggilnya "Helisma."',
+        'Dua nama, dua cerita. Yang pertama menandai dia sebagai anak yang istimewa di keluarganya. Yang kedua menandai dia sebagai sosok kakak perempuan yang dijaga oleh komunitasnya. Tidak ada yang lebih sah dari yang lain — keduanya benar.',
+      ],
     }),
   },
   {
@@ -361,10 +397,10 @@ export const getRakSiblings = (bookId, restored = true) => {
 export const PEDESTAL_ANGLES = {
   'etimologi-armeniaca': 135,        // NW
   'filosofi-armeniaca': 165,         // W-NW
-  'linimasa-trainee': 105,           // N-NE
-  'linimasa-theater': 75,            // NE
-  'linimasa-senbatsu-newera': 45,    // E-NE
-  'linimasa-mature': 15,             // E
+  'sebelum-panggung': 105,           // N-NE
+  'suara-memanggil': 75,             // NE
+  'new-era-saat-sistem': 45,         // E-NE
+  'asal-nama': 15,                   // E (restored unlock)
   'linimasa-variety': 345,           // E-SE
   'era-fight-team-dream': 315,       // SE
   'diskografi-rapsodi': 285,         // S-SE
@@ -385,10 +421,10 @@ export const ARSIP_STORY_ORDER = [
   'halaman-terakhir',
   'etimologi-armeniaca',
   'filosofi-armeniaca',
-  'linimasa-trainee',
-  'linimasa-theater',
-  'linimasa-senbatsu-newera',
-  'linimasa-mature',
+  'sebelum-panggung',
+  'suara-memanggil',
+  'new-era-saat-sistem',
+  'asal-nama',
   'linimasa-variety',
   'era-fight-team-dream',
   'diskografi-rapsodi',

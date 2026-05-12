@@ -121,6 +121,39 @@ const ProseWithMotifsBody = ({ body }) => (
   </div>
 );
 
+// ProseStoryBody — long-form prose narrative (3-6 paragraphs).
+// Drop cap di paragraf pertama, italic typographic break antar
+// paragraf. Untuk story/curated content panjang.
+const ProseStoryBody = ({ body }) => (
+  <div className="space-y-5">
+    {body.paragraphs.map((p, i) => (
+      <p
+        key={i}
+        className="text-[color:var(--retro-brown-dark)] leading-[1.75]"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontSize: '17px',
+        }}
+      >
+        {i === 0 && p.length > 1 && (
+          <span
+            className="float-left text-[color:var(--retro-burgundy)] mr-2"
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontSize: '54px',
+              lineHeight: '0.85',
+              fontWeight: 600,
+            }}
+          >
+            {p.charAt(0)}
+          </span>
+        )}
+        {i === 0 ? p.slice(1) : p}
+      </p>
+    ))}
+  </div>
+);
+
 const PhilosophyBody = ({ body }) => (
   <div className="space-y-6">
     <blockquote
@@ -560,6 +593,8 @@ const BookBody = ({ book }) => {
       return <QuoteBody body={body} />;
     case 'prose-with-motifs':
       return <ProseWithMotifsBody body={body} />;
+    case 'prose-story':
+      return <ProseStoryBody body={body} />;
     case 'philosophy':
       return <PhilosophyBody body={body} />;
     case 'timeline-section':

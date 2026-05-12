@@ -2705,11 +2705,11 @@ const BookPedestalsNearMeja = ({
 // posisi prominent dekat meja biar user gampang akses tanpa harus
 // orbit ke far racks. Sisanya tetep di far racks (variety location).
 const MEJA_INTERACTIVE_IDS = ['etimologi-armeniaca', 'filosofi-armeniaca'];
-const STACK_INTERACTIVE_IDS = ['linimasa-trainee', 'linimasa-theater'];
-// 7 buku sisanya host di side table baru di utara meja utama.
+const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'suara-memanggil'];
+// 7 buku sisanya host di side table baru di kiri meja utama.
 const SIDE_TABLE_INTERACTIVE_IDS = [
-  'linimasa-senbatsu-newera',
-  'linimasa-mature',
+  'new-era-saat-sistem',
+  'asal-nama',
   'linimasa-variety',
   'era-fight-team-dream',
   'diskografi-rapsodi',
