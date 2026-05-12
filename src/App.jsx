@@ -74,6 +74,14 @@ const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
 const TamanKolamKataGersangPage = lazy(() =>
   import('./pages/TamanKolamKataGersang')
 );
+// r2 (Arsip Ingatan) — petak perpustakaan, indoor scene. Single file
+// dengan prop `restored` (beda dari r1/r3 yang split jadi dua file
+// gersang/restored). Diff antar state-nya kecil (rak rotation + paper
+// count + book availability), gak architectural — single file lebih
+// sehat dipelihara.
+const TamanArsipIngatanPage = lazy(() =>
+  import('./pages/TamanArsipIngatan')
+);
 // Denyut — heartbeat website (presence-driven pulse visual). Standalone
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
@@ -131,6 +139,11 @@ const ScrollManager = () => {
 // Override hanya berlaku di chooser r1 / r3 (gak nge-unlock map).
 const MAP_UNLOCK_THRESHOLD = 2000;
 const R1_RESTORATION_THRESHOLD = 4000;
+// r2 (Arsip Ingatan) — pattern sama dengan r1: accessible saat peta
+// terbuka (>=2000), drought sampai 4999, restored di 5000. Mengisi gap
+// pacing antara r1 restored (4000) dan r3 restored (6000) — tiap 1000
+// count ada milestone restorasi.
+const R2_RESTORATION_THRESHOLD = 5000;
 const R3_UNLOCK_THRESHOLD = 4000;
 const R3_RESTORATION_THRESHOLD = 6000;
 
@@ -198,6 +211,38 @@ const TamanPetaRouteGuard = () => {
 //   count >= 6000 → render canonical (TamanKolamKata)
 // Dev override ?restoration=0|1 paksa pilih variant (gak bypass unlock —
 // route guard pakai R3_UNLOCK_THRESHOLD, terpisah dari restorasi).
+// r2 (Arsip Ingatan) chooser — accessible bareng peta (>=2000), gak
+// punya locked tier (selaras r1). Drought sampai 4999, restored di
+// 5000. Pakai single file dengan prop `restored` (beda dari r1/r3 yang
+// chooser-nya swap component file).
+//
+// Pre-peta (count < 2000) akses langsung /armeniacaTown/r2 di-redirect
+// ke /armeniacaTown — sama treatment dengan r1/r3 sebelum peta open.
+const TamanR2RouteChooser = () => {
+  const { count, loaded } = useTreeSupportCount();
+  const [searchParams] = useSearchParams();
+  const override = import.meta.env.DEV
+    ? searchParams.get('restoration')
+    : null;
+  const forceUnlock =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
+
+  if (override !== null) {
+    const n = parseFloat(override);
+    const restored = !Number.isNaN(n) && n >= 0.5;
+    return <TamanArsipIngatanPage restored={restored} />;
+  }
+  if (forceUnlock) {
+    return <TamanArsipIngatanPage restored={false} />;
+  }
+  if (!loaded) return <PageLoader />;
+  if (count < MAP_UNLOCK_THRESHOLD) {
+    return <Navigate to="/armeniacaTown" replace />;
+  }
+  const restored = count >= R2_RESTORATION_THRESHOLD;
+  return <TamanArsipIngatanPage restored={restored} />;
+};
+
 const TamanR3RouteChooser = () => {
   const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
@@ -273,6 +318,7 @@ function AppShell() {
             <Route path="/armeniacaTown" element={<TamanPage />} />
             <Route path="/armeniacaTown/peta" element={<TamanPetaRouteGuard />} />
             <Route path="/armeniacaTown/r1" element={<TamanR1RouteChooser />} />
+            <Route path="/armeniacaTown/r2" element={<TamanR2RouteChooser />} />
             <Route path="/armeniacaTown/r3" element={<TamanR3RouteChooser />} />
             {/* Backward-compat: rute /taman/* dari era sebelum rebrand
                 ke /armeniacaTown. Link lama tetep valid. */}
@@ -287,6 +333,10 @@ function AppShell() {
             <Route
               path="/taman/r1"
               element={<Navigate to="/armeniacaTown/r1" replace />}
+            />
+            <Route
+              path="/taman/r2"
+              element={<Navigate to="/armeniacaTown/r2" replace />}
             />
             <Route
               path="/taman/r3"
