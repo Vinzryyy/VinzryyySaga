@@ -4455,6 +4455,56 @@ const BankTrees = ({ count }) => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
+// DROUGHT BrokenPillars — 12 pilar batu pecah scattered di banks
+// telaga. Sisa colonnade kuno yg dulu nge-frame taman, sekarang
+// tinggal stubs + cap pecah. Port dari r1 PillarRuins, scaled buat
+// area r3 yg lebih luas. Posisi hindari path/lake/struktur existing
+// (gazebo, torii, mailbox, dll).
+const BROKEN_PILLAR_DEFS = [
+  { pos: [-9, 0, -7], h: 1.8, tilt: -0.08 },
+  { pos: [9, 0, -8], h: 0.6, tilt: 0.12 },
+  { pos: [-9, 0, 5], h: 1.3, tilt: -0.05 },
+  { pos: [9, 0, 6], h: 0.5, tilt: 0.18 },
+  { pos: [-15, 0, -1], h: 1.5, tilt: 0.1 },
+  { pos: [15, 0, 3], h: 0.9, tilt: -0.08 },
+  { pos: [-7, 0, -20], h: 1.6, tilt: 0.15 },
+  { pos: [5, 0, -19], h: 0.7, tilt: -0.12 },
+  { pos: [-3, 0, 22], h: 1.2, tilt: 0.06 },
+  { pos: [13, 0, 18], h: 0.5, tilt: -0.18 },
+  { pos: [-18, 0, 8], h: 1.4, tilt: 0.09 },
+  { pos: [16, 0, -4], h: 0.8, tilt: -0.1 },
+];
+const BrokenPillar = ({ pos, h, tilt }) => (
+  <group position={pos} rotation={[0, 0, tilt]}>
+    {/* Base block — square footing */}
+    <mesh position={[0, 0.12, 0]} castShadow>
+      <boxGeometry args={[0.65, 0.24, 0.65]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+    {/* Pilar shaft */}
+    <mesh position={[0, 0.24 + h / 2, 0]} castShadow>
+      <cylinderGeometry args={[0.2, 0.24, h, 8]} />
+      <meshStandardMaterial color="#7a6e5e" roughness={1} />
+    </mesh>
+    {/* Patah cap di atas — irregular flat */}
+    <mesh
+      position={[0, 0.26 + h, 0]}
+      rotation={[0.05, 0, 0.08]}
+      castShadow
+    >
+      <cylinderGeometry args={[0.17, 0.21, 0.1, 8]} />
+      <meshStandardMaterial color="#4a3e2e" roughness={1} />
+    </mesh>
+  </group>
+);
+const BrokenPillars = () => (
+  <>
+    {BROKEN_PILLAR_DEFS.map((p, i) => (
+      <BrokenPillar key={`bpillar-${i}`} {...p} />
+    ))}
+  </>
+);
+
 // DROUGHT CrowsFlock — 5 burung gagak silhouette terbang lazy circles
 // di atas lake. Black-on-smoggy-sky kerasa banget abandoned dead-town
 // vibe. Lazy circle motion (slow lissajous), wing flap subtle, dark
@@ -5614,6 +5664,10 @@ const TelagaScene = ({
     {/* Drought decay — scattered dead branches scattered di banks
         (radius 14-18, di luar lake). Detail decay di tanah tandus. */}
     <DroughtBranches isMobile={isMobile} />
+    {/* Broken pillars — 12 sisa colonnade kuno scattered di banks.
+        Tinggi mix (0.5-1.8m), tilt acak, kerasa "dulu ada struktur
+        besar di sini, sekarang tinggal puing". */}
+    <BrokenPillars />
     {/* Polusi — soft round particles drifting warna dirty smog brown,
         match r1 gersang PollutedAir. Spread di area 50×50 (lebih luas
         dari r1 karena r3 area gede). */}
