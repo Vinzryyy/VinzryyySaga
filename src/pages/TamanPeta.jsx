@@ -1069,7 +1069,6 @@ const PetaArsip = ({
   onClick,
 }) => {
   const groupRef = useRef();
-  const papersRef = useRef();
   const windowMatRef = useRef();
 
   useFrame((state, delta) => {
@@ -1082,30 +1081,10 @@ const PetaArsip = ({
         factor,
       );
     }
-    if (papersRef.current) {
-      const t = state.clock.elapsedTime;
-      papersRef.current.children.forEach((p, i) => {
-        if (petakState === 'restored') {
-          // Orbit teratur di sekitar petak
-          const angle = t * 0.4 + (i * Math.PI) / 2;
-          p.position.x = Math.cos(angle) * 1.1;
-          p.position.z = Math.sin(angle) * 1.1;
-          p.position.y = 0.4 + Math.sin(t * 1.2 + i) * 0.08;
-          p.rotation.y = angle + Math.PI / 2;
-        } else {
-          // Drought — random drift, kerasa berserakan
-          const phase = i * 1.7;
-          p.position.x = Math.cos(t * 0.18 + phase) * 1.4;
-          p.position.z = Math.sin(t * 0.22 + phase * 0.7) * 1.3;
-          p.position.y = 0.2 + Math.sin(t * 0.4 + phase) * 0.12;
-          p.rotation.y = phase + t * 0.15;
-        }
-      });
-    }
     if (windowMatRef.current && petakState === 'restored') {
       const t = state.clock.elapsedTime;
       windowMatRef.current.emissiveIntensity =
-        0.4 + Math.sin(t * 0.6) * 0.12;
+        0.22 + Math.sin(t * 0.6) * 0.06;
     }
   });
 
@@ -1204,21 +1183,6 @@ const PetaArsip = ({
         <meshStandardMaterial color="#3a2820" roughness={0.95} />
       </mesh>
 
-      {/* 4 paper plane mengambang — pakai standard tone-mapping (gak
-          override toneMapped=false) supaya gak lewatin Bloom threshold
-          0.78 jadi 4 bright dots. Warna sepia muted, bukan cream cerah. */}
-      <group ref={papersRef}>
-        {[0, 1, 2, 3].map((i) => (
-          <mesh key={`pp-${i}`} position={[0, 0.3, 0]}>
-            <planeGeometry args={[0.16, 0.1]} />
-            <meshStandardMaterial
-              color="#9a7a58"
-              roughness={0.95}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        ))}
-      </group>
 
       <Html position={[0, 1.5, 0]} center distanceFactor={10} occlude={false}>
         <div
