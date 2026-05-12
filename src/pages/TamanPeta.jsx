@@ -1687,9 +1687,9 @@ const FLOWER_PALETTE = [
 ];
 const FLOWER_CLUSTER_DEFS = (() => {
   const arr = [];
-  for (let i = 0; i < 24; i++) {
+  for (let i = 0; i < 28; i++) {
     const angle =
-      (i / 24) * Math.PI * 2 + ((i * 19) % 13) * 0.09;
+      (i / 28) * Math.PI * 2 + ((i * 19) % 13) * 0.09;
     // Radius distribution: 60% di outer ring (10-15), 40% inner edge (7-9.5)
     const inner = i % 5 < 2;
     const r = inner ? 7 + ((i * 7) % 5) * 0.5 : 10.5 + ((i * 11) % 9) * 0.6;
@@ -1698,6 +1698,7 @@ const FLOWER_CLUSTER_DEFS = (() => {
       pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
       scale: 0.7 + ((i * 13) % 5) * 0.15,
       tilt,
+      swayPhase: ((i * 41) % 100) * 0.063,
       colors: [
         FLOWER_PALETTE[i % FLOWER_PALETTE.length],
         FLOWER_PALETTE[(i + 2) % FLOWER_PALETTE.length],
@@ -1707,52 +1708,63 @@ const FLOWER_CLUSTER_DEFS = (() => {
   }
   return arr;
 })();
-const FlowerCluster = ({ pos, scale, tilt, colors }) => (
-  <group position={pos} scale={scale} rotation={[0, 0, tilt]}>
-    {/* Stem — thin tall green cylinder */}
-    <mesh position={[0, 0.18, 0]}>
-      <cylinderGeometry args={[0.012, 0.018, 0.36, 5]} />
-      <meshStandardMaterial color="#4a6838" roughness={0.95} />
-    </mesh>
-    {/* 2 small leaves di mid-stem */}
-    <mesh position={[0.05, 0.15, 0]} rotation={[0, 0, -0.6]}>
-      <boxGeometry args={[0.08, 0.025, 0.015]} />
-      <meshStandardMaterial color="#5a7a48" roughness={0.95} />
-    </mesh>
-    <mesh position={[-0.05, 0.2, 0.02]} rotation={[0, 0, 0.7]}>
-      <boxGeometry args={[0.07, 0.022, 0.015]} />
-      <meshStandardMaterial color="#5a7a48" roughness={0.95} />
-    </mesh>
-    {/* 3 petal blooms di top, sedikit offset utk volume */}
-    <mesh position={[0, 0.38, 0]}>
-      <sphereGeometry args={[0.075, 8, 6]} />
-      <meshStandardMaterial
-        color={colors[0]}
-        emissive={colors[0]}
-        emissiveIntensity={0.18}
-        roughness={0.6}
-      />
-    </mesh>
-    <mesh position={[0.06, 0.36, 0.04]}>
-      <sphereGeometry args={[0.055, 8, 6]} />
-      <meshStandardMaterial
-        color={colors[1]}
-        emissive={colors[1]}
-        emissiveIntensity={0.15}
-        roughness={0.6}
-      />
-    </mesh>
-    <mesh position={[-0.05, 0.36, -0.04]}>
-      <sphereGeometry args={[0.05, 8, 6]} />
-      <meshStandardMaterial
-        color={colors[2]}
-        emissive={colors[2]}
-        emissiveIntensity={0.15}
-        roughness={0.6}
-      />
-    </mesh>
-  </group>
-);
+// Subtle wind sway — rotation.z oscillates around base tilt dgn phase
+// per cluster (deterministic seed) supaya gak in-sync, kerasa angin
+// bertiup pelan natural.
+const FlowerCluster = ({ pos, scale, tilt, swayPhase, colors }) => {
+  const groupRef = useRef();
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.rotation.z = tilt + Math.sin(t * 0.8 + swayPhase) * 0.08;
+  });
+  return (
+    <group ref={groupRef} position={pos} scale={scale} rotation={[0, 0, tilt]}>
+      {/* Stem — thin tall green cylinder */}
+      <mesh position={[0, 0.18, 0]}>
+        <cylinderGeometry args={[0.012, 0.018, 0.36, 5]} />
+        <meshStandardMaterial color="#4a6838" roughness={0.95} />
+      </mesh>
+      {/* 2 small leaves di mid-stem */}
+      <mesh position={[0.05, 0.15, 0]} rotation={[0, 0, -0.6]}>
+        <boxGeometry args={[0.08, 0.025, 0.015]} />
+        <meshStandardMaterial color="#5a7a48" roughness={0.95} />
+      </mesh>
+      <mesh position={[-0.05, 0.2, 0.02]} rotation={[0, 0, 0.7]}>
+        <boxGeometry args={[0.07, 0.022, 0.015]} />
+        <meshStandardMaterial color="#5a7a48" roughness={0.95} />
+      </mesh>
+      {/* 3 petal blooms di top, sedikit offset utk volume */}
+      <mesh position={[0, 0.38, 0]}>
+        <sphereGeometry args={[0.075, 8, 6]} />
+        <meshStandardMaterial
+          color={colors[0]}
+          emissive={colors[0]}
+          emissiveIntensity={0.18}
+          roughness={0.6}
+        />
+      </mesh>
+      <mesh position={[0.06, 0.36, 0.04]}>
+        <sphereGeometry args={[0.055, 8, 6]} />
+        <meshStandardMaterial
+          color={colors[1]}
+          emissive={colors[1]}
+          emissiveIntensity={0.15}
+          roughness={0.6}
+        />
+      </mesh>
+      <mesh position={[-0.05, 0.36, -0.04]}>
+        <sphereGeometry args={[0.05, 8, 6]} />
+        <meshStandardMaterial
+          color={colors[2]}
+          emissive={colors[2]}
+          emissiveIntensity={0.15}
+          roughness={0.6}
+        />
+      </mesh>
+    </group>
+  );
+};
 const FlowerClusters = ({ isMobile = false }) => {
   const defs = isMobile
     ? FLOWER_CLUSTER_DEFS.slice(0, 14)
@@ -1769,7 +1781,8 @@ const FlowerClusters = ({ isMobile = false }) => {
 // GrassBlades — purified-only. Thin vertical green plane sprites
 // scattered di outer ring, kasih hint "rumput tumbuh segar lagi". Tinggi
 // rendah (0.12-0.2y) supaya gak crowding peta — accent texture, bukan
-// hero element. Deterministic seed.
+// hero element. Deterministic seed. Subtle Z sway via parent useFrame +
+// refs array, phase per blade supaya rumputnya kerasa ditiup angin.
 const GRASS_BLADE_DEFS = (() => {
   const arr = [];
   for (let i = 0; i < 40; i++) {
@@ -1780,6 +1793,7 @@ const GRASS_BLADE_DEFS = (() => {
       pos: [Math.cos(angle) * r, 0.06, Math.sin(angle) * r],
       rot: ((i * 31) % 360) * (Math.PI / 180),
       height: 0.12 + ((i * 17) % 5) * 0.02,
+      swayPhase: ((i * 53) % 100) * 0.063,
     });
   }
   return arr;
@@ -1788,11 +1802,20 @@ const GrassBlades = ({ isMobile = false }) => {
   const defs = isMobile
     ? GRASS_BLADE_DEFS.slice(0, 20)
     : GRASS_BLADE_DEFS;
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    refs.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      mesh.rotation.z = Math.sin(t * 1.1 + defs[i].swayPhase) * 0.12;
+    });
+  });
   return (
     <>
       {defs.map((d, i) => (
         <mesh
           key={`grass-${i}`}
+          ref={(el) => (refs.current[i] = el)}
           position={d.pos}
           rotation={[0, d.rot, 0]}
         >
@@ -2885,41 +2908,6 @@ const MossOverlay = () => (
   </>
 );
 
-// SkyBeacon — vertical light shaft dari atas CenterTree menuju langit.
-// Cone tegak tipis transparent (radius bawah 0.05, atas 0.6, height 14),
-// warm peach gradient. Kerasa "ada cahaya akhirnya nembus ke atas",
-// signal ritual restorasi tercapai. Slow opacity pulse + slight rotation
-// untuk gentle living feel.
-const SkyBeacon = () => {
-  const matRef = useRef();
-  const groupRef = useRef();
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (matRef.current) {
-      matRef.current.opacity = 0.16 + Math.sin(t * 0.5) * 0.05;
-    }
-    if (groupRef.current) {
-      groupRef.current.rotation.y = t * 0.05;
-    }
-  });
-  return (
-    <group ref={groupRef} position={[0, 7.5, 0]}>
-      <mesh>
-        <coneGeometry args={[0.6, 14, 24, 1, true]} />
-        <meshBasicMaterial
-          ref={matRef}
-          color="#f8c898"
-          transparent
-          opacity={0.18}
-          depthWrite={false}
-          side={2}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
-  );
-};
-
 // ApricotPetals — purified-only falling petals dari sky high (10-14y)
 // turun perlahan ke 0.2y, kemudian respawn di atas. Drift X tipis +
 // gentle rotation (handled via Y bob since particle is point, not mesh).
@@ -3450,39 +3438,99 @@ const DEAD_TREE_DEFS = (() => {
   }
   return arr;
 })();
-const DeadTree = ({ pos, rot, scale, lean }) => (
+const DeadTree = ({ pos, rot, scale, lean, purified = false, reviving = false }) => (
   <group position={pos} rotation={[0, rot, lean]} scale={scale}>
-    {/* Trunk — taper bottom-wide top-narrow, sedikit nyangkut tanah */}
+    {/* Trunk — taper bottom-wide top-narrow, sedikit nyangkut tanah.
+        Purified: tone slight warmer (kerasa bark hidup lagi tipis2). */}
     <mesh position={[0, 0.9, 0]}>
       <cylinderGeometry args={[0.06, 0.14, 1.8, 6]} />
-      <meshStandardMaterial color="#2a1810" roughness={1} />
+      <meshStandardMaterial color={purified ? '#3a2418' : '#2a1810'} roughness={1} />
     </mesh>
     {/* Cabang utama kanan, miring 25° */}
     <mesh position={[0.28, 1.45, 0]} rotation={[0, 0, -0.45]}>
       <cylinderGeometry args={[0.025, 0.055, 0.85, 5]} />
-      <meshStandardMaterial color="#2a1810" roughness={1} />
+      <meshStandardMaterial color={purified ? '#3a2418' : '#2a1810'} roughness={1} />
     </mesh>
     {/* Cabang kiri, sedikit lebih kecil */}
     <mesh position={[-0.22, 1.25, 0.08]} rotation={[0.15, 0, 0.5]}>
       <cylinderGeometry args={[0.02, 0.045, 0.7, 5]} />
-      <meshStandardMaterial color="#2a1810" roughness={1} />
+      <meshStandardMaterial color={purified ? '#3a2418' : '#2a1810'} roughness={1} />
     </mesh>
     {/* Cabang atas patah */}
     <mesh position={[0.08, 1.7, -0.18]} rotation={[-0.3, 0, -0.18]}>
       <cylinderGeometry args={[0.015, 0.035, 0.55, 5]} />
-      <meshStandardMaterial color="#2a1810" roughness={1} />
+      <meshStandardMaterial color={purified ? '#3a2418' : '#2a1810'} roughness={1} />
     </mesh>
     {/* Cabang kecil tambahan */}
     <mesh position={[0.4, 1.6, 0.1]} rotation={[0, 0.2, -0.7]}>
       <cylinderGeometry args={[0.012, 0.025, 0.4, 5]} />
-      <meshStandardMaterial color="#2a1810" roughness={1} />
+      <meshStandardMaterial color={purified ? '#3a2418' : '#2a1810'} roughness={1} />
     </mesh>
+    {/* Reviving — small foliage cluster di top + 2 apricot bloom di
+        branches. Cuma di-render utk subset of trees (deterministic via
+        reviving prop). Narrative: bahkan yang dianggap mati pun balik
+        lagi, kadang. */}
+    {reviving && (
+      <>
+        {/* Foliage cluster on top of trunk — soft warm-green sphere */}
+        <mesh position={[0.08, 2.0, -0.1]}>
+          <sphereGeometry args={[0.35, 10, 8]} />
+          <meshStandardMaterial
+            color="#6a8a48"
+            emissive="#5a7838"
+            emissiveIntensity={0.12}
+            roughness={0.85}
+          />
+        </mesh>
+        {/* 2 apricot blooms on right branch end */}
+        <mesh position={[0.55, 1.7, 0]}>
+          <sphereGeometry args={[0.08, 8, 6]} />
+          <meshStandardMaterial
+            color="#f4a890"
+            emissive="#f4a890"
+            emissiveIntensity={0.25}
+            roughness={0.6}
+          />
+        </mesh>
+        <mesh position={[0.62, 1.62, 0.05]}>
+          <sphereGeometry args={[0.06, 8, 6]} />
+          <meshStandardMaterial
+            color="#f8c4a0"
+            emissive="#f8c4a0"
+            emissiveIntensity={0.22}
+            roughness={0.6}
+          />
+        </mesh>
+        {/* 1 small bloom on left branch */}
+        <mesh position={[-0.44, 1.55, 0.18]}>
+          <sphereGeometry args={[0.07, 8, 6]} />
+          <meshStandardMaterial
+            color="#fbd8d8"
+            emissive="#fbd8d8"
+            emissiveIntensity={0.2}
+            roughness={0.6}
+          />
+        </mesh>
+      </>
+    )}
   </group>
 );
 // Dead trees — ALWAYS visible (user suka aesthetic gurun rusak).
-const DeadTrees = ({ isMobile = false }) => (isMobile ? DEAD_TREE_DEFS.slice(0, 5) : DEAD_TREE_DEFS).map((d, i) => (
-  <DeadTree key={`dt-${i}`} {...d} />
-));
+// Purified: trunk tone shift slight warmer + deterministic subset (~40%)
+// dapat reviving foliage + apricot blooms. Bahkan yg paling tergores
+// pun balik, tapi cuma sebagian — narasi "yang bertahan, bukan yang
+// utuh dari awal".
+const DeadTrees = ({ isMobile = false, purified = false }) => {
+  const defs = isMobile ? DEAD_TREE_DEFS.slice(0, 5) : DEAD_TREE_DEFS;
+  return defs.map((d, i) => (
+    <DeadTree
+      key={`dt-${i}`}
+      {...d}
+      purified={purified}
+      reviving={purified && i % 5 < 2}
+    />
+  ));
+};
 
 // Recovering saplings — tumbuh di posisi BARU di drought ring (offset
 // dari dead trees, gak replacing them). N visible tergantung restoration
@@ -4565,7 +4613,7 @@ const TamanScene = ({
           ganti dengan Fireflies + ApricotPetals (life returning). */}
       <CityRuins isMobile={isMobile} />
       <DistantCityRuins isMobile={isMobile} />
-      <DeadTrees isMobile={isMobile} />
+      <DeadTrees isMobile={isMobile} purified={purified} />
       {!purified && <SandDust count={isMobile ? 50 : 100} />}
       {!purified && !isMobile && <WindStreaks count={12} />}
       {!purified && !isMobile && <HighDustShimmer count={40} />}
@@ -4574,7 +4622,6 @@ const TamanScene = ({
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
       {!purified && <DistantCrow />}
-      {purified && <SkyBeacon />}
       <CenterTree
         hovered={hoveredCenter}
         visited={previewedPetak.has('pohon')}
