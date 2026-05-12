@@ -2822,23 +2822,25 @@ const StackedBooksNearMeja = ({
   );
 };
 
-// SideTableBooks — 1 meja tambahan di utara meja utama, isi 7 buku
-// sisanya yang belum ada di meja/stack/floor. Restored only. Tiap buku
-// interactive dengan indicator orb. Side table dimensi 2.6 × 1.1,
-// books arranged 2 rows.
-const SIDE_TABLE_POS = [0, 0, 2.8]; // 2.8 unit utara dari meja utama
+// SideTableBooks — 1 meja tambahan di sebelah kiri meja utama (NYAMBUNG
+// dengan main meja di edge x=-1.2). Isi 7 buku sisanya yang belum ada di
+// meja/stack. Restored only. Side table dimensi 2.0 × 1.2 (depth sama
+// dengan main meja biar visual nyambung perfect).
+const SIDE_TABLE_POS = [-2.2, 0, 0];
+const SIDE_TABLE_W = 2.0;
+const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 7 books: 4 di row belakang (+z), 3 di row depan (-z)
+// Layout 7 books: 4 row belakang (+z), 3 row depan (-z)
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z from table center)
-  { dx: -0.9, dz: 0.3 },
-  { dx: -0.3, dz: 0.3 },
-  { dx: 0.3, dz: 0.3 },
-  { dx: 0.9, dz: 0.3 },
-  // Row depan (-z from table center)
-  { dx: -0.6, dz: -0.3 },
-  { dx: 0, dz: -0.3 },
-  { dx: 0.6, dz: -0.3 },
+  // Row belakang (+z)
+  { dx: -0.7, dz: 0.3 },
+  { dx: -0.25, dz: 0.3 },
+  { dx: 0.2, dz: 0.3 },
+  { dx: 0.65, dz: 0.3 },
+  // Row depan (-z)
+  { dx: -0.5, dz: -0.25 },
+  { dx: 0, dz: -0.25 },
+  { dx: 0.5, dz: -0.25 },
 ];
 
 const SideTableBooks = ({
@@ -2864,24 +2866,27 @@ const SideTableBooks = ({
     });
   });
   return (
-    <group position={SIDE_TABLE_POS}>
+    <group position={SIDE_TABLE_POS} rotation={[0, Math.PI / 2, 0]}>
       {/* Side table top */}
       <mesh position={[0, SIDE_TABLE_TOP_Y, 0]}>
-        <boxGeometry args={[2.6, 0.04, 1.1]} />
+        <boxGeometry args={[SIDE_TABLE_W, 0.04, SIDE_TABLE_D]} />
         <meshStandardMaterial color={COLORS.tableWood} roughness={0.75} />
       </mesh>
-      {/* 4 legs */}
-      {[[1.2, 0.45], [-1.2, 0.45], [1.2, -0.45], [-1.2, -0.45]].map(
-        ([x, z], i) => (
-          <mesh key={`stleg-${i}`} position={[x, 0.375, z]}>
-            <boxGeometry args={[0.08, 0.75, 0.08]} />
-            <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
-          </mesh>
-        ),
-      )}
+      {/* 4 legs — di-position relative to table dimensions */}
+      {[
+        [SIDE_TABLE_W / 2 - 0.08, SIDE_TABLE_D / 2 - 0.08],
+        [-(SIDE_TABLE_W / 2) + 0.08, SIDE_TABLE_D / 2 - 0.08],
+        [SIDE_TABLE_W / 2 - 0.08, -(SIDE_TABLE_D / 2) + 0.08],
+        [-(SIDE_TABLE_W / 2) + 0.08, -(SIDE_TABLE_D / 2) + 0.08],
+      ].map(([x, z], i) => (
+        <mesh key={`stleg-${i}`} position={[x, 0.375, z]}>
+          <boxGeometry args={[0.08, 0.75, 0.08]} />
+          <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
+        </mesh>
+      ))}
       {/* Lower shelf — sedikit di bawah top, kasih structure */}
       <mesh position={[0, 0.18, 0]}>
-        <boxGeometry args={[2.5, 0.02, 1.0]} />
+        <boxGeometry args={[SIDE_TABLE_W - 0.1, 0.02, SIDE_TABLE_D - 0.1]} />
         <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
       </mesh>
 
