@@ -3773,6 +3773,9 @@ const TamanScene = ({
   modalOpen = false,
   telagaState = 'locked',
   arsipState = 'drought',
+  armeniacaCount = 0,
+  armeniacaLoaded = false,
+  compassRotateRef,
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
@@ -4751,6 +4754,9 @@ const TamanPetaPage = () => {
               modalOpen={Boolean(selectedPetak) || Boolean(petakPreview)}
               telagaState={telagaState}
               arsipState={arsipState}
+              armeniacaCount={armeniacaCount}
+              armeniacaLoaded={armeniacaLoaded}
+              compassRotateRef={compassRotateRef}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
