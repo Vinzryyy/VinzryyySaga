@@ -4603,6 +4603,77 @@ const ArsipScene = ({
         </>
       )}
 
+      {/* Extra wall-filler bookshelves — restored only. Drought tetap 5
+          rak (sisanya runtuh / hilang). Restored: 4 rak baru ngisi
+          stretch dinding kosong supaya kerasa perpustakaan beneran
+          dengan rak menggelilingi ruangan. Plus 1 island rak ditengah
+          sebagai aisle divider. Semua pakai books={[]} (deco-only)
+          karena 13 buku interactive udah punya home di
+          meja/stack/sideTable/rak utama. */}
+      {restored && (
+        <>
+          {/* back-center: ngisi gap antara NW (-4.5) dan NE (+4.5) di
+              back wall */}
+          <Bookshelf
+            position={[0, 1.5, 8.7]}
+            rotation={[0, 0, 0]}
+            books={[]}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            restored
+          />
+          {/* east-north: dinding +X di pertengahan-back, z=6.
+              Clear dari ReadingLectern [5.5, 0, 5] dgn gap ~0.5. */}
+          <Bookshelf
+            position={[6.5, 1.5, 6]}
+            rotation={[0, -Math.PI / 2, 0]}
+            books={[]}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            restored
+          />
+          {/* east-south-small: dinding +X dekat pojok depan-kanan,
+              scaleH 0.75 supaya gak crowd wing chair (x=5,z=-5) area.
+              z=-7 clear dari WingChair & S rak (z=-8.5). */}
+          <Bookshelf
+            position={[6.5, 1.2, -7]}
+            rotation={[0, -Math.PI / 2, 0]}
+            books={[]}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            scaleH={0.75}
+            restored
+          />
+          {/* west-south: dinding -X antara W rak (z=2) dan card catalog
+              (z=-6), positioned z=-3 dgn clear gap ke Globe (z=-3
+              tapi di x=-5.5, far enough). */}
+          <Bookshelf
+            position={[-6.5, 1.5, -3]}
+            rotation={[0, Math.PI / 2, 0]}
+            books={[]}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            restored
+          />
+          {/* island-rak: free-standing perpendicular di tengah ruangan
+              bagian back. Books menghadap ke barat (-X, ke arah
+              center) bikin "aisle" feeling klasik perpustakaan.
+              Position [3, 1.2, 4.5] scaleH 0.85 supaya gak terlalu
+              dominan & masih ada path lewat meja ke rak back.
+              Back side ada plain wood panel (pasti gak weird karena
+              Bookshelf inset cover area sudah dark). */}
+          <Bookshelf
+            position={[3, 1.2, 4.5]}
+            rotation={[0, -Math.PI / 2, 0]}
+            books={[]}
+            hoveredId={hoveredId}
+            readIds={readIds}
+            scaleH={0.85}
+            restored
+          />
+        </>
+      )}
+
       {/* Wall & hanging batch — 6 dekorasi vertikal yang ngisi dinding
           kosong. Sebagian state-aware (map, tapestry, curtain berubah
           drought↔restored). */}
