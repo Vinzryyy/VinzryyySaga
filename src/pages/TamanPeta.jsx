@@ -3194,6 +3194,61 @@ const PetaFootprintTrail = ({ start, end, count = 9 }) => {
     </>
   );
 };
+// PathWaymarkers — small subtle glowing disc markers di sepanjang path
+// center → telaga (dan center → gerbang utara). Beda intent dari
+// footprints (personal trace memudar): waymarkers = wayfinding
+// infrastructure "ini path official". Pulse subtle untuk gentle
+// guidance feel. Coexist dgn footprints — dua layer storytelling:
+// jejak orang + jalur peta itself.
+const PathWaymarker = ({ pos, phase = 0 }) => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    matRef.current.opacity =
+      0.25 + Math.sin(state.clock.elapsedTime * 1.2 + phase) * 0.1;
+  });
+  return (
+    <mesh position={pos} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[0.16, 14]} />
+      <meshBasicMaterial
+        ref={matRef}
+        color="#a87850"
+        transparent
+        opacity={0.3}
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </mesh>
+  );
+};
+const PathWaymarkers = () => {
+  // Center [0,0,0] → Telaga [-7,0,-1]
+  const toTelaga = [];
+  for (let i = 1; i <= 3; i++) {
+    const t = i / 4;
+    toTelaga.push({
+      pos: [-7 * t, 0.015, -1 * t],
+      phase: i * 0.7,
+    });
+  }
+  // Center [0,0,0] → Outer direction (back area, hint to "next petak
+  // unbuilt") — 2 markers, very subtle hint of future routes
+  const toUnbuilt = [
+    { pos: [3.5, 0.015, -3], phase: 1.3 },
+    { pos: [5, 0.015, -4.5], phase: 2.1 },
+  ];
+  return (
+    <>
+      {toTelaga.map((m, i) => (
+        <PathWaymarker key={`wm-telaga-${i}`} pos={m.pos} phase={m.phase} />
+      ))}
+      {toUnbuilt.map((m, i) => (
+        <PathWaymarker key={`wm-unbuilt-${i}`} pos={m.pos} phase={m.phase} />
+      ))}
+    </>
+  );
+};
+
 const PetaFootprintTrails = () => (
   <>
     {/* Center [0,0,0] → Telaga [-7,0,-1] — perjalanan dari hub ke r3.
@@ -3511,6 +3566,7 @@ const TamanScene = ({
       <TamanFloor />
       <DroughtRing />
       <PetaFootprintTrails />
+      <PathWaymarkers />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* Dead-town environment re-enabled — CityRuins di luar hex ring
           (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
