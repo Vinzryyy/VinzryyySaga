@@ -3081,6 +3081,62 @@ const ShootingStar = () => {
 
 // Moon — disc kecil glow lembut di sudut atas peta. Bukan light source
 // asli (cuma visual), light asli udah dari directionalLight existing.
+// MoonShafts — light shaft volumetric dari moon position menembus
+// dust haze ke ground. 4 cone-shaped beams angled berbeda, additive
+// blend supaya glow tipis (bukan solid block). Open-ended cylinder
+// (no caps), radius tipis di top (dekat moon) → lebar di bottom
+// (menyebar di ground). Mood: dramatic moonlight through dusty air.
+const MOON_POS = new THREE.Vector3(-13, 14, -12);
+const MOON_SHAFT_TARGETS = [
+  new THREE.Vector3(-6, 0, -3),
+  new THREE.Vector3(-2, 0, -6),
+  new THREE.Vector3(-8, 0, 1),
+  new THREE.Vector3(3, 0, -2),
+];
+const MoonShafts = () => {
+  const shafts = useMemo(() => {
+    return MOON_SHAFT_TARGETS.map((target, i) => {
+      const dir = new THREE.Vector3().subVectors(target, MOON_POS);
+      const length = dir.length();
+      const mid = new THREE.Vector3()
+        .addVectors(MOON_POS, target)
+        .multiplyScalar(0.5);
+      const quat = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        dir.clone().normalize(),
+      );
+      const euler = new THREE.Euler().setFromQuaternion(quat);
+      return {
+        position: [mid.x, mid.y, mid.z],
+        rotation: [euler.x, euler.y, euler.z],
+        length,
+        radiusTop: 0.05,
+        radiusBottom: 0.4 + i * 0.05,
+        opacity: 0.085 - i * 0.012,
+      };
+    });
+  }, []);
+  return (
+    <>
+      {shafts.map((s, i) => (
+        <mesh key={`shaft-${i}`} position={s.position} rotation={s.rotation}>
+          <cylinderGeometry
+            args={[s.radiusTop, s.radiusBottom, s.length, 8, 1, true]}
+          />
+          <meshBasicMaterial
+            color="#fff4d0"
+            transparent
+            opacity={s.opacity}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 const Moon = () => (
   <group position={[-13, 14, -12]}>
     {/* Core moon */}
@@ -3304,6 +3360,7 @@ const TamanScene = ({
       {!isMobile && <HighDustShimmer count={40} />}
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
+      {!isMobile && <MoonShafts />}
       <CenterTree
         hovered={hoveredCenter}
         visited={previewedPetak.has('pohon')}
