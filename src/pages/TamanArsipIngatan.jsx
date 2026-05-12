@@ -2725,8 +2725,10 @@ const SIDE_TABLE_INTERACTIVE_IDS = [
   'fangirl-dewasa',
   'vocal-bertanya',
   'catok-jinak',
+  'prp-kulit',
   'salah-langganan',
   'stay-in-place',
+  'revenge-2023',
   'pengangguran-dananya',
 ];
 
@@ -2989,32 +2991,35 @@ const StackedBooksNearMeja = ({
 // touching tanpa gap. Position x = -1.8 setelah rotation 90° → table
 // width 1.2 di world X, spans -2.4..-1.2.
 const SIDE_TABLE_POS = [-1.8, 0, 0];
-const SIDE_TABLE_W = 2.0;
+// Side table dimensions expanded dari 2.0 → 2.6 supaya muat lebih
+// banyak buku (user terus tambah funfact baru, stok udah 21 buku).
+const SIDE_TABLE_W = 2.6;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 17 books: 6-5-6 grid (side table getting packed — book count
-// terus tumbuh seiring user kirim funfact baru).
+// Layout 19 books: 7-5-7 grid pada side table 2.6 × 1.2.
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.4) — 6 books
-  { dx: -0.85, dz: 0.4 },
-  { dx: -0.5, dz: 0.4 },
-  { dx: -0.17, dz: 0.4 },
-  { dx: 0.17, dz: 0.4 },
-  { dx: 0.5, dz: 0.4 },
-  { dx: 0.85, dz: 0.4 },
+  // Row belakang (+z 0.4) — 7 books
+  { dx: -1.1, dz: 0.4 },
+  { dx: -0.73, dz: 0.4 },
+  { dx: -0.37, dz: 0.4 },
+  { dx: 0, dz: 0.4 },
+  { dx: 0.37, dz: 0.4 },
+  { dx: 0.73, dz: 0.4 },
+  { dx: 1.1, dz: 0.4 },
   // Row tengah (z 0) — 5 books
-  { dx: -0.8, dz: 0 },
-  { dx: -0.4, dz: 0 },
+  { dx: -0.96, dz: 0 },
+  { dx: -0.48, dz: 0 },
   { dx: 0, dz: 0 },
-  { dx: 0.4, dz: 0 },
-  { dx: 0.8, dz: 0 },
-  // Row depan (-z -0.4) — 6 books
-  { dx: -0.85, dz: -0.4 },
-  { dx: -0.5, dz: -0.4 },
-  { dx: -0.17, dz: -0.4 },
-  { dx: 0.17, dz: -0.4 },
-  { dx: 0.5, dz: -0.4 },
-  { dx: 0.85, dz: -0.4 },
+  { dx: 0.48, dz: 0 },
+  { dx: 0.96, dz: 0 },
+  // Row depan (-z -0.4) — 7 books
+  { dx: -1.1, dz: -0.4 },
+  { dx: -0.73, dz: -0.4 },
+  { dx: -0.37, dz: -0.4 },
+  { dx: 0, dz: -0.4 },
+  { dx: 0.37, dz: -0.4 },
+  { dx: 0.73, dz: -0.4 },
+  { dx: 1.1, dz: -0.4 },
 ];
 
 const SideTableBooks = ({

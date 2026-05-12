@@ -52,12 +52,14 @@ export const PEDESTAL_ANGLES = {
   'pengangguran-dananya': 315,    // SE
   'stay-in-place': 300,           // SE
   'catok-jinak': 285,             // SSE
+  'prp-kulit': 270,               // S (skincare serious)
   'fangirl-dewasa': 255,          // SSW
   'vocal-bertanya': 240,          // SW (professionalism)
   'language-interference': 225,   // SW
   'enjoy-the-work': 210,          // W-SW (coping mindset)
-  'asal-nama': 165,               // W-NW (restored unlock)
   'culture-shock': 195,           // W-SW
+  'asal-nama': 165,               // W-NW (restored unlock)
+  'revenge-2023': 150,            // NW (reclaim performer pride)
 };
 
 // Reading order — narrative arc kronologis hidup Eli.
@@ -70,7 +72,8 @@ export const ARSIP_STORY_ORDER = [
   'jaipong-akar',          // bahasa tubuh
   'suara-memanggil',       // vokal
   'catok-jinak',           // idol skill
-  'salah-langganan',       // gaptek
+  'prp-kulit',             // skincare serius (idol skill cluster)
+  'salah-langganan',       // gaptek (+ TikTok confusion paragraph)
   'asal-nama',             // identitas
   'language-interference', // bahasa lengket otak
   'sepuluh-pagi',          // academic burnout
@@ -79,6 +82,7 @@ export const ARSIP_STORY_ORDER = [
   'fangirl-dewasa',        // perspektif fan changing
   'vocal-bertanya',        // professionalism
   'stay-in-place',         // backstage discipline
+  'revenge-2023',          // reclaim performer pride (2022 health → bangkit)
   'panggung-kecil',        // industry reality (mature)
   'pengangguran-dananya',  // escapist dream (closing)
 ];
@@ -477,6 +481,34 @@ export const ARSIP_BOOKS = [
     }),
   },
   {
+    id: 'revenge-2023',
+    title: 'Revenge 2023 — Cara Eli Kembali ke Panggung',
+    eyebrow: 'Cerita · Bangkit',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#5a4858',
+    preview:
+      'Sakit, Changmin TVXQ, revenge — perjalanan reclaim pride sebagai performer.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Tahun 2022 bukan tahun yang mudah untuk Eli. Ada periode di mana dia hadapi struggle kesehatan fisik — kondisi yang sempat menjauhkannya dari panggung untuk beberapa waktu.',
+        'Untuk performer, gak bisa tampil bukan cuma soal jadwal yang kosong. Itu soal identitas. Bertahun-tahun Eli adalah performer — orang yang punya pride sebagai sosok di atas panggung, orang yang punya peran sebagai pelaku acara. Saat tubuh memaksa dia untuk berhenti, sebagian identitasnya juga ikut tertunda.',
+        'Kembali ke panggung pun bukan hanya soal kembali bisa dance. Eli pernah bilang — buatnya, return to stage adalah reclaim pride. Reclaim professional identity. Memungkinkan dia kembali jadi diri yang dia kenali.',
+        'Lalu ada momen yang dia ingat dengan jelas: Juli 2022. Saat itu dia nonton penampilan Changmin dari TVXQ. Bukan sekadar nonton, tapi merasakan sesuatu yang sudah lama tidak dia rasakan — keinginan untuk jadi "stage performer" lagi. Bukan member yang sekadar "going through the motions," tapi performer yang punya energy dan stage presence yang dia akui pernah hilang.',
+        'Changmin yang menonjol itu — dia adalah trigger. Dia adalah cermin yang bilang ke Eli: "Lo punya kapasitas untuk itu. Lo udah lupa, tapi lo punya."',
+        'Dari titik itu, Eli pelan-pelan bangun kembali. Dia bilang dia pakai struggle yang dia lewati sebagai bahan untuk build mental state yang lebih stabil. Bukan ignore lukanya, tapi pakai sebagai foundation untuk grow.',
+        'Dan dia frame 2023 sebagai "revenge" — bukan revenge ke orang lain, tapi revenge ke versi dirinya yang sempat tertunda. Goal-nya: prove ke dirinya sendiri kalau dia bisa kembali ke level performance yang dia hargai. Bukan untuk dilihat orang lain, bukan untuk klaim sesuatu — untuk kepuasan internal-nya sendiri.',
+        'Ada satu lagi insight yang Eli share, sebagai fan yang dulu menonton concert: dia tahu rasanya. Dan dia bilang — yang paling menyenangkan dari concert bukan interaksi individual dengan artist. Tapi "vibe" kolektif yang muncul saat banyak orang berkumpul untuk apresiasi karya yang sama.',
+        'Itu juga sebabnya sebagai performer dia gak fokus ke pressure dari fan interaction. Karena dia tahu dari sisi fan, yang dinikmati adalah seni-nya, atmosfir-nya, momen-nya. Bukan pressure dari setiap individual interaction yang dia bawa.',
+        'Jadi gabungan dari semua itu — pulih dari sakit, kebakar lagi sama Changmin, revenge personal di 2023, dan perspective sebagai fan tentang concert — bikin Eli yang sekarang lebih grounded. Bukan performer yang naik karena ambisi. Performer yang naik karena dia pilih untuk naik, untuk dirinya sendiri.',
+      ],
+    }),
+  },
+  {
     id: 'stay-in-place',
     title: 'Stay in Place — Sudut yang Ditugaskan',
     eyebrow: 'Cerita · Backstage Discipline',
@@ -500,6 +532,33 @@ export const ARSIP_BOOKS = [
         'Kedua, energi. Member-member JKT48 sering punya jadwal yang back-to-back. Sebelum event tertentu, mereka mungkin udah baru pulang dari theater atau acara lain. Mingling, jalan-jalan, ngobrol panjang dengan banyak orang — itu menghabiskan energi yang sudah tipis. Lebih bijak menyimpan energi untuk panggung.',
         'Jadi yang fans lihat sebagai "energi tinggi di panggung" itu hasil dari disiplin diam di backstage. Bukan kebetulan, bukan natural-state. Disiplin yang sengaja, dengan tujuan yang jelas: tampil maksimal saat waktunya.',
         'Mungkin ini juga sebabnya beberapa member kerasa sangat "on" saat panggung, dan sangat "off" di sela-sela. Bukan dua-muka — itu profesionalisme. Energi yang dijaga, dipanggil keluar pas dibutuhkan, lalu disimpan kembali.',
+      ],
+    }),
+  },
+  {
+    id: 'prp-kulit',
+    title: 'PRP — Saat Krim Sudah Tidak Cukup',
+    eyebrow: 'Cerita · Skincare Serius',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli Showroom Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#b07878',
+    preview:
+      'Bopeng yang dalam butuh treatment profesional, bukan cuma topical.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Banyak orang lihat idol di panggung dengan kulit yang halus dan mulus, dan mengira itu bawaan. Tapi Eli pernah cerita sisi yang lebih jujur — tentang perjuangan dia dengan kulit sendiri.',
+        'Eli ngomong soal bopeng — bekas jerawat yang tertinggal sebagai pockmark di kulit. Dan dia jujur: ini bukan masalah yang bisa selesai dengan skincare biasa saja. Krim, serum, toner — semua punya batasan. Kalau bopeng sudah dalam, topical products tidak akan cukup.',
+        'Dia recommend pendekatan yang lebih serius: cari treatment profesional. Spesifik dia sebut PRP — Platelet-Rich Plasma — atau prosedur dermatologi sejenis. Jenis perawatan medis yang dilakukan dengan supervisi dokter, bukan DIY di rumah.',
+        'Dan ini bukan saran abstrak. Eli ngomong dari pengalaman pribadi. Dia sendiri pernah jalani treatment untuk handle scarring kulitnya. Bukan sebagai shortcut — sebagai investment dalam perawatan diri yang serius.',
+        'Buat banyak orang, treatment profesional terdengar exclusive — sesuatu untuk orang yang punya uang lebih atau profesional yang butuh tampilan tertentu. Eli, sebagai idol, mungkin termasuk yang kedua. Tapi cerita ini relatable buat siapa pun yang udah lama struggle dengan acne scarring dan merasa skincare yang dijual di mall gak nyelesain.',
+        'Ada pelajaran subtle di sini: bukan setiap masalah bisa diselesaikan dengan produk yang lebih murah atau lebih banyak. Beberapa masalah butuh approach yang lebih besar. Untuk skin, itu mungkin PRP. Untuk hal lain, mungkin terapi, mentor, profesional di bidangnya. Tidak ada salahnya mencari yang lebih ahli.',
+        'Eli — yang selalu tampak cantik di panggung — gak nyamarin perjuangannya. Dia akui bopeng pernah jadi concern. Dia akui treatment profesional adalah jalan keluarnya. Dia akui ini butuh effort di luar krim biasa.',
+        'Mungkin itu juga sebabnya banyak fans yang merasa dekat dengan dia. Karena Eli gak posing sebagai "born perfect" — dia menunjukkan bagian dari perjalanan yang banyak orang juga lewati. Acne scars, treatment plan, professional help. Hal-hal yang sangat human.',
+        'Idol pun punya kulit yang harus dirawat. Idol pun punya bopeng yang perlu di-treat. Idol pun harus mencari ahli yang bisa bantu. Dan Eli, dengan kejujurannya, share approach yang dia ambil — supaya orang lain yang struggle dengan hal yang sama tahu: PRP atau prosedur sejenis mungkin worth investigating.',
       ],
     }),
   },
@@ -528,6 +587,8 @@ export const ARSIP_BOOKS = [
         'Eli ketawa pas cerita ini. Bukan frustration mendalam, lebih ke acceptance kalau ya, dia memang gaptek. Bukan teknologi besar — bukan dia gak bisa pakai laptop atau handphone. Tapi navigasi UI yang penuh trik psikologi memang bikin pusing.',
         'Cerita ini relatable banget. Berapa banyak dari kita yang udah salah langganan sesuatu, lalu kesulitan unsubscribe? Berapa banyak dari kita yang sebenarnya gak suka dengan platform yang sengaja bikin sulit cancel? Eli, dengan jujur, mengakui: dia salah satunya.',
         'Idol pun gaptek. Idol pun bisa salah klik. Idol pun bisa terjebak langganan F1 padahal mau sinetron. Itulah salah satu hal yang membuat Eli relatable — dia gak nyamarin sisi yang gak sempurna. Dia ketawa-in.',
+        'Cerita serupa muncul lagi di kasus TikTok. Padahal dia user TikTok rutin (sehari-hari pakai sambil ngerjain tugas), tapi pernah dia frustrasi pas mau setup fitur story atau video — interface-nya berubah lagi, tombol yang dulu familiar pindah ke sub-menu yang asing. Kenapa app keep changing? Eli mengaku kesulitan dengan fitur basic sekalipun. Sama frustrasinya dengan ibu-ibu yang baru install TikTok pertama kali.',
+        'Mungkin teknologi besar memang punya kebiasaan ngubah-ngubah. Tapi kebiasaan manusia adalah merasa bingung tiap kali itu terjadi. Eli — terkenal sekalipun — juga di-include dalam kebingungan itu.',
       ],
     }),
   },
