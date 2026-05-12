@@ -2768,10 +2768,12 @@ const StackedBooksNearMeja = ({
       ref.opacity = 0.75 + Math.sin(t * 1.3 + phase) * 0.2;
     });
   });
-  // 2 stack positions — kiri-belakang & kanan-belakang meja, lebih
-  // jauh dari kursi supaya gak overlap dengan walking path.
+  // 2 stack positions — di utara meja utama. Stack 1 (linimasa-trainee)
+  // sebelumnya di [-1.6, 0.7] tapi clash dengan side table footprint
+  // (-2.4..-1.2 x, -1..1 z) di restored state. Pindah ke (-0.5, 1.6)
+  // di antara meja & rak NW — outside side table & main meja.
   const stackPositions = [
-    { pos: [-1.6, 0, 0.7], rotY: 0.3, decoColors: ['#5a3030', '#6a4830'] },
+    { pos: [-0.5, 0, 1.6], rotY: 0.2, decoColors: ['#5a3030', '#6a4830'] },
     { pos: [1.6, 0, 0.7], rotY: -0.3, decoColors: ['#3a3858', '#7a5840'] },
   ];
   return (
