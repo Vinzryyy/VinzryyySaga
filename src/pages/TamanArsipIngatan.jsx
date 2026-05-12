@@ -2717,6 +2717,8 @@ const SIDE_TABLE_INTERACTIVE_IDS = [
   'panggung-kecil',
   'asal-nama',
   'language-interference',
+  'fangirl-dewasa',
+  'catok-jinak',
 ];
 
 // MejaInteractiveBooks — 2 buku interactive di atas meja kiri & kanan
@@ -2981,17 +2983,18 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 6 books: 2 row × 3 col. Side table host 6 buku unique funfact
-// (sisanya yang gak di stack atau meja).
+// Layout 8 books: 2 row × 4 col grid. Side table host 8 buku unique funfact.
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.3) — 3 books
-  { dx: -0.65, dz: 0.3 },
-  { dx: 0, dz: 0.3 },
-  { dx: 0.65, dz: 0.3 },
-  // Row depan (-z -0.3) — 3 books
-  { dx: -0.65, dz: -0.3 },
-  { dx: 0, dz: -0.3 },
-  { dx: 0.65, dz: -0.3 },
+  // Row belakang (+z 0.3) — 4 books
+  { dx: -0.75, dz: 0.3 },
+  { dx: -0.25, dz: 0.3 },
+  { dx: 0.25, dz: 0.3 },
+  { dx: 0.75, dz: 0.3 },
+  // Row depan (-z -0.3) — 4 books
+  { dx: -0.75, dz: -0.3 },
+  { dx: -0.25, dz: -0.3 },
+  { dx: 0.25, dz: -0.3 },
+  { dx: 0.75, dz: -0.3 },
 ];
 
 const SideTableBooks = ({

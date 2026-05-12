@@ -44,6 +44,8 @@ export const PEDESTAL_ANGLES = {
   'jaipong-akar': 75,             // NE
   'suara-memanggil': 45,          // E-NE
   'panggung-kecil': 15,           // E
+  'catok-jinak': 285,             // SSE (idol skill)
+  'fangirl-dewasa': 255,          // SSW
   'language-interference': 225,   // SW
   'asal-nama': 165,               // W-NW (restored unlock)
   'culture-shock': 195,           // W-SW
@@ -56,8 +58,10 @@ export const ARSIP_STORY_ORDER = [
   'culture-shock',         // adaptasi Bandung→Jakarta
   'jaipong-akar',          // bahasa tubuh
   'suara-memanggil',       // vokal
+  'catok-jinak',           // idol skill: catokan
   'asal-nama',             // identitas
   'language-interference', // mahasiswi Sastra Korea
+  'fangirl-dewasa',        // perspektif fan changing
   'panggung-kecil',        // industry reality (mature)
 ];
 
@@ -235,6 +239,59 @@ export const ARSIP_BOOKS = [
         'Dia describe sensasi ini sebagai "pusing" — kepalanya struggle rekonsiliasi sistem linguistik yang sedang ditampung. Pivot dari Korea ke Thai, atau ke English, atau ke Indonesia — semua butuh effort yang gak biasa. Otaknya kerasa mixed-up, kayak dua channel radio bocor jadi satu.',
         'Cerita ini kecil, lucu, tapi ada poin yang lebih dalam. Bahasa bukan saklar yang bisa di-on/off. Kalau kamu invest ke satu bahasa secara intensif, dia akan tinggal di otakmu cukup lama setelahnya. Eli mengalaminya bukan karena dia gak bisa multitask — justru karena dia terlalu fokus dan dedikatif belajar.',
         'Banyak orang membayangkan belajar bahasa itu glamor — bisa ngobrol fluent, bisa nonton drakor tanpa subtitle, bisa kerja di Korea. Tapi Eli juga punya sisi yang jarang dibicarain: ada masa-masa di mana belajar terlalu keras, otakmu lengket di satu bahasa, dan kamu jadi "pusing" saat lo di negara lain. Dedikasi punya harganya sendiri, bahkan dalam hal yang kelihatan sepele kayak ngobrol di luar negeri.',
+      ],
+    }),
+  },
+  {
+    id: 'fangirl-dewasa',
+    title: 'Bintang yang Pernah Jauh, Sekarang Sebelah Meja',
+    eyebrow: 'Cerita · Perspektif Fan',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#3a4858',
+    preview:
+      'Dia hilang spark fangirling. Kecuali untuk NCT 127.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Sebagai fan K-Pop sejak lama, Eli punya sisi yang familiar buat banyak orang: pernah dia juga jadi fangirl. Mata bersinar saat lihat idol favorit, jantung berdebar di MV release, hidup penuh oleh jadwal "comeback."',
+        'Tapi waktu berjalan. Eli sekarang bukan cuma fan — dia juga ada di industri ini. Member JKT48, bertahun-tahun. Tahu rasanya backstage, tahu rasanya promosi single, tahu rasanya nyiapin choreography sampai larut malam.',
+        'Dan dengan pengetahuan itu, ada sesuatu yang berubah.',
+        'Idol yang dulu kerasa jauh, sekarang gak sejauh itu. Bukan karena dia gak appreciate karya mereka — tapi karena dia tahu sekarang gimana karya itu dibuat. Bisa lihat behind-the-scenes proses. Bisa bayangkan choreography practice, vocal coach session, comeback prep yang melelahkan.',
+        'Pernah dia kebetulan ketemu beberapa idol di setting di luar panggung — entah event entertainment, atau di sela acara TV, atau di tempat-tempat industri. Dan saat lihat mereka tanpa makeup pekat, tanpa lighting studio, tanpa choreography — mereka cuma orang biasa. Manusia yang capek, manusia yang ada masalahnya sendiri, manusia yang sama-sama bekerja keras seperti dia.',
+        'Insight ini bikin "spark" fangirling dia berubah. Bukan hilang sepenuhnya — tapi maturing. Dari "wow, mereka super-human!" jadi "wow, mereka super-talented dan super-keras-kerja, tapi tetap manusia."',
+        'Tapi ada satu pengecualian yang masih bikin dia bersinar: NCT 127. Sampai sekarang, dia masih merasa "spark" itu untuk musik dan karya mereka. Mungkin karena Jaehyun bias yang udah lama. Mungkin karena musik NCT 127 secara objektif memang nyentuh telinga Eli yang sudah tuned ke industri ini. Apapun alasannya — ada satu grup yang masih bisa nge-trigger reaksi fan-mode lama dia.',
+        'Mungkin itu juga sebabnya cerita ini relatable. Sebagai pekerja di industri, dia gak naif lagi. Tapi sebagai manusia yang masih punya selera musik dan apresiasi pada karya — dia masih bisa jatuh cinta sama sesuatu yang luar biasa.',
+        'Tidak ada yang lebih dewasa daripada bisa appreciate sesuatu tanpa harus naif. Idol bukan lagi figur ideal yang tidak tersentuh, tapi karya yang bagus tetap karya yang bagus. NCT 127 yang bagus tetap NCT 127 yang bagus. Dan Eli yang sekarang bisa lihat dua sisi itu sekaligus.',
+      ],
+    }),
+  },
+  {
+    id: 'catok-jinak',
+    title: 'Catok yang Akhirnya Jinak',
+    eyebrow: 'Cerita · Idol Skills',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#b88858',
+    preview:
+      'Bertahun-tahun struggle, akhirnya dia bisa nyatok rambut sendiri.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada bayangan tertentu yang orang punya tentang idol — mereka selalu polish, selalu rapi, selalu siap di panggung. Tapi kalau cerita-cerita di balik layar bocor, ada satu hal yang Eli akui dengan ringan: dia struggle lama dengan catokan.',
+        'Untuk waktu yang lumayan panjang, Eli gak bisa nyatok dengan baik. Bukan teknik vokal yang dia struggle. Bukan choreography. Bukan vocal coach session. Tapi alat yang basic banget untuk seorang idol: alat catok rambut.',
+        'Mungkin terdengar lucu. Tapi siapa yang gak relate? Pakai catokan bukan skill bawaan lahir — itu skill yang harus dipelajari, dipraktikkan, jangan-jangan dibuang ke percobaan berulang sampai berhasil.',
+        'Lalu ada pilihan style. Eli akui — dia bukan fan curls yang ketat. Dia lebih suka style "curly gantung bawah" — yang volume-nya cenderung di bawah, bukan ketat di seluruh kepala. Itu beda dari "catok masuk" yang sering dipakai member-member yang lebih muda. Dua style berbeda untuk dua generasi yang berbeda.',
+        'Tapi pelan-pelan, Eli akhirnya jinakin catoknya. Setelah bertahun-tahun struggle, dia bilang sekarang udah pinter. Lebih familiar dengan teknik. Lebih ngerti gimana catok bersikap di rambutnya. Dan style yang dia mau itu sekarang bisa dia eksekusi sendiri tanpa minta tolong.',
+        'Ada poin yang lebih dalam di sini. Di dunia idol yang menuntut polish konstan, ada banyak skill kecil-kecil yang harus dipelajari di luar latihan main. Makeup. Hair. Wardrobe coordination. Skin care. Semua butuh waktu. Dan gak semua orang punya talent bawaan untuk semuanya.',
+        'Eli yang biasa membicarain hal ini dengan humble — bukan dia perfectionist yang nyamarin struggle. Dia mengakui awalnya sulit, sekarang baru bisa. That\'s the most relatable kind of progress: pelan tapi nyata.',
+        'Jadi kalau lo lihat Eli dengan rambut yang cantik di panggung, ingat satu hal kecil: itu hasil dari bertahun-tahun belajar pakai catokan. Idol pun harus practice skill basic, bukan dapet semuanya gratis.',
       ],
     }),
   },
