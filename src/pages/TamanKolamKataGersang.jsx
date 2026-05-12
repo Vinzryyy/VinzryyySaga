@@ -4684,6 +4684,85 @@ const DryWell = ({ pos, rot = 0 }) => (
   </group>
 );
 
+// DROUGHT FallenWall — bangkai bangunan rubuh: 1 wall block panjang
+// tergeletak di tanah (partially buried, y dip slight) + crack
+// fragment offset di ujung + 3 rubble cubes scattered samping.
+// Silhouette horizontal panjang — beda dgn BrokenPillar (vertikal
+// stub) dan chipped stone DryWell (kecil).
+const FallenWall = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Main fallen wall — long box, dip slight below ground (partial bury) */}
+    <mesh position={[0, 0.22, 0]} castShadow>
+      <boxGeometry args={[2.4, 0.55, 0.5]} />
+      <meshStandardMaterial color="#6a5e4e" roughness={1} />
+    </mesh>
+    {/* Crack/break — fragment di ujung, miring offset */}
+    <mesh position={[1.45, 0.2, 0.18]} rotation={[0, 0.2, 0.12]} castShadow>
+      <boxGeometry args={[0.55, 0.45, 0.4]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+    {/* Rubble cubes scattered samping */}
+    <mesh position={[-1.5, 0.15, 0.45]} rotation={[0.2, 0.4, 0.1]} castShadow>
+      <boxGeometry args={[0.32, 0.3, 0.28]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+    <mesh position={[0.4, 0.12, -0.55]} rotation={[0.1, -0.3, 0.2]} castShadow>
+      <boxGeometry args={[0.26, 0.24, 0.22]} />
+      <meshStandardMaterial color="#6a5e4e" roughness={1} />
+    </mesh>
+    <mesh position={[-0.8, 0.1, -0.5]} rotation={[0.3, 0.1, -0.2]}>
+      <boxGeometry args={[0.2, 0.2, 0.18]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+  </group>
+);
+
+// DROUGHT CornerRuin — partial L-shape wall: 1 segmen vertikal masih
+// berdiri tall (sisa pojokan bangunan) + jagged top stone + 1 segmen
+// perpendicular tergeletak flat tanah + 2 rubble. Kerasa "dulu ada
+// bangunan persegi, tinggal corner-nya".
+const CornerRuin = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Standing partial wall — vertical chunk */}
+    <mesh position={[0, 0.7, 0]} rotation={[0, 0, 0.04]} castShadow>
+      <boxGeometry args={[0.5, 1.4, 1.6]} />
+      <meshStandardMaterial color="#7a6e5e" roughness={1} />
+    </mesh>
+    {/* Jagged top stone — irregular cap pecah */}
+    <mesh position={[0.05, 1.4, -0.4]} rotation={[0.1, 0.2, 0.15]} castShadow>
+      <boxGeometry args={[0.45, 0.3, 0.5]} />
+      <meshStandardMaterial color="#4a3e2e" roughness={1} />
+    </mesh>
+    {/* Fallen wall perpendicular — rubuh tergeletak */}
+    <mesh
+      position={[1.3, 0.22, 0.9]}
+      rotation={[0, Math.PI / 2 - 0.08, 0]}
+      castShadow
+    >
+      <boxGeometry args={[1.8, 0.5, 0.45]} />
+      <meshStandardMaterial color="#6a5e4e" roughness={1} />
+    </mesh>
+    {/* Rubble */}
+    <mesh position={[0.7, 0.15, 1.5]} rotation={[0.2, 0.5, 0.1]} castShadow>
+      <boxGeometry args={[0.3, 0.28, 0.26]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+    <mesh position={[-0.3, 0.12, 0.95]} rotation={[0.1, -0.4, 0.2]}>
+      <boxGeometry args={[0.24, 0.22, 0.2]} />
+      <meshStandardMaterial color="#5a4e3e" roughness={1} />
+    </mesh>
+  </group>
+);
+
+// 2 ruin di banks — SE FallenWall + NW CornerRuin. Posisi dipilih
+// hindari pillars (radius 1.5+), bones, footprint trails, DryWell.
+const RuinedWalls = () => (
+  <>
+    <FallenWall pos={[19, 0, -12]} rot={0.6} />
+    <CornerRuin pos={[-20, 0, 14]} rot={-0.5} />
+  </>
+);
+
 // DROUGHT GroundCracks — garis tipis gelap di tanah bank, kasih
 // texture "tanah retak karena kekeringan". Distribusi deterministic
 // via seeded RNG, hindari path & lake footprint.
@@ -6054,6 +6133,10 @@ const TelagaScene = ({
         Tinggi mix (0.5-1.8m), tilt acak, kerasa "dulu ada struktur
         besar di sini, sekarang tinggal puing". */}
     <BrokenPillars />
+    {/* Ruined walls — 2 bangkai bangunan rubuh: FallenWall (SE) +
+        CornerRuin (NW). Silhouette horizontal panjang, beda dari
+        pillars yg vertikal stub. */}
+    <RuinedWalls />
     {/* Ground cracks — 24 retak tipis di tanah bank, radius 13-20.
         Tanah pecah karena kekeringan panjang. */}
     <GroundCracks />
