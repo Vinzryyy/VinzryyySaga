@@ -43,15 +43,19 @@ export const PEDESTAL_ANGLES = {
   'bukan-kolonial': 120,          // NW (introvert)
   'sebelum-panggung': 105,        // N-NE
   'jaipong-akar': 75,             // NE
+  'bosenan-multitask': 60,        // NE (cognitive habit)
   'suara-memanggil': 45,          // E-NE
-  'salah-langganan': 30,          // E-NE (gaptek admission)
+  'salah-langganan': 30,          // E-NE (gaptek)
   'panggung-kecil': 15,           // E
-  'sepuluh-pagi': 345,            // E-SE (academic burnout)
-  'pengangguran-dananya': 315,    // SE (escapist dream)
-  'stay-in-place': 300,           // SE (backstage discipline)
-  'catok-jinak': 285,             // SSE (idol skill)
+  'sepuluh-pagi': 345,            // E-SE
+  'tas-tiga-kilo': 330,           // E-SE (self-reliance)
+  'pengangguran-dananya': 315,    // SE
+  'stay-in-place': 300,           // SE
+  'catok-jinak': 285,             // SSE
   'fangirl-dewasa': 255,          // SSW
+  'vocal-bertanya': 240,          // SW (professionalism)
   'language-interference': 225,   // SW
+  'enjoy-the-work': 210,          // W-SW (coping mindset)
   'asal-nama': 165,               // W-NW (restored unlock)
   'culture-shock': 195,           // W-SW
 };
@@ -62,14 +66,18 @@ export const ARSIP_STORY_ORDER = [
   'bukan-kolonial',        // adult introvert
   'sebelum-panggung',      // pre-JKT48
   'culture-shock',         // adaptasi Bandung→Jakarta
+  'bosenan-multitask',     // cognitive habit
   'jaipong-akar',          // bahasa tubuh
   'suara-memanggil',       // vokal
-  'catok-jinak',           // idol skill: catokan
-  'salah-langganan',       // gaptek (light/humor break)
+  'catok-jinak',           // idol skill
+  'salah-langganan',       // gaptek
   'asal-nama',             // identitas
   'language-interference', // bahasa lengket otak
   'sepuluh-pagi',          // academic burnout
+  'tas-tiga-kilo',         // self-reliance / hidup sendiri
+  'enjoy-the-work',        // coping mindset
   'fangirl-dewasa',        // perspektif fan changing
+  'vocal-bertanya',        // professionalism
   'stay-in-place',         // backstage discipline
   'panggung-kecil',        // industry reality (mature)
   'pengangguran-dananya',  // escapist dream (closing)
@@ -355,6 +363,116 @@ export const ARSIP_BOOKS = [
         'Ada beautiful tension di cerita ini. Eli yang dedikatif terhadap Korean studies — buktinya dia masih kuliah, masih konsisten, masih bisa ngomong Korea — tapi juga manusia yang merasa muak. Yang gak nyamarin lelahnya, yang ngomong jujur tentang batas.',
         'Mungkin itu juga sebabnya dia bisa terus jalan. Karena dia tahu kapan harus push, kapan harus rehat. Idol yang sustainable bukan idol yang gak pernah lelah — tapi idol yang tahu cara menjaga energinya supaya bisa bertahan untuk waktu yang lama.',
         'Setiap kali kamu lihat Eli ngomong sedikit Korea di livestream, ada cerita di belakangnya: bertahun-tahun rutin listening jam 10 pagi, kuliah yang melelahkan, dan moment-moment muak yang dia hadapi dengan dewasa. Tidak ada yang instant.',
+      ],
+    }),
+  },
+  {
+    id: 'bosenan-multitask',
+    title: 'Otaknya Butuh Dua Channel',
+    eyebrow: 'Cerita · Cara Kerja Otak',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#6a5878',
+    preview:
+      'Satu tangan buku kuliah, satu tangan scroll TikTok. Cara dia tetap engaged.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Eli pernah cerita sesuatu tentang dirinya yang bikin banyak orang relate: dia "bosenan." Personality yang ngebuat dia sulit fokus pada satu task dalam waktu lama tanpa stimulasi tambahan.',
+        'Untuk orang yang bisa fokus deep selama berjam-jam pada satu hal, mungkin Eli kerasa hectic. Tapi untuk Eli, butuh dua-tiga channel berjalan bersamaan supaya otaknya tetap engaged.',
+        'Cerita spesifik: ketika dia ngerjain tugas kuliah, dia akan sambil scroll TikTok atau nonton Asmara Genzy di sisi lain. Bukan dua-duanya 100% — tapi cukup untuk membuat dia gak merasa stuck di satu hal.',
+        'Bahkan saat belajar pun pakai metode dua channel ini. Satu tangan pegang materi belajar — buku, catatan, slide kuliah. Satu tangan lagi scroll TikTok atau platform lain. Otaknya, secara seimbang, ditampung dua stream of information sekaligus.',
+        'Buat banyak orang, metode ini mungkin terdengar destruktif. "Kamu gak bisa fokus kalau gitu!" Tapi untuk Eli, ini cara dia bekerja efektif. Tanpa stimulasi dua channel, dia justru hilang fokus — pikiran melayang, motivasi turun, tugas gak selesai.',
+        'Mungkin ini juga sebabnya dia bisa survive di industri idol yang penuh aktivitas. Otaknya udah ter-program untuk handle multiple inputs sekaligus. Theater, kuliah, livestream, MnG, latihan — semua dilewati dengan kepala yang terbiasa juggle banyak hal.',
+        'Bukan dia sok multitask. Bukan dia bangga karena bisa lakukan banyak hal sekaligus. Ini lebih ke acceptance — dia tahu personality-nya, dia tahu trik yang cocok untuk dirinya, dan dia pakai trik itu.',
+        'Asmara Genzy yang nemenin tugas kuliah. TikTok yang nemenin sesi belajar. Bukan distraksi dalam arti negatif — tapi background noise yang justru bantu dia tetap engaged.',
+        'Kadang yang dunia anggap "kurang fokus" sebenarnya adalah cara seseorang yang berbeda untuk fokus. Eli yang multitasker bukan Eli yang tidak serius. Dia cuma punya cara sendiri untuk membuat otaknya bisa beresin tugas tanpa terbosanin.',
+      ],
+    }),
+  },
+  {
+    id: 'vocal-bertanya',
+    title: 'Vocal — Tapi Bukan Tipe yang Membantah',
+    eyebrow: 'Cerita · Cara Bertanya',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#a08858',
+    preview:
+      'Dia dikenal "vocal" — bukan karena melawan, tapi karena butuh ngerti "kenapa."',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada label tertentu yang melekat ke Eli di kalangan member dan fans: "vocal." Kata yang bisa diartikan positif (berani bicara) atau negatif (susah diatur), tergantung sudut pandang. Eli pernah membicarain hal ini sendiri.',
+        'Sebagai senior member JKT48, Eli memang dikenal sebagai member yang sering bertanya. Tentang keputusan manajemen, tentang arahan, tentang sistem yang dia gak fully paham. Tapi dia sendiri klarifikasi — labelnya "vocal" bukan berarti dia tipe oposisi.',
+        'Bukan dia mau melawan setiap keputusan. Bukan dia menolak instruksi. Trait dasarnya adalah: dia butuh ngerti "kenapa" dan "gimana" dari awal sampai akhir.',
+        'Kalau ada arahan baru, dia mau tahu reasoning di belakangnya. Kalau ada perubahan formasi, dia mau ngerti logika-nya. Kalau ada perubahan policy, dia mau lihat full picture-nya. Bukan untuk membantah — untuk memahami.',
+        'Buat dia, ini cara untuk bisa committed dengan tulus. Lebih mudah mengerjakan sesuatu kalau lo ngerti kenapa lo melakukannya. Member yang tahu reasoning di belakang instruksi akan execute dengan lebih baik daripada member yang sekadar nurut.',
+        'Eli mengakui — ini lebih sering terjadi di angkatan senior sekarang. Member-member junior dulu mungkin lebih jarang nanya, lebih nurut saja. Tapi senior member yang sudah lama di industri ini, dengan pengalaman bertahun-tahun, lebih natural mempertanyakan.',
+        'Yang penting: Eli pilih untuk mengarahkan kekhawatiran dan feedback-nya langsung ke pihak manajemen — ke Om Jot, ke orang yang berwenang. Bukan ke fans di public. Bukan ke sosmed yang viral. Bukan ke ranjau-ranjau drama.',
+        'Ini adalah professionalisme yang dewasa. Punya pertanyaan? Tanya. Punya feedback? Sampaikan. Tapi sampaikan ke orang yang bisa menjawab atau yang bisa mengubah. Bukan ke kerumunan yang akan reinforcing emosi tanpa solusi.',
+        '"Vocal" yang seperti ini bukan attack vector. Ini cara dewasa untuk tetap terlibat dengan profesional di industri yang kadang terasa opaque. Eli yang vocal adalah Eli yang mau ngerti, mau improve, mau jadi member yang execute dengan informed consent — bukan sekadar mesin yang nurut.',
+        'Mungkin itulah perbedaan antara "complaining" dan "asking questions for clarity." Yang pertama berhenti di emosi. Yang kedua bergerak ke solusi. Eli memilih yang kedua.',
+      ],
+    }),
+  },
+  {
+    id: 'tas-tiga-kilo',
+    title: 'Tiga Kilogram Kemandirian',
+    eyebrow: 'Cerita · Hidup Sendiri',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#6a7868',
+    preview:
+      'Tas berat 3kg berisi survival kit lengkap. Karena dia tahu, gak ada yang akan siapin selain dia sendiri.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Eli pernah cerita tentang isi tasnya. Bukan tas glamor brand mewah — tasnya berisi sesuatu yang lebih praktis. Sebuah "survival kit" yang menurut dia sendiri beratnya bisa sampai 3 kilogram.',
+        'Apa isinya? Obat-obatan berbagai macam. Vitamin. Acne patches. Skincare. Setiap kategori health & wellness yang mungkin dia butuh dalam sehari.',
+        'Bukan paranoia. Ini cara Eli mengatasi salah satu realita hidupnya: dia tinggal sendiri.',
+        'Hidup sendiri di Jakarta sebagai mahasiswi dan idol berarti gak ada keluarga di rumah yang ngingetin minum vitamin. Gak ada ibu yang siapin obat saat tiba-tiba pusing. Gak ada saudara yang punya stok medkit di laci. Kalau dia gak siapin sendiri, gak ada yang siap untuknya.',
+        'Jadi dia siapin sendiri. Tas yang berat itu adalah konsekuensi dari kemandirian. Tiga kilogram bukan sekadar berat fisik — itu bobot tanggung jawab atas dirinya sendiri.',
+        'Eli punya philosophy tertentu soal ini. Dia gak suka rely heavily ke orang lain. Bukan karena dia gak percaya orang — tapi karena dia tahu pikiran dan situasi manusia tidak bisa diprediksi. Orang bisa lupa. Orang bisa berhalangan. Orang bisa berubah pikiran.',
+        'Lebih aman kalau dia jaga dirinya sendiri. Lebih sustainable. Lebih sederhana. Bawa supplies sendiri, dan dia bisa handle apa pun yang muncul.',
+        'Ada poin yang menarik di filosofi ini. Bagi orang luar yang lihat Eli sebagai idol dengan tim besar di JKT48 — mungkin terkesan dia punya banyak support system. Tapi support system di pekerjaan bukan support system di hidup pribadi. Saat dia pulang ke kamar kost dengan kepala pusing jam 11 malam, yang ada di sekelilingnya cuma tasnya. Dan tasnya yang berisi 3 kilogram persiapan adalah yang menyelamatkan.',
+        'Mungkin ini juga bentuk dari kepribadian yang sama yang muncul di anak-pohon dan bukan-kolonial: dia bisa berdiri sendiri. Dia gak takut akan kebersamaan, tapi dia juga tahu dia bisa selesaikan banyak hal tanpa harus minta tolong terus-menerus.',
+        'Tiga kilogram kemandirian. Itu bukan beban — itu kebebasan.',
+      ],
+    }),
+  },
+  {
+    id: 'enjoy-the-work',
+    title: 'Enjoy the Work — Mindset di Tengah Jadwal yang Tak Berhenti',
+    eyebrow: 'Cerita · Cara Bertahan',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#c08858',
+    preview:
+      'Gak punya waktu untuk istirahat. Jadi dia ubah pekerjaan jadi sumber kesenangan.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Eli pernah cerita tentang cara dia survive di tengah jadwal yang gak ada habisnya. Bukan dengan ambil break sering-sering. Bukan dengan time off. Tapi dengan mindset tertentu yang dia pilih: "enjoy the work."',
+        'Sebagai member JKT48 plus mahasiswi Sastra Korea, harinya udah penuh dari pagi sampai malam. Pagi listening Korea. Siang theater. Sore latihan. Malam event atau live stream. Dan itu rutin. Hari demi hari.',
+        'Dalam realita itu, "personal time" jadi konsep yang langka. Eli mengakui — dia sering gak punya waktu untuk dirinya sendiri. Bahkan untuk minat-minat pribadinya yang sederhana — nonton drakor, scroll TikTok lebih lama, ngobrol panjang dengan teman — semua itu jadi luxury.',
+        'Jadi gimana caranya tetap waras? Eli pilih satu strategi yang cukup harsh kalau dipikir-pikir: dia ubah pekerjaan jadi sumber kesenangan.',
+        '"Enjoy the work." Bukan cuma slogan. Itu mindset yang dia pakai setiap hari. Kalau dia gak punya waktu off, paling tidak waktu on harus menyenangkan. Kalau pekerjaan adalah satu-satunya tempat dia berada, paling tidak dia harus menemukan cara untuk menikmati berada di sana.',
+        'Ada beautiful trick di sini. Banyak orang lihat work sebagai sesuatu yang harus dihadapi sambil mengharap weekend. Tapi Eli — yang weekend-nya sering juga work — gak punya luxury itu. Jadi alih-alih melawan realita, dia adopt mindset yang membuat realita itu lebih bisa dihidupi.',
+        'Bukan dia lari dari kelelahan. Cerita-cerita lain dia juga jujur tentang muak, lelah, perlu rehat. Tapi di tengah semua itu, "enjoy the work" menjadi anchor — sesuatu yang dia pegang supaya gak hanyut.',
+        'Mungkin ini juga sebabnya energi panggungnya stay genuine. Bukan dipaksakan dari kondisi "lelah tapi harus ngedance." Tapi dari posisi "lelah tapi pilih untuk menikmati momen ini juga." Dua kata yang sama, tapi sangat berbeda.',
+        'Kadang yang dunia anggap "tidak punya hidup" sebenarnya adalah orang yang punya cara berbeda untuk hidup. Eli yang bekerja terus bukan Eli yang menyerah pada hidup pribadinya. Dia cuma menemukan bahwa kerja bisa juga jadi tempat dia menemukan kesenangan, asal dia memilih untuk itu.',
       ],
     }),
   },
