@@ -192,10 +192,15 @@ const TamanPetaRouteGuard = () => {
   const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
   // Dev-only override: ?unlock=1 buka peta walau count belum 2000.
+  // ?purified=1 implicit force-unlock — kondisi purified (count >=7000)
+  // udah pasti lewat map gate, jadi preview-nya gak perlu lagi
+  // pasangin ?unlock=1.
   // Gated import.meta.env.DEV — di production param ini diabaikan,
   // gating real RTDB count yang berlaku.
   const forceUnlock =
-    import.meta.env.DEV && searchParams.get('unlock') === '1';
+    import.meta.env.DEV &&
+    (searchParams.get('unlock') === '1' ||
+      searchParams.get('purified') === '1');
   if (forceUnlock) return <TamanPetaPage />;
   // Hold redirect decision sampai first snapshot — tanpa ini, user
   // dengan count >=2000 di prod akan sempet ke-redirect ke /armeniacaTown
