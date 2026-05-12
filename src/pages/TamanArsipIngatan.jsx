@@ -2437,6 +2437,17 @@ const BookPedestalsNearMeja = ({
               onClick?.(book);
             }}
           >
+            {/* Invisible hitbox — book mesh sangat kecil (0.26 wide
+                × 0.06 tall), sulit di-click langsung terutama drought
+                state (di lantai). Cylinder hitbox lebih lebar bikin
+                click area generous. opacity 0 + transparent biar
+                invisible tapi tetep nge-catch pointer events. */}
+            <mesh position={[0, restored ? 0.5 : 0.18, 0]}>
+              <cylinderGeometry
+                args={[0.3, 0.3, restored ? 1.0 : 0.4, 8]}
+              />
+              <meshBasicMaterial transparent opacity={0} />
+            </mesh>
             {/* Pedestal — restored only. Drought: pedestal udah roboh,
                 buku jatuh ke lantai. Kasih sisa pedestal kecil pecah
                 buat narrative "dulu ada pedestal di sini." */}
