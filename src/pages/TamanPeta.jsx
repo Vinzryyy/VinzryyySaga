@@ -1096,16 +1096,18 @@ const PetaTelaga = ({
 };
 
 // PetaArsip — petak r2 di sisi timur peta (x=+7), mirror Telaga di
-// barat. Visual: bangunan perpustakaan mini dengan pojok atap hilang
-// (atap jebol signature) + 4 paper plane mengambang di sekitarnya.
-// 3 state berdasarkan tree support count:
-//   locked   (count < 5000)  — bangunan muted opacity + lock cube di doorway,
+// barat. 3 state berdasarkan tree support count:
+//   locked   (count < 5000)  — bangunan ruin muted opacity + lock cube,
 //                              interior buku & glow disembunyiin
-//   drought  (5000-6999)     — paper berserakan random drift, atap rusak,
-//                              tidak ada glow dari dalam
-//   restored (>=7000)        — paper drift teratur orbit, atap masih jebol
-//                              (luka kota gak dihapus), warm window glow
-//                              dari dalam ruangan
+//   drought  (5000-6999)     — bangunan ruin full opacity, atap jebol,
+//                              doorway + buku interior keliatan tapi gelap
+//   restored (>=7000)        — bangunan MEGAH baru: stone-cream taller
+//                              walls + 2 column flanking doorway + dome
+//                              di atas tengah + stained-glass window
+//                              dgn cross trim + 2 hanging lantern warm
+//                              glow. Mini-scar (notch pojok atap NW)
+//                              sengaja disisain — "yang bertahan, bukan
+//                              yang utuh dari awal".
 const PetaArsip = ({
   hovered,
   visited = false,
@@ -1117,6 +1119,7 @@ const PetaArsip = ({
 }) => {
   const groupRef = useRef();
   const windowMatRef = useRef();
+  const lanternMatRefs = useRef([]);
 
   useFrame((state, delta) => {
     if (groupRef.current) {
@@ -1130,8 +1133,19 @@ const PetaArsip = ({
     }
     if (windowMatRef.current && petakState === 'restored') {
       const t = state.clock.elapsedTime;
+      // Stained-glass slow shimmer — emissive pulse around 0.45 baseline.
       windowMatRef.current.emissiveIntensity =
-        0.22 + Math.sin(t * 0.6) * 0.06;
+        0.45 + Math.sin(t * 0.6) * 0.1;
+    }
+    // Lantern flicker — 2 phase-offset oscillations supaya gak in-sync,
+    // kerasa kayak api beneran, bukan LED uniform.
+    if (petakState === 'restored') {
+      const t = state.clock.elapsedTime;
+      lanternMatRefs.current.forEach((mat, i) => {
+        if (!mat) return;
+        mat.emissiveIntensity =
+          0.65 + Math.sin(t * 2.3 + i * 1.7) * 0.18;
+      });
     }
   });
 
@@ -1139,6 +1153,7 @@ const PetaArsip = ({
   // di depan doorway. Mirror PetaTelaga locked treatment.
   const baseOpacity = petakState === 'locked' ? 0.55 : 1;
   const isLocked = petakState === 'locked';
+  const isRestored = petakState === 'restored';
 
   return (
     <group
@@ -1165,191 +1180,373 @@ const PetaArsip = ({
 
       {/* Building meshes di-wrap di inner group dengan scale uniform.
           1.6x dipilih supaya footprint Arsip kerasa landmark setara
-          Telaga (radius rim ~1.6) di sisi timur — bangunan jadi sekitar
-          2.5 × 2.1 × 2.4 footprint dari sebelumnya 1.6 × 1.3 × 1.4. */}
+          Telaga (radius rim ~1.6) di sisi timur. */}
       <group scale={1.6}>
         {/* Visited halo — sepia ring di base saat udah dikunjungi.
             Skip kalau locked (consistent dgn Telaga locked behavior). */}
         {visited && !isLocked && (
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
-            <ringGeometry args={[1.05, 1.2, 32]} />
+            <ringGeometry args={[1.15, 1.32, 32]} />
             <meshStandardMaterial
-              color={petakState === 'restored' ? '#e8d4a8' : '#c8a060'}
-              emissive="#a87060"
-              emissiveIntensity={0.4}
+              color={isRestored ? '#f4d4a0' : '#c8a060'}
+              emissive={isRestored ? '#d49060' : '#a87060'}
+              emissiveIntensity={0.45}
               transparent
-              opacity={0.5}
+              opacity={0.55}
               toneMapped={false}
             />
           </mesh>
         )}
 
-        {/* Foundation — segi-empat low di base. Dark warm tone match
-            peta dusty palette (bukan cream cerah — bangunan harus
-            kerasa "weathered ruin" bukan landmark utama). */}
-        <mesh position={[0, 0.1, 0]}>
-          <boxGeometry args={[1.6, 0.2, 1.3]} />
-          <meshStandardMaterial
-            color="#3a2820"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-
-        {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong.
-            Tone selaras CityRuins/Telaga (`#3-5x3-4x2-3x` warm browns) —
-            biar gak nge-glow di scene yang dusty. */}
-        <mesh position={[0.6, 0.65, 0]}>
-          <boxGeometry args={[0.12, 0.9, 1.3]} />
-          <meshStandardMaterial
-            color="#4a3528"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-        <mesh position={[0, 0.65, -0.6]}>
-          <boxGeometry args={[1.32, 0.9, 0.12]} />
-          <meshStandardMaterial
-            color="#5a4030"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-        <mesh position={[0, 0.65, 0.6]}>
-          <boxGeometry args={[1.32, 0.9, 0.12]} />
-          <meshStandardMaterial
-            color="#5a4030"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-        <mesh position={[-0.6, 0.4, -0.3]}>
-          <boxGeometry args={[0.12, 0.4, 0.6]} />
-          <meshStandardMaterial
-            color="#4a3528"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-
-        {/* Doorway frame + sign plaque + interior books — skip kalau
-            locked. Building shape doang yang muncul (silhouette), detail
-            "ada kehidupan di dalam" disembunyiin sampai unlock. */}
-        {!isLocked && (
+        {isRestored ? (
           <>
-            {/* Doorway frame di celah front wall (-x side, opening z=0..0.6).
-                2 vertical pillars + top beam — kerasa "ini pintu masuk
-                perpustakaan" dari kejauhan, bukan sekadar dinding rusak. */}
-            <mesh position={[-0.66, 0.45, 0.55]}>
-              <boxGeometry args={[0.06, 0.5, 0.06]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            {/* === MEGAH RESTORED VARIANT === */}
+            {/* 2-tiered stone steps — kasih landing feel, foundation
+                naik dari ground. Wider lalu smaller (classical pediment). */}
+            <mesh position={[0, 0.04, 0]}>
+              <boxGeometry args={[2.05, 0.08, 1.75]} />
+              <meshStandardMaterial color="#a89070" roughness={0.85} />
             </mesh>
-            <mesh position={[-0.66, 0.45, 0.05]}>
-              <boxGeometry args={[0.06, 0.5, 0.06]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.95} />
-            </mesh>
-            <mesh position={[-0.66, 0.78, 0.3]}>
-              <boxGeometry args={[0.06, 0.08, 0.6]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            <mesh position={[0, 0.12, 0]}>
+              <boxGeometry args={[1.9, 0.08, 1.6]} />
+              <meshStandardMaterial color="#b8a080" roughness={0.85} />
             </mesh>
 
-            {/* Sign plaque di atas doorway — papan kayu kecil yang menggantung.
-                Tone match doorway frame. Di restored, sedikit lebih bright
-                hint "ada yang nyalakan plang lagi". */}
-            <mesh position={[-0.72, 0.93, 0.3]}>
-              <boxGeometry args={[0.03, 0.15, 0.32]} />
+            {/* Cream-stone foundation — warm marble tone, taller dari
+                versi ruin (0.1 → 0.16) supaya bangunan kerasa "berdiri". */}
+            <mesh position={[0, 0.24, 0]}>
+              <boxGeometry args={[1.65, 0.16, 1.35]} />
+              <meshStandardMaterial color="#c8b090" roughness={0.8} />
+            </mesh>
+
+            {/* Walls — cream-marble warm, taller (0.9 → 1.3), 3 sides
+                solid + front wall split by doorway opening tengah. */}
+            <mesh position={[0.62, 0.97, 0]}>
+              <boxGeometry args={[0.14, 1.3, 1.3]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            <mesh position={[0, 0.97, -0.62]}>
+              <boxGeometry args={[1.4, 1.3, 0.14]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            <mesh position={[0, 0.97, 0.62]}>
+              <boxGeometry args={[1.4, 1.3, 0.14]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            {/* Front wall sections — flanking doorway (opening z=-0.25..0.25) */}
+            <mesh position={[-0.62, 0.97, -0.45]}>
+              <boxGeometry args={[0.14, 1.3, 0.34]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            <mesh position={[-0.62, 0.97, 0.45]}>
+              <boxGeometry args={[0.14, 1.3, 0.34]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            {/* Lintel above doorway opening */}
+            <mesh position={[-0.62, 1.5, 0]}>
+              <boxGeometry args={[0.14, 0.22, 0.58]} />
+              <meshStandardMaterial color="#c8b090" roughness={0.8} />
+            </mesh>
+
+            {/* 2 freestanding columns flanking doorway entrance, fluted
+                cylinders w/ box capital. Classical portico vibe. */}
+            {[-0.5, 0.5].map((z, i) => (
+              <React.Fragment key={`col-${i}`}>
+                {/* Column base plinth */}
+                <mesh position={[-0.85, 0.35, z]}>
+                  <boxGeometry args={[0.16, 0.08, 0.16]} />
+                  <meshStandardMaterial color="#b8a080" roughness={0.85} />
+                </mesh>
+                {/* Column shaft */}
+                <mesh position={[-0.85, 0.85, z]}>
+                  <cylinderGeometry args={[0.07, 0.08, 0.95, 12]} />
+                  <meshStandardMaterial color="#e8d8b8" roughness={0.7} />
+                </mesh>
+                {/* Column capital */}
+                <mesh position={[-0.85, 1.34, z]}>
+                  <boxGeometry args={[0.18, 0.07, 0.18]} />
+                  <meshStandardMaterial color="#c8b090" roughness={0.8} />
+                </mesh>
+              </React.Fragment>
+            ))}
+            {/* Pediment/cornice spanning both columns + lintel */}
+            <mesh position={[-0.85, 1.42, 0]}>
+              <boxGeometry args={[0.22, 0.09, 1.3]} />
+              <meshStandardMaterial color="#b8a080" roughness={0.8} />
+            </mesh>
+            {/* Triangular pediment top — flat box approximating apex */}
+            <mesh position={[-0.85, 1.52, 0]}>
+              <boxGeometry args={[0.2, 0.1, 0.6]} />
+              <meshStandardMaterial color="#c8b090" roughness={0.8} />
+            </mesh>
+
+            {/* Hanging lanterns — 2 flanking the doorway, brass warm
+                glow. Refs di-track utk flicker animation. */}
+            {[-0.55, 0.55].map((z, i) => (
+              <React.Fragment key={`lantern-${i}`}>
+                {/* String holding lantern to portico cornice */}
+                <mesh position={[-0.95, 1.27, z]}>
+                  <boxGeometry args={[0.012, 0.18, 0.012]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+                {/* Lantern body — brass cube */}
+                <mesh position={[-0.95, 1.08, z]}>
+                  <boxGeometry args={[0.09, 0.16, 0.09]} />
+                  <meshStandardMaterial
+                    ref={(el) => (lanternMatRefs.current[i] = el)}
+                    color="#e8a460"
+                    emissive="#d49060"
+                    emissiveIntensity={0.7}
+                    roughness={0.5}
+                  />
+                </mesh>
+                {/* Lantern top cap */}
+                <mesh position={[-0.95, 1.18, z]}>
+                  <boxGeometry args={[0.11, 0.02, 0.11]} />
+                  <meshStandardMaterial color="#7a5230" roughness={0.7} />
+                </mesh>
+              </React.Fragment>
+            ))}
+
+            {/* Sign plaque — brass tone, bigger di restored */}
+            <mesh position={[-1.02, 1.0, 0]}>
+              <boxGeometry args={[0.03, 0.18, 0.42]} />
               <meshStandardMaterial
-                color={petakState === 'restored' ? '#7a5a40' : '#4a3528'}
-                roughness={0.85}
+                color="#b88848"
+                emissive="#b88848"
+                emissiveIntensity={0.12}
+                roughness={0.6}
               />
             </mesh>
-            {/* 2 string tipis nyatuin plaque ke top beam */}
-            <mesh position={[-0.69, 0.86, 0.2]}>
-              <boxGeometry args={[0.012, 0.05, 0.012]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+
+            {/* Tumpukan buku interior — vibrant warna restored (mirror
+                vibrant palette inside scene), visible lewat doorway. */}
+            <mesh position={[-0.35, 0.42, 0.18]} rotation={[0, 0.2, 0]}>
+              <boxGeometry args={[0.18, 0.05, 0.13]} />
+              <meshStandardMaterial color="#9a4548" roughness={0.85} />
             </mesh>
-            <mesh position={[-0.69, 0.86, 0.4]}>
-              <boxGeometry args={[0.012, 0.05, 0.012]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            <mesh position={[-0.34, 0.47, 0.2]} rotation={[0, -0.1, 0.05]}>
+              <boxGeometry args={[0.17, 0.05, 0.12]} />
+              <meshStandardMaterial color="#3a5a78" roughness={0.85} />
+            </mesh>
+            <mesh position={[-0.28, 0.54, 0.3]} rotation={[0, 0.6, 0.4]}>
+              <boxGeometry args={[0.12, 0.18, 0.04]} />
+              <meshStandardMaterial color="#9a7838" roughness={0.85} />
             </mesh>
 
-            {/* Tumpukan buku samar di interior, visible lewat doorway.
-                3 buku — 2 ditumpuk horizontal + 1 berdiri leaning. Spine
-                colors muted (match peta dusty palette, gak loud). */}
-            <mesh position={[-0.35, 0.27, 0.3]} rotation={[0, 0.2, 0]}>
-              <boxGeometry args={[0.18, 0.05, 0.13]} />
-              <meshStandardMaterial color="#5a3025" roughness={0.9} />
+            {/* Stained-glass window — east wall, tall + rich rose-amber
+                glow w/ cross trim. Replaces drought's small dark slit. */}
+            <mesh position={[0.7, 0.95, 0]}>
+              <boxGeometry args={[0.04, 0.7, 0.7]} />
+              <meshStandardMaterial
+                ref={windowMatRef}
+                color="#e84878"
+                emissive="#e84878"
+                emissiveIntensity={0.45}
+                roughness={0.4}
+                toneMapped={false}
+              />
             </mesh>
-            <mesh position={[-0.34, 0.32, 0.32]} rotation={[0, -0.1, 0.05]}>
-              <boxGeometry args={[0.17, 0.05, 0.12]} />
-              <meshStandardMaterial color="#3a3858" roughness={0.9} />
+            {/* Cross-shape trim — 2 thin bands forming + over window */}
+            <mesh position={[0.72, 0.95, 0]}>
+              <boxGeometry args={[0.05, 0.7, 0.05]} />
+              <meshStandardMaterial color="#5a4030" roughness={0.85} />
             </mesh>
-            <mesh position={[-0.28, 0.39, 0.42]} rotation={[0, 0.6, 0.4]}>
-              <boxGeometry args={[0.12, 0.18, 0.04]} />
-              <meshStandardMaterial color="#5a4830" roughness={0.9} />
+            <mesh position={[0.72, 0.95, 0]}>
+              <boxGeometry args={[0.05, 0.05, 0.7]} />
+              <meshStandardMaterial color="#5a4030" roughness={0.85} />
+            </mesh>
+
+            {/* Roof — main flat slab cream marble */}
+            <mesh position={[0, 1.7, 0]}>
+              <boxGeometry args={[1.55, 0.1, 1.45]} />
+              <meshStandardMaterial color="#a89070" roughness={0.85} />
+            </mesh>
+            {/* Roof cornice — slight overhang darker trim */}
+            <mesh position={[0, 1.76, 0]}>
+              <boxGeometry args={[1.7, 0.04, 1.55]} />
+              <meshStandardMaterial color="#7a6850" roughness={0.85} />
+            </mesh>
+
+            {/* Dome — small hemisphere centered atas roof */}
+            <mesh position={[0, 1.78, 0]}>
+              <sphereGeometry args={[0.42, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.7} />
+            </mesh>
+            {/* Dome trim band at base */}
+            <mesh position={[0, 1.78, 0]}>
+              <torusGeometry args={[0.42, 0.025, 8, 24]} />
+              <meshStandardMaterial color="#b88848" roughness={0.6} />
+            </mesh>
+            {/* Dome finial — brass spike on top */}
+            <mesh position={[0, 2.22, 0]}>
+              <coneGeometry args={[0.045, 0.16, 8]} />
+              <meshStandardMaterial
+                color="#d4a050"
+                emissive="#b88848"
+                emissiveIntensity={0.25}
+                roughness={0.55}
+              />
+            </mesh>
+
+            {/* Subtle scar — pojok atap NW slightly indented (notch).
+                "Yang bertahan, bukan yang utuh dari awal" — luka kota
+                tetep ditinggal walau megah. */}
+            <mesh position={[-0.68, 1.7, -0.62]}>
+              <boxGeometry args={[0.22, 0.06, 0.22]} />
+              <meshStandardMaterial color="#5a4830" roughness={1} />
+            </mesh>
+          </>
+        ) : (
+          <>
+            {/* === RUIN VARIANT (drought + locked) === */}
+            {/* Foundation — segi-empat low di base. Dark warm tone match
+                peta dusty palette (bukan cream cerah — bangunan harus
+                kerasa "weathered ruin" bukan landmark utama). */}
+            <mesh position={[0, 0.1, 0]}>
+              <boxGeometry args={[1.6, 0.2, 1.3]} />
+              <meshStandardMaterial
+                color="#3a2820"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+
+            {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong.
+                Tone selaras CityRuins/Telaga warm browns. */}
+            <mesh position={[0.6, 0.65, 0]}>
+              <boxGeometry args={[0.12, 0.9, 1.3]} />
+              <meshStandardMaterial
+                color="#4a3528"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+            <mesh position={[0, 0.65, -0.6]}>
+              <boxGeometry args={[1.32, 0.9, 0.12]} />
+              <meshStandardMaterial
+                color="#5a4030"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+            <mesh position={[0, 0.65, 0.6]}>
+              <boxGeometry args={[1.32, 0.9, 0.12]} />
+              <meshStandardMaterial
+                color="#5a4030"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+            <mesh position={[-0.6, 0.4, -0.3]}>
+              <boxGeometry args={[0.12, 0.4, 0.6]} />
+              <meshStandardMaterial
+                color="#4a3528"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+
+            {/* Doorway frame + sign plaque + interior books — skip kalau
+                locked. Building shape doang yang muncul (silhouette). */}
+            {!isLocked && (
+              <>
+                <mesh position={[-0.66, 0.45, 0.55]}>
+                  <boxGeometry args={[0.06, 0.5, 0.06]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+                <mesh position={[-0.66, 0.45, 0.05]}>
+                  <boxGeometry args={[0.06, 0.5, 0.06]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+                <mesh position={[-0.66, 0.78, 0.3]}>
+                  <boxGeometry args={[0.06, 0.08, 0.6]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+                <mesh position={[-0.72, 0.93, 0.3]}>
+                  <boxGeometry args={[0.03, 0.15, 0.32]} />
+                  <meshStandardMaterial color="#4a3528" roughness={0.85} />
+                </mesh>
+                <mesh position={[-0.69, 0.86, 0.2]}>
+                  <boxGeometry args={[0.012, 0.05, 0.012]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+                <mesh position={[-0.69, 0.86, 0.4]}>
+                  <boxGeometry args={[0.012, 0.05, 0.012]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+                <mesh position={[-0.35, 0.27, 0.3]} rotation={[0, 0.2, 0]}>
+                  <boxGeometry args={[0.18, 0.05, 0.13]} />
+                  <meshStandardMaterial color="#5a3025" roughness={0.9} />
+                </mesh>
+                <mesh position={[-0.34, 0.32, 0.32]} rotation={[0, -0.1, 0.05]}>
+                  <boxGeometry args={[0.17, 0.05, 0.12]} />
+                  <meshStandardMaterial color="#3a3858" roughness={0.9} />
+                </mesh>
+                <mesh position={[-0.28, 0.39, 0.42]} rotation={[0, 0.6, 0.4]}>
+                  <boxGeometry args={[0.12, 0.18, 0.04]} />
+                  <meshStandardMaterial color="#5a4830" roughness={0.9} />
+                </mesh>
+              </>
+            )}
+
+            {/* Lock cube di depan doorway — sinyal visual "belum bisa
+                masuk", mirror Telaga locked treatment. */}
+            {isLocked && (
+              <mesh position={[-0.5, 0.45, 0.3]}>
+                <boxGeometry args={[0.18, 0.18, 0.1]} />
+                <meshStandardMaterial color="#5a5048" roughness={1} />
+              </mesh>
+            )}
+
+            {/* Window — drought: gelap solid. Locked: solid + muted
+                opacity. */}
+            <mesh position={[0.54, 0.6, 0]}>
+              <boxGeometry args={[0.04, 0.35, 0.5]} />
+              <meshStandardMaterial
+                color="#2a1812"
+                roughness={0.6}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+
+            {/* Atap — beam kayu paralel sumbu z. Pojok depan-atas sengaja
+                tidak ditutup (atap jebol signature). */}
+            <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
+              <boxGeometry args={[1.1, 0.08, 1.4]} />
+              <meshStandardMaterial
+                color="#3a2820"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+            <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
+              <boxGeometry args={[0.5, 0.06, 0.06]} />
+              <meshStandardMaterial
+                color="#3a2820"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+            <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
+              <boxGeometry args={[0.06, 0.06, 0.4]} />
+              <meshStandardMaterial
+                color="#3a2820"
+                roughness={0.95}
+                transparent
+                opacity={baseOpacity}
+              />
             </mesh>
           </>
         )}
-
-        {/* Lock cube di depan doorway — sinyal visual "belum bisa masuk",
-            mirror Telaga locked treatment. */}
-        {isLocked && (
-          <mesh position={[-0.5, 0.45, 0.3]}>
-            <boxGeometry args={[0.18, 0.18, 0.1]} />
-            <meshStandardMaterial color="#5a5048" roughness={1} />
-          </mesh>
-        )}
-
-        {/* Window — restored state nyala warm tapi intensity diturunin
-            0.4 → 0.22 supaya hint glow, bukan dominate scene. Drought:
-            gelap solid. Locked: solid + muted opacity (gak ada glow). */}
-        <mesh position={[0.54, 0.6, 0]}>
-          <boxGeometry args={[0.04, 0.35, 0.5]} />
-          <meshStandardMaterial
-            ref={windowMatRef}
-            color={petakState === 'restored' ? '#d49060' : '#2a1812'}
-            emissive={petakState === 'restored' ? '#d49060' : '#000000'}
-            emissiveIntensity={petakState === 'restored' ? 0.22 : 0}
-            roughness={0.6}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-
-        {/* Atap — beam kayu paralel sumbu z. Pojok depan-atas sengaja
-            tidak ditutup (atap jebol signature). */}
-        <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
-          <boxGeometry args={[1.1, 0.08, 1.4]} />
-          <meshStandardMaterial
-            color="#3a2820"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-        <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
-          <boxGeometry args={[0.5, 0.06, 0.06]} />
-          <meshStandardMaterial
-            color="#3a2820"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
-        <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
-          <boxGeometry args={[0.06, 0.06, 0.4]} />
-          <meshStandardMaterial
-            color="#3a2820"
-            roughness={0.95}
-            transparent
-            opacity={baseOpacity}
-          />
-        </mesh>
       </group>
 
       <Html position={[0, 2.3, 0]} center distanceFactor={10} occlude={false}>
