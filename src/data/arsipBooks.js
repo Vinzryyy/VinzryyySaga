@@ -40,6 +40,7 @@ export const CATEGORIES = {
 // Pedestal angles untuk drought floor layout (radius 3.0 dari meja).
 export const PEDESTAL_ANGLES = {
   'anak-pohon': 135,              // NW
+  'bukan-kolonial': 120,           // NW (introvert nature, dekat anak-pohon karena thematic)
   'sebelum-panggung': 105,        // N-NE
   'jaipong-akar': 75,             // NE
   'suara-memanggil': 45,          // E-NE
@@ -54,6 +55,7 @@ export const PEDESTAL_ANGLES = {
 // Reading order — narrative arc kronologis hidup Eli.
 export const ARSIP_STORY_ORDER = [
   'anak-pohon',            // masa TK
+  'bukan-kolonial',        // adult introvert nature (root continuation)
   'sebelum-panggung',      // pre-JKT48
   'culture-shock',         // adaptasi Bandung→Jakarta
   'jaipong-akar',          // bahasa tubuh
@@ -88,6 +90,32 @@ export const ARSIP_BOOKS = [
         'Ini bukan kejadian sekali atau dua kali. Ini kebiasaan yang bertahan untuk waktu yang cukup lama di masa kanak-kanak awal. Bukan karena dia menolak teman-temannya — dia hanya sudah punya dunia sendiri yang dia sukai lebih dari ruang kelas yang seragam.',
         'Bertahun-tahun setelahnya, kita bisa lihat: kepribadian itu gak hilang. Eli yang sekarang tampil di panggung Theater JKT48 punya energi yang sama dengan anak kecil yang naik pohon di TK. Masih punya dunia sendiri di tengah keramaian, masih bikin ruang kecilnya sendiri walau dikelilingi banyak member dan ribuan penonton.',
         'Pohon yang dulu jadi tempat naik, sekarang jadi panggung. Pasir yang dulu tempat sembunyi, sekarang jadi setlist. Tapi yang naik dan yang sembunyi, masih orang yang sama: anak kecil yang sudah lebih dulu tahu bahwa kadang-kadang dunia yang paling menarik adalah yang dia bikin sendiri.',
+      ],
+    }),
+  },
+  {
+    id: 'bukan-kolonial',
+    title: 'Bukan Kolonial — Eli yang Lebih Tenang dari Bayangan',
+    eyebrow: 'Cerita · Diam yang Sebenarnya',
+    category: CATEGORIES.REFLEKSI,
+    era: null,
+    source: 'Eli IDN Live · curated by Armeniaca',
+    rakSlot: RAK_SLOTS.NE,
+    unlockTier: UNLOCK_TIERS.DROUGHT,
+    spineColor: '#4a5a68',
+    preview:
+      'Aktif di panggung bukan default-nya. Di backstage, dia memilih sunyi.',
+    getBody: () => ({
+      type: 'prose-story',
+      paragraphs: [
+        'Ada cerita yang seringkali tidak terlihat dari panggung. Eli yang fans kenal — yang aktif, yang random, yang penuh energi — ternyata hanya satu sisi dari dirinya.',
+        'Pernah Eli buka secara terbuka di livestreamnya: sebenarnya, di belakang panggung dia bisa banget jauh lebih tenang. Lebih observant. Lebih dalam mode yang gak orang lihat di Theater atau di MV.',
+        '"Aktif" yang fans lihat di panggung bukan bohong — itu beneran dia. Tapi itu juga bukan default-nya. Dia bisa "random" karena memang ada bagian dari kepribadiannya yang playful dan spontan. Tapi itu muncul, bukan terus-menerus dia tampilkan.',
+        'Di JKT48, ada istilah internal: "kolonial." Member yang selalu bergerak dalam rombongan, selalu hangout, selalu ada di tempat yang ramai. Yang antusias-nya tetap ke kerumunan. Eli mengakui — dia bukan tipe itu.',
+        'Dia lebih nyaman dengan dirinya sendiri. Lebih cocok dipanggil loner — bukan dalam arti negatif yang menjauhkan dari orang lain, tapi dalam arti yang lebih sederhana: dia bisa menikmati keberadaannya sendiri tanpa butuh kerumunan.',
+        'Mungkin ini terasa familiar buat anak yang dulu naik pohon di TK. Kepribadian itu gak berubah jauh. Yang berubah adalah konteks: dulu pohon dan area pasir di bawah perosotan, sekarang sudut backstage atau kamar dressing yang sepi.',
+        'Tidak ada yang lebih atau kurang sah antara "aktif di panggung" dan "tenang di belakang." Keduanya bagian dari satu orang yang sama. Eli yang di panggung melakukan tugasnya sebagai performer dengan semua energi yang dia bawa. Eli yang di backstage memberi dirinya ruang untuk pulih, untuk diam, untuk jadi dirinya sendiri.',
+        'Mungkin itu juga yang bikin energi panggungnya berkualitas. Bukan dipaksakan dari kosong, tapi dipanggil dari ruang yang dia jaga dengan tenang.',
       ],
     }),
   },

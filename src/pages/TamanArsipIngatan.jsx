@@ -2712,6 +2712,7 @@ const MEJA_INTERACTIVE_IDS = [];
 const STACK_INTERACTIVE_IDS = ['sebelum-panggung', 'suara-memanggil'];
 const SIDE_TABLE_INTERACTIVE_IDS = [
   'anak-pohon',
+  'bukan-kolonial',
   'culture-shock',
   'jaipong-akar',
   'panggung-kecil',
@@ -2983,18 +2984,20 @@ const SIDE_TABLE_POS = [-1.8, 0, 0];
 const SIDE_TABLE_W = 2.0;
 const SIDE_TABLE_D = 1.2;
 const SIDE_TABLE_TOP_Y = 0.75;
-// Layout 8 books: 2 row × 4 col grid. Side table host 8 buku unique funfact.
+// Layout 9 books: 3 × 3 grid.
 const SIDE_TABLE_BOOK_SLOTS = [
-  // Row belakang (+z 0.3) — 4 books
-  { dx: -0.75, dz: 0.3 },
-  { dx: -0.25, dz: 0.3 },
-  { dx: 0.25, dz: 0.3 },
-  { dx: 0.75, dz: 0.3 },
-  // Row depan (-z -0.3) — 4 books
-  { dx: -0.75, dz: -0.3 },
-  { dx: -0.25, dz: -0.3 },
-  { dx: 0.25, dz: -0.3 },
-  { dx: 0.75, dz: -0.3 },
+  // Row belakang (+z 0.35) — 3 books
+  { dx: -0.7, dz: 0.35 },
+  { dx: 0, dz: 0.35 },
+  { dx: 0.7, dz: 0.35 },
+  // Row tengah (z 0) — 3 books
+  { dx: -0.7, dz: 0 },
+  { dx: 0, dz: 0 },
+  { dx: 0.7, dz: 0 },
+  // Row depan (-z -0.35) — 3 books
+  { dx: -0.7, dz: -0.35 },
+  { dx: 0, dz: -0.35 },
+  { dx: 0.7, dz: -0.35 },
 ];
 
 const SideTableBooks = ({
