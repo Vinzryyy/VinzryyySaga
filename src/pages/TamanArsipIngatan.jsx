@@ -2328,6 +2328,15 @@ const ArsipScene = ({
       <OpenNotebook />
       <WaxCandle restored={restored} />
 
+      {/* Furniture & landmark batch — 5 piece besar yang ngisi pojok2
+          ruangan, kasih variety silhouette + memperkuat "ini perpustakaan
+          beneran, bukan box kosong." */}
+      <Globe restored={restored} />
+      <CardCatalog />
+      <WingChair restored={restored} />
+      <Hourglass restored={restored} />
+      <PlantPot restored={restored} />
+
       {/* Rak NW (utuh) */}
       {booksByRak.nw.length > 0 && (
         <Bookshelf
