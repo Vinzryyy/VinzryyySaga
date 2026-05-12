@@ -419,16 +419,89 @@ const KebaikanBody = ({ body }) => (
         )}
       </div>
     ))}
-    <div className="pt-2 border-t border-[color:var(--retro-brown-dark)]/15">
-      <Link
-        to="/26"
-        className="inline-flex items-center gap-1 text-xs text-[color:var(--retro-burgundy)] hover:underline"
-      >
-        Lihat selengkapnya di Pohon Kebaikan →
-      </Link>
-    </div>
   </div>
 );
+
+// =====================================================================
+// Cross-link footer — relasi buku ke ruangan/halaman lain
+// =====================================================================
+
+// Map dari book category/era ke list cross-links yang relevant.
+// Tujuan: bantu user explore lebih jauh setelah baca, gak dead-end di
+// dalam Arsip. Tiap link punya eyebrow (kategori) + label (CTA).
+const buildCrossLinks = (book) => {
+  const links = [];
+
+  // Buku linimasa/diskografi/era-fight punya era → link ke Konstelasi
+  // bintang yang sama (hash navigation ke milestone id).
+  if (book.era) {
+    links.push({
+      key: `konstelasi-${book.era}`,
+      to: '/armeniacaTown/r1',
+      eyebrow: 'Petak R1',
+      label: 'Lihat bintang ini di Konstelasi Perjalanan',
+    });
+  }
+
+  // Buku kebaikan → link ke Pohon Kebaikan (/26) — sumber data
+  // & action untuk siram.
+  if (book.category === 'kebaikan') {
+    links.push({
+      key: 'pohon-kebaikan',
+      to: '/26',
+      eyebrow: 'Pohon Kebaikan',
+      label: 'Siram Pohon Aprikot di /26',
+    });
+  }
+
+  // Buku refleksi (etimologi/filosofi) tanpa era → link ke /about
+  // (Armeniaca etymology fuller version + motif legend).
+  if (book.category === 'refleksi' && !book.era) {
+    links.push({
+      key: 'about-armeniaca',
+      to: '/about',
+      eyebrow: 'Tentang Armeniaca',
+      label: 'Lihat selengkapnya tentang proyek',
+    });
+  }
+
+  return links;
+};
+
+const CrossLinkFooter = ({ book, onClose }) => {
+  const links = useMemo(() => buildCrossLinks(book), [book]);
+  if (links.length === 0) return null;
+  return (
+    <div className="mt-8 pt-5 border-t border-[color:var(--retro-brown-dark)]/15">
+      <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/55 mb-3">
+        Lihat juga
+      </div>
+      <div className="space-y-2">
+        {links.map((l) => (
+          <Link
+            key={l.key}
+            to={l.to}
+            onClick={() => onClose?.()}
+            className="block px-4 py-3 rounded-lg border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-cream)]/60 transition group"
+          >
+            <div className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/75 mb-1">
+              {l.eyebrow}
+            </div>
+            <div
+              className="text-[color:var(--retro-brown-dark)]/90 group-hover:text-[color:var(--retro-burgundy)] text-sm transition"
+              style={{
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+              }}
+            >
+              {l.label} →
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 // =====================================================================
 // Body dispatcher
@@ -641,6 +714,13 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
           <div className="border-t border-[color:var(--retro-brown-dark)]/15 pt-6">
             <BookBody book={book} />
           </div>
+
+          {/* Cross-link footer — "Lihat juga" untuk buku yang punya
+              relasi ke ruangan lain. Tujuan: ngehubungin Arsip ke
+              Konstelasi (via book.era) & Pohon (via category kebaikan).
+              Untuk buku refleksi (tanpa era), kasih link ke /about
+              (Armeniaca etymology fuller version). */}
+          <CrossLinkFooter book={book} onClose={onClose} />
         </div>
 
         {/* Footer prev/next */}
