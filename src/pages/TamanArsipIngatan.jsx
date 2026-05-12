@@ -236,15 +236,43 @@ const Walls = ({ restored }) => {
         <boxGeometry args={[0.2, ROOM_H, 4]} />
         {plasterMat}
       </mesh>
-      {/* Breach rubble — pile bata di base celah */}
-      <mesh position={[-ROOM_W / 2 + 0.4, 0.3, 4.5]} rotation={[0, 0.3, 0.1]}>
-        <boxGeometry args={[0.8, 0.6, 2.2]} />
-        <meshStandardMaterial color="#7a5648" roughness={0.95} />
-      </mesh>
-      <mesh position={[-ROOM_W / 2 + 0.9, 0.18, 3.4]} rotation={[0, -0.4, 0]}>
-        <boxGeometry args={[0.5, 0.35, 0.9]} />
-        <meshStandardMaterial color="#8a6258" roughness={0.95} />
-      </mesh>
+      {/* Breach rubble — pile bata di base celah. Drought only —
+          restored: rubble udah di-clean up. */}
+      {!restored && (
+        <>
+          <mesh position={[-ROOM_W / 2 + 0.4, 0.3, 4.5]} rotation={[0, 0.3, 0.1]}>
+            <boxGeometry args={[0.8, 0.6, 2.2]} />
+            <meshStandardMaterial color="#7a5648" roughness={0.95} />
+          </mesh>
+          <mesh position={[-ROOM_W / 2 + 0.9, 0.18, 3.4]} rotation={[0, -0.4, 0]}>
+            <boxGeometry args={[0.5, 0.35, 0.9]} />
+            <meshStandardMaterial color="#8a6258" roughness={0.95} />
+          </mesh>
+        </>
+      )}
+
+      {/* Restored: wooden plank patches nutup wall breach (-X, z:3..6).
+          4 vertical planks dari y=0 ke ceiling, kerasa "luka ditutup
+          dengan papan kayu." Drought: breach tetap terbuka. */}
+      {restored && (
+        <group position={[-ROOM_W / 2 + 0.06, 0, 0]}>
+          {[3.2, 3.9, 4.6, 5.3, 6.0].map((z, i) => (
+            <mesh key={`bp-${i}`} position={[0, ROOM_H / 2, z]}>
+              <boxGeometry args={[0.06, ROOM_H, 0.65]} />
+              <meshStandardMaterial color="#5a4030" roughness={0.95} />
+            </mesh>
+          ))}
+          {/* Cross-braces 2 horizontal planks */}
+          <mesh position={[0, 2, 4.5]}>
+            <boxGeometry args={[0.08, 0.12, 3.2]} />
+            <meshStandardMaterial color="#4a3020" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 4.5, 4.5]}>
+            <boxGeometry args={[0.08, 0.12, 3.2]} />
+            <meshStandardMaterial color="#4a3020" roughness={0.95} />
+          </mesh>
+        </group>
+      )}
 
       {/* Outside silhouette through breach — distant city ruin sketches.
           Renders di luar dinding sebagai backdrop, kerasa "ada kota di
@@ -269,8 +297,9 @@ const Walls = ({ restored }) => {
 
 // Ceiling — kayu beam paralel sumbu X. Hole di pojok barat-laut
 // (-4, 6, 6) approximately — render ceiling sebagai 4 segment dengan
-// celah persegi panjang di tengah-pojok.
-const Ceiling = () => {
+// celah persegi panjang di tengah-pojok. Restored: patch wooden boards
+// nutup hole supaya void gak terlihat dari interior.
+const Ceiling = ({ restored = false }) => {
   // Hole bounds: x: -6..-2, z: 4..8
   const beamMat = (
     <meshStandardMaterial color={COLORS.ceiling} roughness={0.9} />
@@ -300,7 +329,8 @@ const Ceiling = () => {
       </mesh>
 
       {/* Beam patah menjuntai di edge hole — broken beam end yang
-          gak runtuh tapi bengkok */}
+          gak runtuh tapi bengkok. Restored: beam-beam udah balik ke
+          posisi tapi tetap visible buat narrative "patch work." */}
       <mesh position={[-3, -0.3, 5]} rotation={[0, 0, -0.4]}>
         <boxGeometry args={[1.2, 0.15, 0.15]} />
         {beamMat}
@@ -309,6 +339,19 @@ const Ceiling = () => {
         <boxGeometry args={[0.15, 0.15, 1.5]} />
         {beamMat}
       </mesh>
+
+      {/* Restored: patch wooden boards nutup atap jebol (-4, 6, area
+          x:-6..-2 z:4..8). Hole 4×4 di-cover by 3 planks paralel z. */}
+      {restored && (
+        <group position={[-4, -0.02, 6]}>
+          {[-1.3, 0, 1.3].map((dz, i) => (
+            <mesh key={`ptch-${i}`} position={[0, 0, dz]}>
+              <boxGeometry args={[4.1, 0.06, 1.35]} />
+              <meshStandardMaterial color="#5a4030" roughness={0.95} />
+            </mesh>
+          ))}
+        </group>
+      )}
 
       {/* Visible cross-beams — 4 balok kayu menggantung sedikit di bawah
           ceiling, paralel sumbu X. Kasih architectural depth saat user
@@ -3837,7 +3880,7 @@ const ArsipScene = ({
       <LightPoolFloor restored={restored} />
       <Walls restored={restored} />
       <DoorFrame restored={restored} />
-      <Ceiling />
+      <Ceiling restored={restored} />
       <WallCracks />
       {/* GodRayCone di-disable — terlalu dominan di scene, lewat Bloom
           jadi gold pillar yang nutup view meja & rak. Directional light
