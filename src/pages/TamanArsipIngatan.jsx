@@ -638,6 +638,7 @@ const Bookshelf = ({
   onOut,
   onClick,
   scaleH = 1, // S small kept ~0.8
+  restored = false,
 }) => {
   const w = 3 * scaleH;
   const h = 3 * scaleH;
@@ -798,31 +799,93 @@ const Bookshelf = ({
       })}
 
       {/* Decorative non-interactive books — fill empty slots dengan
-          spine warna acak buat estetika rak yang "penuh" */}
-      {slots.length < 10 &&
-        Array.from({ length: 10 - slots.length }, (_, i) => {
+          spine warna acak buat estetika rak yang "penuh". Restored:
+          tightly-packed dgn cols=7 supaya rak kerasa fully stocked
+          (~14 per shelf). Drought: cols=5 (sparser, beberapa empty
+          slot tetap kerasa "ada buku yang ilang"). */}
+      {(() => {
+        const fillCols = restored ? 7 : 5;
+        const fillCap = fillCols * 2;
+        if (slots.length >= fillCap) return null;
+        return Array.from({ length: fillCap - slots.length }, (_, i) => {
           const idx = slots.length + i;
-          const row = Math.floor(idx / 5);
-          const col = idx % 5;
-          const x = -w / 2 + (col + 0.5) * (w / 5);
+          const row = Math.floor(idx / fillCols);
+          const col = idx % fillCols;
+          const x = -w / 2 + (col + 0.5) * (w / fillCols);
           const y = -h / 2 + 0.3 + row * (h / 2);
           const z = -d / 2 + 0.2;
           const seed = hashSeed(`deco-${position[0]}-${idx}`);
           const colors = ['#7a5840', '#5a4030', '#a08068', '#6a4830', '#3a4858'];
+          const bookW = restored ? 0.1 + seed * 0.03 : 0.13;
           return (
             <mesh
               key={`deco-${i}`}
               position={[x, y + seed * 0.04, z]}
               rotation={[0, 0, (seed - 0.5) * 0.06]}
             >
-              <boxGeometry args={[0.13, 0.48 - seed * 0.1, 0.32]} />
+              <boxGeometry args={[bookW, 0.48 - seed * 0.1, 0.32]} />
               <meshStandardMaterial
                 color={colors[Math.floor(seed * colors.length)]}
                 roughness={0.85}
               />
             </mesh>
           );
-        })}
+        });
+      })()}
+
+      {/* Restored only: extra leaning books + stacks horizontal di
+          edges supaya rak gak cuma rigid grid — kerasa lived-in.
+          1 horizontal stack di pojok bawah, 2 leaning books di top
+          shelf. Deterministic via hashSeed(position). */}
+      {restored && (() => {
+        const baseSeed = hashSeed(`extra-${position[0]}-${position[2]}`);
+        const horizColors = ['#5a3a25', '#7a5840', '#a08068', '#3a4858'];
+        return (
+          <>
+            {/* Horizontal book stack di bottom shelf */}
+            {Array.from({ length: 3 }).map((_, i) => (
+              <mesh
+                key={`hstack-${i}`}
+                position={[
+                  w / 2 - 0.35 - i * 0.005,
+                  -h / 2 + 0.06 + i * 0.07,
+                  -d / 2 + 0.18,
+                ]}
+                rotation={[0, 0, (baseSeed - 0.5) * 0.04]}
+              >
+                <boxGeometry args={[0.3, 0.06, 0.34]} />
+                <meshStandardMaterial
+                  color={horizColors[(i + Math.floor(baseSeed * 4)) % horizColors.length]}
+                  roughness={0.88}
+                />
+              </mesh>
+            ))}
+            {/* Leaning book di top shelf edge */}
+            <mesh
+              position={[
+                -w / 2 + 0.18,
+                h / 2 - 0.25,
+                -d / 2 + 0.2,
+              ]}
+              rotation={[0, 0, 0.25]}
+            >
+              <boxGeometry args={[0.12, 0.44, 0.32]} />
+              <meshStandardMaterial color="#5a3030" roughness={0.85} />
+            </mesh>
+            <mesh
+              position={[
+                -w / 2 + 0.32,
+                h / 2 - 0.27,
+                -d / 2 + 0.2,
+              ]}
+              rotation={[0, 0, 0.18]}
+            >
+              <boxGeometry args={[0.11, 0.42, 0.32]} />
+              <meshStandardMaterial color="#3a4858" roughness={0.85} />
+            </mesh>
+          </>
+        );
+      })()}
     </group>
   );
 };
@@ -1954,36 +2017,119 @@ const Globe = ({ restored }) => (
 );
 
 // 4. CardCatalog — cabinet 12 drawer untuk index buku, southwest
-const CardCatalog = () => (
-  <group position={[-5.5, 0, -6]} rotation={[0, 0.3, 0]}>
-    <mesh position={[0, 0.6, 0]}>
-      <boxGeometry args={[1.1, 1.2, 0.6]} />
-      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
-    </mesh>
-    {Array.from({ length: 12 }, (_, i) => {
-      const col = i % 3;
-      const row = Math.floor(i / 3);
-      const x = -0.36 + col * 0.36;
-      const y = 0.15 + row * 0.3;
-      return (
-        <group key={`dr-${i}`} position={[x, y, 0.32]}>
-          <mesh>
-            <boxGeometry args={[0.32, 0.26, 0.04]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.95} />
-          </mesh>
-          <mesh position={[0, 0, 0.025]}>
-            <boxGeometry args={[0.06, 0.02, 0.01]} />
-            <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.6} />
-          </mesh>
-        </group>
-      );
-    })}
-    <mesh position={[0, 1.21, 0]}>
-      <boxGeometry args={[1.15, 0.03, 0.65]} />
-      <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
-    </mesh>
-  </group>
-);
+const CardCatalog = ({ restored = false }) => {
+  // Drawers to pull out in restored state — 2 drawers slightly open,
+  // 1 more pulled further. Cards visible inside via stack of thin
+  // beige planes.
+  const openDrawerMap = restored
+    ? { 4: 0.14, 7: 0.08, 10: 0.22 } // drawer index → pullOut distance
+    : {};
+  return (
+    <group position={[-5.5, 0, -6]} rotation={[0, 0.3, 0]}>
+      <mesh position={[0, 0.6, 0]}>
+        <boxGeometry args={[1.1, 1.2, 0.6]} />
+        <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+      </mesh>
+      {/* Interior darkness behind drawers — biar kalo ada drawer
+          pulled out, di dalemnya keliatan dark hollow bukan flat
+          face. Restored only. */}
+      {restored && (
+        <mesh position={[0, 0.6, 0.05]}>
+          <boxGeometry args={[1.0, 1.1, 0.5]} />
+          <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+        </mesh>
+      )}
+      {Array.from({ length: 12 }, (_, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = -0.36 + col * 0.36;
+        const y = 0.15 + row * 0.3;
+        const pullOut = openDrawerMap[i] ?? 0;
+        return (
+          <group key={`dr-${i}`} position={[x, y, 0.32 + pullOut]}>
+            <mesh>
+              <boxGeometry args={[0.32, 0.26, 0.04]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+            <mesh position={[0, 0, 0.025]}>
+              <boxGeometry args={[0.06, 0.02, 0.01]} />
+              <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.6} />
+            </mesh>
+            {/* Label slot — small beige rectangle near top of drawer face */}
+            {restored && (
+              <mesh position={[0, 0.08, 0.025]}>
+                <boxGeometry args={[0.16, 0.05, 0.005]} />
+                <meshStandardMaterial color="#e8d8b0" roughness={0.9} />
+              </mesh>
+            )}
+            {/* Drawer interior + index cards — visible only when
+                drawer is pulled out enough (pullOut > 0). */}
+            {pullOut > 0.05 && (
+              <>
+                {/* Drawer side walls (extending back into the body) */}
+                <mesh position={[-0.15, 0, -pullOut / 2]}>
+                  <boxGeometry args={[0.02, 0.24, pullOut]} />
+                  <meshStandardMaterial color="#2a1810" roughness={0.95} />
+                </mesh>
+                <mesh position={[0.15, 0, -pullOut / 2]}>
+                  <boxGeometry args={[0.02, 0.24, pullOut]} />
+                  <meshStandardMaterial color="#2a1810" roughness={0.95} />
+                </mesh>
+                <mesh position={[0, -0.12, -pullOut / 2]}>
+                  <boxGeometry args={[0.32, 0.02, pullOut]} />
+                  <meshStandardMaterial color="#2a1810" roughness={0.95} />
+                </mesh>
+                {/* Index cards stacked inside — packed thin planes
+                    angled slightly so they look like a stack of
+                    cards. */}
+                {Array.from({ length: Math.floor(pullOut * 40) }).map(
+                  (_, ci) => {
+                    const seed = hashSeed(`card-${i}-${ci}`);
+                    return (
+                      <mesh
+                        key={`card-${i}-${ci}`}
+                        position={[
+                          0,
+                          -0.04 + ci * 0.005,
+                          -pullOut / 2 + (seed - 0.5) * 0.01,
+                        ]}
+                        rotation={[
+                          -0.04 + seed * 0.06,
+                          (seed - 0.5) * 0.04,
+                          0,
+                        ]}
+                      >
+                        <boxGeometry args={[0.26, 0.005, pullOut * 0.75]} />
+                        <meshStandardMaterial
+                          color={ci % 7 === 0 ? '#d4b890' : '#e8d8b0'}
+                          roughness={0.95}
+                        />
+                      </mesh>
+                    );
+                  },
+                )}
+                {/* Top card with subtle scribble — small dark strip
+                    suggesting handwriting */}
+                <mesh position={[0, 0.005, -pullOut / 2]}>
+                  <boxGeometry args={[0.22, 0.002, pullOut * 0.6]} />
+                  <meshStandardMaterial color="#f0e0c0" roughness={0.95} />
+                </mesh>
+                <mesh position={[-0.04, 0.008, -pullOut / 2]}>
+                  <boxGeometry args={[0.12, 0.001, 0.008]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
+                </mesh>
+              </>
+            )}
+          </group>
+        );
+      })}
+      <mesh position={[0, 1.21, 0]}>
+        <boxGeometry args={[1.15, 0.03, 0.65]} />
+        <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
+      </mesh>
+    </group>
+  );
+};
 
 // FloorCushion — bantal lantai dekat wing chair, kerasa reading nook
 // lengkap. Restored only.
@@ -2078,6 +2224,405 @@ const FloorLamp = ({ restored }) => (
     )}
   </group>
 );
+
+// ===== Library Feel Additions (restored only) =====
+
+// 1. GreenBankerLamp — iconic library detail di main meja. Brass base
+// + emerald glass shade + flame inside. Pasangan untuk lentera meja.
+const GreenBankerLamp = () => {
+  const flameRef = useRef();
+  useFrame((state) => {
+    if (!flameRef.current) return;
+    const t = state.clock.elapsedTime;
+    const flicker = 1 + Math.sin(t * 14) * 0.06 + Math.sin(t * 5.7) * 0.08;
+    flameRef.current.scale.set(flicker, flicker, flicker);
+  });
+  return (
+    <group position={[0.85, 0.78, 0.3]}>
+      {/* Brass base disc */}
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[0.08, 0.09, 0.025, 12]} />
+        <meshStandardMaterial color="#a87850" metalness={0.5} roughness={0.4} />
+      </mesh>
+      {/* Brass stem */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.012, 0.015, 0.18, 8]} />
+        <meshStandardMaterial color="#a87850" metalness={0.5} roughness={0.4} />
+      </mesh>
+      {/* Stem joint elbow */}
+      <mesh position={[0, 0.19, 0.03]}>
+        <sphereGeometry args={[0.022, 8, 6]} />
+        <meshStandardMaterial color="#a87850" metalness={0.5} roughness={0.4} />
+      </mesh>
+      {/* Emerald glass shade — angled forward */}
+      <mesh position={[0, 0.21, 0.1]} rotation={[-Math.PI / 8, 0, 0]}>
+        <boxGeometry args={[0.22, 0.06, 0.14]} />
+        <meshStandardMaterial
+          color="#2a5a3a"
+          emissive="#3a7a4a"
+          emissiveIntensity={0.4}
+          roughness={0.3}
+          metalness={0.1}
+        />
+      </mesh>
+      {/* Flame/bulb sphere inside shade */}
+      <mesh ref={flameRef} position={[0, 0.19, 0.12]}>
+        <sphereGeometry args={[0.018, 10, 8]} />
+        <meshBasicMaterial color="#f4e090" toneMapped={false} />
+      </mesh>
+      <pointLight
+        position={[0, 0.19, 0.12]}
+        color="#a8e0a0"
+        intensity={0.7}
+        distance={2.5}
+        decay={2}
+      />
+      {/* Pull chain */}
+      <mesh position={[0.06, 0.16, 0.1]}>
+        <boxGeometry args={[0.003, 0.05, 0.003]} />
+        <meshStandardMaterial color="#a87850" metalness={0.6} roughness={0.4} />
+      </mesh>
+    </group>
+  );
+};
+
+// 2. WheeledLadder — tangga geser klasik di sepanjang rel rak NE.
+const WheeledLadder = () => (
+  <group position={[3.5, 0, 7.5]} rotation={[0, 0, -0.05]}>
+    {/* Rail di atas rak (horizontal) */}
+    <mesh position={[0, 2.6, 0.6]} rotation={[0, 0, 0]}>
+      <boxGeometry args={[3.5, 0.04, 0.05]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Ladder rails */}
+    <mesh position={[-0.18, 1.05, 0]}>
+      <boxGeometry args={[0.06, 2.1, 0.06]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0.18, 1.05, 0]}>
+      <boxGeometry args={[0.06, 2.1, 0.06]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Rungs */}
+    {[0.3, 0.7, 1.1, 1.5, 1.9].map((y, i) => (
+      <mesh key={`wlr-${i}`} position={[0, y, 0]}>
+        <boxGeometry args={[0.36, 0.04, 0.04]} />
+        <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+      </mesh>
+    ))}
+    {/* Top brackets connecting to rail */}
+    <mesh position={[-0.18, 2.1, 0.3]}>
+      <boxGeometry args={[0.04, 0.04, 0.6]} />
+      <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.5} />
+    </mesh>
+    <mesh position={[0.18, 2.1, 0.3]}>
+      <boxGeometry args={[0.04, 0.04, 0.6]} />
+      <meshStandardMaterial color="#a87850" metalness={0.4} roughness={0.5} />
+    </mesh>
+    {/* Brass wheels on rail */}
+    <mesh position={[-0.18, 2.6, 0.6]}>
+      <cylinderGeometry args={[0.04, 0.04, 0.02, 10]} />
+      <meshStandardMaterial color="#a87850" metalness={0.5} roughness={0.4} />
+    </mesh>
+    <mesh position={[0.18, 2.6, 0.6]}>
+      <cylinderGeometry args={[0.04, 0.04, 0.02, 10]} />
+      <meshStandardMaterial color="#a87850" metalness={0.5} roughness={0.4} />
+    </mesh>
+    {/* Floor wheels */}
+    {[-0.18, 0.18].map((x, i) => (
+      <mesh key={`fw-${i}`} position={[x, 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.02, 8]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.85} />
+      </mesh>
+    ))}
+  </group>
+);
+
+// 3. ReadingDaybed — sofa rendah panjang di pojok NW dengan cushion + pillow.
+const ReadingDaybed = () => (
+  <group position={[-5.5, 0, 6.5]} rotation={[0, 0.4, 0]}>
+    {/* Frame base */}
+    <mesh position={[0, 0.1, 0]}>
+      <boxGeometry args={[1.8, 0.2, 0.7]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Cushion top */}
+    <mesh position={[0, 0.27, 0]}>
+      <boxGeometry args={[1.75, 0.14, 0.65]} />
+      <meshStandardMaterial color="#7a4848" roughness={0.95} />
+    </mesh>
+    {/* Backrest along one side */}
+    <mesh position={[0, 0.55, -0.32]}>
+      <boxGeometry args={[1.75, 0.4, 0.1]} />
+      <meshStandardMaterial color="#5a3838" roughness={0.95} />
+    </mesh>
+    {/* End arm rest */}
+    <mesh position={[-0.85, 0.5, 0]}>
+      <boxGeometry args={[0.1, 0.55, 0.65]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    <mesh position={[0.85, 0.5, 0]}>
+      <boxGeometry args={[0.1, 0.4, 0.65]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* 2 pillows */}
+    <mesh position={[-0.55, 0.42, 0.1]} rotation={[0.1, 0.1, -0.05]}>
+      <boxGeometry args={[0.4, 0.15, 0.35]} />
+      <meshStandardMaterial color="#c8a060" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.55, 0.42, 0.05]} rotation={[0.05, -0.15, 0.06]}>
+      <boxGeometry args={[0.4, 0.15, 0.35]} />
+      <meshStandardMaterial color="#a07868" roughness={0.95} />
+    </mesh>
+    {/* Throw blanket folded across one end */}
+    <mesh position={[0.5, 0.36, -0.05]} rotation={[0, 0.2, 0.04]}>
+      <boxGeometry args={[0.6, 0.05, 0.45]} />
+      <meshStandardMaterial color="#5a4030" roughness={0.95} />
+    </mesh>
+    {/* Wooden legs */}
+    {[[0.8, 0.3], [-0.8, 0.3], [0.8, -0.3], [-0.8, -0.3]].map(([x, z], i) => (
+      <mesh key={`dbleg-${i}`} position={[x, 0.05, z]}>
+        <boxGeometry args={[0.08, 0.1, 0.08]} />
+        <meshStandardMaterial color={COLORS.chairWood} roughness={0.85} />
+      </mesh>
+    ))}
+  </group>
+);
+
+// 4. LibraryStepsStool — 3-step bangku kayu kecil di samping rak NE.
+const LibraryStepsStool = () => (
+  <group position={[3, 0, 6.5]} rotation={[0, 0.3, 0]}>
+    {/* Bottom step */}
+    <mesh position={[0, 0.06, 0]}>
+      <boxGeometry args={[0.5, 0.12, 0.4]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Middle step */}
+    <mesh position={[0, 0.18, -0.08]}>
+      <boxGeometry args={[0.5, 0.12, 0.24]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Top step */}
+    <mesh position={[0, 0.3, -0.16]}>
+      <boxGeometry args={[0.5, 0.12, 0.08]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+  </group>
+);
+
+// 5. TwoMoreFloorLamps — tambah 2 standing lamps di pojok lain.
+const ExtraFloorLamp = ({ pos }) => {
+  const lightRef = useRef();
+  useFrame((state) => {
+    if (!lightRef.current) return;
+    const t = state.clock.elapsedTime;
+    lightRef.current.intensity = 0.5 + Math.sin(t * 4.3) * 0.06;
+  });
+  return (
+    <group position={pos}>
+      <mesh position={[0, 0.03, 0]}>
+        <cylinderGeometry args={[0.16, 0.2, 0.06, 12]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 0.85, 0]}>
+        <cylinderGeometry args={[0.022, 0.022, 1.7, 8]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.7} metalness={0.2} />
+      </mesh>
+      <mesh position={[0, 1.78, 0]}>
+        <cylinderGeometry args={[0.16, 0.22, 0.18, 14, 1, true]} />
+        <meshStandardMaterial
+          color="#d4b890"
+          roughness={0.85}
+          side={THREE.DoubleSide}
+          emissive="#a87850"
+          emissiveIntensity={0.22}
+        />
+      </mesh>
+      <mesh position={[0, 1.78, 0]}>
+        <sphereGeometry args={[0.055, 10, 8]} />
+        <meshBasicMaterial color="#f4d090" toneMapped={false} />
+      </mesh>
+      <pointLight
+        ref={lightRef}
+        position={[0, 1.78, 0]}
+        color="#f4c080"
+        intensity={0.5}
+        distance={3.2}
+        decay={2}
+      />
+    </group>
+  );
+};
+
+// 6. AntiqueTypewriter — di card catalog top (-5.5, 1.21, -6).
+const AntiqueTypewriter = () => (
+  <group position={[-5.5, 1.23, -6]} rotation={[0, 0.5, 0]}>
+    {/* Main body */}
+    <mesh position={[0, 0.1, 0]}>
+      <boxGeometry args={[0.45, 0.2, 0.4]} />
+      <meshStandardMaterial color="#1a0e08" metalness={0.4} roughness={0.5} />
+    </mesh>
+    {/* Carriage roller */}
+    <mesh position={[0, 0.24, -0.08]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.04, 0.04, 0.4, 10]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.6} />
+    </mesh>
+    {/* Paper sticking up from roller */}
+    <mesh position={[0.05, 0.4, -0.05]} rotation={[0, 0, -0.05]}>
+      <planeGeometry args={[0.22, 0.32]} />
+      <meshStandardMaterial
+        color="#f6e8c8"
+        roughness={0.95}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    {/* Keys grid — 4 rows × 7 keys */}
+    {Array.from({ length: 4 }).flatMap((_, row) =>
+      Array.from({ length: 7 }).map((_, col) => (
+        <mesh
+          key={`tk-${row}-${col}`}
+          position={[
+            -0.18 + col * 0.06 + (row % 2) * 0.015,
+            0.21,
+            0.04 + row * 0.045,
+          ]}
+        >
+          <cylinderGeometry args={[0.018, 0.018, 0.015, 8]} />
+          <meshStandardMaterial color="#d4c4a0" roughness={0.5} />
+        </mesh>
+      )),
+    )}
+    {/* Side bell */}
+    <mesh position={[0.2, 0.16, 0.05]}>
+      <sphereGeometry args={[0.025, 8, 6]} />
+      <meshStandardMaterial color="#a87850" metalness={0.6} roughness={0.4} />
+    </mesh>
+  </group>
+);
+
+// 7. TeaCart — cart beroda dengan 2 levels di antara meja & rak W.
+const TeaCart = () => (
+  <group position={[-3.5, 0, -1]} rotation={[0, -0.3, 0]}>
+    {/* 4 wheels */}
+    {[[0.3, 0.25], [-0.3, 0.25], [0.3, -0.25], [-0.3, -0.25]].map(
+      ([x, z], i) => (
+        <mesh
+          key={`tcw-${i}`}
+          position={[x, 0.05, z]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <cylinderGeometry args={[0.05, 0.05, 0.025, 10]} />
+          <meshStandardMaterial color="#1a0e08" roughness={0.6} metalness={0.2} />
+        </mesh>
+      ),
+    )}
+    {/* Lower shelf */}
+    <mesh position={[0, 0.2, 0]}>
+      <boxGeometry args={[0.7, 0.04, 0.55]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Vertical posts */}
+    {[[0.3, 0.22], [-0.3, 0.22], [0.3, -0.22], [-0.3, -0.22]].map(
+      ([x, z], i) => (
+        <mesh key={`tcp-${i}`} position={[x, 0.5, z]}>
+          <cylinderGeometry args={[0.018, 0.018, 0.6, 8]} />
+          <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+        </mesh>
+      ),
+    )}
+    {/* Top shelf */}
+    <mesh position={[0, 0.8, 0]}>
+      <boxGeometry args={[0.7, 0.04, 0.55]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Handle */}
+    <mesh position={[0, 0.95, 0.27]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.015, 0.015, 0.6, 8]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Books on top shelf */}
+    {[
+      { c: '#5a3030', dx: -0.2 },
+      { c: '#3a4858', dx: -0.08 },
+      { c: '#7a5840', dx: 0.06 },
+      { c: '#c8a060', dx: 0.2 },
+    ].map((b, i) => (
+      <mesh key={`tcb-${i}`} position={[b.dx, 0.86, 0]}>
+        <boxGeometry args={[0.08, 0.16, 0.2]} />
+        <meshStandardMaterial color={b.c} roughness={0.9} />
+      </mesh>
+    ))}
+    {/* Tea cup on top shelf */}
+    <mesh position={[0.2, 0.83, 0.15]}>
+      <cylinderGeometry args={[0.04, 0.035, 0.05, 12]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+    </mesh>
+    {/* Books on lower shelf */}
+    {[
+      { c: '#7a3030', dx: -0.15, dz: -0.1 },
+      { c: '#5a4030', dx: 0.1, dz: 0.05 },
+    ].map((b, i) => (
+      <mesh key={`tcbl-${i}`} position={[b.dx, 0.26, b.dz]} rotation={[0, 0.2, 0]}>
+        <boxGeometry args={[0.18, 0.05, 0.14]} />
+        <meshStandardMaterial color={b.c} roughness={0.9} />
+      </mesh>
+    ))}
+  </group>
+);
+
+// 8. StainedGlassWindow — colored glass panes di patched breach (-X wall).
+const StainedGlassWindow = () => {
+  const panes = [
+    { color: '#7a3858', dx: 0, dy: 0.4 },
+    { color: '#3a4878', dx: 0.18, dy: 0.4 },
+    { color: '#4a7858', dx: -0.18, dy: 0.4 },
+    { color: '#a85840', dx: 0, dy: 0.7 },
+    { color: '#3a6878', dx: 0.18, dy: 0.7 },
+    { color: '#7a5040', dx: -0.18, dy: 0.7 },
+    { color: '#5a3858', dx: 0, dy: 0.1 },
+    { color: '#a87858', dx: 0.18, dy: 0.1 },
+    { color: '#3a5a48', dx: -0.18, dy: 0.1 },
+  ];
+  return (
+    <group position={[-ROOM_W / 2 + 0.08, 2.5, 4.5]} rotation={[0, Math.PI / 2, 0]}>
+      {/* Frame */}
+      <mesh>
+        <boxGeometry args={[0.65, 1.0, 0.04]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.85} />
+      </mesh>
+      {/* Glass panes — emissive supaya kerasa cahaya tembus */}
+      {panes.map((p, i) => (
+        <mesh
+          key={`sgp-${i}`}
+          position={[p.dx, p.dy - 0.4, 0.025]}
+        >
+          <planeGeometry args={[0.16, 0.26]} />
+          <meshStandardMaterial
+            color={p.color}
+            emissive={p.color}
+            emissiveIntensity={0.3}
+            transparent
+            opacity={0.85}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+      {/* Lead frame divisions */}
+      {[0.13, -0.13].map((dx, i) => (
+        <mesh key={`sgld-${i}`} position={[dx, 0, 0.03]}>
+          <boxGeometry args={[0.015, 0.9, 0.01]} />
+          <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+        </mesh>
+      ))}
+      {[0.2, -0.2].map((dy, i) => (
+        <mesh key={`sglh-${i}`} position={[0, dy, 0.03]}>
+          <boxGeometry args={[0.55, 0.015, 0.01]} />
+          <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
 
 // 5. WingChair — kursi besar di pojok southeast dengan throw blanket
 const WingChair = ({ restored }) => (
@@ -4030,13 +4575,33 @@ const ArsipScene = ({
           ruangan, kasih variety silhouette + memperkuat "ini perpustakaan
           beneran, bukan box kosong." */}
       <Globe restored={restored} />
-      <CardCatalog />
+      <CardCatalog restored={restored} />
       <WingChair restored={restored} />
       <FloorLamp restored={restored} />
       {restored && <FloorCushion />}
       {restored && <LetterStack />}
       <Hourglass restored={restored} />
       <PlantPot restored={restored} />
+
+      {/* Library-feel additions — restored only. 10 pieces yang
+          memperkuat kerasa "perpustakaan beneran": banker lamp di meja,
+          tangga geser, daybed nook, step stool, 2 floor lamps tambahan,
+          typewriter di card catalog, tea cart, stained glass window.
+          (Densified rak books + open card catalog drawers handled di
+          props ke Bookshelf & CardCatalog di atas.) */}
+      {restored && (
+        <>
+          <GreenBankerLamp />
+          <WheeledLadder />
+          <ReadingDaybed />
+          <LibraryStepsStool />
+          <ExtraFloorLamp pos={[-3.2, 0, 4.8]} />
+          <ExtraFloorLamp pos={[3.2, 0, -3.0]} />
+          <AntiqueTypewriter />
+          <TeaCart />
+          <StainedGlassWindow />
+        </>
+      )}
 
       {/* Wall & hanging batch — 6 dekorasi vertikal yang ngisi dinding
           kosong. Sebagian state-aware (map, tapestry, curtain berubah
@@ -4060,6 +4625,7 @@ const ArsipScene = ({
         onHover={onBookHover}
         onOut={onBookOut}
         onClick={onBookClick}
+        restored={restored}
       />
       <Bookshelf
         position={RAK_LAYOUT.ne.pos}
@@ -4070,6 +4636,7 @@ const ArsipScene = ({
         onHover={onBookHover}
         onOut={onBookOut}
         onClick={onBookClick}
+        restored={restored}
       />
       <Bookshelf
         position={RAK_LAYOUT.w.pos}
@@ -4082,6 +4649,7 @@ const ArsipScene = ({
         onHover={onBookHover}
         onOut={onBookOut}
         onClick={onBookClick}
+        restored={restored}
       />
       <Bookshelf
         position={RAK_LAYOUT.e.pos}
@@ -4094,6 +4662,7 @@ const ArsipScene = ({
         onHover={onBookHover}
         onOut={onBookOut}
         onClick={onBookClick}
+        restored={restored}
       />
       <Bookshelf
         position={RAK_LAYOUT.s.pos}
@@ -4105,6 +4674,7 @@ const ArsipScene = ({
         onOut={onBookOut}
         onClick={onBookClick}
         scaleH={0.75}
+        restored={restored}
       />
 
       {/* OrbitControls — constraints calibrated supaya camera stay inside

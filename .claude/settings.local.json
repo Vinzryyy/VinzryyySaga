@@ -90,7 +90,15 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3821/taman/r3)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3821)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(echo \"DONE exit=$?\")",
+      "Bash(curl -sf http://127.0.0.1:5180/ -o /dev/null)",
+      "Bash(curl -sf -o /tmp/r2.html http://127.0.0.1:5180/armeniacaTown/r2)",
+      "Bash(curl -sf \"http://127.0.0.1:5180/src/pages/TamanArsipIngatan.jsx\" -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sf \"http://127.0.0.1:5180/src/data/arsipBooks.js\" -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sf \"http://127.0.0.1:5180/src/components/taman/r2/BookOverlay.jsx\" -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -sf \"http://127.0.0.1:5180/src/pages/TamanArsipIngatan.jsx\")",
+      "Bash(curl -sf \"http://127.0.0.1:5180/src/data/arsipBooks.js\")"
     ]
   }
 }
