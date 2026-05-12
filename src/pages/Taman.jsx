@@ -1516,7 +1516,7 @@ const OpeningText = ({ stage, resetTrigger, unlocked }) => {
     visible && unlocked && (stage === 'idle' || stage === 'active');
   return (
     <div
-      className={`pointer-events-none absolute inset-0 flex items-center justify-center pt-20 md:pt-24 transition-opacity duration-[2000ms] ease-out ${
+      className={`pointer-events-none absolute inset-0 flex items-center justify-center pt-16 sm:pt-20 md:pt-24 transition-opacity duration-[2000ms] ease-out ${
         shouldShow ? 'opacity-100' : 'opacity-0'
       }`}
     >
@@ -1553,18 +1553,18 @@ const LockedHint = ({ visible, count }) => {
   const pct = Math.min(100, (count / GATE_UNLOCK_THRESHOLD) * 100);
   return (
     <div
-      className={`pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2 transition-opacity duration-1000 ${
+      className={`pointer-events-none absolute bottom-6 sm:bottom-24 left-1/2 -translate-x-1/2 transition-opacity duration-1000 ${
         visible ? 'opacity-90' : 'opacity-0'
       }`}
     >
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-2 sm:gap-3">
         <svg
-          width="32"
-          height="32"
+          width="28"
+          height="28"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-white/65"
+          className="text-white/65 sm:w-8 sm:h-8"
         >
           <rect
             x="5"
@@ -1583,27 +1583,29 @@ const LockedHint = ({ visible, count }) => {
           />
           <circle cx="12" cy="15.5" r="1" fill="currentColor" />
         </svg>
-        <div className="text-white/75 text-[11px] sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-center">
+        <div className="text-white/75 text-[10px] sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-center">
           Gerbang masih terkunci
         </div>
-        <div className="text-white/55 text-xs tracking-wider">
+        <div className="text-white/55 text-[11px] sm:text-xs tracking-wider">
           {count.toLocaleString('id-ID')} / {GATE_UNLOCK_THRESHOLD.toLocaleString('id-ID')} siraman
         </div>
-        <div className="w-56 h-px bg-white/15">
+        <div className="w-48 sm:w-56 h-px bg-white/15">
           <div
             className="h-full bg-amber-200/55 transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
+        {/* Quote text di-hide di landscape mobile (ruang vertical tipis).
+            Muncul lagi di sm: keatas (tablet+ + portrait HP). */}
         <p
-          className="text-white/45 text-[10px] mt-1 tracking-wide italic max-w-xs text-center px-4"
+          className="hidden sm:block text-white/45 text-[10px] mt-1 tracking-wide italic max-w-xs text-center px-4"
           style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
           Setiap siraman di Pohon Kebaikan membuka pintu ini sedikit.
         </p>
         <Link
           to="/26"
-          className="pointer-events-auto mt-2 px-4 py-1.5 rounded-full border border-white/25 text-white/70 text-[11px] tracking-wider hover:bg-white/10 transition"
+          className="pointer-events-auto mt-1 sm:mt-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/25 text-white/70 text-[10px] sm:text-[11px] tracking-wider hover:bg-white/10 transition"
         >
           Siram di /26 →
         </Link>
@@ -1650,7 +1652,7 @@ const ARMENIACA_INTRO_KEY = 'armeniaca-intro-seen';
 
 const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
   <div
-    className={`absolute inset-0 z-30 flex items-center justify-center px-4 py-20 md:py-24 transition-opacity duration-1000 ${
+    className={`absolute inset-0 z-30 flex items-center justify-center px-4 py-4 sm:py-20 md:py-24 transition-opacity duration-1000 ${
       visible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
     }`}
     onClick={onClose}
@@ -1660,15 +1662,15 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
   >
     <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
     <div
-      className="relative w-full max-w-xl px-6 py-8 md:px-10 md:py-12 rounded-md border border-white/15 bg-[#1c1614]/90 shadow-2xl text-center"
+      className="relative w-full max-w-xl max-h-full overflow-y-auto px-5 py-6 sm:px-6 sm:py-8 md:px-10 md:py-12 rounded-md border border-white/15 bg-[#1c1614]/90 shadow-2xl text-center"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-5">
+      <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-5">
         Selamat datang
       </div>
       <h2
         id="armeniaca-intro-title"
-        className="text-white text-2xl md:text-3xl mb-6 leading-tight"
+        className="text-white text-xl sm:text-2xl md:text-3xl mb-4 sm:mb-6 leading-tight"
         style={{
           fontFamily: '"Fraunces Variable", serif',
           fontStyle: 'italic',
@@ -1677,39 +1679,40 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
         ArmeniacaTown
       </h2>
       <p
-        className="text-white/85 text-sm md:text-base leading-relaxed mb-4"
+        className="text-white/85 text-[13px] sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
       >
         Sebuah dunia yang tumbuh dari kepedulian — kota mati yang hanya
         bisa hidup kembali oleh ribuan tangan yang menyiram bersama.
       </p>
-      <p className="text-white/65 text-xs md:text-sm leading-relaxed mb-4">
+      <p className="text-white/65 text-[11px] sm:text-xs md:text-sm leading-relaxed mb-3 sm:mb-4">
         Setiap dukungan di Pohon Kebaikan (
         <span className="text-amber-200/85">/26</span>) tersambung
         langsung ke dunia ini.
-        <br />
-        Saat <strong className="text-white/90 font-medium">2.000 siraman</strong>{' '}
+        <br className="hidden sm:inline" />
+        {' '}Saat{' '}
+        <strong className="text-white/90 font-medium">2.000 siraman</strong>{' '}
         terkumpul, gerbang terbuka. Saat{' '}
         <strong className="text-white/90 font-medium">4.000</strong>,
         ekosistem pulih sepenuhnya.
       </p>
       <p
-        className="text-white/55 text-xs md:text-sm leading-relaxed mb-7 italic"
+        className="hidden sm:block text-white/55 text-xs md:text-sm leading-relaxed mb-7 italic"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
       >
         Tidak ada yang bisa membukanya sendirian — termasuk kami.
       </p>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+      <div className="flex flex-row gap-2 sm:gap-3 justify-center mt-5 sm:mt-0">
         <button
           type="button"
           onClick={onClose}
-          className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition"
+          className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-black text-xs sm:text-sm font-medium hover:bg-white/90 transition"
         >
           Lanjut
         </button>
         <Link
           to="/26"
-          className="px-5 py-2.5 rounded-full border border-white/25 text-white/80 text-sm hover:bg-white/10 transition"
+          className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/25 text-white/80 text-xs sm:text-sm hover:bg-white/10 transition"
         >
           Siram di /26 →
         </Link>
@@ -1803,13 +1806,13 @@ const TapHint = ({ visible }) => (
 // Setelah Fase 2 jadi, ganti jadi auto-navigate ke /museum/denah.
 const ExitOverlay = ({ visible, onRestart }) => (
   <div
-    className={`absolute inset-0 flex items-center justify-center transition-opacity duration-[1500ms] ${
+    className={`absolute inset-0 flex items-center justify-center px-4 py-4 sm:py-8 transition-opacity duration-[1500ms] ${
       visible
         ? 'opacity-100 pointer-events-auto'
         : 'opacity-0 pointer-events-none'
     }`}
   >
-    <div className="text-center max-w-md px-6 backdrop-blur-sm bg-black/30 rounded-2xl py-10 border border-white/10">
+    <div className="text-center w-full max-w-md max-h-full overflow-y-auto px-5 sm:px-6 backdrop-blur-sm bg-black/30 rounded-2xl py-6 sm:py-10 border border-white/10">
       {/* Small bloom accent — visual echo dari LonelyFlower yg blooming
           di scene. Tiny SVG flower icon dgn soft pulse. */}
       <div className="flex justify-center mb-5">

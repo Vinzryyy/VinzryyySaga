@@ -3054,12 +3054,12 @@ const TamanPetaIntroTitle = () => {
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="text-center max-w-md mx-6 px-8 py-9 -translate-y-10 rounded-md border border-white/12 bg-[#1c1f2a]/85 backdrop-blur-md shadow-2xl">
-        <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-4">
+      <div className="text-center max-w-md mx-4 sm:mx-6 max-h-full overflow-y-auto px-5 py-5 sm:px-8 sm:py-9 sm:-translate-y-10 rounded-md border border-white/12 bg-[#1c1f2a]/85 backdrop-blur-md shadow-2xl">
+        <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-4">
           ArmeniacaTown
         </div>
         <p
-          className="text-white text-lg md:text-xl leading-relaxed mb-3"
+          className="text-white text-base sm:text-lg md:text-xl leading-relaxed mb-3"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',
@@ -3070,7 +3070,7 @@ const TamanPetaIntroTitle = () => {
         </p>
         <div className="mx-auto mb-3 w-10 h-px bg-white/25" />
         <p
-          className="text-white/65 text-[12px] md:text-[13px] leading-relaxed"
+          className="text-white/65 text-[11px] sm:text-[12px] md:text-[13px] leading-relaxed"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',
@@ -3078,12 +3078,12 @@ const TamanPetaIntroTitle = () => {
           }}
         >
           Tapi di sini — pohon ini menolak gugur,
-          <br />
-          enam bab kenangan masih bercahaya di sekelilingnya.
-          <br />
-          Tiap bab yang kau baca menumbuhkan satu pohon
-          <br />
-          di padang yang rusak. Mulai dari bab pertama.
+          <br className="hidden sm:inline" />
+          {' '}enam bab kenangan masih bercahaya di sekelilingnya.
+          <br className="hidden sm:inline" />
+          {' '}Tiap bab yang kau baca menumbuhkan satu pohon
+          <br className="hidden sm:inline" />
+          {' '}di padang yang rusak. Mulai dari bab pertama.
         </p>
       </div>
     </div>
