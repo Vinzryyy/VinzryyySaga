@@ -350,14 +350,17 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
         </mesh>
       ))}
 
-      {/* Chair behind table (south side) — slight tilt */}
-      <group position={[0, 0, 1.6]} rotation={[0, 0, 0]}>
-        <mesh position={[0, 0.4, 0]} rotation={[0.04, 0, 0]}>
+      {/* Chair di sisi selatan meja, menghadap utara (toward table).
+          User masuk dari -Z south, kursi ini posisi natural untuk duduk
+          baca — backrest di selatan, seat menghadap meja. Slight tilt
+          biar kerasa "baru ditinggal pergi". */}
+      <group position={[0, 0, -1.6]}>
+        <mesh position={[0, 0.4, 0]} rotation={[-0.04, 0, 0]}>
           <boxGeometry args={[0.6, 0.08, 0.6]} />
           <meshStandardMaterial color={COLORS.chairWood} roughness={0.75} />
         </mesh>
-        {/* Backrest */}
-        <mesh position={[0, 0.85, 0.27]} rotation={[0.04, 0, 0]}>
+        {/* Backrest — di selatan (negative z local) */}
+        <mesh position={[0, 0.85, -0.27]} rotation={[-0.04, 0, 0]}>
           <boxGeometry args={[0.6, 0.9, 0.06]} />
           <meshStandardMaterial color={COLORS.chairWood} roughness={0.78} />
         </mesh>
@@ -750,7 +753,11 @@ const WallSconces = () => {
   );
 };
 
-// Fly-in camera — 2.5s dolly dari dekat pintu ke posisi default.
+// Fly-in camera — 2.5s dolly dari dekat pintu (south wall) ke posisi
+// final di south side meja menatap utara. Pose final ini bikin user
+// langsung lihat: kursi + meja + open book + rak NW/NE di belakangnya.
+// Beda dari versi awal yang berakhir di utara meja (user nge-stare ke
+// pintu, harus rotate 180° buat liat buku-buku).
 const CameraFlyIn = ({ onComplete }) => {
   const { camera } = useThree();
   const startedRef = useRef(false);
@@ -771,13 +778,13 @@ const CameraFlyIn = ({ onComplete }) => {
     // Ease-out cubic
     const eased = 1 - Math.pow(1 - u, 3);
     const startPos = [0, 1.2, -9];
-    const endPos = [0, 1.7, 4];
+    const endPos = [0, 1.9, -4];
     camera.position.set(
       lerp(startPos[0], endPos[0], eased),
       lerp(startPos[1], endPos[1], eased),
       lerp(startPos[2], endPos[2], eased),
     );
-    camera.lookAt(0, 0.8, 0);
+    camera.lookAt(0, 0.9, 0);
     if (u >= 1) {
       completedRef.current = true;
       onComplete?.();
@@ -934,13 +941,20 @@ const ArsipScene = ({
         />
       )}
 
+      {/* OrbitControls — constraints calibrated supaya camera stay inside
+          room (16w × 20d × 6h) di semua kombinasi distance+polar+azimuth.
+          maxDistance 6.5 (was 9): di max polar/azimuth ekstrem camera
+            tetep dalam x=±8 / z=±10 bounds.
+          minPolarAngle ~58° (was 30°): di max distance camera y ≤ 4.2,
+            jauh di bawah ceiling y=6. 30° lama bikin camera bisa naik
+            ke y=8.6, nembus atap. */}
       <OrbitControls
         enabled={flyInComplete}
-        target={[0, 0.8, 0]}
-        minDistance={3.5}
-        maxDistance={9}
-        minPolarAngle={Math.PI / 6}
-        maxPolarAngle={Math.PI / 2 - 0.05}
+        target={[0, 0.9, 0]}
+        minDistance={3}
+        maxDistance={6.5}
+        minPolarAngle={(Math.PI * 58) / 180}
+        maxPolarAngle={(Math.PI * 86) / 180}
         minAzimuthAngle={(-Math.PI * 140) / 180}
         maxAzimuthAngle={(Math.PI * 140) / 180}
         enablePan={false}
@@ -1085,7 +1099,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
       <div className="relative w-full h-screen bg-[#1a0e08] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
-            camera={{ fov: 50, position: [0, 1.7, 4] }}
+            camera={{ fov: 50, position: [0, 1.2, -9] }}
             dpr={isMobile ? [1, 1] : [1, 2]}
             gl={{
               antialias: !isMobile,
