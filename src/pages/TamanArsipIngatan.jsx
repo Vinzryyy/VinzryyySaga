@@ -1479,6 +1479,237 @@ const TippedChair = () => (
   </group>
 );
 
+// ReadingLectern — podium kayu vertikal di pojok timur-utara antara
+// rak NE dan dinding timur. Drought: buku tertutup berdebu. Restored:
+// buku terbuka, kerasa "scholar moment frozen mid-reading."
+const ReadingLectern = ({ restored }) => (
+  <group position={[5.5, 0, 5]} rotation={[0, -0.4, 0]}>
+    {/* Base wide untuk stability */}
+    <mesh position={[0, 0.04, 0]}>
+      <boxGeometry args={[0.5, 0.08, 0.5]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    {/* Vertical post */}
+    <mesh position={[0, 0.7, 0]}>
+      <boxGeometry args={[0.1, 1.3, 0.1]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    {/* Angled top — book holder */}
+    <mesh position={[0, 1.36, 0]} rotation={[-0.3, 0, 0]}>
+      <boxGeometry args={[0.45, 0.04, 0.5]} />
+      <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+    </mesh>
+    {/* Book di atas — restored: terbuka, drought: tertutup */}
+    {restored ? (
+      <group position={[0, 1.43, 0.05]} rotation={[-0.3, 0, 0]}>
+        <mesh position={[-0.1, 0, 0]} rotation={[-Math.PI / 2, 0, 0.03]}>
+          <planeGeometry args={[0.18, 0.32]} />
+          <meshStandardMaterial color="#f6e8c8" side={THREE.DoubleSide} roughness={0.95} />
+        </mesh>
+        <mesh position={[0.1, 0, 0]} rotation={[-Math.PI / 2, 0, -0.03]}>
+          <planeGeometry args={[0.18, 0.32]} />
+          <meshStandardMaterial color="#f6e8c8" side={THREE.DoubleSide} roughness={0.95} />
+        </mesh>
+        {/* Spine ridge */}
+        <mesh position={[0, -0.005, 0]}>
+          <boxGeometry args={[0.02, 0.012, 0.32]} />
+          <meshStandardMaterial color="#5a3025" roughness={0.8} />
+        </mesh>
+      </group>
+    ) : (
+      <mesh position={[0, 1.43, 0]} rotation={[-0.3, 0, 0.05]}>
+        <boxGeometry args={[0.3, 0.04, 0.4]} />
+        <meshStandardMaterial color="#5a3025" roughness={0.95} />
+      </mesh>
+    )}
+  </group>
+);
+
+// LibraryLadder — tangga kayu klasik. Drought: tergeletak roboh di
+// lantai dekat rak W tumbang. Restored: berdiri bersandar ke rak NW
+// (kerasa "scholar pakai untuk capai shelf atas").
+const LibraryLadder = ({ restored }) => {
+  const rungs = [0.3, 0.7, 1.1, 1.5, 1.85];
+  if (restored) {
+    return (
+      <group position={[-3, 0, 7.4]} rotation={[0, 0.4, -0.18]}>
+        {/* 2 vertical rails */}
+        <mesh position={[-0.18, 1, 0]}>
+          <boxGeometry args={[0.06, 2, 0.06]} />
+          <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+        </mesh>
+        <mesh position={[0.18, 1, 0]}>
+          <boxGeometry args={[0.06, 2, 0.06]} />
+          <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+        </mesh>
+        {rungs.map((y, i) => (
+          <mesh key={`rng-${i}`} position={[0, y, 0]}>
+            <boxGeometry args={[0.36, 0.04, 0.04]} />
+            <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+          </mesh>
+        ))}
+      </group>
+    );
+  }
+  // Drought: tergeletak roboh di lantai
+  return (
+    <group position={[-4, 0, 4]} rotation={[Math.PI / 2 - 0.1, 0.5, 0.2]}>
+      <mesh position={[-0.18, 1, 0]}>
+        <boxGeometry args={[0.06, 2, 0.06]} />
+        <meshStandardMaterial color={COLORS.shelfWood} roughness={0.95} />
+      </mesh>
+      <mesh position={[0.18, 1, 0]}>
+        <boxGeometry args={[0.06, 2, 0.06]} />
+        <meshStandardMaterial color={COLORS.shelfWood} roughness={0.95} />
+      </mesh>
+      {rungs.map((y, i) => (
+        <mesh key={`rng-${i}`} position={[0, y, 0]}>
+          <boxGeometry args={[0.36, 0.04, 0.04]} />
+          <meshStandardMaterial color={COLORS.shelfWood} roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// ScrollHolder — wooden bucket berisi gulungan kertas/papyrus, dekat
+// reading table sisi timur. Drought: 2 scroll fallen di luar bucket
+// (kerasa "ada yang nge-rummage"). Restored: semua rapi di dalam.
+const ScrollHolder = ({ restored }) => (
+  <group position={[1.7, 0, -0.7]}>
+    {/* Wooden bucket */}
+    <mesh position={[0, 0.2, 0]}>
+      <cylinderGeometry args={[0.18, 0.16, 0.4, 14]} />
+      <meshStandardMaterial color={COLORS.shelfWood} roughness={0.85} />
+    </mesh>
+    {/* Wooden rim ring */}
+    <mesh position={[0, 0.41, 0]}>
+      <cylinderGeometry args={[0.19, 0.19, 0.03, 14]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.85} />
+    </mesh>
+    {/* Scrolls poking up — 4 vertical cylinders dengan height variation */}
+    {[
+      { x: -0.08, z: 0.04, h: 0.55, c: '#e8d4a8', tilt: 0.1 },
+      { x: 0.05, z: -0.06, h: 0.6, c: '#d4b890', tilt: -0.08 },
+      { x: 0.08, z: 0.08, h: 0.5, c: '#c8a874', tilt: 0.12 },
+      { x: -0.05, z: -0.08, h: 0.45, c: '#e8d4a8', tilt: -0.1 },
+    ].map((s, i) => (
+      <mesh
+        key={`scr-${i}`}
+        position={[s.x, 0.2 + s.h / 2, s.z]}
+        rotation={[s.tilt * 0.5, 0, s.tilt]}
+      >
+        <cylinderGeometry args={[0.028, 0.028, s.h, 8]} />
+        <meshStandardMaterial color={s.c} roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Drought: 2 scrolls fallen on floor sekitar bucket */}
+    {!restored && (
+      <>
+        <mesh position={[0.42, 0.03, 0.18]} rotation={[0, 0.5, Math.PI / 2]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.4, 8]} />
+          <meshStandardMaterial color="#c8a874" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.28, 0.03, -0.3]} rotation={[0, -0.3, Math.PI / 2]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.35, 8]} />
+          <meshStandardMaterial color="#d4b890" roughness={0.95} />
+        </mesh>
+      </>
+    )}
+  </group>
+);
+
+// VaseDecoration — vas keramik antik dengan ranting kering (drought)
+// atau bunga aprikot mekar (restored). Tie-in ke Armeniaca etymology:
+// "setelah musim dingin, yang mekar." Posisi antara meja & rak W.
+const VaseDecoration = ({ restored }) => (
+  <group position={[-2, 0, -2.5]}>
+    {/* Vase body — wider middle, narrower top */}
+    <mesh position={[0, 0.15, 0]}>
+      <cylinderGeometry args={[0.08, 0.12, 0.3, 16]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.7} />
+    </mesh>
+    {/* Vase neck */}
+    <mesh position={[0, 0.32, 0]}>
+      <cylinderGeometry args={[0.07, 0.08, 0.04, 16]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.7} />
+    </mesh>
+    {/* Branches/twigs poking out — 4 cabang dengan rotation varied */}
+    {[
+      { rot: [0.4, 0, 0.2], length: 0.5 },
+      { rot: [-0.3, 0, -0.4], length: 0.45 },
+      { rot: [0.1, 0.5, 0.5], length: 0.55 },
+      { rot: [-0.2, -0.5, -0.3], length: 0.4 },
+    ].map((b, i) => (
+      <group key={`br-${i}`} position={[0, 0.36, 0]} rotation={b.rot}>
+        <mesh position={[0, b.length / 2, 0]}>
+          <cylinderGeometry args={[0.012, 0.018, b.length, 6]} />
+          <meshStandardMaterial color="#4a3020" roughness={0.95} />
+        </mesh>
+        {/* Restored: small pink apricot blooms di tip & dekat tip */}
+        {restored && (
+          <>
+            <mesh position={[0, b.length - 0.05, 0]}>
+              <sphereGeometry args={[0.04, 8, 6]} />
+              <meshStandardMaterial
+                color="#f4c8d8"
+                emissive="#e09bb0"
+                emissiveIntensity={0.15}
+                roughness={0.7}
+              />
+            </mesh>
+            <mesh position={[0.04, b.length - 0.13, 0.02]}>
+              <sphereGeometry args={[0.025, 8, 6]} />
+              <meshStandardMaterial
+                color="#f4c8d8"
+                emissive="#e09bb0"
+                emissiveIntensity={0.15}
+                roughness={0.7}
+              />
+            </mesh>
+          </>
+        )}
+      </group>
+    ))}
+  </group>
+);
+
+// ForgottenTeacup — cangkir keramik kecil + tatakan di tepi meja baca,
+// sisi berlawanan dari lentera. Hint "ada yang ngebaca di sini, lalu
+// pergi." Drought: residu tinta-coklat tea kering. Restored: tea hangat.
+const ForgottenTeacup = ({ restored }) => (
+  <group position={[0.85, 0.78, -0.4]}>
+    {/* Saucer */}
+    <mesh position={[0, 0.005, 0]}>
+      <cylinderGeometry args={[0.08, 0.075, 0.01, 16]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.75} />
+    </mesh>
+    {/* Cup body */}
+    <mesh position={[0, 0.045, 0]}>
+      <cylinderGeometry args={[0.045, 0.038, 0.06, 16]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+    </mesh>
+    {/* Cup rim — slight lip */}
+    <mesh position={[0, 0.078, 0]}>
+      <cylinderGeometry args={[0.046, 0.045, 0.005, 16]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+    </mesh>
+    {/* Handle (simplified torus) */}
+    <mesh position={[0.052, 0.045, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[0.022, 0.008, 6, 12]} />
+      <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+    </mesh>
+    {/* Tea inside */}
+    <mesh position={[0, 0.071, 0]}>
+      <cylinderGeometry args={[0.043, 0.043, 0.005, 12]} />
+      <meshStandardMaterial
+        color={restored ? '#7a4525' : '#3a2418'}
+        roughness={restored ? 0.4 : 0.95}
+      />
+    </mesh>
+  </group>
+);
+
 // Wall sconces — only restored. 4 lentera dinding nyala redup.
 const WallSconces = () => {
   const sconces = [
@@ -1643,6 +1874,15 @@ const ArsipScene = ({
         onOutOpenBook={onOpenBookOut}
         onClickOpenBook={onOpenBookClick}
       />
+
+      {/* Library landmark objects — 5 detail pengisi ruangan supaya
+          kerasa "perpustakaan beneran" bukan ruangan kosong dgn rak.
+          Semua state-aware: visual berubah drought ↔ restored. */}
+      <ReadingLectern restored={restored} />
+      <LibraryLadder restored={restored} />
+      <ScrollHolder restored={restored} />
+      <VaseDecoration restored={restored} />
+      <ForgottenTeacup restored={restored} />
 
       {/* Rak NW (utuh) */}
       {booksByRak.nw.length > 0 && (
