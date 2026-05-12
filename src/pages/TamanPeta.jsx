@@ -2455,6 +2455,74 @@ const HighDustShimmer = ({ count = 40 }) => {
   );
 };
 
+// ApricotPetals — purified-only falling petals dari sky high (10-14y)
+// turun perlahan ke 0.2y, kemudian respawn di atas. Drift X tipis +
+// gentle rotation (handled via Y bob since particle is point, not mesh).
+// Tone soft warm peach + emissive subtle — apricot petals tribute ke
+// Armeniaca etymology (apricot = pohon yang nolak mati di pusat peta).
+// Sparse intentionally — bukan snowstorm, lebih kerasa "ada yang
+// melepaskan harapan dari langit".
+const ApricotPetals = ({ count = 50 }) => {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 32;
+      arr[i * 3 + 1] = Math.random() * 12 + 0.5;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 32;
+    }
+    return arr;
+  }, [count]);
+  const drifts = useMemo(() => {
+    const arr = new Float32Array(count * 2); // [vy, vx]
+    for (let i = 0; i < count; i++) {
+      arr[i * 2] = -0.018 - Math.random() * 0.012; // slow fall
+      arr[i * 2 + 1] = (Math.random() - 0.5) * 0.018; // horizontal drift
+    }
+    return arr;
+  }, [count]);
+  useFrame((state, delta) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i * 3 + 1] += drifts[i * 2] * delta * 60;
+      // Petal wobble — sine on X based on Y level
+      arr[i * 3] +=
+        drifts[i * 2 + 1] * delta * 60 + Math.sin(t * 0.6 + i) * 0.002;
+      if (arr[i * 3 + 1] < 0.2) {
+        arr[i * 3 + 1] = 12 + Math.random() * 2;
+        arr[i * 3] = (Math.random() - 0.5) * 32;
+        arr[i * 3 + 2] = (Math.random() - 0.5) * 32;
+      }
+      if (arr[i * 3] > 18) arr[i * 3] = -18;
+      if (arr[i * 3] < -18) arr[i * 3] = 18;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={positions}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.32}
+        color="#f8b890"
+        transparent
+        opacity={0.62}
+        sizeAttenuation
+        depthWrite={false}
+        toneMapped={false}
+      />
+    </points>
+  );
+};
+
 // Next-chapter direction arrow — cone tegak melayang di atas hovered
 // petak, ujung mengarah ke next chapter petak. Visual cue arah baca
 // cerita.
@@ -3949,29 +4017,44 @@ const TamanScene = ({
     if (userIsHovering && autoRotate) setAutoRotate(false);
   }, [userIsHovering, autoRotate]);
 
+  // Purified = full city restoration (count >= fullRestore / 7000).
+  // Trigger lighting/particle/landmark swap ke "kota hidup lagi" state.
+  // Wounds (CityRuins, DeadTrees) tetap visible — luka kota gak dihapus,
+  // tapi atmosfer + life-layer berubah (less dust, more fireflies +
+  // petals, dawn palette).
+  const purified = armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore;
+
   return (
     <>
-      {/* Desert dusk palette — warm dusty rose horizon fading into deep
-          plum zenith. Sun udah baru tenggelam, langit masih simpen sisa
-          warmth. */}
-      <fog attach="fog" args={['#5a3540', 14, 38]} />
-      <color attach="background" args={['#2a1f25']} />
-      {/* Ambient — turunin sedikit + tone shift ke warm-gray (bukan rosy).
-          Drought peta = "siang berdebu di kota mati", bukan twilight ramah. */}
-      <ambientLight intensity={0.42} color="#c0a090" />
-      {/* Key light — sun lebih lemah dikit, warna geser ke amber pucat
-          biar kerasa "matahari nembus debu", bukan golden hour cozy. */}
+      {/* Palette — dua mode:
+          drought  → desert dusk warm dusty rose horizon, dark plum zenith.
+                     Sun baru tenggelam, langit simpan sisa warmth.
+          purified → soft dawn rose + lighter background, fog mundur sedikit
+                     (visibility lebih jauh — kota udah gak ngumpet di debu). */}
+      <fog
+        attach="fog"
+        args={purified ? ['#7a5868', 18, 44] : ['#5a3540', 14, 38]}
+      />
+      <color attach="background" args={[purified ? '#3a2a35' : '#2a1f25']} />
+      {/* Ambient — drought: warm-gray tone ("siang berdebu di kota mati").
+          Purified: shift ke rose warmer + intensity naik (twilight ramah). */}
+      <ambientLight
+        intensity={purified ? 0.55 : 0.42}
+        color={purified ? '#e0c0a8' : '#c0a090'}
+      />
+      {/* Key light — drought: amber pucat ("matahari nembus debu").
+          Purified: golden hour cozy (peach-amber, intensity naik). */}
       <directionalLight
         position={[8, 12, 6]}
-        intensity={1.2}
-        color="#f4b078"
+        intensity={purified ? 1.35 : 1.2}
+        color={purified ? '#f8c898' : '#f4b078'}
       />
-      {/* Fill — warm dusty, intensity dikit naik biar shadow side
-          object (ruins, dead trees) tetep keliatan, gak hitam mati. */}
+      {/* Fill — drought: warm dusty, shadow side ruins tetep keliatan.
+          Purified: rose-amber warmer untuk wash atmosfer pulih. */}
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={0.6}
-        color="#b8907a"
+        intensity={purified ? 0.72 : 0.6}
+        color={purified ? '#c8a890' : '#b8907a'}
       />
       <TamanFloor />
       <DroughtRing />
@@ -3988,21 +4071,23 @@ const TamanScene = ({
       <CompassTracker targetRef={compassRotateRef} />
       {/* Prasasti quotes — 3 fragmen worldbuilding scattered di scene */}
       <PrasastiQuotes />
-      {/* Dead-town environment re-enabled — CityRuins di luar hex ring
-          (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
-          SandDust + HighDustShimmer (debu beterbangan = kerasa angin
-          gersang), Stars + Moon (langit malam atas kota mati). Aurora
-          + Fireflies + BirdsFlock + LilyPond sengaja di-skip — terlalu
-          alive untuk vibe "tempat tidak layak huni". */}
+      {/* Dead-town environment — CityRuins di luar hex ring (siluet kota
+          runtuh) + DeadTrees scattered (sisa hutan mati) ALWAYS visible
+          baik drought maupun purified (luka kota gak dihapus, narasi
+          "yang bertahan, bukan yang utuh dari awal"). Dust-layer
+          (SandDust, WindStreaks, HighDustShimmer) cuma drought — purified
+          ganti dengan Fireflies + ApricotPetals (life returning). */}
       <CityRuins isMobile={isMobile} />
       <DistantCityRuins isMobile={isMobile} />
       <DeadTrees isMobile={isMobile} />
-      <SandDust count={isMobile ? 50 : 100} />
-      {!isMobile && <WindStreaks count={12} />}
-      {!isMobile && <HighDustShimmer count={40} />}
+      {!purified && <SandDust count={isMobile ? 50 : 100} />}
+      {!purified && !isMobile && <WindStreaks count={12} />}
+      {!purified && !isMobile && <HighDustShimmer count={40} />}
+      {purified && <Fireflies isMobile={isMobile} />}
+      {purified && <ApricotPetals count={isMobile ? 30 : 50} />}
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
-      <DistantCrow />
+      {!purified && <DistantCrow />}
       <CenterTree
         hovered={hoveredCenter}
         visited={previewedPetak.has('pohon')}
