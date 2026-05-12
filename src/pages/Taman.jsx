@@ -62,9 +62,11 @@ const GATE_UNLOCK_THRESHOLD = 2000;
 
 const useGateUnlock = () => {
   const [searchParams] = useSearchParams();
-  const [count, setCount] = useState(0);
+  const [state, setState] = useState({ count: 0, loaded: false });
   useEffect(() => {
-    const unsubscribe = subscribeToTreeSupports(setCount);
+    const unsubscribe = subscribeToTreeSupports((count) => {
+      setState({ count, loaded: true });
+    });
     return unsubscribe;
   }, []);
   // Dev-only override: ?unlock=1 paksa buka gerbang walau count belum
@@ -72,7 +74,11 @@ const useGateUnlock = () => {
   // berlaku, user gak bisa bypass dari URL.
   const force =
     import.meta.env.DEV && searchParams.get('unlock') === '1';
-  return { unlocked: force || count >= GATE_UNLOCK_THRESHOLD, count };
+  return {
+    unlocked: force || state.count >= GATE_UNLOCK_THRESHOLD,
+    count: state.count,
+    loaded: state.loaded,
+  };
 };
 
 // Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
@@ -1877,7 +1883,7 @@ const SceneFallback = () => (
 
 const MuseumPage = () => {
   const isMobile = useIsMobile();
-  const { unlocked, count } = useGateUnlock();
+  const { unlocked, count, loaded: countLoaded } = useGateUnlock();
   // ?clean=1 — sembunyiin semua text overlay (LockedHint, TapHint,
   // OpeningText, OpeningCeremony, ExitOverlay, AmbientAudio button,
   // bottom label, RotateRecommendation, dev Stats). Khusus buat
@@ -2063,11 +2069,18 @@ const MuseumPage = () => {
                 kalau gerbang masih terkunci, TapHint kalau udah unlocked.
                 OpeningCeremony muncul selama 3 detik transitioning sebagai
                 ritual visual pembukaan. */}
+            {/* Locked/Tap hints ditahan sampai countLoaded — tanpa ini,
+                refresh page bikin flicker: brief "0 / 2000 siraman"
+                sebelum live count masuk. */}
             <LockedHint
-              visible={!unlocked && (stage === 'idle' || stage === 'active')}
+              visible={
+                countLoaded &&
+                !unlocked &&
+                (stage === 'idle' || stage === 'active')
+              }
               count={count}
             />
-            <TapHint visible={unlocked && stage === 'active'} />
+            <TapHint visible={countLoaded && unlocked && stage === 'active'} />
             <OpeningCeremony visible={stage === 'transitioning'} />
             <ExitOverlay
               visible={stage === 'done'}

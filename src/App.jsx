@@ -126,17 +126,24 @@ const ScrollManager = () => {
 const MAP_UNLOCK_THRESHOLD = 2000;
 const R1_RESTORATION_THRESHOLD = 4000;
 
+// Returns { count, loaded }. `loaded` flag false sampai first RTDB
+// snapshot masuk — penting biar route guard / chooser gak bikin
+// keputusan prematur berdasarkan count=0 default. Tanpa ini, user
+// dengan count real >=2000 di prod bakal sempat ke-redirect dulu
+// sebelum snapshot Firebase landed.
 const useTreeSupportCount = () => {
-  const [count, setCount] = useState(0);
+  const [state, setState] = useState({ count: 0, loaded: false });
   useEffect(() => {
-    const unsubscribe = subscribeToTreeSupports(setCount);
+    const unsubscribe = subscribeToTreeSupports((count) => {
+      setState({ count, loaded: true });
+    });
     return unsubscribe;
   }, []);
-  return count;
+  return state;
 };
 
 const TamanR1RouteChooser = () => {
-  const count = useTreeSupportCount();
+  const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
   // Dev-only override: ?restoration=0|1 paksa pilih variant r1.
   // Gated import.meta.env.DEV — di production param ini diabaikan
@@ -144,25 +151,34 @@ const TamanR1RouteChooser = () => {
   const override = import.meta.env.DEV
     ? searchParams.get('restoration')
     : null;
-  let useRestored;
+  // Override bypass loading wait — dev preview tetep instant.
   if (override !== null) {
     const n = parseFloat(override);
-    useRestored = !Number.isNaN(n) && n >= 0.5;
-  } else {
-    useRestored = count >= R1_RESTORATION_THRESHOLD;
+    const useRestored = !Number.isNaN(n) && n >= 0.5;
+    return useRestored ? <TamanLorongPohonPage /> : <TamanLorongPohonGersangPage />;
   }
+  // Hold rendering sampai first snapshot. Tanpa ini, user dengan count
+  // real 4000+ sempet liat drought variant briefly sebelum canonical
+  // ke-render (jelek banget visual).
+  if (!loaded) return <PageLoader />;
+  const useRestored = count >= R1_RESTORATION_THRESHOLD;
   return useRestored ? <TamanLorongPohonPage /> : <TamanLorongPohonGersangPage />;
 };
 
 const TamanPetaRouteGuard = () => {
-  const count = useTreeSupportCount();
+  const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
   // Dev-only override: ?unlock=1 buka peta walau count belum 2000.
   // Gated import.meta.env.DEV — di production param ini diabaikan,
   // gating real RTDB count yang berlaku.
   const forceUnlock =
     import.meta.env.DEV && searchParams.get('unlock') === '1';
-  if (!forceUnlock && count < MAP_UNLOCK_THRESHOLD) {
+  if (forceUnlock) return <TamanPetaPage />;
+  // Hold redirect decision sampai first snapshot — tanpa ini, user
+  // dengan count >=2000 di prod akan sempet ke-redirect ke /armeniacaTown
+  // dulu sebelum bounce balik (route flicker).
+  if (!loaded) return <PageLoader />;
+  if (count < MAP_UNLOCK_THRESHOLD) {
     return <Navigate to="/armeniacaTown" replace />;
   }
   return <TamanPetaPage />;
