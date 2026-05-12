@@ -4455,6 +4455,103 @@ const BankTrees = ({ count }) => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
+// DROUGHT GroundCracks — garis tipis gelap di tanah bank, kasih
+// texture "tanah retak karena kekeringan". Distribusi deterministic
+// via seeded RNG, hindari path & lake footprint.
+const groundCrackRand = (() => {
+  let s = 1187;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+})();
+const GROUND_CRACK_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 24; i++) {
+    const angle = groundCrackRand() * Math.PI * 2;
+    const r = 13 + groundCrackRand() * 7; // radius 13-20, di luar lake
+    const x = Math.cos(angle) * r;
+    const z = Math.sin(angle) * r;
+    arr.push({
+      pos: [x, 0.001, z], // sedikit di atas ground
+      len: 1.2 + groundCrackRand() * 2.6,
+      rot: groundCrackRand() * Math.PI,
+    });
+  }
+  return arr;
+})();
+const GroundCracks = () => (
+  <>
+    {GROUND_CRACK_DEFS.map((c, i) => (
+      <mesh
+        key={`gcrack-${i}`}
+        position={c.pos}
+        rotation={[-Math.PI / 2, 0, c.rot]}
+      >
+        <planeGeometry args={[c.len, 0.05]} />
+        <meshStandardMaterial color="#1a120a" roughness={1} />
+      </mesh>
+    ))}
+  </>
+);
+
+// DROUGHT DriedGrassTufts — small clusters rumput kering yellow-brown,
+// scattered di bank tanah. Bukan green grass alive (skipped) — ini
+// rumput yang mati kering, masih berdiri tapi udah mati. 5 spike kecil
+// per tuft. Mobile cull dari 24 → 12.
+const driedGrassRand = (() => {
+  let s = 2389;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+})();
+const DRIED_GRASS_TUFT_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 24; i++) {
+    const angle = driedGrassRand() * Math.PI * 2;
+    const r = 12 + driedGrassRand() * 8;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+      rot: driedGrassRand() * Math.PI,
+      color:
+        driedGrassRand() < 0.5
+          ? '#7a6038'
+          : driedGrassRand() < 0.75
+          ? '#8a6c3a'
+          : '#6a5430',
+      h: 0.16 + driedGrassRand() * 0.06,
+    });
+  }
+  return arr;
+})();
+const DriedGrassTuft = ({ pos, rot, color, h }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {[0, 1, 2, 3, 4].map((i) => (
+      <mesh
+        key={i}
+        position={[(i - 2) * 0.035, h / 2, ((i * 7) % 3 - 1) * 0.025]}
+        rotation={[0, 0, (i - 2) * 0.12]}
+      >
+        <boxGeometry args={[0.013, h, 0.013]} />
+        <meshStandardMaterial color={color} roughness={1} />
+      </mesh>
+    ))}
+  </group>
+);
+const DriedGrassTufts = ({ isMobile }) => {
+  const list = isMobile
+    ? DRIED_GRASS_TUFT_DEFS.slice(0, 12)
+    : DRIED_GRASS_TUFT_DEFS;
+  return (
+    <>
+      {list.map((d, i) => (
+        <DriedGrassTuft key={`dgt-${i}`} {...d} />
+      ))}
+    </>
+  );
+};
+
 // DROUGHT BrokenPillars — 12 pilar batu pecah scattered di banks
 // telaga. Sisa colonnade kuno yg dulu nge-frame taman, sekarang
 // tinggal stubs + cap pecah. Port dari r1 PillarRuins, scaled buat
@@ -5668,6 +5765,13 @@ const TelagaScene = ({
         Tinggi mix (0.5-1.8m), tilt acak, kerasa "dulu ada struktur
         besar di sini, sekarang tinggal puing". */}
     <BrokenPillars />
+    {/* Ground cracks — 24 retak tipis di tanah bank, radius 13-20.
+        Tanah pecah karena kekeringan panjang. */}
+    <GroundCracks />
+    {/* Dried grass tufts — 24 cluster rumput kering yellow-brown,
+        radius 12-20. Bukan green grass (skipped), tapi rumput mati
+        masih berdiri kaku. */}
+    <DriedGrassTufts isMobile={isMobile} />
     {/* Polusi — soft round particles drifting warna dirty smog brown,
         match r1 gersang PollutedAir. Spread di area 50×50 (lebih luas
         dari r1 karena r3 area gede). */}
