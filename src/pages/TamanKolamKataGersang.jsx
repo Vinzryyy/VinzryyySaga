@@ -96,6 +96,7 @@ import {
 } from '../components/taman/r3/utils';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { subscribeToWishes } from '../lib/wishesDb';
+import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Bunga teratai mekar — 6 outer petals (cone tilted outward) + 3 inner
 // petals (cone tilted upright) + center stamen (sphere with strong
@@ -4763,6 +4764,145 @@ const RuinedWalls = () => (
   </>
 );
 
+// HOPE SIGNALS — counter-narrative tipis untuk gersang. Telaga
+// "Harapan" gak boleh full pesimis — sisipin signal kecil2 yang
+// muncul progressive sesuai count siraman (range gersang 4000-5999):
+//   Tier 0 (count >= 4000, selalu di gersang): GreenSprout — 1 tunas
+//     hijau tunggal di crack tanah, seed of hope diam2.
+//   Tier 1 (count >= 4500): DryWellWetSpot — lumpur basah kecil di
+//     dasar DryWell, "air mulai balik".
+//   Tier 2 (count >= 5000): OrigamiCrane — di top pillar tertinggi
+//     samping perched crow, "harapan ditaruh sini sama seseorang".
+//   Tier 3 (count >= 5500): SingleBloom — 1 bunga warna cerah tunggal,
+//     kontras tajam ke dead palette. "Kehidupan mulai mekar lagi".
+// Saat count >= 6000 route switch ke canonical, jadi 4 tier ini sebagai
+// progress visual dalam range gersang.
+
+// Tier 0: GreenSprout — tunas hijau tunggal, slim stem + 2 leaves tiny.
+const GreenSprout = ({ pos }) => (
+  <group position={pos}>
+    {/* Stem — slim vertical */}
+    <mesh position={[0, 0.075, 0]}>
+      <boxGeometry args={[0.018, 0.15, 0.018]} />
+      <meshStandardMaterial color="#4a7a3a" roughness={0.85} />
+    </mesh>
+    {/* Leaf kiri */}
+    <mesh position={[0.03, 0.1, 0]} rotation={[0, 0, -0.5]}>
+      <boxGeometry args={[0.06, 0.012, 0.04]} />
+      <meshStandardMaterial color="#5a8a3e" roughness={0.85} />
+    </mesh>
+    {/* Leaf kanan */}
+    <mesh position={[-0.03, 0.13, 0]} rotation={[0, 0, 0.5]}>
+      <boxGeometry args={[0.05, 0.012, 0.035]} />
+      <meshStandardMaterial color="#5a8a3e" roughness={0.85} />
+    </mesh>
+  </group>
+);
+
+// Tier 1: DryWellWetSpot — disc gelap kecil di dasar DryWell, slightly
+// reflective. Posisi absolute world (DryWell di [-22, 0, -16], dasar
+// di y=0.78), placed sedikit di atas dasar (y=0.81).
+const DryWellWetSpot = () => (
+  <mesh position={[-22, 0.81, -16]}>
+    <cylinderGeometry args={[0.28, 0.28, 0.01, 16]} />
+    <meshStandardMaterial
+      color="#2a1e10"
+      roughness={0.35}
+      metalness={0.4}
+    />
+  </mesh>
+);
+
+// Tier 2: OrigamiCrane — paper crane folded faded white. Body diagonal
+// box + 2 wings angled + neck up + tail back. Tiny ~0.18 wide.
+const OrigamiCrane = ({ pos, rot = 0 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Body — angular base */}
+    <mesh rotation={[0, 0, 0.3]}>
+      <boxGeometry args={[0.18, 0.04, 0.1]} />
+      <meshStandardMaterial color="#e8dccc" roughness={0.7} />
+    </mesh>
+    {/* Wing kiri */}
+    <mesh position={[0, 0.04, 0.05]} rotation={[0.5, 0, 0.15]}>
+      <boxGeometry args={[0.14, 0.02, 0.06]} />
+      <meshStandardMaterial color="#e8dccc" roughness={0.7} />
+    </mesh>
+    {/* Wing kanan */}
+    <mesh position={[0, 0.04, -0.05]} rotation={[-0.5, 0, 0.15]}>
+      <boxGeometry args={[0.14, 0.02, 0.06]} />
+      <meshStandardMaterial color="#e8dccc" roughness={0.7} />
+    </mesh>
+    {/* Neck/head — up forward */}
+    <mesh position={[0.08, 0.05, 0]} rotation={[0, 0, 0.8]}>
+      <boxGeometry args={[0.08, 0.02, 0.02]} />
+      <meshStandardMaterial color="#e8dccc" roughness={0.7} />
+    </mesh>
+    {/* Tail — back */}
+    <mesh position={[-0.08, 0, 0]} rotation={[0, 0, -0.8]}>
+      <boxGeometry args={[0.06, 0.02, 0.02]} />
+      <meshStandardMaterial color="#e8dccc" roughness={0.7} />
+    </mesh>
+  </group>
+);
+
+// Tier 3: SingleBloom — 1 bunga colorful tunggal, stem + leaf + center
+// emissive subtle + 5 petals angular around.
+const SingleBloom = ({ pos }) => (
+  <group position={pos}>
+    {/* Stem */}
+    <mesh position={[0, 0.12, 0]}>
+      <boxGeometry args={[0.02, 0.24, 0.02]} />
+      <meshStandardMaterial color="#5a7a3a" roughness={0.85} />
+    </mesh>
+    {/* Leaf */}
+    <mesh position={[0.04, 0.16, 0]} rotation={[0, 0, -0.6]}>
+      <boxGeometry args={[0.08, 0.012, 0.04]} />
+      <meshStandardMaterial color="#5a8a3e" roughness={0.85} />
+    </mesh>
+    {/* Center — emissive subtle warm glow */}
+    <mesh position={[0, 0.26, 0]}>
+      <sphereGeometry args={[0.04, 8, 6]} />
+      <meshStandardMaterial
+        color="#d48028"
+        roughness={0.7}
+        emissive="#3a1804"
+        emissiveIntensity={0.25}
+      />
+    </mesh>
+    {/* 5 petal angular boxes around center */}
+    {[0, 1, 2, 3, 4].map((i) => {
+      const angle = (i / 5) * Math.PI * 2;
+      return (
+        <mesh
+          key={`petal-${i}`}
+          position={[Math.cos(angle) * 0.06, 0.26, Math.sin(angle) * 0.06]}
+          rotation={[0, -angle, 0.15]}
+        >
+          <boxGeometry args={[0.06, 0.015, 0.04]} />
+          <meshStandardMaterial color="#f4b048" roughness={0.7} />
+        </mesh>
+      );
+    })}
+  </group>
+);
+
+const HopeSignals = ({ count }) => (
+  <>
+    {/* Tier 0: tunas hijau di dekat path bank east — selalu render
+        selama di gersang (4000-5999). Position dipilih visible camera
+        default (8, 20, 4) lookAt (0, 4, 0). */}
+    <GreenSprout pos={[3, 0, 1]} />
+    {/* Tier 1 @ 4500: lumpur basah di DryWell */}
+    {count >= 4500 && <DryWellWetSpot />}
+    {/* Tier 2 @ 5000: origami crane di top pillar #0 [-9, 0, -7] h=1.8,
+        samping perched crow (perched crow di y=2.25 rot 0.6), crane
+        sedikit offset rot beda */}
+    {count >= 5000 && <OrigamiCrane pos={[-9.2, 2.1, -7]} rot={0.4} />}
+    {/* Tier 3 @ 5500: bunga colorful tunggal di NE bank, visible spot */}
+    {count >= 5500 && <SingleBloom pos={[4, 0, 5]} />}
+  </>
+);
+
 // DROUGHT GroundCracks — garis tipis gelap di tanah bank, kasih
 // texture "tanah retak karena kekeringan". Distribusi deterministic
 // via seeded RNG, hindari path & lake footprint.
@@ -6054,6 +6194,7 @@ const TelagaScene = ({
   onPadHover,
   onPadOut,
   onPadClick,
+  hopeCount,
 }) => (
   <>
     {/* Late afternoon sky — sun masih cukup tinggi tapi udah miring,
@@ -6137,6 +6278,11 @@ const TelagaScene = ({
         CornerRuin (NW). Silhouette horizontal panjang, beda dari
         pillars yg vertikal stub. */}
     <RuinedWalls />
+    {/* Hope signals — counter-narrative tier-gated by hopeCount:
+        T0 sprout (always), T1 wet spot @ 4500, T2 origami crane @
+        5000, T3 single bloom @ 5500. Telaga "Harapan" punya seed
+        hope visible, progressive sesuai siraman fans. */}
+    <HopeSignals count={hopeCount} />
     {/* Ground cracks — 24 retak tipis di tanah bank, radius 13-20.
         Tanah pecah karena kekeringan panjang. */}
     <GroundCracks />
@@ -6540,6 +6686,15 @@ const TamanKolamKataGersangPage = () => {
     return unsub;
   }, []);
 
+  // Subscribe siraman count untuk HopeSignals threshold gating (4500/
+  // 5000/5500). Default 4000 supaya render gak flicker sebelum live
+  // count masuk — route ini cuma render saat 4000 <= count < 6000.
+  const [hopeCount, setHopeCount] = useState(4000);
+  useEffect(() => {
+    const unsub = subscribeToTreeSupports((c) => setHopeCount(c));
+    return unsub;
+  }, []);
+
   const pads = useMemo(() => {
     const wishes = buildWishList(firebaseWishes, seeds, 11);
     return buildPads(wishes);
@@ -6592,6 +6747,7 @@ const TamanKolamKataGersangPage = () => {
               onPadHover={handlePadHover}
               onPadOut={handlePadOut}
               onPadClick={handlePadClick}
+              hopeCount={hopeCount}
             />
             {!isMobile && (
               <EffectComposer>
