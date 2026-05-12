@@ -516,6 +516,18 @@ const ReadingTable = ({ onClickOpenBook, hoveredOpenBook, onHoverOpenBook, onOut
           <boxGeometry args={[0.02, 0.015, 0.45]} />
           <meshStandardMaterial color="#8B4040" roughness={0.7} />
         </mesh>
+        {/* Indicator orb mengambang di atas open book — petunjuk
+            visual sama kayak buku di rak. Sedikit lebih besar karena
+            ini focal point. */}
+        <mesh position={[0, 0.22, 0]}>
+          <sphereGeometry args={[0.045, 10, 8]} />
+          <meshBasicMaterial
+            color="#f4d090"
+            transparent
+            opacity={hoveredOpenBook ? 1 : 0.9}
+            toneMapped={false}
+          />
+        </mesh>
         {/* Floating hover label */}
         {hoveredOpenBook && (
           <Html
@@ -597,7 +609,10 @@ const Bookshelf = ({
 
       {/* Books on shelves — spine height & width sedikit di-variate per
           book (deterministic per id) supaya rak gak kerasa robotic uniform.
-          Per-book offset: height 0.42-0.52, width 0.12-0.16. */}
+          Per-book offset: height 0.42-0.52, width 0.12-0.16.
+          Tiap interactive book punya indicator orb mengambang di atas
+          spine sebagai petunjuk "ini bisa diklik," plus subtle always-on
+          emissive di spine biar gak melebur sama deco books. */}
       {slots.map((slot, i) => {
         const book = books[i];
         if (!book) return null;
@@ -631,9 +646,21 @@ const Bookshelf = ({
               <boxGeometry args={[spineW, spineH, 0.36]} />
               <meshStandardMaterial
                 color={book.spineColor}
-                emissive={hovered ? COLORS.spineHover : '#000'}
-                emissiveIntensity={hovered ? 0.4 : read ? 0.1 : 0}
+                emissive={hovered ? COLORS.spineHover : book.spineColor}
+                emissiveIntensity={hovered ? 0.5 : read ? 0.25 : 0.18}
                 roughness={0.7}
+              />
+            </mesh>
+            {/* Indicator orb di atas buku — petunjuk visual "klik aku".
+                toneMapped=false + warna hangat bikin Bloom amplify jadi
+                glowing dot kerasa kayak lentera kecil mengambang. */}
+            <mesh position={[0, spineH / 2 + 0.16, 0.1]}>
+              <sphereGeometry args={[0.035, 10, 8]} />
+              <meshBasicMaterial
+                color="#f4d090"
+                transparent
+                opacity={hovered ? 1 : 0.85}
+                toneMapped={false}
               />
             </mesh>
             {/* Subtle read marker — small dot near top of spine */}
@@ -1766,7 +1793,8 @@ const ArsipFooter = ({ hoveredId, books, isMobile }) => {
         </div>
       ) : (
         <div className="opacity-70">
-          Klik buku di rak atau di meja untuk membuka halamannya.
+          Cari titik cahaya di rak — klik buku yang bersinar untuk
+          membaca halamannya.
         </div>
       )}
     </div>
