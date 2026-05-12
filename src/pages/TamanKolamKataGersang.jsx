@@ -4436,6 +4436,96 @@ const BankTrees = ({ count }) => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
+// DROUGHT polusi — soft round particles drifting di udara, warna
+// dirty smog brown. Pattern sama dgn r1 gersang PollutedAir, tapi
+// count + spread di-tune buat luas r3 (40×40 area, vs r1 corridor
+// 14×38). Pakai CanvasTexture radial gradient supaya particle render
+// soft round bukan kotak default.
+const makeSoftSmogTexture = () => {
+  if (typeof document === 'undefined') return null;
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(
+    size / 2,
+    size / 2,
+    0,
+    size / 2,
+    size / 2,
+    size / 2
+  );
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.45, 'rgba(255,255,255,0.45)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+};
+const PollutedAir = ({ count = 180, isMobile = false }) => {
+  const ref = useRef();
+  const actualCount = isMobile ? Math.floor(count * 0.55) : count;
+  const softTexture = useMemo(() => makeSoftSmogTexture(), []);
+
+  const basePositions = useMemo(() => {
+    const arr = new Float32Array(actualCount * 3);
+    for (let i = 0; i < actualCount; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 50;
+      arr[i * 3 + 1] = 0.5 + Math.random() * 5.5;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 50;
+    }
+    return arr;
+  }, [actualCount]);
+
+  const phases = useMemo(() => {
+    const arr = new Float32Array(actualCount);
+    for (let i = 0; i < actualCount; i++) arr[i] = Math.random() * Math.PI * 2;
+    return arr;
+  }, [actualCount]);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const arr = ref.current.geometry.attributes.position.array;
+    for (let i = 0; i < actualCount; i++) {
+      const phase = phases[i];
+      arr[i * 3] =
+        basePositions[i * 3] + Math.sin(t * 0.1 + phase) * 0.6;
+      arr[i * 3 + 1] =
+        basePositions[i * 3 + 1] + Math.cos(t * 0.12 + phase * 1.3) * 0.2;
+      arr[i * 3 + 2] =
+        basePositions[i * 3 + 2] + Math.cos(t * 0.09 + phase) * 0.55;
+    }
+    ref.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          array={basePositions.slice()}
+          count={actualCount}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        map={softTexture}
+        size={2.2}
+        color="#7a6850"
+        transparent
+        opacity={0.32}
+        sizeAttenuation
+        depthWrite={false}
+        alphaTest={0.01}
+      />
+    </points>
+  );
+};
+
 // DROUGHT: scattered dead branches & dried debris di banks (radius
 // 14..18, di luar lake). Deterministic seeded placement. Kasih
 // detail decay di tanah tandus, gak cuma flat plane.
@@ -5439,6 +5529,10 @@ const TelagaScene = ({
     {/* Drought decay — scattered dead branches scattered di banks
         (radius 14-18, di luar lake). Detail decay di tanah tandus. */}
     <DroughtBranches isMobile={isMobile} />
+    {/* Polusi — soft round particles drifting warna dirty smog brown,
+        match r1 gersang PollutedAir. Spread di area 50×50 (lebih luas
+        dari r1 karena r3 area gede). */}
+    <PollutedAir count={180} isMobile={isMobile} />
     {/* DROUGHT-SKIP: GrassTufts + GrassBlades — rumput hijau gak ada,
         ground tone udah cracked dirt sendiri. */}
     <Bench />
