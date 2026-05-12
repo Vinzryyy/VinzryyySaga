@@ -630,12 +630,37 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
 
+      {/* Custom scrollbar styling untuk modal body — biar lebih kerasa
+          "buku" daripada default browser. Sepia tone, slim, tanpa
+          arrow buttons. Pakai class arsipBookScroll. */}
+      <style>{`
+        .arsipBookScroll::-webkit-scrollbar { width: 6px; }
+        .arsipBookScroll::-webkit-scrollbar-track { background: transparent; }
+        .arsipBookScroll::-webkit-scrollbar-thumb {
+          background: rgba(139, 64, 64, 0.22);
+          border-radius: 3px;
+        }
+        .arsipBookScroll::-webkit-scrollbar-thumb:hover {
+          background: rgba(139, 64, 64, 0.4);
+        }
+        .arsipBookScroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(139, 64, 64, 0.22) transparent;
+        }
+      `}</style>
+
       <article
         className="relative w-full max-w-2xl max-h-full flex flex-col rounded-lg sm:rounded-2xl overflow-hidden shadow-2xl"
         style={{
           backgroundColor: '#FDF6E3',
-          backgroundImage:
-            'radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.05) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(139, 64, 64, 0.04) 0%, transparent 60%)',
+          // Layered background: SVG fractal noise (paper grain) +
+          // radial gradient warm/cool tints (subtle paper aging).
+          backgroundImage: `url("data:image/svg+xml;utf8,${encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.6 0 0 0 0 0.5 0 0 0 0 0.4 0 0 0 0.08 0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>',
+          )}"),
+          radial-gradient(circle at 30% 20%, rgba(212, 165, 116, 0.06) 0%, transparent 50%),
+          radial-gradient(circle at 70% 80%, rgba(139, 64, 64, 0.05) 0%, transparent 60%)`,
+          backgroundBlendMode: 'multiply, normal, normal',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -687,7 +712,7 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto px-6 sm:px-10 py-6 sm:py-8"
+          className="arsipBookScroll flex-1 overflow-y-auto px-6 sm:px-10 py-6 sm:py-8"
           style={{ paddingLeft: 'calc(1.5rem + 8px)' }}
         >
           <div className="mb-6">
