@@ -2086,9 +2086,12 @@ const SkyDome = () => {
     // Senja palette tanpa area hitam — horizon warm orange → mid
     // dusty pink-purple → zenith soft lavender (gak deep dark).
     // Atmosphere "matahari hampir tenggelam" tapi sky tetap glow.
-    const horizonR = 0.96, horizonG = 0.62, horizonB = 0.46; // warm orange
-    const midR = 0.82, midG = 0.60, midB = 0.70; // dusty pink-purple
-    const zenithR = 0.62, zenithG = 0.58, zenithB = 0.78; // soft lavender
+    // DROUGHT palette: horizon dusty amber → mid muted gray-amber →
+    // zenith dark warm-gray. Tone shifted dari warm pink-lavender
+    // canonical ke "siang gersang berkabut debu di kota mati".
+    const horizonR = 0.62, horizonG = 0.46, horizonB = 0.32; // dusty amber-brown
+    const midR = 0.46, midG = 0.38, midB = 0.32; // muted gray-amber
+    const zenithR = 0.30, zenithG = 0.26, zenithB = 0.24; // dark warm-gray
     for (let i = 0; i < positions.count; i++) {
       const y = positions.getY(i);
       // Normalize y to 0..1 across dome height (radius 32, so y goes 0..32)
@@ -2144,30 +2147,30 @@ const Sun = () => {
   });
   return (
     <group position={[8, 16, -10]}>
-      {/* Sun body — overhead position (high), warm orange senja.
-          y=16 dekat zenith dome. Visible saat user pan camera up. */}
+      {/* DROUGHT: Sun body shifted ke amber kering pucat (gak golden
+          bright). Body sedikit lebih kecil. */}
       <mesh>
-        <sphereGeometry args={[1.6, 24, 16]} />
-        <meshBasicMaterial color="#ffc890" toneMapped={false} fog={false} />
+        <sphereGeometry args={[1.4, 24, 16]} />
+        <meshBasicMaterial color="#d4a878" toneMapped={false} fog={false} />
       </mesh>
-      {/* Tight halo — pink-orange */}
+      {/* Tight halo — muted amber, opacity rendah (debu nyaring) */}
       <mesh>
-        <sphereGeometry args={[2.2, 18, 14]} />
+        <sphereGeometry args={[2.0, 18, 14]} />
         <meshBasicMaterial
-          color="#ff9c70"
+          color="#b88858"
           transparent
-          opacity={0.32}
+          opacity={0.22}
           depthWrite={false}
           fog={false}
         />
       </mesh>
-      {/* Soft outer haze — warm bloom yang nyebar luas */}
+      {/* Soft outer haze — brown-amber, lebih kecil dari canonical */}
       <mesh ref={outerHaloRef}>
-        <sphereGeometry args={[3.8, 16, 12]} />
+        <sphereGeometry args={[3.2, 16, 12]} />
         <meshBasicMaterial
-          color="#ff8050"
+          color="#8a6438"
           transparent
-          opacity={0.13}
+          opacity={0.10}
           depthWrite={false}
           fog={false}
         />
@@ -2193,11 +2196,11 @@ const FarCloud = ({ pos, scale }) => (
   <group position={pos} scale={scale}>
     <mesh>
       <sphereGeometry args={[1.5, 10, 8]} />
-      <meshBasicMaterial color="#ffc8a8" transparent opacity={0.55} fog={false} />
+      <meshBasicMaterial color="#9a8878" transparent opacity={0.4} fog={false} />
     </mesh>
     <mesh position={[0.8, 0.05, 0.15]}>
       <sphereGeometry args={[1.0, 10, 8]} />
-      <meshBasicMaterial color="#ffc8a8" transparent opacity={0.55} fog={false} />
+      <meshBasicMaterial color="#9a8878" transparent opacity={0.4} fog={false} />
     </mesh>
   </group>
 );
@@ -4433,6 +4436,46 @@ const BankTrees = ({ count }) => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
+// DROUGHT: scattered dead branches & dried debris di banks (radius
+// 14..18, di luar lake). Deterministic seeded placement. Kasih
+// detail decay di tanah tandus, gak cuma flat plane.
+const droughtRand = (() => {
+  let s = 891;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+})();
+const DROUGHT_BRANCH_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 18; i++) {
+    const angle = droughtRand() * Math.PI * 2;
+    const r = 13 + droughtRand() * 6;
+    arr.push({
+      pos: [Math.cos(angle) * r, 0.04, Math.sin(angle) * r],
+      yaw: droughtRand() * Math.PI * 2,
+      len: 0.45 + droughtRand() * 0.85,
+      thick: 0.03 + droughtRand() * 0.03,
+    });
+  }
+  return arr;
+})();
+const DroughtBranches = ({ isMobile }) => {
+  const list = isMobile ? DROUGHT_BRANCH_DEFS.slice(0, 10) : DROUGHT_BRANCH_DEFS;
+  return (
+    <>
+      {list.map((b, i) => (
+        <group key={`dbr-${i}`} position={b.pos} rotation={[0, b.yaw, 0]}>
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[b.thick, b.thick * 1.3, b.len, 5]} />
+            <meshStandardMaterial color="#2a1d12" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
 // DROUGHT VARIANT: River canonical (MeshReflectorMaterial deep teal
 // water) DIGANTI DriedLakeBed — flat plane dgn warna cracked-dirt
 // brown + crack lines patches on top biar visual "telaga yg kering".
@@ -5393,6 +5436,9 @@ const TelagaScene = ({
     <WalkPath />
     <River isMobile={isMobile} />
     <RiverStones />
+    {/* Drought decay — scattered dead branches scattered di banks
+        (radius 14-18, di luar lake). Detail decay di tanah tandus. */}
+    <DroughtBranches isMobile={isMobile} />
     {/* DROUGHT-SKIP: GrassTufts + GrassBlades — rumput hijau gak ada,
         ground tone udah cracked dirt sendiri. */}
     <Bench />
