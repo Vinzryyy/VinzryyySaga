@@ -1946,6 +1946,55 @@ const CardCatalog = () => (
   </group>
 );
 
+// FloorCushion — bantal lantai dekat wing chair, kerasa reading nook
+// lengkap. Restored only.
+const FloorCushion = () => (
+  <group position={[5.6, 0, -3.7]} rotation={[0, 0.6, 0]}>
+    {/* Main cushion */}
+    <mesh position={[0, 0.08, 0]} rotation={[0, 0, 0.03]}>
+      <boxGeometry args={[0.45, 0.16, 0.4]} />
+      <meshStandardMaterial color="#7a3a3a" roughness={0.95} />
+    </mesh>
+    {/* Smaller pillow on top */}
+    <mesh position={[0.05, 0.2, -0.05]} rotation={[0.08, 0.3, -0.05]}>
+      <boxGeometry args={[0.28, 0.1, 0.24]} />
+      <meshStandardMaterial color="#c8a060" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// LetterStack — tumpukan 4 surat tipis di edge timur meja utama,
+// kerasa "kiriman yang belum dibuka." Restored only.
+const LetterStack = () => (
+  <group position={[1.0, 0.78, -0.35]} rotation={[0, 0.4, 0]}>
+    {[
+      { c: '#f0e4cc', tilt: 0 },
+      { c: '#e8d4a8', tilt: 0.04 },
+      { c: '#f4ddc0', tilt: -0.06 },
+      { c: '#dfc89c', tilt: 0.03 },
+    ].map((l, i) => (
+      <mesh
+        key={`ls-${i}`}
+        position={[0, 0.003 + i * 0.006, 0]}
+        rotation={[0, l.tilt, 0]}
+      >
+        <boxGeometry args={[0.18, 0.005, 0.13]} />
+        <meshStandardMaterial color={l.c} roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Wax seal merah burgundy di top letter */}
+    <mesh position={[0.05, 0.03, 0.02]}>
+      <cylinderGeometry args={[0.012, 0.012, 0.005, 8]} />
+      <meshStandardMaterial
+        color="#8B4040"
+        emissive="#8B4040"
+        emissiveIntensity={0.1}
+        roughness={0.5}
+      />
+    </mesh>
+  </group>
+);
+
 // FloorLamp — standing lamp di samping wing chair. Restored: nyala
 // hangat. Drought: gelap (no light). Bikin pojok wing chair gak
 // terlalu gelap, kerasa "ada reading nook proper."
@@ -2943,6 +2992,40 @@ const SideTableBooks = ({
         <boxGeometry args={[SIDE_TABLE_W - 0.1, 0.02, SIDE_TABLE_D - 0.1]} />
         <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
       </mesh>
+      {/* Small apricot flower vase — tie-in Armeniaca motif. Vas keramik
+          mini + 3 bunga pink mekar di edge barat side table. */}
+      <group position={[-0.85, 0.78, -0.35]}>
+        <mesh position={[0, 0.05, 0]}>
+          <cylinderGeometry args={[0.04, 0.05, 0.1, 12]} />
+          <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+        </mesh>
+        <mesh position={[0, 0.105, 0]}>
+          <cylinderGeometry args={[0.035, 0.04, 0.02, 12]} />
+          <meshStandardMaterial color={COLORS.lenternaCeramic} roughness={0.6} />
+        </mesh>
+        {/* 3 stalks + flowers */}
+        {[
+          { rot: [0.1, 0, 0.15], h: 0.16 },
+          { rot: [-0.15, 0.3, 0.05], h: 0.14 },
+          { rot: [0.2, -0.4, -0.1], h: 0.18 },
+        ].map((stem, i) => (
+          <group key={`apf-${i}`} position={[0, 0.115, 0]} rotation={stem.rot}>
+            <mesh position={[0, stem.h / 2, 0]}>
+              <cylinderGeometry args={[0.005, 0.007, stem.h, 6]} />
+              <meshStandardMaterial color="#4a7a3a" roughness={0.85} />
+            </mesh>
+            <mesh position={[0, stem.h, 0]}>
+              <sphereGeometry args={[0.025, 8, 6]} />
+              <meshStandardMaterial
+                color="#f4c8d8"
+                emissive="#e09bb0"
+                emissiveIntensity={0.15}
+                roughness={0.7}
+              />
+            </mesh>
+          </group>
+        ))}
+      </group>
       {/* Small lentera di edge timur side table — kasih warm light
           ke books, kerasa "ada yang baca di sini." */}
       <group position={[0.9, 0.79, 0.4]}>
@@ -3859,6 +3942,8 @@ const ArsipScene = ({
       <CardCatalog />
       <WingChair restored={restored} />
       <FloorLamp restored={restored} />
+      {restored && <FloorCushion />}
+      {restored && <LetterStack />}
       <Hourglass restored={restored} />
       <PlantPot restored={restored} />
 
