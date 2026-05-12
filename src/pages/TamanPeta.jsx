@@ -1159,6 +1159,58 @@ const PetaArsip = ({
           <meshStandardMaterial color="#4a3528" roughness={0.95} />
         </mesh>
 
+        {/* Doorway frame di celah front wall (-x side, opening z=0..0.6).
+            2 vertical pillars + top beam — kerasa "ini pintu masuk
+            perpustakaan" dari kejauhan, bukan sekadar dinding rusak. */}
+        <mesh position={[-0.66, 0.45, 0.55]}>
+          <boxGeometry args={[0.06, 0.5, 0.06]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.66, 0.45, 0.05]}>
+          <boxGeometry args={[0.06, 0.5, 0.06]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.66, 0.78, 0.3]}>
+          <boxGeometry args={[0.06, 0.08, 0.6]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+
+        {/* Sign plaque di atas doorway — papan kayu kecil yang menggantung.
+            Tone match doorway frame. Di restored, sedikit lebih bright
+            hint "ada yang nyalakan plang lagi". */}
+        <mesh position={[-0.72, 0.93, 0.3]}>
+          <boxGeometry args={[0.03, 0.15, 0.32]} />
+          <meshStandardMaterial
+            color={petakState === 'restored' ? '#7a5a40' : '#4a3528'}
+            roughness={0.85}
+          />
+        </mesh>
+        {/* 2 string tipis nyatuin plaque ke top beam */}
+        <mesh position={[-0.69, 0.86, 0.2]}>
+          <boxGeometry args={[0.012, 0.05, 0.012]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh position={[-0.69, 0.86, 0.4]}>
+          <boxGeometry args={[0.012, 0.05, 0.012]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+
+        {/* Tumpukan buku samar di interior, visible lewat doorway.
+            3 buku — 2 ditumpuk horizontal + 1 berdiri leaning. Spine
+            colors muted (match peta dusty palette, gak loud). */}
+        <mesh position={[-0.35, 0.27, 0.3]} rotation={[0, 0.2, 0]}>
+          <boxGeometry args={[0.18, 0.05, 0.13]} />
+          <meshStandardMaterial color="#5a3025" roughness={0.9} />
+        </mesh>
+        <mesh position={[-0.34, 0.32, 0.32]} rotation={[0, -0.1, 0.05]}>
+          <boxGeometry args={[0.17, 0.05, 0.12]} />
+          <meshStandardMaterial color="#3a3858" roughness={0.9} />
+        </mesh>
+        <mesh position={[-0.28, 0.39, 0.42]} rotation={[0, 0.6, 0.4]}>
+          <boxGeometry args={[0.12, 0.18, 0.04]} />
+          <meshStandardMaterial color="#5a4830" roughness={0.9} />
+        </mesh>
+
         {/* Window — restored state nyala warm tapi intensity diturunin
             0.4 → 0.22 supaya hint glow, bukan dominate scene. Drought:
             gelap solid. */}
@@ -3485,7 +3537,7 @@ const PathWaymarker = ({ pos, phase = 0 }) => {
   );
 };
 const PathWaymarkers = () => {
-  // Center [0,0,0] → Telaga [-7,0,-1]
+  // Center [0,0,0] → Telaga [-7,0,-1] di barat
   const toTelaga = [];
   for (let i = 1; i <= 3; i++) {
     const t = i / 4;
@@ -3494,19 +3546,22 @@ const PathWaymarkers = () => {
       phase: i * 0.7,
     });
   }
-  // Center [0,0,0] → Outer direction (back area, hint to "next petak
-  // unbuilt") — 2 markers, very subtle hint of future routes
-  const toUnbuilt = [
-    { pos: [3.5, 0.015, -3], phase: 1.3 },
-    { pos: [5, 0.015, -4.5], phase: 2.1 },
-  ];
+  // Center [0,0,0] → Arsip [+7,0,-1] di timur (mirror Telaga)
+  const toArsip = [];
+  for (let i = 1; i <= 3; i++) {
+    const t = i / 4;
+    toArsip.push({
+      pos: [7 * t, 0.015, -1 * t],
+      phase: 0.3 + i * 0.6,
+    });
+  }
   return (
     <>
       {toTelaga.map((m, i) => (
         <PathWaymarker key={`wm-telaga-${i}`} pos={m.pos} phase={m.phase} />
       ))}
-      {toUnbuilt.map((m, i) => (
-        <PathWaymarker key={`wm-unbuilt-${i}`} pos={m.pos} phase={m.phase} />
+      {toArsip.map((m, i) => (
+        <PathWaymarker key={`wm-arsip-${i}`} pos={m.pos} phase={m.phase} />
       ))}
     </>
   );
@@ -3518,6 +3573,8 @@ const PetaFootprintTrails = () => (
         Belum ada stone path connection (PETAK=[]) jadi trail ini juga
         berfungsi sbg visual hint route. */}
     <PetaFootprintTrail start={[-0.4, 0, -0.4]} end={[-6.4, 0, -1]} count={9} />
+    {/* Center [0,0,0] → Arsip [+7,0,-1] — mirror Telaga di timur. */}
+    <PetaFootprintTrail start={[0.4, 0, -0.4]} end={[6.4, 0, -1]} count={9} />
     {/* Side branch — wandering off ke arah luar gerbang
         (storytelling: ada yg keluar dari peta, gak balik). */}
     <PetaFootprintTrail start={[1, 0, 7]} end={[5, 0, 12]} count={7} />
