@@ -3081,6 +3081,64 @@ const ShootingStar = () => {
 
 // Moon — disc kecil glow lembut di sudut atas peta. Bukan light source
 // asli (cuma visual), light asli udah dari directionalLight existing.
+// FootprintTrail — pair jejak alternate kiri-kanan dari start→end,
+// opacity fade. Echo dari gersang storytelling — kerasa "ada
+// perjalanan dari petak satu ke lainnya". Scale lebih kecil dari
+// gersang krn peta overhead view, footprint kecil aja udah readable.
+const PetaFootprintTrail = ({ start, end, count = 9 }) => {
+  const [sx, , sz] = start;
+  const [ex, , ez] = end;
+  const dx = ex - sx;
+  const dz = ez - sz;
+  const angle = Math.atan2(dz, dx);
+  const perpX = -Math.sin(angle);
+  const perpZ = Math.cos(angle);
+  const strideWidth = 0.07;
+  const prints = [];
+  for (let i = 0; i < count; i++) {
+    const t = i / (count - 1);
+    const cx = sx + dx * t;
+    const cz = sz + dz * t;
+    const opacity = 0.5 - t * 0.42;
+    const sideSign = i % 2 === 0 ? 1 : -1;
+    prints.push({
+      x: cx + perpX * strideWidth * sideSign,
+      z: cz + perpZ * strideWidth * sideSign,
+      opacity,
+    });
+  }
+  return (
+    <>
+      {prints.map((p, i) => (
+        <mesh
+          key={`peta-fp-${i}`}
+          position={[p.x, 0.012, p.z]}
+          rotation={[-Math.PI / 2, 0, -angle]}
+        >
+          <planeGeometry args={[0.16, 0.07]} />
+          <meshStandardMaterial
+            color="#150e08"
+            roughness={1}
+            transparent
+            opacity={p.opacity}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+const PetaFootprintTrails = () => (
+  <>
+    {/* Center [0,0,0] → Telaga [-7,0,-1] — perjalanan dari hub ke r3.
+        Belum ada stone path connection (PETAK=[]) jadi trail ini juga
+        berfungsi sbg visual hint route. */}
+    <PetaFootprintTrail start={[-0.4, 0, -0.4]} end={[-6.4, 0, -1]} count={9} />
+    {/* Side branch — wandering off ke arah luar gerbang
+        (storytelling: ada yg keluar dari peta, gak balik). */}
+    <PetaFootprintTrail start={[1, 0, 7]} end={[5, 0, 12]} count={7} />
+  </>
+);
+
 // DistantCrow — 1 burung silhouette terbang lazy huge-radius circle
 // di horizon jauh. Static-y altitude (~8y), radius lebar (28u),
 // kerasa "1 burung kesepian di langit kota mati". Echo dari gersang
@@ -3385,6 +3443,7 @@ const TamanScene = ({
       />
       <TamanFloor />
       <DroughtRing />
+      <PetaFootprintTrails />
       {/* Dead-town environment re-enabled — CityRuins di luar hex ring
           (siluet kota runtuh), DeadTrees scattered (sisa hutan mati),
           SandDust + HighDustShimmer (debu beterbangan = kerasa angin
