@@ -353,6 +353,51 @@ export const getRakSiblings = (bookId, restored = true) => {
   };
 };
 
+// Reading order — narrative arc untuk user. Mulai dari "Halaman Terakhir"
+// (manifesto Armeniaca, focal di meja) → 2 refleksi tentang project →
+// 3 linimasa kronologis era awal → 3 linimasa kronologis era akhir
+// (restored unlock) → 2 diskografi → 1 era fight terkini → closing
+// dengan call-to-action kebaikan.
+//
+// Drought tier (saat count < 5000): user disarankan ke kebaikan-pohon
+// di akhir drought arc (jangan terlantar di tengah).
+// Restored tier (count >= 5000): full arc 12 buku.
+export const ARSIP_STORY_ORDER = [
+  'halaman-terakhir',
+  'etimologi-armeniaca',
+  'filosofi-armeniaca',
+  'linimasa-trainee',
+  'linimasa-theater',
+  'linimasa-senbatsu-newera',
+  'linimasa-mature',
+  'linimasa-variety',
+  'era-fight-team-dream',
+  'diskografi-rapsodi',
+  'diskografi-bibir',
+  'kebaikan-pohon',
+];
+
+// Get next book di narrative arc setelah bookId. Restored gate: kalau
+// next book restored tier dan user belum restored, skip ke kebaikan
+// (drought closing).
+export const getNextStoryBook = (bookId, restored = true) => {
+  const idx = ARSIP_STORY_ORDER.indexOf(bookId);
+  if (idx === -1 || idx === ARSIP_STORY_ORDER.length - 1) return null;
+  // Find next book yang masuk current tier
+  for (let i = idx + 1; i < ARSIP_STORY_ORDER.length; i++) {
+    const nextId = ARSIP_STORY_ORDER[i];
+    const nextBook = ARSIP_BOOKS.find((b) => b.id === nextId);
+    if (!nextBook) continue;
+    if (nextBook.unlockTier === UNLOCK_TIERS.RESTORED && !restored) {
+      // Skip restored book di drought tier — lompat ke kebaikan
+      // (story closing untuk drought arc)
+      continue;
+    }
+    return nextBook;
+  }
+  return null;
+};
+
 // Persistence — track buku yang udah dibaca lewat localStorage.
 // Marker visual di rak (subtle emissive) + counter di petak peta.
 const READ_KEY = 'arsip-books-read';
