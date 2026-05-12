@@ -2006,6 +2006,59 @@ const SandDust = ({ count = 80 }) => {
   );
 };
 
+// WindStreaks — thin elongated lines drifting horizontally (-X → +X)
+// di berbagai altitude, lebih dramatic vs dust particles round. Kasih
+// sense "angin gersang ngalir konsisten" — visible wind currents.
+// Plane flat di sumbu xz (rotation -π/2 sumbu x), elongated along x.
+// Opacity rendah supaya subtle, beda intensitas per streak.
+const WindStreaks = ({ count = 12 }) => {
+  const refs = useRef([]);
+  const defs = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      arr.push({
+        startX: -22 - Math.random() * 6,
+        y: 0.5 + Math.random() * 5,
+        z: -22 + Math.random() * 44,
+        len: 2.5 + Math.random() * 2.5,
+        speed: 1.5 + Math.random() * 1.0,
+        opacity: 0.06 + Math.random() * 0.07,
+      });
+    }
+    return arr;
+  }, [count]);
+  useFrame((_, delta) => {
+    refs.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      mesh.position.x += defs[i].speed * delta;
+      if (mesh.position.x > 24) {
+        mesh.position.x = -24;
+        mesh.position.z = -22 + Math.random() * 44;
+      }
+    });
+  });
+  return (
+    <>
+      {defs.map((d, i) => (
+        <mesh
+          key={`wind-${i}`}
+          ref={(el) => (refs.current[i] = el)}
+          position={[d.startX, d.y, d.z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <planeGeometry args={[d.len, 0.04]} />
+          <meshBasicMaterial
+            color="#d8a878"
+            transparent
+            opacity={d.opacity}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // High dust shimmer — sky-level (3-7y altitude) warm rose particles,
 // drift lebih pelan, lebih sparse. Kasih sense of "air berdebu di
 // atmosfer", melengkapi sand dust ground-level. Reinforces depth.
@@ -3207,6 +3260,7 @@ const TamanScene = ({
       <CityRuins isMobile={isMobile} />
       <DeadTrees isMobile={isMobile} />
       <SandDust count={isMobile ? 50 : 100} />
+      {!isMobile && <WindStreaks count={12} />}
       {!isMobile && <HighDustShimmer count={40} />}
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
