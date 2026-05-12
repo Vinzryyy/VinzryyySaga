@@ -30,6 +30,7 @@ import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
+import * as THREE from 'three';
 import {
   Bloom,
   EffectComposer,
@@ -44,12 +45,13 @@ import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
-// 4000 = r1 restored + r3 unlocked drought, 6000 = r3 restored
-// (ekosistem pulih penuh).
+// 4000 = r1 restored + r3 unlocked drought, 5000 = r2 (Arsip) restored,
+// 6000 = r3 restored (ekosistem pulih penuh).
 const MAP_THRESHOLDS = {
   mapUnlock: 2000,
   r1Restore: 4000,
   r3Unlock: 4000,
+  r2Restore: 5000,
   fullRestore: 6000,
 };
 
@@ -1041,6 +1043,202 @@ const PetaTelaga = ({
             }`}
           >
             {sublabel}
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+};
+
+// PetaArsip — petak r2 di sisi timur peta (x=+7), mirror Telaga di
+// barat. Visual: bangunan perpustakaan mini dengan pojok atap hilang
+// (atap jebol signature) + 4 paper plane mengambang di sekitarnya.
+// 2 state berdasarkan tree support count:
+//   drought  (2000-4999) — paper berserakan random drift, atap rusak,
+//                          tidak ada glow dari dalam
+//   restored (>=5000)    — paper drift teratur orbit, atap masih jebol
+//                          (luka kota gak dihapus), warm window glow
+//                          dari dalam ruangan
+const PetaArsip = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  petakState = 'drought',
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
+  const groupRef = useRef();
+  const papersRef = useRef();
+  const windowMatRef = useRef();
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      const targetY = hovered ? 0.25 : 0;
+      const factor = Math.min(delta * 8, 1);
+      groupRef.current.position.y = lerp(
+        groupRef.current.position.y,
+        targetY,
+        factor,
+      );
+    }
+    if (papersRef.current) {
+      const t = state.clock.elapsedTime;
+      papersRef.current.children.forEach((p, i) => {
+        if (petakState === 'restored') {
+          // Orbit teratur di sekitar petak
+          const angle = t * 0.4 + (i * Math.PI) / 2;
+          p.position.x = Math.cos(angle) * 1.1;
+          p.position.z = Math.sin(angle) * 1.1;
+          p.position.y = 0.4 + Math.sin(t * 1.2 + i) * 0.08;
+          p.rotation.y = angle + Math.PI / 2;
+        } else {
+          // Drought — random drift, kerasa berserakan
+          const phase = i * 1.7;
+          p.position.x = Math.cos(t * 0.18 + phase) * 1.4;
+          p.position.z = Math.sin(t * 0.22 + phase * 0.7) * 1.3;
+          p.position.y = 0.2 + Math.sin(t * 0.4 + phase) * 0.12;
+          p.rotation.y = phase + t * 0.15;
+        }
+      });
+    }
+    if (windowMatRef.current && petakState === 'restored') {
+      const t = state.clock.elapsedTime;
+      windowMatRef.current.emissiveIntensity =
+        0.4 + Math.sin(t * 0.6) * 0.12;
+    }
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={[7, 0, -1]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {/* Mobile tap-target — larger invisible cylinder */}
+      <mesh position={[0, 0.5, 0]} visible={false}>
+        <cylinderGeometry args={[isMobile ? 2.3 : 1.7, isMobile ? 2.3 : 1.7, 1.5, 8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Visited halo — sepia ring di base saat udah dikunjungi */}
+      {visited && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
+          <ringGeometry args={[1.6, 1.85, 32]} />
+          <meshStandardMaterial
+            color={petakState === 'restored' ? '#e8d4a8' : '#c8a060'}
+            emissive="#a87060"
+            emissiveIntensity={0.4}
+            transparent
+            opacity={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+
+      {/* Foundation — segi-empat low di base */}
+      <mesh position={[0, 0.1, 0]}>
+        <boxGeometry args={[1.6, 0.2, 1.3]} />
+        <meshStandardMaterial color="#5a4030" roughness={0.95} />
+      </mesh>
+
+      {/* 3 dinding utuh (back + 2 sides) + 1 dinding sengaja dipotong */}
+      {/* Back wall (+x dari camera = +x lokal building) */}
+      <mesh position={[0.6, 0.65, 0]}>
+        <boxGeometry args={[0.12, 0.9, 1.3]} />
+        <meshStandardMaterial color="#9a6e58" roughness={0.92} />
+      </mesh>
+      {/* Side wall front (south) */}
+      <mesh position={[0, 0.65, -0.6]}>
+        <boxGeometry args={[1.32, 0.9, 0.12]} />
+        <meshStandardMaterial color="#d4b8a0" roughness={0.85} />
+      </mesh>
+      {/* Side wall back (north) — utuh */}
+      <mesh position={[0, 0.65, 0.6]}>
+        <boxGeometry args={[1.32, 0.9, 0.12]} />
+        <meshStandardMaterial color="#d4b8a0" roughness={0.85} />
+      </mesh>
+      {/* Front wall (-x lokal) — dipotong di setengah (cuma sebagian) */}
+      <mesh position={[-0.6, 0.4, -0.3]}>
+        <boxGeometry args={[0.12, 0.4, 0.6]} />
+        <meshStandardMaterial color="#9a6e58" roughness={0.92} />
+      </mesh>
+
+      {/* Window dengan emissive (restored only) */}
+      <mesh position={[0.54, 0.6, 0]}>
+        <boxGeometry args={[0.04, 0.35, 0.5]} />
+        <meshStandardMaterial
+          ref={windowMatRef}
+          color={petakState === 'restored' ? '#f4a060' : '#3a2418'}
+          emissive={petakState === 'restored' ? '#f4a060' : '#000000'}
+          emissiveIntensity={petakState === 'restored' ? 0.4 : 0}
+          roughness={0.5}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Atap — beam kayu paralel sumbu z. Pojok depan-atas sengaja
+          tidak ditutup (atap jebol signature). */}
+      {/* Main roof — 3 segment, gap di pojok front */}
+      <mesh position={[0.25, 1.15, 0]} rotation={[0, 0, -0.06]}>
+        <boxGeometry args={[1.1, 0.08, 1.4]} />
+        <meshStandardMaterial color="#4a3020" roughness={0.9} />
+      </mesh>
+      {/* Broken beam menjuntai di celah */}
+      <mesh position={[-0.45, 1.0, 0.3]} rotation={[0.3, 0, -0.4]}>
+        <boxGeometry args={[0.5, 0.06, 0.06]} />
+        <meshStandardMaterial color="#4a3020" roughness={0.9} />
+      </mesh>
+      <mesh position={[-0.55, 0.95, -0.1]} rotation={[0, 0.3, 0.5]}>
+        <boxGeometry args={[0.06, 0.06, 0.4]} />
+        <meshStandardMaterial color="#4a3020" roughness={0.9} />
+      </mesh>
+
+      {/* 4 paper plane mengambang */}
+      <group ref={papersRef}>
+        {[0, 1, 2, 3].map((i) => (
+          <mesh key={`pp-${i}`} position={[0, 0.3, 0]}>
+            <planeGeometry args={[0.18, 0.12]} />
+            <meshStandardMaterial
+              color="#e8d4a8"
+              roughness={0.95}
+              side={THREE.DoubleSide}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
+      </group>
+
+      <Html position={[0, 1.5, 0]} center distanceFactor={10} occlude={false}>
+        <div
+          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+            hovered ? '-translate-y-1' : ''
+          }`}
+        >
+          <div
+            className={`text-[11px] font-medium tracking-wide transition-colors ${
+              hovered ? 'text-white' : 'text-white/80'
+            }`}
+          >
+            Arsip Ingatan
+          </div>
+          <div
+            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              hovered ? 'text-amber-200/85' : 'text-white/55'
+            }`}
+          >
+            {petakState === 'restored' ? 'Perpustakaan pulih' : 'Setengah runtuh'}
           </div>
         </div>
       </Html>
@@ -3567,12 +3765,14 @@ const TamanScene = ({
   hoveredGerbang,
   hoveredLorong,
   hoveredTelaga,
+  hoveredArsip,
   previewedPetak,
   flyInActive,
   isMobile = false,
   restorationLevel = 0,
   modalOpen = false,
   telagaState = 'locked',
+  arsipState = 'drought',
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
@@ -3589,6 +3789,9 @@ const TamanScene = ({
   onTelagaHover,
   onTelagaOut,
   onTelagaClick,
+  onArsipHover,
+  onArsipOut,
+  onArsipClick,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -3600,7 +3803,8 @@ const TamanScene = ({
     hoveredCenter ||
     hoveredGerbang ||
     hoveredLorong ||
-    hoveredTelaga;
+    hoveredTelaga ||
+    hoveredArsip;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
   // berputar. Resume manual control begitu user drag/zoom/touch atau
@@ -3670,6 +3874,7 @@ const TamanScene = ({
       <HoverHalo pos={[0, 0.02, 8]} visible={hoveredGerbang} color="#f4c478" />
       <HoverHalo pos={[0, 0.02, 4]} visible={hoveredLorong} color="#e8b878" />
       <HoverHalo pos={[-7, 0.02, -1]} visible={hoveredTelaga} color="#8ac8e0" />
+      <HoverHalo pos={[7, 0.02, -1]} visible={hoveredArsip} color="#c8a060" />
       <CompassTracker targetRef={compassRotateRef} />
       {/* Prasasti quotes — 3 fragmen worldbuilding scattered di scene */}
       <PrasastiQuotes />
@@ -3721,6 +3926,15 @@ const TamanScene = ({
         onPointerOver={onTelagaHover}
         onPointerOut={onTelagaOut}
         onClick={onTelagaClick}
+      />
+      <PetaArsip
+        hovered={hoveredArsip}
+        visited={previewedPetak.has('arsip')}
+        isMobile={isMobile}
+        petakState={arsipState}
+        onPointerOver={onArsipHover}
+        onPointerOut={onArsipOut}
+        onClick={onArsipClick}
       />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
@@ -3822,6 +4036,28 @@ const PETA_PETAK_INFO = {
     route: '/armeniacaTown/r3',
     accent: '#a8c8e0',
   },
+  // Arsip Ingatan punya 2 varian copy karena 2 state — drought sejak
+  // peta open (gak ada locked), restored saat count >= 5000.
+  arsipDrought: {
+    id: 'arsip',
+    name: 'Arsip Ingatan',
+    eyebrow: 'Setengah runtuh',
+    longDesc:
+      'Perpustakaan kota — sebagian rak masih berdiri, sebagian halaman masih bisa dibaca. Atapnya jebol di pojok, dindingnya ambruk di satu sisi. Tapi seseorang menyelamatkan apa yang tersisa. Yang tertinggal, menunggu siapa saja yang mau membaca.',
+    cta: 'Masuki perpustakaan',
+    route: '/armeniacaTown/r2',
+    accent: '#c8a060',
+  },
+  arsipRestored: {
+    id: 'arsip',
+    name: 'Arsip Ingatan',
+    eyebrow: 'Perpustakaan pulih',
+    longDesc:
+      'Rak berdiri lagi. Kertas balik ke tempat. Atap tetap jebol — luka itu sengaja ditinggal, biar yang baca di sini ingat: ini bukan ruangan yang utuh dari awal. Ini ruangan yang bertahan.',
+    cta: 'Masuki perpustakaan',
+    route: '/armeniacaTown/r2',
+    accent: '#e8d4a8',
+  },
 };
 
 // PetakPreviewModal — info panel yg muncul saat user click petak.
@@ -3898,10 +4134,10 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
   // rakyat omniscient, simple casual Indonesian).
   const nextLabel = (() => {
     if (count >= fullRestore) return 'Air kembali ke telaga. Kota hidup.';
-    if (count >= 5000)
-      return 'Telaga makin dekat ke pulih. Sedikit lagi, teratai mekar.';
+    if (count >= MAP_THRESHOLDS.r2Restore)
+      return 'Rak perpustakaan berdiri lagi. Tinggal telaga yang nungguin air.';
     if (count >= MAP_THRESHOLDS.r3Unlock)
-      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 6.000 untuk air kembali.';
+      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 5.000 untuk arsip pulih.';
     if (count >= MAP_THRESHOLDS.mapUnlock)
       return 'Peta terbuka — kota mulai inget bentuknya. Lanjut ke 4.000 untuk lorong & telaga.';
     return `Pulih sepenuhnya di ${fullRestore.toLocaleString('id-ID')}`;
@@ -4308,6 +4544,7 @@ const TamanPetaPage = () => {
   const [hoveredGerbang, setHoveredGerbang] = useState(false);
   const [hoveredLorong, setHoveredLorong] = useState(false);
   const [hoveredTelaga, setHoveredTelaga] = useState(false);
+  const [hoveredArsip, setHoveredArsip] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
@@ -4320,6 +4557,13 @@ const TamanPetaPage = () => {
     if (armeniacaCount >= MAP_THRESHOLDS.fullRestore) return 'restored';
     if (armeniacaCount >= MAP_THRESHOLDS.r3Unlock) return 'drought';
     return 'locked';
+  }, [armeniacaCount, armeniacaLoaded]);
+  // Arsip visual state — drought sejak peta open (gak ada locked),
+  // restored saat count >= 5000.
+  const arsipState = useMemo(() => {
+    if (!armeniacaLoaded) return 'drought';
+    if (armeniacaCount >= MAP_THRESHOLDS.r2Restore) return 'restored';
+    return 'drought';
   }, [armeniacaCount, armeniacaLoaded]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
@@ -4345,7 +4589,8 @@ const TamanPetaPage = () => {
         hoveredCenter ||
         hoveredGerbang ||
         hoveredLorong ||
-        hoveredTelaga);
+        hoveredTelaga ||
+        hoveredArsip);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
@@ -4356,6 +4601,7 @@ const TamanPetaPage = () => {
     hoveredGerbang,
     hoveredLorong,
     hoveredTelaga,
+    hoveredArsip,
     flyInActive,
   ]);
 
@@ -4436,6 +4682,22 @@ const TamanPetaPage = () => {
     setPetakPreview(info);
   };
 
+  // Arsip handlers — perpustakaan di timur (mirror Telaga). Preview info
+  // dipilih dari 2 varian (drought/restored) berdasarkan computed arsipState.
+  const handleArsipHover = () => {
+    if (flyInActive) return;
+    setHoveredArsip(true);
+  };
+  const handleArsipOut = () => setHoveredArsip(false);
+  const handleArsipClick = () => {
+    if (flyInActive) return;
+    const info =
+      arsipState === 'restored'
+        ? PETA_PETAK_INFO.arsipRestored
+        : PETA_PETAK_INFO.arsipDrought;
+    setPetakPreview(info);
+  };
+
   // Modal preview handlers — close (dismiss tanpa navigate) atau
   // confirm (close modal lalu navigate ke petak route).
   const handlePetakPreviewClose = () => setPetakPreview(null);
@@ -4481,12 +4743,14 @@ const TamanPetaPage = () => {
               hoveredGerbang={hoveredGerbang}
               hoveredLorong={hoveredLorong}
               hoveredTelaga={hoveredTelaga}
+              hoveredArsip={hoveredArsip}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               isMobile={isMobile}
               restorationLevel={restorationLevel}
               modalOpen={Boolean(selectedPetak) || Boolean(petakPreview)}
               telagaState={telagaState}
+              arsipState={arsipState}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
@@ -4503,6 +4767,9 @@ const TamanPetaPage = () => {
               onTelagaHover={handleTelagaHover}
               onTelagaOut={handleTelagaOut}
               onTelagaClick={handleTelagaClick}
+              onArsipHover={handleArsipHover}
+              onArsipOut={handleArsipOut}
+              onArsipClick={handleArsipClick}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
