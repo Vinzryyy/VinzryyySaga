@@ -4455,6 +4455,108 @@ const BankTrees = ({ count }) => (
 // di top file untuk hindari TDZ). Deep night blue dengan metalness
 // moderate + roughness sedang untuk reflection halus dari moonlight
 // + lentera. Static (no shader wave) untuk performa.
+// DROUGHT Tumbleweed — bola twigs kering yg "menggelinding" karena
+// angin. Sphere irregular (icosahedron 0 detail) dgn 6 ranting kecil
+// sticking out di angles random. Animated: rolling x position lurus
+// across the bank, reset saat lewat batas. Plus spinning rotation
+// supaya kerasa bener-bener nggelinding.
+const Tumbleweed = ({ startX = -22, z = 0, speed = 1, yOffset = 0 }) => {
+  const groupRef = useRef();
+  const offsetRef = useRef(Math.random() * 40); // initial phase offset
+
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Range x: -22 → +22, reset (44 unit span)
+    let x = startX + ((t * speed + offsetRef.current) % 44);
+    if (x > 22) x -= 44;
+    groupRef.current.position.x = x;
+    groupRef.current.position.y =
+      0.35 + Math.abs(Math.sin(t * speed * 2)) * 0.08 + yOffset;
+    // Rolling rotation ngikut arah gerak
+    groupRef.current.rotation.z = -t * speed * 2;
+    groupRef.current.rotation.x = t * speed * 0.5;
+  });
+
+  return (
+    <group ref={groupRef} position={[startX, 0.35, z]}>
+      <mesh>
+        <icosahedronGeometry args={[0.3, 0]} />
+        <meshStandardMaterial
+          color="#5a4028"
+          roughness={1}
+          flatShading
+        />
+      </mesh>
+      {/* 4 ranting kecil sticking out di angles */}
+      {[
+        [0.3, 0, 0, 0, 0, 0.4],
+        [-0.3, 0.1, 0.1, 0, 0, -0.3],
+        [0.1, 0.25, -0.2, 0.4, 0, 0],
+        [-0.1, -0.2, 0.25, -0.3, 0.2, 0],
+      ].map((args, i) => (
+        <mesh
+          key={i}
+          position={[args[0], args[1], args[2]]}
+          rotation={[args[3], args[4], args[5]]}
+        >
+          <cylinderGeometry args={[0.012, 0.018, 0.4, 4]} />
+          <meshStandardMaterial color="#3a2818" roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+const Tumbleweeds = () => (
+  <>
+    <Tumbleweed startX={-22} z={-8} speed={0.6} />
+    <Tumbleweed startX={-22} z={6} speed={0.85} yOffset={0.02} />
+    <Tumbleweed startX={-22} z={-16} speed={0.5} />
+  </>
+);
+
+// DROUGHT Bones — small fragments tulang scattered di banks. Bukan
+// dramatic skeleton, just subtle decay marker. 4 spot, each punya
+// 2-3 piece (rib + skull-ish). Color bone white-gray.
+const BONE_SPOTS = [
+  { pos: [-13, 0, 10], rot: 0.4 },
+  { pos: [16, 0, -7], rot: 1.3 },
+  { pos: [-15, 0, -14], rot: -0.6 },
+  { pos: [12, 0, 14], rot: 2.1 },
+];
+const BoneCluster = ({ pos, rot }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Skull-ish flatter sphere */}
+    <mesh position={[0, 0.06, 0]} scale={[0.18, 0.12, 0.16]}>
+      <sphereGeometry args={[1, 8, 6]} />
+      <meshStandardMaterial color="#a8a098" roughness={0.95} />
+    </mesh>
+    {/* Rib 1 — elongated box */}
+    <mesh
+      position={[0.22, 0.03, 0.08]}
+      rotation={[0, 0, 0.2]}
+    >
+      <boxGeometry args={[0.32, 0.04, 0.04]} />
+      <meshStandardMaterial color="#988e84" roughness={0.95} />
+    </mesh>
+    {/* Rib 2 */}
+    <mesh
+      position={[0.18, 0.03, -0.1]}
+      rotation={[0, 0.3, -0.15]}
+    >
+      <boxGeometry args={[0.28, 0.04, 0.04]} />
+      <meshStandardMaterial color="#988e84" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const Bones = () => (
+  <>
+    {BONE_SPOTS.map((b, i) => (
+      <BoneCluster key={`bone-${i}`} {...b} />
+    ))}
+  </>
+);
+
 // DROUGHT GroundCracks — garis tipis gelap di tanah bank, kasih
 // texture "tanah retak karena kekeringan". Distribusi deterministic
 // via seeded RNG, hindari path & lake footprint.
@@ -5772,6 +5874,13 @@ const TelagaScene = ({
         radius 12-20. Bukan green grass (skipped), tapi rumput mati
         masih berdiri kaku. */}
     <DriedGrassTufts isMobile={isMobile} />
+    {/* Tumbleweeds — 3 bola twigs kering nggelinding pelan across
+        the bank. Signature drought visual, kerasa "angin masih
+        membawa sisa-sisa". */}
+    <Tumbleweeds />
+    {/* Bones — 4 cluster fragment tulang scattered di banks. Subtle
+        decay marker, hint of past life. */}
+    <Bones />
     {/* Polusi — soft round particles drifting warna dirty smog brown,
         match r1 gersang PollutedAir. Spread di area 50×50 (lebih luas
         dari r1 karena r3 area gede). */}
