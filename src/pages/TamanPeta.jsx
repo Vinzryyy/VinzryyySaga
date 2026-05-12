@@ -43,11 +43,14 @@ import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
-// di-extract ke shared config nanti). 2000 = gerbang buka, 4000 =
-// r1 canonical restored, peta full pulih.
+// di-extract ke shared config nanti). 2000 = gerbang/peta buka,
+// 4000 = r1 restored + r3 unlocked drought, 6000 = r3 restored
+// (ekosistem pulih penuh).
 const MAP_THRESHOLDS = {
   mapUnlock: 2000,
-  fullRestore: 4000,
+  r1Restore: 4000,
+  r3Unlock: 4000,
+  fullRestore: 6000,
 };
 
 const useArmeniacaProgress = () => {

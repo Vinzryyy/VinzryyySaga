@@ -68,6 +68,12 @@ const TamanLorongPohonGersangPage = lazy(() =>
   import('./pages/TamanLorongPohonGersang')
 );
 const TamanKolamKataPage = lazy(() => import('./pages/TamanKolamKata'));
+// Drought variant r3 — dirender saat 4000 ≤ count < 6000 (r3 baru
+// unlocked tapi belum direstorasi penuh). count ≥ 6000 → canonical.
+// Pattern sama dgn r1 gersang.
+const TamanKolamKataGersangPage = lazy(() =>
+  import('./pages/TamanKolamKataGersang')
+);
 // Denyut — heartbeat website (presence-driven pulse visual). Standalone
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
@@ -122,9 +128,11 @@ const ScrollManager = () => {
 //
 // URL override `?restoration=0` / `?restoration=1` memaksa pilih
 // gersang / restored — untuk preview tanpa harus nunggu count naik.
-// Override hanya berlaku di chooser r1 (gak nge-unlock map).
+// Override hanya berlaku di chooser r1 / r3 (gak nge-unlock map).
 const MAP_UNLOCK_THRESHOLD = 2000;
 const R1_RESTORATION_THRESHOLD = 4000;
+const R3_UNLOCK_THRESHOLD = 4000;
+const R3_RESTORATION_THRESHOLD = 6000;
 
 // Returns { count, loaded }. `loaded` flag false sampai first RTDB
 // snapshot masuk — penting biar route guard / chooser gak bikin
@@ -184,6 +192,41 @@ const TamanPetaRouteGuard = () => {
   return <TamanPetaPage />;
 };
 
+// r3 (Telaga Harapan) gating:
+//   count < 4000  → r3 belum unlocked. Redirect ke /armeniacaTown/peta.
+//   4000-5999     → render drought variant (TamanKolamKataGersang)
+//   count >= 6000 → render canonical (TamanKolamKata)
+// Dev override ?restoration=0|1 paksa pilih variant (gak bypass unlock —
+// route guard pakai R3_UNLOCK_THRESHOLD, terpisah dari restorasi).
+const TamanR3RouteChooser = () => {
+  const { count, loaded } = useTreeSupportCount();
+  const [searchParams] = useSearchParams();
+  const override = import.meta.env.DEV
+    ? searchParams.get('restoration')
+    : null;
+  const forceUnlock =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
+
+  // Override bypass loading wait + bypass unlock guard.
+  if (override !== null) {
+    const n = parseFloat(override);
+    const useRestored = !Number.isNaN(n) && n >= 0.5;
+    return useRestored ? <TamanKolamKataPage /> : <TamanKolamKataGersangPage />;
+  }
+  if (forceUnlock) {
+    // Force-unlock tanpa restoration override → drought version
+    return <TamanKolamKataGersangPage />;
+  }
+  if (!loaded) return <PageLoader />;
+  if (count < R3_UNLOCK_THRESHOLD) {
+    return <Navigate to="/armeniacaTown/peta" replace />;
+  }
+  if (count < R3_RESTORATION_THRESHOLD) {
+    return <TamanKolamKataGersangPage />;
+  }
+  return <TamanKolamKataPage />;
+};
+
 function AppShell() {
   // Site-wide birthday overlay — balloons + confetti + sparkles on
   // every page on 15 Juni 2026 (24-hour window only). After the day
@@ -230,7 +273,7 @@ function AppShell() {
             <Route path="/armeniacaTown" element={<TamanPage />} />
             <Route path="/armeniacaTown/peta" element={<TamanPetaRouteGuard />} />
             <Route path="/armeniacaTown/r1" element={<TamanR1RouteChooser />} />
-            <Route path="/armeniacaTown/r3" element={<TamanKolamKataPage />} />
+            <Route path="/armeniacaTown/r3" element={<TamanR3RouteChooser />} />
             {/* Backward-compat: rute /taman/* dari era sebelum rebrand
                 ke /armeniacaTown. Link lama tetep valid. */}
             <Route
