@@ -2363,6 +2363,7 @@ const FloorShadows = ({ isMobile = false }) => {
 // awal. Far racks tetap render dengan deco books (visual library).
 const BookPedestalsNearMeja = ({
   books,
+  restored,
   hoveredId,
   readIds,
   onHover,
@@ -2395,12 +2396,33 @@ const BookPedestalsNearMeja = ({
         const z = Math.sin(rad) * r;
         const hovered = hoveredId === book.id;
         const read = readIds.has(book.id);
+        // Drought-specific jitter: posisi book + rotation random per id
+        // biar kerasa "tersebar" alih-alih melingkar perfect. Deterministic
+        // via hashSeed.
+        const seedX = (hashSeed(`bp-x-${book.id}`) - 0.5) * 0.6;
+        const seedZ = (hashSeed(`bp-z-${book.id}`) - 0.5) * 0.6;
+        const seedRotY = (hashSeed(`bp-ry-${book.id}`) - 0.5) * 1.0;
+        const seedTilt = (hashSeed(`bp-t-${book.id}`) - 0.5) * 0.3;
+
+        // Position offset utk drought (books di lantai scattered) vs
+        // restored (di pedestal yang tinggi)
+        const bookY = restored ? 0.66 : 0.04;
+        const indicatorY = restored ? 0.85 : 0.18;
+        const labelY = restored ? 1.1 : 0.5;
+
         return (
           <group
             key={book.id}
-            position={[x, 0, z]}
-            // Rotate group sehingga "depan" pedestal menghadap meja
-            rotation={[0, -rad + Math.PI / 2, 0]}
+            position={[
+              x + (restored ? 0 : seedX),
+              0,
+              z + (restored ? 0 : seedZ),
+            ]}
+            rotation={[
+              0,
+              -rad + Math.PI / 2 + (restored ? 0 : seedRotY),
+              0,
+            ]}
             onPointerOver={(e) => {
               e.stopPropagation();
               onHover?.(book.id);
@@ -2415,42 +2437,73 @@ const BookPedestalsNearMeja = ({
               onClick?.(book);
             }}
           >
-            {/* Pedestal post — wooden stand */}
-            <mesh position={[0, 0.3, 0]}>
-              <cylinderGeometry args={[0.13, 0.16, 0.6, 10]} />
-              <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
-            </mesh>
-            {/* Pedestal top platform */}
-            <mesh position={[0, 0.62, 0]}>
-              <cylinderGeometry args={[0.18, 0.18, 0.04, 10]} />
-              <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
-            </mesh>
-            {/* Book lying flat di top — cover up, spine ke arah meja
-                (depan pedestal). Slight lift saat hover. */}
-            <mesh position={[0, 0.66 + (hovered ? 0.03 : 0), 0]}>
+            {/* Pedestal — restored only. Drought: pedestal udah roboh,
+                buku jatuh ke lantai. Kasih sisa pedestal kecil pecah
+                buat narrative "dulu ada pedestal di sini." */}
+            {restored ? (
+              <>
+                {/* Pedestal post — wooden stand */}
+                <mesh position={[0, 0.3, 0]}>
+                  <cylinderGeometry args={[0.13, 0.16, 0.6, 10]} />
+                  <meshStandardMaterial color={COLORS.tableWood} roughness={0.85} />
+                </mesh>
+                {/* Pedestal top platform */}
+                <mesh position={[0, 0.62, 0]}>
+                  <cylinderGeometry args={[0.18, 0.18, 0.04, 10]} />
+                  <meshStandardMaterial color={COLORS.tableWood} roughness={0.8} />
+                </mesh>
+              </>
+            ) : (
+              // Drought: 1 pecahan kayu pedestal di lantai dekat buku
+              // — sisa visual dari pedestal yang udah roboh.
+              <mesh
+                position={[0.15, 0.04, -0.1]}
+                rotation={[0, seedRotY * 0.5, seedTilt * 2]}
+              >
+                <boxGeometry args={[0.16, 0.05, 0.16]} />
+                <meshStandardMaterial color={COLORS.tableWood} roughness={0.95} />
+              </mesh>
+            )}
+            {/* Book — drought: tilted on floor. Restored: flat on
+                pedestal top. */}
+            <mesh
+              position={[0, bookY + (hovered ? 0.03 : 0), 0]}
+              rotation={
+                restored
+                  ? [0, 0, 0]
+                  : [seedTilt * 0.5, 0, seedTilt * 1.2]
+              }
+            >
               <boxGeometry args={[0.26, 0.06, 0.2]} />
               <meshStandardMaterial
                 color={book.spineColor}
                 emissive={hovered ? COLORS.spineHover : book.spineColor}
                 emissiveIntensity={hovered ? 0.5 : read ? 0.25 : 0.18}
-                roughness={0.7}
+                roughness={restored ? 0.7 : 0.9}
               />
             </mesh>
-            {/* Spine ridge di samping ke arah meja */}
-            <mesh position={[0, 0.665, -0.08]}>
+            {/* Spine ridge — di samping book menghadap meja (restored)
+                atau ngikut book rotation (drought) */}
+            <mesh
+              position={[0, bookY + 0.005, -0.08]}
+              rotation={
+                restored
+                  ? [0, 0, 0]
+                  : [seedTilt * 0.5, 0, seedTilt * 1.2]
+              }
+            >
               <boxGeometry args={[0.26, 0.066, 0.018]} />
               <meshStandardMaterial color="#3a2418" roughness={0.85} />
             </mesh>
-            {/* Read marker — small dot near edge book saat udah dibaca */}
+            {/* Read marker — small dot saat udah dibaca */}
             {read && !hovered && (
-              <mesh position={[0.08, 0.7, 0.06]}>
+              <mesh position={[0.08, bookY + 0.04, 0.06]}>
                 <sphereGeometry args={[0.015, 6, 6]} />
                 <meshBasicMaterial color="#88a8c0" toneMapped={false} />
               </mesh>
             )}
-            {/* Indicator orb mengambang di atas pedestal. Unread:
-                gold warm. Read: muted blue-grey smaller. */}
-            <mesh position={[0, 0.85, 0]}>
+            {/* Indicator orb mengambang. Drought: lebih dekat ke lantai. */}
+            <mesh position={[0, indicatorY, 0]}>
               <sphereGeometry args={[read ? 0.024 : 0.038, 10, 8]} />
               <meshBasicMaterial
                 ref={(el) => {
@@ -2465,7 +2518,7 @@ const BookPedestalsNearMeja = ({
             {/* Hover label card */}
             {hovered && (
               <Html
-                position={[0, 1.1, 0]}
+                position={[0, labelY, 0]}
                 center
                 distanceFactor={6}
                 style={{ pointerEvents: 'none' }}
@@ -3213,11 +3266,12 @@ const ArsipScene = ({
         onOutOpenBook={onOpenBookOut}
         onClickOpenBook={onOpenBookClick}
       />
-      {/* Interactive books di-host di pedestal melingkar di sekitar
-          meja — biar semua hint indicator visible dari pose camera awal,
-          gak ke-sebar ke rak jauh yang sulit dilihat. */}
+      {/* Interactive books di sekitar meja. Restored: di pedestal kayu
+          melingkar rapi. Drought: tersebar di lantai dengan sisa pecahan
+          pedestal — kerasa "pedestal udah roboh, buku jatuh berserakan." */}
       <BookPedestalsNearMeja
         books={books}
+        restored={restored}
         hoveredId={hoveredId}
         readIds={readIds}
         onHover={onBookHover}
