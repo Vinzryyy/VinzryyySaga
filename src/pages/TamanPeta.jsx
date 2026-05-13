@@ -6428,6 +6428,169 @@ const ScorchedSpots = () => (
   </>
 );
 
+// CollapsedTorii — gerbang torii roboh, mirror WoodenTorii purified
+// ([-4.2, 0, 1.2]). Dua pilar masih ngacung (lebih pendek, condong),
+// crossbar atas rebah ke tanah miring. Cat merah pudar, kayu retak.
+const CollapsedTorii = ({ pos = [-4.2, 0, 1.2], rot = -0.35 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Pilar kiri — masih berdiri tapi condong, lebih pendek (patah) */}
+    <mesh position={[-0.35, 0.3, 0]} rotation={[0, 0, -0.18]}>
+      <cylinderGeometry args={[0.06, 0.07, 0.6, 6]} />
+      <meshStandardMaterial color="#6a2818" roughness={0.95} />
+    </mesh>
+    {/* Pilar kanan — patah lebih pendek lagi */}
+    <mesh position={[0.32, 0.2, 0]} rotation={[0, 0, 0.22]}>
+      <cylinderGeometry args={[0.06, 0.07, 0.4, 6]} />
+      <meshStandardMaterial color="#5a2418" roughness={0.95} />
+    </mesh>
+    {/* Crossbar atas (kasagi) — rebah ke tanah miring */}
+    <mesh position={[0.0, 0.06, 0.35]} rotation={[Math.PI / 2 - 0.2, 0, 0.4]}>
+      <boxGeometry args={[1.0, 0.07, 0.08]} />
+      <meshStandardMaterial color="#6a2818" roughness={0.95} />
+    </mesh>
+    {/* Lintel bawah (nuki) — pecah jadi 2 fragment di tanah */}
+    <mesh position={[-0.5, 0.04, 0.25]} rotation={[0.1, 0.3, 0.2]}>
+      <boxGeometry args={[0.4, 0.05, 0.06]} />
+      <meshStandardMaterial color="#5a2418" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.45, 0.04, -0.2]} rotation={[0.08, -0.4, 0.15]}>
+      <boxGeometry args={[0.35, 0.05, 0.06]} />
+      <meshStandardMaterial color="#4a1f14" roughness={0.95} />
+    </mesh>
+    {/* Cat merah pudar fragment — strip kecil di tanah (warna fade) */}
+    <mesh position={[-0.15, 0.005, 0.5]} rotation={[-Math.PI / 2, 0, 0.3]}>
+      <planeGeometry args={[0.18, 0.04]} />
+      <meshStandardMaterial
+        color="#7a3020"
+        roughness={0.95}
+        side={2}
+        transparent
+        opacity={0.55}
+      />
+    </mesh>
+  </group>
+);
+
+// ToppledJizo — patung jizo roboh, mirror JizoStatue purified
+// ([-5.55, 0, 0.4]). Foundation stone masih ada, body figure tergeletak
+// di sampingnya. Kepala lepas, bib merah pudar di tanah.
+const ToppledJizo = ({ pos = [-5.55, 0, 0.4], rot = 0.3 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Foundation stone — tetap berdiri (mirror purified) */}
+    <mesh position={[0, 0.04, 0]}>
+      <cylinderGeometry args={[0.12, 0.14, 0.08, 8]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Body jizo — tergeletak miring di samping foundation */}
+    <mesh position={[0.28, 0.08, 0.04]} rotation={[0, 0, Math.PI / 2 + 0.1]}>
+      <cylinderGeometry args={[0.08, 0.1, 0.32, 8]} />
+      <meshStandardMaterial color="#6a5848" roughness={0.95} />
+    </mesh>
+    {/* Kepala lepas — sphere lebih jauh */}
+    <mesh position={[0.5, 0.08, 0.1]}>
+      <sphereGeometry args={[0.08, 8, 6]} />
+      <meshStandardMaterial color="#6a5848" roughness={0.95} />
+    </mesh>
+    {/* Bib merah pudar — strip kain di tanah */}
+    <mesh position={[0.2, 0.005, -0.15]} rotation={[-Math.PI / 2, 0, 0.4]}>
+      <planeGeometry args={[0.22, 0.12]} />
+      <meshStandardMaterial
+        color="#8a3a28"
+        roughness={0.95}
+        side={2}
+        transparent
+        opacity={0.5}
+      />
+    </mesh>
+    {/* Sliver fragment patung patah */}
+    <mesh position={[0.35, 0.03, -0.05]} rotation={[0.3, 0.4, 0.1]}>
+      <boxGeometry args={[0.08, 0.06, 0.08]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// KnockedOverSignpost — papan penunjuk kayu roboh, mirror WoodenSignpost
+// purified ([-3.4, 0, 1.0]). Tiang patah miring di tanah, papan teks
+// terlepas lebih jauh dengan kayu retak.
+const KnockedOverSignpost = ({ pos = [-3.4, 0, 1.0], rot = -0.3 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stump pole — fondasi kayu masih nempel di tanah */}
+    <mesh position={[0, 0.08, 0]}>
+      <cylinderGeometry args={[0.035, 0.045, 0.16, 6]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Pole patah — rebah miring di tanah, splintered tip */}
+    <mesh position={[0.32, 0.04, 0.04]} rotation={[0, 0, Math.PI / 2 + 0.15]}>
+      <cylinderGeometry args={[0.035, 0.04, 0.6, 6]} />
+      <meshStandardMaterial color="#4a3018" roughness={0.95} />
+    </mesh>
+    {/* Papan signpost — terlepas, datar di tanah jauh */}
+    <mesh position={[0.65, 0.025, 0.12]} rotation={[0.1, 0.3, 0.05]}>
+      <boxGeometry args={[0.32, 0.04, 0.2]} />
+      <meshStandardMaterial color="#4a3018" roughness={0.95} />
+    </mesh>
+    {/* Splinters — 2 keping kayu kecil */}
+    <mesh position={[0.5, 0.02, -0.08]} rotation={[0.05, 0.5, 0.1]}>
+      <boxGeometry args={[0.12, 0.02, 0.03]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.85, 0.02, 0.22]} rotation={[0.1, -0.3, 0.08]}>
+      <boxGeometry args={[0.08, 0.02, 0.025]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// WitheredCattails — cattails kering di rim pond, mirror CATTAIL_DEFS
+// purified. Reuse positions yang sama biar pas restore, mereka tumbuh
+// di slot identik. Stalks coklat khaki + heads gugur sebagian.
+const WITHERED_CATTAIL_DEFS = [
+  { pos: [-5.45, 0, -0.5], count: 2, seed: 1 },
+  { pos: [-5.7, 0, 0.05], count: 3, seed: 2 },
+  { pos: [-5.95, 0, 0.4], count: 2, seed: 3 },
+  { pos: [-6.6, 0, 0.55], count: 3, seed: 4 },
+  { pos: [-7.2, 0, 0.55], count: 2, seed: 5 },
+  { pos: [-7.8, 0, 0.25], count: 2, seed: 6 },
+];
+const WitheredCattails = () => (
+  <>
+    {WITHERED_CATTAIL_DEFS.map((c, ci) => (
+      <group key={`wc-${ci}`} position={c.pos}>
+        {Array.from({ length: c.count }).map((_, j) => {
+          const k = j + c.seed * 7;
+          const offX = ((k * 37) % 5) * 0.04 - 0.08;
+          const offZ = ((k * 53) % 5) * 0.04 - 0.08;
+          const height = 0.3 + ((k * 13) % 4) * 0.06;
+          // Tilt lebih ekstrem dari purified — kering condong
+          const tilt = 0.2 + ((k * 17) % 5) * 0.08;
+          const hasHead = k % 3 !== 0;
+          return (
+            <group
+              key={j}
+              position={[offX, 0, offZ]}
+              rotation={[tilt, 0, tilt * 0.9]}
+            >
+              {/* Stalk khaki kering */}
+              <mesh position={[0, height / 2, 0]}>
+                <cylinderGeometry args={[0.01, 0.015, height, 5]} />
+                <meshStandardMaterial color="#7a6a48" roughness={0.95} />
+              </mesh>
+              {/* Head — sebagian gugur, jadi cuma sebagian ada */}
+              {hasHead && (
+                <mesh position={[0, height + 0.04, 0]}>
+                  <cylinderGeometry args={[0.02, 0.02, 0.08, 5]} />
+                  <meshStandardMaterial color="#5a3818" roughness={0.95} />
+                </mesh>
+              )}
+            </group>
+          );
+        })}
+      </group>
+    ))}
+  </>
+);
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -6623,6 +6786,12 @@ const TamanScene = ({
       {!purified && <TatteredBannerPoles />}
       {!purified && <CrackedGroundPatches />}
       {!purified && <ScorchedSpots />}
+      {/* Japanese-corner mirror polish — drought twin untuk torii, jizo,
+          signpost, cattails. Slot persis identik dengan purified versi. */}
+      {!purified && <CollapsedTorii />}
+      {!purified && <ToppledJizo />}
+      {!purified && <KnockedOverSignpost />}
+      {!purified && <WitheredCattails />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
