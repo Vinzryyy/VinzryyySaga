@@ -1307,6 +1307,73 @@ const PetaArsip = ({
               </mesh>
             ))}
 
+            {/* === BAMBOO BROOM === Leaning against engawa corner —
+                kerasa "ada yang ngerawat tempat ini." */}
+            {/* Handle bamboo pole */}
+            <mesh
+              position={[0.78, 0.5, 0.78]}
+              rotation={[0.2, 0, 0.35]}
+            >
+              <cylinderGeometry args={[0.012, 0.012, 0.6, 6]} />
+              <meshStandardMaterial color="#a08838" roughness={0.85} />
+            </mesh>
+            {/* Bristle bundle */}
+            <mesh
+              position={[0.92, 0.24, 0.85]}
+              rotation={[0.2, 0, 0.35]}
+            >
+              <coneGeometry args={[0.05, 0.16, 8]} />
+              <meshStandardMaterial color="#6a4828" roughness={0.95} />
+            </mesh>
+            {/* Bristle bind rope tipis */}
+            <mesh
+              position={[0.89, 0.3, 0.83]}
+              rotation={[0.2, 0, 0.35]}
+            >
+              <torusGeometry args={[0.025, 0.005, 4, 8]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.9} />
+            </mesh>
+
+            {/* === STONE VASE IKEBANA === di corner engawa, vase batu
+                tinggi dgn ranting bunga tipis (ikebana minimalist). */}
+            <mesh position={[-0.82, 0.34, 0.7]}>
+              <cylinderGeometry args={[0.05, 0.06, 0.18, 8]} />
+              <meshStandardMaterial color="#6a5848" roughness={0.92} />
+            </mesh>
+            {/* Vase rim band */}
+            <mesh position={[-0.82, 0.43, 0.7]}>
+              <cylinderGeometry args={[0.055, 0.05, 0.018, 8]} />
+              <meshStandardMaterial color="#4a3828" roughness={0.92} />
+            </mesh>
+            {/* 2 ranting kayu tinggi vertikal sedikit tilted */}
+            <mesh
+              position={[-0.81, 0.55, 0.7]}
+              rotation={[0, 0, 0.12]}
+            >
+              <cylinderGeometry args={[0.005, 0.005, 0.22, 5]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.95} />
+            </mesh>
+            <mesh
+              position={[-0.83, 0.56, 0.7]}
+              rotation={[0, 0, -0.18]}
+            >
+              <cylinderGeometry args={[0.005, 0.005, 0.26, 5]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.95} />
+            </mesh>
+            {/* 3 small flower head di ujung ranting (sakura pink) */}
+            <mesh position={[-0.79, 0.66, 0.7]}>
+              <sphereGeometry args={[0.022, 6, 5]} />
+              <meshStandardMaterial color="#f4a8c0" roughness={0.85} />
+            </mesh>
+            <mesh position={[-0.84, 0.69, 0.71]}>
+              <sphereGeometry args={[0.02, 6, 5]} />
+              <meshStandardMaterial color="#f4a8c0" roughness={0.85} />
+            </mesh>
+            <mesh position={[-0.82, 0.62, 0.69]}>
+              <sphereGeometry args={[0.018, 6, 5]} />
+              <meshStandardMaterial color="#f8c0d0" roughness={0.85} />
+            </mesh>
+
             {/* === ENGAWA RAILING (kōran balustrade) ===
                 Wooden rail mengelilingi engawa edge (kecuali front entrance
                 x=-0.93 yang punya gap di z=±0.4 utk akses). Top rail +
@@ -1595,6 +1662,72 @@ const PetaArsip = ({
             <mesh position={[-1.2, 0.16, 0.5]}>
               <boxGeometry args={[0.42, 0.16, 0.06]} />
               <meshStandardMaterial color="#6a5848" roughness={0.92} />
+            </mesh>
+
+            {/* === TOBI-ISHI STEPPING STONES === Stone path extending
+                -X dari genkan stairs ke scene ground. 5 batu pijak
+                irregularly spaced, kerasa "approach path" tradisional. */}
+            {[
+              { x: -1.55, z: -0.08, r: 0.09 },
+              { x: -1.78, z: 0.06, r: 0.08 },
+              { x: -2.0, z: -0.04, r: 0.085 },
+              { x: -2.22, z: 0.08, r: 0.075 },
+              { x: -2.42, z: -0.02, r: 0.09 },
+            ].map((s, i) => (
+              <mesh key={`tobi-${i}`} position={[s.x, 0.012, s.z]}>
+                <cylinderGeometry args={[s.r, s.r, 0.025, 8]} />
+                <meshStandardMaterial color="#6a5848" roughness={0.95} />
+              </mesh>
+            ))}
+            {/* Moss patches around tobi-ishi stones */}
+            {[
+              [-1.66, -0.05], [-1.9, 0.15], [-2.1, -0.08], [-2.3, 0.04],
+            ].map(([x, z], i) => (
+              <mesh
+                key={`tobi-moss-${i}`}
+                position={[x, 0.015, z]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              >
+                <circleGeometry args={[0.06, 6]} />
+                <meshStandardMaterial
+                  color="#5a7838"
+                  emissive="#3a5828"
+                  emissiveIntensity={0.08}
+                  roughness={0.95}
+                />
+              </mesh>
+            ))}
+
+            {/* === NOREN CURTAIN === Fabric panel hanging di entrance
+                opening atas, di bawah shimenawa. 3 vertical strip dgn
+                slight gap antar strip (kerasa kain noren split bawah). */}
+            {[-0.18, 0, 0.18].map((z, i) => (
+              <mesh key={`noren-${i}`} position={[-0.78, 0.78, z]}>
+                <planeGeometry args={[0.16, 0.32]} />
+                <meshStandardMaterial
+                  color="#5a3038"
+                  roughness={0.92}
+                  side={2}
+                />
+              </mesh>
+            ))}
+            {/* Noren top horizontal rod tipis */}
+            <mesh
+              position={[-0.78, 0.93, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+            >
+              <cylinderGeometry args={[0.01, 0.01, 0.5, 6]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.92} />
+            </mesh>
+            {/* Noren kanji-style mark — small light kanji-ish band di
+                tengah panel tengah */}
+            <mesh position={[-0.785, 0.78, 0]}>
+              <planeGeometry args={[0.07, 0.07]} />
+              <meshStandardMaterial
+                color="#e8d8b0"
+                roughness={0.9}
+                side={2}
+              />
             </mesh>
 
             {/* === SHIMENAWA ROPE === Sacred rope across entrance top
@@ -2266,6 +2399,110 @@ const PetaArsip = ({
               </React.Fragment>
             ))}
 
+            {/* === WISTERIA VINE on back-right corner hashira === Trailing
+                purple-pink vine creeping naik di kolom belakang kanan,
+                kerasa "alam kembali" tanpa intrude bangunan. */}
+            {[0.28, 0.42, 0.56, 0.7, 0.84, 0.98].map((y, i) => (
+              <React.Fragment key={`wist-${i}`}>
+                {/* Leafy cluster di sepanjang kolom */}
+                <mesh position={[0.74 - i * 0.005, y, 0.64 + (i % 2) * 0.015]}>
+                  <sphereGeometry args={[0.04 + (i % 3) * 0.008, 6, 5]} />
+                  <meshStandardMaterial color="#5a7838" roughness={0.85} />
+                </mesh>
+                {/* Hanging flower cluster (wisteria racemes) */}
+                {i % 2 === 0 && (
+                  <mesh position={[0.78, y - 0.06, 0.66]}>
+                    <coneGeometry args={[0.018, 0.08, 5]} />
+                    <meshStandardMaterial
+                      color="#b890c8"
+                      emissive="#7a5898"
+                      emissiveIntensity={0.18}
+                      roughness={0.85}
+                      toneMapped={false}
+                    />
+                  </mesh>
+                )}
+              </React.Fragment>
+            ))}
+
+            {/* === EMA VOTIVE PLAQUES === 4 wooden plaque kecil hanging
+                dari rope strung antar 2 baluster di sisi kanan engawa.
+                Pentagonal pentagonal shape (atas runcing) tradisional ema. */}
+            {/* Rope spanning */}
+            <mesh
+              position={[0.95, 0.4, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+            >
+              <cylinderGeometry args={[0.005, 0.005, 0.7, 4]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.95} />
+            </mesh>
+            {[-0.25, -0.08, 0.08, 0.25].map((z, i) => (
+              <React.Fragment key={`ema-${i}`}>
+                {/* Cord pendek */}
+                <mesh position={[0.95, 0.35, z]}>
+                  <boxGeometry args={[0.003, 0.05, 0.003]} />
+                  <meshStandardMaterial color="#3a2010" roughness={0.95} />
+                </mesh>
+                {/* Plaque body — pentagonal approximation via box */}
+                <mesh position={[0.95, 0.28, z]}>
+                  <boxGeometry args={[0.005, 0.08, 0.07]} />
+                  <meshStandardMaterial
+                    color={i % 2 === 0 ? '#e8c890' : '#d8b078'}
+                    roughness={0.88}
+                  />
+                </mesh>
+                {/* Top peak segitiga (pentagon top) */}
+                <mesh
+                  position={[0.95, 0.33, z]}
+                  rotation={[Math.PI / 4, 0, 0]}
+                >
+                  <boxGeometry args={[0.006, 0.025, 0.025]} />
+                  <meshStandardMaterial
+                    color={i % 2 === 0 ? '#e8c890' : '#d8b078'}
+                    roughness={0.88}
+                  />
+                </mesh>
+              </React.Fragment>
+            ))}
+
+            {/* === SAKURA OVERHANG BRANCH === Dari atas upper roof,
+                ranting tipis dengan kelopak pink hanging mengarah ke
+                bawah-depan. Kerasa "ada pohon sakura di belakang yang
+                cabangnya kebawa ke atas pagoda." */}
+            {/* Main branch arm tilted */}
+            <mesh
+              position={[-0.35, 1.78, 0.65]}
+              rotation={[0, 0, -0.5]}
+            >
+              <cylinderGeometry args={[0.008, 0.014, 0.5, 5]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.95} />
+            </mesh>
+            {/* Secondary branch arm */}
+            <mesh
+              position={[-0.15, 1.7, 0.75]}
+              rotation={[0.2, 0, -0.4]}
+            >
+              <cylinderGeometry args={[0.006, 0.01, 0.3, 5]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.95} />
+            </mesh>
+            {/* Sakura cluster spheres (5 cluster spread di branch) */}
+            {[
+              [-0.55, 1.68, 0.55], [-0.42, 1.58, 0.5],
+              [-0.25, 1.62, 0.78], [-0.1, 1.55, 0.82],
+              [-0.45, 1.65, 0.62],
+            ].map(([x, y, z], i) => (
+              <mesh key={`sakura-${i}`} position={[x, y, z]}>
+                <sphereGeometry args={[0.06 + (i % 2) * 0.015, 6, 5]} />
+                <meshStandardMaterial
+                  color={i % 2 === 0 ? '#f4c8d0' : '#f8d4d8'}
+                  emissive="#e8a8b8"
+                  emissiveIntensity={0.12}
+                  roughness={0.85}
+                  toneMapped={false}
+                />
+              </mesh>
+            ))}
+
             {/* === HENKAKU PLAQUE === Wooden sign above entrance dgn kanji vibe */}
             <mesh position={[-0.74, 1.16, 0]}>
               <boxGeometry args={[0.025, 0.18, 0.5]} />
@@ -2333,6 +2570,94 @@ const PetaArsip = ({
                 toneMapped={false}
                 side={2}
               />
+            </mesh>
+            {/* === KAKEMONO HANGING SCROLL === Vertical scroll di back
+                wall interior, visible lewat entrance. Long thin panel
+                dgn calligraphy-like dark stripe + roller batang atas/bawah. */}
+            {/* Scroll body */}
+            <mesh position={[0.38, 0.55, -0.15]} rotation={[0, -Math.PI / 2, 0]}>
+              <planeGeometry args={[0.16, 0.45]} />
+              <meshStandardMaterial
+                color="#e8d8b0"
+                emissive="#c8a878"
+                emissiveIntensity={0.18}
+                roughness={0.88}
+                toneMapped={false}
+                side={2}
+              />
+            </mesh>
+            {/* Calligraphy stripe tengah */}
+            <mesh
+              position={[0.378, 0.55, -0.15]}
+              rotation={[0, -Math.PI / 2, 0]}
+            >
+              <planeGeometry args={[0.04, 0.32]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.92} side={2} />
+            </mesh>
+            {/* Roller batang atas */}
+            <mesh
+              position={[0.378, 0.78, -0.15]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[0.012, 0.012, 0.18, 6]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.9} />
+            </mesh>
+            {/* Roller batang bawah */}
+            <mesh
+              position={[0.378, 0.32, -0.15]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[0.012, 0.012, 0.18, 6]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.9} />
+            </mesh>
+            {/* Hanging cord top tipis */}
+            <mesh position={[0.378, 0.88, -0.15]}>
+              <boxGeometry args={[0.003, 0.2, 0.003]} />
+              <meshStandardMaterial color="#5a3018" roughness={0.95} />
+            </mesh>
+            {/* Tassel knot kecil di ujung bawah scroll */}
+            <mesh position={[0.378, 0.28, -0.15]}>
+              <sphereGeometry args={[0.012, 6, 5]} />
+              <meshStandardMaterial color="#8a4030" roughness={0.9} />
+            </mesh>
+
+            {/* === KAKEMONO #2 === Second scroll di sisi z=+0.15
+                (paired display tradisional) */}
+            <mesh position={[0.38, 0.55, 0.15]} rotation={[0, -Math.PI / 2, 0]}>
+              <planeGeometry args={[0.16, 0.45]} />
+              <meshStandardMaterial
+                color="#e8d8b0"
+                emissive="#c8a878"
+                emissiveIntensity={0.18}
+                roughness={0.88}
+                toneMapped={false}
+                side={2}
+              />
+            </mesh>
+            {/* Mini ink wash painting motif (3 horizontal lines tipis) */}
+            {[0.62, 0.55, 0.48].map((y, i) => (
+              <mesh
+                key={`scroll2-line-${i}`}
+                position={[0.378, y, 0.15]}
+                rotation={[0, -Math.PI / 2, 0]}
+              >
+                <planeGeometry args={[0.1, 0.012]} />
+                <meshStandardMaterial color="#3a2818" roughness={0.92} side={2} />
+              </mesh>
+            ))}
+            <mesh
+              position={[0.378, 0.78, 0.15]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[0.012, 0.012, 0.18, 6]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.9} />
+            </mesh>
+            <mesh
+              position={[0.378, 0.32, 0.15]}
+              rotation={[0, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[0.012, 0.012, 0.18, 6]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.9} />
             </mesh>
             {/* Subtle tatami floor warm tone visible inside */}
             <mesh position={[0, 0.28, 0]} rotation={[-Math.PI / 2, 0, 0]}>
