@@ -1698,6 +1698,195 @@ const PetaArsip = ({
               </mesh>
             ))}
 
+            {/* === KOMA-INU GUARDIAN LIONS === Stone lion-dog pair flanking
+                tobi-ishi path entry, sisi -X (luar genkan). Pose mirror:
+                kiri "agyō" (mulut buka), kanan "ungyō" (mulut tutup) —
+                tradisi shrine. Simplified silhouette via stacked boxes. */}
+            {[-0.45, 0.45].map((z, i) => {
+              const isAgyo = i === 0;
+              return (
+                <React.Fragment key={`komainu-${i}`}>
+                  {/* Pedestal batu kotak */}
+                  <mesh position={[-1.55, 0.06, z]}>
+                    <boxGeometry args={[0.14, 0.12, 0.16]} />
+                    <meshStandardMaterial color="#6a5848" roughness={0.95} />
+                  </mesh>
+                  {/* Pedestal top cap */}
+                  <mesh position={[-1.55, 0.13, z]}>
+                    <boxGeometry args={[0.16, 0.02, 0.18]} />
+                    <meshStandardMaterial color="#5a4838" roughness={0.95} />
+                  </mesh>
+                  {/* Body block (sitting lion-dog) */}
+                  <mesh position={[-1.55, 0.21, z]}>
+                    <boxGeometry args={[0.085, 0.13, 0.1]} />
+                    <meshStandardMaterial color="#8a7868" roughness={0.92} />
+                  </mesh>
+                  {/* Front legs (di depan -X) */}
+                  <mesh position={[-1.59, 0.18, z - 0.04]}>
+                    <boxGeometry args={[0.025, 0.08, 0.025]} />
+                    <meshStandardMaterial color="#7a6858" roughness={0.92} />
+                  </mesh>
+                  <mesh position={[-1.59, 0.18, z + 0.04]}>
+                    <boxGeometry args={[0.025, 0.08, 0.025]} />
+                    <meshStandardMaterial color="#7a6858" roughness={0.92} />
+                  </mesh>
+                  {/* Head sphere */}
+                  <mesh position={[-1.6, 0.3, z]}>
+                    <sphereGeometry args={[0.05, 8, 6]} />
+                    <meshStandardMaterial color="#8a7868" roughness={0.92} />
+                  </mesh>
+                  {/* Mane (rim ring around head) */}
+                  <mesh position={[-1.575, 0.3, z]} rotation={[0, Math.PI / 2, 0]}>
+                    <torusGeometry args={[0.04, 0.012, 4, 10]} />
+                    <meshStandardMaterial color="#6a5848" roughness={0.92} />
+                  </mesh>
+                  {/* Mulut detail — agyō dark open, ungyō light closed */}
+                  <mesh position={[-1.65, 0.29, z]}>
+                    <boxGeometry args={[0.005, 0.012, 0.025]} />
+                    <meshStandardMaterial
+                      color={isAgyo ? '#1a0808' : '#5a4838'}
+                      roughness={0.9}
+                    />
+                  </mesh>
+                  {/* Tail kecil curl belakang */}
+                  <mesh
+                    position={[-1.5, 0.25, z]}
+                    rotation={[0, 0, 0.4]}
+                  >
+                    <coneGeometry args={[0.018, 0.08, 5]} />
+                    <meshStandardMaterial color="#7a6858" roughness={0.92} />
+                  </mesh>
+                </React.Fragment>
+              );
+            })}
+
+            {/* === KARESANSUI DRY GARDEN === Sand bed kecil di sisi +Z
+                pelataran (luar engawa), 3 accent rock dgn raked sand
+                pattern (concentric ring lines). Zen accent matching aula
+                Japanese aesthetic. */}
+            {/* Sand bed plane */}
+            <mesh position={[0.3, 0.005, 1.3]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[1.5, 0.55]} />
+              <meshStandardMaterial color="#d8c8a8" roughness={0.95} />
+            </mesh>
+            {/* 3 accent rocks — irregular sphere/box */}
+            <mesh position={[-0.05, 0.06, 1.32]} scale={[0.12, 0.08, 0.1]}>
+              <sphereGeometry args={[1, 6, 5]} />
+              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+            </mesh>
+            <mesh position={[0.35, 0.05, 1.42]} scale={[0.08, 0.06, 0.07]}>
+              <sphereGeometry args={[1, 6, 5]} />
+              <meshStandardMaterial color="#6a5848" roughness={0.95} />
+            </mesh>
+            <mesh position={[0.7, 0.06, 1.25]} scale={[0.1, 0.07, 0.09]}>
+              <sphereGeometry args={[1, 6, 5]} />
+              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+            </mesh>
+            {/* Raked sand concentric ring around biggest rock — 3 rings */}
+            {[0.18, 0.26, 0.34].map((r, i) => (
+              <mesh
+                key={`rake-${i}`}
+                position={[-0.05, 0.011, 1.32]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              >
+                <ringGeometry args={[r, r + 0.012, 24]} />
+                <meshStandardMaterial color="#b8a888" roughness={0.95} />
+              </mesh>
+            ))}
+            {/* Straight rake lines extending dari kanan rock — 4 parallel */}
+            {[1.16, 1.22, 1.28, 1.34].map((z, i) => (
+              <mesh
+                key={`rake-line-${i}`}
+                position={[0.95, 0.011, z]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              >
+                <planeGeometry args={[0.35, 0.012]} />
+                <meshStandardMaterial color="#b8a888" roughness={0.95} />
+              </mesh>
+            ))}
+
+            {/* === YUKIMI-DORO snow lantern === Mushroom-style stone
+                lantern (squat tripod base) di corner -Z karesansui edge.
+                Variant beda dari toro tinggi flanking entrance. */}
+            <mesh position={[0.6, 0.04, 1.0]} rotation={[0, 0.3, 0]}>
+              {/* 3-leg tripod base via box geometry tilt */}
+              <cylinderGeometry args={[0.04, 0.05, 0.06, 3]} />
+              <meshStandardMaterial color="#7a6858" roughness={0.95} />
+            </mesh>
+            {/* Mid pillar pendek */}
+            <mesh position={[0.6, 0.13, 1.0]}>
+              <cylinderGeometry args={[0.035, 0.04, 0.1, 6]} />
+              <meshStandardMaterial color="#8a7868" roughness={0.92} />
+            </mesh>
+            {/* Light chamber hexagonal */}
+            <mesh position={[0.6, 0.21, 1.0]}>
+              <cylinderGeometry args={[0.08, 0.07, 0.08, 6]} />
+              <meshStandardMaterial color="#8a7868" roughness={0.92} />
+            </mesh>
+            {/* Inner emissive glow */}
+            <mesh position={[0.6, 0.21, 0.93]} rotation={[0, 0.3, 0]}>
+              <planeGeometry args={[0.055, 0.055]} />
+              <meshStandardMaterial
+                color="#f4b478"
+                emissive="#e89858"
+                emissiveIntensity={0.7}
+                toneMapped={false}
+              />
+            </mesh>
+            {/* Mushroom cap roof — wide flat disc */}
+            <mesh position={[0.6, 0.27, 1.0]}>
+              <cylinderGeometry args={[0.12, 0.085, 0.03, 8]} />
+              <meshStandardMaterial color="#6a5848" roughness={0.95} />
+            </mesh>
+            {/* Top knob */}
+            <mesh position={[0.6, 0.3, 1.0]}>
+              <sphereGeometry args={[0.018, 6, 5]} />
+              <meshStandardMaterial color="#5a4838" roughness={0.92} />
+            </mesh>
+
+            {/* === BAMBOO GROVE BACKDROP === Cluster bambu tinggi di
+                belakang building (z=+1.6+), kerasa "ada kebun bambu di
+                belakang" matching BambooCluster di scene. */}
+            {[
+              { x: -0.3, z: 1.65, h: 1.8 },
+              { x: -0.1, z: 1.75, h: 1.95 },
+              { x: 0.15, z: 1.68, h: 2.1 },
+              { x: 0.35, z: 1.78, h: 1.85 },
+              { x: 0.55, z: 1.62, h: 2.0 },
+              { x: 0.0, z: 1.85, h: 1.7 },
+              { x: -0.45, z: 1.78, h: 1.9 },
+            ].map((b, i) => (
+              <React.Fragment key={`bamboo-${i}`}>
+                {/* Stalk vertikal */}
+                <mesh position={[b.x, b.h / 2, b.z]}>
+                  <cylinderGeometry args={[0.035, 0.045, b.h, 6]} />
+                  <meshStandardMaterial color="#7a9858" roughness={0.85} />
+                </mesh>
+                {/* Joint rings dark di stalk (4 ring evenly spaced) */}
+                {[0.3, 0.6, 0.9, 1.2, 1.5].map((y, j) =>
+                  y < b.h ? (
+                    <mesh
+                      key={`bamboo-r${j}`}
+                      position={[b.x, y, b.z]}
+                      rotation={[Math.PI / 2, 0, 0]}
+                    >
+                      <torusGeometry args={[0.045, 0.005, 4, 8]} />
+                      <meshStandardMaterial color="#3a4828" roughness={0.9} />
+                    </mesh>
+                  ) : null,
+                )}
+                {/* Top leaf cluster */}
+                <mesh position={[b.x, b.h, b.z]}>
+                  <sphereGeometry args={[0.16, 6, 5]} />
+                  <meshStandardMaterial color="#5a7838" roughness={0.85} />
+                </mesh>
+                <mesh position={[b.x + 0.08, b.h - 0.08, b.z]}>
+                  <sphereGeometry args={[0.1, 5, 4]} />
+                  <meshStandardMaterial color="#6a8848" roughness={0.85} />
+                </mesh>
+              </React.Fragment>
+            ))}
+
             {/* === NOREN CURTAIN === Fabric panel hanging di entrance
                 opening atas, di bawah shimenawa. 3 vertical strip dgn
                 slight gap antar strip (kerasa kain noren split bawah). */}
@@ -1871,13 +2060,74 @@ const PetaArsip = ({
               <boxGeometry args={[1.95, 0.04, 0.12]} />
               <meshStandardMaterial color="#2a2530" roughness={0.85} />
             </mesh>
-            {/* Onigawara — dekoratif tile end di kanan-kiri ridge */}
-            {[-0.95, 0.95].map((x, i) => (
-              <mesh key={`oni-${i}`} position={[x, 1.35, 0]}>
-                <boxGeometry args={[0.08, 0.1, 0.16]} />
-                <meshStandardMaterial color="#2a2530" roughness={0.85} />
-              </mesh>
-            ))}
+            {/* === SHACHIHOKO === Mythical fish-dolphin sculpture di ridge
+                ends (replace plain onigawara). Body curl, tail naik,
+                signature Japanese castle/temple roof ornament. Bronze
+                accent emissive subtle. */}
+            {[-0.95, 0.95].map((x, i) => {
+              const dir = x > 0 ? 1 : -1;
+              return (
+                <React.Fragment key={`shachi-${i}`}>
+                  {/* Body — curved hemisphere base (fish body) */}
+                  <mesh position={[x, 1.36, 0]}>
+                    <sphereGeometry args={[0.07, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                    <meshStandardMaterial
+                      color="#3a3540"
+                      emissive="#5a4018"
+                      emissiveIntensity={0.14}
+                      metalness={0.35}
+                      roughness={0.75}
+                    />
+                  </mesh>
+                  {/* Tail naik vertikal — cone segitiga */}
+                  <mesh
+                    position={[x + dir * 0.05, 1.46, 0]}
+                    rotation={[0, 0, dir * -0.35]}
+                  >
+                    <coneGeometry args={[0.04, 0.14, 4]} />
+                    <meshStandardMaterial
+                      color="#3a3540"
+                      emissive="#5a4018"
+                      emissiveIntensity={0.14}
+                      metalness={0.35}
+                      roughness={0.75}
+                    />
+                  </mesh>
+                  {/* Mid-body ridge fin atas (small spike) */}
+                  <mesh
+                    position={[x - dir * 0.02, 1.43, 0]}
+                    rotation={[0, 0, dir * 0.15]}
+                  >
+                    <coneGeometry args={[0.018, 0.06, 4]} />
+                    <meshStandardMaterial
+                      color="#2a2530"
+                      roughness={0.85}
+                    />
+                  </mesh>
+                  {/* Head bulge (mata fish facing outward) */}
+                  <mesh position={[x - dir * 0.06, 1.34, 0]}>
+                    <sphereGeometry args={[0.025, 6, 5]} />
+                    <meshStandardMaterial
+                      color="#2a2530"
+                      roughness={0.8}
+                    />
+                  </mesh>
+                  {/* Gold accent dot (eye / brass detail) */}
+                  <mesh
+                    position={[x - dir * 0.075, 1.34, 0.025]}
+                  >
+                    <sphereGeometry args={[0.008, 5, 4]} />
+                    <meshStandardMaterial
+                      color="#d4a050"
+                      emissive="#a87838"
+                      emissiveIntensity={0.4}
+                      metalness={0.6}
+                      roughness={0.5}
+                    />
+                  </mesh>
+                </React.Fragment>
+              );
+            })}
             {/* Upturned eave corners (yokoya) — 4 corner wedge angled up,
                 kerasa kayak roof corner "ngangkat" matching pagoda style */}
             {[
