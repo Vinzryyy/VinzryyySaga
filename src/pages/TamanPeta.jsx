@@ -6927,6 +6927,243 @@ const CollapsedWallFragments = () => (
   </>
 );
 
+// RubbleHouses — cluster rumah-rumah hancur di east-side, dekat
+// Perpustakaan (PetaArsip @ [7, 0, -1]). Mini-village ruin: 4 rumah
+// dengan tipe kerusakan beda — collapsed roof, tilted leaning, wall
+// stubs + chimney, doorframe ruin. Posisi di x=9-12 supaya cluster
+// di antara petak Arsip dan outer-ring city ruins.
+const RUBBLE_HOUSE_DEFS = [
+  { pos: [9, 0, 0.8], rot: 0.3, variant: 0 },
+  { pos: [10.5, 0, -1.2], rot: -0.5, variant: 1 },
+  { pos: [11, 0, -2.8], rot: 0.7, variant: 2 },
+  { pos: [9.2, 0, -3.2], rot: -0.2, variant: 3 },
+];
+const RubbleHouse = ({ pos, rot, variant }) => {
+  if (variant === 0) {
+    // Collapsed roof house — kiri tinggi, kanan rendah, atap sagged
+    return (
+      <group position={pos} rotation={[0, rot, 0]}>
+        {/* Wall kiri — tinggi, intact */}
+        <mesh position={[-0.4, 0.3, 0]}>
+          <boxGeometry args={[0.05, 0.6, 0.7]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        {/* Wall kanan — pendek, runtuh */}
+        <mesh position={[0.4, 0.18, 0]}>
+          <boxGeometry args={[0.05, 0.36, 0.7]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Wall belakang — intact */}
+        <mesh position={[0, 0.3, -0.35]}>
+          <boxGeometry args={[0.82, 0.6, 0.05]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        {/* Wall depan — partial, runtuh setengah */}
+        <mesh position={[-0.22, 0.2, 0.35]}>
+          <boxGeometry args={[0.38, 0.4, 0.05]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Atap sagged miring ke kanan (sisi runtuh) */}
+        <mesh position={[0.03, 0.55, 0]} rotation={[0, 0, 0.35]}>
+          <boxGeometry args={[0.85, 0.04, 0.72]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.95} />
+        </mesh>
+        {/* Roof beams sticking out */}
+        <mesh
+          position={[0.22, 0.65, 0.22]}
+          rotation={[0.4, 0.3, 0]}
+        >
+          <boxGeometry args={[0.04, 0.04, 0.3]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh
+          position={[-0.18, 0.6, -0.27]}
+          rotation={[-0.3, -0.2, 0.5]}
+        >
+          <boxGeometry args={[0.04, 0.04, 0.25]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Debris pile dekat sisi runtuh */}
+        <mesh
+          position={[0.55, 0.05, 0.25]}
+          rotation={[0.1, 0.4, 0.1]}
+        >
+          <boxGeometry args={[0.16, 0.1, 0.12]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh
+          position={[0.5, 0.03, -0.15]}
+          rotation={[0.05, -0.3, 0.08]}
+        >
+          <boxGeometry args={[0.1, 0.06, 0.08]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.95} />
+        </mesh>
+      </group>
+    );
+  }
+  if (variant === 1) {
+    // Tilted house — utuh tapi miring 0.18 rad ke samping
+    return (
+      <group position={pos} rotation={[0, rot, 0.18]}>
+        {/* Body box */}
+        <mesh position={[0, 0.3, 0]}>
+          <boxGeometry args={[0.7, 0.6, 0.6]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        {/* Pitched roof — 2 slab angled */}
+        <mesh
+          position={[-0.16, 0.72, 0]}
+          rotation={[0, 0, 0.5]}
+        >
+          <boxGeometry args={[0.42, 0.04, 0.62]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.95} />
+        </mesh>
+        <mesh
+          position={[0.16, 0.72, 0]}
+          rotation={[0, 0, -0.5]}
+        >
+          <boxGeometry args={[0.42, 0.04, 0.62]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.95} />
+        </mesh>
+        {/* Window — kotak hitam */}
+        <mesh position={[0, 0.4, 0.31]}>
+          <planeGeometry args={[0.16, 0.18]} />
+          <meshStandardMaterial color="#0a0604" />
+        </mesh>
+        {/* Door — kotak dark */}
+        <mesh position={[-0.18, 0.18, 0.31]}>
+          <planeGeometry args={[0.13, 0.3]} />
+          <meshStandardMaterial color="#1a1008" />
+        </mesh>
+        {/* Crack diagonal di wall depan */}
+        <mesh
+          position={[0.12, 0.32, 0.311]}
+          rotation={[0, 0, 0.7]}
+        >
+          <planeGeometry args={[0.42, 0.02]} />
+          <meshStandardMaterial color="#1a1008" />
+        </mesh>
+      </group>
+    );
+  }
+  if (variant === 2) {
+    // Wall stubs + chimney standing alone
+    return (
+      <group position={pos} rotation={[0, rot, 0]}>
+        {/* Floor slab base */}
+        <mesh position={[0, 0.02, 0]}>
+          <boxGeometry args={[0.85, 0.04, 0.75]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Stub front-left */}
+        <mesh position={[-0.38, 0.14, 0.34]}>
+          <boxGeometry args={[0.05, 0.24, 0.1]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        {/* Stub front-right */}
+        <mesh position={[0.38, 0.18, 0.34]}>
+          <boxGeometry args={[0.05, 0.32, 0.1]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        {/* Stub belakang — lebih panjang */}
+        <mesh position={[0, 0.12, -0.34]}>
+          <boxGeometry args={[0.78, 0.2, 0.05]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        {/* Chimney tinggi sendirian */}
+        <mesh position={[0.28, 0.55, -0.22]}>
+          <boxGeometry args={[0.11, 1.0, 0.11]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Chimney cap */}
+        <mesh position={[0.28, 1.07, -0.22]}>
+          <boxGeometry args={[0.15, 0.04, 0.15]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.95} />
+        </mesh>
+        {/* Scattered bricks */}
+        <mesh
+          position={[-0.12, 0.04, 0.32]}
+          rotation={[0.1, 0.5, 0]}
+        >
+          <boxGeometry args={[0.08, 0.04, 0.06]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        <mesh
+          position={[0.18, 0.04, -0.12]}
+          rotation={[0.05, -0.3, 0]}
+        >
+          <boxGeometry args={[0.07, 0.04, 0.05]} />
+          <meshStandardMaterial color="#4a3018" roughness={0.95} />
+        </mesh>
+        <mesh
+          position={[0.05, 0.04, 0.18]}
+          rotation={[0.08, 0.7, 0]}
+        >
+          <boxGeometry args={[0.06, 0.03, 0.05]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+      </group>
+    );
+  }
+  // variant 3: Doorframe ruin — pintu nyangkut tanpa rumah
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Left door post */}
+      <mesh position={[-0.2, 0.32, 0]}>
+        <boxGeometry args={[0.06, 0.65, 0.1]} />
+        <meshStandardMaterial color="#4a3018" roughness={0.95} />
+      </mesh>
+      {/* Right door post */}
+      <mesh position={[0.2, 0.32, 0]}>
+        <boxGeometry args={[0.06, 0.65, 0.1]} />
+        <meshStandardMaterial color="#4a3018" roughness={0.95} />
+      </mesh>
+      {/* Lintel */}
+      <mesh position={[0, 0.62, 0]}>
+        <boxGeometry args={[0.5, 0.08, 0.12]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Partial wall kanan */}
+      <mesh position={[0.48, 0.22, 0]}>
+        <boxGeometry args={[0.05, 0.44, 0.55]} />
+        <meshStandardMaterial color="#4a3018" roughness={0.95} />
+      </mesh>
+      {/* Wall stub kiri — lebih rendah */}
+      <mesh position={[-0.32, 0.1, 0]}>
+        <boxGeometry args={[0.05, 0.2, 0.4]} />
+        <meshStandardMaterial color="#4a3018" roughness={0.95} />
+      </mesh>
+      {/* Debris pile depan pintu */}
+      <mesh
+        position={[0, 0.04, 0.28]}
+        rotation={[0.05, 0.3, 0]}
+      >
+        <boxGeometry args={[0.42, 0.08, 0.14]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Scattered bits */}
+      <mesh position={[-0.28, 0.03, 0.32]}>
+        <boxGeometry args={[0.06, 0.04, 0.06]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      <mesh
+        position={[0.3, 0.025, 0.25]}
+        rotation={[0.05, -0.4, 0]}
+      >
+        <boxGeometry args={[0.08, 0.04, 0.07]} />
+        <meshStandardMaterial color="#2a1810" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+const RubbleHouses = () => (
+  <>
+    {RUBBLE_HOUSE_DEFS.map((d, i) => (
+      <RubbleHouse key={`rh-${i}`} {...d} />
+    ))}
+  </>
+);
+
 // CirclingVultures — 3 burung gelap berputar pelan tinggi di sky.
 // Atmospheric — kerasa "ada yg ngintai kota mati." Beda dari BirdsFlock
 // purified (sweet swallows) — vultures bergerak lambat, soliter, di
@@ -7355,6 +7592,7 @@ const TamanScene = ({
       {!purified && <CrackedRimStones />}
       {!purified && <SnappedDeadTrees />}
       {!purified && <CollapsedWallFragments />}
+      {!purified && <RubbleHouses />}
       {/* Atmospheric drought polish — sky/distance motion biar sky gak
           kerasa kosong dan kota jauh punya "life" sisa post-storm. */}
       {!purified && <CirclingVultures />}
