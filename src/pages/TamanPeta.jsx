@@ -10215,8 +10215,11 @@ const PetaMenara = ({
     }
     if (dialMatRef.current && petakState === 'restored') {
       const t = state.clock.elapsedTime;
+      // Hover boost — restored dial emissive naik subtle saat user
+      // hover, kerasa "responding to attention".
+      const hoverBonus = hovered ? 0.25 : 0;
       dialMatRef.current.emissiveIntensity =
-        0.5 + Math.sin(t * 0.6) * 0.12;
+        0.5 + Math.sin(t * 0.6) * 0.12 + hoverBonus;
     }
     if (stainedGlassRef.current && petakState === 'restored') {
       const t = state.clock.elapsedTime;
@@ -10381,6 +10384,25 @@ const PetaMenara = ({
               roughness={0.92}
             />
           </mesh>
+          {/* Vertical shaft accent lines — 4 cardinal, subtle texture
+              cue. Match scene shaft brick lines but lebih tipis (0.012)
+              biar gak noise di scale peta. */}
+          {[0, 1, 2, 3].map((i) => {
+            const angle = (i / 4) * Math.PI * 2;
+            // Average shaft radius ~0.36 (top 0.32, bottom 0.4) — pakai
+            // 0.34*0.99 supaya line hugging surface, gak ngambang.
+            const r = 0.34 * 0.99;
+            return (
+              <mesh
+                key={`shaft-line-${i}`}
+                position={[Math.cos(angle) * r, 1.4, Math.sin(angle) * r]}
+                rotation={[0, -angle, 0]}
+              >
+                <boxGeometry args={[0.016, 2.3, 0.008]} />
+                <meshStandardMaterial color="#3a2818" roughness={0.95} />
+              </mesh>
+            );
+          })}
           {/* Tower cap — ring tipis di atas shaft, base buat dial */}
           <mesh position={[0, 2.62, 0]}>
             <cylinderGeometry args={[0.42, 0.36, 0.12, 8]} />
@@ -10427,10 +10449,12 @@ const PetaMenara = ({
               roughness={0.9}
             />
           </mesh>
-          {/* Hour markers — 12 tick (4 cardinal bigger). Bumped sizes
-              dari scene karena viewed dari isometric camera @ ~10 unit
-              distance, perlu kebaca clearly. */}
+          {/* Hour markers — 12 tick (4 cardinal bigger). Drought: skip
+              minor tick #5 (between 4 dan 5 o'clock) — kerasa "satu tick
+              lepas, belum dipasang balik". Cardinal (12/3/6/9) tetep
+              utuh supaya orientation tetap kebaca. */}
           {Array.from({ length: 12 }, (_, i) => {
+            if (!isRestored && i === 5) return null;
             const angle = (i / 12) * Math.PI * 2;
             const isCardinal = i % 3 === 0;
             const len = isCardinal ? 0.07 : 0.04;
@@ -10453,6 +10477,15 @@ const PetaMenara = ({
               </mesh>
             );
           })}
+          {/* Dial crack — drought only. Diagonal hairline retak across
+              dial face, kerasa "jam beneran rusak, belum di-restore".
+              Restored: gak ada (sembuh dari atas-bawah). */}
+          {!isRestored && (
+            <mesh position={[-0.05, 2.74, 0.376]} rotation={[0, 0, -0.7]}>
+              <boxGeometry args={[0.008, 0.4, 0.004]} />
+              <meshStandardMaterial color="#1a0f08" roughness={1} />
+            </mesh>
+          )}
           {/* Hour hand — selalu ada di drought + restored */}
           <mesh position={[0, 2.78, 0.39]} rotation={[0, 0, -0.6]}>
             <boxGeometry args={[0.02, 0.22, 0.01]} />
