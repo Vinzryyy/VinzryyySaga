@@ -24,7 +24,7 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
 import {
@@ -38,6 +38,7 @@ import * as THREE from 'three';
 import Seo from '../components/Seo';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { ELI_TIMELINE } from '../data/eliProfile';
+import { SITE_CONFIG } from '../config/siteConfig';
 
 // =====================================================================
 // Hooks
@@ -218,6 +219,125 @@ const useAlmanak = () => {
       nearestEvent,
     };
   }, [nearestEvent]);
+};
+
+// === BELL CHIME AUDIO ===
+// Synth bell strike via Web Audio API — 4-harmonic additive synth dgn
+// exponential decay envelope. No audio asset needed, ~80B code path.
+// Frekuensi A4 fundamental + harmonics ganjil-ish bikin timbre bel
+// "tower clock" yang lembut, bukan service-desk ding.
+const playBellStrike = (ctx, peakGain = 0.45) => {
+  const now = ctx.currentTime;
+  const harmonics = [
+    { freq: 440, gain: peakGain, decay: 2.4 },
+    { freq: 880, gain: peakGain * 0.5, decay: 1.5 },
+    { freq: 1320, gain: peakGain * 0.28, decay: 0.85 },
+    { freq: 1760, gain: peakGain * 0.16, decay: 0.55 },
+  ];
+  harmonics.forEach((h) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = h.freq;
+    gain.gain.setValueAtTime(h.gain, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + h.decay);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + h.decay + 0.1);
+  });
+};
+
+const BELL_STORAGE_KEY = 'menara-bell-on';
+
+// useHourlyBell — saat enabled, ring bell tiap kali jam WIB berubah
+// (deteksi via lastHourRef). Browser butuh user gesture buat unlock
+// AudioContext, jadi context di-init lazy setelah toggle ON pertama
+// kali. Avoid catching up missed hours: cuma trigger kalau menit==0 &
+// seconds<30 (artinya beneran lewat top-of-hour, bukan loading lambat).
+const useHourlyBell = (enabled) => {
+  const lastHourRef = useRef(null);
+  const ctxRef = useRef(null);
+
+  useEffect(() => {
+    if (!enabled) return undefined;
+    if (!ctxRef.current) {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return undefined;
+        ctxRef.current = new Ctx();
+      } catch {
+        return undefined;
+      }
+    }
+    // Initialize tracker ke jam sekarang supaya gak langsung bunyi pas
+    // toggle on di tengah jam.
+    const init = computeWibTime();
+    lastHourRef.current = init.hours;
+
+    const tick = () => {
+      const t = computeWibTime();
+      if (t.hours !== lastHourRef.current) {
+        lastHourRef.current = t.hours;
+        if (t.minutes === 0 && t.seconds < 30) {
+          playBellStrike(ctxRef.current);
+        }
+      }
+    };
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [enabled]);
+};
+
+// === ANNIVERSARY DETECTION ===
+// useAnniversaryMatch — return list dari ELI_TIMELINE entries + birthday
+// yang MM-DD-nya cocok dengan hari ini di WIB. Empty array = bukan
+// anniversary day. Dev override `?day=MM-DD` buat preview.
+const useAnniversaryMatch = () => {
+  const [searchParams] = useSearchParams();
+  return useMemo(() => {
+    const override = import.meta.env.DEV ? searchParams.get('day') : null;
+    let todayMM, todayYear;
+    if (override && /^\d{2}-\d{2}$/.test(override)) {
+      todayMM = override;
+      todayYear = new Date().getFullYear();
+    } else {
+      const todayIso = wibTodayIso();
+      todayMM = todayIso.substring(5);
+      todayYear = parseInt(todayIso.substring(0, 4), 10);
+    }
+    const matches = [];
+    // Birthday — derive dari SITE_CONFIG.eli.birthdateIso, fallback ke
+    // 2000-06-15 kalau config gak ada.
+    const birthIso =
+      (SITE_CONFIG?.eli?.birthdateIso || '2000-06-15T00:00:00+07:00').substring(0, 10);
+    if (birthIso.substring(5) === todayMM) {
+      const year = parseInt(birthIso.substring(0, 4), 10);
+      const age = Math.max(0, todayYear - year);
+      matches.push({
+        type: 'birthday',
+        title: 'Ulang Tahun Eli',
+        period: age > 0 ? `${age} tahun hari ini` : 'Hari ini',
+        rank: 0, // birthday di-prioritize di top
+      });
+    }
+    // ELI_TIMELINE milestones — match by MM-DD, hitung yearsAgo.
+    ELI_TIMELINE.forEach((e) => {
+      if (!e.date) return;
+      if (e.date.substring(5) !== todayMM) return;
+      const year = parseInt(e.date.substring(0, 4), 10);
+      const yearsAgo = todayYear - year;
+      if (yearsAgo <= 0) return; // skip "tahun ini" event
+      matches.push({
+        type: 'milestone',
+        id: e.id,
+        title: e.title,
+        period: `${yearsAgo} tahun lalu hari ini`,
+        rank: yearsAgo,
+      });
+    });
+    matches.sort((a, b) => a.rank - b.rank);
+    return matches;
+  }, [searchParams]);
 };
 
 // =====================================================================
@@ -681,12 +801,104 @@ const ClockHands = ({ restored }) => {
   );
 };
 
+// AnniversaryGlow — warm halo ring di belakang dial saat hari ini cocok
+// dengan birthday Eli atau salah satu milestone ELI_TIMELINE. Restored
+// only — drought tone "jam masih sembuh" gak kawin sama perayaan.
+const AnniversaryGlow = ({ restored }) => {
+  const anniversaries = useAnniversaryMatch();
+  const matRef = useRef();
+  const active = restored && anniversaries.length > 0;
+
+  useFrame((state) => {
+    if (!matRef.current) return;
+    if (!active) {
+      matRef.current.opacity = 0;
+      matRef.current.emissiveIntensity = 0;
+      return;
+    }
+    const t = state.clock.elapsedTime;
+    matRef.current.opacity = 0.42 + Math.sin(t * 0.7) * 0.12;
+    matRef.current.emissiveIntensity = 0.7 + Math.sin(t * 0.7) * 0.2;
+  });
+
+  if (!active) return null;
+
+  // Halo di belakang dial face — slightly larger radius supaya rim
+  // glow keluar dari sisi dial. Z slightly behind kaca patri backplate.
+  const dialZ = TOWER.shaftRadiusTop * 0.95 - 0.12;
+  return (
+    <group position={[0, TOWER.dialY, dialZ]}>
+      <mesh>
+        <ringGeometry args={[TOWER.dialRadius * 1.18, TOWER.dialRadius * 1.65, 48]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color="#f8c878"
+          emissive="#f0a058"
+          emissiveIntensity={0.7}
+          transparent
+          opacity={0.4}
+          toneMapped={false}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// ShowtimeIndicator — easter egg subtle di posisi-7 dial saat sekitar
+// 19:00 WIB (showtime JKT48 Theater). Fade-in ±30 menit window, peak
+// di tepat 19:00. Restored only.
+const ShowtimeIndicator = ({ restored }) => {
+  const time = useWibTime();
+  if (!restored) return null;
+  const totalMin = time.hours * 60 + time.minutes;
+  const dist = Math.abs(totalMin - 19 * 60);
+  if (dist > 30) return null;
+  const intensity = 1 - dist / 30;
+  // Position-7 di dial: angle 7π/6 dari +Y clockwise.
+  const angle = (7 / 12) * Math.PI * 2;
+  const r = TOWER.dialRadius * 0.62;
+  const x = Math.sin(angle) * r;
+  const y = Math.cos(angle) * r;
+  const dialFaceZ = TOWER.shaftRadiusTop * 0.95 + TOWER.dialThickness / 2 + 0.035;
+  return (
+    <group position={[0, TOWER.dialY, dialFaceZ]}>
+      {/* Inner bright spot */}
+      <mesh position={[x, y, 0]}>
+        <circleGeometry args={[0.1, 16]} />
+        <meshStandardMaterial
+          color="#fff0c8"
+          emissive="#f8c478"
+          emissiveIntensity={1.1 * intensity}
+          transparent
+          opacity={0.85 * intensity}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Outer soft falloff */}
+      <mesh position={[x, y, -0.01]}>
+        <circleGeometry args={[0.22, 16]} />
+        <meshStandardMaterial
+          color="#f4a868"
+          emissive="#e88040"
+          emissiveIntensity={0.55 * intensity}
+          transparent
+          opacity={0.4 * intensity}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
 const Scene = ({ restored, isMobile }) => (
   <>
     <SkyBackdrop restored={restored} />
     <SceneLights restored={restored} />
     <Plaza restored={restored} />
     <ClockTower restored={restored} />
+    <AnniversaryGlow restored={restored} />
+    <ShowtimeIndicator restored={restored} />
     {/* Camera + controls — low angle lookup. Target Y di mid-dial
         (~5.5) supaya orbit center di tower mid-section, bukan di tanah. */}
     <OrbitControls
@@ -738,6 +950,7 @@ const TimePill = ({ restored }) => {
 // drought hanya dapet CountdownChip (lebih ringkas).
 const AlmanakCard = () => {
   const a = useAlmanak();
+  const anniversaries = useAnniversaryMatch();
   const eventDays =
     a.nearestEvent && a.nearestEvent.date
       ? Math.max(0, daysFromWibToday(a.nearestEvent.date.substring(0, 10)))
@@ -754,6 +967,24 @@ const AlmanakCard = () => {
         className="rounded-2xl border border-white/12 bg-[#1c1612]/85 backdrop-blur-md shadow-2xl px-4 py-3.5 sm:px-5 sm:py-4"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
       >
+        {/* Anniversary chip — golden header strip muncul HANYA saat hari
+            ini cocok dgn birthday Eli atau MM-DD milestone. Self-refreshing
+            tiap tahun karena driven by today's MM-DD. */}
+        {anniversaries.length > 0 && (
+          <div className="mb-3 -mx-1 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/10 border border-amber-300/25">
+            <div className="text-amber-200/85 text-[9px] uppercase tracking-[0.3em] mb-0.5">
+              Hari ini · {anniversaries[0].period}
+            </div>
+            <div className="text-amber-50/90 text-[12px] sm:text-[13px] italic leading-snug">
+              {anniversaries[0].title}
+            </div>
+            {anniversaries.length > 1 && (
+              <div className="text-amber-100/55 text-[10px] mt-1 italic">
+                +{anniversaries.length - 1} milestone lain hari ini
+              </div>
+            )}
+          </div>
+        )}
         <div className="flex items-center justify-between mb-2.5">
           <div className="text-amber-200/75 text-[9px] uppercase tracking-[0.3em]">
             Almanak Kota
@@ -852,6 +1083,69 @@ const CountdownChip = () => {
   );
 };
 
+// BellToggle — restored only. Toggles hourly bell chime + persists ke
+// localStorage. Default OFF supaya user yg buka page gak kaget sama
+// audio (juga policy "no autoplay sound" yang umum). User gesture
+// pertama saat toggle ON unlock AudioContext.
+const BellToggle = () => {
+  const [enabled, setEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(BELL_STORAGE_KEY) === 'on';
+    } catch {
+      return false;
+    }
+  });
+  useHourlyBell(enabled);
+
+  const handleClick = () => {
+    setEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(BELL_STORAGE_KEY, next ? 'on' : 'off');
+      } catch {
+        /* storage disabled — fail silently */
+      }
+      // Saat toggle ON, ring sekali sebagai konfirmasi audio working.
+      if (next) {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) {
+            const ctx = new Ctx();
+            // Lower peak buat preview strike (jangan kaget user).
+            playBellStrike(ctx, 0.25);
+          }
+        } catch {
+          /* audio unavailable */
+        }
+      }
+      return next;
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-pressed={enabled}
+      aria-label={enabled ? 'Matikan bel jam' : 'Nyalakan bel jam'}
+      title={enabled ? 'Bel: tiap jam (klik buat mute)' : 'Bel: mute (klik buat aktifkan)'}
+      className={`pointer-events-auto rounded-full border w-9 h-9 grid place-items-center transition ${
+        enabled
+          ? 'border-amber-300/40 bg-amber-500/15 text-amber-100 hover:bg-amber-500/25'
+          : 'border-white/15 bg-black/30 text-white/55 hover:bg-white/10 hover:text-white/80'
+      }`}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        {/* Bell silhouette */}
+        <path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" />
+        <path d="M10 18a2 2 0 0 0 4 0" />
+        {/* Slash when muted */}
+        {!enabled && <line x1="4" y1="4" x2="20" y2="20" />}
+      </svg>
+    </button>
+  );
+};
+
 const Header = ({ restored }) => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-20 md:px-6 md:pt-24 pb-4 md:pb-5">
     <div className="pointer-events-auto">
@@ -876,7 +1170,14 @@ const Header = ({ restored }) => (
         Menara Jam{restored ? '' : ' — Separuh Jalan'}
       </div>
     </div>
-    <div className="w-[68px] md:w-[110px]" aria-hidden />
+    {/* Right-side slot — BellToggle hanya muncul di restored (drought
+        belum boleh bunyi per spec "bel masih bisu"). Drought spacer biar
+        layout balance. */}
+    {restored ? (
+      <BellToggle />
+    ) : (
+      <div className="w-9" aria-hidden />
+    )}
   </div>
 );
 
