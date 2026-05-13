@@ -11272,7 +11272,7 @@ const TamanPetaPage = () => {
               // pop + perceived contrast. Bekerja barengan ToneMapping
               // ACES_FILMIC postprocess (renderer scales linear input
               // sebelum tonemap, dapet brighter highlight tanpa clipping).
-              gl.toneMappingExposure = 1.35;
+              gl.toneMappingExposure = 1.5;
             }}
           >
             <TamanScene
