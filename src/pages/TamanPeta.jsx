@@ -4400,64 +4400,9 @@ const StoneLanterns = () => (
   </>
 );
 
-// WoodenBridge — small arched wooden plank bridge midway antara CenterTree
-// dan Telaga (r3 di barat). Naratif: ada path proper antar petak yg
-// di-rawat, journey terasa physical. 3 support pillar + plank deck +
-// curved handrail (approximated dgn rotated boxes).
-const WoodenBridge = ({ pos = [-3.5, 0, -0.6], rot = 0 }) => (
-  <group position={pos} rotation={[0, rot, 0]}>
-    {/* Bridge deck — slight arch via 3 plank slabs at increasing y */}
-    <mesh position={[0, 0.14, -0.3]}>
-      <boxGeometry args={[1.4, 0.06, 0.35]} />
-      <meshStandardMaterial color="#7a5530" roughness={0.9} />
-    </mesh>
-    <mesh position={[0, 0.18, 0]}>
-      <boxGeometry args={[1.4, 0.06, 0.35]} />
-      <meshStandardMaterial color="#8a6038" roughness={0.9} />
-    </mesh>
-    <mesh position={[0, 0.14, 0.3]}>
-      <boxGeometry args={[1.4, 0.06, 0.35]} />
-      <meshStandardMaterial color="#7a5530" roughness={0.9} />
-    </mesh>
-    {/* Support pillars — 4 corners */}
-    {[
-      [-0.65, 0.08, -0.42],
-      [0.65, 0.08, -0.42],
-      [-0.65, 0.08, 0.42],
-      [0.65, 0.08, 0.42],
-    ].map((p, i) => (
-      <mesh key={`pillar-${i}`} position={p}>
-        <boxGeometry args={[0.08, 0.16, 0.08]} />
-        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-      </mesh>
-    ))}
-    {/* Handrail posts — 4 vertical posts kiri-kanan */}
-    {[
-      [-0.65, 0.3, -0.42],
-      [0.65, 0.3, -0.42],
-      [-0.65, 0.3, 0.42],
-      [0.65, 0.3, 0.42],
-    ].map((p, i) => (
-      <mesh key={`post-${i}`} position={p}>
-        <boxGeometry args={[0.05, 0.28, 0.05]} />
-        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-      </mesh>
-    ))}
-    {/* Handrail beams — horizontal di kiri & kanan */}
-    <mesh position={[-0.65, 0.42, 0]}>
-      <boxGeometry args={[0.04, 0.04, 1]} />
-      <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-    </mesh>
-    <mesh position={[0.65, 0.42, 0]}>
-      <boxGeometry args={[0.04, 0.04, 1]} />
-      <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-    </mesh>
-  </group>
-);
-
 // LotusPads — flat lily pad discs di permukaan air Telaga + 1-2 lotus
-// blooms scattered. Justify ulang fungsi WoodenBridge sebagai "over
-// water" + classic zen garden element matching StoneLantern toro.
+// blooms scattered. Classic zen garden element matching StoneLantern
+// toro + kasih softness di permukaan air.
 const LOTUS_PAD_DEFS = [
   { pos: [-5.85, 0.34, -0.85], scale: 0.28, bloom: true },
   { pos: [-5.6, 0.34, -0.3], scale: 0.22, bloom: false },
@@ -4895,6 +4840,265 @@ const KoiShadows = () => {
     </>
   );
 };
+
+// WaterRipples — 5 concentric ring animations di permukaan air Telaga,
+// staggered phase per slot. Grow + fade per cycle. Sense of life
+// beneath water tanpa nambah static mesh clutter.
+const RIPPLE_SLOTS = [
+  [-6.5, 0.34, -1.0],
+  [-7.3, 0.34, -1.5],
+  [-6.8, 0.34, -0.4],
+  [-7.8, 0.34, -0.8],
+  [-6.2, 0.34, -1.8],
+];
+const WaterRipples = () => {
+  const ringRefs = useRef([]);
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    RIPPLE_SLOTS.forEach((_, i) => {
+      const ring = ringRefs.current[i];
+      const mat = matRefs.current[i];
+      if (!ring || !mat) return;
+      const cycle = 6.5;
+      const phase = i * 1.3;
+      const localT = (t + phase) % cycle;
+      if (localT < 3.5) {
+        const u = localT / 3.5;
+        const scale = 0.2 + u * 1.0;
+        ring.scale.set(scale, 1, scale);
+        mat.opacity = (1 - u) * 0.5;
+      } else {
+        mat.opacity = 0;
+      }
+    });
+  });
+  return (
+    <>
+      {RIPPLE_SLOTS.map((pos, i) => (
+        <mesh
+          key={`ripple-${i}`}
+          ref={(r) => (ringRefs.current[i] = r)}
+          position={pos}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.25, 0.3, 24]} />
+          <meshBasicMaterial
+            ref={(m) => (matRefs.current[i] = m)}
+            color="#cce8f0"
+            transparent
+            opacity={0}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// OmikujiStrips — 6 paper prayer strips terikat di bamboo crossbar
+// (2 vertical posts + horizontal cross). Tradisi Jepang fortune notes;
+// complete sacred shrine micro-set (torii + jizo + omikuji).
+const OMIKUJI_DEFS = Array.from({ length: 6 }, (_, i) => ({
+  offsetX: -0.36 + i * 0.144,
+  length: 0.28 + ((i * 13) % 4) * 0.04,
+  phase: i * 0.7,
+}));
+const OmikujiStrips = ({ pos = [-4.0, 0, 2.5], rot = -0.2 }) => {
+  const stripRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    OMIKUJI_DEFS.forEach((def, i) => {
+      const ref = stripRefs.current[i];
+      if (!ref) return;
+      ref.rotation.z = Math.sin(t * 0.8 + def.phase) * 0.12;
+      ref.rotation.x = Math.cos(t * 0.6 + def.phase) * 0.06;
+    });
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Left vertical post */}
+      <mesh position={[-0.45, 0.65, 0]}>
+        <cylinderGeometry args={[0.025, 0.025, 1.3, 6]} />
+        <meshStandardMaterial color="#8a7050" roughness={0.85} />
+      </mesh>
+      {/* Right vertical post */}
+      <mesh position={[0.45, 0.65, 0]}>
+        <cylinderGeometry args={[0.025, 0.025, 1.3, 6]} />
+        <meshStandardMaterial color="#8a7050" roughness={0.85} />
+      </mesh>
+      {/* Horizontal bamboo crossbar (where strips tied) */}
+      <mesh position={[0, 1.25, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.95, 6]} />
+        <meshStandardMaterial color="#a89060" roughness={0.85} />
+      </mesh>
+      {/* Strips hanging from crossbar */}
+      {OMIKUJI_DEFS.map((def, i) => (
+        <group
+          key={`strip-${i}`}
+          ref={(r) => (stripRefs.current[i] = r)}
+          position={[def.offsetX, 1.22, 0]}
+        >
+          {/* Strip plane */}
+          <mesh position={[0, -def.length / 2, 0]}>
+            <planeGeometry args={[0.05, def.length]} />
+            <meshStandardMaterial
+              color="#f8f0e0"
+              roughness={0.85}
+              side={2}
+            />
+          </mesh>
+          {/* Knot (red) at top */}
+          <mesh position={[0, 0, 0]}>
+            <sphereGeometry args={[0.012, 5, 4]} />
+            <meshStandardMaterial color="#c44040" roughness={0.7} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+};
+
+// WaterMist — thin haze planes low di permukaan air Telaga. Atmospheric
+// dawn-mist effect, drift slow. Low opacity stacked planes kasih
+// volumetric feel tanpa shader cost.
+const MIST_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 24; i++) {
+    const angle = (i / 24) * Math.PI * 2 + ((i * 23) % 9) * 0.1;
+    const r = 0.4 + ((i * 11) % 7) * 0.18;
+    arr.push({
+      basePos: [
+        -7 + Math.cos(angle) * r,
+        0.45 + ((i * 7) % 4) * 0.05,
+        -1 + Math.sin(angle) * r,
+      ],
+      scale: 0.35 + ((i * 13) % 5) * 0.1,
+      driftSpeed: 0.04 + ((i * 5) % 7) * 0.01,
+      phase: (i * 17) % 10,
+      rotZ: ((i * 19) % 6) * 0.3,
+    });
+  }
+  return arr;
+})();
+const WaterMist = () => {
+  const refs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    MIST_DEFS.forEach((def, i) => {
+      const ref = refs.current[i];
+      if (!ref) return;
+      ref.position.x =
+        def.basePos[0] + Math.sin(t * def.driftSpeed + def.phase) * 0.15;
+      ref.position.z =
+        def.basePos[2] + Math.cos(t * def.driftSpeed + def.phase) * 0.15;
+      ref.position.y =
+        def.basePos[1] + Math.sin(t * 0.3 + def.phase) * 0.03;
+    });
+  });
+  return (
+    <>
+      {MIST_DEFS.map((def, i) => (
+        <mesh
+          key={`mist-${i}`}
+          ref={(r) => (refs.current[i] = r)}
+          position={def.basePos}
+          rotation={[-Math.PI / 2, 0, def.rotZ]}
+          scale={[def.scale, 1, def.scale]}
+        >
+          <planeGeometry args={[1, 1]} />
+          <meshBasicMaterial
+            color="#d8e8f0"
+            transparent
+            opacity={0.08}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// MossyRimStones — 7 batu kecil moss-covered di pinggir rim Telaga.
+// Cobble-size, low profile (BUKAN vertical kayak MossyBoulders outer).
+// Natural transition antara grass dan water-edge.
+const MOSSY_RIM_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 7; i++) {
+    const angle = (i / 7) * Math.PI * 2 + 0.4;
+    const r = 1.72 + ((i * 11) % 4) * 0.04;
+    arr.push({
+      pos: [-7 + Math.cos(angle) * r, 0.04, -1 + Math.sin(angle) * r],
+      scale: [
+        0.28 + ((i * 13) % 5) * 0.05,
+        0.18 + ((i * 17) % 5) * 0.04,
+        0.32 + ((i * 19) % 5) * 0.06,
+      ],
+      rot: ((i * 29) % 360) * (Math.PI / 180),
+    });
+  }
+  return arr;
+})();
+const MossyRimStones = () => (
+  <>
+    {MOSSY_RIM_DEFS.map((s, i) => (
+      <group
+        key={`rimstone-${i}`}
+        position={s.pos}
+        rotation={[0, s.rot, 0]}
+        scale={s.scale}
+      >
+        <mesh>
+          <sphereGeometry args={[1, 10, 8]} />
+          <meshStandardMaterial color="#8a7e6a" roughness={0.98} />
+        </mesh>
+        <mesh position={[0, 0.6, 0]} scale={[0.85, 0.3, 0.85]}>
+          <sphereGeometry
+            args={[1, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2.5]}
+          />
+          <meshStandardMaterial color="#5a8048" roughness={0.95} />
+        </mesh>
+      </group>
+    ))}
+  </>
+);
+
+// WoodenSignpost (kanban) — papan kayu kecil di samping torii. Post +
+// plaque + roof cap + 2 etched lines (faux text). Signpost vibe untuk
+// Telaga Harapan, formalize area sacred.
+const WoodenSignpost = ({ pos = [-3.4, 0, 1.0], rot = -0.3 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Post */}
+    <mesh position={[0, 0.4, 0]}>
+      <boxGeometry args={[0.06, 0.8, 0.06]} />
+      <meshStandardMaterial color="#6a4828" roughness={0.9} />
+    </mesh>
+    {/* Plaque (kanban board) */}
+    <mesh position={[0, 0.72, 0.05]}>
+      <boxGeometry args={[0.32, 0.2, 0.025]} />
+      <meshStandardMaterial color="#9a6840" roughness={0.85} />
+    </mesh>
+    {/* Top roof cap */}
+    <mesh position={[0, 0.85, 0.05]}>
+      <boxGeometry args={[0.36, 0.04, 0.09]} />
+      <meshStandardMaterial color="#5a3818" roughness={0.9} />
+    </mesh>
+    {/* Etched lines (faux text rows) */}
+    <mesh position={[0, 0.76, 0.064]}>
+      <planeGeometry args={[0.22, 0.02]} />
+      <meshStandardMaterial color="#3a2010" roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 0.71, 0.064]}>
+      <planeGeometry args={[0.16, 0.015]} />
+      <meshStandardMaterial color="#3a2010" roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 0.67, 0.064]}>
+      <planeGeometry args={[0.18, 0.015]} />
+      <meshStandardMaterial color="#3a2010" roughness={0.95} />
+    </mesh>
+  </group>
+);
 
 // MossyBoulders — 7 rounded boulders dgn moss patch on top, scatter di
 // outer ring radius 12-16. Kasih grounded weight & texture variety —
@@ -5846,7 +6050,6 @@ const TamanScene = ({
           jadi keliatan banding spot di atasnya. */}
       {purified && <CobblestonePath />}
       {purified && <StoneLanterns />}
-      {purified && <WoodenBridge pos={[-5.3, 0, 0.8]} rot={Math.PI / 2 + 0.08} />}
       {purified && <LotusPads />}
       {purified && <Cattails />}
       {purified && <SteppingStones />}
@@ -5856,6 +6059,11 @@ const TamanScene = ({
       {purified && <JizoStatue />}
       {purified && <WoodenTorii />}
       {purified && <KoiShadows />}
+      {purified && <WaterRipples />}
+      {purified && <OmikujiStrips />}
+      {purified && !isMobile && <WaterMist />}
+      {purified && <MossyRimStones />}
+      {purified && <WoodenSignpost />}
       {purified && <MossyBoulders isMobile={isMobile} />}
       {purified && <StoneBirdbath pos={[-1.8, 0, 1.5]} />}
       {purified && <VineCreeps />}
