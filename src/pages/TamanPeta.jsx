@@ -1243,6 +1243,72 @@ const PetaArsip = ({
               </mesh>
             ))}
 
+            {/* === ENGAWA RAILING (kōran balustrade) ===
+                Wooden rail mengelilingi engawa edge (kecuali front entrance
+                x=-0.93 yang punya gap di z=±0.4 utk akses). Top rail +
+                6 baluster vertikal per sisi. Kerasa "veranda beneran"
+                bukan cuma deck terbuka. */}
+            {/* Top rail back (x=+0.93, sisi +X) */}
+            <mesh position={[0.93, 0.34, 0]}>
+              <boxGeometry args={[0.035, 0.025, 1.56]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.92} />
+            </mesh>
+            {/* Top rail kanan (z=+0.78, sisi +Z) */}
+            <mesh position={[0, 0.34, 0.78]}>
+              <boxGeometry args={[1.86, 0.025, 0.035]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.92} />
+            </mesh>
+            {/* Top rail kiri (z=-0.78, sisi -Z) */}
+            <mesh position={[0, 0.34, -0.78]}>
+              <boxGeometry args={[1.86, 0.025, 0.035]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.92} />
+            </mesh>
+            {/* Front rail — outer segments only (gap di z=-0.4..0.4 utk
+                entrance access). Slot kiri (z=-0.78..-0.4) & kanan
+                (z=0.4..0.78). */}
+            <mesh position={[-0.93, 0.34, -0.59]}>
+              <boxGeometry args={[0.035, 0.025, 0.38]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.92} />
+            </mesh>
+            <mesh position={[-0.93, 0.34, 0.59]}>
+              <boxGeometry args={[0.035, 0.025, 0.38]} />
+              <meshStandardMaterial color="#3a2010" roughness={0.92} />
+            </mesh>
+            {/* Balusters belakang (x=+0.93) */}
+            {[-0.65, -0.35, -0.05, 0.25, 0.55].map((z, i) => (
+              <mesh key={`bal-b${i}`} position={[0.93, 0.29, z]}>
+                <boxGeometry args={[0.018, 0.13, 0.018]} />
+                <meshStandardMaterial color="#3a2010" roughness={0.92} />
+              </mesh>
+            ))}
+            {/* Balusters sisi +Z (z=0.78) */}
+            {[-0.7, -0.35, 0, 0.35, 0.7].map((x, i) => (
+              <mesh key={`bal-r${i}`} position={[x, 0.29, 0.78]}>
+                <boxGeometry args={[0.018, 0.13, 0.018]} />
+                <meshStandardMaterial color="#3a2010" roughness={0.92} />
+              </mesh>
+            ))}
+            {/* Balusters sisi -Z (z=-0.78) */}
+            {[-0.7, -0.35, 0, 0.35, 0.7].map((x, i) => (
+              <mesh key={`bal-l${i}`} position={[x, 0.29, -0.78]}>
+                <boxGeometry args={[0.018, 0.13, 0.018]} />
+                <meshStandardMaterial color="#3a2010" roughness={0.92} />
+              </mesh>
+            ))}
+            {/* Balusters front-outer (di luar entrance gap) */}
+            {[-0.7, -0.5].map((z, i) => (
+              <mesh key={`bal-fl${i}`} position={[-0.93, 0.29, z]}>
+                <boxGeometry args={[0.018, 0.13, 0.018]} />
+                <meshStandardMaterial color="#3a2010" roughness={0.92} />
+              </mesh>
+            ))}
+            {[0.5, 0.7].map((z, i) => (
+              <mesh key={`bal-fr${i}`} position={[-0.93, 0.29, z]}>
+                <boxGeometry args={[0.018, 0.13, 0.018]} />
+                <meshStandardMaterial color="#3a2010" roughness={0.92} />
+              </mesh>
+            ))}
+
             {/* === LOWER TIER WALLS === */}
             {/* 4 corner hashira posts dark wood */}
             {[
@@ -1404,6 +1470,81 @@ const PetaArsip = ({
               <meshStandardMaterial color="#3a2010" roughness={0.92} />
             </mesh>
 
+            {/* === GENKAN STONE STAIRS === 3 batu stone stair lebar
+                turun dari engawa ke ground, di luar platform extending -X. */}
+            {/* Step 1 (paling tinggi, dekat engawa) */}
+            <mesh position={[-1.05, 0.16, 0]}>
+              <boxGeometry args={[0.16, 0.08, 0.65]} />
+              <meshStandardMaterial color="#8a7868" roughness={0.92} />
+            </mesh>
+            {/* Step 2 */}
+            <mesh position={[-1.18, 0.1, 0]}>
+              <boxGeometry args={[0.16, 0.08, 0.78]} />
+              <meshStandardMaterial color="#7a6858" roughness={0.92} />
+            </mesh>
+            {/* Step 3 (paling bawah, lebar) */}
+            <mesh position={[-1.32, 0.04, 0]}>
+              <boxGeometry args={[0.16, 0.08, 0.92]} />
+              <meshStandardMaterial color="#6a5848" roughness={0.92} />
+            </mesh>
+            {/* Side stone cheek walls flanking steps */}
+            <mesh position={[-1.2, 0.16, -0.5]}>
+              <boxGeometry args={[0.42, 0.16, 0.06]} />
+              <meshStandardMaterial color="#6a5848" roughness={0.92} />
+            </mesh>
+            <mesh position={[-1.2, 0.16, 0.5]}>
+              <boxGeometry args={[0.42, 0.16, 0.06]} />
+              <meshStandardMaterial color="#6a5848" roughness={0.92} />
+            </mesh>
+
+            {/* === SHIMENAWA ROPE === Sacred rope across entrance top
+                dgn 3 shide paper streamers. Cylinder thick rope di atas
+                lintel di z=-0.25 to 0.25 (entrance span). */}
+            <mesh
+              position={[-0.78, 1.0, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+            >
+              <cylinderGeometry args={[0.025, 0.025, 0.52, 8]} />
+              <meshStandardMaterial color="#d8c490" roughness={0.95} />
+            </mesh>
+            {/* Slight thicker bulge tengah (twisted rope center bulge) */}
+            <mesh
+              position={[-0.78, 1.0, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+            >
+              <cylinderGeometry args={[0.032, 0.032, 0.18, 8]} />
+              <meshStandardMaterial color="#c8b480" roughness={0.95} />
+            </mesh>
+            {/* 3 shide (paper streamer zigzag) hanging dari shimenawa */}
+            {[-0.2, 0, 0.2].map((z, i) => (
+              <React.Fragment key={`shide-${i}`}>
+                <mesh position={[-0.79, 0.92, z]}>
+                  <planeGeometry args={[0.06, 0.04]} />
+                  <meshStandardMaterial
+                    color="#f4ece0"
+                    roughness={0.9}
+                    side={2}
+                  />
+                </mesh>
+                <mesh position={[-0.79, 0.87, z]}>
+                  <planeGeometry args={[0.05, 0.04]} />
+                  <meshStandardMaterial
+                    color="#f4ece0"
+                    roughness={0.9}
+                    side={2}
+                  />
+                </mesh>
+                <mesh position={[-0.79, 0.82, z]}>
+                  <planeGeometry args={[0.04, 0.04]} />
+                  <meshStandardMaterial
+                    color="#f4ece0"
+                    roughness={0.9}
+                    side={2}
+                  />
+                </mesh>
+              </React.Fragment>
+            ))}
+
             {/* === LOWER TIER ROOF (ge-yane) === */}
             {/* Exposed taruki rafters under eave (4 sisi) — visible kayu
                 beam ends pointing out, tradition di Japanese pagoda */}
@@ -1469,6 +1610,107 @@ const PetaArsip = ({
                 <boxGeometry args={[0.22, 0.04, 0.18]} />
                 <meshStandardMaterial color="#3a3540" roughness={0.88} />
               </mesh>
+            ))}
+
+            {/* === ROOF CURL CORNER EXTENSIONS === sweeping eave tips
+                extending outward+upward dari yokoya corners. Box kecil
+                rotated sehingga ujung ngacung ke arah outer atas — kerasa
+                kayak corner curl Japanese roof beneran (mirip dengan
+                ujung roof Buddhist temple). */}
+            {[
+              { pos: [-1.06, 1.36, -0.96], rot: [0.5, -0.4, 0.5] },
+              { pos: [-1.06, 1.36, 0.96], rot: [-0.5, 0.4, 0.5] },
+              { pos: [1.06, 1.36, -0.96], rot: [0.5, 0.4, -0.5] },
+              { pos: [1.06, 1.36, 0.96], rot: [-0.5, -0.4, -0.5] },
+            ].map((c, i) => (
+              <mesh key={`curl-${i}`} position={c.pos} rotation={c.rot}>
+                <coneGeometry args={[0.05, 0.22, 4]} />
+                <meshStandardMaterial color="#2a2530" roughness={0.85} />
+              </mesh>
+            ))}
+
+            {/* === VERMILLION RIDGE TOP STRIP === Subtle red accent
+                sepanjang ridge mune (kerasa accent Japanese architecture,
+                matching torii merah di scene). */}
+            <mesh position={[0, 1.34, 0]}>
+              <boxGeometry args={[1.94, 0.018, 0.03]} />
+              <meshStandardMaterial
+                color="#a83828"
+                emissive="#5a1810"
+                emissiveIntensity={0.2}
+                roughness={0.7}
+              />
+            </mesh>
+            {/* Onigawara vermillion underline strip kanan-kiri ridge */}
+            {[-0.95, 0.95].map((x, i) => (
+              <mesh key={`oni-red-${i}`} position={[x, 1.31, 0]}>
+                <boxGeometry args={[0.082, 0.012, 0.165]} />
+                <meshStandardMaterial
+                  color="#a83828"
+                  emissive="#5a1810"
+                  emissiveIntensity={0.18}
+                  roughness={0.7}
+                />
+              </mesh>
+            ))}
+
+            {/* === SOFFIT BOARDS UNDER EAVE === Cross beams perpendicular
+                di bawah main roof slab — visible under eave dari sudut
+                bawah. Kasih kesan "structure" bukan flat slab terbang. */}
+            {[-0.7, -0.35, 0, 0.35, 0.7].map((x, i) => (
+              <mesh key={`soffit-x-${i}`} position={[x, 1.215, 0]}>
+                <boxGeometry args={[0.025, 0.025, 1.74]} />
+                <meshStandardMaterial color="#3a2418" roughness={0.92} />
+              </mesh>
+            ))}
+            {[-0.6, -0.3, 0, 0.3, 0.6].map((z, i) => (
+              <mesh key={`soffit-z-${i}`} position={[0, 1.215, z]}>
+                <boxGeometry args={[1.94, 0.025, 0.025]} />
+                <meshStandardMaterial color="#3a2418" roughness={0.92} />
+              </mesh>
+            ))}
+
+            {/* === FURIN WIND BELLS === 2 small bronze bells hanging dari
+                corner eave (front-left + back-right diagonal). Decorative
+                Japanese touch — bell + ribbon strip + emissive subtle. */}
+            {[
+              { pos: [-0.95, 1.18, -0.85] },
+              { pos: [0.95, 1.18, 0.85] },
+            ].map((c, i) => (
+              <React.Fragment key={`furin-${i}`}>
+                {/* Cord pendek */}
+                <mesh position={[c.pos[0], c.pos[1], c.pos[2]]}>
+                  <boxGeometry args={[0.005, 0.06, 0.005]} />
+                  <meshStandardMaterial color="#2a1810" roughness={0.95} />
+                </mesh>
+                {/* Bell body hemisphere (dome facing down) */}
+                <mesh position={[c.pos[0], c.pos[1] - 0.06, c.pos[2]]}>
+                  <sphereGeometry
+                    args={[0.035, 8, 6, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]}
+                  />
+                  <meshStandardMaterial
+                    color="#b88848"
+                    emissive="#6a4018"
+                    emissiveIntensity={0.2}
+                    metalness={0.55}
+                    roughness={0.5}
+                  />
+                </mesh>
+                {/* Bell clapper drop */}
+                <mesh position={[c.pos[0], c.pos[1] - 0.1, c.pos[2]]}>
+                  <sphereGeometry args={[0.01, 6, 5]} />
+                  <meshStandardMaterial color="#3a2010" roughness={0.9} />
+                </mesh>
+                {/* Ribbon strip (tanzaku) — strip kertas panjang vertikal */}
+                <mesh position={[c.pos[0], c.pos[1] - 0.16, c.pos[2]]}>
+                  <planeGeometry args={[0.025, 0.1]} />
+                  <meshStandardMaterial
+                    color="#f4ece0"
+                    roughness={0.9}
+                    side={2}
+                  />
+                </mesh>
+              </React.Fragment>
             ))}
 
             {/* === UPPER TIER === (smaller, mirror konstruksi lower) */}
@@ -1577,44 +1819,86 @@ const PetaArsip = ({
               </mesh>
             ))}
 
-            {/* === FINIAL (sōrin) === bronze pinnacle on top */}
-            {/* Base lotus disc */}
+            {/* === FINIAL (sōrin) === bronze pinnacle on top, 5-part
+                konstruksi tradisional: fukubachi lotus base, kurin rings,
+                suiren parasol disc, ryūsha & hoju apex jewel. */}
+            {/* Fukubachi — lotus base disc */}
             <mesh position={[0, 1.94, 0]}>
               <cylinderGeometry args={[0.08, 0.1, 0.04, 12]} />
               <meshStandardMaterial color="#6a4828" roughness={0.7} />
             </mesh>
+            {/* Inverted bowl cap atas lotus base */}
+            <mesh position={[0, 1.98, 0]}>
+              <cylinderGeometry args={[0.06, 0.075, 0.025, 12]} />
+              <meshStandardMaterial color="#7a5038" roughness={0.7} />
+            </mesh>
             {/* Vertical spire shaft */}
-            <mesh position={[0, 2.12, 0]}>
-              <cylinderGeometry args={[0.018, 0.022, 0.34, 8]} />
+            <mesh position={[0, 2.14, 0]}>
+              <cylinderGeometry args={[0.018, 0.022, 0.38, 8]} />
               <meshStandardMaterial
                 color="#8a6028"
                 emissive="#5a3018"
-                emissiveIntensity={0.15}
+                emissiveIntensity={0.18}
                 metalness={0.5}
                 roughness={0.55}
               />
             </mesh>
-            {/* 3 horizontal ring (kurin) di shaft */}
-            {[2.02, 2.14, 2.26].map((y, i) => (
+            {/* 4 horizontal ring (kurin) di shaft, spread merata */}
+            {[2.02, 2.12, 2.22, 2.32].map((y, i) => (
               <mesh key={`kurin-${i}`} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[0.05, 0.012, 6, 12]} />
+                <torusGeometry args={[0.05, 0.012, 6, 14]} />
                 <meshStandardMaterial
                   color="#a87838"
                   emissive="#6a4018"
-                  emissiveIntensity={0.2}
+                  emissiveIntensity={0.22}
                   metalness={0.55}
                   roughness={0.5}
                 />
               </mesh>
             ))}
-            {/* Apex jewel (hoju) */}
-            <mesh position={[0, 2.34, 0]}>
-              <sphereGeometry args={[0.04, 8, 6]} />
+            {/* Suiren parasol disc — thin flat ring lebih lebar di tengah
+                shaft, kerasa "umbrella ornamental." */}
+            <mesh position={[0, 2.17, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.075, 0.005, 4, 16]} />
               <meshStandardMaterial
-                color="#d4a050"
-                emissive="#c89040"
-                emissiveIntensity={0.5}
-                metalness={0.6}
+                color="#b88840"
+                emissive="#6a4018"
+                emissiveIntensity={0.3}
+                metalness={0.55}
+                roughness={0.55}
+              />
+            </mesh>
+            {/* Ryūsha — water flame ornament below jewel (small cone) */}
+            <mesh position={[0, 2.39, 0]}>
+              <coneGeometry args={[0.028, 0.06, 6]} />
+              <meshStandardMaterial
+                color="#c89040"
+                emissive="#a87038"
+                emissiveIntensity={0.4}
+                metalness={0.55}
+                roughness={0.5}
+              />
+            </mesh>
+            {/* Apex hoju jewel — sphere dgn glow paling kuat */}
+            <mesh position={[0, 2.44, 0]}>
+              <sphereGeometry args={[0.045, 8, 6]} />
+              <meshStandardMaterial
+                color="#f4c060"
+                emissive="#e8a838"
+                emissiveIntensity={0.6}
+                metalness={0.55}
+                roughness={0.4}
+                toneMapped={false}
+              />
+            </mesh>
+            {/* Small pointed tip on top of jewel */}
+            <mesh position={[0, 2.49, 0]}>
+              <coneGeometry args={[0.012, 0.04, 6]} />
+              <meshStandardMaterial
+                color="#c89040"
+                emissive="#a87038"
+                emissiveIntensity={0.4}
+                metalness={0.55}
                 roughness={0.45}
               />
             </mesh>
@@ -1673,22 +1957,22 @@ const PetaArsip = ({
             {[-0.9, 0.9].map((z, i) => (
               <React.Fragment key={`toro-${i}`}>
                 {/* Base stone wide */}
-                <mesh position={[-1.18, 0.2, z]}>
+                <mesh position={[-1.55, 0.2, z]}>
                   <boxGeometry args={[0.18, 0.08, 0.18]} />
                   <meshStandardMaterial color="#7a6858" roughness={0.92} />
                 </mesh>
                 {/* Pedestal pillar */}
-                <mesh position={[-1.18, 0.35, z]}>
+                <mesh position={[-1.55, 0.35, z]}>
                   <cylinderGeometry args={[0.05, 0.06, 0.22, 6]} />
                   <meshStandardMaterial color="#8a7868" roughness={0.92} />
                 </mesh>
                 {/* Light chamber — kotak dgn emissive warm di dalam */}
-                <mesh position={[-1.18, 0.51, z]}>
+                <mesh position={[-1.55, 0.51, z]}>
                   <boxGeometry args={[0.13, 0.13, 0.13]} />
                   <meshStandardMaterial color="#8a7868" roughness={0.92} />
                 </mesh>
                 {/* Inner glow plane (faces -X, terlihat dari arah kamera) */}
-                <mesh position={[-1.255, 0.51, z]}>
+                <mesh position={[-1.625, 0.51, z]}>
                   <planeGeometry args={[0.085, 0.085]} />
                   <meshStandardMaterial
                     color="#f4b478"
@@ -1698,14 +1982,50 @@ const PetaArsip = ({
                   />
                 </mesh>
                 {/* Roof cap pyramid */}
-                <mesh position={[-1.18, 0.61, z]}>
+                <mesh position={[-1.55, 0.61, z]}>
                   <coneGeometry args={[0.1, 0.07, 4]} />
                   <meshStandardMaterial color="#6a5848" roughness={0.92} />
                 </mesh>
                 {/* Top knob */}
-                <mesh position={[-1.18, 0.66, z]}>
+                <mesh position={[-1.55, 0.66, z]}>
                   <sphereGeometry args={[0.018, 6, 6]} />
                   <meshStandardMaterial color="#5a4838" roughness={0.9} />
+                </mesh>
+              </React.Fragment>
+            ))}
+
+            {/* === BONSAI SHRUBS flanking inner entrance steps === Small
+                potted pruned shrubs di kanan-kiri stairs depan toro,
+                kerasa "ada yang ngerawat taman." */}
+            {[-0.7, 0.7].map((z, i) => (
+              <React.Fragment key={`bonsai-${i}`}>
+                {/* Pot terakota kecil */}
+                <mesh position={[-1.18, 0.1, z]}>
+                  <cylinderGeometry args={[0.08, 0.065, 0.13, 10]} />
+                  <meshStandardMaterial color="#a85838" roughness={0.9} />
+                </mesh>
+                {/* Pot rim */}
+                <mesh position={[-1.18, 0.17, z]}>
+                  <cylinderGeometry args={[0.085, 0.08, 0.018, 10]} />
+                  <meshStandardMaterial color="#8a4030" roughness={0.9} />
+                </mesh>
+                {/* Trunk pendek bonsai */}
+                <mesh position={[-1.18, 0.22, z]}>
+                  <cylinderGeometry args={[0.018, 0.022, 0.08, 6]} />
+                  <meshStandardMaterial color="#3a2010" roughness={0.95} />
+                </mesh>
+                {/* 3 leafy cluster spread (bonsai canopy) */}
+                <mesh position={[-1.18, 0.3, z]}>
+                  <sphereGeometry args={[0.07, 8, 6]} />
+                  <meshStandardMaterial color="#5a7838" roughness={0.85} />
+                </mesh>
+                <mesh position={[-1.15, 0.32, z + 0.03]}>
+                  <sphereGeometry args={[0.045, 6, 5]} />
+                  <meshStandardMaterial color="#6a8848" roughness={0.85} />
+                </mesh>
+                <mesh position={[-1.21, 0.31, z - 0.02]}>
+                  <sphereGeometry args={[0.04, 6, 5]} />
+                  <meshStandardMaterial color="#5a7838" roughness={0.85} />
                 </mesh>
               </React.Fragment>
             ))}
@@ -1763,8 +2083,36 @@ const PetaArsip = ({
               <meshStandardMaterial color="#2a1810" />
             </mesh>
 
+            {/* === INTERIOR LIT BACKDROP === Warm emissive plane di
+                belakang books, visible lewat entrance opening. Kerasa
+                "ada cahaya hangat di dalam aula" — silhouette books
+                stand out terhadap glow tatami inside. */}
+            <mesh position={[0.4, 0.5, 0]} rotation={[0, -Math.PI / 2, 0]}>
+              <planeGeometry args={[1.0, 0.85]} />
+              <meshStandardMaterial
+                color="#f4c890"
+                emissive="#e89858"
+                emissiveIntensity={0.45}
+                roughness={0.5}
+                toneMapped={false}
+                side={2}
+              />
+            </mesh>
+            {/* Subtle tatami floor warm tone visible inside */}
+            <mesh position={[0, 0.28, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[1.2, 1.0]} />
+              <meshStandardMaterial
+                color="#c8a868"
+                emissive="#8a6038"
+                emissiveIntensity={0.18}
+                roughness={0.85}
+                toneMapped={false}
+                side={2}
+              />
+            </mesh>
+
             {/* === INTERIOR BOOKS GLIMPSE === visible lewat entrance opening,
-                tone subtle warm utk kerasa "books inside the hall" */}
+                silhouette books di depan lit backdrop */}
             <mesh position={[-0.35, 0.36, 0.18]} rotation={[0, 0.2, 0]}>
               <boxGeometry args={[0.18, 0.05, 0.13]} />
               <meshStandardMaterial color="#7a4838" roughness={0.85} />
@@ -1776,6 +2124,15 @@ const PetaArsip = ({
             <mesh position={[-0.28, 0.48, 0.3]} rotation={[0, 0.6, 0.4]}>
               <boxGeometry args={[0.12, 0.18, 0.04]} />
               <meshStandardMaterial color="#7a6028" roughness={0.85} />
+            </mesh>
+            {/* Tambah book stack di sisi kiri biar interior gak kosong */}
+            <mesh position={[-0.3, 0.36, -0.18]} rotation={[0, -0.15, 0]}>
+              <boxGeometry args={[0.16, 0.05, 0.12]} />
+              <meshStandardMaterial color="#5a4838" roughness={0.85} />
+            </mesh>
+            <mesh position={[-0.31, 0.41, -0.2]} rotation={[0, 0.1, -0.04]}>
+              <boxGeometry args={[0.15, 0.05, 0.11]} />
+              <meshStandardMaterial color="#7a3838" roughness={0.85} />
             </mesh>
 
             {/* Subtle scar — pojok lower-roof NW slightly weathered.
