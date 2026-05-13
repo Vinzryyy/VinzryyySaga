@@ -7045,60 +7045,6 @@ const CirclingVultures = () => (
   </>
 );
 
-// WindBlownScraps — 16 particle keping kecil (kertas/daun) yg ditiup
-// angin horizontal lintas peta. Beda dari SandDust (uniform haze) atau
-// ApricotPetals (purified, gentle fall). Scraps drift cepat horizontal,
-// loop dari satu sisi ke sisi lain.
-const WindBlownScraps = ({ count = 16 }) => {
-  const ref = useRef();
-  const defs = useMemo(
-    () =>
-      Array.from({ length: count }).map((_, i) => ({
-        seed: i,
-        y: 0.3 + ((i * 13) % 7) * 0.5,
-        z: -7 + ((i * 17) % 14),
-        speed: 0.8 + ((i * 7) % 5) * 0.25,
-        phase: i * 0.4,
-        color: i % 3 === 0 ? '#8a6848' : i % 3 === 1 ? '#7a5a3a' : '#6a4a30',
-        wide: 0.06 + ((i * 11) % 4) * 0.02,
-        tall: 0.025 + ((i * 13) % 3) * 0.01,
-      })),
-    [count]
-  );
-  useFrame((state) => {
-    if (!ref.current) return;
-    const t = state.clock.elapsedTime;
-    ref.current.children.forEach((mesh, i) => {
-      const d = defs[i];
-      if (!d) return;
-      // Loop X dari +9 ke -9 dengan speed berbeda
-      const cycle = (t * d.speed + d.phase) % 18;
-      mesh.position.x = 9 - cycle;
-      mesh.position.y = d.y + Math.sin(t * 1.5 + d.phase) * 0.15;
-      mesh.position.z = d.z + Math.cos(t * 0.8 + d.phase) * 0.25;
-      // Rotation tumbling
-      mesh.rotation.x = t * 2 + d.phase;
-      mesh.rotation.z = t * 1.4 + d.phase;
-    });
-  });
-  return (
-    <group ref={ref}>
-      {defs.map((d, i) => (
-        <mesh key={`scrap-${i}`}>
-          <planeGeometry args={[d.wide, d.tall]} />
-          <meshBasicMaterial
-            color={d.color}
-            transparent
-            opacity={0.55}
-            side={2}
-            depthWrite={false}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-};
-
 // DistantSmokeWisps — 4 kolom asap tipis naik dari arah CityRuins (luar
 // hex ring, fog distance). Vertikal plane dengan opacity pulse + slight
 // drift horizontal — "kebakaran sisa" di kota jauh, atmosfer post-storm.
@@ -7196,54 +7142,6 @@ const DustyLightShafts = () => {
         );
       })}
     </>
-  );
-};
-
-// DistantLightningFlash — directional light yg sesekali flash brief
-// (~0.15s) tiap 18-35 detik random. Suggest badai masih berkeliaran
-// di kejauhan, bukan one-shot event. Color cool blue-white untuk
-// kontras dengan warm amber drought lights.
-const DistantLightningFlash = () => {
-  const lightRef = useRef();
-  const nextStrikeRef = useRef(8);
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (!lightRef.current) return;
-    const remaining = nextStrikeRef.current - t;
-    if (remaining > 0) {
-      lightRef.current.intensity = 0;
-      return;
-    }
-    // Strike fase: 0.05s ramp up → 0.05s peak → 0.1s ramp down
-    const elapsed = -remaining;
-    const totalDur = 0.22;
-    if (elapsed >= totalDur) {
-      // Schedule next strike — 18-35s random
-      nextStrikeRef.current = t + 18 + Math.random() * 17;
-      lightRef.current.intensity = 0;
-      return;
-    }
-    let intensity;
-    if (elapsed < 0.05) {
-      intensity = (elapsed / 0.05) * 1.4;
-    } else if (elapsed < 0.1) {
-      intensity = 1.4;
-    } else {
-      intensity = (1 - (elapsed - 0.1) / 0.12) * 1.4;
-    }
-    // Double-flash effect — second brief peak at 0.12s
-    if (elapsed > 0.12 && elapsed < 0.16) {
-      intensity = Math.max(intensity, 1.0);
-    }
-    lightRef.current.intensity = Math.max(0, intensity);
-  });
-  return (
-    <directionalLight
-      ref={lightRef}
-      position={[12, 16, -12]}
-      intensity={0}
-      color="#c8d4e0"
-    />
   );
 };
 
@@ -7563,11 +7461,9 @@ const TamanScene = ({
       {/* Atmospheric drought polish — sky/distance motion biar sky gak
           kerasa kosong dan kota jauh punya "life" sisa post-storm. */}
       {!purified && <CirclingVultures />}
-      {!purified && !isMobile && <WindBlownScraps count={isMobile ? 8 : 16} />}
       {!purified && <DistantSmokeWisps />}
-      {/* Depth polish — god rays, lightning flash, sand drifts. */}
+      {/* Depth polish — god rays + sand drifts. */}
       {!purified && !isMobile && <DustyLightShafts />}
-      {!purified && <DistantLightningFlash />}
       {!purified && <SandDrifts />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
