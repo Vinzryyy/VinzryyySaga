@@ -38,6 +38,7 @@ from datetime import datetime
 from pathlib import Path
 
 import cloudscraper
+import requests
 
 ELI_MEMBER_ID = 112
 ELI_NAME = "Helisma Putri"
@@ -82,10 +83,33 @@ def make_scraper() -> cloudscraper.CloudScraper:
     )
 
 
+# jkt48.com sometimes stalls past 20s under load — a single read timeout
+# used to kill the whole GH Action run. Retry with short backoff so one
+# slow slug doesn't lose us the rest of the scrape.
+def _get_with_retry(sc, url, timeout=45, tries=3, label=None):
+    last_exc = None
+    for attempt in range(tries):
+        try:
+            return sc.get(url, timeout=timeout)
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError) as e:
+            last_exc = e
+            if attempt < tries - 1:
+                wait = 2 * (attempt + 1)
+                print(f"  [retry] {label or url}: {type(e).__name__}, "
+                      f"retry {attempt + 1}/{tries - 1} in {wait}s")
+                time.sleep(wait)
+    raise last_exc
+
+
 def fetch_month(sc, month: int, year: int):
     url = f"{BASE}/api/v1/schedules?lang=id&month={month}&year={year}"
-    r = sc.get(url, timeout=20)
-    r.raise_for_status()
+    try:
+        r = _get_with_retry(sc, url, label=f"month {year}-{month:02d}")
+        r.raise_for_status()
+    except Exception as e:
+        print(f"  [warn] month {year}-{month:02d} fetch failed after retries: {e}")
+        return []
     body = r.json()
     if not body.get("status"):
         print(f"  [warn] API returned status=false for {month}/{year}: {body.get('message')}")
@@ -94,7 +118,13 @@ def fetch_month(sc, month: int, year: int):
 
 
 def fetch_detail(sc, slug: str):
-    r = sc.get(f"{BASE}/api/v1/schedules/{slug}", timeout=20)
+    try:
+        r = _get_with_retry(
+            sc, f"{BASE}/api/v1/schedules/{slug}", label=f"detail {slug}"
+        )
+    except Exception as e:
+        print(f"  [warn] detail {slug} fetch failed after retries: {e}")
+        return None
     if r.status_code != 200:
         return None
     return r.json().get("data")
