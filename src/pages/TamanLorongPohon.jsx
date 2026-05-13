@@ -632,7 +632,7 @@ const TamanLorongPohonPage = () => {
         <MonumentMomentOverlay
           active={signatureEvent?.type === 'monument'}
         />
-        <AmbientAudio profile="taman-r1" position="top-right" />
+        <AmbientAudio position="top-right" />
         <RotateRecommendation />
         {perfEnabled && <PerfHUD statsRef={perfFpsRef} />}
       </div>

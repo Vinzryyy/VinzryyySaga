@@ -7058,7 +7058,7 @@ const TamanPetaPage = () => {
         {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
             selesai, persisted via localStorage. */}
         {!petakPreview && <TamanPetaIntroTitle />}
-        <AmbientAudio profile="taman" position="top-right" purified={purified} />
+        <AmbientAudio position="top-right" />
         <RotateRecommendation />
         {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
             via CompassTracker (useFrame ref-mutation, no React re-render). */}

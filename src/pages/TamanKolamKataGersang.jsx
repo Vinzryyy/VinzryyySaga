@@ -6773,7 +6773,7 @@ const TamanKolamKataGersangPage = () => {
         <TelagaIntroTitle visible={introActive} />
         <TelagaFooter hoveredPadId={hoveredPadId} totalPads={pads.length} />
         <WishOverlay pad={selectedPad} onClose={handleClose} />
-        <AmbientAudio profile="taman" position="top-right" />
+        <AmbientAudio position="top-right" />
         <RotateRecommendation />
         {/* Skip intro button — click anywhere during cinematic lerp
             atau press dedicated button untuk fast-forward. UX win:

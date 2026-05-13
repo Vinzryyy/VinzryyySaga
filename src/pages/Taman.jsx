@@ -2089,7 +2089,7 @@ const MuseumPage = () => {
               visible={stage === 'done'}
               onRestart={handleRestart}
             />
-            <AmbientAudio profile="drought" position="top-right" />
+            <AmbientAudio position="top-right" />
             {/* Subtle place label di bottom — dev mode tambah stage indicator
                 buat debug. Production cuma label "Gerbang" yg minimal. */}
             <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/30 text-[10px] uppercase tracking-[0.2em]">

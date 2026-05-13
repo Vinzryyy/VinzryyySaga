@@ -5109,7 +5109,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
         />
 
         <ArsipIntroTitle />
-        <AmbientAudio profile="taman-r2" position="bottom-right" />
+        <AmbientAudio position="bottom-right" />
         <RotateRecommendation />
       </div>
     </>

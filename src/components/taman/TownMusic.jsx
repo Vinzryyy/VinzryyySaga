@@ -7,9 +7,9 @@
  * /armeniacaTown, fade out + pause; saat balik, resume dari posisi
  * terakhir (audio element retain currentTime).
  *
- * Layering: ambient procedural (AmbientAudio, per-halaman) tetep jalan
- * di atas song ini. User toggle satu kali via tombol AmbientAudio → bus
- * notify → song + procedural barengan on/off.
+ * Satu-satunya sumber audio kontinyu di /armeniacaTown — AmbientAudio
+ * (yang dulunya generate procedural ambient per halaman) sekarang
+ * tinggal tombol toggle UI yang dispatch ke bus.
  *
  * Autoplay policy:
  * - Audio nggak start saat mount (browser block tanpa user gesture).
