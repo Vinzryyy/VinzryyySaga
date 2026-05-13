@@ -6112,6 +6112,322 @@ const TornFallenLanterns = () => (
   </>
 );
 
+// ──────────────────────────────────────────────────────────────────────
+// Storm wreckage set — escalate dari "kering yang sepi" jadi "babak
+// belur dilanda badai." Debris menyebar lintas peta (gak cuma koi
+// corner), banner sobek di tiang, gerobak roboh, retakan tabrakan,
+// bekas hangus berasap. Goal visual: damage kerasa violent + recent,
+// bukan ruin yang udah ratus tahun tenang.
+// ──────────────────────────────────────────────────────────────────────
+
+// ScatteredDebris — 24 keping debris kecil tersebar di peta (papan kayu,
+// pecahan genteng, shard tembikar). Positions deliberate-acak supaya
+// gak nge-block hover/click landmark petak. Tipe via index modulo 3.
+const SCATTERED_DEBRIS_DEFS = [
+  { pos: [1.8, 0.02, 5.4], rot: 0.4 },
+  { pos: [-2.2, 0.02, 5.8], rot: -0.8 },
+  { pos: [3.1, 0.02, 4.2], rot: 1.2 },
+  { pos: [-3.5, 0.02, 3.8], rot: 0.3 },
+  { pos: [4.6, 0.02, 1.2], rot: -0.6 },
+  { pos: [-4.8, 0.02, 1.5], rot: 0.9 },
+  { pos: [5.2, 0.02, -2.4], rot: -1.0 },
+  { pos: [-5.6, 0.02, -2.8], rot: 0.7 },
+  { pos: [3.8, 0.02, -3.6], rot: -0.4 },
+  { pos: [-3.2, 0.02, -4.0], rot: 1.1 },
+  { pos: [1.2, 0.02, -4.8], rot: 0.5 },
+  { pos: [-1.4, 0.02, -4.5], rot: -0.7 },
+  { pos: [2.5, 0.02, 2.0], rot: 0.2 },
+  { pos: [-2.8, 0.02, 1.8], rot: -1.2 },
+  { pos: [0.8, 0.02, 3.5], rot: 0.6 },
+  { pos: [-0.9, 0.02, -3.2], rot: -0.5 },
+  { pos: [4.0, 0.02, 3.4], rot: 0.85 },
+  { pos: [-4.2, 0.02, 3.2], rot: -0.95 },
+  { pos: [2.2, 0.02, -2.0], rot: 0.45 },
+  { pos: [-2.0, 0.02, -2.5], rot: -0.65 },
+  { pos: [6.0, 0.02, 0.5], rot: 1.05 },
+  { pos: [-6.0, 0.02, 0.8], rot: -1.15 },
+  { pos: [0.5, 0.02, 6.5], rot: 0.25 },
+  { pos: [-0.5, 0.02, -6.0], rot: -0.35 },
+];
+const ScatteredDebris = () => (
+  <>
+    {SCATTERED_DEBRIS_DEFS.map((d, i) => {
+      const type = i % 3;
+      if (type === 0) {
+        // Papan kayu — strip panjang tipis
+        return (
+          <mesh
+            key={`dbr-${i}`}
+            position={d.pos}
+            rotation={[0.1, d.rot, 0.05]}
+          >
+            <boxGeometry args={[0.35, 0.04, 0.08]} />
+            <meshStandardMaterial color="#4a3018" roughness={0.95} />
+          </mesh>
+        );
+      }
+      if (type === 1) {
+        // Pecahan genteng — segitiga miring (cone 3-sided)
+        return (
+          <mesh
+            key={`dbr-${i}`}
+            position={d.pos}
+            rotation={[Math.PI / 2 + 0.2, d.rot, 0]}
+          >
+            <coneGeometry args={[0.14, 0.05, 3]} />
+            <meshStandardMaterial color="#5a3828" roughness={0.95} />
+          </mesh>
+        );
+      }
+      // Shard tembikar — chunk tipis (box flat)
+      return (
+        <mesh
+          key={`dbr-${i}`}
+          position={d.pos}
+          rotation={[0.08, d.rot, -0.06]}
+        >
+          <boxGeometry args={[0.14, 0.03, 0.1]} />
+          <meshStandardMaterial color="#6a4a30" roughness={0.95} />
+        </mesh>
+      );
+    })}
+  </>
+);
+
+// TippedCart — gerobak kayu roboh, satu roda lepas di tanah. Single
+// instance dekat gerbang ([0, 0, 8] area) — narasi: cart yang lagi
+// keluar kota saat badai datang, gak sempat lewat.
+const TippedCart = ({ pos = [1.8, 0, 6.4], rot = 0.8 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Body cart — kotak besar miring ke samping (tipped 70°) */}
+    <mesh position={[0, 0.18, 0]} rotation={[0, 0, Math.PI / 2.5]}>
+      <boxGeometry args={[0.42, 0.28, 0.55]} />
+      <meshStandardMaterial color="#4a3018" roughness={0.95} />
+    </mesh>
+    {/* Roda 1 — masih nempel di cart, miring */}
+    <mesh
+      position={[0.25, 0.08, 0.22]}
+      rotation={[0, 0, Math.PI / 2.5 + Math.PI / 2]}
+    >
+      <cylinderGeometry args={[0.18, 0.18, 0.05, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.95} />
+    </mesh>
+    {/* Roda 2 — terlepas, di tanah agak jauh */}
+    <mesh
+      position={[0.65, 0.04, -0.15]}
+      rotation={[Math.PI / 2, 0.3, 0]}
+    >
+      <cylinderGeometry args={[0.18, 0.18, 0.05, 12]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.95} />
+    </mesh>
+    {/* Spokes roda terlepas — 4 batang silang */}
+    {[0, 1, 2, 3].map((k) => (
+      <mesh
+        key={`sp-${k}`}
+        position={[0.65, 0.06, -0.15]}
+        rotation={[Math.PI / 2, 0.3, (Math.PI / 4) * k]}
+      >
+        <boxGeometry args={[0.32, 0.015, 0.015]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Shaft penarik — kayu panjang patah, miring ke atas */}
+    <mesh
+      position={[-0.35, 0.12, 0]}
+      rotation={[0, 0, 0.6]}
+    >
+      <boxGeometry args={[0.5, 0.06, 0.06]} />
+      <meshStandardMaterial color="#4a3018" roughness={0.95} />
+    </mesh>
+    {/* Plank patah terlepas dari cart */}
+    <mesh
+      position={[0.3, 0.03, 0.45]}
+      rotation={[0.1, 0.4, 0.2]}
+    >
+      <boxGeometry args={[0.4, 0.04, 0.1]} />
+      <meshStandardMaterial color="#4a3018" roughness={0.95} />
+    </mesh>
+    <mesh
+      position={[-0.2, 0.03, -0.4]}
+      rotation={[0.05, -0.5, 0.1]}
+    >
+      <boxGeometry args={[0.32, 0.04, 0.08]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// TatteredBannerPole — tiang kayu condong dengan kain banner sobek di
+// puncak. Cloth flap pelan via useFrame (wind sisa). Versi simple — 1
+// strip vertical + 1 strip horizontal yg lepas, gak ngitung physics.
+const TatteredBannerPole = ({ pos = [2.5, 0, -5.8], rot = 0, lean = 0.15 }) => {
+  const clothRef = useRef();
+  const stripRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (clothRef.current) {
+      clothRef.current.rotation.z = lean + Math.sin(t * 1.5 + pos[0]) * 0.12;
+    }
+    if (stripRef.current) {
+      stripRef.current.rotation.z = Math.sin(t * 1.8 + pos[2]) * 0.15;
+      stripRef.current.rotation.x = Math.cos(t * 1.3 + pos[0]) * 0.08;
+    }
+  });
+  return (
+    <group position={pos} rotation={[0, rot, lean]}>
+      {/* Pole — kayu vertical condong */}
+      <mesh position={[0, 0.7, 0]}>
+        <cylinderGeometry args={[0.04, 0.05, 1.4, 6]} />
+        <meshStandardMaterial color="#3a2818" roughness={0.95} />
+      </mesh>
+      {/* Cross-bar di atas — patah miring */}
+      <mesh position={[0.18, 1.3, 0]} rotation={[0, 0, -0.3]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.4, 5]} />
+        <meshStandardMaterial color="#3a2818" roughness={0.95} />
+      </mesh>
+      {/* Banner utama — strip vertical sobek (planeGeometry tall) */}
+      <mesh ref={clothRef} position={[0.05, 0.85, 0.01]}>
+        <planeGeometry args={[0.32, 0.5]} />
+        <meshStandardMaterial
+          color="#7a3828"
+          roughness={0.95}
+          side={2}
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+      {/* Strip kain terlepas — flap di angin tanggung */}
+      <mesh ref={stripRef} position={[0.32, 1.0, 0.02]}>
+        <planeGeometry args={[0.12, 0.35]} />
+        <meshStandardMaterial
+          color="#6a3020"
+          roughness={0.95}
+          side={2}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+      {/* Tali tambang putus — sliver pendek nyangkut di pole */}
+      <mesh position={[-0.04, 0.95, 0]} rotation={[0, 0, 0.4]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.25, 4]} />
+        <meshStandardMaterial color="#5a4838" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+const TatteredBannerPoles = () => (
+  <>
+    <TatteredBannerPole pos={[2.5, 0, -5.8]} rot={0.3} lean={0.18} />
+    <TatteredBannerPole pos={[-3.8, 0, 5.2]} rot={-0.5} lean={-0.22} />
+  </>
+);
+
+// CrackedGroundPatches — 7 patch retakan dalam (impact-crater feel),
+// beda dari DroughtRing yg surface-level. Pattern: 1 ring gelap +
+// 3-4 crack lines per patch. Pos di antara petak/rim — gak nge-cover
+// landmark.
+const CRACK_PATCH_DEFS = [
+  { pos: [3.5, 0, 2.5], scale: 0.7, lines: 5 },
+  { pos: [-3.0, 0, -1.8], scale: 0.85, lines: 6 },
+  { pos: [2.0, 0, -4.0], scale: 0.6, lines: 4 },
+  { pos: [-4.5, 0, -3.5], scale: 0.75, lines: 5 },
+  { pos: [4.5, 0, 3.5], scale: 0.65, lines: 4 },
+  { pos: [-1.5, 0, 4.5], scale: 0.55, lines: 4 },
+  { pos: [1.0, 0, -2.5], scale: 0.7, lines: 5 },
+];
+const CrackedGroundPatch = ({ pos, scale, lines }) => (
+  <group position={pos}>
+    {/* Outer rim — disc gelap besar */}
+    <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[scale, 10]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+    {/* Inner crater — lebih gelap, lebih kecil */}
+    <mesh position={[0, 0.008, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[scale * 0.5, 8]} />
+      <meshStandardMaterial color="#150a06" roughness={1} />
+    </mesh>
+    {/* Crack lines radial — keluar dari pusat */}
+    {Array.from({ length: lines }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / lines + (i % 2 ? 0.25 : -0.15);
+      const len = scale * (0.7 + (i % 3) * 0.15);
+      return (
+        <mesh
+          key={`pcrk-${i}`}
+          position={[
+            Math.cos(angle) * len * 0.5,
+            0.011,
+            Math.sin(angle) * len * 0.5,
+          ]}
+          rotation={[-Math.PI / 2, 0, -angle]}
+        >
+          <planeGeometry args={[len, 0.02]} />
+          <meshStandardMaterial color="#0a0604" roughness={1} />
+        </mesh>
+      );
+    })}
+  </group>
+);
+const CrackedGroundPatches = () => (
+  <>
+    {CRACK_PATCH_DEFS.map((c, i) => (
+      <CrackedGroundPatch key={`cgp-${i}`} {...c} />
+    ))}
+  </>
+);
+
+// ScorchedSpots — 4 bekas hangus + smoke wisp tipis melayang naik.
+// Smoke = vertical plane dengan additive opacity pulse, gak heavy
+// particle. Cocok di sela landmark, gak deket petak interactive.
+const SCORCH_DEFS = [
+  { pos: [3.2, 0, -0.5], scale: 0.55 },
+  { pos: [-2.5, 0, 2.8], scale: 0.6 },
+  { pos: [-0.5, 0, -3.5], scale: 0.5 },
+  { pos: [4.2, 0, 0.5], scale: 0.45 },
+];
+const ScorchedSpot = ({ pos, scale }) => {
+  const smokeRef = useRef();
+  useFrame((state) => {
+    if (!smokeRef.current) return;
+    const t = state.clock.elapsedTime;
+    smokeRef.current.material.opacity =
+      0.18 + Math.sin(t * 0.6 + pos[0] * 1.2) * 0.08;
+    smokeRef.current.position.y = 0.6 + Math.sin(t * 0.4 + pos[2]) * 0.05;
+  });
+  return (
+    <group position={pos}>
+      {/* Char patch — disc hitam */}
+      <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[scale, 10]} />
+        <meshStandardMaterial color="#0a0604" roughness={1} />
+      </mesh>
+      {/* Inner ash — center lebih abu-abu */}
+      <mesh position={[0, 0.008, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[scale * 0.55, 8]} />
+        <meshStandardMaterial color="#2a1f1a" roughness={1} />
+      </mesh>
+      {/* Smoke wisp — vertical plane melayang */}
+      <mesh ref={smokeRef} position={[0, 0.6, 0]}>
+        <planeGeometry args={[scale * 0.8, scale * 1.8]} />
+        <meshStandardMaterial
+          color="#3a2f28"
+          transparent
+          opacity={0.2}
+          depthWrite={false}
+          side={2}
+        />
+      </mesh>
+    </group>
+  );
+};
+const ScorchedSpots = () => (
+  <>
+    {SCORCH_DEFS.map((s, i) => (
+      <ScorchedSpot key={`scrch-${i}`} pos={s.pos} scale={s.scale} />
+    ))}
+  </>
+);
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -6299,6 +6615,14 @@ const TamanScene = ({
       {!purified && <DriedLotusHusks />}
       {!purified && <FallenStoneLantern />}
       {!purified && <TornFallenLanterns />}
+      {/* Storm wreckage set — kota babak belur, debris menyebar lintas
+          peta, banner sobek, gerobak roboh, retakan tabrakan, bekas
+          hangus berasap. Lihat blok "Storm wreckage set" di atas. */}
+      {!purified && <ScatteredDebris />}
+      {!purified && <TippedCart />}
+      {!purified && <TatteredBannerPoles />}
+      {!purified && <CrackedGroundPatches />}
+      {!purified && <ScorchedSpots />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
