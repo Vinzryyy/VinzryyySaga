@@ -10205,7 +10205,9 @@ const PetaMenara = ({
 
   useFrame((state, delta) => {
     if (groupRef.current) {
-      const targetY = hovered && petakState !== 'locked' ? 0.25 : 0;
+      // Hover lift dinaikin (0.25→0.4) sejak menara petak di-scale 1.7×
+      // — kalau tetap 0.25 lift visualnya keciilan proporsional.
+      const targetY = hovered && petakState !== 'locked' ? 0.4 : 0;
       const factor = Math.min(delta * 8, 1);
       groupRef.current.position.y = lerp(
         groupRef.current.position.y,
@@ -10260,6 +10262,7 @@ const PetaMenara = ({
     <group
       ref={groupRef}
       position={[0, 0, -8]}
+      scale={1.7}
       onPointerOver={(e) => {
         e.stopPropagation();
         onPointerOver?.();
@@ -10273,7 +10276,9 @@ const PetaMenara = ({
         onClick?.();
       }}
     >
-      {/* Mobile tap-target — tall capsule covering tower height */}
+      {/* Mobile tap-target — tall capsule covering tower height. Scale
+          1.7 di outer group apply automatic ke geometry di bawah, jadi
+          tap-target footprint juga ikut membesar proporsional. */}
       <mesh position={[0, 1.4, 0]} visible={false}>
         <cylinderGeometry args={[isMobile ? 1.6 : 1.1, isMobile ? 1.6 : 1.1, 3.4, 8]} />
         <meshBasicMaterial transparent opacity={0} />
