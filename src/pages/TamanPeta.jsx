@@ -6773,6 +6773,218 @@ const TORN_OMIKUJI_FLOOR = [
   { pos: [0.3, 0.005, 0.3], rot: 1.0, len: 0.18 },
   { pos: [-0.4, 0.005, -0.05], rot: -0.3, len: 0.22 },
 ];
+// CrackedRimStones — drought twin MossyRimStones. Slot identik (7 batu
+// ring di rim Telaga), tapi tanpa moss cap, sedikit lebih datar (sunken),
+// dengan crack thin di atas. Color shift ke earth-brown faded.
+const CRACKED_RIM_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 7; i++) {
+    const angle = (i / 7) * Math.PI * 2 + 0.4;
+    const r = 1.72 + ((i * 11) % 4) * 0.04;
+    arr.push({
+      pos: [-7 + Math.cos(angle) * r, 0.03, -1 + Math.sin(angle) * r],
+      scale: [
+        0.28 + ((i * 13) % 5) * 0.05,
+        0.13 + ((i * 17) % 5) * 0.03,
+        0.32 + ((i * 19) % 5) * 0.06,
+      ],
+      rot: ((i * 29) % 360) * (Math.PI / 180),
+      cracked: i % 2 === 0,
+    });
+  }
+  return arr;
+})();
+const CrackedRimStones = () => (
+  <>
+    {CRACKED_RIM_DEFS.map((s, i) => (
+      <group
+        key={`crackrim-${i}`}
+        position={s.pos}
+        rotation={[0, s.rot, 0]}
+        scale={s.scale}
+      >
+        <mesh>
+          <sphereGeometry args={[1, 10, 8]} />
+          <meshStandardMaterial color="#6a5a48" roughness={0.98} />
+        </mesh>
+        {/* Crack line di puncak — strip gelap thin */}
+        {s.cracked && (
+          <mesh position={[0, 0.95, 0]} rotation={[-Math.PI / 2, 0, 0.3]}>
+            <planeGeometry args={[0.7, 0.06]} />
+            <meshStandardMaterial color="#1a100a" roughness={1} />
+          </mesh>
+        )}
+      </group>
+    ))}
+  </>
+);
+
+// SnappedDeadTrees — 3 dead tree trunk yg patah violent (beda dari
+// DeadTrees yg cuma mati berdiri). Stump pendek di bawah, trunk
+// atas terlepas rebah di tanah. Splinter chunks tersebar.
+const SNAPPED_TREE_DEFS = [
+  { pos: [4.5, 0, 5.5], stumpH: 0.7, trunkH: 1.6, rot: 0.5 },
+  { pos: [-4.0, 0, 6.2], stumpH: 0.5, trunkH: 1.8, rot: -0.8 },
+  { pos: [5.5, 0, -3.5], stumpH: 0.9, trunkH: 1.4, rot: 1.1 },
+];
+const SnappedDeadTree = ({ pos, stumpH, trunkH, rot }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Stump — pendek, splintered tip via cone tipis */}
+    <mesh position={[0, stumpH / 2, 0]}>
+      <cylinderGeometry args={[0.15, 0.2, stumpH, 6]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Splinter spike di tip stump — kayak patah kasar */}
+    <mesh position={[0.05, stumpH + 0.08, 0.02]} rotation={[0, 0, 0.3]}>
+      <coneGeometry args={[0.08, 0.18, 4]} />
+      <meshStandardMaterial color="#2a1810" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.04, stumpH + 0.06, -0.03]} rotation={[0, 0, -0.4]}>
+      <coneGeometry args={[0.06, 0.14, 4]} />
+      <meshStandardMaterial color="#2a1810" roughness={0.95} />
+    </mesh>
+    {/* Trunk atas rebah di tanah, miring jauh */}
+    <mesh
+      position={[trunkH * 0.4, 0.18, 0.05]}
+      rotation={[0, 0, Math.PI / 2 + 0.08]}
+    >
+      <cylinderGeometry args={[0.12, 0.16, trunkH, 6]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Branch fragments — 2 keping ranting kecil */}
+    <mesh
+      position={[trunkH * 0.65, 0.08, 0.18]}
+      rotation={[0.1, 0.4, 0.7]}
+    >
+      <cylinderGeometry args={[0.04, 0.05, 0.5, 5]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    <mesh
+      position={[trunkH * 0.5, 0.06, -0.22]}
+      rotation={[0.05, -0.5, 0.4]}
+    >
+      <cylinderGeometry args={[0.03, 0.04, 0.4, 5]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Bark splinters */}
+    <mesh position={[0.25, 0.02, 0.15]} rotation={[0.1, 0.6, 0.05]}>
+      <boxGeometry args={[0.08, 0.02, 0.025]} />
+      <meshStandardMaterial color="#2a1810" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.15, 0.02, -0.2]} rotation={[0.05, -0.4, 0.08]}>
+      <boxGeometry args={[0.06, 0.02, 0.025]} />
+      <meshStandardMaterial color="#2a1810" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const SnappedDeadTrees = () => (
+  <>
+    {SNAPPED_TREE_DEFS.map((d, i) => (
+      <SnappedDeadTree key={`snaptr-${i}`} {...d} />
+    ))}
+  </>
+);
+
+// CollapsedWallFragments — 2 fragmen tembok batu runtuh (rectangular
+// masonry). Posisi di luar ring petak, kasih kerasa "bangunan sekitar
+// kota juga runtuh." Stones layered/stacked, beberapa lepas.
+const CollapsedWallFragment = ({ pos, rot, len = 1.6 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Base wall row — masih agak utuh */}
+    <mesh position={[0, 0.12, 0]}>
+      <boxGeometry args={[len, 0.24, 0.18]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Mid row — terpotong, lebih pendek */}
+    <mesh position={[-len * 0.15, 0.32, 0]}>
+      <boxGeometry args={[len * 0.6, 0.16, 0.18]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Top row pecahan — 2 batu lepas miring */}
+    <mesh position={[len * 0.35, 0.06, 0.15]} rotation={[0.3, 0.4, 0.2]}>
+      <boxGeometry args={[0.3, 0.16, 0.18]} />
+      <meshStandardMaterial color="#4a3828" roughness={0.95} />
+    </mesh>
+    <mesh position={[len * 0.55, 0.04, -0.1]} rotation={[0.1, -0.3, 0.1]}>
+      <boxGeometry args={[0.22, 0.14, 0.16]} />
+      <meshStandardMaterial color="#4a3828" roughness={0.95} />
+    </mesh>
+    {/* Pecahan kecil di tanah */}
+    <mesh position={[-len * 0.5, 0.03, 0.22]} rotation={[0.1, 0.5, 0.05]}>
+      <boxGeometry args={[0.12, 0.06, 0.1]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    <mesh position={[len * 0.7, 0.025, 0.05]} rotation={[0.05, -0.6, 0.08]}>
+      <boxGeometry args={[0.1, 0.05, 0.08]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+  </group>
+);
+const CollapsedWallFragments = () => (
+  <>
+    <CollapsedWallFragment pos={[6.5, 0, 4.0]} rot={-0.4} len={1.6} />
+    <CollapsedWallFragment pos={[-6.0, 0, -5.0]} rot={0.6} len={1.4} />
+  </>
+);
+
+// DustDevils — 2 vertical dust swirl column (beda dari WindStreaks yg
+// horizontal). Spiral particle effect — stacked translucent discs yg
+// rotate berbeda kecepatan + opacity fluctuate untuk hint living wind.
+const DUST_DEVIL_DEFS = [
+  { pos: [3.5, 0, -6.0], height: 2.2, ringCount: 8 },
+  { pos: [-5.5, 0, 5.5], height: 2.0, ringCount: 7 },
+];
+const DustDevil = ({ pos, height, ringCount }) => {
+  const ringRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < ringCount; i++) {
+      const ref = ringRefs.current[i];
+      if (!ref) continue;
+      // Spin tiap ring di speed berbeda (atas lebih cepat)
+      ref.rotation.y = t * (0.5 + (i / ringCount) * 1.2);
+      // Opacity pulse + slight scale breathe
+      const phase = i * 0.5 + pos[0] * 0.3;
+      if (ref.material) {
+        ref.material.opacity = 0.08 + Math.sin(t * 1.2 + phase) * 0.04;
+      }
+    }
+  });
+  return (
+    <group position={pos}>
+      {Array.from({ length: ringCount }).map((_, i) => {
+        const y = (i / (ringCount - 1)) * height + 0.15;
+        // Cone shape — bottom narrower, top wider
+        const r = 0.15 + (i / ringCount) * 0.45;
+        return (
+          <mesh
+            key={`dd-${i}`}
+            ref={(r) => (ringRefs.current[i] = r)}
+            position={[0, y, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <ringGeometry args={[r * 0.7, r, 14]} />
+            <meshBasicMaterial
+              color="#a89580"
+              transparent
+              opacity={0.1}
+              depthWrite={false}
+              side={2}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+const DustDevils = () => (
+  <>
+    {DUST_DEVIL_DEFS.map((d, i) => (
+      <DustDevil key={`dd-${i}`} {...d} />
+    ))}
+  </>
+);
+
 const TornOmikujiStrips = ({ pos = [-4.0, 0, 2.5], rot = -0.2 }) => {
   const hangingRef = useRef();
   useFrame((state) => {
@@ -7052,6 +7264,10 @@ const TamanScene = ({
       {!purified && !isMobile && <BrokenBambooCluster />}
       {!purified && <DisplacedSteppingStones />}
       {!purified && <TornOmikujiStrips />}
+      {!purified && <CrackedRimStones />}
+      {!purified && <SnappedDeadTrees />}
+      {!purified && <CollapsedWallFragments />}
+      {!purified && !isMobile && <DustDevils />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
