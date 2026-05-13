@@ -6927,64 +6927,6 @@ const CollapsedWallFragments = () => (
   </>
 );
 
-// DustDevils — 2 vertical dust swirl column (beda dari WindStreaks yg
-// horizontal). Spiral particle effect — stacked translucent discs yg
-// rotate berbeda kecepatan + opacity fluctuate untuk hint living wind.
-const DUST_DEVIL_DEFS = [
-  { pos: [3.5, 0, -6.0], height: 2.2, ringCount: 8 },
-  { pos: [-5.5, 0, 5.5], height: 2.0, ringCount: 7 },
-];
-const DustDevil = ({ pos, height, ringCount }) => {
-  const ringRefs = useRef([]);
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < ringCount; i++) {
-      const ref = ringRefs.current[i];
-      if (!ref) continue;
-      // Spin tiap ring di speed berbeda (atas lebih cepat)
-      ref.rotation.y = t * (0.5 + (i / ringCount) * 1.2);
-      // Opacity pulse + slight scale breathe
-      const phase = i * 0.5 + pos[0] * 0.3;
-      if (ref.material) {
-        ref.material.opacity = 0.08 + Math.sin(t * 1.2 + phase) * 0.04;
-      }
-    }
-  });
-  return (
-    <group position={pos}>
-      {Array.from({ length: ringCount }).map((_, i) => {
-        const y = (i / (ringCount - 1)) * height + 0.15;
-        // Cone shape — bottom narrower, top wider
-        const r = 0.15 + (i / ringCount) * 0.45;
-        return (
-          <mesh
-            key={`dd-${i}`}
-            ref={(r) => (ringRefs.current[i] = r)}
-            position={[0, y, 0]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <ringGeometry args={[r * 0.7, r, 14]} />
-            <meshBasicMaterial
-              color="#a89580"
-              transparent
-              opacity={0.1}
-              depthWrite={false}
-              side={2}
-            />
-          </mesh>
-        );
-      })}
-    </group>
-  );
-};
-const DustDevils = () => (
-  <>
-    {DUST_DEVIL_DEFS.map((d, i) => (
-      <DustDevil key={`dd-${i}`} {...d} />
-    ))}
-  </>
-);
-
 // CirclingVultures — 3 burung gelap berputar pelan tinggi di sky.
 // Atmospheric — kerasa "ada yg ngintai kota mati." Beda dari BirdsFlock
 // purified (sweet swallows) — vultures bergerak lambat, soliter, di
@@ -7100,50 +7042,6 @@ const DistantSmokeWisps = () => (
     ))}
   </>
 );
-
-// DustyLightShafts — god ray berdebu menembus dari arah moon ke
-// landmark titik. Mirror MoonShafts purified, tapi color shift ke
-// dusty amber + opacity lebih rendah ("matahari nembus debu," bukan
-// "moonlight bening"). 3 shaft only — gak overload screen.
-const DUSTY_SHAFT_TARGETS = [
-  { x: 0, z: 0, w: 1.2 },
-  { x: -7, z: -1, w: 1.0 },
-  { x: 7, z: -1, w: 1.0 },
-];
-const DustyLightShafts = () => {
-  const sourcePos = [10, 12, -8];
-  return (
-    <>
-      {DUSTY_SHAFT_TARGETS.map((t, i) => {
-        const dx = t.x - sourcePos[0];
-        const dy = -sourcePos[1];
-        const dz = t.z - sourcePos[2];
-        const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        const midX = (sourcePos[0] + t.x) / 2;
-        const midY = sourcePos[1] / 2;
-        const midZ = (sourcePos[2] + t.z) / 2;
-        const angle = Math.atan2(dx, dz);
-        const pitch = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
-        return (
-          <mesh
-            key={`dsh-${i}`}
-            position={[midX, midY, midZ]}
-            rotation={[pitch, angle, 0]}
-          >
-            <coneGeometry args={[t.w, len, 8, 1, true]} />
-            <meshBasicMaterial
-              color="#c4a880"
-              transparent
-              opacity={0.06}
-              depthWrite={false}
-              side={2}
-            />
-          </mesh>
-        );
-      })}
-    </>
-  );
-};
 
 // SandDrifts — gundukan pasir terakumulasi di pangkal objek berdiri
 // (tertumpuk angin badai). Posisi anchored ke base objek existing —
@@ -7457,13 +7355,11 @@ const TamanScene = ({
       {!purified && <CrackedRimStones />}
       {!purified && <SnappedDeadTrees />}
       {!purified && <CollapsedWallFragments />}
-      {!purified && !isMobile && <DustDevils />}
       {/* Atmospheric drought polish — sky/distance motion biar sky gak
           kerasa kosong dan kota jauh punya "life" sisa post-storm. */}
       {!purified && <CirclingVultures />}
       {!purified && <DistantSmokeWisps />}
-      {/* Depth polish — god rays + sand drifts. */}
-      {!purified && !isMobile && <DustyLightShafts />}
+      {/* Depth polish — sand drifts. */}
       {!purified && <SandDrifts />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
