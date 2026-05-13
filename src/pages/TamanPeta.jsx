@@ -779,7 +779,6 @@ const PetaGerbang = ({
             className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
               hovered ? '-translate-y-1' : ''
             }`}
-            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}
           >
             <div
               className={`text-[11px] font-medium tracking-wide transition-colors ${
@@ -900,7 +899,6 @@ const PetaLorongMasuk = ({
             className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
               hovered ? '-translate-y-1' : ''
             }`}
-            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}
           >
             <div
               className={`text-[11px] font-medium tracking-wide transition-colors ${
@@ -1077,7 +1075,6 @@ const PetaTelaga = ({
             className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
               hovered && petakState !== 'locked' ? '-translate-y-1' : ''
             }`}
-            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}
           >
             <div
               className={`text-[11px] font-medium tracking-wide transition-colors ${
@@ -1214,220 +1211,127 @@ const PetaArsip = ({
 
         {isRestored ? (
           <>
-            {/* === JAPANESE PAGODA LIBRARY VARIANT ===
-                Redesign: match purified Japanese-corner aesthetic (torii,
-                jizo, lanterns) — bukan classical Greek temple lagi.
-                2-tier roof curved upturn (yokoya-style), wooden columns,
-                paper screens, stone lantern flanking, kawara tile roof.
-                Mini-scar tetep disisain di pojok foundation. */}
-            {/* Stone foundation — low base wider, kasih landing feel */}
-            <mesh position={[0, 0.05, 0]}>
-              <boxGeometry args={[2.1, 0.1, 1.8]} />
-              <meshStandardMaterial color="#8a7868" roughness={0.9} />
+            {/* === MEGAH RESTORED VARIANT === */}
+            {/* 2-tiered stone steps — kasih landing feel, foundation
+                naik dari ground. Wider lalu smaller (classical pediment). */}
+            <mesh position={[0, 0.04, 0]}>
+              <boxGeometry args={[2.05, 0.08, 1.75]} />
+              <meshStandardMaterial color="#a89070" roughness={0.85} />
             </mesh>
-            {/* Upper stone tier — sedikit lebih kecil */}
-            <mesh position={[0, 0.14, 0]}>
-              <boxGeometry args={[1.85, 0.08, 1.55]} />
-              <meshStandardMaterial color="#9a8878" roughness={0.85} />
+            <mesh position={[0, 0.12, 0]}>
+              <boxGeometry args={[1.9, 0.08, 1.6]} />
+              <meshStandardMaterial color="#b8a080" roughness={0.85} />
             </mesh>
 
-            {/* Wooden plinth — warm cedar tone, jadi base lantai pagoda */}
-            <mesh position={[0, 0.22, 0]}>
-              <boxGeometry args={[1.6, 0.08, 1.3]} />
-              <meshStandardMaterial color="#6a4830" roughness={0.85} />
+            {/* Cream-stone foundation — warm marble tone, taller dari
+                versi ruin (0.1 → 0.16) supaya bangunan kerasa "berdiri". */}
+            <mesh position={[0, 0.24, 0]}>
+              <boxGeometry args={[1.65, 0.16, 1.35]} />
+              <meshStandardMaterial color="#c8b090" roughness={0.8} />
             </mesh>
 
-            {/* 4 corner wooden pillars — vertical, support roof. Tone
-                gelap matching Japanese architecture (kayu hinoki tua). */}
-            {[
-              [-0.7, -0.55],
-              [0.7, -0.55],
-              [-0.7, 0.55],
-              [0.7, 0.55],
-            ].map(([x, z], i) => (
-              <mesh key={`pillar-${i}`} position={[x, 0.7, z]}>
-                <boxGeometry args={[0.1, 0.96, 0.1]} />
-                <meshStandardMaterial color="#3a2418" roughness={0.95} />
-              </mesh>
+            {/* Walls — cream-marble warm, taller (0.9 → 1.3), 3 sides
+                solid + front wall split by doorway opening tengah. */}
+            <mesh position={[0.62, 0.97, 0]}>
+              <boxGeometry args={[0.14, 1.3, 1.3]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            <mesh position={[0, 0.97, -0.62]}>
+              <boxGeometry args={[1.4, 1.3, 0.14]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            <mesh position={[0, 0.97, 0.62]}>
+              <boxGeometry args={[1.4, 1.3, 0.14]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            {/* Front wall sections — flanking doorway (opening z=-0.25..0.25) */}
+            <mesh position={[-0.62, 0.97, -0.45]}>
+              <boxGeometry args={[0.14, 1.3, 0.34]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            <mesh position={[-0.62, 0.97, 0.45]}>
+              <boxGeometry args={[0.14, 1.3, 0.34]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.75} />
+            </mesh>
+            {/* Lintel above doorway opening */}
+            <mesh position={[-0.62, 1.5, 0]}>
+              <boxGeometry args={[0.14, 0.22, 0.58]} />
+              <meshStandardMaterial color="#c8b090" roughness={0.8} />
+            </mesh>
+
+            {/* 2 freestanding columns flanking doorway entrance, fluted
+                cylinders w/ box capital. Classical portico vibe. */}
+            {[-0.5, 0.5].map((z, i) => (
+              <React.Fragment key={`col-${i}`}>
+                {/* Column base plinth */}
+                <mesh position={[-0.85, 0.35, z]}>
+                  <boxGeometry args={[0.16, 0.08, 0.16]} />
+                  <meshStandardMaterial color="#b8a080" roughness={0.85} />
+                </mesh>
+                {/* Column shaft */}
+                <mesh position={[-0.85, 0.85, z]}>
+                  <cylinderGeometry args={[0.07, 0.08, 0.95, 12]} />
+                  <meshStandardMaterial color="#e8d8b8" roughness={0.7} />
+                </mesh>
+                {/* Column capital */}
+                <mesh position={[-0.85, 1.34, z]}>
+                  <boxGeometry args={[0.18, 0.07, 0.18]} />
+                  <meshStandardMaterial color="#c8b090" roughness={0.8} />
+                </mesh>
+              </React.Fragment>
             ))}
-
-            {/* Paper screen walls (shoji) — 3 sides solid, front split
-                by entrance opening. Warm white-amber paper translucent
-                feel, dark wood grid frame. */}
-            {/* Back wall */}
-            <mesh position={[0, 0.7, -0.62]}>
-              <boxGeometry args={[1.36, 0.94, 0.04]} />
-              <meshStandardMaterial
-                color="#f0e2c8"
-                roughness={0.9}
-                emissive="#d8b890"
-                emissiveIntensity={0.18}
-              />
+            {/* Pediment/cornice spanning both columns + lintel */}
+            <mesh position={[-0.85, 1.42, 0]}>
+              <boxGeometry args={[0.22, 0.09, 1.3]} />
+              <meshStandardMaterial color="#b8a080" roughness={0.8} />
             </mesh>
-            {/* Right (east) wall */}
-            <mesh position={[0.66, 0.7, 0]}>
-              <boxGeometry args={[0.04, 0.94, 1.06]} />
-              <meshStandardMaterial
-                color="#f0e2c8"
-                roughness={0.9}
-                emissive="#d8b890"
-                emissiveIntensity={0.18}
-              />
-            </mesh>
-            {/* Left (west) wall */}
-            <mesh position={[-0.66, 0.7, 0]}>
-              <boxGeometry args={[0.04, 0.94, 1.06]} />
-              <meshStandardMaterial
-                color="#f0e2c8"
-                roughness={0.9}
-                emissive="#d8b890"
-                emissiveIntensity={0.18}
-              />
-            </mesh>
-            {/* Front wall — flanking entrance opening (z=-0.3 .. 0.3) */}
-            <mesh position={[-0.5, 0.7, 0.62]}>
-              <boxGeometry args={[0.36, 0.94, 0.04]} />
-              <meshStandardMaterial
-                color="#f0e2c8"
-                roughness={0.9}
-                emissive="#d8b890"
-                emissiveIntensity={0.18}
-              />
-            </mesh>
-            <mesh position={[0.5, 0.7, 0.62]}>
-              <boxGeometry args={[0.36, 0.94, 0.04]} />
-              <meshStandardMaterial
-                color="#f0e2c8"
-                roughness={0.9}
-                emissive="#d8b890"
-                emissiveIntensity={0.18}
-              />
+            {/* Triangular pediment top — flat box approximating apex */}
+            <mesh position={[-0.85, 1.52, 0]}>
+              <boxGeometry args={[0.2, 0.1, 0.6]} />
+              <meshStandardMaterial color="#c8b090" roughness={0.8} />
             </mesh>
 
-            {/* Shoji grid — horizontal & vertical thin wood strips di
-                wall depan supaya kerasa paper-screen pattern, bukan flat. */}
-            {[0.45, 0.7, 0.95].map((y, i) => (
-              <mesh key={`shoji-h-${i}`} position={[0, y, 0.642]}>
-                <boxGeometry args={[1.36, 0.018, 0.012]} />
-                <meshStandardMaterial color="#3a2418" roughness={0.95} />
-              </mesh>
-            ))}
-            {[-0.45, 0.45].map((x, i) => (
-              <mesh key={`shoji-v-${i}`} position={[x, 0.7, 0.642]}>
-                <boxGeometry args={[0.018, 0.94, 0.012]} />
-                <meshStandardMaterial color="#3a2418" roughness={0.95} />
-              </mesh>
-            ))}
-
-            {/* Lower roof (1st tier) — wide eaves curved upturn corners.
-                Approach: flat box + 4 thin angled corner pieces yg jut
-                up sedikit untuk simulasi curved eave. Color dark slate
-                kawara tile. */}
-            <mesh position={[0, 1.22, 0]}>
-              <boxGeometry args={[2.0, 0.08, 1.7]} />
-              <meshStandardMaterial color="#2a1f1a" roughness={0.85} />
-            </mesh>
-            {/* Eave trim — slightly lighter border under roof */}
-            <mesh position={[0, 1.18, 0]}>
-              <boxGeometry args={[2.05, 0.04, 1.75]} />
-              <meshStandardMaterial color="#3a2820" roughness={0.85} />
-            </mesh>
-            {/* Curved eave corner upturns — 4 thin slabs angled up */}
-            {[
-              [-0.98, 0.84, -0.3],
-              [0.98, 0.84, 0.3],
-              [-0.98, -0.84, -0.3],
-              [0.98, -0.84, 0.3],
-            ].map(([x, z, rot], i) => (
-              <mesh
-                key={`eave-${i}`}
-                position={[x, 1.3, z]}
-                rotation={[rot, 0, x > 0 ? -0.3 : 0.3]}
-              >
-                <boxGeometry args={[0.18, 0.04, 0.18]} />
-                <meshStandardMaterial color="#2a1f1a" roughness={0.85} />
-              </mesh>
-            ))}
-
-            {/* Upper roof (2nd tier) — smaller di atas tower */}
-            <mesh position={[0, 1.62, 0]}>
-              <boxGeometry args={[1.3, 0.08, 1.1]} />
-              <meshStandardMaterial color="#2a1f1a" roughness={0.85} />
-            </mesh>
-            {/* Upper tier ridge cap — thin spine */}
-            <mesh position={[0, 1.68, 0]}>
-              <boxGeometry args={[1.35, 0.025, 0.1]} />
-              <meshStandardMaterial color="#5a4030" roughness={0.85} />
-            </mesh>
-
-            {/* Finial — vertical brass spike di puncak (sōrin minimal) */}
-            <mesh position={[0, 1.78, 0]}>
-              <cylinderGeometry args={[0.025, 0.04, 0.2, 6]} />
-              <meshStandardMaterial color="#8a6830" roughness={0.6} />
-            </mesh>
-            <mesh position={[0, 1.9, 0]}>
-              <sphereGeometry args={[0.06, 8, 6]} />
-              <meshStandardMaterial
-                color="#d4a050"
-                emissive="#b88848"
-                emissiveIntensity={0.3}
-                roughness={0.55}
-              />
-            </mesh>
-
-            {/* 2 stone lanterns (toro-style) flanking entrance, foreground
-                kiri-kanan di entry. Warm flicker emissive. */}
+            {/* Hanging lanterns — 2 flanking the doorway, brass warm
+                glow. Refs di-track utk flicker animation. */}
             {[-0.55, 0.55].map((z, i) => (
-              <React.Fragment key={`toro-${i}`}>
-                {/* Foundation */}
-                <mesh position={[-1.1, 0.27, z]}>
-                  <cylinderGeometry args={[0.1, 0.12, 0.1, 8]} />
-                  <meshStandardMaterial color="#7a6850" roughness={0.95} />
+              <React.Fragment key={`lantern-${i}`}>
+                {/* String holding lantern to portico cornice */}
+                <mesh position={[-0.95, 1.27, z]}>
+                  <boxGeometry args={[0.012, 0.18, 0.012]} />
+                  <meshStandardMaterial color="#3a2418" roughness={0.95} />
                 </mesh>
-                {/* Pillar */}
-                <mesh position={[-1.1, 0.45, z]}>
-                  <cylinderGeometry args={[0.05, 0.06, 0.26, 8]} />
-                  <meshStandardMaterial color="#9a8878" roughness={0.95} />
-                </mesh>
-                {/* Lantern box */}
-                <mesh position={[-1.1, 0.65, z]}>
-                  <boxGeometry args={[0.13, 0.12, 0.13]} />
-                  <meshStandardMaterial color="#8a7868" roughness={0.85} />
-                </mesh>
-                {/* Inner glow */}
-                <mesh position={[-1.1, 0.65, z]}>
-                  <boxGeometry args={[0.09, 0.09, 0.09]} />
+                {/* Lantern body — brass cube */}
+                <mesh position={[-0.95, 1.08, z]}>
+                  <boxGeometry args={[0.09, 0.16, 0.09]} />
                   <meshStandardMaterial
                     ref={(el) => (lanternMatRefs.current[i] = el)}
-                    color="#f8c898"
-                    emissive="#f4a060"
+                    color="#e8a460"
+                    emissive="#d49060"
                     emissiveIntensity={0.7}
                     roughness={0.5}
-                    toneMapped={false}
                   />
                 </mesh>
-                {/* Roof cap */}
-                <mesh position={[-1.1, 0.74, z]}>
-                  <coneGeometry args={[0.1, 0.08, 4]} />
-                  <meshStandardMaterial color="#5a4830" roughness={0.95} />
+                {/* Lantern top cap */}
+                <mesh position={[-0.95, 1.18, z]}>
+                  <boxGeometry args={[0.11, 0.02, 0.11]} />
+                  <meshStandardMaterial color="#7a5230" roughness={0.7} />
                 </mesh>
               </React.Fragment>
             ))}
 
-            {/* Sign plaque kayu di wall depan — bigger, brushed kanji
-                vibe (just emissive accent, gak literal text) */}
-            <mesh position={[0.05, 1.05, 0.65]}>
-              <boxGeometry args={[0.45, 0.18, 0.025]} />
+            {/* Sign plaque — brass tone, bigger di restored */}
+            <mesh position={[-1.02, 1.0, 0]}>
+              <boxGeometry args={[0.03, 0.18, 0.42]} />
               <meshStandardMaterial
-                color="#5a3818"
-                emissive="#8a4828"
-                emissiveIntensity={0.15}
-                roughness={0.85}
+                color="#b88848"
+                emissive="#b88848"
+                emissiveIntensity={0.12}
+                roughness={0.6}
               />
             </mesh>
 
-            {/* Tumpukan buku interior — vibrant restored palette, terlihat
-                lewat opening pintu */}
+            {/* Tumpukan buku interior — vibrant warna restored (mirror
+                vibrant palette inside scene), visible lewat doorway. */}
             <mesh position={[-0.35, 0.42, 0.18]} rotation={[0, 0.2, 0]}>
               <boxGeometry args={[0.18, 0.05, 0.13]} />
               <meshStandardMaterial color="#9a4548" roughness={0.85} />
@@ -1441,34 +1345,66 @@ const PetaArsip = ({
               <meshStandardMaterial color="#9a7838" roughness={0.85} />
             </mesh>
 
-            {/* Stained warm window — east shoji wall, rich amber-rose
-                glow (mirror existing stained-glass tapi adapted ke shoji
-                aesthetic) */}
-            <mesh position={[0.681, 0.85, 0]}>
-              <boxGeometry args={[0.025, 0.5, 0.6]} />
+            {/* Stained-glass window — east wall, tall + rich rose-amber
+                glow w/ cross trim. Replaces drought's small dark slit. */}
+            <mesh position={[0.7, 0.95, 0]}>
+              <boxGeometry args={[0.04, 0.7, 0.7]} />
               <meshStandardMaterial
                 ref={windowMatRef}
-                color="#f48868"
-                emissive="#e85840"
-                emissiveIntensity={0.5}
+                color="#e84878"
+                emissive="#e84878"
+                emissiveIntensity={0.45}
                 roughness={0.4}
                 toneMapped={false}
               />
             </mesh>
-            {/* Window cross trim */}
-            <mesh position={[0.694, 0.85, 0]}>
-              <boxGeometry args={[0.04, 0.5, 0.04]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.85} />
+            {/* Cross-shape trim — 2 thin bands forming + over window */}
+            <mesh position={[0.72, 0.95, 0]}>
+              <boxGeometry args={[0.05, 0.7, 0.05]} />
+              <meshStandardMaterial color="#5a4030" roughness={0.85} />
             </mesh>
-            <mesh position={[0.694, 0.85, 0]}>
-              <boxGeometry args={[0.04, 0.04, 0.6]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.85} />
+            <mesh position={[0.72, 0.95, 0]}>
+              <boxGeometry args={[0.05, 0.05, 0.7]} />
+              <meshStandardMaterial color="#5a4030" roughness={0.85} />
             </mesh>
 
-            {/* Subtle scar — pojok foundation NW slightly indented
-                (luka kota tetep ditinggal walau pulih) */}
-            <mesh position={[-0.85, 0.05, -0.72]}>
-              <boxGeometry args={[0.22, 0.06, 0.18]} />
+            {/* Roof — main flat slab cream marble */}
+            <mesh position={[0, 1.7, 0]}>
+              <boxGeometry args={[1.55, 0.1, 1.45]} />
+              <meshStandardMaterial color="#a89070" roughness={0.85} />
+            </mesh>
+            {/* Roof cornice — slight overhang darker trim */}
+            <mesh position={[0, 1.76, 0]}>
+              <boxGeometry args={[1.7, 0.04, 1.55]} />
+              <meshStandardMaterial color="#7a6850" roughness={0.85} />
+            </mesh>
+
+            {/* Dome — small hemisphere centered atas roof */}
+            <mesh position={[0, 1.78, 0]}>
+              <sphereGeometry args={[0.42, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+              <meshStandardMaterial color="#d8c4a0" roughness={0.7} />
+            </mesh>
+            {/* Dome trim band at base */}
+            <mesh position={[0, 1.78, 0]}>
+              <torusGeometry args={[0.42, 0.025, 8, 24]} />
+              <meshStandardMaterial color="#b88848" roughness={0.6} />
+            </mesh>
+            {/* Dome finial — brass spike on top */}
+            <mesh position={[0, 2.22, 0]}>
+              <coneGeometry args={[0.045, 0.16, 8]} />
+              <meshStandardMaterial
+                color="#d4a050"
+                emissive="#b88848"
+                emissiveIntensity={0.25}
+                roughness={0.55}
+              />
+            </mesh>
+
+            {/* Subtle scar — pojok atap NW slightly indented (notch).
+                "Yang bertahan, bukan yang utuh dari awal" — luka kota
+                tetep ditinggal walau megah. */}
+            <mesh position={[-0.68, 1.7, -0.62]}>
+              <boxGeometry args={[0.22, 0.06, 0.22]} />
               <meshStandardMaterial color="#5a4830" roughness={1} />
             </mesh>
           </>
@@ -1630,7 +1566,6 @@ const PetaArsip = ({
             className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
               hovered && !isLocked ? '-translate-y-1' : ''
             }`}
-            style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}
           >
             <div
               className={`text-[11px] font-medium tracking-wide transition-colors ${
@@ -7229,296 +7164,6 @@ const RubbleHouses = () => (
   </>
 );
 
-// RestoredHouses — purified twin of RubbleHouses. Posisi identik, tapi
-// rumah berdiri utuh: full walls, pitched roof, lit windows, door
-// kebuka. Tone hangat (cream/tan), beda dari ruin yg gelap. Narrative:
-// neighborhood sekitar Perpustakaan ikut pulih.
-const RESTORED_HOUSE_DEFS = [
-  { pos: [9, 0, 0.8], rot: 0.3, variant: 0 },
-  { pos: [10.5, 0, -1.2], rot: -0.5, variant: 1 },
-  { pos: [11, 0, -2.8], rot: 0.7, variant: 2 },
-  { pos: [9.2, 0, -3.2], rot: -0.2, variant: 3 },
-];
-const RestoredHouse = ({ pos, rot, variant }) => {
-  // Common warm window emissive ref — animate flicker via parent's
-  // useFrame would be heavy. Skip animation; static warm glow cukup.
-  // Variant 0/1/2/3 = 4 jenis rumah pulih dgn variasi style.
-  if (variant === 0) {
-    // Pitched-roof house — body full + atap miring
-    return (
-      <group position={pos} rotation={[0, rot, 0]}>
-        {/* Foundation stone */}
-        <mesh position={[0, 0.03, 0]}>
-          <boxGeometry args={[0.9, 0.06, 0.78]} />
-          <meshStandardMaterial color="#8a7868" roughness={0.9} />
-        </mesh>
-        {/* Body box — cream warm */}
-        <mesh position={[0, 0.35, 0]}>
-          <boxGeometry args={[0.82, 0.6, 0.72]} />
-          <meshStandardMaterial color="#d8c4a0" roughness={0.85} />
-        </mesh>
-        {/* Atap pitched — 2 slab angled cream-darker */}
-        <mesh position={[-0.18, 0.78, 0]} rotation={[0, 0, 0.55]}>
-          <boxGeometry args={[0.46, 0.05, 0.78]} />
-          <meshStandardMaterial color="#6a4830" roughness={0.85} />
-        </mesh>
-        <mesh position={[0.18, 0.78, 0]} rotation={[0, 0, -0.55]}>
-          <boxGeometry args={[0.46, 0.05, 0.78]} />
-          <meshStandardMaterial color="#6a4830" roughness={0.85} />
-        </mesh>
-        {/* Ridge cap */}
-        <mesh position={[0, 0.88, 0]}>
-          <boxGeometry args={[0.08, 0.03, 0.78]} />
-          <meshStandardMaterial color="#4a3018" roughness={0.85} />
-        </mesh>
-        {/* Window glow — warm amber emissive */}
-        <mesh position={[0, 0.42, 0.371]}>
-          <planeGeometry args={[0.18, 0.2]} />
-          <meshStandardMaterial
-            color="#f4c478"
-            emissive="#e8a060"
-            emissiveIntensity={0.55}
-            roughness={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-        {/* Window frame cross */}
-        <mesh position={[0, 0.42, 0.372]}>
-          <boxGeometry args={[0.18, 0.01, 0.003]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <mesh position={[0, 0.42, 0.372]}>
-          <boxGeometry args={[0.01, 0.2, 0.003]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        {/* Door — dark wood, slightly ajar */}
-        <mesh position={[-0.22, 0.22, 0.371]}>
-          <planeGeometry args={[0.16, 0.34]} />
-          <meshStandardMaterial color="#5a3818" roughness={0.85} />
-        </mesh>
-        {/* Door handle dot */}
-        <mesh position={[-0.15, 0.22, 0.373]}>
-          <sphereGeometry args={[0.012, 5, 4]} />
-          <meshStandardMaterial color="#b88848" roughness={0.6} />
-        </mesh>
-        {/* Chimney di atap belakang */}
-        <mesh position={[0.2, 0.95, -0.18]}>
-          <boxGeometry args={[0.1, 0.22, 0.1]} />
-          <meshStandardMaterial color="#7a5838" roughness={0.85} />
-        </mesh>
-      </group>
-    );
-  }
-  if (variant === 1) {
-    // Two-story narrow house — utuh tegak (bukan tilted lagi)
-    return (
-      <group position={pos} rotation={[0, rot, 0]}>
-        {/* Foundation */}
-        <mesh position={[0, 0.03, 0]}>
-          <boxGeometry args={[0.8, 0.06, 0.7]} />
-          <meshStandardMaterial color="#8a7868" roughness={0.9} />
-        </mesh>
-        {/* Body — 2 tier: lower & upper */}
-        <mesh position={[0, 0.32, 0]}>
-          <boxGeometry args={[0.72, 0.5, 0.62]} />
-          <meshStandardMaterial color="#e0c8a8" roughness={0.85} />
-        </mesh>
-        <mesh position={[0, 0.72, 0]}>
-          <boxGeometry args={[0.68, 0.32, 0.58]} />
-          <meshStandardMaterial color="#d8c0a0" roughness={0.85} />
-        </mesh>
-        {/* Hipped roof — flat pyramid (cone 4-sides) */}
-        <mesh position={[0, 0.96, 0]}>
-          <coneGeometry args={[0.5, 0.22, 4]} />
-          <meshStandardMaterial color="#6a4830" roughness={0.85} />
-        </mesh>
-        {/* Window glow lower */}
-        <mesh position={[0, 0.38, 0.321]}>
-          <planeGeometry args={[0.16, 0.18]} />
-          <meshStandardMaterial
-            color="#f4c478"
-            emissive="#e8a060"
-            emissiveIntensity={0.55}
-            roughness={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-        {/* Window glow upper — smaller */}
-        <mesh position={[0, 0.74, 0.301]}>
-          <planeGeometry args={[0.12, 0.15]} />
-          <meshStandardMaterial
-            color="#f4c478"
-            emissive="#e8a060"
-            emissiveIntensity={0.5}
-            roughness={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-        {/* Door — dark frame center */}
-        <mesh position={[-0.18, 0.2, 0.321]}>
-          <planeGeometry args={[0.14, 0.32]} />
-          <meshStandardMaterial color="#5a3818" roughness={0.85} />
-        </mesh>
-        <mesh position={[-0.12, 0.2, 0.323]}>
-          <sphereGeometry args={[0.011, 5, 4]} />
-          <meshStandardMaterial color="#b88848" roughness={0.6} />
-        </mesh>
-      </group>
-    );
-  }
-  if (variant === 2) {
-    // Full house dengan chimney — versi pulih dari wall stubs
-    return (
-      <group position={pos} rotation={[0, rot, 0]}>
-        {/* Foundation */}
-        <mesh position={[0, 0.03, 0]}>
-          <boxGeometry args={[0.9, 0.06, 0.78]} />
-          <meshStandardMaterial color="#8a7868" roughness={0.9} />
-        </mesh>
-        {/* Body cream */}
-        <mesh position={[0, 0.34, 0]}>
-          <boxGeometry args={[0.82, 0.58, 0.72]} />
-          <meshStandardMaterial color="#d4c098" roughness={0.85} />
-        </mesh>
-        {/* Pitched roof — single sloped slab */}
-        <mesh position={[0, 0.74, 0]} rotation={[0.25, 0, 0]}>
-          <boxGeometry args={[0.86, 0.06, 0.85]} />
-          <meshStandardMaterial color="#5a3a20" roughness={0.85} />
-        </mesh>
-        {/* Window glow di samping */}
-        <mesh position={[0.412, 0.4, 0.18]} rotation={[0, Math.PI / 2, 0]}>
-          <planeGeometry args={[0.18, 0.18]} />
-          <meshStandardMaterial
-            color="#f4c478"
-            emissive="#e8a060"
-            emissiveIntensity={0.55}
-            roughness={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-        {/* Window glow depan */}
-        <mesh position={[0.15, 0.4, 0.371]}>
-          <planeGeometry args={[0.16, 0.16]} />
-          <meshStandardMaterial
-            color="#f4c478"
-            emissive="#e8a060"
-            emissiveIntensity={0.5}
-            roughness={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-        {/* Door */}
-        <mesh position={[-0.2, 0.22, 0.371]}>
-          <planeGeometry args={[0.16, 0.34]} />
-          <meshStandardMaterial color="#5a3818" roughness={0.85} />
-        </mesh>
-        {/* Chimney tinggi sendirian — sekarang nempel di rumah */}
-        <mesh position={[0.32, 0.95, -0.22]}>
-          <boxGeometry args={[0.11, 0.6, 0.11]} />
-          <meshStandardMaterial color="#7a5838" roughness={0.85} />
-        </mesh>
-        {/* Chimney cap */}
-        <mesh position={[0.32, 1.27, -0.22]}>
-          <boxGeometry args={[0.15, 0.04, 0.15]} />
-          <meshStandardMaterial color="#4a3018" roughness={0.85} />
-        </mesh>
-        {/* Smoke wisp di puncak chimney — opacity rendah */}
-        <mesh position={[0.32, 1.45, -0.22]}>
-          <planeGeometry args={[0.18, 0.3]} />
-          <meshBasicMaterial
-            color="#a89588"
-            transparent
-            opacity={0.25}
-            depthWrite={false}
-            side={2}
-          />
-        </mesh>
-      </group>
-    );
-  }
-  // variant 3: Full house dgn entrance — versi pulih dari doorframe ruin
-  return (
-    <group position={pos} rotation={[0, rot, 0]}>
-      {/* Foundation */}
-      <mesh position={[0, 0.03, 0]}>
-        <boxGeometry args={[0.9, 0.06, 0.78]} />
-        <meshStandardMaterial color="#8a7868" roughness={0.9} />
-      </mesh>
-      {/* Body */}
-      <mesh position={[0, 0.34, 0]}>
-        <boxGeometry args={[0.82, 0.58, 0.72]} />
-        <meshStandardMaterial color="#dac08a" roughness={0.85} />
-      </mesh>
-      {/* Pitched roof — 2 slab */}
-      <mesh position={[-0.18, 0.76, 0]} rotation={[0, 0, 0.5]}>
-        <boxGeometry args={[0.46, 0.05, 0.76]} />
-        <meshStandardMaterial color="#5a3818" roughness={0.85} />
-      </mesh>
-      <mesh position={[0.18, 0.76, 0]} rotation={[0, 0, -0.5]}>
-        <boxGeometry args={[0.46, 0.05, 0.76]} />
-        <meshStandardMaterial color="#5a3818" roughness={0.85} />
-      </mesh>
-      {/* Ridge */}
-      <mesh position={[0, 0.86, 0]}>
-        <boxGeometry args={[0.08, 0.03, 0.76]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.85} />
-      </mesh>
-      {/* Doorframe — visible columns kanan-kiri (mirror ruin) */}
-      <mesh position={[-0.2, 0.32, 0.371]}>
-        <boxGeometry args={[0.06, 0.62, 0.04]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      <mesh position={[0.2, 0.32, 0.371]}>
-        <boxGeometry args={[0.06, 0.62, 0.04]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      {/* Lintel */}
-      <mesh position={[0, 0.6, 0.371]}>
-        <boxGeometry args={[0.5, 0.06, 0.04]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      {/* Door inset — open dgn warm glow di dalem */}
-      <mesh position={[0, 0.3, 0.36]}>
-        <planeGeometry args={[0.34, 0.54]} />
-        <meshStandardMaterial
-          color="#f4c478"
-          emissive="#e8a060"
-          emissiveIntensity={0.45}
-          roughness={0.5}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* Window samping */}
-      <mesh position={[0.412, 0.42, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[0.2, 0.22]} />
-        <meshStandardMaterial
-          color="#f4c478"
-          emissive="#e8a060"
-          emissiveIntensity={0.55}
-          roughness={0.5}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* Flower pot dekat pintu */}
-      <mesh position={[0.32, 0.08, 0.42]}>
-        <cylinderGeometry args={[0.05, 0.04, 0.1, 6]} />
-        <meshStandardMaterial color="#8a4838" roughness={0.85} />
-      </mesh>
-      <mesh position={[0.32, 0.16, 0.42]}>
-        <sphereGeometry args={[0.05, 6, 4]} />
-        <meshStandardMaterial color="#5a8458" roughness={0.85} />
-      </mesh>
-    </group>
-  );
-};
-const RestoredHouses = () => (
-  <>
-    {RESTORED_HOUSE_DEFS.map((d, i) => (
-      <RestoredHouse key={`rsh-${i}`} {...d} />
-    ))}
-  </>
-);
-
 // CirclingVultures — 3 burung gelap berputar pelan tinggi di sky.
 // Atmospheric — kerasa "ada yg ngintai kota mati." Beda dari BirdsFlock
 // purified (sweet swallows) — vultures bergerak lambat, soliter, di
@@ -7948,7 +7593,6 @@ const TamanScene = ({
       {!purified && <SnappedDeadTrees />}
       {!purified && <CollapsedWallFragments />}
       {!purified && <RubbleHouses />}
-      {purified && <RestoredHouses />}
       {/* Atmospheric drought polish — sky/distance motion biar sky gak
           kerasa kosong dan kota jauh punya "life" sisa post-storm. */}
       {!purified && <CirclingVultures />}
