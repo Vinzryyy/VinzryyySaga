@@ -279,6 +279,95 @@ export const useHourlyBell = (enabled) => {
   };
 };
 
+// === SEITANSAI COUNTDOWN (hybrid) ===
+// useSeitansaiCountdown — countdown utama menara. Default target = ulang
+// tahun Eli berikutnya (MM-DD = 06-15). Override jika ada event Eli
+// dalam ≤14 hari — supaya menara nunjuk ke yang paling dekat secara
+// kontekstual (mis. jelang concert, dial point ke concert bukan ultah).
+//
+// Output:
+//   - daysUntil: integer ≥0
+//   - targetIso: YYYY-MM-DD
+//   - title: "Ulang Tahun Eli" atau event title
+//   - isOverride: true kalau yang ditampilkan event override
+//   - yearFraction: 0..1 — fraction-of-year remaining (utk dial hand angle)
+export const useSeitansaiCountdown = () => {
+  const nearestEvent = useNearestSchedule();
+  const todayIso = wibTodayIso();
+  return useMemo(() => {
+    const birthMMDD = (
+      SITE_CONFIG?.eli?.birthdateIso || '2000-06-15T00:00:00+07:00'
+    ).substring(5, 10);
+    const todayYear = parseInt(todayIso.substring(0, 4), 10);
+    const candidateThisYear = `${todayYear}-${birthMMDD}`;
+    const candidateNextYear = `${todayYear + 1}-${birthMMDD}`;
+    const daysThisYear = daysFromWibToday(candidateThisYear);
+    const seitansaiTarget =
+      daysThisYear !== null && daysThisYear >= 0
+        ? candidateThisYear
+        : candidateNextYear;
+    const seitansaiDays = Math.max(0, daysFromWibToday(seitansaiTarget) || 0);
+
+    let targetIso = seitansaiTarget;
+    let title = 'Ulang Tahun Eli';
+    let isOverride = false;
+    let daysUntil = seitansaiDays;
+
+    if (nearestEvent && nearestEvent.date) {
+      const evIso = nearestEvent.date.substring(0, 10);
+      const evDays = daysFromWibToday(evIso);
+      if (evDays !== null && evDays >= 0 && evDays <= 14 && evDays < seitansaiDays) {
+        targetIso = evIso;
+        title = nearestEvent.title || 'Eli tampil';
+        isOverride = true;
+        daysUntil = evDays;
+      }
+    }
+
+    // Year fraction utk dial hand: 0 = at target, 1 = far away (365d).
+    // Pakai mod 365 supaya tetep meaningful kalau hybrid event jauh.
+    const yearFraction = Math.min(1, daysUntil / 365);
+    return { daysUntil, targetIso, title, isOverride, yearFraction };
+  }, [nearestEvent, todayIso]);
+};
+
+// IMPORTANT_DATES_MMDD — list MM-DD untuk marker dot di Orloj calendar
+// dial. Sumber: ELI_TIMELINE entries dgn date + birthday Eli. Dedup &
+// sort untuk stable iteration order.
+export const useImportantDatesMMDD = () => {
+  return useMemo(() => {
+    const set = new Set();
+    const birthIso = (
+      SITE_CONFIG?.eli?.birthdateIso || '2000-06-15T00:00:00+07:00'
+    ).substring(0, 10);
+    set.add(birthIso.substring(5));
+    ELI_TIMELINE.forEach((e) => {
+      if (e.date) set.add(e.date.substring(5));
+    });
+    return Array.from(set);
+  }, []);
+};
+
+// dayOfYearFromMMDD — convert "MM-DD" jadi 0..1 fraction-of-year (utk
+// posisi sudut di calendar dial). Pakai non-leap year baseline supaya
+// stabil. Jan 1 = 0, Dec 31 ≈ 0.997.
+export const dayOfYearFromMMDD = (mmdd) => {
+  if (!mmdd || mmdd.length !== 5) return 0;
+  const month = parseInt(mmdd.substring(0, 2), 10);
+  const day = parseInt(mmdd.substring(3, 5), 10);
+  // Days at start of each month (non-leap)
+  const cumulative = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  const dayIdx = (cumulative[month - 1] || 0) + (day - 1);
+  return dayIdx / 365;
+};
+
+// useTodayMMDDFraction — hari ini sebagai fraction-of-year (jarum
+// calendar dial selalu nunjuk ke hari ini).
+export const useTodayMMDDFraction = () => {
+  const todayIso = wibTodayIso();
+  return useMemo(() => dayOfYearFromMMDD(todayIso.substring(5)), [todayIso]);
+};
+
 // === ANNIVERSARY DETECTION ===
 // useAnniversaryMatch — return list dari ELI_TIMELINE entries + birthday
 // yang MM-DD-nya cocok dengan hari ini di WIB. Empty array = bukan

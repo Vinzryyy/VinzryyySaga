@@ -20,7 +20,7 @@ import {
   useAlmanak,
   useAnniversaryMatch,
   useHourlyBell,
-  useNearestSchedule,
+  useSeitansaiCountdown,
   useWibTime,
 } from './utils';
 
@@ -32,8 +32,8 @@ export const TimePill = ({ restored }) => {
   const mm = String(time.minutes).padStart(2, '0');
   const ss = String(time.seconds).padStart(2, '0');
   const subline = restored
-    ? 'Menara jam pulih — kota inget waktu tiap detik'
-    : 'Jam separuh jalan — jarum menit masih hilang';
+    ? 'WIB kalibrasi penuh — menara nunjuk waktu Eli'
+    : 'WIB jalan, bandul menara masih cari ritme';
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[92vw]">
       <div className="flex flex-col items-center gap-1.5 px-5 py-2.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">
@@ -169,18 +169,13 @@ export const AlmanakCard = () => {
   );
 };
 
-// CountdownChip — drought variant pakai ini (kompak), restored gak pakai
-// karena info udah ada di AlmanakCard. Fallback "cari ritmenya" kalau
-// gak ada event terdekat.
+// CountdownChip — drought variant pakai ini (kompak). Mirror logic dari
+// useSeitansaiCountdown (sama dgn upper dial menara): default countdown
+// ke ultah Eli, override jika ada event ≤14 hari.
 export const CountdownChip = () => {
-  const nearest = useNearestSchedule();
-  const eventDays =
-    nearest && nearest.date
-      ? Math.max(0, daysFromWibToday(nearest.date.substring(0, 10)))
-      : null;
-  const copy = nearest
-    ? `${eventDays === 0 ? 'Hari ini' : `${eventDays} hari lagi`} · ${nearest.title}`
-    : 'Bandul masih cari ritmenya — belum ada event terdekat';
+  const c = useSeitansaiCountdown();
+  const dayLabel = c.daysUntil === 0 ? 'Hari ini' : `${c.daysUntil} hari lagi`;
+  const copy = `${dayLabel} · ${c.title}`;
   return (
     <div className="pointer-events-none absolute bottom-28 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[88vw]">
       <div className="px-4 py-1.5 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 shadow-lg">
