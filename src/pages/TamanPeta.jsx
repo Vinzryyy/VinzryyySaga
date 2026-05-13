@@ -1276,6 +1276,34 @@ const PetaArsip = ({
               <boxGeometry args={[1.85, 0.04, 1.55]} />
               <meshStandardMaterial color="#5a3818" roughness={0.88} />
             </mesh>
+            {/* === LIT THRESHOLD GLOW === Warm emissive strip di engawa
+                tepat depan entrance (z=-0.25..0.25 di x=-0.75), kerasa
+                "ada cahaya hangat mengalir keluar dari pintu." */}
+            <mesh position={[-0.78, 0.235, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.55, 0.18]} />
+              <meshStandardMaterial
+                color="#f8d098"
+                emissive="#e89858"
+                emissiveIntensity={0.65}
+                roughness={0.5}
+                toneMapped={false}
+                side={2}
+              />
+            </mesh>
+            {/* Soft falloff outer glow */}
+            <mesh position={[-0.9, 0.232, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.72, 0.32]} />
+              <meshStandardMaterial
+                color="#f4b878"
+                emissive="#c87838"
+                emissiveIntensity={0.28}
+                roughness={0.5}
+                transparent
+                opacity={0.55}
+                toneMapped={false}
+                side={2}
+              />
+            </mesh>
             {/* Plank lines tipis di engawa (2 strips kayu) */}
             {[-0.5, 0, 0.5].map((z, i) => (
               <mesh key={`plank-${i}`} position={[0, 0.232, z]}>
@@ -2975,6 +3003,38 @@ const PetaArsip = ({
                 visible di drought scene yg muram, plus heavy pollution
                 markers (smoke wisp, oil stain, mud puddle, withered vine,
                 crow silhouette, more scattered debris). */}
+
+            {/* === CRACKED GROUND PATCHES around base ===
+                Concentric outward dari platform — kerasa "tanah pecah
+                karena impact runtuhan struktur," localized di vicinity
+                Perpustakaan (bukan scene-wide). */}
+            {[
+              { pos: [-1.6, 0.012, -0.95], r: 0.22, rot: 0.4 },
+              { pos: [1.45, 0.012, 1.1], r: 0.18, rot: -0.3 },
+              { pos: [-1.8, 0.012, 0.85], r: 0.2, rot: 0.6 },
+              { pos: [1.6, 0.012, -0.7], r: 0.16, rot: -0.5 },
+              { pos: [0.3, 0.012, 1.55], r: 0.14, rot: 0.2 },
+              { pos: [-0.6, 0.012, -1.25], r: 0.2, rot: -0.4 },
+            ].map((c, i) => (
+              <React.Fragment key={`crack-ground-${i}`}>
+                <mesh position={c.pos} rotation={[-Math.PI / 2, 0, c.rot]}>
+                  <circleGeometry args={[c.r, 8]} />
+                  <meshStandardMaterial color="#2a1810" roughness={1} />
+                </mesh>
+                {/* Linear crack line radiating outward */}
+                <mesh
+                  position={[
+                    c.pos[0] + Math.cos(c.rot) * 0.15,
+                    c.pos[1] + 0.001,
+                    c.pos[2] + Math.sin(c.rot) * 0.15,
+                  ]}
+                  rotation={[-Math.PI / 2, 0, c.rot]}
+                >
+                  <planeGeometry args={[0.4, 0.012]} />
+                  <meshStandardMaterial color="#1a0e08" roughness={1} />
+                </mesh>
+              </React.Fragment>
+            ))}
 
             {/* === ISHIDAN STONE PLATFORM (cracked) === */}
             <mesh position={[0, 0.04, 0]}>
@@ -11206,8 +11266,13 @@ const TamanPetaPage = () => {
               powerPreference: 'high-performance',
             }}
             shadows={false}
-            onCreated={({ camera }) => {
+            onCreated={({ camera, gl }) => {
               camera.lookAt(0, 0, 0);
+              // Bump tone mapping exposure (default 1.0) — push highlight
+              // pop + perceived contrast. Bekerja barengan ToneMapping
+              // ACES_FILMIC postprocess (renderer scales linear input
+              // sebelum tonemap, dapet brighter highlight tanpa clipping).
+              gl.toneMappingExposure = 1.35;
             }}
           >
             <TamanScene
