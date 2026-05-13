@@ -32,8 +32,8 @@ export const TimePill = ({ restored }) => {
   const mm = String(time.minutes).padStart(2, '0');
   const ss = String(time.seconds).padStart(2, '0');
   const subline = restored
-    ? 'WIB kalibrasi penuh — menara nunjuk waktu Eli'
-    : 'WIB jalan, bandul menara masih cari ritme';
+    ? 'WIB kalibrasi penuh — yagura nunjuk waktu Eli'
+    : 'WIB jalan, shumoku menara masih cari ritme';
   return (
     <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[92vw]">
       <div className="flex flex-col items-center gap-1.5 px-5 py-2.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">

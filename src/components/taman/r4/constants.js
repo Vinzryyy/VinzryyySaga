@@ -1,168 +1,163 @@
 /**
- * Konstanta dimensi Menara Jam — Big Ben silhouette + Gothic Prague
- * ornament (mirip Old Town Hall / Astronomical Clock Tower).
+ * Konstanta dimensi Menara Jam — **Japanese yagura** (castle watchtower)
+ * silhouette dgn dual shoji dial. Twin yagura flanking a **honden**
+ * (shrine main hall). Tema match `/armeniacaTown/peta` (Japanese garden
+ * elements: tsukubai, jizo, torii, koi, omikuji, bamboo, paper lanterns).
  *
- * Square cross-section shaft (bukan cylindrical), 2 dial stacked di
- * front + back (countdown atas, Orloj calendar bawah), rosette gothic
- * di kiri + kanan, corner pinnacles, Gothic spire.
+ * YAGURA stack (Y bottom→top):
+ *   ishigaki base (sloped masonry) → tier-1 wood/plaster shaft → mid
+ *   eaves roof (irimoya hip-and-gable) → clock chamber (2 shoji dials
+ *   stacked di front+back; kōshi lattice di sisi) → top irimoya roof →
+ *   sōrin finial spire (rings + hōju jewel).
  *
- * Total height stack (Y): base → shaft → cap cornice → clock chamber
- * (TALL, fit 2 dial stacked) → upper cornice → corner pinnacles +
- * main spire → finial.
+ * HONDEN: wooden raised hall di antara dua yagura — curved roof dgn
+ * chigi forked finials + katsuogi logs, kara-hafu cusped gable doorway,
+ * kōshi lattice walls.
  */
 export const TOWER = {
-  // === BASE ===
-  baseWidth: 2.4,
-  baseTopWidth: 2.2,
-  baseHeight: 0.6,
+  // === ISHIGAKI BASE === sloped castle stone masonry, narrower at top
+  baseWidth: 2.6, // bottom width
+  baseTopWidth: 2.0, // top width (narrowed — slope)
+  baseHeight: 0.9,
 
-  // === SHAFT === square, plain stone w/ Gothic windows
+  // === TIER-1 SHAFT === wood frame + plaster (white shikkui)
   shaftWidth: 1.7,
-  shaftHeight: 4.5,
+  shaftHeight: 3.5,
+  // Wooden vertical beam thickness (visible exterior framing)
+  beamThickness: 0.05,
+  // Horizontal nuki band thickness (mid-shaft horizontal beam)
+  nukiThickness: 0.06,
 
-  // === LOWER CORNICE === overhang sebelum clock section
-  capWidth: 2.0,
-  capHeight: 0.4,
+  // === MID EAVES ROOF === irimoya wrapping around top of tier-1 shaft
+  midEavesWidth: 2.4, // outer span (wider than shaft — overhang)
+  midEavesHeight: 0.32, // roof slab thickness
+  midEavesUpturn: 0.18, // corner upturn extra at edge
 
-  // === CLOCK CHAMBER === TALLER untuk muat 2 dial stacked
+  // === CLOCK CHAMBER === houses 2 shoji dials stacked (front+back)
+  // sides = kōshi-mado lattice wood window
   clockChamberWidth: 1.9,
   clockChamberHeight: 2.8,
 
-  // === UPPER DIAL (countdown) === big, di atas
+  // === UPPER DIAL (countdown) === shoji circular window
   upperDialRadius: 0.55,
-  // Y offset dari chamber bottom (fraction of chamber height)
   upperDialFrac: 0.72,
-
-  // === LOWER DIAL (Orloj calendar) === smaller, di bawah
+  // === LOWER DIAL (Orloj-equivalent calendar) === smaller shoji
   lowerDialRadius: 0.45,
   lowerDialFrac: 0.28,
-
-  // === DIAL geometry shared ===
   dialThickness: 0.1,
 
-  // === ROSETTE WINDOW === kiri/kanan clock chamber, gothic decorative
-  rosetteRadius: 0.4,
-  // Y offset (fraction of chamber height) — center of chamber
-  rosetteFrac: 0.55,
-  // Lancet pair (small twin lancets di bawah rosette)
-  lancetWidth: 0.16,
-  lancetHeight: 0.5,
-  lancetGap: 0.14,
-  lancetFrac: 0.22,
+  // === KŌSHI-MADO === wood-lattice window for side walls (square wood
+  // grid window, traditional Japanese architecture)
+  koshiSize: 0.62, // square window edge
+  koshiYFrac: 0.55,
+  koshiGridDivisions: 6, // 6×6 lattice grid
 
-  // === UPPER CORNICE ===
-  upperCorniceWidth: 2.05,
-  upperCorniceHeight: 0.3,
+  // === TOP ROOF === main irimoya at top of clock chamber
+  topRoofWidth: 2.55,
+  topRoofHeight: 0.45,
+  topRoofUpturn: 0.28,
 
-  // === CORNER PINNACLES === 4 sudut
-  pinnacleWidth: 0.3,
-  pinnacleHeight: 1.0,
+  // === SŌRIN FINIAL === pagoda-style metal spire dgn 9 rings + hōju
+  sorinShaftRadius: 0.04,
+  sorinShaftHeight: 1.2,
+  sorinRingRadius: 0.16,
+  sorinRingThickness: 0.02,
+  sorinRingCount: 9,
+  sorinJewelRadius: 0.13,
 
-  // === MAIN SPIRE ===
-  spireBaseWidth: 1.1,
-  spireHeight: 2.0,
-
-  // === TWIN COMPOSITION === 2 menara identical + balai kota di tengah
-  // Tower X offset dari pusat scene. Half = (hallWidth + towerBaseGap)/2.
+  // === TWIN COMPOSITION === 2 menara identical + honden di tengah
   twinXOffset: 2.6,
 
   // Derived ===========================================================
-  // Bottom Y of clock chamber
+  // Bottom Y of clock chamber (after base + shaft + mid-eaves)
   get chamberBottomY() {
-    return this.baseHeight + this.shaftHeight + this.capHeight;
+    return this.baseHeight + this.shaftHeight + this.midEavesHeight;
   },
-  // Center Y of clock chamber
   get chamberCenterY() {
     return this.chamberBottomY + this.clockChamberHeight / 2;
   },
-  // Upper dial center Y
   get upperDialY() {
     return this.chamberBottomY + this.clockChamberHeight * this.upperDialFrac;
   },
-  // Lower dial center Y
   get lowerDialY() {
     return this.chamberBottomY + this.clockChamberHeight * this.lowerDialFrac;
   },
-  // Rosette center Y (side faces)
-  get rosetteY() {
-    return this.chamberBottomY + this.clockChamberHeight * this.rosetteFrac;
+  get koshiY() {
+    return this.chamberBottomY + this.clockChamberHeight * this.koshiYFrac;
   },
-  // Lancet center Y (below rosette)
-  get lancetY() {
-    return this.chamberBottomY + this.clockChamberHeight * this.lancetFrac;
-  },
-  // Clock chamber half-width — buat positioning di tiap sisi
   get clockHalf() {
     return this.clockChamberWidth / 2;
   },
-  // Top of clock chamber Y
+  // Top of clock chamber Y — anchor utk top roof
   get clockTopY() {
     return this.chamberBottomY + this.clockChamberHeight;
   },
-  // Spire tip Y
+  // Top of top-roof Y — anchor utk sōrin base
+  get topRoofTopY() {
+    return this.clockTopY + this.topRoofHeight;
+  },
+  // Sōrin tip Y
   get topY() {
-    return this.clockTopY + this.upperCorniceHeight + this.spireHeight;
+    return this.topRoofTopY + this.sorinShaftHeight + this.sorinJewelRadius * 2;
   },
 };
 
-// === BALAI KOTA === gothic central hall yang menghubungkan dua menara.
-// Inspirasi: facade Notre Dame de Paris / Old Town Hall Praha — body
-// rectangular dgn pointed-arch doorway sentral, rosette window di atas
-// pintu, lancet pair di samping, parapet crenellation + small central
-// turret. Tinggi < tower shaft supaya menara nembus skyline.
+// === HONDEN === shrine main hall di tengah twin yagura. Style: wooden
+// raised structure dgn curved roof, chigi + katsuogi ridge ornaments,
+// kara-hafu (cusped gable) doorway, kōshi lattice walls.
 export const HALL = {
-  width: 4.4, // X — span antara dua menara, sedikit overlap di edge
-  depth: 2.4, // Z
-  height: 3.6, // Y — lebih rendah dari shaftTop (5.5) tower
+  width: 4.4, // X — span antara dua yagura
+  depth: 2.6, // Z
+  bodyHeight: 2.6, // wooden body height (di atas stone base)
 
-  // Pointed-arch doorway di front face
-  doorwayWidth: 0.9,
-  doorwayHeight: 1.7, // termasuk arch tip
-  doorwayDepth: 0.16, // recess depth
+  // Stone base (raised platform) — kasarakeyaku style stone podium
+  baseHeight: 0.4,
+  baseOverhang: 0.15, // ledge beyond body footprint
 
-  // Rosette window di atas pintu (front + back face)
-  rosetteRadius: 0.42,
-  // Y center fraction of hall height
-  rosetteYFrac: 0.72,
+  // Engawa (wooden veranda) di front + sides — narrow walkway raised
+  engawaHeight: 0.05,
+  engawaDepth: 0.25,
 
-  // Lancet windows di sisi kiri/kanan facade depan (flank doorway)
-  flankLancetWidth: 0.18,
-  flankLancetHeight: 0.95,
-  flankLancetXOffset: 0.95, // jarak dari pusat ke center lancet
-  flankLancetYFrac: 0.38,
+  // Wooden pillar (hashira) — 6 pillars di front, supporting eaves
+  pillarRadius: 0.08,
+  pillarCount: 6, // along front length
 
-  // Parapet (crenellated top trim)
-  parapetHeight: 0.18,
-  // Merlon = "gigi" parapet, count along width
-  merlonCount: 14,
-  merlonWidth: 0.16,
-  merlonHeight: 0.14,
+  // Kara-hafu doorway — cusped/ogee-curved gable above entrance
+  doorwayWidth: 1.0,
+  doorwayHeight: 1.6,
+  karahafuHeight: 0.5, // ogee curve cap above lintel
 
-  // Central turret/lantern di atap (small octagonal lantern)
-  turretBaseRadius: 0.32,
-  turretShaftHeight: 0.55,
-  turretSpireHeight: 0.7,
-  turretFinialRadius: 0.06,
+  // Kōshi lattice wall panels — between pillars
+  koshiPanelHeight: 1.4, // height of lattice section
+  koshiPanelYStart: 0.3, // from body bottom
+  koshiPanelDivisions: 5, // grid divisions per panel
 
-  // Stone trim band di tengah body (decorative horizontal divider)
-  midBandHeight: 0.06,
-  midBandYFrac: 0.5,
+  // Main roof — irimoya curved hip-and-gable, deep overhanging eaves
+  roofWidth: 5.2, // wider than body — deep eaves overhang
+  roofDepth: 3.6,
+  roofHeight: 0.55,
+  roofUpturn: 0.3, // corner upturn extra
+
+  // Chigi (forked roof finials) — X-shaped projections at gable ends
+  chigiHeight: 0.55,
+  chigiThickness: 0.04,
+
+  // Katsuogi (cylindrical logs along roof ridge) — 3 logs
+  katsuogiCount: 3,
+  katsuogiRadius: 0.06,
+  katsuogiLength: 0.5,
 
   // Derived
-  get topY() {
-    return this.height;
+  get bodyTopY() {
+    return this.baseHeight + this.bodyHeight;
   },
-  get parapetTopY() {
-    return this.height + this.parapetHeight;
+  get roofBaseY() {
+    return this.bodyTopY;
   },
-  get turretBaseY() {
-    return this.parapetTopY;
+  get roofTopY() {
+    return this.bodyTopY + this.roofHeight;
   },
-  get turretSpireBaseY() {
-    return this.turretBaseY + this.turretShaftHeight;
-  },
-  get turretTipY() {
-    return this.turretSpireBaseY + this.turretSpireHeight;
+  get chigiTopY() {
+    return this.roofTopY + this.chigiHeight;
   },
 };
-

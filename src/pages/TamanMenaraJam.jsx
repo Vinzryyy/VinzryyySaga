@@ -1,28 +1,32 @@
 /**
  * ArmeniacaTown — Petak R4: Menara Jam (page shell).
  *
- * Outdoor 3D scene dgn TWIN clock tower + Balai Kota gothic di tengah.
- * Inspirasi: Big Ben silhouette + Old Town Hall Praha facade. Tiap
- * menara: 2 dial stacked (front+back) — CountdownDial Seitansai atas,
- * OrlojCalendarDial bawah — + rosette di sisi. Balai persegi di antara
- * dua menara: pointed-arch doorway, rosette facade, lancet pair, parapet
- * crenellation, central turret. Spec di memory note
+ * Outdoor 3D scene dgn TWIN yagura (Japanese castle watchtower) + Honden
+ * (shrine main hall) di tengah. Tema match peta yang Japanese garden
+ * (tsukubai, jizo, torii, koi, omikuji, bamboo). Tiap yagura: ishigaki
+ * sloped masonry base → wood+plaster shikkui shaft → mid eaves irimoya
+ * roof → clock chamber (2 shoji dial stacked front+back: Countdown
+ * Seitansai atas, Orloj calendar wheel bawah) + kōshi-mado lattice
+ * window (sisi) → top irimoya roof → sōrin finial (9 rings + hōju jewel).
+ * Honden: wooden raised hall di stone base, kara-hafu cusped gable
+ * doorway, kōshi lattice walls, curved irimoya roof + chigi forked
+ * finials + katsuogi cylindrical ridge logs. Bonshō bell, shumoku
+ * striker rod (replaces gothic bell + pendulum). Spec di memory note
  * project_armeniacaTown_r4_menarajam.md.
  *
  * Halaman ini sengaja tipis — orchestrator aja. Logic + 3D + HTML
  * overlays di-split ke src/components/taman/r4/:
  *
- *   - constants.js   — TOWER + HALL dimensi
+ *   - constants.js   — TOWER (yagura) + HALL (honden) dimensi
  *   - utils.js       — hooks + helpers (WIB time, schedule fetch,
  *                      almanak derivation, bell audio, anniversary match)
- *   - ClockTower.jsx — 1 menara: base, shaft, gothic windows, clock
+ *   - ClockTower.jsx — yagura: ishigaki base, shaft, mid eaves, clock
  *                      chamber w/ CountdownDial + OrlojCalendarDial
- *                      (front+back) + RosetteWindow + LancetPair
- *                      (kiri/kanan), pinnacles, spire, bell, pendulum.
+ *                      (front+back) + KoshiMado lattice (sisi), top
+ *                      irimoya roof, sōrin finial, bonshō bell, shumoku.
  *                      + AnniversaryGlow.
- *   - Buildings.jsx  — TownHall (balai gothic) + TwinTowerComplex
- *                      (composite: 2× ClockTower + TownHall)
- *   - Environment.jsx — SkyBackdrop, SceneLights, Plaza
+ *   - Buildings.jsx  — Honden (shrine hall) + TwinTowerComplex composite
+ *   - Environment.jsx — SkyBackdrop, SceneLights, Plaza karesansui
  *   - Overlays.jsx   — Header (w/ BellToggle), TimePill, AlmanakCard,
  *                      CountdownChip
  *
@@ -92,7 +96,7 @@ const TamanMenaraJamPage = ({ restored = false }) => {
     <>
       <Seo
         title={`ArmeniacaTown — Menara Jam${restored ? ' (Pulih)' : ''}`}
-        description="Menara Jam ArmeniacaTown — twin clock tower Big Ben silhouette + Balai Kota gothic Praha. Countdown Seitansai Eli + kalender Orloj hari-hari penting."
+        description="Menara Jam ArmeniacaTown — twin yagura (Japanese castle watchtower) + Honden shrine hall. Countdown Seitansai Eli + kalender hari-hari penting di shoji dial."
         path="/armeniacaTown/r4"
       />
       <RotateRecommendation />
