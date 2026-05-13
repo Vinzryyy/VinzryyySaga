@@ -249,11 +249,18 @@ export const ClockTower = ({ restored }) => {
         />
       </mesh>
 
-      {/* === DIAL FACE === menghadap +Z */}
+      {/* === DIAL FACE === menghadap +Z.
+          BUGFIX: cylinderGeometry default axis Y — dari kamera ground-
+          level (TamanMenaraJam scene) terlihat sebagai rim/strip vertikal
+          alih-alih face disc. Rotate 90° around X axis biar cylinder
+          axis berubah jadi Z, face circle menghadap kamera. Ticks +
+          hands + pin positions di local XY plane sekarang benar-benar
+          ada di permukaan dial. */}
       <group position={[0, TOWER.dialY, TOWER.shaftRadiusTop * 0.95]}>
-        {/* Stained-glass backplate (restored only) */}
+        {/* Stained-glass backplate (restored only) — rotated juga supaya
+            ring glow keluar di sekitar dial, bukan dari sisi yang salah. */}
         {restored && (
-          <mesh position={[0, 0, -0.08]}>
+          <mesh position={[0, 0, -0.08]} rotation={[Math.PI / 2, 0, 0]}>
             <cylinderGeometry
               args={[TOWER.dialRadius * 1.12, TOWER.dialRadius * 1.12, 0.04, 32]}
             />
@@ -267,8 +274,8 @@ export const ClockTower = ({ restored }) => {
             />
           </mesh>
         )}
-        {/* Main dial disc */}
-        <mesh>
+        {/* Main dial disc — rotated jadi face menghadap +Z */}
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry
             args={[TOWER.dialRadius, TOWER.dialRadius, TOWER.dialThickness, 32]}
           />
