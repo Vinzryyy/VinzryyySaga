@@ -10366,6 +10366,13 @@ const PetaMenara = ({
               Stub fase awal — silhouette dasar (base shaft + clock face slab
               + spire). Full detail (gear teeth, weathered texture, pendulum,
               bell housing) menyusul saat scene r4 dibangun. */}
+          {/* Base banding — 1 ring di top of base shaft, match scene
+              base-brick treatment (scene punya 4 rings, peta cukup 1
+              biar gak noise di scale kecil). */}
+          <mesh position={[0, 0.28, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.38, 0.42, 24]} />
+            <meshStandardMaterial color="#3a2818" roughness={0.95} />
+          </mesh>
           {/* Main shaft — kolom utama menara, tinggi ~2.4 unit */}
           <mesh position={[0, 1.4, 0]}>
             <cylinderGeometry args={[0.32, 0.4, 2.4, 8]} />
@@ -10471,6 +10478,19 @@ const PetaMenara = ({
               roughness={0.9}
             />
           </mesh>
+          {/* Spire finial — bronze ball di puncak. Match scene
+              TamanMenaraJam. Restored = emissive bronze glow, kasih
+              "kota pulih" silhouette accent visible dari kejauhan. */}
+          <mesh position={[0, 3.27, 0]}>
+            <sphereGeometry args={[0.055, 10, 8]} />
+            <meshStandardMaterial
+              color={isRestored ? '#c89860' : '#5a4838'}
+              emissive={isRestored ? '#e8a868' : '#000000'}
+              emissiveIntensity={isRestored ? 0.3 : 0}
+              roughness={isRestored ? 0.5 : 0.9}
+              metalness={isRestored ? 0.35 : 0}
+            />
+          </mesh>
           {/* Bell — kecil di bawah spire, hanya restored (sesuai spec: bel
               bisu di drought, hourly chime di restored) */}
           {isRestored && (
@@ -10490,8 +10510,10 @@ const PetaMenara = ({
               dari bawah dial. Swing amplitude diatur di useFrame per
               petakState. Match scene TamanMenaraJam pendulum, scaled
               ke peta. Drought + restored sama-sama dapet bandul (drought
-              gerak kecil, restored full swing). */}
-          <group ref={pendulumRef} position={[0, 2.42, 0.33]}>
+              gerak kecil, restored full swing). Pivot di z=0.4 (slight in
+              front of dial bottom rim) supaya kebaca dari isometric
+              camera — z lebih dalam ke-block dial rim torus. */}
+          <group ref={pendulumRef} position={[0, 2.42, 0.4]}>
             {/* Pivot bracket */}
             <mesh position={[0, 0, -0.03]}>
               <cylinderGeometry args={[0.025, 0.025, 0.02, 6]} />
