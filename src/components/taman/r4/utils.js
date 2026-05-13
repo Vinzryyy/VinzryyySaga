@@ -165,10 +165,14 @@ export const useNearestSchedule = () => {
 // ELI_TIMELINE entries sudah sorted ascending by date; entries dengan
 // date=null (upcoming, mis. show-400) di-skip dari past/future calc tapi
 // dipakai buat "menuju" placeholder.
+//
+// `today` di-include di useMemo deps supaya re-compute saat kalender WIB
+// flip lewat tengah malam (re-render trigger dari useWibTime di parent
+// scene cukup buat re-evaluate ini).
 export const useAlmanak = () => {
   const nearestEvent = useNearestSchedule();
+  const today = wibTodayIso();
   return useMemo(() => {
-    const today = wibTodayIso();
     const todayMs = new Date(`${today}T00:00:00+07:00`).getTime();
     const debutEntry = ELI_TIMELINE.find((e) => e.id === 'theater-debut');
     const daysSinceDebut = debutEntry
@@ -192,7 +196,7 @@ export const useAlmanak = () => {
       nextMilestone,
       nearestEvent,
     };
-  }, [nearestEvent]);
+  }, [nearestEvent, today]);
 };
 
 // === BELL CHIME AUDIO ===
@@ -225,24 +229,32 @@ export const BELL_STORAGE_KEY = 'menara-bell-on';
 
 // useHourlyBell — saat enabled, ring bell tiap kali jam WIB berubah
 // (deteksi via lastHourRef). Browser butuh user gesture buat unlock
-// AudioContext, jadi context di-init lazy setelah toggle ON pertama
-// kali. Avoid catching up missed hours: cuma trigger kalau menit==0 &
-// seconds<30 (artinya beneran lewat top-of-hour, bukan loading lambat).
+// AudioContext, jadi context di-init lazy. Avoid catching up missed
+// hours: cuma trigger kalau menit==0 & seconds<30.
+//
+// Returns `playPreview` function yg reuse ctxRef internal — supaya
+// BellToggle gak bikin AudioContext baru tiap toggle (browser limit
+// ~5-6 contexts per origin, leak setelah ~5 toggle bell).
 export const useHourlyBell = (enabled) => {
   const lastHourRef = useRef(null);
   const ctxRef = useRef(null);
 
+  const ensureCtx = () => {
+    if (ctxRef.current) return ctxRef.current;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      ctxRef.current = new Ctx();
+      return ctxRef.current;
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (!enabled) return undefined;
-    if (!ctxRef.current) {
-      try {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return undefined;
-        ctxRef.current = new Ctx();
-      } catch {
-        return undefined;
-      }
-    }
+    const ctx = ensureCtx();
+    if (!ctx) return undefined;
     const init = computeWibTime();
     lastHourRef.current = init.hours;
 
@@ -258,14 +270,26 @@ export const useHourlyBell = (enabled) => {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [enabled]);
+
+  // playPreview — single strike (peakGain lower) buat konfirmasi
+  // toggle ON. Reuse ctxRef supaya gak leak.
+  return () => {
+    const ctx = ensureCtx();
+    if (ctx) playBellStrike(ctx, 0.25);
+  };
 };
 
 // === ANNIVERSARY DETECTION ===
 // useAnniversaryMatch — return list dari ELI_TIMELINE entries + birthday
 // yang MM-DD-nya cocok dengan hari ini di WIB. Empty array = bukan
 // anniversary day. Dev override `?day=MM-DD` buat preview.
+//
+// `todayIso` di-include di deps supaya re-compute lewat midnight WIB —
+// parent scene's useWibTime trigger re-render tiap detik = today
+// re-evaluated.
 export const useAnniversaryMatch = () => {
   const [searchParams] = useSearchParams();
+  const todayIso = wibTodayIso();
   return useMemo(() => {
     const override = import.meta.env.DEV ? searchParams.get('day') : null;
     let todayMM, todayYear;
@@ -273,7 +297,6 @@ export const useAnniversaryMatch = () => {
       todayMM = override;
       todayYear = new Date().getFullYear();
     } else {
-      const todayIso = wibTodayIso();
       todayMM = todayIso.substring(5);
       todayYear = parseInt(todayIso.substring(0, 4), 10);
     }
@@ -306,5 +329,5 @@ export const useAnniversaryMatch = () => {
     });
     matches.sort((a, b) => a.rank - b.rank);
     return matches;
-  }, [searchParams]);
+  }, [searchParams, todayIso]);
 };

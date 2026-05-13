@@ -17,7 +17,6 @@ import {
   BELL_STORAGE_KEY,
   daysFromWibToday,
   formatShortIdDate,
-  playBellStrike,
   useAlmanak,
   useAnniversaryMatch,
   useHourlyBell,
@@ -75,7 +74,7 @@ export const AlmanakCard = () => {
       : null;
 
   return (
-    <div className="pointer-events-auto absolute bottom-24 sm:bottom-6 left-3 sm:left-6 z-10 w-[calc(100vw-1.5rem)] sm:w-[320px]">
+    <div className="pointer-events-auto absolute bottom-28 sm:bottom-6 left-3 sm:left-6 z-10 w-[calc(100vw-1.5rem)] sm:w-[320px]">
       <div
         className="rounded-2xl border border-white/12 bg-[#1c1612]/85 backdrop-blur-md shadow-2xl px-4 py-3.5 sm:px-5 sm:py-4"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
@@ -183,7 +182,7 @@ export const CountdownChip = () => {
     ? `${eventDays === 0 ? 'Hari ini' : `${eventDays} hari lagi`} · ${nearest.title}`
     : 'Bandul masih cari ritmenya — belum ada event terdekat';
   return (
-    <div className="pointer-events-none absolute bottom-24 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[88vw]">
+    <div className="pointer-events-none absolute bottom-28 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[88vw]">
       <div className="px-4 py-1.5 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 shadow-lg">
         <p
           className="text-white/65 text-[10px] sm:text-[11px] italic text-center tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
@@ -200,6 +199,10 @@ export const CountdownChip = () => {
 // localStorage. Default OFF supaya user yg buka page gak kaget sama
 // audio (juga policy "no autoplay sound" yang umum). User gesture
 // pertama saat toggle ON unlock AudioContext.
+//
+// useHourlyBell returns `playPreview` yg reuse ctxRef internal — fix
+// AudioContext leak (sebelumnya `new Ctx()` tiap toggle, hit browser
+// limit ~5-6 contexts).
 const BellToggle = () => {
   const [enabled, setEnabled] = useState(() => {
     try {
@@ -208,7 +211,7 @@ const BellToggle = () => {
       return false;
     }
   });
-  useHourlyBell(enabled);
+  const playPreview = useHourlyBell(enabled);
 
   const handleClick = () => {
     setEnabled((prev) => {
@@ -218,18 +221,8 @@ const BellToggle = () => {
       } catch {
         /* storage disabled — fail silently */
       }
-      // Toggle ON → preview strike sekali sebagai konfirmasi audio working.
-      if (next) {
-        try {
-          const Ctx = window.AudioContext || window.webkitAudioContext;
-          if (Ctx) {
-            const ctx = new Ctx();
-            playBellStrike(ctx, 0.25);
-          }
-        } catch {
-          /* audio unavailable */
-        }
-      }
+      // Toggle ON → preview strike (reuse ctx, no leak)
+      if (next) playPreview();
       return next;
     });
   };
@@ -241,7 +234,7 @@ const BellToggle = () => {
       aria-pressed={enabled}
       aria-label={enabled ? 'Matikan bel jam' : 'Nyalakan bel jam'}
       title={enabled ? 'Bel: tiap jam (klik buat mute)' : 'Bel: mute (klik buat aktifkan)'}
-      className={`pointer-events-auto rounded-full border w-9 h-9 grid place-items-center transition ${
+      className={`pointer-events-auto rounded-full border w-10 h-10 sm:w-9 sm:h-9 grid place-items-center transition ${
         enabled
           ? 'border-amber-300/40 bg-amber-500/15 text-amber-100 hover:bg-amber-500/25'
           : 'border-white/15 bg-black/30 text-white/55 hover:bg-white/10 hover:text-white/80'
@@ -267,8 +260,8 @@ const BellToggle = () => {
 };
 
 export const Header = ({ restored }) => (
-  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-20 md:px-6 md:pt-24 pb-4 md:pb-5">
-    <div className="pointer-events-auto">
+  <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between gap-2 px-3 pt-20 md:px-6 md:pt-24 pb-4 md:pb-5">
+    <div className="pointer-events-auto shrink-0">
       <Link
         to="/armeniacaTown/peta"
         className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
@@ -276,23 +269,26 @@ export const Header = ({ restored }) => (
         ← Peta Kota
       </Link>
     </div>
-    <div className="text-center">
+    <div className="text-center min-w-0 flex-1">
       <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
         ArmeniacaTown
       </div>
       <div
-        className="text-white/85 text-[13px] md:text-sm tracking-wide"
+        className="text-white/85 text-[12px] md:text-sm tracking-wide truncate"
         style={{
           fontFamily: '"Fraunces Variable", serif',
           fontStyle: 'italic',
         }}
       >
-        Menara Jam{restored ? '' : ' — Separuh Jalan'}
+        Menara Jam
+        {!restored && (
+          <span className="hidden sm:inline"> — Separuh Jalan</span>
+        )}
       </div>
     </div>
     {/* Right-side slot — BellToggle hanya muncul di restored (drought
         belum boleh bunyi per spec "bel masih bisu"). Drought spacer biar
         layout balance. */}
-    {restored ? <BellToggle /> : <div className="w-9" aria-hidden />}
+    {restored ? <BellToggle /> : <div className="w-10 sm:w-9 shrink-0" aria-hidden />}
   </div>
 );
