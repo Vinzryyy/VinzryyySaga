@@ -6535,21 +6535,21 @@ const TamanScene = ({
       {/* Ambient — drought: warm-gray tone ("siang berdebu di kota mati").
           Purified: shift ke rose warmer + intensity naik (twilight ramah). */}
       <ambientLight
-        intensity={purified ? 0.55 : 0.42}
+        intensity={purified ? 0.55 : 0.5}
         color={purified ? '#e0c0a8' : '#c0a090'}
       />
       {/* Key light — drought: amber pucat ("matahari nembus debu").
           Purified: golden hour cozy (peach-amber, intensity naik). */}
       <directionalLight
         position={[8, 12, 6]}
-        intensity={purified ? 1.35 : 1.2}
+        intensity={purified ? 1.35 : 1.32}
         color={purified ? '#f8c898' : '#f4b078'}
       />
       {/* Fill — drought: warm dusty, shadow side ruins tetep keliatan.
           Purified: rose-amber warmer untuk wash atmosfer pulih. */}
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={purified ? 0.72 : 0.6}
+        intensity={purified ? 0.72 : 0.7}
         color={purified ? '#c8a890' : '#b8907a'}
       />
       <TamanFloor purified={purified} />
