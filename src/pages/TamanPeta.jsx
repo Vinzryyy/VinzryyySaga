@@ -1257,26 +1257,51 @@ const PetaArsip = ({
             {/* Back wall */}
             <mesh position={[0, 0.7, -0.62]}>
               <boxGeometry args={[1.36, 0.94, 0.04]} />
-              <meshStandardMaterial color="#f0e2c8" roughness={0.9} />
+              <meshStandardMaterial
+                color="#f0e2c8"
+                roughness={0.9}
+                emissive="#d8b890"
+                emissiveIntensity={0.18}
+              />
             </mesh>
             {/* Right (east) wall */}
             <mesh position={[0.66, 0.7, 0]}>
               <boxGeometry args={[0.04, 0.94, 1.06]} />
-              <meshStandardMaterial color="#f0e2c8" roughness={0.9} />
+              <meshStandardMaterial
+                color="#f0e2c8"
+                roughness={0.9}
+                emissive="#d8b890"
+                emissiveIntensity={0.18}
+              />
             </mesh>
             {/* Left (west) wall */}
             <mesh position={[-0.66, 0.7, 0]}>
               <boxGeometry args={[0.04, 0.94, 1.06]} />
-              <meshStandardMaterial color="#f0e2c8" roughness={0.9} />
+              <meshStandardMaterial
+                color="#f0e2c8"
+                roughness={0.9}
+                emissive="#d8b890"
+                emissiveIntensity={0.18}
+              />
             </mesh>
             {/* Front wall — flanking entrance opening (z=-0.3 .. 0.3) */}
             <mesh position={[-0.5, 0.7, 0.62]}>
               <boxGeometry args={[0.36, 0.94, 0.04]} />
-              <meshStandardMaterial color="#f0e2c8" roughness={0.9} />
+              <meshStandardMaterial
+                color="#f0e2c8"
+                roughness={0.9}
+                emissive="#d8b890"
+                emissiveIntensity={0.18}
+              />
             </mesh>
             <mesh position={[0.5, 0.7, 0.62]}>
               <boxGeometry args={[0.36, 0.94, 0.04]} />
-              <meshStandardMaterial color="#f0e2c8" roughness={0.9} />
+              <meshStandardMaterial
+                color="#f0e2c8"
+                roughness={0.9}
+                emissive="#d8b890"
+                emissiveIntensity={0.18}
+              />
             </mesh>
 
             {/* Shoji grid — horizontal & vertical thin wood strips di
@@ -1390,10 +1415,15 @@ const PetaArsip = ({
             ))}
 
             {/* Sign plaque kayu di wall depan — bigger, brushed kanji
-                vibe (just darker accent, gak literal text) */}
+                vibe (just emissive accent, gak literal text) */}
             <mesh position={[0.05, 1.05, 0.65]}>
               <boxGeometry args={[0.45, 0.18, 0.025]} />
-              <meshStandardMaterial color="#5a3818" roughness={0.85} />
+              <meshStandardMaterial
+                color="#5a3818"
+                emissive="#8a4828"
+                emissiveIntensity={0.15}
+                roughness={0.85}
+              />
             </mesh>
 
             {/* Tumpukan buku interior — vibrant restored palette, terlihat
