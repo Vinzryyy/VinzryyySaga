@@ -437,6 +437,7 @@ const CenterTree = ({
   visited = false,
   isMobile = false,
   purified = false,
+  modalOpen = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -589,7 +590,7 @@ const CenterTree = ({
       {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
           Pohon aprikot tunggal yg masih hidup di sisa kota gurun, link
           ke modul Pohon Kebaikan (/26). */}
-      {hovered && (
+      {hovered && !modalOpen && (
         <Html position={[0, 2.9, 0]} center distanceFactor={10}>
           <div className="text-center pointer-events-none select-none whitespace-nowrap">
             <div className="text-white text-[12px] font-medium tracking-wide">
@@ -619,6 +620,7 @@ const PetaGerbang = ({
   hovered,
   visited = false,
   isMobile = false,
+  modalOpen = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -766,33 +768,35 @@ const PetaGerbang = ({
           <meshStandardMaterial color="#4a3022" roughness={0.95} />
         </mesh>
       </group>
-      <Html
-        position={[0, 5.8, 0]}
-        center
-        distanceFactor={10}
-        occlude={false}
-      >
-        <div
-          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
-            hovered ? '-translate-y-1' : ''
-          }`}
+      {!modalOpen && (
+        <Html
+          position={[0, 5.8, 0]}
+          center
+          distanceFactor={10}
+          occlude={false}
         >
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors ${
-              hovered ? 'text-white' : 'text-white/85'
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered ? '-translate-y-1' : ''
             }`}
           >
-            Gerbang
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                hovered ? 'text-white' : 'text-white/85'
+              }`}
+            >
+              Gerbang
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                hovered ? 'text-amber-200/85' : 'text-white/55'
+              }`}
+            >
+              Pintu Masuk Kota
+            </div>
           </div>
-          <div
-            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
-              hovered ? 'text-amber-200/85' : 'text-white/55'
-            }`}
-          >
-            Pintu Masuk Kota
-          </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   );
 };
@@ -814,6 +818,7 @@ const PetaLorongMasuk = ({
   hovered,
   visited = false,
   isMobile = false,
+  modalOpen = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -883,33 +888,35 @@ const PetaLorongMasuk = ({
           />
         </mesh>
       )}
-      <Html
-        position={[0, 0.7, 4]}
-        center
-        distanceFactor={10}
-        occlude={false}
-      >
-        <div
-          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
-            hovered ? '-translate-y-1' : ''
-          }`}
+      {!modalOpen && (
+        <Html
+          position={[0, 0.7, 4]}
+          center
+          distanceFactor={10}
+          occlude={false}
         >
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors ${
-              hovered ? 'text-white' : 'text-white/80'
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered ? '-translate-y-1' : ''
             }`}
           >
-            Konstelasi Perjalanan
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                hovered ? 'text-white' : 'text-white/80'
+              }`}
+            >
+              Konstelasi Perjalanan
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                hovered ? 'text-amber-200/85' : 'text-white/55'
+              }`}
+            >
+              Lorong Masuk
+            </div>
           </div>
-          <div
-            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
-              hovered ? 'text-amber-200/85' : 'text-white/55'
-            }`}
-          >
-            Lorong Masuk
-          </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   );
 };
@@ -925,6 +932,7 @@ const PetaTelaga = ({
   visited = false,
   isMobile = false,
   petakState = 'locked',
+  modalOpen = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -1061,36 +1069,38 @@ const PetaTelaga = ({
         </mesh>
       )}
 
-      <Html position={[0, 0.95, 0]} center distanceFactor={10} occlude={false}>
-        <div
-          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
-            hovered && petakState !== 'locked' ? '-translate-y-1' : ''
-          }`}
-        >
+      {!modalOpen && (
+        <Html position={[0, 0.95, 0]} center distanceFactor={10} occlude={false}>
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors ${
-              petakState === 'locked'
-                ? 'text-white/45'
-                : hovered
-                ? 'text-white'
-                : 'text-white/80'
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered && petakState !== 'locked' ? '-translate-y-1' : ''
             }`}
           >
-            Telaga Harapan
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                petakState === 'locked'
+                  ? 'text-white/45'
+                  : hovered
+                  ? 'text-white'
+                  : 'text-white/80'
+              }`}
+            >
+              Telaga Harapan
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                petakState === 'locked'
+                  ? 'text-white/30'
+                  : hovered
+                  ? 'text-amber-200/85'
+                  : 'text-white/55'
+              }`}
+            >
+              {sublabel}
+            </div>
           </div>
-          <div
-            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
-              petakState === 'locked'
-                ? 'text-white/30'
-                : hovered
-                ? 'text-amber-200/85'
-                : 'text-white/55'
-            }`}
-          >
-            {sublabel}
-          </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   );
 };
@@ -1113,6 +1123,7 @@ const PetaArsip = ({
   visited = false,
   isMobile = false,
   petakState = 'locked',
+  modalOpen = false,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -1549,40 +1560,42 @@ const PetaArsip = ({
         )}
       </group>
 
-      <Html position={[0, 2.3, 0]} center distanceFactor={10} occlude={false}>
-        <div
-          className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
-            hovered && !isLocked ? '-translate-y-1' : ''
-          }`}
-        >
+      {!modalOpen && (
+        <Html position={[0, 2.3, 0]} center distanceFactor={10} occlude={false}>
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors ${
-              isLocked
-                ? 'text-white/45'
-                : hovered
-                ? 'text-white'
-                : 'text-white/80'
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered && !isLocked ? '-translate-y-1' : ''
             }`}
           >
-            Perpustakaan
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                isLocked
+                  ? 'text-white/45'
+                  : hovered
+                  ? 'text-white'
+                  : 'text-white/80'
+              }`}
+            >
+              Perpustakaan
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                isLocked
+                  ? 'text-white/30'
+                  : hovered
+                  ? 'text-amber-200/85'
+                  : 'text-white/55'
+              }`}
+            >
+              {petakState === 'restored'
+                ? 'Rak berdiri lagi'
+                : petakState === 'drought'
+                ? 'Setengah runtuh'
+                : 'Belum terbuka'}
+            </div>
           </div>
-          <div
-            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
-              isLocked
-                ? 'text-white/30'
-                : hovered
-                ? 'text-amber-200/85'
-                : 'text-white/55'
-            }`}
-          >
-            {petakState === 'restored'
-              ? 'Rak berdiri lagi'
-              : petakState === 'drought'
-              ? 'Setengah runtuh'
-              : 'Belum terbuka'}
-          </div>
-        </div>
-      </Html>
+        </Html>
+      )}
     </group>
   );
 };
@@ -6758,8 +6771,9 @@ const TamanScene = ({
       <HoverHalo pos={[-7, 0.02, -1]} visible={hoveredTelaga} color="#8ac8e0" />
       <HoverHalo pos={[7, 0.02, -1]} visible={hoveredArsip} color="#c8a060" />
       <CompassTracker targetRef={compassRotateRef} />
-      {/* Prasasti quotes — 3 fragmen worldbuilding scattered di scene */}
-      <PrasastiQuotes />
+      {/* Prasasti quotes — 3 fragmen worldbuilding scattered di scene.
+          Hidden saat modal open biar gak overlap text dengan card. */}
+      {!modalOpen && <PrasastiQuotes />}
       {/* Dead-town environment — CityRuins di luar hex ring (siluet kota
           runtuh) + DeadTrees scattered (sisa hutan mati) ALWAYS visible
           baik drought maupun purified (luka kota gak dihapus, narasi
@@ -6804,6 +6818,7 @@ const TamanScene = ({
         visited={previewedPetak.has('pohon')}
         isMobile={isMobile}
         purified={purified}
+        modalOpen={modalOpen}
         onPointerOver={onCenterHover}
         onPointerOut={onCenterOut}
         onClick={onCenterClick}
@@ -6812,6 +6827,7 @@ const TamanScene = ({
         hovered={hoveredGerbang}
         visited={previewedPetak.has('gerbang')}
         isMobile={isMobile}
+        modalOpen={modalOpen}
         onPointerOver={onGerbangHover}
         onPointerOut={onGerbangOut}
         onClick={onGerbangClick}
@@ -6820,6 +6836,7 @@ const TamanScene = ({
         hovered={hoveredLorong}
         visited={previewedPetak.has('lorong')}
         isMobile={isMobile}
+        modalOpen={modalOpen}
         onPointerOver={onLorongHover}
         onPointerOut={onLorongOut}
         onClick={onLorongClick}
@@ -6829,6 +6846,7 @@ const TamanScene = ({
         visited={previewedPetak.has('telaga')}
         isMobile={isMobile}
         petakState={telagaState}
+        modalOpen={modalOpen}
         onPointerOver={onTelagaHover}
         onPointerOut={onTelagaOut}
         onClick={onTelagaClick}
@@ -6838,6 +6856,7 @@ const TamanScene = ({
         visited={previewedPetak.has('arsip')}
         isMobile={isMobile}
         petakState={arsipState}
+        modalOpen={modalOpen}
         onPointerOver={onArsipHover}
         onPointerOut={onArsipOut}
         onClick={onArsipClick}
