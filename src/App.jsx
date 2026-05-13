@@ -32,6 +32,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
+import TownMusic from './components/taman/TownMusic';
 import useIsBirthdayToday from './hooks/useIsBirthdayToday';
 import { SITE_CONFIG } from './config/siteConfig';
 
@@ -293,6 +294,7 @@ function AppShell() {
       <ScrollManager />
       <BirthdayCelebration active={isBirthdayToday} />
       <BirthdayMusic />
+      <TownMusic />
       <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
         <Navbar />
         <Suspense fallback={<PageLoader />}>

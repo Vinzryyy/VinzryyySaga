@@ -34,24 +34,11 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { readEnabled as readStored, writeEnabled as writeStored } from '../../lib/townAudioBus';
 
-const STORAGE_KEY = 'taman-audio-enabled';
-
-const readStored = () => {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-
-const writeStored = (v) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, v ? '1' : '0');
-  } catch {
-    /* storage blocked — no-op */
-  }
-};
+// readStored / writeStored di-delegate ke townAudioBus supaya state on/off
+// bareng dengan TownMusic (main song global). Bus juga dispatch custom
+// event untuk sync same-tab — write di sini → TownMusic apply langsung.
 
 const buildDroughtNodes = (ctx, master) => {
   // Saw drone ~82 Hz, di-filter low-pass biar nggak harsh + LFO
