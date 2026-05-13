@@ -7155,6 +7155,128 @@ const DistantSmokeWisps = () => (
   </>
 );
 
+// DustyLightShafts — god ray berdebu menembus dari arah moon ke
+// landmark titik. Mirror MoonShafts purified, tapi color shift ke
+// dusty amber + opacity lebih rendah ("matahari nembus debu," bukan
+// "moonlight bening"). 3 shaft only — gak overload screen.
+const DUSTY_SHAFT_TARGETS = [
+  { x: 0, z: 0, w: 1.2 },
+  { x: -7, z: -1, w: 1.0 },
+  { x: 7, z: -1, w: 1.0 },
+];
+const DustyLightShafts = () => {
+  const sourcePos = [10, 12, -8];
+  return (
+    <>
+      {DUSTY_SHAFT_TARGETS.map((t, i) => {
+        const dx = t.x - sourcePos[0];
+        const dy = -sourcePos[1];
+        const dz = t.z - sourcePos[2];
+        const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const midX = (sourcePos[0] + t.x) / 2;
+        const midY = sourcePos[1] / 2;
+        const midZ = (sourcePos[2] + t.z) / 2;
+        const angle = Math.atan2(dx, dz);
+        const pitch = Math.atan2(dy, Math.sqrt(dx * dx + dz * dz));
+        return (
+          <mesh
+            key={`dsh-${i}`}
+            position={[midX, midY, midZ]}
+            rotation={[pitch, angle, 0]}
+          >
+            <coneGeometry args={[t.w, len, 8, 1, true]} />
+            <meshBasicMaterial
+              color="#c4a880"
+              transparent
+              opacity={0.06}
+              depthWrite={false}
+              side={2}
+            />
+          </mesh>
+        );
+      })}
+    </>
+  );
+};
+
+// DistantLightningFlash — directional light yg sesekali flash brief
+// (~0.15s) tiap 18-35 detik random. Suggest badai masih berkeliaran
+// di kejauhan, bukan one-shot event. Color cool blue-white untuk
+// kontras dengan warm amber drought lights.
+const DistantLightningFlash = () => {
+  const lightRef = useRef();
+  const nextStrikeRef = useRef(8);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (!lightRef.current) return;
+    const remaining = nextStrikeRef.current - t;
+    if (remaining > 0) {
+      lightRef.current.intensity = 0;
+      return;
+    }
+    // Strike fase: 0.05s ramp up → 0.05s peak → 0.1s ramp down
+    const elapsed = -remaining;
+    const totalDur = 0.22;
+    if (elapsed >= totalDur) {
+      // Schedule next strike — 18-35s random
+      nextStrikeRef.current = t + 18 + Math.random() * 17;
+      lightRef.current.intensity = 0;
+      return;
+    }
+    let intensity;
+    if (elapsed < 0.05) {
+      intensity = (elapsed / 0.05) * 1.4;
+    } else if (elapsed < 0.1) {
+      intensity = 1.4;
+    } else {
+      intensity = (1 - (elapsed - 0.1) / 0.12) * 1.4;
+    }
+    // Double-flash effect — second brief peak at 0.12s
+    if (elapsed > 0.12 && elapsed < 0.16) {
+      intensity = Math.max(intensity, 1.0);
+    }
+    lightRef.current.intensity = Math.max(0, intensity);
+  });
+  return (
+    <directionalLight
+      ref={lightRef}
+      position={[12, 16, -12]}
+      intensity={0}
+      color="#c8d4e0"
+    />
+  );
+};
+
+// SandDrifts — gundukan pasir terakumulasi di pangkal objek berdiri
+// (tertumpuk angin badai). Posisi anchored ke base objek existing —
+// TippedCart, banner poles, dead trees, collapsed walls. Half-dome
+// shape (sphere bottom-half) earth-brown.
+const SAND_DRIFT_DEFS = [
+  { pos: [1.5, 0, 6.4], scale: [0.55, 0.18, 0.42] },
+  { pos: [2.6, 0, -5.5], scale: [0.4, 0.12, 0.3] },
+  { pos: [-3.5, 0, 5.0], scale: [0.45, 0.14, 0.34] },
+  { pos: [6.3, 0, 4.2], scale: [0.6, 0.16, 0.4] },
+  { pos: [-5.8, 0, -4.8], scale: [0.5, 0.13, 0.35] },
+  { pos: [4.6, 0, 5.2], scale: [0.32, 0.1, 0.25] },
+  { pos: [-4.2, 0, 5.9], scale: [0.38, 0.12, 0.28] },
+  { pos: [5.3, 0, -3.2], scale: [0.42, 0.13, 0.32] },
+];
+const SandDrifts = () => (
+  <>
+    {SAND_DRIFT_DEFS.map((d, i) => (
+      <mesh
+        key={`sd-${i}`}
+        position={[d.pos[0], d.pos[1] + d.scale[1] / 2, d.pos[2]]}
+        scale={d.scale}
+        rotation={[0, (i * 0.7) % Math.PI, 0]}
+      >
+        <sphereGeometry args={[1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#7a6048" roughness={0.98} />
+      </mesh>
+    ))}
+  </>
+);
+
 const TornOmikujiStrips = ({ pos = [-4.0, 0, 2.5], rot = -0.2 }) => {
   const hangingRef = useRef();
   useFrame((state) => {
@@ -7443,6 +7565,10 @@ const TamanScene = ({
       {!purified && <CirclingVultures />}
       {!purified && !isMobile && <WindBlownScraps count={isMobile ? 8 : 16} />}
       {!purified && <DistantSmokeWisps />}
+      {/* Depth polish — god rays, lightning flash, sand drifts. */}
+      {!purified && !isMobile && <DustyLightShafts />}
+      {!purified && <DistantLightningFlash />}
+      {!purified && <SandDrifts />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
