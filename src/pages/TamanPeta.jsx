@@ -6604,6 +6604,247 @@ const WitheredCattails = () => (
   </>
 );
 
+// DriedTsukubai — water basin retak tanpa air, mirror Tsukubai purified
+// ([-4.5, 0, 1.4]). Bowl miring, water surface absent, bamboo spout
+// patah jatuh di tanah. Mossy crusted dry look via color shift.
+const DriedTsukubai = ({ pos = [-4.5, 0, 1.4], rot = 0.3 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Foundation — masih ada, sedikit miring */}
+    <mesh position={[0, 0.05, 0]} rotation={[0.08, 0, 0.05]}>
+      <cylinderGeometry args={[0.25, 0.3, 0.1, 10]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Bowl basin — retak, miring lebih jauh */}
+    <mesh position={[0.04, 0.16, 0]} rotation={[0.18, 0, 0.12]}>
+      <cylinderGeometry args={[0.2, 0.22, 0.14, 12]} />
+      <meshStandardMaterial color="#6a5848" roughness={0.95} />
+    </mesh>
+    {/* Crack di bibir basin — strip gelap */}
+    <mesh position={[0.18, 0.22, 0]} rotation={[0.2, 0, 1.2]}>
+      <boxGeometry args={[0.16, 0.02, 0.01]} />
+      <meshStandardMaterial color="#1a100a" roughness={1} />
+    </mesh>
+    {/* Bamboo support post — patah pendek, condong */}
+    <mesh position={[-0.35, 0.18, 0]} rotation={[0, 0, -0.2]}>
+      <cylinderGeometry args={[0.03, 0.03, 0.32, 6]} />
+      <meshStandardMaterial color="#5a4830" roughness={0.95} />
+    </mesh>
+    {/* Bamboo spout (kakei) — terlepas di tanah */}
+    <mesh position={[-0.15, 0.03, 0.1]} rotation={[0.5, 0.3, -0.5]}>
+      <cylinderGeometry args={[0.022, 0.022, 0.35, 6]} />
+      <meshStandardMaterial color="#7a6038" roughness={0.95} />
+    </mesh>
+    {/* Sliver fragment kayu pecah */}
+    <mesh position={[0.1, 0.02, 0.18]} rotation={[0.1, 0.6, 0.05]}>
+      <boxGeometry args={[0.06, 0.015, 0.015]} />
+      <meshStandardMaterial color="#5a4830" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// BrokenBambooCluster — bamboo stalks roboh + snapped tips. Mirror
+// BambooCluster purified ([-3.8, 0, 0.5]). 4 stalk pendek (patah
+// halfway), beberapa rebah di tanah. Daun lepas (small leaf planes)
+// scattered around.
+const BROKEN_BAMBOO_DEFS = [
+  { offset: [0, 0, 0], height: 0.7, tilt: 0.05, snapped: true },
+  { offset: [0.18, 0, 0.08], height: 0.45, tilt: -0.15, snapped: true },
+  { offset: [-0.12, 0, 0.15], height: 0.85, tilt: 0.08, snapped: false },
+  { offset: [0.06, 0, -0.14], height: 0.55, tilt: -0.1, snapped: true },
+];
+const BROKEN_BAMBOO_LEAVES = [
+  { pos: [0.3, 0.01, 0.25], rot: 0.4 },
+  { pos: [-0.25, 0.01, -0.1], rot: -0.8 },
+  { pos: [0.15, 0.01, 0.4], rot: 1.0 },
+  { pos: [-0.35, 0.01, 0.3], rot: -0.3 },
+  { pos: [0.4, 0.01, -0.2], rot: 0.7 },
+];
+const BrokenBambooCluster = ({ pos = [-3.8, 0, 0.5] }) => (
+  <group position={pos}>
+    {BROKEN_BAMBOO_DEFS.map((s, i) => (
+      <group
+        key={`bbroken-${i}`}
+        position={s.offset}
+        rotation={[s.tilt, 0, s.tilt * 0.7]}
+      >
+        {/* Stalk patah pendek (lebih khaki / pudar dari purified) */}
+        <mesh position={[0, s.height / 2, 0]}>
+          <cylinderGeometry args={[0.04, 0.05, s.height, 6]} />
+          <meshStandardMaterial color="#6a7848" roughness={0.95} />
+        </mesh>
+        {/* Joint rings sepanjang stalk */}
+        {[0.25, 0.5, 0.75].map(
+          (y, j) =>
+            y < s.height && (
+              <mesh key={j} position={[0, y, 0]}>
+                <cylinderGeometry args={[0.045, 0.045, 0.015, 6]} />
+                <meshStandardMaterial color="#5a6838" roughness={0.95} />
+              </mesh>
+            )
+        )}
+        {/* Snapped tip — splinter chunk kayu di ujung */}
+        {s.snapped && (
+          <mesh position={[0.02, s.height + 0.04, 0]} rotation={[0, 0, 0.4]}>
+            <coneGeometry args={[0.035, 0.08, 4]} />
+            <meshStandardMaterial color="#5a6838" roughness={0.95} />
+          </mesh>
+        )}
+      </group>
+    ))}
+    {/* Stalk yang rebah penuh di tanah */}
+    <mesh position={[0.35, 0.04, -0.25]} rotation={[0, 0.4, Math.PI / 2 + 0.1]}>
+      <cylinderGeometry args={[0.04, 0.05, 0.95, 6]} />
+      <meshStandardMaterial color="#5a6838" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.4, 0.04, 0.35]} rotation={[0, -0.3, Math.PI / 2 - 0.15]}>
+      <cylinderGeometry args={[0.035, 0.045, 0.7, 6]} />
+      <meshStandardMaterial color="#5a6838" roughness={0.95} />
+    </mesh>
+    {/* Fallen leaves — planes flat di tanah */}
+    {BROKEN_BAMBOO_LEAVES.map((l, i) => (
+      <mesh
+        key={`bbleaf-${i}`}
+        position={l.pos}
+        rotation={[-Math.PI / 2, 0, l.rot]}
+      >
+        <planeGeometry args={[0.08, 0.025]} />
+        <meshStandardMaterial
+          color="#4a5828"
+          roughness={0.95}
+          side={2}
+          transparent
+          opacity={0.65}
+        />
+      </mesh>
+    ))}
+  </group>
+);
+
+// DisplacedSteppingStones — slate stones miring tenggelam / displaced
+// dari grid lurus purified. Mirror SteppingStones (4 stones lurus dari
+// bridge ke picnic set). Drought: stones tilted, sebagian sunken
+// half-buried (lower y), warna lebih cokelat-lumpur.
+const DISPLACED_STEPPING_DEFS = [
+  { pos: [-4.65, 0.02, 1.62], rot: 0.6, scale: 1.0, sunken: false },
+  { pos: [-4.1, 0.005, 1.85], rot: -0.4, scale: 0.95, sunken: true },
+  { pos: [-3.35, 0.04, 1.88], rot: 0.9, scale: 1.05, sunken: false },
+  { pos: [-2.85, 0.01, 2.15], rot: -0.6, scale: 0.95, sunken: true },
+];
+const DisplacedSteppingStones = () => (
+  <>
+    {DISPLACED_STEPPING_DEFS.map((s, i) => (
+      <mesh
+        key={`dstep-${i}`}
+        position={s.pos}
+        rotation={[-Math.PI / 2 + (s.sunken ? 0.12 : 0), 0, s.rot]}
+        scale={[s.scale * 0.55, 1, s.scale * 0.46]}
+      >
+        <boxGeometry args={[1, 0.07, 1]} />
+        <meshStandardMaterial color="#6a5848" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* 1 stone pecah jadi 2 fragment */}
+    <mesh
+      position={[-3.7, 0.025, 2.4]}
+      rotation={[-Math.PI / 2, 0, 0.3]}
+      scale={[0.3, 1, 0.28]}
+    >
+      <boxGeometry args={[1, 0.07, 1]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    <mesh
+      position={[-3.45, 0.02, 2.55]}
+      rotation={[-Math.PI / 2, 0, -0.5]}
+      scale={[0.22, 1, 0.18]}
+    >
+      <boxGeometry args={[1, 0.07, 1]} />
+      <meshStandardMaterial color="#4a3828" roughness={0.95} />
+    </mesh>
+  </>
+);
+
+// TornOmikujiStrips — paper fortune strips terlepas/sobek, posts patah.
+// Mirror OmikujiStrips purified ([-4.0, 0, 2.5]). Drought: crossbar
+// rebah, beberapa strip masih nyangkut pelan goyang, sisa scattered
+// flat di tanah.
+const TORN_OMIKUJI_FLOOR = [
+  { pos: [-0.2, 0.005, 0.15], rot: 0.5, len: 0.2 },
+  { pos: [0.1, 0.005, -0.18], rot: -0.7, len: 0.16 },
+  { pos: [0.3, 0.005, 0.3], rot: 1.0, len: 0.18 },
+  { pos: [-0.4, 0.005, -0.05], rot: -0.3, len: 0.22 },
+];
+const TornOmikujiStrips = ({ pos = [-4.0, 0, 2.5], rot = -0.2 }) => {
+  const hangingRef = useRef();
+  useFrame((state) => {
+    if (!hangingRef.current) return;
+    const t = state.clock.elapsedTime;
+    hangingRef.current.rotation.z = Math.sin(t * 0.6) * 0.18;
+  });
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Left post — patah pendek, condong */}
+      <mesh position={[-0.45, 0.3, 0]} rotation={[0, 0, -0.18]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.6, 6]} />
+        <meshStandardMaterial color="#5a4830" roughness={0.95} />
+      </mesh>
+      {/* Right post — patah lebih pendek lagi */}
+      <mesh position={[0.45, 0.2, 0]} rotation={[0, 0, 0.22]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.4, 6]} />
+        <meshStandardMaterial color="#5a4830" roughness={0.95} />
+      </mesh>
+      {/* Crossbar — rebah di tanah miring */}
+      <mesh
+        position={[0, 0.04, 0.25]}
+        rotation={[Math.PI / 2, 0, 0.18]}
+      >
+        <cylinderGeometry args={[0.022, 0.022, 0.95, 6]} />
+        <meshStandardMaterial color="#7a6038" roughness={0.95} />
+      </mesh>
+      {/* 1 strip masih nyangkut di left post, goyang pelan */}
+      <group ref={hangingRef} position={[-0.45, 0.58, 0]}>
+        <mesh position={[0, -0.1, 0]}>
+          <planeGeometry args={[0.05, 0.2]} />
+          <meshStandardMaterial
+            color="#dac8a8"
+            roughness={0.95}
+            side={2}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+      </group>
+      {/* Strip kertas scattered di tanah */}
+      {TORN_OMIKUJI_FLOOR.map((s, i) => (
+        <mesh
+          key={`tomi-${i}`}
+          position={s.pos}
+          rotation={[-Math.PI / 2, 0, s.rot]}
+        >
+          <planeGeometry args={[0.05, s.len]} />
+          <meshStandardMaterial
+            color="#c8b698"
+            roughness={0.95}
+            side={2}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      ))}
+      {/* Knot merah pudar — sliver kecil di tanah */}
+      <mesh position={[-0.05, 0.008, 0.05]} rotation={[-Math.PI / 2, 0, 0.3]}>
+        <planeGeometry args={[0.025, 0.025]} />
+        <meshStandardMaterial
+          color="#8a4030"
+          roughness={0.95}
+          side={2}
+          transparent
+          opacity={0.55}
+        />
+      </mesh>
+    </group>
+  );
+};
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -6801,11 +7042,16 @@ const TamanScene = ({
       {!purified && <CrackedGroundPatches />}
       {!purified && <ScorchedSpots />}
       {/* Japanese-corner mirror polish — drought twin untuk torii, jizo,
-          signpost, cattails. Slot persis identik dengan purified versi. */}
+          signpost, cattails, tsukubai, bamboo, stepping stones, omikuji.
+          Slot persis identik dengan purified versi. */}
       {!purified && <CollapsedTorii />}
       {!purified && <ToppledJizo />}
       {!purified && <KnockedOverSignpost />}
       {!purified && <WitheredCattails />}
+      {!purified && <DriedTsukubai />}
+      {!purified && !isMobile && <BrokenBambooCluster />}
+      {!purified && <DisplacedSteppingStones />}
+      {!purified && <TornOmikujiStrips />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
