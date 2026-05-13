@@ -4818,6 +4818,8 @@ const ArsipScene = ({
         minPolarAngle={(Math.PI * 58) / 180}
         maxPolarAngle={(Math.PI * 86) / 180}
         enablePan={false}
+        autoRotate
+        autoRotateSpeed={0.12}
       />
     </>
   );
