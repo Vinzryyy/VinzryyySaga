@@ -55,6 +55,7 @@ import {
   Plaza,
 } from '../components/taman/r4/Environment';
 import { TwinTowerComplex } from '../components/taman/r4/Buildings';
+import { R4LifeElements } from '../components/taman/r4/LifeElements';
 import {
   Header,
   TimePill,
@@ -68,6 +69,7 @@ const Scene = ({ restored, isMobile }) => (
     <SceneLights restored={restored} />
     <Plaza restored={restored} />
     <TwinTowerComplex restored={restored} />
+    <R4LifeElements restored={restored} isMobile={isMobile} />
     {/* Camera + controls — twin tower + balai composition lebih lebar
         di X. Target Y di mid-dial menara (~6.8). minDistance dinaikin
         biar full composition kebingkai, bukan cuma satu menara. */}

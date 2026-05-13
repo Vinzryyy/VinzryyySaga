@@ -42,10 +42,6 @@ import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
-// computeWibTime — dipakai di PetaMenara buat freeze hands ke real WIB
-// time saat mount. Subtle "kota inget waktu" cue di map level tanpa
-// per-frame cost (kalau live, butuh useWibTime + re-render tiap detik).
-import { computeWibTime } from '../components/taman/r4/utils';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -10250,27 +10246,15 @@ const PetaMenara = ({
   const baseOpacity = isLocked ? 0.55 : 1;
 
   // Color palette per state — locked grey-muted, drought stone-warm,
-  // restored bronze + warm emissive.
+  // restored bronze + warm emissive. Japanese pivot: ishigaki stone +
+  // shikkui plaster palette consistent dgn destination scene r4.
   const stoneColor = isRestored ? '#a89478' : isLocked ? '#5a5048' : '#7a6858';
-  const dialColor = isRestored ? '#f8e0b0' : '#3a3530';
-  const dialEmissive = isRestored ? '#e8a868' : '#000000';
-
-  // Hand angles frozen ke real WIB time saat mount — tiap visit jam-nya
-  // beda, kasih illusion "kota inget waktu" tanpa per-frame re-render
-  // (peta punya 7 petak, useWibTime di sini = overkill).
-  const handAngles = useMemo(() => {
-    const t = computeWibTime();
-    return {
-      hour: -(t.hour12Frac / 12) * Math.PI * 2,
-      minute: -(t.minuteFrac / 60) * Math.PI * 2,
-    };
-  }, []);
 
   const sublabel = isLocked
     ? 'Belum terbuka'
     : isRestored
-    ? 'Jam pulih'
-    : 'Jam separuh jalan';
+    ? 'Yagura pulih'
+    : 'Yagura berlumut';
 
   return (
     <group
@@ -10324,12 +10308,12 @@ const PetaMenara = ({
 
       {isLocked ? (
         <>
-          {/* === LOCKED STATE: menara ambruk ===
-              Tower kolom tergeletak ke arah -X (barat), patah jadi 2 segmen.
-              Base masih utuh. Dial pecah di tanah depan base. */}
-          {/* Stub base column (bawah kolom yang masih nyangkut) */}
-          <mesh position={[0, 0.45, 0]}>
-            <cylinderGeometry args={[0.32, 0.38, 0.6, 8]} />
+          {/* === LOCKED STATE: yagura ambruk (Japanese pivot) ===
+              Stone base utuh + plaster shaft stub + 2 fallen wooden
+              shaft segments tergeletak ke -X. Broken sōrin di tanah. */}
+          {/* Stub base — ishigaki masonry stone */}
+          <mesh position={[0, 0.3, 0]}>
+            <boxGeometry args={[0.5, 0.4, 0.5]} />
             <meshStandardMaterial
               color={stoneColor}
               roughness={0.95}
@@ -10337,269 +10321,424 @@ const PetaMenara = ({
               opacity={baseOpacity}
             />
           </mesh>
-          {/* Fallen segment 1 — tergeletak ke -X, putus dari base */}
-          <mesh position={[-0.95, 0.32, 0.1]} rotation={[0, 0.15, Math.PI / 2.2]}>
-            <cylinderGeometry args={[0.28, 0.3, 0.85, 8]} />
+          {/* Plaster shaft stub (broken short) */}
+          <mesh position={[0, 0.7, 0]}>
+            <boxGeometry args={[0.34, 0.4, 0.34]} />
             <meshStandardMaterial
-              color={stoneColor}
+              color="#7a6858"
               roughness={0.95}
               transparent
               opacity={baseOpacity}
             />
           </mesh>
-          {/* Fallen segment 2 — lebih jauh ke -X */}
-          <mesh position={[-1.75, 0.28, 0.15]} rotation={[0, -0.1, Math.PI / 2.3]}>
-            <cylinderGeometry args={[0.24, 0.26, 0.7, 8]} />
+          {/* Fallen wooden shaft segment 1 — ke -X */}
+          <mesh position={[-0.9, 0.2, 0.1]} rotation={[0, 0.15, Math.PI / 2.2]}>
+            <boxGeometry args={[0.32, 0.85, 0.32]} />
             <meshStandardMaterial
-              color={stoneColor}
+              color="#7a6858"
               roughness={0.95}
               transparent
               opacity={baseOpacity}
             />
           </mesh>
-          {/* Broken dial — flat disc di tanah, retak */}
-          <mesh position={[-2.25, 0.18, 0.25]} rotation={[-Math.PI / 2.3, 0.1, 0.3]}>
-            <cylinderGeometry args={[0.42, 0.42, 0.04, 16]} />
+          {/* Fallen wooden shaft segment 2 — lebih jauh */}
+          <mesh position={[-1.65, 0.17, 0.18]} rotation={[0, -0.1, Math.PI / 2.3]}>
+            <boxGeometry args={[0.28, 0.7, 0.28]} />
             <meshStandardMaterial
-              color="#4a4038"
-              roughness={1}
+              color="#7a6858"
+              roughness={0.95}
               transparent
               opacity={baseOpacity}
             />
           </mesh>
-          {/* Lock cube floating depan base — match locked treatment Telaga/Arsip */}
-          <mesh position={[0, 0.95, 0.6]}>
+          {/* Fallen sōrin shaft + broken jewel */}
+          <mesh position={[-2.15, 0.06, 0.22]} rotation={[Math.PI / 2, 0, 0.3]}>
+            <cylinderGeometry args={[0.022, 0.022, 0.5, 6]} />
+            <meshStandardMaterial
+              color="#3a2818"
+              roughness={0.95}
+              transparent
+              opacity={baseOpacity}
+            />
+          </mesh>
+          <mesh position={[-2.4, 0.05, 0.25]}>
+            <sphereGeometry args={[0.04, 8, 6]} />
+            <meshStandardMaterial
+              color="#5a4838"
+              roughness={0.95}
+              transparent
+              opacity={baseOpacity}
+            />
+          </mesh>
+          {/* Lock cube floating */}
+          <mesh position={[0, 1.0, 0.6]}>
             <boxGeometry args={[0.22, 0.2, 0.12]} />
             <meshStandardMaterial color="#5a5048" roughness={1} />
           </mesh>
-          {/* Lock shackle (bow on top of cube) */}
-          <mesh position={[0, 1.1, 0.6]} rotation={[0, 0, 0]}>
+          <mesh position={[0, 1.15, 0.6]} rotation={[0, 0, 0]}>
             <torusGeometry args={[0.06, 0.018, 6, 12, Math.PI]} />
             <meshStandardMaterial color="#5a5048" roughness={1} />
           </mesh>
         </>
       ) : (
         <>
-          {/* === DROUGHT/RESTORED STATE: menara berdiri ===
-              Stub fase awal — silhouette dasar (base shaft + clock face slab
-              + spire). Full detail (gear teeth, weathered texture, pendulum,
-              bell housing) menyusul saat scene r4 dibangun. */}
-          {/* Base banding — 1 ring di top of base shaft, match scene
-              base-brick treatment (scene punya 4 rings, peta cukup 1
-              biar gak noise di scale kecil). */}
-          <mesh position={[0, 0.28, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[0.38, 0.42, 24]} />
+          {/* === DROUGHT/RESTORED STATE: twin yagura mini ===
+              Japanese pivot — match destination scene `/armeniacaTown/r4`:
+              twin yagura (X ±0.55) + mini honden di antara. Shoji dial
+              di +Z face yagura kiri (pulse via dialMatRef + stainedGlassRef).
+              Bonshō di yagura kiri (bellMatRef pulse). Sōrin spire utuh
+              di restored, broken stub tilted di drought. */}
+          {/* Engawa base ring band di tanah */}
+          <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.7, 0.85, 24]} />
             <meshStandardMaterial color="#3a2818" roughness={0.95} />
           </mesh>
-          {/* Main shaft — kolom utama menara, tinggi ~2.4 unit */}
-          <mesh position={[0, 1.4, 0]}>
-            <cylinderGeometry args={[0.32, 0.4, 2.4, 8]} />
-            <meshStandardMaterial
-              color={stoneColor}
-              roughness={0.92}
-            />
-          </mesh>
-          {/* Vertical shaft accent lines — 4 cardinal, subtle texture
-              cue. Match scene shaft brick lines but lebih tipis (0.012)
-              biar gak noise di scale peta. */}
-          {[0, 1, 2, 3].map((i) => {
-            const angle = (i / 4) * Math.PI * 2;
-            // Average shaft radius ~0.36 (top 0.32, bottom 0.4) — pakai
-            // 0.34*0.99 supaya line hugging surface, gak ngambang.
-            const r = 0.34 * 0.99;
-            return (
-              <mesh
-                key={`shaft-line-${i}`}
-                position={[Math.cos(angle) * r, 1.4, Math.sin(angle) * r]}
-                rotation={[0, -angle, 0]}
-              >
-                <boxGeometry args={[0.016, 2.3, 0.008]} />
-                <meshStandardMaterial color="#3a2818" roughness={0.95} />
+          {/* === TWIN YAGURA === 2× mini yagura at X ±0.55. Tower kiri
+              (isFront=true) dapet refs supaya dialMatRef/stainedGlassRef/
+              bellMatRef pulse animations kebagian. Sōrin spire utuh
+              kalau restored, broken stub tilted kalau drought. */}
+          {[
+            { x: -0.55, isFront: true },
+            { x: 0.55, isFront: false },
+          ].map(({ x, isFront }) => (
+            <group key={`yagura-mini-${x}`} position={[x, 0, 0]}>
+              {/* Ishigaki base */}
+              <mesh position={[0, 0.18, 0]}>
+                <boxGeometry args={[0.42, 0.36, 0.42]} />
+                <meshStandardMaterial color={stoneColor} roughness={0.95} />
               </mesh>
-            );
-          })}
-          {/* Tower cap — ring tipis di atas shaft, base buat dial */}
-          <mesh position={[0, 2.62, 0]}>
-            <cylinderGeometry args={[0.42, 0.36, 0.12, 8]} />
+              {/* Plaster shaft (shikkui) */}
+              <mesh position={[0, 1.16, 0]}>
+                <boxGeometry args={[0.32, 1.55, 0.32]} />
+                <meshStandardMaterial
+                  color={isRestored ? '#c8b898' : '#7a6858'}
+                  roughness={0.9}
+                />
+              </mesh>
+              {/* 4 corner wood beams */}
+              {[
+                [0.16, 0.16],
+                [-0.16, 0.16],
+                [0.16, -0.16],
+                [-0.16, -0.16],
+              ].map(([cx, cz], i) => (
+                <mesh key={`beam-${i}`} position={[cx, 1.16, cz]}>
+                  <boxGeometry args={[0.018, 1.55, 0.018]} />
+                  <meshStandardMaterial
+                    color={isRestored ? '#5a3a18' : '#3a2818'}
+                    roughness={0.85}
+                  />
+                </mesh>
+              ))}
+              {/* Mid eaves irimoya (small overhang) */}
+              <mesh position={[0, 1.98, 0]}>
+                <boxGeometry args={[0.5, 0.1, 0.5]} />
+                <meshStandardMaterial
+                  color={isRestored ? '#3a3838' : '#2a2828'}
+                  roughness={0.85}
+                />
+              </mesh>
+              {/* Clock chamber */}
+              <mesh position={[0, 2.45, 0]}>
+                <boxGeometry args={[0.4, 0.7, 0.4]} />
+                <meshStandardMaterial
+                  color={isRestored ? '#c8b898' : '#7a6858'}
+                  roughness={0.9}
+                />
+              </mesh>
+              {/* Shoji outer glow halo (+Z face, behind dial) — wire
+                  stainedGlassRef ke yagura kiri (isFront) */}
+              <mesh position={[0, 2.5, 0.205]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.155, 0.155, 0.02, 18]} />
+                <meshStandardMaterial
+                  ref={isFront ? stainedGlassRef : null}
+                  color={isRestored ? '#f4d8a8' : '#3a2818'}
+                  emissive={isRestored ? '#e8b878' : '#000000'}
+                  emissiveIntensity={isRestored ? 0.55 : 0}
+                  roughness={0.6}
+                  transparent
+                  opacity={isRestored ? 0.85 : 0.7}
+                  toneMapped={false}
+                />
+              </mesh>
+              {/* Shoji dial face (smaller, inner) — dialMatRef yagura kiri */}
+              <mesh position={[0, 2.5, 0.222]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.13, 0.13, 0.015, 16]} />
+                <meshStandardMaterial
+                  ref={isFront ? dialMatRef : null}
+                  color={isRestored ? '#f8e0b0' : '#3a3530'}
+                  emissive={isRestored ? '#e8a868' : '#000000'}
+                  emissiveIntensity={isRestored ? 0.5 : 0}
+                  roughness={isRestored ? 0.5 : 1}
+                  transparent={!isRestored}
+                  opacity={isRestored ? 1 : 0.85}
+                />
+              </mesh>
+              {/* Wooden rim torus */}
+              <mesh position={[0, 2.5, 0.232]}>
+                <torusGeometry args={[0.13, 0.012, 6, 16]} />
+                <meshStandardMaterial
+                  color={isRestored ? '#6a4828' : '#3a2818'}
+                  roughness={0.85}
+                />
+              </mesh>
+              {/* 4 cardinal kōshi spokes */}
+              {[0, 1, 2, 3].map((i) => {
+                const angle = (i / 4) * Math.PI * 2;
+                return (
+                  <mesh
+                    key={`spoke-${i}`}
+                    position={[Math.sin(angle) * 0.065, 2.5 + Math.cos(angle) * 0.065, 0.238]}
+                    rotation={[0, 0, -angle]}
+                  >
+                    <boxGeometry args={[0.012, 0.13, 0.005]} />
+                    <meshStandardMaterial
+                      color={isRestored ? '#6a4828' : '#3a2818'}
+                      roughness={0.85}
+                    />
+                  </mesh>
+                );
+              })}
+              {/* Dial center pin */}
+              <mesh position={[0, 2.5, 0.244]}>
+                <sphereGeometry args={[0.018, 6, 4]} />
+                <meshStandardMaterial color="#3a2818" roughness={0.7} />
+              </mesh>
+              {/* Dial crack — drought only */}
+              {!isRestored && (
+                <mesh position={[-0.03, 2.46, 0.245]} rotation={[0, 0, -0.7]}>
+                  <boxGeometry args={[0.005, 0.22, 0.003]} />
+                  <meshStandardMaterial color="#1a0f08" roughness={1} />
+                </mesh>
+              )}
+              {/* Top irimoya roof */}
+              <mesh position={[0, 2.9, 0]}>
+                <boxGeometry args={[0.58, 0.16, 0.58]} />
+                <meshStandardMaterial
+                  color={isRestored ? '#3a3838' : '#2a2828'}
+                  roughness={0.85}
+                />
+              </mesh>
+              {/* Roof ridge cap (restored only) */}
+              {isRestored && (
+                <mesh position={[0, 3.01, 0]}>
+                  <boxGeometry args={[0.48, 0.06, 0.5]} />
+                  <meshStandardMaterial color="#3a3838" roughness={0.85} />
+                </mesh>
+              )}
+              {/* === SŌRIN === restored: full spire + jewel.
+                  Drought: tilted broken stub. */}
+              {isRestored ? (
+                <>
+                  {/* Sōrin shaft */}
+                  <mesh position={[0, 3.25, 0]}>
+                    <cylinderGeometry args={[0.012, 0.012, 0.4, 6]} />
+                    <meshStandardMaterial
+                      color="#c89860"
+                      emissive="#e8a868"
+                      emissiveIntensity={0.32}
+                      roughness={0.5}
+                      metalness={0.55}
+                    />
+                  </mesh>
+                  {/* Kurin rings (3 mini) */}
+                  {[3.15, 3.25, 3.35].map((y, i) => (
+                    <mesh key={`kurin-${i}`} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                      <torusGeometry args={[0.035, 0.005, 4, 10]} />
+                      <meshStandardMaterial color="#c89860" roughness={0.5} metalness={0.55} />
+                    </mesh>
+                  ))}
+                  {/* Hōju jewel */}
+                  <mesh position={[0, 3.52, 0]}>
+                    <sphereGeometry args={[0.045, 10, 8]} />
+                    <meshStandardMaterial
+                      color="#c89860"
+                      emissive="#e8a868"
+                      emissiveIntensity={0.4}
+                      roughness={0.45}
+                      metalness={0.6}
+                    />
+                  </mesh>
+                </>
+              ) : (
+                // Drought — broken tilted sōrin stub
+                <group rotation={[0.25, 0, isFront ? 0.18 : -0.15]}>
+                  <mesh position={[0, 3.12, 0]}>
+                    <cylinderGeometry args={[0.012, 0.012, 0.22, 6]} />
+                    <meshStandardMaterial color="#3a2818" roughness={0.95} />
+                  </mesh>
+                  <mesh position={[0, 3.18, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                    <torusGeometry args={[0.032, 0.005, 4, 10]} />
+                    <meshStandardMaterial color="#3a2818" roughness={0.95} />
+                  </mesh>
+                </group>
+              )}
+              {/* Bonshō (bell) — restored only, di yagura kiri (isFront).
+                  bellMatRef pulse di useFrame. */}
+              {isRestored && isFront && (
+                <group position={[0, 2.75, -0.22]}>
+                  <mesh>
+                    <cylinderGeometry args={[0.055, 0.07, 0.12, 10, 1, true]} />
+                    <meshStandardMaterial
+                      ref={bellMatRef}
+                      color="#a87838"
+                      emissive="#c89048"
+                      emissiveIntensity={0.32}
+                      roughness={0.55}
+                      metalness={0.55}
+                      side={THREE.DoubleSide}
+                    />
+                  </mesh>
+                  {/* Crown */}
+                  <mesh position={[0, 0.07, 0]}>
+                    <sphereGeometry args={[0.025, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                    <meshStandardMaterial color="#8a5828" roughness={0.6} metalness={0.55} />
+                  </mesh>
+                </group>
+              )}
+              {/* Moss patch on ishigaki base — drought only */}
+              {!isRestored && (
+                <mesh position={[0.15, 0.365, 0.05]} rotation={[-Math.PI / 2, 0, 0.3]}>
+                  <circleGeometry args={[0.13, 8]} />
+                  <meshStandardMaterial
+                    color="#3a4a28"
+                    roughness={1}
+                    transparent
+                    opacity={0.7}
+                    side={THREE.DoubleSide}
+                  />
+                </mesh>
+              )}
+            </group>
+          ))}
+
+          {/* === MINI HONDEN === central shrine hall between twin yagura */}
+          {/* Stone podium */}
+          <mesh position={[0, 0.1, 0]}>
+            <boxGeometry args={[0.85, 0.2, 0.55]} />
+            <meshStandardMaterial color={stoneColor} roughness={0.92} />
+          </mesh>
+          {/* Wood body */}
+          <mesh position={[0, 0.55, 0]}>
+            <boxGeometry args={[0.75, 0.7, 0.45]} />
             <meshStandardMaterial
-              color={isRestored ? '#7a6048' : '#5a4838'}
+              color={isRestored ? '#c8b898' : '#7a6858'}
               roughness={0.9}
             />
           </mesh>
-          {/* Stained-glass backplate (restored only) — di belakang dial,
-              slightly larger radius, warm emissive pulse via useFrame.
-              Match scene TamanMenaraJam kaca patri treatment supaya
-              silhouette miniature konsisten sama destination scene. */}
-          {isRestored && (
-            <mesh position={[0, 2.78, 0.31]}>
-              <cylinderGeometry args={[0.38, 0.38, 0.03, 24]} />
+          {/* Doorway recess on +Z face */}
+          <mesh position={[0, 0.43, 0.226]}>
+            <planeGeometry args={[0.22, 0.46]} />
+            <meshStandardMaterial
+              color="#1a0808"
+              roughness={0.95}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          {/* Doorway frame trim */}
+          <mesh position={[0, 0.7, 0.232]}>
+            <boxGeometry args={[0.26, 0.04, 0.012]} />
+            <meshStandardMaterial
+              color={isRestored ? '#6a4828' : '#3a2818'}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Curved irimoya roof */}
+          <mesh position={[0, 1.0, 0]}>
+            <boxGeometry args={[0.95, 0.18, 0.62]} />
+            <meshStandardMaterial
+              color={isRestored ? '#3a3838' : '#1a2018'}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Roof ridge cap */}
+          <mesh position={[0, 1.12, 0]}>
+            <boxGeometry args={[0.78, 0.06, 0.5]} />
+            <meshStandardMaterial
+              color={isRestored ? '#3a3838' : '#1a2018'}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Chigi forked finial — di gable depan */}
+          <group position={[0, 1.18, 0.22]}>
+            <mesh position={[-0.06, 0.08, 0]} rotation={[0, 0, 0.3]}>
+              <boxGeometry args={[0.018, 0.18, 0.018]} />
               <meshStandardMaterial
-                ref={stainedGlassRef}
-                color="#f4a868"
-                emissive="#e88040"
-                emissiveIntensity={0.55}
-                roughness={0.5}
-                toneMapped={false}
+                color={isRestored ? '#5a3a18' : '#3a2818'}
+                roughness={0.85}
               />
             </mesh>
-          )}
-          {/* Clock dial — slab depan menghadap +Z (selatan, ke arah hub) */}
-          <mesh position={[0, 2.78, 0.34]} rotation={[0, 0, 0]}>
-            <cylinderGeometry args={[0.34, 0.34, 0.05, 24]} />
-            <meshStandardMaterial
-              ref={dialMatRef}
-              color={dialColor}
-              emissive={dialEmissive}
-              emissiveIntensity={isRestored ? 0.5 : 0}
-              roughness={isRestored ? 0.5 : 1}
-              transparent={!isRestored}
-              opacity={isRestored ? 1 : 0.9}
-            />
-          </mesh>
-          {/* Dial rim — ring tipis di luar dial face */}
-          <mesh position={[0, 2.78, 0.355]}>
-            <torusGeometry args={[0.34, 0.025, 6, 24]} />
-            <meshStandardMaterial
-              color={isRestored ? '#5a3a18' : '#3a2818'}
-              roughness={0.9}
-            />
-          </mesh>
-          {/* Hour markers — 12 tick (4 cardinal bigger). Drought: skip
-              minor tick #5 (between 4 dan 5 o'clock) — kerasa "satu tick
-              lepas, belum dipasang balik". Cardinal (12/3/6/9) tetep
-              utuh supaya orientation tetap kebaca. */}
-          {Array.from({ length: 12 }, (_, i) => {
-            if (!isRestored && i === 5) return null;
-            const angle = (i / 12) * Math.PI * 2;
-            const isCardinal = i % 3 === 0;
-            const len = isCardinal ? 0.07 : 0.04;
-            const r = 0.34 - len / 2 - 0.012;
-            return (
-              <mesh
-                key={`tick-${i}`}
-                position={[
-                  Math.sin(angle) * r,
-                  2.78 + Math.cos(angle) * r,
-                  0.37,
-                ]}
-                rotation={[0, 0, -angle]}
-              >
-                <boxGeometry args={[isCardinal ? 0.022 : 0.014, len, 0.005]} />
-                <meshStandardMaterial
-                  color={isRestored ? '#5a3a18' : '#3a2818'}
-                  roughness={0.7}
-                />
+            {/* Right fork — broken/missing kalau drought */}
+            {isRestored && (
+              <mesh position={[0.06, 0.08, 0]} rotation={[0, 0, -0.3]}>
+                <boxGeometry args={[0.018, 0.18, 0.018]} />
+                <meshStandardMaterial color="#5a3a18" roughness={0.85} />
               </mesh>
-            );
-          })}
-          {/* Dial crack — drought only. Diagonal hairline retak across
-              dial face, kerasa "jam beneran rusak, belum di-restore".
-              Restored: gak ada (sembuh dari atas-bawah). */}
-          {!isRestored && (
-            <mesh position={[-0.05, 2.74, 0.376]} rotation={[0, 0, -0.7]}>
-              <boxGeometry args={[0.008, 0.4, 0.004]} />
-              <meshStandardMaterial color="#1a0f08" roughness={1} />
-            </mesh>
-          )}
-          {/* Hour hand — selalu ada di drought + restored. Pivot di
-              dial center, length extends +Y. handAngles dari WIB time
-              saat mount. */}
-          <group position={[0, 2.78, 0.39]} rotation={[0, 0, handAngles.hour]}>
-            <mesh position={[0, 0.11, 0]}>
-              <boxGeometry args={[0.02, 0.22, 0.01]} />
-              <meshStandardMaterial color="#1a0f08" roughness={0.7} />
-            </mesh>
+            )}
           </group>
-          {/* Minute hand — HANYA di restored (drought = jarum hilang per spec) */}
+          {/* Katsuogi (cylindrical logs) — 2 logs di ridge */}
+          {[[-0.1, 1.16], [0.1, 1.16]].map(([x2, y2], i) => (
+            <mesh
+              key={`katsuogi-${i}`}
+              position={[x2, y2, 0]}
+              rotation={[Math.PI / 2, 0, Math.PI / 2]}
+            >
+              <cylinderGeometry args={[0.022, 0.022, 0.35, 8]} />
+              <meshStandardMaterial
+                color={isRestored ? '#5a3a18' : '#3a2818'}
+                roughness={0.85}
+              />
+            </mesh>
+          ))}
+          {/* Paper lantern hanging in front of honden (restored only) */}
           {isRestored && (
-            <group position={[0, 2.78, 0.4]} rotation={[0, 0, handAngles.minute]}>
-              <mesh position={[0, 0.14, 0]}>
-                <boxGeometry args={[0.015, 0.28, 0.008]} />
-                <meshStandardMaterial color="#1a0f08" roughness={0.7} />
+            <group position={[0, 0.92, 0.32]}>
+              <mesh position={[0, 0.06, 0]}>
+                <cylinderGeometry args={[0.005, 0.005, 0.12, 4]} />
+                <meshStandardMaterial color="#3a1808" roughness={0.95} />
               </mesh>
-            </group>
-          )}
-          {/* Center pin */}
-          <mesh position={[0, 2.78, 0.41]}>
-            <sphereGeometry args={[0.025, 8, 6]} />
-            <meshStandardMaterial color="#3a2818" roughness={0.6} />
-          </mesh>
-          {/* Spire — kerucut runcing di atas tower */}
-          <mesh position={[0, 3.05, 0]}>
-            <coneGeometry args={[0.18, 0.36, 6]} />
-            <meshStandardMaterial
-              color={isRestored ? '#6a4828' : '#4a3828'}
-              roughness={0.9}
-            />
-          </mesh>
-          {/* Spire finial — bronze ball di puncak. Match scene
-              TamanMenaraJam. Restored = emissive bronze glow, kasih
-              "kota pulih" silhouette accent visible dari kejauhan. */}
-          <mesh position={[0, 3.27, 0]}>
-            <sphereGeometry args={[0.055, 10, 8]} />
-            <meshStandardMaterial
-              color={isRestored ? '#c89860' : '#5a4838'}
-              emissive={isRestored ? '#e8a868' : '#000000'}
-              emissiveIntensity={isRestored ? 0.3 : 0}
-              roughness={isRestored ? 0.5 : 0.9}
-              metalness={isRestored ? 0.35 : 0}
-            />
-          </mesh>
-          {/* Bell — kecil di bawah spire, hanya restored (sesuai spec: bel
-              bisu di drought, hourly chime di restored). Cone body +
-              hemisphere crown match scene treatment. */}
-          {isRestored && (
-            <group position={[0, 2.92, -0.18]}>
-              {/* Body */}
-              <mesh>
-                <coneGeometry args={[0.08, 0.12, 8]} />
+              <mesh position={[0, -0.04, 0]}>
+                <cylinderGeometry args={[0.05, 0.05, 0.12, 10]} />
                 <meshStandardMaterial
-                  ref={bellMatRef}
-                  color="#c89860"
-                  emissive="#e8a868"
-                  emissiveIntensity={0.35}
-                  roughness={0.55}
-                  metalness={0.4}
+                  color="#f4d488"
+                  emissive="#e89860"
+                  emissiveIntensity={0.55}
+                  roughness={0.6}
+                  transparent
+                  opacity={0.88}
+                  toneMapped={false}
                 />
               </mesh>
-              {/* Crown — small hemisphere on top */}
-              <mesh position={[0, 0.07, 0]}>
-                <sphereGeometry args={[0.03, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
-                <meshStandardMaterial color="#a87838" roughness={0.6} metalness={0.5} />
-              </mesh>
             </group>
           )}
-          {/* === PENDULUM HINT === silhouette element — rod + bob hang
-              dari bawah dial. Swing amplitude diatur di useFrame per
-              petakState. Match scene TamanMenaraJam pendulum, scaled
-              ke peta. Drought + restored sama-sama dapet bandul (drought
-              gerak kecil, restored full swing). Pivot di z=0.4 (slight in
-              front of dial bottom rim) supaya kebaca dari isometric
-              camera — z lebih dalam ke-block dial rim torus. */}
-          <group ref={pendulumRef} position={[0, 2.42, 0.4]}>
-            {/* Pivot bracket */}
-            <mesh position={[0, 0, -0.03]}>
-              <cylinderGeometry args={[0.025, 0.025, 0.02, 6]} />
+
+          {/* === SHUMOKU (bell striker) === swing rod hanging di samping
+              bonshō (yagura kiri), ref=pendulumRef untuk useFrame swing.
+              Replaces gothic pendulum — wooden striker untuk Japanese
+              bonshō bell. Drought + restored sama-sama gerak (amplitude
+              di useFrame), restored emissive head warmer. */}
+          <group ref={pendulumRef} position={[-0.55, 2.05, 0.4]}>
+            {/* Suspension peg */}
+            <mesh position={[0, 0, -0.02]}>
+              <cylinderGeometry args={[0.018, 0.018, 0.02, 6]} />
               <meshStandardMaterial color="#3a2818" roughness={0.85} />
             </mesh>
-            {/* Rod */}
+            {/* Striker rod */}
             <mesh position={[0, -0.3, 0]}>
-              <cylinderGeometry args={[0.008, 0.008, 0.6, 6]} />
+              <cylinderGeometry args={[0.015, 0.018, 0.55, 8]} />
               <meshStandardMaterial
-                color={isRestored ? '#8a6838' : '#4a3828'}
-                roughness={0.7}
-                metalness={0.3}
+                color={isRestored ? '#7a4818' : '#4a2810'}
+                roughness={0.8}
               />
             </mesh>
-            {/* Bob */}
-            <mesh position={[0, -0.6, 0]}>
-              <cylinderGeometry args={[0.06, 0.06, 0.035, 16]} />
+            {/* Striker head — rounded log end */}
+            <mesh position={[0, -0.58, 0]}>
+              <sphereGeometry args={[0.045, 10, 8]} />
               <meshStandardMaterial
-                color={isRestored ? '#c89860' : '#6a5238'}
-                emissive={isRestored ? '#e8a868' : '#3a2810'}
-                emissiveIntensity={isRestored ? 0.35 : 0.05}
-                roughness={isRestored ? 0.5 : 0.85}
-                metalness={isRestored ? 0.5 : 0.2}
+                color={isRestored ? '#8a5a28' : '#4a3018'}
+                emissive={isRestored ? '#c87038' : '#2a1810'}
+                emissiveIntensity={isRestored ? 0.28 : 0.05}
+                roughness={isRestored ? 0.65 : 0.85}
               />
             </mesh>
           </group>
