@@ -37,6 +37,7 @@ import { ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 import Seo from '../components/Seo';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
+import { ELI_TIMELINE } from '../data/eliProfile';
 
 // =====================================================================
 // Hooks
@@ -91,6 +92,132 @@ const useWibTime = () => {
     return () => clearInterval(id);
   }, []);
   return time;
+};
+
+// Today di kalender WIB sebagai YYYY-MM-DD — anchor buat "hari ini"
+// calculations independen dari local TZ user. Updates daily-ish (cache
+// pakai key cuma berubah saat tanggal WIB berubah; di sini kita re-derive
+// per render — murah karena Intl format).
+const wibTodayIso = () => {
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  return fmt.format(new Date()); // YYYY-MM-DD
+};
+
+// Jarak hari kalender (signed integer) dari `isoDateStr` (YYYY-MM-DD) ke
+// hari ini di WIB. Positif = di masa depan, negatif = di masa lalu.
+// Return null jika tanggal invalid/null. Komputasi pakai WIB midnight di
+// kedua sisi supaya gak ada off-by-one karena timezone shift.
+const daysFromWibToday = (isoDateStr) => {
+  if (!isoDateStr) return null;
+  const target = new Date(`${isoDateStr}T00:00:00+07:00`);
+  if (Number.isNaN(target.getTime())) return null;
+  const todayIso = wibTodayIso();
+  const todayWibStart = new Date(`${todayIso}T00:00:00+07:00`);
+  const diffMs = target - todayWibStart;
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+};
+
+// Format tanggal WIB hari ini sebagai "Rabu, 13 Mei 2026" — display di
+// header Almanak.
+const wibTodayLong = () => {
+  const fmt = new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  return fmt.format(new Date());
+};
+
+// Format ISO YYYY-MM-DD ke "13 Mei 2026"
+const formatShortIdDate = (isoDateStr) => {
+  if (!isoDateStr) return '—';
+  const d = new Date(`${isoDateStr.substring(0, 10)}T00:00:00+07:00`);
+  if (Number.isNaN(d.getTime())) return '—';
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(d);
+};
+
+// useNearestSchedule — fetch /data/eli-schedule.json sekali saat mount,
+// filter event Eli yang upcoming (date >= today) dan dalam ≤30 hari.
+// Return entry pertama (nearest), atau null. Failure modes (404, parse
+// error) silently return null — Stage B2 jangan crash karena data file
+// belum ke-update.
+const useNearestSchedule = () => {
+  const [nearest, setNearest] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch('/data/eli-schedule.json', { cache: 'no-cache' });
+        if (!r.ok) return;
+        const data = await r.json();
+        const events = data?.events || [];
+        const now = Date.now();
+        const cap = now + 30 * 24 * 60 * 60 * 1000;
+        const upcoming = events
+          .map((ev) => ({ ...ev, _ts: new Date(ev.date).getTime() }))
+          .filter((ev) => !Number.isNaN(ev._ts) && ev._ts >= now && ev._ts <= cap)
+          .sort((a, b) => a._ts - b._ts);
+        if (!cancelled) setNearest(upcoming[0] || null);
+      } catch {
+        // Fail-quiet — Almanak akan render fallback "bandul nungguin"
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return nearest;
+};
+
+// useAlmanak — derive data buat panel: hari ini, days-since-debut,
+// milestone terakhir lewat, milestone berikutnya, event Eli terdekat.
+// ELI_TIMELINE entries sudah sorted ascending by date; entries dengan
+// date=null (upcoming, mis. show-400) di-skip dari past/future calc tapi
+// dipakai buat "menuju" placeholder.
+const useAlmanak = () => {
+  const nearestEvent = useNearestSchedule();
+  return useMemo(() => {
+    const today = wibTodayIso();
+    const todayMs = new Date(`${today}T00:00:00+07:00`).getTime();
+    const debutEntry = ELI_TIMELINE.find((e) => e.id === 'theater-debut');
+    const daysSinceDebut = debutEntry
+      ? -daysFromWibToday(debutEntry.date)
+      : null;
+    // Past = milestone yang udah lewat (date < today). Sorted descending,
+    // most recent first. Skip upcoming (date=null).
+    const past = ELI_TIMELINE.filter(
+      (e) => e.date && new Date(`${e.date}T00:00:00+07:00`).getTime() < todayMs,
+    ).sort((a, b) => (a.date < b.date ? 1 : -1));
+    const lastMilestone = past[0] || null;
+    // Future = milestone dengan date di masa depan. Upcoming (date=null)
+    // ditambah sebagai trailing entry.
+    const future = ELI_TIMELINE.filter(
+      (e) => e.date && new Date(`${e.date}T00:00:00+07:00`).getTime() >= todayMs,
+    ).sort((a, b) => (a.date < b.date ? -1 : 1));
+    const upcomingTagged = ELI_TIMELINE.filter((e) => e.upcoming);
+    const nextMilestone = future[0] || upcomingTagged[0] || null;
+    return {
+      today,
+      todayLong: wibTodayLong(),
+      daysSinceDebut,
+      debutEntry,
+      lastMilestone,
+      nextMilestone,
+      nearestEvent,
+    };
+  }, [nearestEvent]);
 };
 
 // =====================================================================
@@ -399,6 +526,87 @@ const ClockTower = ({ restored }) => {
           </mesh>
         </group>
       )}
+
+      {/* === PENDULUM === menggantung di depan shaft, di bawah dial.
+          Pivot di atas, bob di bawah. Swing:
+            restored          → smooth amplitude penuh, periode ~2.4s
+            drought + event   → swing kecil + bob warm tint
+            drought no event  → still (idle), bob muted
+          Visible di kedua state — silhouette pendulum kasih "tower
+          mechanism" feel. */}
+      <Pendulum restored={restored} />
+    </group>
+  );
+};
+
+// Pendulum — rod + bob swing dari pivot di bawah dial, hanging depan
+// shaft. Hook useNearestSchedule dipake di sini supaya swing condition
+// drought reactive ke data (bandul "cari ritmenya" kalau ada event ≤30d).
+const Pendulum = ({ restored }) => {
+  const groupRef = useRef();
+  const bobMatRef = useRef();
+  const nearestEvent = useNearestSchedule();
+  const hasNearbyEvent = Boolean(nearestEvent);
+
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Amplitude per state — restored gerak penuh, drought subtle, drought
+    // tanpa event = diam total (idle clock).
+    let amplitude = 0;
+    if (restored) amplitude = 0.28;
+    else if (hasNearbyEvent) amplitude = 0.12;
+    else amplitude = 0;
+    groupRef.current.rotation.z = Math.sin(t * (Math.PI / 1.2)) * amplitude;
+    // Bob tint pulse — restored = always warm, drought + event = subtle
+    // warm pulse, drought no event = dim (no animation).
+    if (bobMatRef.current) {
+      if (restored) {
+        bobMatRef.current.emissiveIntensity = 0.35 + Math.sin(t * 1.1) * 0.1;
+      } else if (hasNearbyEvent) {
+        bobMatRef.current.emissiveIntensity = 0.18 + Math.sin(t * 0.8) * 0.06;
+      } else {
+        bobMatRef.current.emissiveIntensity = 0.05;
+      }
+    }
+  });
+
+  // Pivot world position: dipasang di bawah dial-rim, di shaft front face.
+  const pivotY = TOWER.dialY - TOWER.dialRadius - 0.15;
+  const rodLen = 1.8;
+  const bobRadius = 0.22;
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0, pivotY, TOWER.shaftRadiusTop * 0.85]}
+    >
+      {/* Pivot bracket — small disc di pivot point */}
+      <mesh position={[0, 0, -0.05]}>
+        <cylinderGeometry args={[0.08, 0.08, 0.06, 8]} />
+        <meshStandardMaterial color="#3a2818" roughness={0.85} />
+      </mesh>
+      {/* Rod */}
+      <mesh position={[0, -rodLen / 2, 0]}>
+        <cylinderGeometry args={[0.015, 0.015, rodLen, 6]} />
+        <meshStandardMaterial
+          color={restored ? '#8a6838' : '#4a3828'}
+          roughness={0.7}
+          metalness={0.3}
+        />
+      </mesh>
+      {/* Bob — bronze disc */}
+      <mesh position={[0, -rodLen, 0]}>
+        <cylinderGeometry args={[bobRadius, bobRadius, 0.1, 24]} />
+        <meshStandardMaterial
+          ref={bobMatRef}
+          color={restored ? '#c89860' : '#6a5238'}
+          emissive={restored ? '#e8a868' : '#3a2810'}
+          emissiveIntensity={restored ? 0.35 : 0.05}
+          roughness={restored ? 0.5 : 0.85}
+          metalness={restored ? 0.5 : 0.2}
+        />
+      </mesh>
     </group>
   );
 };
@@ -525,6 +733,125 @@ const TimePill = ({ restored }) => {
   );
 };
 
+// AlmanakCard — restored only, panel bottom-left dgn derived data dari
+// ELI_TIMELINE + eli-schedule.json. Drought variant gak render card ini —
+// drought hanya dapet CountdownChip (lebih ringkas).
+const AlmanakCard = () => {
+  const a = useAlmanak();
+  const eventDays =
+    a.nearestEvent && a.nearestEvent.date
+      ? Math.max(0, daysFromWibToday(a.nearestEvent.date.substring(0, 10)))
+      : null;
+  const eventDate = a.nearestEvent ? formatShortIdDate(a.nearestEvent.date) : null;
+  const lastDays =
+    a.lastMilestone && a.lastMilestone.date
+      ? -daysFromWibToday(a.lastMilestone.date)
+      : null;
+
+  return (
+    <div className="pointer-events-auto absolute bottom-24 sm:bottom-6 left-3 sm:left-6 z-10 w-[calc(100vw-1.5rem)] sm:w-[320px]">
+      <div
+        className="rounded-2xl border border-white/12 bg-[#1c1612]/85 backdrop-blur-md shadow-2xl px-4 py-3.5 sm:px-5 sm:py-4"
+        style={{ fontFamily: '"Fraunces Variable", serif' }}
+      >
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="text-amber-200/75 text-[9px] uppercase tracking-[0.3em]">
+            Almanak Kota
+          </div>
+          <div className="text-white/35 text-[9px] tabular-nums">
+            {a.todayLong}
+          </div>
+        </div>
+
+        {/* Days since debut counter — anchor "tower remembers time" */}
+        {a.daysSinceDebut !== null && (
+          <div className="mb-3 flex items-baseline gap-2">
+            <span className="text-amber-100/90 text-2xl sm:text-3xl font-medium tabular-nums">
+              {a.daysSinceDebut.toLocaleString('id-ID')}
+            </span>
+            <span className="text-white/55 text-[11px] sm:text-xs italic">
+              hari sejak Debut Theater
+            </span>
+          </div>
+        )}
+
+        {/* Last milestone */}
+        {a.lastMilestone && (
+          <div className="mb-2.5 pb-2.5 border-b border-white/8">
+            <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mb-1">
+              Milestone terakhir{lastDays !== null && ` · ${lastDays} hari lalu`}
+            </div>
+            <div className="text-white/85 text-[13px] leading-snug italic">
+              {a.lastMilestone.title}
+            </div>
+            <div className="text-white/40 text-[10px] mt-0.5">
+              {a.lastMilestone.period}
+            </div>
+          </div>
+        )}
+
+        {/* Next event (≤30 days) — if available */}
+        {a.nearestEvent ? (
+          <div>
+            <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mb-1">
+              Eli tampil · {eventDays === 0 ? 'hari ini' : `${eventDays} hari lagi`}
+            </div>
+            <div className="text-white/85 text-[13px] leading-snug italic">
+              {a.nearestEvent.title}
+            </div>
+            <div className="text-white/40 text-[10px] mt-0.5">
+              {eventDate}
+              {a.nearestEvent.venue ? ` · ${a.nearestEvent.venue}` : ''}
+            </div>
+          </div>
+        ) : a.nextMilestone ? (
+          <div>
+            <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mb-1">
+              {a.nextMilestone.date ? 'Milestone berikutnya' : 'Menuju'}
+            </div>
+            <div className="text-white/85 text-[13px] leading-snug italic">
+              {a.nextMilestone.title}
+            </div>
+            <div className="text-white/40 text-[10px] mt-0.5">
+              {a.nextMilestone.period}
+            </div>
+          </div>
+        ) : (
+          <div className="text-white/50 text-[11px] italic">
+            Bandul nungguin event berikutnya.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// CountdownChip — drought variant pakai ini (kompak), restored gak pakai
+// karena info udah ada di AlmanakCard. Bandul fallback "cari ritmenya"
+// kalau gak ada event terdekat.
+const CountdownChip = () => {
+  const nearest = useNearestSchedule();
+  const eventDays =
+    nearest && nearest.date
+      ? Math.max(0, daysFromWibToday(nearest.date.substring(0, 10)))
+      : null;
+  const copy = nearest
+    ? `${eventDays === 0 ? 'Hari ini' : `${eventDays} hari lagi`} · ${nearest.title}`
+    : 'Bandul masih cari ritmenya — belum ada event terdekat';
+  return (
+    <div className="pointer-events-none absolute bottom-24 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[88vw]">
+      <div className="px-4 py-1.5 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 shadow-lg">
+        <p
+          className="text-white/65 text-[10px] sm:text-[11px] italic text-center tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          {copy}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const Header = ({ restored }) => (
   <div className="pointer-events-none absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 pt-20 md:px-6 md:pt-24 pb-4 md:pb-5">
     <div className="pointer-events-auto">
@@ -600,6 +927,7 @@ const TamanMenaraJamPage = ({ restored = false }) => {
           </Canvas>
         </Suspense>
         <Header restored={restored} />
+        {restored ? <AlmanakCard /> : <CountdownChip />}
         <TimePill restored={restored} />
       </div>
     </>
