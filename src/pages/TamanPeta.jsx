@@ -6985,6 +6985,176 @@ const DustDevils = () => (
   </>
 );
 
+// CirclingVultures — 3 burung gelap berputar pelan tinggi di sky.
+// Atmospheric — kerasa "ada yg ngintai kota mati." Beda dari BirdsFlock
+// purified (sweet swallows) — vultures bergerak lambat, soliter, di
+// ketinggian lebih tinggi. Mirror narrative: kehidupan vs predator.
+const VULTURE_DEFS = [
+  { center: [-2, 8.5, -3], radius: 4.5, speed: 0.07, phase: 0, scale: 1.0 },
+  { center: [3, 9.5, 2], radius: 5.0, speed: 0.05, phase: 2.1, scale: 0.9 },
+  { center: [0, 10, -6], radius: 3.8, speed: 0.09, phase: 4.3, scale: 1.1 },
+];
+const Vulture = ({ def }) => {
+  const ref = useRef();
+  const wingLRef = useRef();
+  const wingRRef = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const angle = t * def.speed + def.phase;
+    ref.current.position.x = def.center[0] + Math.cos(angle) * def.radius;
+    ref.current.position.z = def.center[2] + Math.sin(angle) * def.radius;
+    ref.current.position.y = def.center[1] + Math.sin(t * 0.3 + def.phase) * 0.2;
+    // Hadap arah terbang
+    ref.current.rotation.y = -angle - Math.PI / 2;
+    // Wing flap pelan
+    const flap = Math.sin(t * 1.2 + def.phase) * 0.15;
+    if (wingLRef.current) wingLRef.current.rotation.z = 0.3 + flap;
+    if (wingRRef.current) wingRRef.current.rotation.z = -0.3 - flap;
+  });
+  return (
+    <group ref={ref} scale={def.scale}>
+      {/* Body — silhouette gelap (BasicMaterial supaya gak ke-fog mati) */}
+      <mesh>
+        <sphereGeometry args={[0.08, 6, 4]} />
+        <meshBasicMaterial color="#0a0604" />
+      </mesh>
+      {/* Wing kiri */}
+      <mesh ref={wingLRef} position={[0, 0, 0.05]}>
+        <boxGeometry args={[0.02, 0.04, 0.42]} />
+        <meshBasicMaterial color="#0a0604" />
+      </mesh>
+      {/* Wing kanan */}
+      <mesh ref={wingRRef} position={[0, 0, -0.05]}>
+        <boxGeometry args={[0.02, 0.04, 0.42]} />
+        <meshBasicMaterial color="#0a0604" />
+      </mesh>
+      {/* Tail kecil */}
+      <mesh position={[-0.12, 0, 0]}>
+        <coneGeometry args={[0.04, 0.12, 4]} />
+        <meshBasicMaterial color="#0a0604" />
+      </mesh>
+    </group>
+  );
+};
+const CirclingVultures = () => (
+  <>
+    {VULTURE_DEFS.map((def, i) => (
+      <Vulture key={`vlt-${i}`} def={def} />
+    ))}
+  </>
+);
+
+// WindBlownScraps — 16 particle keping kecil (kertas/daun) yg ditiup
+// angin horizontal lintas peta. Beda dari SandDust (uniform haze) atau
+// ApricotPetals (purified, gentle fall). Scraps drift cepat horizontal,
+// loop dari satu sisi ke sisi lain.
+const WindBlownScraps = ({ count = 16 }) => {
+  const ref = useRef();
+  const defs = useMemo(
+    () =>
+      Array.from({ length: count }).map((_, i) => ({
+        seed: i,
+        y: 0.3 + ((i * 13) % 7) * 0.5,
+        z: -7 + ((i * 17) % 14),
+        speed: 0.8 + ((i * 7) % 5) * 0.25,
+        phase: i * 0.4,
+        color: i % 3 === 0 ? '#8a6848' : i % 3 === 1 ? '#7a5a3a' : '#6a4a30',
+        wide: 0.06 + ((i * 11) % 4) * 0.02,
+        tall: 0.025 + ((i * 13) % 3) * 0.01,
+      })),
+    [count]
+  );
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime;
+    ref.current.children.forEach((mesh, i) => {
+      const d = defs[i];
+      if (!d) return;
+      // Loop X dari +9 ke -9 dengan speed berbeda
+      const cycle = (t * d.speed + d.phase) % 18;
+      mesh.position.x = 9 - cycle;
+      mesh.position.y = d.y + Math.sin(t * 1.5 + d.phase) * 0.15;
+      mesh.position.z = d.z + Math.cos(t * 0.8 + d.phase) * 0.25;
+      // Rotation tumbling
+      mesh.rotation.x = t * 2 + d.phase;
+      mesh.rotation.z = t * 1.4 + d.phase;
+    });
+  });
+  return (
+    <group ref={ref}>
+      {defs.map((d, i) => (
+        <mesh key={`scrap-${i}`}>
+          <planeGeometry args={[d.wide, d.tall]} />
+          <meshBasicMaterial
+            color={d.color}
+            transparent
+            opacity={0.55}
+            side={2}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// DistantSmokeWisps — 4 kolom asap tipis naik dari arah CityRuins (luar
+// hex ring, fog distance). Vertikal plane dengan opacity pulse + slight
+// drift horizontal — "kebakaran sisa" di kota jauh, atmosfer post-storm.
+const SMOKE_WISP_DEFS = [
+  { pos: [12, 3, -10], height: 4, sway: 0.4 },
+  { pos: [-13, 2.5, -8], height: 3.5, sway: 0.3 },
+  { pos: [10, 3.2, 11], height: 4.2, sway: 0.5 },
+  { pos: [-11, 2.8, 12], height: 3.8, sway: 0.35 },
+];
+const SmokeWisp = ({ pos, height, sway }) => {
+  const matRef = useRef();
+  const groupRef = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (matRef.current) {
+      matRef.current.opacity = 0.18 + Math.sin(t * 0.4 + pos[0]) * 0.06;
+    }
+    if (groupRef.current) {
+      groupRef.current.rotation.z = Math.sin(t * 0.3 + pos[2]) * sway * 0.1;
+    }
+  });
+  return (
+    <group ref={groupRef} position={pos}>
+      <mesh position={[0, height / 2, 0]}>
+        <planeGeometry args={[2.2, height]} />
+        <meshBasicMaterial
+          ref={matRef}
+          color="#3a2f28"
+          transparent
+          opacity={0.2}
+          depthWrite={false}
+          side={2}
+        />
+      </mesh>
+      {/* Lower hot core — sedikit emisi kuning */}
+      <mesh position={[0, 0.15, 0.02]}>
+        <planeGeometry args={[0.6, 0.35]} />
+        <meshBasicMaterial
+          color="#a85020"
+          transparent
+          opacity={0.25}
+          depthWrite={false}
+          side={2}
+        />
+      </mesh>
+    </group>
+  );
+};
+const DistantSmokeWisps = () => (
+  <>
+    {SMOKE_WISP_DEFS.map((s, i) => (
+      <SmokeWisp key={`sw-${i}`} {...s} />
+    ))}
+  </>
+);
+
 const TornOmikujiStrips = ({ pos = [-4.0, 0, 2.5], rot = -0.2 }) => {
   const hangingRef = useRef();
   useFrame((state) => {
@@ -7268,6 +7438,11 @@ const TamanScene = ({
       {!purified && <SnappedDeadTrees />}
       {!purified && <CollapsedWallFragments />}
       {!purified && !isMobile && <DustDevils />}
+      {/* Atmospheric drought polish — sky/distance motion biar sky gak
+          kerasa kosong dan kota jauh punya "life" sisa post-storm. */}
+      {!purified && <CirclingVultures />}
+      {!purified && !isMobile && <WindBlownScraps count={isMobile ? 8 : 16} />}
+      {!purified && <DistantSmokeWisps />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
