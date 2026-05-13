@@ -83,6 +83,10 @@ const TamanKolamKataGersangPage = lazy(() =>
 const TamanArsipIngatanPage = lazy(() =>
   import('./pages/TamanArsipIngatan')
 );
+// r4 (Menara Jam) — clock tower north petak. Single file dengan prop
+// `restored` (pola sama r2: diff antar state visual + content kecil,
+// gak butuh split file). Stub fase awal — full scene menyusul.
+const TamanMenaraJamPage = lazy(() => import('./pages/TamanMenaraJam'));
 // Denyut — heartbeat website (presence-driven pulse visual). Standalone
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
@@ -149,6 +153,11 @@ const R2_UNLOCK_THRESHOLD = 5000;
 const R2_RESTORATION_THRESHOLD = 7000;
 const R3_UNLOCK_THRESHOLD = 4000;
 const R3_RESTORATION_THRESHOLD = 6000;
+// r4 (Menara Jam) early-game tier — unlock pertama setelah peta buka,
+// kasih payoff cepat ("kota inget waktu lagi"). Restore @ 5000 sinkron
+// dengan r2 unlock, milestone "kota fungsional".
+const R4_UNLOCK_THRESHOLD = 3000;
+const R4_RESTORATION_THRESHOLD = 5000;
 
 // Returns { count, loaded }. `loaded` flag false sampai first RTDB
 // snapshot masuk — penting biar route guard / chooser gak bikin
@@ -252,6 +261,34 @@ const TamanR2RouteChooser = () => {
   return <TamanArsipIngatanPage restored={restored} />;
 };
 
+// r4 (Menara Jam) chooser — pola sama r2 (single file dengan prop
+// `restored`). Locked <3000 (redirect ke peta), drought 3000-4999 (menara
+// mulai jalan tapi separuh), restored di 5000.
+const TamanR4RouteChooser = () => {
+  const { count, loaded } = useTreeSupportCount();
+  const [searchParams] = useSearchParams();
+  const override = import.meta.env.DEV
+    ? searchParams.get('restoration')
+    : null;
+  const forceUnlock =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
+
+  if (override !== null) {
+    const n = parseFloat(override);
+    const restored = !Number.isNaN(n) && n >= 0.5;
+    return <TamanMenaraJamPage restored={restored} />;
+  }
+  if (forceUnlock) {
+    return <TamanMenaraJamPage restored={false} />;
+  }
+  if (!loaded) return <PageLoader />;
+  if (count < R4_UNLOCK_THRESHOLD) {
+    return <Navigate to="/armeniacaTown/peta" replace />;
+  }
+  const restored = count >= R4_RESTORATION_THRESHOLD;
+  return <TamanMenaraJamPage restored={restored} />;
+};
+
 const TamanR3RouteChooser = () => {
   const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
@@ -330,6 +367,7 @@ function AppShell() {
             <Route path="/armeniacaTown/r1" element={<TamanR1RouteChooser />} />
             <Route path="/armeniacaTown/r2" element={<TamanR2RouteChooser />} />
             <Route path="/armeniacaTown/r3" element={<TamanR3RouteChooser />} />
+            <Route path="/armeniacaTown/r4" element={<TamanR4RouteChooser />} />
             {/* Backward-compat: rute /taman/* dari era sebelum rebrand
                 ke /armeniacaTown. Link lama tetep valid. */}
             <Route
@@ -351,6 +389,10 @@ function AppShell() {
             <Route
               path="/taman/r3"
               element={<Navigate to="/armeniacaTown/r3" replace />}
+            />
+            <Route
+              path="/taman/r4"
+              element={<Navigate to="/armeniacaTown/r4" replace />}
             />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand
                 Museum → Taman → ArmeniacaTown */}

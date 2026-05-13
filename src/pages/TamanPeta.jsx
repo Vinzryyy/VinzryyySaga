@@ -45,13 +45,15 @@ import { subscribeToTreeSupports } from '../lib/treeDb';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
-// 4000 = r1 restored + r3 unlocked drought, 5000 = r2 (Perpustakaan)
-// unlocked drought, 6000 = r3 restored, 7000 = r2 restored (pulih
-// penuh — milestone akhir).
+// 3000 = r4 (Menara Jam) unlock drought, 4000 = r1 restored + r3 unlocked
+// drought, 5000 = r2 (Perpustakaan) unlock drought + r4 restore, 6000 = r3
+// restored, 7000 = r2 restored (pulih penuh — milestone akhir).
 const MAP_THRESHOLDS = {
   mapUnlock: 2000,
+  r4Unlock: 3000,
   r1Restore: 4000,
   r3Unlock: 4000,
+  r4Restore: 5000,
   r2Unlock: 5000,
   r3Restore: 6000,
   r2Restore: 7000,
@@ -10163,6 +10165,307 @@ const TornOmikujiStrips = ({ pos = [-4.0, 0, 2.5], rot = -0.2 }) => {
   );
 };
 
+// PetaMenara — petak r4 di utara peta (z=-8, lebih jauh dari hub
+// dibanding Telaga/Arsip @ z=-1 supaya silhouette tower tinggi kebaca
+// dari atas). Vertikal landmark — bukan flat disc/bangunan kayak r2/r3,
+// tapi menara ramping yang nembus skyline. 3 state berdasarkan tree
+// support count:
+//   locked   (count < 3000)  — menara ambruk: base utuh, kolom miring
+//                              tergeletak ke -X, dial pecah di tanah,
+//                              opacity muted + lock cube di base.
+//   drought  (3000-4999)     — menara berdiri lagi, dial cracked, satu
+//                              jarum (menit) hilang, ada hint emissive
+//                              dim di dial. Stub fase awal — full detail
+//                              menyusul saat scene-nya dibangun.
+//   restored (>=5000)        — dial bersih, 2 jarum, kaca patri glow
+//                              warm di belakang dial, lonceng kecil di
+//                              puncak. Stub fase awal.
+//
+// Position [0, 0, -8] (utara, lebih jauh dari hub). Tinggi total ~3.2
+// units (vs petak lain yang ~0.8) — vertikal contrast biar kerasa
+// landmark.
+const PetaMenara = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  petakState = 'locked',
+  modalOpen = false,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
+  const groupRef = useRef();
+  const dialMatRef = useRef();
+  const bellMatRef = useRef();
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      const targetY = hovered && petakState !== 'locked' ? 0.25 : 0;
+      const factor = Math.min(delta * 8, 1);
+      groupRef.current.position.y = lerp(
+        groupRef.current.position.y,
+        targetY,
+        factor,
+      );
+    }
+    if (dialMatRef.current && petakState === 'restored') {
+      const t = state.clock.elapsedTime;
+      // Kaca patri di belakang dial — slow shimmer match Perpustakaan
+      // stained-glass treatment.
+      dialMatRef.current.emissiveIntensity =
+        0.5 + Math.sin(t * 0.6) * 0.12;
+    }
+    if (bellMatRef.current && petakState === 'restored') {
+      const t = state.clock.elapsedTime;
+      bellMatRef.current.emissiveIntensity =
+        0.35 + Math.sin(t * 1.4) * 0.1;
+    }
+  });
+
+  const isLocked = petakState === 'locked';
+  const isRestored = petakState === 'restored';
+  const baseOpacity = isLocked ? 0.55 : 1;
+
+  // Color palette per state — locked grey-muted, drought stone-warm,
+  // restored bronze + warm emissive.
+  const stoneColor = isRestored ? '#a89478' : isLocked ? '#5a5048' : '#7a6858';
+  const dialColor = isRestored ? '#f8e0b0' : '#3a3530';
+  const dialEmissive = isRestored ? '#e8a868' : '#000000';
+
+  const sublabel = isLocked
+    ? 'Belum terbuka'
+    : isRestored
+    ? 'Jam pulih'
+    : 'Jam separuh jalan';
+
+  return (
+    <group
+      ref={groupRef}
+      position={[0, 0, -8]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {/* Mobile tap-target — tall capsule covering tower height */}
+      <mesh position={[0, 1.4, 0]} visible={false}>
+        <cylinderGeometry args={[isMobile ? 1.6 : 1.1, isMobile ? 1.6 : 1.1, 3.4, 8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Visited halo — bronze ring di base, mirror Perpustakaan tone */}
+      {visited && !isLocked && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
+          <ringGeometry args={[0.9, 1.1, 32]} />
+          <meshStandardMaterial
+            color={isRestored ? '#f4d4a0' : '#c8a060'}
+            emissive={isRestored ? '#d49060' : '#a87060'}
+            emissiveIntensity={0.45}
+            transparent
+            opacity={0.55}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+
+      {/* === BASE PLATFORM === lebar lebih kecil dari Perpustakaan
+          (footprint vertical landmark) */}
+      <mesh position={[0, 0.08, 0]}>
+        <cylinderGeometry args={[0.85, 0.95, 0.16, 12]} />
+        <meshStandardMaterial
+          color="#5a4838"
+          roughness={0.95}
+          transparent
+          opacity={baseOpacity}
+        />
+      </mesh>
+
+      {isLocked ? (
+        <>
+          {/* === LOCKED STATE: menara ambruk ===
+              Tower kolom tergeletak ke arah -X (barat), patah jadi 2 segmen.
+              Base masih utuh. Dial pecah di tanah depan base. */}
+          {/* Stub base column (bawah kolom yang masih nyangkut) */}
+          <mesh position={[0, 0.45, 0]}>
+            <cylinderGeometry args={[0.32, 0.38, 0.6, 8]} />
+            <meshStandardMaterial
+              color={stoneColor}
+              roughness={0.95}
+              transparent
+              opacity={baseOpacity}
+            />
+          </mesh>
+          {/* Fallen segment 1 — tergeletak ke -X, putus dari base */}
+          <mesh position={[-0.95, 0.32, 0.1]} rotation={[0, 0.15, Math.PI / 2.2]}>
+            <cylinderGeometry args={[0.28, 0.3, 0.85, 8]} />
+            <meshStandardMaterial
+              color={stoneColor}
+              roughness={0.95}
+              transparent
+              opacity={baseOpacity}
+            />
+          </mesh>
+          {/* Fallen segment 2 — lebih jauh ke -X */}
+          <mesh position={[-1.75, 0.28, 0.15]} rotation={[0, -0.1, Math.PI / 2.3]}>
+            <cylinderGeometry args={[0.24, 0.26, 0.7, 8]} />
+            <meshStandardMaterial
+              color={stoneColor}
+              roughness={0.95}
+              transparent
+              opacity={baseOpacity}
+            />
+          </mesh>
+          {/* Broken dial — flat disc di tanah, retak */}
+          <mesh position={[-2.25, 0.18, 0.25]} rotation={[-Math.PI / 2.3, 0.1, 0.3]}>
+            <cylinderGeometry args={[0.42, 0.42, 0.04, 16]} />
+            <meshStandardMaterial
+              color="#4a4038"
+              roughness={1}
+              transparent
+              opacity={baseOpacity}
+            />
+          </mesh>
+          {/* Lock cube floating depan base — match locked treatment Telaga/Arsip */}
+          <mesh position={[0, 0.95, 0.6]}>
+            <boxGeometry args={[0.22, 0.2, 0.12]} />
+            <meshStandardMaterial color="#5a5048" roughness={1} />
+          </mesh>
+          {/* Lock shackle (bow on top of cube) */}
+          <mesh position={[0, 1.1, 0.6]} rotation={[0, 0, 0]}>
+            <torusGeometry args={[0.06, 0.018, 6, 12, Math.PI]} />
+            <meshStandardMaterial color="#5a5048" roughness={1} />
+          </mesh>
+        </>
+      ) : (
+        <>
+          {/* === DROUGHT/RESTORED STATE: menara berdiri ===
+              Stub fase awal — silhouette dasar (base shaft + clock face slab
+              + spire). Full detail (gear teeth, weathered texture, pendulum,
+              bell housing) menyusul saat scene r4 dibangun. */}
+          {/* Main shaft — kolom utama menara, tinggi ~2.4 unit */}
+          <mesh position={[0, 1.4, 0]}>
+            <cylinderGeometry args={[0.32, 0.4, 2.4, 8]} />
+            <meshStandardMaterial
+              color={stoneColor}
+              roughness={0.92}
+            />
+          </mesh>
+          {/* Tower cap — ring tipis di atas shaft, base buat dial */}
+          <mesh position={[0, 2.62, 0]}>
+            <cylinderGeometry args={[0.42, 0.36, 0.12, 8]} />
+            <meshStandardMaterial
+              color={isRestored ? '#7a6048' : '#5a4838'}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Clock dial — slab depan menghadap +Z (selatan, ke arah hub) */}
+          <mesh position={[0, 2.78, 0.34]} rotation={[0, 0, 0]}>
+            <cylinderGeometry args={[0.34, 0.34, 0.05, 24]} />
+            <meshStandardMaterial
+              ref={dialMatRef}
+              color={dialColor}
+              emissive={dialEmissive}
+              emissiveIntensity={isRestored ? 0.5 : 0}
+              roughness={isRestored ? 0.5 : 1}
+              transparent={!isRestored}
+              opacity={isRestored ? 1 : 0.9}
+            />
+          </mesh>
+          {/* Dial rim — ring tipis di luar dial face */}
+          <mesh position={[0, 2.78, 0.355]}>
+            <torusGeometry args={[0.34, 0.025, 6, 24]} />
+            <meshStandardMaterial
+              color={isRestored ? '#5a3a18' : '#3a2818'}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Hour hand — selalu ada di drought + restored */}
+          <mesh position={[0, 2.78, 0.39]} rotation={[0, 0, -0.6]}>
+            <boxGeometry args={[0.02, 0.22, 0.01]} />
+            <meshStandardMaterial color="#1a0f08" roughness={0.7} />
+          </mesh>
+          {/* Minute hand — HANYA di restored (drought = jarum hilang per spec) */}
+          {isRestored && (
+            <mesh position={[0, 2.78, 0.4]} rotation={[0, 0, 1.1]}>
+              <boxGeometry args={[0.015, 0.28, 0.008]} />
+              <meshStandardMaterial color="#1a0f08" roughness={0.7} />
+            </mesh>
+          )}
+          {/* Center pin */}
+          <mesh position={[0, 2.78, 0.41]}>
+            <sphereGeometry args={[0.025, 8, 6]} />
+            <meshStandardMaterial color="#3a2818" roughness={0.6} />
+          </mesh>
+          {/* Spire — kerucut runcing di atas tower */}
+          <mesh position={[0, 3.05, 0]}>
+            <coneGeometry args={[0.18, 0.36, 6]} />
+            <meshStandardMaterial
+              color={isRestored ? '#6a4828' : '#4a3828'}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Bell — kecil di bawah spire, hanya restored (sesuai spec: bel
+              bisu di drought, hourly chime di restored) */}
+          {isRestored && (
+            <mesh position={[0, 2.92, -0.18]}>
+              <coneGeometry args={[0.08, 0.12, 8]} />
+              <meshStandardMaterial
+                ref={bellMatRef}
+                color="#c89860"
+                emissive="#e8a868"
+                emissiveIntensity={0.35}
+                roughness={0.55}
+                metalness={0.4}
+              />
+            </mesh>
+          )}
+        </>
+      )}
+
+      {!modalOpen && (
+        <Html position={[0, isLocked ? 1.4 : 3.55, 0]} center distanceFactor={10} occlude={false}>
+          <div
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered && !isLocked ? '-translate-y-1' : ''
+            }`}
+          >
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                isLocked
+                  ? 'text-white/45'
+                  : hovered
+                  ? 'text-white'
+                  : 'text-white/80'
+              }`}
+            >
+              Menara Jam
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                isLocked
+                  ? 'text-white/30'
+                  : hovered
+                  ? 'text-amber-200/85'
+                  : 'text-white/55'
+              }`}
+            >
+              {sublabel}
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -10170,6 +10473,7 @@ const TamanScene = ({
   hoveredLorong,
   hoveredTelaga,
   hoveredArsip,
+  hoveredMenara,
   previewedPetak,
   flyInActive,
   isMobile = false,
@@ -10177,6 +10481,7 @@ const TamanScene = ({
   modalOpen = false,
   telagaState = 'locked',
   arsipState = 'drought',
+  menaraState = 'locked',
   armeniacaCount = 0,
   armeniacaLoaded = false,
   purified = false,
@@ -10200,6 +10505,9 @@ const TamanScene = ({
   onArsipHover,
   onArsipOut,
   onArsipClick,
+  onMenaraHover,
+  onMenaraOut,
+  onMenaraClick,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -10212,7 +10520,8 @@ const TamanScene = ({
     hoveredGerbang ||
     hoveredLorong ||
     hoveredTelaga ||
-    hoveredArsip;
+    hoveredArsip ||
+    hoveredMenara;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
   // berputar. Resume manual control begitu user drag/zoom/touch atau
@@ -10331,6 +10640,7 @@ const TamanScene = ({
       <HoverHalo pos={[0, 0.02, 4]} visible={hoveredLorong} color="#e8b878" />
       <HoverHalo pos={[-7, 0.02, -1]} visible={hoveredTelaga} color="#8ac8e0" />
       <HoverHalo pos={[7, 0.02, -1]} visible={hoveredArsip} color="#c8a060" />
+      <HoverHalo pos={[0, 0.02, -8]} visible={hoveredMenara} color="#e8a868" />
       <CompassTracker targetRef={compassRotateRef} />
       {/* Prasasti quotes — 3 fragmen worldbuilding scattered di scene.
           Hidden saat modal open biar gak overlap text dengan card. */}
@@ -10437,6 +10747,16 @@ const TamanScene = ({
         onPointerOver={onArsipHover}
         onPointerOut={onArsipOut}
         onClick={onArsipClick}
+      />
+      <PetaMenara
+        hovered={hoveredMenara}
+        visited={previewedPetak.has('menara')}
+        isMobile={isMobile}
+        petakState={menaraState}
+        modalOpen={modalOpen}
+        onPointerOver={onMenaraHover}
+        onPointerOut={onMenaraOut}
+        onClick={onMenaraClick}
       />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
@@ -10570,6 +10890,38 @@ const PETA_PETAK_INFO = {
     route: '/armeniacaTown/r2',
     accent: '#e8d4a8',
   },
+  // Menara Jam (r4) — 3 varian copy mirror Telaga/Perpustakaan. State
+  // dipilih di handler berdasarkan menaraState computed dari count.
+  menaraLocked: {
+    id: 'menara',
+    name: 'Menara Jam',
+    eyebrow: 'Belum terbuka',
+    longDesc:
+      'Menara jam di utara kota ini masih ambruk. Kolomnya tergeletak, dialnya pecah di tanah. Pintunya nungguin 3.000 kebaikan terkumpul di Pohon — sebelum ada yang mau benerin, kota belum bisa inget jam berapa sekarang.',
+    cta: 'Siram di /26',
+    route: '/26',
+    accent: '#9aa0a8',
+  },
+  menaraDrought: {
+    id: 'menara',
+    name: 'Menara Jam',
+    eyebrow: 'Jam separuh jalan',
+    longDesc:
+      'Menara jam udah ngadeg lagi — tapi jarum menitnya masih hilang, bel-nya masih bisu. Cuma jarum hour yang gerak akurat. Bandul di bawah dial nungguin event Eli terdekat. Kota mulai inget jam berapa sekarang, walau setengah-setengah.',
+    cta: 'Masuki menara',
+    route: '/armeniacaTown/r4',
+    accent: '#c8a060',
+  },
+  menaraRestored: {
+    id: 'menara',
+    name: 'Menara Jam',
+    eyebrow: 'Jam pulih',
+    longDesc:
+      'Dua jarum lengkap, dial bersih, kaca patri di belakangnya nyala lembut. Bel hourly chime berdentang halus tiap jam. Almanak Kota di base menara — daftar tanggal-tanggal milestone perjalanan Eli — bisa dibaca lagi. Kota inget waktu, dan ingatannya jalan tiap detik.',
+    cta: 'Masuki menara',
+    route: '/armeniacaTown/r4',
+    accent: '#e8d4a8',
+  },
 };
 
 // PetakPreviewModal — info panel yg muncul saat user click petak.
@@ -10651,11 +11003,13 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
     if (count >= MAP_THRESHOLDS.r3Restore)
       return 'Telaga terisi air, teratai mekar. Lanjut ke 7.000 untuk perpustakaan pulih.';
     if (count >= MAP_THRESHOLDS.r2Unlock)
-      return 'Perpustakaan terbuka — rak masih runtuh. Lanjut ke 6.000 untuk telaga pulih.';
+      return 'Menara jam pulih, perpustakaan terbuka. Lanjut ke 6.000 untuk telaga pulih.';
     if (count >= MAP_THRESHOLDS.r3Unlock)
-      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 5.000 untuk perpustakaan buka.';
+      return 'Lorong terisi cahaya, telaga terbuka. Lanjut ke 5.000 untuk perpustakaan buka & menara pulih.';
+    if (count >= MAP_THRESHOLDS.r4Unlock)
+      return 'Jam kota mulai jalan — separuh. Lanjut ke 4.000 untuk lorong & telaga buka.';
     if (count >= MAP_THRESHOLDS.mapUnlock)
-      return 'Peta terbuka — kota mulai inget bentuknya. Lanjut ke 4.000 untuk lorong & telaga.';
+      return 'Peta terbuka — kota mulai inget bentuknya. Lanjut ke 3.000 untuk menara jam buka.';
     return `Pulih sepenuhnya di ${fullRestore.toLocaleString('id-ID')}`;
   })();
   return (
@@ -11061,6 +11415,7 @@ const TamanPetaPage = () => {
   const [hoveredLorong, setHoveredLorong] = useState(false);
   const [hoveredTelaga, setHoveredTelaga] = useState(false);
   const [hoveredArsip, setHoveredArsip] = useState(false);
+  const [hoveredMenara, setHoveredMenara] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
@@ -11096,6 +11451,15 @@ const TamanPetaPage = () => {
     if (armeniacaCount >= MAP_THRESHOLDS.r2Unlock) return 'drought';
     return 'locked';
   }, [armeniacaCount, armeniacaLoaded, purified]);
+  // Menara Jam visual state (early-game tier — pertama unlocked):
+  //   <3000 = locked, 3000-4999 = drought, >=5000 = restored
+  const menaraState = useMemo(() => {
+    if (purified) return 'restored';
+    if (!armeniacaLoaded) return 'locked';
+    if (armeniacaCount >= MAP_THRESHOLDS.r4Restore) return 'restored';
+    if (armeniacaCount >= MAP_THRESHOLDS.r4Unlock) return 'drought';
+    return 'locked';
+  }, [armeniacaCount, armeniacaLoaded, purified]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
@@ -11121,7 +11485,8 @@ const TamanPetaPage = () => {
         hoveredGerbang ||
         hoveredLorong ||
         hoveredTelaga ||
-        hoveredArsip);
+        hoveredArsip ||
+        hoveredMenara);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
@@ -11133,6 +11498,7 @@ const TamanPetaPage = () => {
     hoveredLorong,
     hoveredTelaga,
     hoveredArsip,
+    hoveredMenara,
     flyInActive,
   ]);
 
@@ -11231,6 +11597,24 @@ const TamanPetaPage = () => {
     setPetakPreview(info);
   };
 
+  // Menara handlers — clock tower di utara (z=-8, lebih jauh dari hub).
+  // Preview info dipilih dari 3 varian berdasarkan computed menaraState.
+  const handleMenaraHover = () => {
+    if (flyInActive) return;
+    setHoveredMenara(true);
+  };
+  const handleMenaraOut = () => setHoveredMenara(false);
+  const handleMenaraClick = () => {
+    if (flyInActive) return;
+    const info =
+      menaraState === 'restored'
+        ? PETA_PETAK_INFO.menaraRestored
+        : menaraState === 'drought'
+        ? PETA_PETAK_INFO.menaraDrought
+        : PETA_PETAK_INFO.menaraLocked;
+    setPetakPreview(info);
+  };
+
   // Modal preview handlers — close (dismiss tanpa navigate) atau
   // confirm (close modal lalu navigate ke petak route).
   const handlePetakPreviewClose = () => setPetakPreview(null);
@@ -11282,6 +11666,7 @@ const TamanPetaPage = () => {
               hoveredLorong={hoveredLorong}
               hoveredTelaga={hoveredTelaga}
               hoveredArsip={hoveredArsip}
+              hoveredMenara={hoveredMenara}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               isMobile={isMobile}
@@ -11289,6 +11674,7 @@ const TamanPetaPage = () => {
               modalOpen={Boolean(selectedPetak) || Boolean(petakPreview)}
               telagaState={telagaState}
               arsipState={arsipState}
+              menaraState={menaraState}
               armeniacaCount={armeniacaCount}
               armeniacaLoaded={armeniacaLoaded}
               purified={purified}
@@ -11312,6 +11698,9 @@ const TamanPetaPage = () => {
               onArsipHover={handleArsipHover}
               onArsipOut={handleArsipOut}
               onArsipClick={handleArsipClick}
+              onMenaraHover={handleMenaraHover}
+              onMenaraOut={handleMenaraOut}
+              onMenaraClick={handleMenaraClick}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
