@@ -10202,29 +10202,31 @@ const TamanScene = ({
                      Sun baru tenggelam, langit simpan sisa warmth.
           purified → soft dawn rose + lighter background, fog mundur sedikit
                      (visibility lebih jauh — kota udah gak ngumpet di debu). */}
+      {/* Fog far di-push lebih jauh (38→52, 44→58) — foreground gak murky,
+          distance still attenuates. Contrast push. */}
       <fog
         attach="fog"
-        args={purified ? ['#7a5868', 18, 44] : ['#5a3540', 14, 38]}
+        args={purified ? ['#7a5868', 22, 58] : ['#5a3540', 18, 52]}
       />
-      <color attach="background" args={[purified ? '#3a2a35' : '#2a1f25']} />
-      {/* Ambient — drought: warm-gray tone ("siang berdebu di kota mati").
-          Purified: shift ke rose warmer + intensity naik (twilight ramah). */}
+      <color attach="background" args={[purified ? '#2a1d28' : '#1a1018']} />
+      {/* Ambient turunin (0.5→0.28, 0.55→0.32) — shadow side deeper.
+          Key light naikin sedikit (1.32→1.5, 1.35→1.55) — highlight pop. */}
       <ambientLight
-        intensity={purified ? 0.55 : 0.5}
+        intensity={purified ? 0.32 : 0.28}
         color={purified ? '#e0c0a8' : '#c0a090'}
       />
       {/* Key light — drought: amber pucat ("matahari nembus debu").
           Purified: golden hour cozy (peach-amber, intensity naik). */}
       <directionalLight
         position={[8, 12, 6]}
-        intensity={purified ? 1.35 : 1.32}
+        intensity={purified ? 1.55 : 1.5}
         color={purified ? '#f8c898' : '#f4b078'}
       />
       {/* Fill — drought: warm dusty, shadow side ruins tetep keliatan.
           Purified: rose-amber warmer untuk wash atmosfer pulih. */}
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={purified ? 0.72 : 0.7}
+        intensity={purified ? 0.48 : 0.45}
         color={purified ? '#c8a890' : '#b8907a'}
       />
       <TamanFloor purified={purified} />
@@ -11260,7 +11262,7 @@ const TamanPetaPage = () => {
                 />
                 {/* Vignette darken edges — frame fokus ke pohon di tengah,
                     juga ngebantu hide harsh ground edge di tepi screen. */}
-                <Vignette eskil={false} offset={0.3} darkness={0.55} />
+                <Vignette eskil={false} offset={0.28} darkness={0.78} />
                 {/* ACES filmic tonemapping — pal warm-cool twilight jadi
                     lebih dramatik & film-grade, bukan flat sRGB. */}
                 <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
