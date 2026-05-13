@@ -2971,17 +2971,16 @@ const PetaArsip = ({
         ) : (
           <>
             {/* === RUIN VARIANT (drought + locked) ===
-                Damaged Japanese pagoda — mirror konstruksi purified tapi
-                rusak parah. Hashira leaning/patah, shoji frames kosong
-                (paper hilang), atap setengah runtuh, sōrin patah jatuh,
-                koma-inu kepala hilang, karesansui terganggu, bambu kering.
-                Tone warm-dust matching scene drought (#3a2820 base palette). */}
+                Damaged Japanese pagoda — palette diperterang supaya
+                visible di drought scene yg muram, plus heavy pollution
+                markers (smoke wisp, oil stain, mud puddle, withered vine,
+                crow silhouette, more scattered debris). */}
 
             {/* === ISHIDAN STONE PLATFORM (cracked) === */}
             <mesh position={[0, 0.04, 0]}>
               <boxGeometry args={[2.0, 0.08, 1.7]} />
               <meshStandardMaterial
-                color="#4a3a2a"
+                color="#7a6448"
                 roughness={0.95}
                 transparent
                 opacity={baseOpacity}
@@ -2990,25 +2989,43 @@ const PetaArsip = ({
             {/* Crack line tipis di stone platform (NW corner) */}
             <mesh position={[-0.6, 0.085, -0.5]} rotation={[-Math.PI / 2, 0, 0.6]}>
               <planeGeometry args={[0.5, 0.012]} />
-              <meshStandardMaterial color="#1a1008" />
+              <meshStandardMaterial color="#3a2010" />
+            </mesh>
+            {/* Crack line ke-2 (SE corner) — kerasa weathering merata */}
+            <mesh position={[0.55, 0.085, 0.45]} rotation={[-Math.PI / 2, 0, -0.4]}>
+              <planeGeometry args={[0.6, 0.014]} />
+              <meshStandardMaterial color="#3a2010" />
             </mesh>
             {/* Tier 2 partial (chunked broken di corner -X) */}
             <mesh position={[0.15, 0.12, 0]}>
               <boxGeometry args={[1.6, 0.08, 1.5]} />
               <meshStandardMaterial
-                color="#5a4838"
+                color="#8a7460"
                 roughness={0.95}
                 transparent
                 opacity={baseOpacity}
               />
             </mesh>
+            {/* Dirt smear streaks di tier 2 atas (run-off discoloration) */}
+            {[
+              [-0.4, 0.16, 0.7], [0.3, 0.16, 0.65], [-0.6, 0.16, -0.6],
+            ].map(([x, y, z], i) => (
+              <mesh
+                key={`smear-${i}`}
+                position={[x, y, z]}
+                rotation={[-Math.PI / 2, 0, i * 0.3]}
+              >
+                <planeGeometry args={[0.18, 0.08]} />
+                <meshStandardMaterial color="#4a3828" roughness={0.95} />
+              </mesh>
+            ))}
             {/* Chunks of broken stone fallen di -X edge */}
             {[
               [-1.0, 0.05, -0.4], [-1.05, 0.04, 0.2], [-0.9, 0.04, -0.6],
             ].map(([x, y, z], i) => (
               <mesh key={`chunk-${i}`} position={[x, y, z]} rotation={[0.2, i * 0.5, 0.1]}>
                 <boxGeometry args={[0.16, 0.08, 0.14]} />
-                <meshStandardMaterial color="#5a4838" roughness={0.95} />
+                <meshStandardMaterial color="#8a7460" roughness={0.95} />
               </mesh>
             ))}
 
@@ -3016,7 +3033,7 @@ const PetaArsip = ({
             <mesh position={[0.1, 0.21, 0]}>
               <boxGeometry args={[1.5, 0.04, 1.5]} />
               <meshStandardMaterial
-                color="#3a2418"
+                color="#6a4828"
                 roughness={0.92}
                 transparent
                 opacity={baseOpacity}
@@ -3029,17 +3046,32 @@ const PetaArsip = ({
             ].map((g, i) => (
               <mesh key={`gap-${i}`} position={[g.x, 0.235, g.z]}>
                 <boxGeometry args={[g.w, 0.005, g.d]} />
-                <meshStandardMaterial color="#1a1008" />
+                <meshStandardMaterial color="#3a2010" />
               </mesh>
             ))}
             {/* Splinter shards (rebar tipis miring) */}
             <mesh position={[0.55, 0.27, -0.5]} rotation={[0, 0.4, 0.6]}>
               <boxGeometry args={[0.12, 0.018, 0.015]} />
-              <meshStandardMaterial color="#2a1810" roughness={0.95} />
+              <meshStandardMaterial color="#5a3820" roughness={0.95} />
             </mesh>
             <mesh position={[-0.2, 0.26, 0.6]} rotation={[0, -0.3, -0.4]}>
               <boxGeometry args={[0.1, 0.015, 0.015]} />
-              <meshStandardMaterial color="#2a1810" roughness={0.95} />
+              <meshStandardMaterial color="#5a3820" roughness={0.95} />
+            </mesh>
+            {/* Dust drift accumulation di sudut engawa (corner buildup) */}
+            <mesh
+              position={[0.65, 0.243, 0.65]}
+              rotation={[-Math.PI / 2, 0, 0.5]}
+            >
+              <circleGeometry args={[0.12, 8]} />
+              <meshStandardMaterial color="#b8a080" roughness={0.95} />
+            </mesh>
+            <mesh
+              position={[-0.7, 0.243, -0.65]}
+              rotation={[-Math.PI / 2, 0, -0.3]}
+            >
+              <circleGeometry args={[0.1, 8]} />
+              <meshStandardMaterial color="#a8907a" roughness={0.95} />
             </mesh>
 
             {/* === HASHIRA POSTS (some leaning, some patah) === */}
@@ -3052,7 +3084,7 @@ const PetaArsip = ({
               <mesh key={`hash-r${i}`} position={c.pos} rotation={[0, 0, c.rot]}>
                 <boxGeometry args={[0.085, 0.86, 0.085]} />
                 <meshStandardMaterial
-                  color="#3a2418"
+                  color="#6a4828"
                   roughness={0.95}
                   transparent
                   opacity={baseOpacity}
@@ -3063,7 +3095,7 @@ const PetaArsip = ({
             <mesh position={[-0.7, 0.32, -0.6]}>
               <boxGeometry args={[0.085, 0.4, 0.085]} />
               <meshStandardMaterial
-                color="#2a1810"
+                color="#5a3820"
                 roughness={0.95}
                 transparent
                 opacity={baseOpacity}
@@ -3075,8 +3107,20 @@ const PetaArsip = ({
               rotation={[0, 0.5, Math.PI / 2]}
             >
               <boxGeometry args={[0.085, 0.5, 0.085]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+              <meshStandardMaterial color="#6a4828" roughness={0.95} />
             </mesh>
+
+            {/* === WITHERED VINE === dead brown vine drooping dari corner
+                hashira yg leaning, kerasa "alam nyerah duluan." */}
+            {[0.4, 0.55, 0.7, 0.82].map((y, i) => (
+              <mesh
+                key={`dead-vine-${i}`}
+                position={[-0.66, y, 0.62 + (i % 2) * 0.02]}
+              >
+                <sphereGeometry args={[0.035 + (i % 2) * 0.008, 5, 4]} />
+                <meshStandardMaterial color="#7a5828" roughness={0.95} />
+              </mesh>
+            ))}
 
             {/* === SHOJI WALLS (empty kumiko frames, paper hilang) === */}
             {/* Right side wall frame (x=0.7) — frame remaining, no paper */}
@@ -3087,7 +3131,7 @@ const PetaArsip = ({
               >
                 <boxGeometry args={[0.04, 0.85, 0.025]} />
                 <meshStandardMaterial
-                  color="#2a1810"
+                  color="#5a3820"
                   roughness={0.95}
                   transparent
                   opacity={baseOpacity}
@@ -3101,7 +3145,7 @@ const PetaArsip = ({
               >
                 <boxGeometry args={[0.04, 0.025, 1.2]} />
                 <meshStandardMaterial
-                  color="#2a1810"
+                  color="#5a3820"
                   roughness={0.95}
                   transparent
                   opacity={baseOpacity}
@@ -3116,7 +3160,7 @@ const PetaArsip = ({
               >
                 <boxGeometry args={[0.025, 0.85, 0.04]} />
                 <meshStandardMaterial
-                  color="#2a1810"
+                  color="#5a3820"
                   roughness={0.95}
                   transparent
                   opacity={baseOpacity}
@@ -3126,7 +3170,7 @@ const PetaArsip = ({
             <mesh position={[-0.3, 0.4, 0.6]}>
               <boxGeometry args={[0.65, 0.025, 0.04]} />
               <meshStandardMaterial
-                color="#2a1810"
+                color="#5a3820"
                 roughness={0.95}
                 transparent
                 opacity={baseOpacity}
@@ -3136,11 +3180,22 @@ const PetaArsip = ({
             <mesh position={[0.45, 0.66, 0.62]} rotation={[0, 0, -0.3]}>
               <planeGeometry args={[0.12, 0.32]} />
               <meshStandardMaterial
-                color="#8a7858"
+                color="#c8b890"
                 roughness={0.95}
                 side={2}
                 transparent
                 opacity={baseOpacity * 0.7}
+              />
+            </mesh>
+            {/* Tambahan torn paper shred ke-2 hanging dari side wall */}
+            <mesh position={[0.71, 0.5, -0.2]} rotation={[0, Math.PI / 2, 0.4]}>
+              <planeGeometry args={[0.1, 0.2]} />
+              <meshStandardMaterial
+                color="#b8a880"
+                roughness={0.95}
+                side={2}
+                transparent
+                opacity={baseOpacity * 0.6}
               />
             </mesh>
 
@@ -3150,7 +3205,7 @@ const PetaArsip = ({
                 {/* Stub lintel piece */}
                 <mesh position={[-0.7, 1.0, 0.25]} rotation={[0, 0, -0.15]}>
                   <boxGeometry args={[0.06, 0.06, 0.7]} />
-                  <meshStandardMaterial color="#2a1810" roughness={0.95} />
+                  <meshStandardMaterial color="#5a3820" roughness={0.95} />
                 </mesh>
                 {/* Plaque patah — fall ke ground depan */}
                 <mesh
@@ -3158,31 +3213,54 @@ const PetaArsip = ({
                   rotation={[Math.PI / 2, 0, 0.3]}
                 >
                   <boxGeometry args={[0.18, 0.025, 0.42]} />
-                  <meshStandardMaterial color="#3a2010" roughness={0.95} />
+                  <meshStandardMaterial color="#6a4828" roughness={0.95} />
                 </mesh>
                 {/* Books scattered di doma threshold + ground */}
                 <mesh position={[-0.5, 0.26, 0.18]} rotation={[0, 0.2, 0]}>
                   <boxGeometry args={[0.16, 0.04, 0.12]} />
-                  <meshStandardMaterial color="#5a3025" roughness={0.92} />
+                  <meshStandardMaterial color="#8a4838" roughness={0.92} />
                 </mesh>
                 <mesh
                   position={[-0.95, 0.04, 0.35]}
                   rotation={[0, 0.6, 0.05]}
                 >
                   <boxGeometry args={[0.15, 0.035, 0.11]} />
-                  <meshStandardMaterial color="#3a3858" roughness={0.92} />
+                  <meshStandardMaterial color="#5a5878" roughness={0.92} />
                 </mesh>
                 <mesh
                   position={[-1.05, 0.04, -0.05]}
                   rotation={[0, -0.3, 0.1]}
                 >
                   <boxGeometry args={[0.12, 0.18, 0.04]} />
-                  <meshStandardMaterial color="#5a4830" roughness={0.92} />
+                  <meshStandardMaterial color="#8a7048" roughness={0.92} />
                 </mesh>
                 {/* Ash scorch patch di tanah depan entrance */}
                 <mesh position={[-1.0, 0.011, 0.0]} rotation={[-Math.PI / 2, 0, 0.3]}>
                   <circleGeometry args={[0.22, 10]} />
-                  <meshStandardMaterial color="#1a0808" roughness={1} />
+                  <meshStandardMaterial color="#3a2010" roughness={1} />
+                </mesh>
+                {/* Tambahan paper trash flying-ish (scrolls torn) */}
+                <mesh
+                  position={[-1.15, 0.025, -0.42]}
+                  rotation={[-Math.PI / 2, 0, 0.4]}
+                >
+                  <planeGeometry args={[0.18, 0.05]} />
+                  <meshStandardMaterial
+                    color="#c8b890"
+                    roughness={0.95}
+                    side={2}
+                  />
+                </mesh>
+                <mesh
+                  position={[-0.85, 0.025, 0.7]}
+                  rotation={[-Math.PI / 2, 0, -0.3]}
+                >
+                  <planeGeometry args={[0.14, 0.04]} />
+                  <meshStandardMaterial
+                    color="#b8a880"
+                    roughness={0.95}
+                    side={2}
+                  />
                 </mesh>
               </>
             )}
@@ -3191,7 +3269,7 @@ const PetaArsip = ({
             {isLocked && (
               <mesh position={[-0.5, 0.45, 0]}>
                 <boxGeometry args={[0.18, 0.18, 0.1]} />
-                <meshStandardMaterial color="#5a5048" roughness={1} />
+                <meshStandardMaterial color="#8a8070" roughness={1} />
               </mesh>
             )}
 
@@ -3199,7 +3277,7 @@ const PetaArsip = ({
             <mesh position={[0.7, 0.6, 0]}>
               <boxGeometry args={[0.025, 0.42, 0.42]} />
               <meshStandardMaterial
-                color="#1a0e08"
+                color="#4a2818"
                 roughness={0.85}
                 transparent
                 opacity={baseOpacity}
@@ -3212,7 +3290,7 @@ const PetaArsip = ({
             <mesh position={[0.3, 1.1, 0.2]} rotation={[-0.18, 0, -0.12]}>
               <boxGeometry args={[1.5, 0.07, 1.4]} />
               <meshStandardMaterial
-                color="#2a2530"
+                color="#6a6070"
                 roughness={0.95}
                 transparent
                 opacity={baseOpacity}
@@ -3226,7 +3304,7 @@ const PetaArsip = ({
                 rotation={[-0.18, 0, -0.12]}
               >
                 <boxGeometry args={[1.45, 0.018, 0.08]} />
-                <meshStandardMaterial color="#3a3540" roughness={0.95} />
+                <meshStandardMaterial color="#7a7080" roughness={0.95} />
               </mesh>
             ))}
             {/* Exposed taruki rafters protruding (broken roof structure visible) */}
@@ -3237,13 +3315,14 @@ const PetaArsip = ({
                 rotation={[0.3 + i * 0.05, 0, -0.4]}
               >
                 <boxGeometry args={[0.6, 0.045, 0.045]} />
-                <meshStandardMaterial color="#2a1810" roughness={0.95} />
+                <meshStandardMaterial color="#5a3820" roughness={0.95} />
               </mesh>
             ))}
             {/* Scattered kawara tile shards di ground */}
             {[
               [-1.15, 0.04, 0.6], [-0.85, 0.03, 1.05],
               [0.5, 0.03, -1.1], [1.2, 0.04, 0.3],
+              [-0.55, 0.03, 1.15], [1.0, 0.03, -0.95],
             ].map(([x, y, z], i) => (
               <mesh
                 key={`shard-${i}`}
@@ -3251,9 +3330,43 @@ const PetaArsip = ({
                 rotation={[0.1, i * 0.5, 0.05]}
               >
                 <boxGeometry args={[0.1, 0.025, 0.08]} />
-                <meshStandardMaterial color="#3a3540" roughness={0.95} />
+                <meshStandardMaterial color="#7a7080" roughness={0.95} />
               </mesh>
             ))}
+
+            {/* === SMOKE WISPS rising dari collapsed roof === Decorative
+                tar smoke remaining post-disaster, kerasa "kebakaran udah
+                lewat tapi belum hilang." */}
+            <mesh position={[-0.4, 1.5, 0]}>
+              <planeGeometry args={[0.5, 0.8]} />
+              <meshBasicMaterial
+                color="#5a4838"
+                transparent
+                opacity={0.35}
+                depthWrite={false}
+                side={2}
+              />
+            </mesh>
+            <mesh position={[-0.3, 1.85, 0.1]}>
+              <planeGeometry args={[0.42, 0.65]} />
+              <meshBasicMaterial
+                color="#6a5848"
+                transparent
+                opacity={0.25}
+                depthWrite={false}
+                side={2}
+              />
+            </mesh>
+            <mesh position={[-0.15, 2.15, -0.05]}>
+              <planeGeometry args={[0.36, 0.55]} />
+              <meshBasicMaterial
+                color="#7a6858"
+                transparent
+                opacity={0.18}
+                depthWrite={false}
+                side={2}
+              />
+            </mesh>
 
             {/* === FALLEN SŌRIN === Pinnacle patah jatuh terbaring */}
             <mesh
@@ -3261,12 +3374,12 @@ const PetaArsip = ({
               rotation={[0, 0.4, Math.PI / 2]}
             >
               <cylinderGeometry args={[0.018, 0.022, 0.36, 6]} />
-              <meshStandardMaterial color="#5a3818" roughness={0.85} />
+              <meshStandardMaterial color="#8a5828" roughness={0.85} />
             </mesh>
             {/* Hoju jewel tergeletak (no longer glowing emissive kuat) */}
             <mesh position={[-1.4, 0.04, 0.55]}>
               <sphereGeometry args={[0.04, 8, 6]} />
-              <meshStandardMaterial color="#5a4828" roughness={0.85} />
+              <meshStandardMaterial color="#8a7038" roughness={0.85} />
             </mesh>
             {/* Lotus base fukubachi patah */}
             <mesh
@@ -3274,78 +3387,78 @@ const PetaArsip = ({
               rotation={[Math.PI / 2, 0, 0.3]}
             >
               <cylinderGeometry args={[0.075, 0.095, 0.04, 8]} />
-              <meshStandardMaterial color="#3a2818" roughness={0.95} />
+              <meshStandardMaterial color="#6a4828" roughness={0.95} />
             </mesh>
 
             {/* === TOPPLED TORO LANTERN === Stone lantern jatuh terbaring */}
             <mesh position={[-1.55, 0.04, 0.85]} rotation={[Math.PI / 2, 0, 0.2]}>
               <cylinderGeometry args={[0.05, 0.06, 0.22, 6]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             <mesh position={[-1.75, 0.05, 0.92]}>
               <boxGeometry args={[0.13, 0.1, 0.13]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             {/* Other toro masih berdiri intact (mirror agyō/ungyō ada satu yg ditegakkan) */}
             <mesh position={[-1.55, 0.2, -0.9]}>
               <boxGeometry args={[0.18, 0.08, 0.18]} />
-              <meshStandardMaterial color="#4a3828" roughness={0.95} />
+              <meshStandardMaterial color="#7a6448" roughness={0.95} />
             </mesh>
             <mesh position={[-1.55, 0.35, -0.9]}>
               <cylinderGeometry args={[0.05, 0.06, 0.22, 6]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             <mesh position={[-1.55, 0.51, -0.9]}>
               <boxGeometry args={[0.13, 0.13, 0.13]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             <mesh position={[-1.55, 0.61, -0.9]}>
               <coneGeometry args={[0.1, 0.07, 4]} />
-              <meshStandardMaterial color="#4a3828" roughness={0.95} />
+              <meshStandardMaterial color="#7a6448" roughness={0.95} />
             </mesh>
 
             {/* === BROKEN KOMA-INU === 1 utuh, 1 kepala hilang */}
             {/* Lion kiri intact (sitting weathered) */}
             <mesh position={[-1.55, 0.06, -0.45]}>
               <boxGeometry args={[0.14, 0.12, 0.16]} />
-              <meshStandardMaterial color="#4a3828" roughness={0.95} />
+              <meshStandardMaterial color="#7a6448" roughness={0.95} />
             </mesh>
             <mesh position={[-1.55, 0.21, -0.45]}>
               <boxGeometry args={[0.085, 0.13, 0.1]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             <mesh position={[-1.6, 0.3, -0.45]}>
               <sphereGeometry args={[0.05, 8, 6]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             {/* Lion kanan — kepala lepas terbaring di samping */}
             <mesh position={[-1.55, 0.06, 0.45]}>
               <boxGeometry args={[0.14, 0.12, 0.16]} />
-              <meshStandardMaterial color="#4a3828" roughness={0.95} />
+              <meshStandardMaterial color="#7a6448" roughness={0.95} />
             </mesh>
             <mesh position={[-1.55, 0.21, 0.45]}>
               <boxGeometry args={[0.085, 0.13, 0.1]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
             {/* Detached head di ground sebelahnya */}
             <mesh position={[-1.7, 0.05, 0.6]} rotation={[0.3, 0.5, 0.2]}>
               <sphereGeometry args={[0.05, 8, 6]} />
-              <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              <meshStandardMaterial color="#8a7460" roughness={0.95} />
             </mesh>
 
             {/* === DISTURBED KARESANSUI === Sand patch tipis tanpa rake pattern */}
             <mesh position={[0.3, 0.005, 1.3]} rotation={[-Math.PI / 2, 0, 0]}>
               <planeGeometry args={[1.3, 0.45]} />
-              <meshStandardMaterial color="#7a6048" roughness={0.95} />
+              <meshStandardMaterial color="#b8a080" roughness={0.95} />
             </mesh>
             {/* Rocks displaced/scattered */}
             <mesh position={[-0.2, 0.05, 1.4]} rotation={[0.2, 0.4, 0.3]} scale={[0.1, 0.07, 0.09]}>
               <sphereGeometry args={[1, 6, 5]} />
-              <meshStandardMaterial color="#3a2820" roughness={0.95} />
+              <meshStandardMaterial color="#6a4838" roughness={0.95} />
             </mesh>
             <mesh position={[0.5, 0.04, 1.15]} rotation={[0.4, 0, 0.2]} scale={[0.08, 0.05, 0.07]}>
               <sphereGeometry args={[1, 6, 5]} />
-              <meshStandardMaterial color="#4a3828" roughness={0.95} />
+              <meshStandardMaterial color="#7a6448" roughness={0.95} />
             </mesh>
 
             {/* === WITHERED BAMBOO GROVE === Stalks broken/dry */}
@@ -3362,7 +3475,7 @@ const PetaArsip = ({
                 rotation={[0, 0, b.lean]}
               >
                 <cylinderGeometry args={[0.03, 0.04, b.h, 5]} />
-                <meshStandardMaterial color="#5a4828" roughness={0.95} />
+                <meshStandardMaterial color="#8a7038" roughness={0.95} />
               </mesh>
             ))}
             {/* Broken bamboo segments di ground (snapped pieces) */}
@@ -3371,14 +3484,14 @@ const PetaArsip = ({
               rotation={[0, 0.3, Math.PI / 2]}
             >
               <cylinderGeometry args={[0.03, 0.03, 0.5, 5]} />
-              <meshStandardMaterial color="#4a3818" roughness={0.95} />
+              <meshStandardMaterial color="#7a5828" roughness={0.95} />
             </mesh>
             <mesh
               position={[-0.4, 0.05, 1.3]}
               rotation={[0, -0.4, Math.PI / 2]}
             >
               <cylinderGeometry args={[0.025, 0.025, 0.4, 5]} />
-              <meshStandardMaterial color="#4a3818" roughness={0.95} />
+              <meshStandardMaterial color="#7a5828" roughness={0.95} />
             </mesh>
 
             {/* === TATTERED NOREN === Single strip remaining torn hanging */}
@@ -3386,7 +3499,7 @@ const PetaArsip = ({
               <mesh position={[-0.78, 0.78, 0.05]} rotation={[0, 0, -0.18]}>
                 <planeGeometry args={[0.13, 0.28]} />
                 <meshStandardMaterial
-                  color="#3a2020"
+                  color="#6a4848"
                   roughness={0.95}
                   side={2}
                   transparent
@@ -3406,7 +3519,101 @@ const PetaArsip = ({
                 rotation={[-Math.PI / 2, 0, i * 0.4]}
               >
                 <circleGeometry args={[0.18, 8]} />
-                <meshStandardMaterial color="#1a0808" roughness={1} />
+                <meshStandardMaterial color="#3a2010" roughness={1} />
+              </mesh>
+            ))}
+
+            {/* === OIL/TAR STAIN PATCHES === Dark glossy patches scattered
+                di engawa/platform — kerasa polusi lebih heavy dari
+                ash kering biasa. */}
+            {[
+              { pos: [0.3, 0.243, -0.35], r: 0.16 },
+              { pos: [-0.5, 0.243, 0.4], r: 0.13 },
+              { pos: [0.2, 0.131, 0.5], r: 0.18 },
+            ].map((s, i) => (
+              <mesh
+                key={`tar-${i}`}
+                position={s.pos}
+                rotation={[-Math.PI / 2, 0, i * 0.6]}
+              >
+                <circleGeometry args={[s.r, 10]} />
+                <meshStandardMaterial
+                  color="#1a1208"
+                  roughness={0.6}
+                  metalness={0.2}
+                />
+              </mesh>
+            ))}
+
+            {/* === MUD PUDDLE === di ground depan genkan stairs (dark
+                glossy patch dari air drainage rusak) */}
+            <mesh
+              position={[-1.6, 0.012, 0.2]}
+              rotation={[-Math.PI / 2, 0, 0.3]}
+            >
+              <circleGeometry args={[0.32, 12]} />
+              <meshStandardMaterial
+                color="#3a2818"
+                roughness={0.4}
+                metalness={0.3}
+              />
+            </mesh>
+            {/* Smaller secondary puddle */}
+            <mesh
+              position={[-2.05, 0.012, -0.15]}
+              rotation={[-Math.PI / 2, 0, -0.2]}
+            >
+              <circleGeometry args={[0.2, 10]} />
+              <meshStandardMaterial
+                color="#3a2818"
+                roughness={0.45}
+                metalness={0.25}
+              />
+            </mesh>
+
+            {/* === DEBRIS PILE === Tumpukan kayu/batu campur di pojok
+                belakang kanan, kerasa "puing yang gak dibersihin." */}
+            {[
+              { pos: [1.3, 0.05, -0.95], scale: [0.18, 0.1, 0.14], rot: 0.3, c: '#6a4828' },
+              { pos: [1.4, 0.04, -1.05], scale: [0.14, 0.08, 0.16], rot: -0.5, c: '#7a6448' },
+              { pos: [1.25, 0.13, -1.0], scale: [0.12, 0.07, 0.1], rot: 0.6, c: '#5a3820' },
+              { pos: [1.42, 0.15, -0.9], scale: [0.1, 0.06, 0.12], rot: 0.2, c: '#7a7080' },
+            ].map((d, i) => (
+              <mesh
+                key={`debris-${i}`}
+                position={d.pos}
+                rotation={[0.1, d.rot, 0.15]}
+                scale={d.scale}
+              >
+                <boxGeometry args={[1, 1, 1]} />
+                <meshStandardMaterial color={d.c} roughness={0.95} />
+              </mesh>
+            ))}
+
+            {/* === CROW SILHOUETTE === Burung gelap nangkring di patah
+                hashira stub corner (post-disaster scavenger vibe). */}
+            <mesh position={[-0.7, 0.55, -0.6]}>
+              <sphereGeometry args={[0.04, 6, 5]} />
+              <meshBasicMaterial color="#0a0604" />
+            </mesh>
+            <mesh position={[-0.7, 0.6, -0.6]}>
+              <sphereGeometry args={[0.025, 6, 5]} />
+              <meshBasicMaterial color="#0a0604" />
+            </mesh>
+            <mesh position={[-0.69, 0.6, -0.575]}>
+              <coneGeometry args={[0.008, 0.025, 4]} />
+              <meshBasicMaterial color="#3a2818" />
+            </mesh>
+
+            {/* === DEAD WISTERIA === replace purified wisteria — dry brown
+                droops di back-right corner hashira (mirror slot). */}
+            {[0.32, 0.46, 0.6, 0.74, 0.88].map((y, i) => (
+              <mesh
+                key={`deadwist-${i}`}
+                position={[0.74, y, 0.64 + (i % 2) * 0.015]}
+              >
+                <sphereGeometry args={[0.025 + (i % 2) * 0.008, 5, 4]} />
+                <meshStandardMaterial color="#6a4828" roughness={0.95} />
               </mesh>
             ))}
           </>
