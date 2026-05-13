@@ -10197,6 +10197,11 @@ const PetaMenara = ({
   const groupRef = useRef();
   const dialMatRef = useRef();
   const bellMatRef = useRef();
+  // Refs polish 2026-05-13: stainedGlass = backplate kaca patri di
+  // belakang dial restored (match TamanMenaraJam scene). pendulum =
+  // bandul rotation swing reactive ke state.
+  const stainedGlassRef = useRef();
+  const pendulumRef = useRef();
 
   useFrame((state, delta) => {
     if (groupRef.current) {
@@ -10210,15 +10215,26 @@ const PetaMenara = ({
     }
     if (dialMatRef.current && petakState === 'restored') {
       const t = state.clock.elapsedTime;
-      // Kaca patri di belakang dial — slow shimmer match Perpustakaan
-      // stained-glass treatment.
       dialMatRef.current.emissiveIntensity =
         0.5 + Math.sin(t * 0.6) * 0.12;
+    }
+    if (stainedGlassRef.current && petakState === 'restored') {
+      const t = state.clock.elapsedTime;
+      stainedGlassRef.current.emissiveIntensity =
+        0.55 + Math.sin(t * 0.55) * 0.15;
     }
     if (bellMatRef.current && petakState === 'restored') {
       const t = state.clock.elapsedTime;
       bellMatRef.current.emissiveIntensity =
         0.35 + Math.sin(t * 1.4) * 0.1;
+    }
+    if (pendulumRef.current && petakState !== 'locked') {
+      const t = state.clock.elapsedTime;
+      // Drought subtle swing (0.06 rad), restored full (0.14 rad). Gak
+      // pakai schedule data check di sini — wasteful buat 7 petak di map
+      // view. Heuristic state-based aja.
+      const amp = petakState === 'restored' ? 0.14 : 0.06;
+      pendulumRef.current.rotation.z = Math.sin(t * (Math.PI / 1.2)) * amp;
     }
   });
 
@@ -10366,6 +10382,23 @@ const PetaMenara = ({
               roughness={0.9}
             />
           </mesh>
+          {/* Stained-glass backplate (restored only) — di belakang dial,
+              slightly larger radius, warm emissive pulse via useFrame.
+              Match scene TamanMenaraJam kaca patri treatment supaya
+              silhouette miniature konsisten sama destination scene. */}
+          {isRestored && (
+            <mesh position={[0, 2.78, 0.31]}>
+              <cylinderGeometry args={[0.38, 0.38, 0.03, 24]} />
+              <meshStandardMaterial
+                ref={stainedGlassRef}
+                color="#f4a868"
+                emissive="#e88040"
+                emissiveIntensity={0.55}
+                roughness={0.5}
+                toneMapped={false}
+              />
+            </mesh>
+          )}
           {/* Clock dial — slab depan menghadap +Z (selatan, ke arah hub) */}
           <mesh position={[0, 2.78, 0.34]} rotation={[0, 0, 0]}>
             <cylinderGeometry args={[0.34, 0.34, 0.05, 24]} />
@@ -10387,6 +10420,32 @@ const PetaMenara = ({
               roughness={0.9}
             />
           </mesh>
+          {/* Hour markers — 12 tick (4 cardinal bigger). Bumped sizes
+              dari scene karena viewed dari isometric camera @ ~10 unit
+              distance, perlu kebaca clearly. */}
+          {Array.from({ length: 12 }, (_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            const isCardinal = i % 3 === 0;
+            const len = isCardinal ? 0.07 : 0.04;
+            const r = 0.34 - len / 2 - 0.012;
+            return (
+              <mesh
+                key={`tick-${i}`}
+                position={[
+                  Math.sin(angle) * r,
+                  2.78 + Math.cos(angle) * r,
+                  0.37,
+                ]}
+                rotation={[0, 0, -angle]}
+              >
+                <boxGeometry args={[isCardinal ? 0.022 : 0.014, len, 0.005]} />
+                <meshStandardMaterial
+                  color={isRestored ? '#5a3a18' : '#3a2818'}
+                  roughness={0.7}
+                />
+              </mesh>
+            );
+          })}
           {/* Hour hand — selalu ada di drought + restored */}
           <mesh position={[0, 2.78, 0.39]} rotation={[0, 0, -0.6]}>
             <boxGeometry args={[0.02, 0.22, 0.01]} />
@@ -10427,6 +10486,38 @@ const PetaMenara = ({
               />
             </mesh>
           )}
+          {/* === PENDULUM HINT === silhouette element — rod + bob hang
+              dari bawah dial. Swing amplitude diatur di useFrame per
+              petakState. Match scene TamanMenaraJam pendulum, scaled
+              ke peta. Drought + restored sama-sama dapet bandul (drought
+              gerak kecil, restored full swing). */}
+          <group ref={pendulumRef} position={[0, 2.42, 0.33]}>
+            {/* Pivot bracket */}
+            <mesh position={[0, 0, -0.03]}>
+              <cylinderGeometry args={[0.025, 0.025, 0.02, 6]} />
+              <meshStandardMaterial color="#3a2818" roughness={0.85} />
+            </mesh>
+            {/* Rod */}
+            <mesh position={[0, -0.3, 0]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.6, 6]} />
+              <meshStandardMaterial
+                color={isRestored ? '#8a6838' : '#4a3828'}
+                roughness={0.7}
+                metalness={0.3}
+              />
+            </mesh>
+            {/* Bob */}
+            <mesh position={[0, -0.6, 0]}>
+              <cylinderGeometry args={[0.06, 0.06, 0.035, 16]} />
+              <meshStandardMaterial
+                color={isRestored ? '#c89860' : '#6a5238'}
+                emissive={isRestored ? '#e8a868' : '#3a2810'}
+                emissiveIntensity={isRestored ? 0.35 : 0.05}
+                roughness={isRestored ? 0.5 : 0.85}
+                metalness={isRestored ? 0.5 : 0.2}
+              />
+            </mesh>
+          </group>
         </>
       )}
 
