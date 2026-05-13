@@ -42,6 +42,10 @@ import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
+// computeWibTime — dipakai di PetaMenara buat freeze hands ke real WIB
+// time saat mount. Subtle "kota inget waktu" cue di map level tanpa
+// per-frame cost (kalau live, butuh useWibTime + re-render tiap detik).
+import { computeWibTime } from '../components/taman/r4/utils';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -10251,6 +10255,17 @@ const PetaMenara = ({
   const dialColor = isRestored ? '#f8e0b0' : '#3a3530';
   const dialEmissive = isRestored ? '#e8a868' : '#000000';
 
+  // Hand angles frozen ke real WIB time saat mount — tiap visit jam-nya
+  // beda, kasih illusion "kota inget waktu" tanpa per-frame re-render
+  // (peta punya 7 petak, useWibTime di sini = overkill).
+  const handAngles = useMemo(() => {
+    const t = computeWibTime();
+    return {
+      hour: -(t.hour12Frac / 12) * Math.PI * 2,
+      minute: -(t.minuteFrac / 60) * Math.PI * 2,
+    };
+  }, []);
+
   const sublabel = isLocked
     ? 'Belum terbuka'
     : isRestored
@@ -10486,17 +10501,23 @@ const PetaMenara = ({
               <meshStandardMaterial color="#1a0f08" roughness={1} />
             </mesh>
           )}
-          {/* Hour hand — selalu ada di drought + restored */}
-          <mesh position={[0, 2.78, 0.39]} rotation={[0, 0, -0.6]}>
-            <boxGeometry args={[0.02, 0.22, 0.01]} />
-            <meshStandardMaterial color="#1a0f08" roughness={0.7} />
-          </mesh>
-          {/* Minute hand — HANYA di restored (drought = jarum hilang per spec) */}
-          {isRestored && (
-            <mesh position={[0, 2.78, 0.4]} rotation={[0, 0, 1.1]}>
-              <boxGeometry args={[0.015, 0.28, 0.008]} />
+          {/* Hour hand — selalu ada di drought + restored. Pivot di
+              dial center, length extends +Y. handAngles dari WIB time
+              saat mount. */}
+          <group position={[0, 2.78, 0.39]} rotation={[0, 0, handAngles.hour]}>
+            <mesh position={[0, 0.11, 0]}>
+              <boxGeometry args={[0.02, 0.22, 0.01]} />
               <meshStandardMaterial color="#1a0f08" roughness={0.7} />
             </mesh>
+          </group>
+          {/* Minute hand — HANYA di restored (drought = jarum hilang per spec) */}
+          {isRestored && (
+            <group position={[0, 2.78, 0.4]} rotation={[0, 0, handAngles.minute]}>
+              <mesh position={[0, 0.14, 0]}>
+                <boxGeometry args={[0.015, 0.28, 0.008]} />
+                <meshStandardMaterial color="#1a0f08" roughness={0.7} />
+              </mesh>
+            </group>
           )}
           {/* Center pin */}
           <mesh position={[0, 2.78, 0.41]}>
@@ -10525,19 +10546,28 @@ const PetaMenara = ({
             />
           </mesh>
           {/* Bell — kecil di bawah spire, hanya restored (sesuai spec: bel
-              bisu di drought, hourly chime di restored) */}
+              bisu di drought, hourly chime di restored). Cone body +
+              hemisphere crown match scene treatment. */}
           {isRestored && (
-            <mesh position={[0, 2.92, -0.18]}>
-              <coneGeometry args={[0.08, 0.12, 8]} />
-              <meshStandardMaterial
-                ref={bellMatRef}
-                color="#c89860"
-                emissive="#e8a868"
-                emissiveIntensity={0.35}
-                roughness={0.55}
-                metalness={0.4}
-              />
-            </mesh>
+            <group position={[0, 2.92, -0.18]}>
+              {/* Body */}
+              <mesh>
+                <coneGeometry args={[0.08, 0.12, 8]} />
+                <meshStandardMaterial
+                  ref={bellMatRef}
+                  color="#c89860"
+                  emissive="#e8a868"
+                  emissiveIntensity={0.35}
+                  roughness={0.55}
+                  metalness={0.4}
+                />
+              </mesh>
+              {/* Crown — small hemisphere on top */}
+              <mesh position={[0, 0.07, 0]}>
+                <sphereGeometry args={[0.03, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                <meshStandardMaterial color="#a87838" roughness={0.6} metalness={0.5} />
+              </mesh>
+            </group>
           )}
           {/* === PENDULUM HINT === silhouette element — rod + bob hang
               dari bawah dial. Swing amplitude diatur di useFrame per
