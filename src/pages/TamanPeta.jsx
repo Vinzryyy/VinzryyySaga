@@ -1228,6 +1228,47 @@ const PetaArsip = ({
               <boxGeometry args={[2.0, 0.08, 1.7]} />
               <meshStandardMaterial color="#8a7868" roughness={0.92} />
             </mesh>
+            {/* === PEBBLE BORDER === karesansui pebble strip mengelilingi
+                stone platform — kerasa "Japanese garden touch" yang
+                ngerawat platform. Spheres kecil scatter di perimeter. */}
+            {[
+              [1.18, -0.85], [1.18, -0.55], [1.18, -0.25], [1.18, 0.05],
+              [1.18, 0.35], [1.18, 0.65], [1.18, 0.95],
+              [-1.18, -0.85], [-1.18, -0.55],
+              [-1.18, 0.55], [-1.18, 0.85],
+              [-0.75, -1.0], [-0.4, -1.0], [-0.05, -1.0],
+              [0.3, -1.0], [0.65, -1.0], [1.0, -1.0],
+              [-0.75, 1.0], [-0.4, 1.0], [-0.05, 1.0],
+              [0.3, 1.0], [0.65, 1.0], [1.0, 1.0],
+            ].map(([x, z], i) => (
+              <mesh
+                key={`pebble-${i}`}
+                position={[x, 0.02, z]}
+                scale={[0.045 + (i % 3) * 0.012, 0.022, 0.045 + (i % 3) * 0.012]}
+              >
+                <sphereGeometry args={[1, 6, 5]} />
+                <meshStandardMaterial
+                  color={i % 4 === 0 ? '#9a8878' : '#7a6858'}
+                  roughness={0.95}
+                />
+              </mesh>
+            ))}
+            {/* === MOSS PATCHES === di stone platform corner-corner,
+                kerasa weathered + nature reclaiming */}
+            {[
+              [-0.95, 0.08, -0.78], [0.92, 0.08, 0.82],
+              [0.88, 0.08, -0.7], [-0.85, 0.08, 0.75],
+            ].map(([x, y, z], i) => (
+              <mesh key={`moss-${i}`} position={[x, y, z]} rotation={[-Math.PI / 2, 0, 0]}>
+                <circleGeometry args={[0.08 + (i % 2) * 0.02, 8]} />
+                <meshStandardMaterial
+                  color="#5a7838"
+                  emissive="#3a5828"
+                  emissiveIntensity={0.1}
+                  roughness={0.95}
+                />
+              </mesh>
+            ))}
 
             {/* === ENGAWA WOOD DECK === */}
             {/* Wooden veranda floor di atas stone platform */}
@@ -1240,6 +1281,29 @@ const PetaArsip = ({
               <mesh key={`plank-${i}`} position={[0, 0.232, z]}>
                 <boxGeometry args={[1.83, 0.004, 0.012]} />
                 <meshStandardMaterial color="#3a2010" roughness={0.95} />
+              </mesh>
+            ))}
+            {/* === FALLEN PETALS on engawa === Pink/peach soft disc tipis
+                scattered di wood deck — kerasa "kelopak jatuh dari pohon
+                terdekat," matching ApricotPetals di scene purified. */}
+            {[
+              [-0.7, -0.45, 0.08], [-0.42, -0.32, -0.05],
+              [0.18, -0.4, 0.12], [0.55, -0.5, -0.18],
+              [0.85, -0.2, 0.3], [-0.85, 0.25, 0.0],
+              [0.45, 0.35, -0.08], [-0.3, 0.5, 0.18],
+              [0.7, 0.55, 0.05], [0.15, 0.65, -0.12],
+            ].map(([x, z, rot], i) => (
+              <mesh
+                key={`petal-${i}`}
+                position={[x, 0.236, z]}
+                rotation={[-Math.PI / 2, 0, rot]}
+              >
+                <circleGeometry args={[0.022 + (i % 3) * 0.005, 6]} />
+                <meshStandardMaterial
+                  color={i % 2 === 0 ? '#f4c8c8' : '#f8d4b8'}
+                  roughness={0.85}
+                  side={2}
+                />
               </mesh>
             ))}
 
@@ -1314,10 +1378,46 @@ const PetaArsip = ({
             {[
               [-0.7, -0.6], [0.7, -0.6], [-0.7, 0.6], [0.7, 0.6],
             ].map(([x, z], i) => (
-              <mesh key={`hashira-${i}`} position={[x, 0.66, z]}>
-                <boxGeometry args={[0.09, 0.86, 0.09]} />
-                <meshStandardMaterial color="#2a1810" roughness={0.92} />
-              </mesh>
+              <React.Fragment key={`hashira-${i}`}>
+                <mesh position={[x, 0.66, z]}>
+                  <boxGeometry args={[0.09, 0.86, 0.09]} />
+                  <meshStandardMaterial color="#2a1810" roughness={0.92} />
+                </mesh>
+                {/* Brass joint ring tengah hashira — kerasa "ikat besi
+                    decorative" antar kayu sambungan */}
+                <mesh position={[x, 0.66, z]} rotation={[Math.PI / 2, 0, 0]}>
+                  <torusGeometry args={[0.052, 0.008, 4, 8]} />
+                  <meshStandardMaterial
+                    color="#8a6028"
+                    emissive="#5a3018"
+                    emissiveIntensity={0.18}
+                    metalness={0.5}
+                    roughness={0.55}
+                  />
+                </mesh>
+                {/* Brass joint ring bawah (0.32y) */}
+                <mesh position={[x, 0.32, z]} rotation={[Math.PI / 2, 0, 0]}>
+                  <torusGeometry args={[0.052, 0.008, 4, 8]} />
+                  <meshStandardMaterial
+                    color="#8a6028"
+                    emissive="#5a3018"
+                    emissiveIntensity={0.18}
+                    metalness={0.5}
+                    roughness={0.55}
+                  />
+                </mesh>
+                {/* Brass joint ring atas (1.0y) */}
+                <mesh position={[x, 1.0, z]} rotation={[Math.PI / 2, 0, 0]}>
+                  <torusGeometry args={[0.052, 0.008, 4, 8]} />
+                  <meshStandardMaterial
+                    color="#8a6028"
+                    emissive="#5a3018"
+                    emissiveIntensity={0.18}
+                    metalness={0.5}
+                    roughness={0.55}
+                  />
+                </mesh>
+              </React.Fragment>
             ))}
             {/* 2 mid-front posts flanking entrance opening */}
             {[-0.25, 0.25].map((z, i) => (
@@ -1586,6 +1686,53 @@ const PetaArsip = ({
                 <meshStandardMaterial color="#4a4550" roughness={0.88} />
               </mesh>
             ))}
+            {/* === HAN-MARU EAVE TILE CAPS === Semicircular tile ends
+                visible di bottom edge of roof — signature kawarabuki
+                Japanese roof detail. Row di setiap sisi eave (4 sisi). */}
+            {/* Front edge eave caps (x=-0.95) */}
+            {[-0.85, -0.6, -0.35, -0.1, 0.15, 0.4, 0.65, 0.85].map((z, i) => (
+              <mesh
+                key={`hm-f${i}`}
+                position={[-0.95, 1.205, z]}
+                rotation={[0, 0, Math.PI / 2]}
+              >
+                <cylinderGeometry args={[0.024, 0.024, 0.05, 6, 1, false, 0, Math.PI]} />
+                <meshStandardMaterial color="#3a3540" roughness={0.85} />
+              </mesh>
+            ))}
+            {/* Back edge eave caps (x=+0.95) */}
+            {[-0.85, -0.6, -0.35, -0.1, 0.15, 0.4, 0.65, 0.85].map((z, i) => (
+              <mesh
+                key={`hm-b${i}`}
+                position={[0.95, 1.205, z]}
+                rotation={[0, 0, -Math.PI / 2]}
+              >
+                <cylinderGeometry args={[0.024, 0.024, 0.05, 6, 1, false, 0, Math.PI]} />
+                <meshStandardMaterial color="#3a3540" roughness={0.85} />
+              </mesh>
+            ))}
+            {/* Side edge eave caps (z=-0.85) */}
+            {[-0.85, -0.6, -0.35, -0.1, 0.15, 0.4, 0.65, 0.85].map((x, i) => (
+              <mesh
+                key={`hm-l${i}`}
+                position={[x, 1.205, -0.85]}
+                rotation={[Math.PI / 2, 0, 0]}
+              >
+                <cylinderGeometry args={[0.024, 0.024, 0.05, 6, 1, false, 0, Math.PI]} />
+                <meshStandardMaterial color="#3a3540" roughness={0.85} />
+              </mesh>
+            ))}
+            {/* Side edge eave caps (z=+0.85) */}
+            {[-0.85, -0.6, -0.35, -0.1, 0.15, 0.4, 0.65, 0.85].map((x, i) => (
+              <mesh
+                key={`hm-r${i}`}
+                position={[x, 1.205, 0.85]}
+                rotation={[-Math.PI / 2, 0, 0]}
+              >
+                <cylinderGeometry args={[0.024, 0.024, 0.05, 6, 1, false, 0, Math.PI]} />
+                <meshStandardMaterial color="#3a3540" roughness={0.85} />
+              </mesh>
+            ))}
             {/* Roof ridge (mune) — beam tinggi tengah */}
             <mesh position={[0, 1.32, 0]}>
               <boxGeometry args={[1.95, 0.04, 0.12]} />
@@ -1794,12 +1941,91 @@ const PetaArsip = ({
               <boxGeometry args={[1.0, 0.06, 0.94]} />
               <meshStandardMaterial color="#3a3540" roughness={0.88} />
             </mesh>
+            {/* === HAFU BARGEBOARDS === Triangular gable trim di sisi
+                upper tier (kanan-kiri sisi -X & +X), kerasa carved wood
+                ornament Japanese hall. */}
+            {[-0.5, 0.5].map((x, i) => (
+              <React.Fragment key={`hafu-${i}`}>
+                {/* Upper diagonal bargeboard kiri segitiga */}
+                <mesh
+                  position={[x, 1.85, -0.45]}
+                  rotation={[Math.PI / 2, 0, x > 0 ? -0.4 : 0.4]}
+                >
+                  <planeGeometry args={[0.42, 0.16]} />
+                  <meshStandardMaterial color="#3a2010" roughness={0.92} side={2} />
+                </mesh>
+                {/* Carved emblem (kamon) — small disc tengah hafu */}
+                <mesh
+                  position={[x * 1.08, 1.86, -0.45]}
+                  rotation={[0, x > 0 ? Math.PI / 2 : -Math.PI / 2, 0]}
+                >
+                  <circleGeometry args={[0.05, 12]} />
+                  <meshStandardMaterial
+                    color="#b88840"
+                    emissive="#6a4018"
+                    emissiveIntensity={0.22}
+                    metalness={0.5}
+                    roughness={0.55}
+                    toneMapped={false}
+                  />
+                </mesh>
+                {/* Inner kamon ring detail */}
+                <mesh
+                  position={[x * 1.085, 1.86, -0.45]}
+                  rotation={[0, x > 0 ? Math.PI / 2 : -Math.PI / 2, 0]}
+                >
+                  <ringGeometry args={[0.022, 0.028, 12]} />
+                  <meshStandardMaterial
+                    color="#5a3018"
+                    roughness={0.7}
+                  />
+                </mesh>
+              </React.Fragment>
+            ))}
+
             {/* Upper kawara rows */}
             {[-0.32, 0, 0.32].map((z, i) => (
               <mesh key={`ukawara-${i}`} position={[0, 1.86, z]}>
                 <boxGeometry args={[0.98, 0.015, 0.1]} />
                 <meshStandardMaterial color="#4a4550" roughness={0.88} />
               </mesh>
+            ))}
+            {/* Upper han-maru eave tile caps — smaller row di edge atas */}
+            {[-0.4, -0.2, 0, 0.2, 0.4].map((z, i) => (
+              <React.Fragment key={`uhm-${i}`}>
+                <mesh
+                  position={[-0.49, 1.79, z]}
+                  rotation={[0, 0, Math.PI / 2]}
+                >
+                  <cylinderGeometry args={[0.018, 0.018, 0.04, 5, 1, false, 0, Math.PI]} />
+                  <meshStandardMaterial color="#3a3540" roughness={0.85} />
+                </mesh>
+                <mesh
+                  position={[0.49, 1.79, z]}
+                  rotation={[0, 0, -Math.PI / 2]}
+                >
+                  <cylinderGeometry args={[0.018, 0.018, 0.04, 5, 1, false, 0, Math.PI]} />
+                  <meshStandardMaterial color="#3a3540" roughness={0.85} />
+                </mesh>
+              </React.Fragment>
+            ))}
+            {[-0.4, -0.2, 0, 0.2, 0.4].map((x, i) => (
+              <React.Fragment key={`uhm-z${i}`}>
+                <mesh
+                  position={[x, 1.79, -0.46]}
+                  rotation={[Math.PI / 2, 0, 0]}
+                >
+                  <cylinderGeometry args={[0.018, 0.018, 0.04, 5, 1, false, 0, Math.PI]} />
+                  <meshStandardMaterial color="#3a3540" roughness={0.85} />
+                </mesh>
+                <mesh
+                  position={[x, 1.79, 0.46]}
+                  rotation={[-Math.PI / 2, 0, 0]}
+                >
+                  <cylinderGeometry args={[0.018, 0.018, 0.04, 5, 1, false, 0, Math.PI]} />
+                  <meshStandardMaterial color="#3a3540" roughness={0.85} />
+                </mesh>
+              </React.Fragment>
             ))}
             {/* Upper roof ridge */}
             <mesh position={[0, 1.89, 0]}>
@@ -1940,6 +2166,16 @@ const PetaArsip = ({
                     <meshStandardMaterial color="#4a2818" roughness={0.9} />
                   </mesh>
                 ))}
+                {/* Kanji stripe — vertical dark band di tengah chochin
+                    (kerasa "ada tulisan" tradisional) */}
+                <mesh position={[-1.04, 0.83, z]}>
+                  <planeGeometry args={[0.04, 0.13]} />
+                  <meshStandardMaterial
+                    color="#3a1810"
+                    roughness={0.9}
+                    side={2}
+                  />
+                </mesh>
                 {/* Bottom cap kayu */}
                 <mesh position={[-0.95, 0.74, z]}>
                   <cylinderGeometry args={[0.065, 0.055, 0.025, 10]} />
@@ -2110,6 +2346,20 @@ const PetaArsip = ({
                 side={2}
               />
             </mesh>
+            {/* Tatami mat grid lines — 6 strip dark divider supaya
+                kerasa tatami panels (typical 6-mat arrangement) */}
+            {[-0.4, -0.13, 0.13, 0.4].map((z, i) => (
+              <mesh key={`tatami-z-${i}`} position={[0, 0.285, z]}>
+                <boxGeometry args={[1.18, 0.005, 0.012]} />
+                <meshStandardMaterial color="#5a3018" roughness={0.92} />
+              </mesh>
+            ))}
+            {[-0.4, 0, 0.4].map((x, i) => (
+              <mesh key={`tatami-x-${i}`} position={[x, 0.285, 0]}>
+                <boxGeometry args={[0.012, 0.005, 0.98]} />
+                <meshStandardMaterial color="#5a3018" roughness={0.92} />
+              </mesh>
+            ))}
 
             {/* === INTERIOR BOOKS GLIMPSE === visible lewat entrance opening,
                 silhouette books di depan lit backdrop */}
