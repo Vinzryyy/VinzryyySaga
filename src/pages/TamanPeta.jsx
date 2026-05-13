@@ -5919,6 +5919,199 @@ const NarrativeWhispers = ({ isMobile }) => {
   );
 };
 
+// ──────────────────────────────────────────────────────────────────────
+// Drought mirror set — elemen yang isi kekosongan koi-pond corner saat
+// !purified. Mirror narasi: cekungan kering yang "dulunya kolam" →
+// LotusPads/KoiShadows nanti, stone lantern roboh → StoneLanterns berdiri
+// lagi, paper lantern sobek di tanah → FloatingPaperLanterns mengapung.
+// Goal: user yang revisit setelah purify ngerasa "oh, ini dulu mati."
+// ──────────────────────────────────────────────────────────────────────
+
+// DriedPondBasin — cekungan tanah retak di posisi koi pond. Dua disc
+// (outer rim + inner deeper) + 6 crack lines radial. Geometry flat —
+// gak ngangkat permukaan, cuma overlay color/decal.
+const DRIED_BASIN_CRACKS = (() => {
+  const out = [];
+  for (let i = 0; i < 7; i++) {
+    const angle = (Math.PI * 2 * i) / 7 + ((i * 0.6) % 0.5);
+    const len = 0.55 + ((i * 13) % 5) * 0.12;
+    out.push({ angle, len });
+  }
+  return out;
+})();
+const DriedPondBasin = ({ pos = [-6.5, 0, -0.7] }) => (
+  <group position={pos}>
+    {/* Outer rim — area pond luar, warna lumpur kering */}
+    <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[1.55, 14]} />
+      <meshStandardMaterial color="#3e2e22" roughness={0.95} />
+    </mesh>
+    {/* Inner basin — lebih dalam, tanah lebih gelap */}
+    <mesh position={[0, 0.008, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[1.1, 12]} />
+      <meshStandardMaterial color="#2a1d14" roughness={0.95} />
+    </mesh>
+    {/* Crack lines — radial dari pusat, thin planes */}
+    {DRIED_BASIN_CRACKS.map((c, i) => (
+      <mesh
+        key={`crk-${i}`}
+        position={[
+          Math.cos(c.angle) * c.len * 0.5,
+          0.011,
+          Math.sin(c.angle) * c.len * 0.5,
+        ]}
+        rotation={[-Math.PI / 2, 0, -c.angle]}
+      >
+        <planeGeometry args={[c.len, 0.022]} />
+        <meshStandardMaterial color="#150c08" roughness={1} />
+      </mesh>
+    ))}
+    {/* Tanah pecah di tengah — patch hexagonal kasar */}
+    <mesh position={[0.15, 0.012, -0.1]} rotation={[-Math.PI / 2, 0, 0.3]}>
+      <circleGeometry args={[0.18, 6]} />
+      <meshStandardMaterial color="#1a100a" roughness={1} />
+    </mesh>
+    <mesh position={[-0.25, 0.012, 0.18]} rotation={[-Math.PI / 2, 0, -0.4]}>
+      <circleGeometry args={[0.14, 6]} />
+      <meshStandardMaterial color="#1a100a" roughness={1} />
+    </mesh>
+  </group>
+);
+
+// DriedLotusHusks — daun lotus mati di dasar basin. Mirror LotusPads
+// purified posisinya & jumlahnya (7 husk vs 7 pad). Warna khaki coklat,
+// tilt acak, beberapa dengan curl rim (cone ke samping).
+const DRIED_HUSK_DEFS = [
+  { pos: [-5.95, 0.012, -0.95], scale: 0.22, tilt: 0.5, curl: true },
+  { pos: [-5.7, 0.012, -0.45], scale: 0.18, tilt: -0.4, curl: false },
+  { pos: [-6.25, 0.012, -0.35], scale: 0.17, tilt: 0.6, curl: true },
+  { pos: [-6.0, 0.012, 0.05], scale: 0.2, tilt: -0.5, curl: false },
+  { pos: [-6.5, 0.012, -1.5], scale: 0.21, tilt: 0.3, curl: true },
+  { pos: [-5.8, 0.012, -1.4], scale: 0.16, tilt: -0.6, curl: false },
+  { pos: [-7.25, 0.012, -0.6], scale: 0.19, tilt: 0.45, curl: true },
+];
+const DriedLotusHusks = () => (
+  <>
+    {DRIED_HUSK_DEFS.map((d, i) => (
+      <group key={`husk-${i}`} position={d.pos} rotation={[0, d.tilt, 0]}>
+        <mesh rotation={[-Math.PI / 2 + d.tilt * 0.15, 0, d.tilt * 0.5]}>
+          <circleGeometry args={[d.scale, 8]} />
+          <meshStandardMaterial color="#5a4630" roughness={0.95} side={2} />
+        </mesh>
+        {d.curl && (
+          <mesh
+            position={[d.scale * 0.6, 0.012, 0]}
+            rotation={[0, 0, d.tilt * 0.8]}
+          >
+            <coneGeometry args={[d.scale * 0.32, 0.05, 5]} />
+            <meshStandardMaterial color="#4a3624" roughness={0.95} />
+          </mesh>
+        )}
+      </group>
+    ))}
+  </>
+);
+
+// FallenStoneLantern — stone lantern roboh. Fondasi tetap berdiri,
+// tapi pilar/body/atap rebah ke samping. Single instance — mirror
+// salah satu StoneLanterns ([-3.5, 0, -0.6] purified). Warna sedikit
+// lebih gelap (faded + dust-coated).
+const FallenStoneLantern = ({ pos = [-3.7, 0, -0.4], rot = 0.6 }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Foundation — masih berdiri */}
+    <mesh position={[0, 0.04, 0]}>
+      <cylinderGeometry args={[0.16, 0.18, 0.08, 8]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Pilar — rebah ke samping */}
+    <mesh position={[0.32, 0.1, 0.04]} rotation={[0, 0, Math.PI / 2 + 0.08]}>
+      <cylinderGeometry args={[0.08, 0.1, 0.6, 8]} />
+      <meshStandardMaterial color="#6a5848" roughness={0.95} />
+    </mesh>
+    {/* Mid plate — terlepas di tanah */}
+    <mesh position={[0.55, 0.02, -0.05]} rotation={[0.5, 0, 0.3]}>
+      <cylinderGeometry args={[0.14, 0.14, 0.04, 8]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Body lantern — miring + lebih jauh */}
+    <mesh position={[0.78, 0.11, 0.08]} rotation={[0.15, 0.3, 0.4]}>
+      <boxGeometry args={[0.2, 0.18, 0.2]} />
+      <meshStandardMaterial color="#5a4838" roughness={0.95} />
+    </mesh>
+    {/* Atap — pecah, half-buried */}
+    <mesh position={[1.0, 0.04, 0.2]} rotation={[0.7, 0.4, 0.3]}>
+      <boxGeometry args={[0.28, 0.05, 0.28]} />
+      <meshStandardMaterial color="#4a3828" roughness={0.95} />
+    </mesh>
+    {/* Cone tip — terpisah lagi */}
+    <mesh position={[1.18, 0.05, 0.35]} rotation={[0.8, 0.5, 0.2]}>
+      <coneGeometry args={[0.13, 0.12, 4]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Finial — bola kecil lepas */}
+    <mesh position={[1.32, 0.03, 0.48]}>
+      <sphereGeometry args={[0.025, 6, 4]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+// TornFallenLantern — paper lantern jatuh, sobek, pudar. 3 instances
+// di rim pond + path. Mirror FloatingPaperLanterns (4 lentera mengapung
+// di air purified) — di drought mereka udah jatuh & sobek.
+const TORN_LANTERN_DEFS = [
+  { pos: [-5.2, 0, 0.5], rot: -0.5 },
+  { pos: [-3.9, 0, 1.5], rot: 0.8 },
+  { pos: [-6.8, 0, 1.0], rot: -1.1 },
+];
+const TornFallenLantern = ({ pos, rot }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* Wooden frame — rusak, tilted */}
+    <mesh position={[0, 0.025, 0]} rotation={[0.4, 0, 0.2]}>
+      <boxGeometry args={[0.18, 0.04, 0.18]} />
+      <meshStandardMaterial color="#3a2818" roughness={0.95} />
+    </mesh>
+    {/* Paper body — kolaps, miring, opacity rendah (sobek translucent) */}
+    <mesh position={[0.06, 0.07, 0.04]} rotation={[0.3, 0.4, 0.25]}>
+      <boxGeometry args={[0.14, 0.11, 0.14]} />
+      <meshStandardMaterial
+        color="#7a6858"
+        roughness={0.95}
+        transparent
+        opacity={0.55}
+      />
+    </mesh>
+    {/* Robekan kertas — fragment lying flat di tanah */}
+    <mesh position={[0.22, 0.005, 0.14]} rotation={[-Math.PI / 2, 0, 0.6]}>
+      <planeGeometry args={[0.12, 0.06]} />
+      <meshStandardMaterial
+        color="#6a5848"
+        roughness={0.95}
+        side={2}
+        transparent
+        opacity={0.5}
+      />
+    </mesh>
+    <mesh position={[-0.15, 0.005, 0.18]} rotation={[-Math.PI / 2, 0, -0.3]}>
+      <planeGeometry args={[0.08, 0.05]} />
+      <meshStandardMaterial
+        color="#7a6858"
+        roughness={0.95}
+        side={2}
+        transparent
+        opacity={0.45}
+      />
+    </mesh>
+  </group>
+);
+const TornFallenLanterns = () => (
+  <>
+    {TORN_LANTERN_DEFS.map((d, i) => (
+      <TornFallenLantern key={`tfl-${i}`} pos={d.pos} rot={d.rot} />
+    ))}
+  </>
+);
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -6100,6 +6293,12 @@ const TamanScene = ({
       {!purified && <SandDust count={isMobile ? 50 : 100} />}
       {!purified && !isMobile && <WindStreaks count={12} />}
       {!purified && !isMobile && <HighDustShimmer count={40} />}
+      {/* Drought mirror set — isi koi-pond corner saat !purified.
+          Definisi & komentar di blok "Drought mirror set" di atas. */}
+      {!purified && <DriedPondBasin />}
+      {!purified && <DriedLotusHusks />}
+      {!purified && <FallenStoneLantern />}
+      {!purified && <TornFallenLanterns />}
       {purified && <Fireflies isMobile={isMobile} />}
       {purified && <Butterflies isMobile={isMobile} />}
       {purified && <BirdsFlock />}
