@@ -648,6 +648,289 @@ const GallerySconces = ({ restored }) => {
   );
 };
 
+// CobblePath — stone slabs dari outer plaza ke gallery entrance,
+// kasih clear approach feel. Spread from z=+8 (jauh dari gallery)
+// sampai z=+5 (di front gallery opening).
+const CobblePath = ({ restored }) => {
+  const stoneColor = restored ? '#7a5a3a' : '#4a3424';
+  const positions = [
+    { x: -0.6, z: 5.8, w: 1.2, d: 0.6, rot: 0 },
+    { x: 0.6, z: 5.8, w: 1.2, d: 0.6, rot: 0 },
+    { x: -0.6, z: 6.7, w: 1.2, d: 0.6, rot: 0 },
+    { x: 0.6, z: 6.7, w: 1.2, d: 0.6, rot: 0 },
+    { x: -0.6, z: 7.6, w: 1.2, d: 0.6, rot: 0 },
+    { x: 0.6, z: 7.6, w: 1.2, d: 0.6, rot: 0 },
+    { x: -0.6, z: 8.5, w: 1.2, d: 0.6, rot: 0 },
+    { x: 0.6, z: 8.5, w: 1.2, d: 0.6, rot: 0 },
+  ];
+  return (
+    <>
+      {positions.map((p, i) => (
+        <mesh
+          key={`cobble-${i}`}
+          position={[p.x, -0.04, p.z]}
+          rotation={[-Math.PI / 2, 0, p.rot]}
+        >
+          <planeGeometry args={[p.w - 0.05, p.d - 0.05]} />
+          <meshStandardMaterial color={stoneColor} roughness={1} />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// OutdoorLamps — 2 tall lamp posts di plaza apron, flanking gallery
+// entrance pathway. Lit restored (glow + point light). Drought: unlit,
+// some tilted (broken).
+const OutdoorLamps = ({ restored }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const mat = matRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.7 + Math.sin(t * 0.4 + i * 0.6) * 0.1;
+    }
+  });
+  // Drought: lamps tilted (rusak)
+  const lamps = [
+    { x: -3, z: 7, tiltZ: restored ? 0 : 0.25 },
+    { x: 3, z: 7, tiltZ: restored ? 0 : -0.4 },
+  ];
+  return (
+    <>
+      {lamps.map((l, i) => (
+        <group
+          key={`lamp-${i}`}
+          position={[l.x, 0, l.z]}
+          rotation={[0, 0, l.tiltZ]}
+        >
+          {/* Base — short square block */}
+          <mesh position={[0, 0.15, 0]}>
+            <boxGeometry args={[0.4, 0.3, 0.4]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          {/* Pole */}
+          <mesh position={[0, 1.5, 0]}>
+            <cylinderGeometry args={[0.05, 0.06, 2.7, 8]} />
+            <meshStandardMaterial color="#2a1810" roughness={0.85} />
+          </mesh>
+          {/* Decorative ring mid-pole */}
+          <mesh position={[0, 1.8, 0]}>
+            <torusGeometry args={[0.1, 0.025, 6, 12]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.9} />
+          </mesh>
+          {/* Lantern housing */}
+          <group position={[0, 3, 0]}>
+            <mesh position={[0, -0.04, 0]}>
+              <boxGeometry args={[0.34, 0.06, 0.34]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.95} />
+            </mesh>
+            {/* Glass globe */}
+            <mesh position={[0, 0.1, 0]}>
+              <sphereGeometry args={[0.18, 12, 10]} />
+              <meshStandardMaterial
+                ref={(m) => {
+                  matRefs.current[i] = m;
+                }}
+                color={restored ? '#f4d8a0' : '#3a2818'}
+                emissive={restored ? '#f4c478' : '#000000'}
+                emissiveIntensity={restored ? 0.7 : 0}
+                roughness={0.4}
+                transparent
+                opacity={0.92}
+                toneMapped={false}
+              />
+            </mesh>
+            {/* Roof cap — pyramid */}
+            <mesh position={[0, 0.3, 0]}>
+              <coneGeometry args={[0.24, 0.18, 4]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.95} />
+            </mesh>
+            {/* Top finial */}
+            <mesh position={[0, 0.46, 0]}>
+              <sphereGeometry args={[0.04, 6, 5]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.9} />
+            </mesh>
+          </group>
+          {restored && (
+            <pointLight
+              position={[0, 3.1, 0]}
+              color="#f4d8a0"
+              intensity={0.7}
+              distance={5}
+              decay={2}
+            />
+          )}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// OutdoorPlanters — 2 large planters flank gallery entrance opening.
+// Restored: lush green leaves. Drought: empty + dead twig.
+const OutdoorPlanters = ({ restored }) => {
+  const positions = [
+    { x: -SIDE_WALL_X - 0.5, z: 4.6 },
+    { x: SIDE_WALL_X + 0.5, z: 4.6 },
+  ];
+  return (
+    <>
+      {positions.map((p, i) => (
+        <group key={`planter-${i}`} position={[p.x, 0, p.z]}>
+          {/* Planter box — stone */}
+          <mesh position={[0, 0.3, 0]}>
+            <boxGeometry args={[0.7, 0.6, 0.7]} />
+            <meshStandardMaterial
+              color={restored ? '#8a6038' : '#4a3020'}
+              roughness={0.95}
+            />
+          </mesh>
+          {/* Top rim */}
+          <mesh position={[0, 0.62, 0]}>
+            <boxGeometry args={[0.78, 0.06, 0.78]} />
+            <meshStandardMaterial
+              color={restored ? '#a87038' : '#5a3818'}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Soil */}
+          <mesh position={[0, 0.6, 0]}>
+            <boxGeometry args={[0.66, 0.04, 0.66]} />
+            <meshStandardMaterial color="#3a2010" roughness={1} />
+          </mesh>
+          {/* Foliage — restored only */}
+          {restored &&
+            [
+              { x: 0, y: 0.92, z: 0, s: 0.32 },
+              { x: 0.22, y: 0.85, z: 0.08, s: 0.22 },
+              { x: -0.2, y: 0.88, z: -0.1, s: 0.25 },
+              { x: 0.06, y: 1.12, z: 0.14, s: 0.24 },
+              { x: -0.12, y: 1.05, z: 0.18, s: 0.2 },
+              { x: 0.18, y: 1.02, z: -0.16, s: 0.22 },
+            ].map((leaf, j) => (
+              <mesh
+                key={`outdoor-leaf-${i}-${j}`}
+                position={[leaf.x, leaf.y, leaf.z]}
+              >
+                <sphereGeometry args={[leaf.s, 8, 6]} />
+                <meshStandardMaterial
+                  color="#4a8038"
+                  emissive="#2a5020"
+                  emissiveIntensity={0.18}
+                  roughness={0.85}
+                />
+              </mesh>
+            ))}
+          {/* Dead twig — drought only */}
+          {!restored && (
+            <>
+              <mesh position={[0.08, 0.85, 0]} rotation={[0, 0, 0.25]}>
+                <cylinderGeometry args={[0.025, 0.018, 0.6, 5]} />
+                <meshStandardMaterial color="#2a1810" roughness={1} />
+              </mesh>
+              <mesh
+                position={[0.14, 1.05, 0.04]}
+                rotation={[0.3, 0, 0.55]}
+              >
+                <cylinderGeometry args={[0.014, 0.012, 0.3, 5]} />
+                <meshStandardMaterial color="#2a1810" roughness={1} />
+              </mesh>
+            </>
+          )}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// EntranceColumns — 2 decorative columns flanking gallery opening
+// (di front edge side walls), kasih architectural framing.
+const EntranceColumns = ({ restored }) => {
+  const columnColor = restored ? '#d4c0a0' : '#6a5040';
+  const capitalColor = restored ? '#d4a848' : '#3a2418';
+  const positions = [-SIDE_WALL_X, SIDE_WALL_X];
+  return (
+    <>
+      {positions.map((x, i) => (
+        <group key={`col-${i}`} position={[x, 0, 4]}>
+          {/* Column base */}
+          <mesh position={[0, 0.2, 0]}>
+            <boxGeometry args={[0.55, 0.4, 0.55]} />
+            <meshStandardMaterial color={columnColor} roughness={0.9} />
+          </mesh>
+          {/* Column shaft */}
+          <mesh position={[0, 2.6, 0]}>
+            <cylinderGeometry args={[0.22, 0.24, 4.4, 12]} />
+            <meshStandardMaterial color={columnColor} roughness={0.85} />
+          </mesh>
+          {/* Capital — top decorative */}
+          <mesh position={[0, 4.95, 0]}>
+            <boxGeometry args={[0.5, 0.3, 0.5]} />
+            <meshStandardMaterial
+              color={capitalColor}
+              emissive={restored ? '#7a5818' : '#000000'}
+              emissiveIntensity={restored ? 0.18 : 0}
+              roughness={0.55}
+              metalness={restored ? 0.4 : 0.1}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Capital top plate */}
+          <mesh position={[0, 5.15, 0]}>
+            <boxGeometry args={[0.6, 0.08, 0.6]} />
+            <meshStandardMaterial
+              color={capitalColor}
+              roughness={0.55}
+              metalness={restored ? 0.4 : 0.1}
+            />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// DistantCitySilhouette — line of dark city silhouette buildings di
+// far horizon, kasih depth perception + konteks lokasi (gallery di
+// pinggir kota). Subtle, dark, far away.
+const DistantCitySilhouette = ({ restored }) => {
+  // 7 buildings tersebar di belakang back wall + 5 di samping
+  const buildings = [
+    // Behind back wall
+    { x: -8, z: -22, w: 3, h: 4.5 },
+    { x: -3.5, z: -25, w: 2.5, h: 5 },
+    { x: 0, z: -23, w: 3.5, h: 3.8 },
+    { x: 4, z: -24, w: 2.8, h: 4.8 },
+    { x: 8, z: -22, w: 2.5, h: 4 },
+    { x: -11, z: -20, w: 2, h: 3.5 },
+    { x: 11, z: -20, w: 2.2, h: 3.8 },
+    // Far behind, taller
+    { x: -2, z: -28, w: 1.8, h: 6 },
+    { x: 3, z: -27, w: 2.2, h: 5.5 },
+    // Sides
+    { x: -22, z: -8, w: 3, h: 4 },
+    { x: -24, z: 2, w: 2.5, h: 3.8 },
+    { x: 22, z: -5, w: 3, h: 4.5 },
+    { x: 25, z: 4, w: 2.5, h: 4 },
+  ];
+  return (
+    <>
+      {buildings.map((b, i) => (
+        <mesh key={`city-${i}`} position={[b.x, b.h / 2, b.z]}>
+          <boxGeometry args={[b.w, b.h, 0.4]} />
+          <meshStandardMaterial
+            color={restored ? '#1a0e08' : '#0a0604'}
+            roughness={1}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // DroughtDebris — scattered rubble pieces di floor saat hancur lebur.
 // Kayu pecah, batu, fabric scrap. Spread across viewing area + stage.
 // Drought only.
@@ -1951,6 +2234,11 @@ const Scene = ({
       <SceneLights restored={restored} />
       <ExhibitionFloor restored={restored} />
       <FloorMist restored={restored} />
+      <DistantCitySilhouette restored={restored} />
+      <CobblePath restored={restored} />
+      <OutdoorLamps restored={restored} />
+      <OutdoorPlanters restored={restored} />
+      <EntranceColumns restored={restored} />
       <GalleryWalls restored={restored} />
       <WallCracks restored={restored} />
       <GallerySconces restored={restored} />
