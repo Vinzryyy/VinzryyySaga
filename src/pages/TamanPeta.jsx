@@ -60,10 +60,21 @@ import {
 // post-fullRestore).
 const MAP_THRESHOLDS = {
   mapUnlock: 2000,
+  // firstBloom (2500) — micro reveal di gap 2000-3000, kasih hook
+  // visual ke user yang baru lewat gerbang (sebelum hook ini gap
+  // 2000→3000 sepi karena r4Unlock baru di 3000). Beberapa sprout
+  // kecil sepanjang path dari gerbang ke plaza = "tanda kehidupan
+  // pertama" sebelum grass+moss reveal di r4Unlock.
+  firstBloom: 2500,
   r4Unlock: 3000,
   r1Restore: 4000,
   r3Unlock: 4000,
   r5Unlock: 4500,
+  // airMancurT3 dipindah dari 4500 → 4750 untuk pisahin event load
+  // di rentang 4000-5000 (sebelumnya 4 event/1000 count = saturasi).
+  // Sekarang: 4000 (r1+r3), 4500 (r5 alone), 4750 (airMancurT3 alone),
+  // 5000 (r2+r4) — 4 event masih tapi spaced 250 count apart.
+  airMancurT3: 4750,
   r4Restore: 5000,
   r2Unlock: 5000,
   r3Restore: 6000,
@@ -78,7 +89,6 @@ const MAP_THRESHOLDS = {
   legacy: 10000, // mega pohon + golden permanent glow + monument
   airMancurT1: 2000,
   airMancurT2: 3000,
-  airMancurT3: 4500,
   airMancurT4: 6000,
   airMancurT5: 7500,
   airMancurT6: 10000,
@@ -6801,6 +6811,49 @@ const SaplingCluster = () => (
     ))}
   </>
 );
+
+// FirstBloom (m2.5, count >= 2500) — micro-reveal di gap 2000-3000.
+// 4 sprout super kecil sepanjang path gerbang→plaza, kasih sinyal
+// "tanda kehidupan pertama" sebelum grass + moss reveal di r4Unlock
+// (3000). Tanpa ini, user pertama lewat gerbang ke peta di count 2000
+// disambut drought pure — hook gak earned. Sprout sengaja minimum (1
+// stem + 1 bud kecil) supaya "tanda" bukan "field" — biar reveal
+// SaplingCluster di 3000 tetap kerasa lebih besar.
+const FIRST_BLOOM_DEFS = [
+  { pos: [-1.5, 0, 6], hue: '#7aa848' },   // west of lorong, dekat gerbang
+  { pos: [1.5, 0, 6], hue: '#688838' },    // east of lorong, dekat gerbang
+  { pos: [-2.5, 0, 0.5], hue: '#7aa848' }, // mid-west, di luar plaza
+  { pos: [2.5, 0, 0.5], hue: '#688838' },  // mid-east, di luar plaza
+];
+const FirstBloom = ({ count }) => {
+  if (count < MAP_THRESHOLDS.firstBloom) return null;
+  // Sembunyiin lagi kalau SaplingCluster udah muncul (r4Unlock=3000) —
+  // tier reveal yang lebih besar take over, gak perlu redundant.
+  if (count >= MAP_THRESHOLDS.r4Unlock) return null;
+  return (
+    <>
+      {FIRST_BLOOM_DEFS.map((d, i) => (
+        <group key={`fb-${i}`} position={d.pos}>
+          {/* Thin stem */}
+          <mesh position={[0, 0.1, 0]}>
+            <cylinderGeometry args={[0.012, 0.018, 0.2, 5]} />
+            <meshStandardMaterial color="#4a6a30" roughness={0.95} />
+          </mesh>
+          {/* Tiny bud */}
+          <mesh position={[0, 0.22, 0]}>
+            <sphereGeometry args={[0.05, 6, 5]} />
+            <meshStandardMaterial
+              color={d.hue}
+              emissive={d.hue}
+              emissiveIntensity={0.12}
+              roughness={0.85}
+            />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
 
 // WaterWell — communal village well, stone circular base + wooden
 // roof on 4 posts + bucket gantung dari rope. Reveal di m6 (telaga
@@ -14136,9 +14189,14 @@ const TamanScene = ({
   //   1.0     (count 10000) — legacy, permanent golden hour glow +
   //                            saturasi warm vibrant (kota ikonik)
   const atmosphere = useMemo(() => {
+    // 6 stops — di-extend dari 4 stops biar lerp warna gak ada
+    // segment yang stretched >2500 count. Sebelumnya 0→0.3125 (count
+    // 2000→4500) dan 0.625→1.0 (count 7000→10000) tiap satu 2500-3000
+    // count = 1 segment, terasa stagnan. Sekarang tiap segment max
+    // 1500 count.
     const stops = [
       {
-        at: 0.0,
+        at: 0.0, // count 2000 — drought tone (kota baru kebuka)
         fogColor: '#5a3540',
         fogNear: 18,
         fogFar: 52,
@@ -14151,7 +14209,20 @@ const TamanScene = ({
         fillIntensity: 0.45,
       },
       {
-        at: 0.3125, // count 4500 — dawn break
+        at: 0.125, // count 3000 — first warmth (r4 Menara Jam unlock)
+        fogColor: '#643f4a',
+        fogNear: 19,
+        fogFar: 53,
+        bgColor: '#1e131c',
+        ambientColor: '#c8a896',
+        ambientIntensity: 0.3,
+        keyColor: '#f5b682',
+        keyIntensity: 1.55,
+        fillColor: '#bc9682',
+        fillIntensity: 0.47,
+      },
+      {
+        at: 0.3125, // count 4500 — dawn break (r5 Panggung unlock)
         fogColor: '#6f4a55',
         fogNear: 20,
         fogFar: 55,
@@ -14164,7 +14235,7 @@ const TamanScene = ({
         fillIntensity: 0.5,
       },
       {
-        at: 0.625, // count 7000 — meadow purified
+        at: 0.625, // count 7000 — meadow purified (full town restored)
         fogColor: '#7a5868',
         fogNear: 22,
         fogFar: 58,
@@ -14175,6 +14246,19 @@ const TamanScene = ({
         keyIntensity: 1.55,
         fillColor: '#c8a890',
         fillIntensity: 0.48,
+      },
+      {
+        at: 0.8, // count 8400 — festival era (gold tone mulai dominan)
+        fogColor: '#896a60',
+        fogNear: 24,
+        fogFar: 61,
+        bgColor: '#322318',
+        ambientColor: '#ecccaa',
+        ambientIntensity: 0.36,
+        keyColor: '#fcd09a',
+        keyIntensity: 1.62,
+        fillColor: '#d8b090',
+        fillIntensity: 0.53,
       },
       {
         at: 1.0, // count 10000 — legacy permanent golden hour
@@ -14247,6 +14331,10 @@ const TamanScene = ({
           Variabel mN dideklarasi inline: m3 = count >=3000 OR purified,
           m4 = >=4000, m5 = >=5000, m6 = >=6000, m65 = >=6500,
           m7 = >=7000 (purified). Drought=true purify shortcut ke max. */}
+      {/* m2.5 — first bloom (count >=2500): 4 sprout kecil sepanjang
+              path gerbang→plaza. Hook visual buat user pertama masuk
+              peta (di 2000) — sebelumnya gap sampai r4 di 3000. */}
+      <FirstBloom count={armeniacaCount} />
       {/* m3 — Menara Jam unlock; kota mulai inget waktu. Rumput tipis
               + lumut di reruntuhan = sinyal "kehidupan kecil mulai
               kembali". */}
