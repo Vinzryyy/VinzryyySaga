@@ -657,6 +657,344 @@ const GallerySconces = ({ restored }) => {
   );
 };
 
+// Torii — vermillion red Japanese gate di front gallery entrance.
+// 2 pillars + kasagi (top curved lintel) + shimaki (lower straight beam).
+// Replace WelcomeArch — match Japanese theme petak armeniacaTown.
+const Torii = ({ restored }) => {
+  const vermillion = restored ? '#c83828' : '#5a2018';
+  const vermillionEm = restored ? '#7a1808' : '#000000';
+  const baseColor = '#2a1810';
+  const toriiZ = 4.4;
+  const pillarH = 5;
+  const pillarSpacing = SIDE_WALL_X * 2 + 0.6;
+  return (
+    <group position={[0, 0, toriiZ]}>
+      {/* 2 vertical pillars — slight taper outward at base */}
+      {[-pillarSpacing / 2, pillarSpacing / 2].map((x, i) => (
+        <group key={`pillar-${i}`} position={[x, 0, 0]}>
+          {/* Base stone */}
+          <mesh position={[0, 0.15, 0]}>
+            <boxGeometry args={[0.5, 0.3, 0.5]} />
+            <meshStandardMaterial color={baseColor} roughness={0.95} />
+          </mesh>
+          {/* Pillar — cylinder slight taper */}
+          <mesh position={[0, pillarH / 2 + 0.3, 0]}>
+            <cylinderGeometry args={[0.18, 0.22, pillarH, 12]} />
+            <meshStandardMaterial
+              color={vermillion}
+              emissive={vermillionEm}
+              emissiveIntensity={restored ? 0.18 : 0}
+              roughness={0.85}
+            />
+          </mesh>
+        </group>
+      ))}
+      {/* Shimaki — lower horizontal beam (straight), di bawah kasagi */}
+      <mesh position={[0, pillarH - 0.3, 0]}>
+        <boxGeometry args={[pillarSpacing + 0.5, 0.32, 0.34]} />
+        <meshStandardMaterial
+          color={vermillion}
+          emissive={vermillionEm}
+          emissiveIntensity={restored ? 0.18 : 0}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Gakuzuka — center plaque between beams (small block) */}
+      <mesh position={[0, pillarH + 0.05, 0]}>
+        <boxGeometry args={[0.4, 0.45, 0.12]} />
+        <meshStandardMaterial
+          color={vermillion}
+          emissive={vermillionEm}
+          emissiveIntensity={restored ? 0.2 : 0}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Kasagi — top curved horizontal lintel, slight curve up at ends.
+          Approx via wider mid + smaller offsets at sides */}
+      <mesh position={[0, pillarH + 0.5, 0]}>
+        <boxGeometry args={[pillarSpacing + 1.2, 0.32, 0.5]} />
+        <meshStandardMaterial
+          color={vermillion}
+          emissive={vermillionEm}
+          emissiveIntensity={restored ? 0.18 : 0}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* End upturned caps — small boxes tilted at ends mimic curve */}
+      {[
+        { x: -(pillarSpacing + 1.2) / 2 - 0.15, rotZ: -0.35 },
+        { x: (pillarSpacing + 1.2) / 2 + 0.15, rotZ: 0.35 },
+      ].map((c, i) => (
+        <mesh
+          key={`cap-${i}`}
+          position={[c.x, pillarH + 0.6, 0]}
+          rotation={[0, 0, c.rotZ]}
+        >
+          <boxGeometry args={[0.5, 0.3, 0.5]} />
+          <meshStandardMaterial
+            color={vermillion}
+            emissive={vermillionEm}
+            emissiveIntensity={restored ? 0.18 : 0}
+            roughness={0.85}
+          />
+        </mesh>
+      ))}
+      {/* HTML banner di gakuzuka — Japanese-inspired text, restored */}
+      {restored && (
+        <Html
+          position={[0, pillarH + 0.05, 0.08]}
+          center
+          distanceFactor={5}
+          occlude={false}
+          transform
+        >
+          <div
+            className="pointer-events-none select-none text-center"
+            style={{ width: 80 }}
+          >
+            <div
+              className="text-[10px] leading-tight"
+              style={{
+                color: '#f4d8a0',
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+                textShadow: '0 1px 3px rgba(0,0,0,0.7)',
+              }}
+            >
+              善行
+            </div>
+            <div
+              className="text-[6px] mt-0.5 uppercase tracking-[0.2em]"
+              style={{ color: '#f4d8a0', opacity: 0.7 }}
+            >
+              kebaikan
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
+// BonboriLanterns — round paper lanterns hanging from ceiling above
+// audience area (replace Western chandelier). 3 lanterns spread.
+const BonboriLanterns = ({ restored }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const mat = matRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.7 + Math.sin(t * 0.5 + i * 0.6) * 0.1;
+    }
+  });
+  const lanternY = restored ? 3.9 : 3.4;
+  const positions = [
+    { x: -2.5, tiltZ: restored ? 0 : 0.2 },
+    { x: 0, tiltZ: restored ? 0 : -0.15 },
+    { x: 2.5, tiltZ: restored ? 0 : 0.3 },
+  ];
+  return (
+    <>
+      {positions.map((p, i) => (
+        <group key={`bonbori-${i}`} position={[p.x, lanternY, 0]} rotation={[0, 0, p.tiltZ]}>
+          {/* Chain ke ceiling */}
+          <mesh position={[0, 0.9, 0]}>
+            <cylinderGeometry args={[0.01, 0.01, 1.3, 5]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          {/* Top cap — small wooden disc */}
+          <mesh position={[0, 0.3, 0]}>
+            <cylinderGeometry args={[0.18, 0.12, 0.08, 12]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.9} />
+          </mesh>
+          {/* Lantern body — oblate sphere (paper round lamp) */}
+          <mesh position={[0, 0, 0]} scale={[1, 0.85, 1]}>
+            <sphereGeometry args={[0.32, 16, 12]} />
+            <meshStandardMaterial
+              ref={(m) => {
+                matRefs.current[i] = m;
+              }}
+              color={restored ? '#f4e8c0' : '#3a2818'}
+              emissive={restored ? '#f4c478' : '#000000'}
+              emissiveIntensity={restored ? 0.7 : 0}
+              roughness={0.6}
+              transparent
+              opacity={0.92}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Vertical paper rib lines — 6 thin strips suggesting paper folds */}
+          {Array.from({ length: 6 }).map((_, j) => {
+            const angle = (j / 6) * Math.PI * 2;
+            return (
+              <mesh
+                key={`rib-${i}-${j}`}
+                position={[Math.cos(angle) * 0.32, 0, Math.sin(angle) * 0.32]}
+                rotation={[0, -angle, 0]}
+              >
+                <planeGeometry args={[0.02, 0.55]} />
+                <meshStandardMaterial color="#7a4a20" roughness={0.95} />
+              </mesh>
+            );
+          })}
+          {/* Bottom cap */}
+          <mesh position={[0, -0.3, 0]}>
+            <cylinderGeometry args={[0.12, 0.18, 0.08, 12]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.9} />
+          </mesh>
+          {restored && (
+            <pointLight
+              position={[0, 0, 0]}
+              color="#f4d8a0"
+              intensity={0.5}
+              distance={4}
+              decay={2}
+            />
+          )}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// IshiDoroLantern — Japanese stone lantern (toro). Base + chuu-dai
+// (middle stone) + hi-bukuro (fire chamber dgn small window) + kasa
+// (curved roof) + houju (jewel finial). 2 di plaza apron flank path.
+const IshiDoroLanterns = ({ restored }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const mat = matRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.55 + Math.sin(t * 0.4 + i * 0.7) * 0.12;
+    }
+  });
+  const stoneColor = restored ? '#9a8878' : '#5a4838';
+  const lanterns = [
+    { x: -4, z: 7, tiltZ: restored ? 0 : 0.18 },
+    { x: 4, z: 7, tiltZ: restored ? 0 : -0.22 },
+  ];
+  return (
+    <>
+      {lanterns.map((l, i) => (
+        <group key={`ishi-${i}`} position={[l.x, 0, l.z]} rotation={[0, 0, l.tiltZ]}>
+          {/* Base (kiso) — flat square stone */}
+          <mesh position={[0, 0.1, 0]}>
+            <boxGeometry args={[0.7, 0.2, 0.7]} />
+            <meshStandardMaterial color={stoneColor} roughness={1} />
+          </mesh>
+          {/* Pillar (sao) — vertical cylinder slim */}
+          <mesh position={[0, 0.9, 0]}>
+            <cylinderGeometry args={[0.13, 0.14, 1.4, 8]} />
+            <meshStandardMaterial color={stoneColor} roughness={0.95} />
+          </mesh>
+          {/* Middle disc (chuu-dai) */}
+          <mesh position={[0, 1.65, 0]}>
+            <cylinderGeometry args={[0.28, 0.25, 0.1, 12]} />
+            <meshStandardMaterial color={stoneColor} roughness={0.95} />
+          </mesh>
+          {/* Fire chamber (hi-bukuro) — boxy hexagonal w/ window */}
+          <mesh position={[0, 1.95, 0]}>
+            <cylinderGeometry args={[0.32, 0.32, 0.4, 6]} />
+            <meshStandardMaterial color={stoneColor} roughness={0.95} />
+          </mesh>
+          {/* Fire window — emissive panel facing forward */}
+          <mesh position={[0, 1.95, 0.34]}>
+            <planeGeometry args={[0.22, 0.28]} />
+            <meshStandardMaterial
+              ref={(m) => {
+                matRefs.current[i] = m;
+              }}
+              color={restored ? '#f4d8a0' : '#3a2818'}
+              emissive={restored ? '#f4c478' : '#000000'}
+              emissiveIntensity={restored ? 0.55 : 0}
+              roughness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Roof (kasa) — wider hexagonal disc, curved-ish */}
+          <mesh position={[0, 2.25, 0]}>
+            <cylinderGeometry args={[0.55, 0.4, 0.18, 6]} />
+            <meshStandardMaterial color={stoneColor} roughness={1} />
+          </mesh>
+          {/* Houju finial — jewel sphere on top */}
+          <mesh position={[0, 2.46, 0]}>
+            <sphereGeometry args={[0.08, 8, 6]} />
+            <meshStandardMaterial color={stoneColor} roughness={0.85} />
+          </mesh>
+          {restored && (
+            <pointLight
+              position={[0, 1.95, 0.4]}
+              color="#f4d8a0"
+              intensity={0.5}
+              distance={3.5}
+              decay={2}
+            />
+          )}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// MatsubameBackdrop — pine tree silhouette painted di back wall, ciri
+// khas Noh theater. Single big pine tree center, restored only.
+const MatsubameBackdrop = ({ restored }) => {
+  if (!restored) return null;
+  return (
+    <group position={[0, 0, BACK_WALL_Z + 0.14]}>
+      {/* Trunk — vertical dark brown plane */}
+      <mesh position={[0, 1.3, 0]}>
+        <planeGeometry args={[0.25, 2.6]} />
+        <meshStandardMaterial
+          color="#3a2418"
+          emissive="#1a0e08"
+          emissiveIntensity={0.1}
+          roughness={1}
+        />
+      </mesh>
+      {/* Foliage clusters — dark green discs spread, mimic Noh pine */}
+      {[
+        { x: 0, y: 2.6, r: 1.4 },
+        { x: -1, y: 2.4, r: 0.9 },
+        { x: 1, y: 2.4, r: 0.9 },
+        { x: -1.6, y: 2, r: 0.7 },
+        { x: 1.6, y: 2, r: 0.7 },
+        { x: 0, y: 3.5, r: 1 },
+      ].map((c, i) => (
+        <mesh key={`pine-${i}`} position={[c.x, c.y, 0]}>
+          <circleGeometry args={[c.r, 16]} />
+          <meshStandardMaterial
+            color="#2a4828"
+            emissive="#1a3020"
+            emissiveIntensity={0.12}
+            roughness={1}
+          />
+        </mesh>
+      ))}
+      {/* Branch lines — 3 dark angled lines suggesting branches */}
+      {[
+        { x: -0.5, y: 2.6, rot: -0.4, l: 1.2 },
+        { x: 0.5, y: 2.6, rot: 0.4, l: 1.2 },
+        { x: 0, y: 3.2, rot: 0.1, l: 0.8 },
+      ].map((b, i) => (
+        <mesh
+          key={`branch-${i}`}
+          position={[b.x, b.y, 0.01]}
+          rotation={[0, 0, b.rot]}
+        >
+          <planeGeometry args={[b.l, 0.08]} />
+          <meshStandardMaterial color="#2a1810" roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 // Moon — single big bright sphere di sky, focal anchor + glow halo.
 // Restored: brighter warm. Drought: muted pale.
 const Moon = ({ restored }) => {
@@ -1757,8 +2095,14 @@ const StageCurtainSwag = ({ restored }) => {
   const swagZ = BACK_WALL_Z + 0.15;
   const railColor = restored ? '#5a3a20' : '#3a2418';
   const railEm = restored ? '#a87830' : '#000000';
-  const fabricColor = restored ? '#7a1818' : '#3a1010';
-  const fabricEm = restored ? '#3a0808' : '#000000';
+  // Kabuki joushiki-maku stripes — black/orange/green/green/orange/black
+  // symmetric across 6 panels. Drought: all muted dark.
+  const kabukiColors = restored
+    ? ['#1a1410', '#c87838', '#4a8038', '#4a8038', '#c87838', '#1a1410']
+    : ['#1a1410', '#5a3818', '#2a4828', '#2a4828', '#5a3818', '#1a1410'];
+  const kabukiEm = restored
+    ? ['#000000', '#7a3818', '#2a5020', '#2a5020', '#7a3818', '#000000']
+    : ['#000000', '#000000', '#000000', '#000000', '#000000', '#000000'];
   return (
     <>
       {/* Curtain rail — horizontal bar mounted di back wall, swag
@@ -1787,8 +2131,8 @@ const StageCurtainSwag = ({ restored }) => {
           <meshStandardMaterial color="#3a2418" roughness={0.9} />
         </mesh>
       ))}
-      {/* Top swag — 6 scallop drape panels across back wall width
-          (wall sekarang 14 wide, sebelumnya 10) */}
+      {/* Top swag — 6 kabuki stripe panels (joushiki-maku) across back
+          wall width. Each panel = different stripe color. */}
       {[-5, -3, -1, 1, 3, 5].map((x, i) => (
         <mesh
           key={`swag-${i}`}
@@ -1799,8 +2143,8 @@ const StageCurtainSwag = ({ restored }) => {
         >
           <planeGeometry args={[2.1, 1]} />
           <meshStandardMaterial
-            color={fabricColor}
-            emissive={fabricEm}
+            color={kabukiColors[i]}
+            emissive={kabukiEm[i]}
             emissiveIntensity={restored ? 0.18 : 0}
             roughness={0.95}
             side={THREE.DoubleSide}
@@ -2503,17 +2847,18 @@ const Scene = ({
       <Moon restored={restored} />
       <DistantCitySilhouette restored={restored} />
       <CobblePath restored={restored} />
-      <OutdoorLamps restored={restored} />
+      <IshiDoroLanterns restored={restored} />
       <PlazaStatue restored={restored} />
       <PerformanceEquipment restored={restored} />
       <EntranceColumns restored={restored} />
-      <WelcomeArch restored={restored} />
+      <Torii restored={restored} />
       <GalleryWalls restored={restored} />
       <WallCracks restored={restored} />
       <GallerySconces restored={restored} />
       <WallMedallions restored={restored} />
       <CofferedCeilingBeams restored={restored} />
-      <Chandelier restored={restored} />
+      <BonboriLanterns restored={restored} />
+      <MatsubameBackdrop restored={restored} />
       <CeilingTrackLights restored={restored} />
       <AisleFloorLights restored={restored} />
       <DroughtDebris restored={restored} />
