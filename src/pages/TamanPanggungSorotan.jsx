@@ -132,8 +132,8 @@ const ExhibitionFloor = ({ restored }) => (
     <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[14, 12]} />
       <meshStandardMaterial
-        color={restored ? '#5a4030' : '#3a2820'}
-        roughness={1}
+        color={restored ? '#a87848' : '#3a2820'}
+        roughness={0.85}
       />
     </mesh>
     {[-5, -3, -1, 1, 3, 5].map((x, i) => (
@@ -143,76 +143,189 @@ const ExhibitionFloor = ({ restored }) => (
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <planeGeometry args={[0.03, 12]} />
-        <meshStandardMaterial color="#1a0e08" roughness={1} />
+        <meshStandardMaterial
+          color={restored ? '#5a3a20' : '#1a0e08'}
+          roughness={1}
+        />
       </mesh>
     ))}
     {restored && (
-      <mesh position={[0, -0.03, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 2.8]} />
-        <meshStandardMaterial
-          color="#7a2828"
-          emissive="#3a0c0c"
-          emissiveIntensity={0.1}
-          roughness={0.95}
-          transparent
-          opacity={0.85}
-        />
-      </mesh>
+      <>
+        {/* Area rug — vibrant deep red dgn warm emissive */}
+        <mesh position={[0, -0.03, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[4.2, 3]} />
+          <meshStandardMaterial
+            color="#a82828"
+            emissive="#7a1818"
+            emissiveIntensity={0.22}
+            roughness={0.9}
+            transparent
+            opacity={0.9}
+          />
+        </mesh>
+        {/* Rug border — gold trim */}
+        <mesh position={[0, -0.025, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.95, 2.1, 24]} />
+          <meshStandardMaterial
+            color="#d4a848"
+            emissive="#a87830"
+            emissiveIntensity={0.3}
+            roughness={0.5}
+            metalness={0.4}
+            toneMapped={false}
+          />
+        </mesh>
+      </>
     )}
   </>
 );
 
-// GalleryWalls — 3 walls U-shape (back + 2 sides), warm stone/plaster
-// color. Baseboard trim restored only.
+// GalleryWalls — 3 walls U-shape (back + 2 sides). Restored: cream
+// warm plaster + gold crown + dark wood baseboard. Drought: dark muted.
 const GalleryWalls = ({ restored }) => {
-  const wallColor = restored ? '#6a4838' : '#3a2c20';
-  const trimColor = '#2a1810';
+  const wallColor = restored ? '#e4cfa8' : '#3a2c20';
+  const wallEmissive = restored ? '#a87848' : '#000000';
+  const wallEmI = restored ? 0.06 : 0;
+  const trimColor = restored ? '#3a2418' : '#2a1810';
+  const crownColor = restored ? '#d4a848' : '#3a2418';
+  const accentStripColor = restored ? '#8a1818' : null;
   return (
     <>
       {/* Back wall */}
       <mesh position={[0, WALL_H / 2, BACK_WALL_Z]}>
         <boxGeometry args={[GALLERY_W, WALL_H, 0.25]} />
-        <meshStandardMaterial color={wallColor} roughness={1} />
+        <meshStandardMaterial
+          color={wallColor}
+          emissive={wallEmissive}
+          emissiveIntensity={wallEmI}
+          roughness={0.95}
+        />
       </mesh>
       {/* Left wall */}
       <mesh position={[-SIDE_WALL_X, WALL_H / 2, -0.5]} rotation={[0, Math.PI / 2, 0]}>
         <boxGeometry args={[GALLERY_D - 1, WALL_H, 0.25]} />
-        <meshStandardMaterial color={wallColor} roughness={1} />
+        <meshStandardMaterial
+          color={wallColor}
+          emissive={wallEmissive}
+          emissiveIntensity={wallEmI}
+          roughness={0.95}
+        />
       </mesh>
       {/* Right wall */}
       <mesh position={[SIDE_WALL_X, WALL_H / 2, -0.5]} rotation={[0, -Math.PI / 2, 0]}>
         <boxGeometry args={[GALLERY_D - 1, WALL_H, 0.25]} />
-        <meshStandardMaterial color={wallColor} roughness={1} />
+        <meshStandardMaterial
+          color={wallColor}
+          emissive={wallEmissive}
+          emissiveIntensity={wallEmI}
+          roughness={0.95}
+        />
       </mesh>
-      {/* Baseboard trim — thin dark strip di base tiap wall, restored */}
-      {restored && (
+      {/* Wainscoting accent strip — horizontal deep red stripe di mid-low
+          wall, mirror Victorian gallery aesthetic. Restored only. */}
+      {restored && accentStripColor && (
         <>
-          <mesh position={[0, 0.08, BACK_WALL_Z + 0.13]}>
-            <boxGeometry args={[GALLERY_W, 0.15, 0.04]} />
-            <meshStandardMaterial color={trimColor} roughness={0.9} />
+          <mesh position={[0, 0.7, BACK_WALL_Z + 0.13]}>
+            <boxGeometry args={[GALLERY_W, 0.08, 0.04]} />
+            <meshStandardMaterial
+              color={accentStripColor}
+              emissive="#3a0c0c"
+              emissiveIntensity={0.15}
+              roughness={0.85}
+            />
           </mesh>
           <mesh
-            position={[-SIDE_WALL_X + 0.13, 0.08, -0.5]}
+            position={[-SIDE_WALL_X + 0.13, 0.7, -0.5]}
             rotation={[0, Math.PI / 2, 0]}
           >
-            <boxGeometry args={[GALLERY_D - 1, 0.15, 0.04]} />
+            <boxGeometry args={[GALLERY_D - 1, 0.08, 0.04]} />
+            <meshStandardMaterial
+              color={accentStripColor}
+              emissive="#3a0c0c"
+              emissiveIntensity={0.15}
+              roughness={0.85}
+            />
+          </mesh>
+          <mesh
+            position={[SIDE_WALL_X - 0.13, 0.7, -0.5]}
+            rotation={[0, -Math.PI / 2, 0]}
+          >
+            <boxGeometry args={[GALLERY_D - 1, 0.08, 0.04]} />
+            <meshStandardMaterial
+              color={accentStripColor}
+              emissive="#3a0c0c"
+              emissiveIntensity={0.15}
+              roughness={0.85}
+            />
+          </mesh>
+        </>
+      )}
+      {/* Baseboard trim */}
+      {restored && (
+        <>
+          <mesh position={[0, 0.12, BACK_WALL_Z + 0.13]}>
+            <boxGeometry args={[GALLERY_W, 0.22, 0.04]} />
             <meshStandardMaterial color={trimColor} roughness={0.9} />
           </mesh>
           <mesh
-            position={[SIDE_WALL_X - 0.13, 0.08, -0.5]}
+            position={[-SIDE_WALL_X + 0.13, 0.12, -0.5]}
+            rotation={[0, Math.PI / 2, 0]}
+          >
+            <boxGeometry args={[GALLERY_D - 1, 0.22, 0.04]} />
+            <meshStandardMaterial color={trimColor} roughness={0.9} />
+          </mesh>
+          <mesh
+            position={[SIDE_WALL_X - 0.13, 0.12, -0.5]}
             rotation={[0, -Math.PI / 2, 0]}
           >
-            <boxGeometry args={[GALLERY_D - 1, 0.15, 0.04]} />
+            <boxGeometry args={[GALLERY_D - 1, 0.22, 0.04]} />
             <meshStandardMaterial color={trimColor} roughness={0.9} />
           </mesh>
         </>
       )}
-      {/* Crown molding — thin strip di top of back wall, restored */}
+      {/* Crown molding — gold strip di top of walls, restored only */}
       {restored && (
-        <mesh position={[0, WALL_H - 0.15, BACK_WALL_Z + 0.13]}>
-          <boxGeometry args={[GALLERY_W, 0.15, 0.04]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.9} />
-        </mesh>
+        <>
+          <mesh position={[0, WALL_H - 0.15, BACK_WALL_Z + 0.13]}>
+            <boxGeometry args={[GALLERY_W, 0.18, 0.05]} />
+            <meshStandardMaterial
+              color={crownColor}
+              emissive="#7a5818"
+              emissiveIntensity={0.3}
+              roughness={0.5}
+              metalness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+          <mesh
+            position={[-SIDE_WALL_X + 0.13, WALL_H - 0.15, -0.5]}
+            rotation={[0, Math.PI / 2, 0]}
+          >
+            <boxGeometry args={[GALLERY_D - 1, 0.18, 0.05]} />
+            <meshStandardMaterial
+              color={crownColor}
+              emissive="#7a5818"
+              emissiveIntensity={0.3}
+              roughness={0.5}
+              metalness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+          <mesh
+            position={[SIDE_WALL_X - 0.13, WALL_H - 0.15, -0.5]}
+            rotation={[0, -Math.PI / 2, 0]}
+          >
+            <boxGeometry args={[GALLERY_D - 1, 0.18, 0.05]} />
+            <meshStandardMaterial
+              color={crownColor}
+              emissive="#7a5818"
+              emissiveIntensity={0.3}
+              roughness={0.5}
+              metalness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+        </>
       )}
     </>
   );
@@ -460,6 +573,66 @@ const GallerySconces = ({ restored }) => {
   );
 };
 
+// PottedPlants — small leafy plants di 2 corners (back-left + back-right
+// di depan wall), kasih green accent + life. Restored only.
+const PottedPlants = ({ restored }) => {
+  if (!restored) return null;
+  const corners = [
+    { x: -SIDE_WALL_X + 0.8, z: BACK_WALL_Z + 0.8 },
+    { x: SIDE_WALL_X - 0.8, z: BACK_WALL_Z + 0.8 },
+  ];
+  return (
+    <>
+      {corners.map((c, i) => (
+        <group key={`plant-${i}`} position={[c.x, 0, c.z]}>
+          {/* Pot — terracotta tapered */}
+          <mesh position={[0, 0.25, 0]}>
+            <cylinderGeometry args={[0.28, 0.22, 0.5, 12]} />
+            <meshStandardMaterial
+              color="#a85838"
+              emissive="#5a2818"
+              emissiveIntensity={0.08}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Pot rim — slightly darker */}
+          <mesh position={[0, 0.52, 0]}>
+            <cylinderGeometry args={[0.3, 0.28, 0.06, 12]} />
+            <meshStandardMaterial color="#7a3818" roughness={0.95} />
+          </mesh>
+          {/* Soil */}
+          <mesh position={[0, 0.5, 0]}>
+            <cylinderGeometry args={[0.26, 0.26, 0.04, 12]} />
+            <meshStandardMaterial color="#3a2010" roughness={1} />
+          </mesh>
+          {/* Leaf cluster — 5-6 sphere green */}
+          {[
+            { x: 0, y: 0.75, z: 0, s: 0.25 },
+            { x: 0.18, y: 0.7, z: 0.05, s: 0.18 },
+            { x: -0.16, y: 0.72, z: -0.06, s: 0.2 },
+            { x: 0.04, y: 0.95, z: 0.1, s: 0.22 },
+            { x: -0.1, y: 0.88, z: 0.12, s: 0.16 },
+            { x: 0.12, y: 0.85, z: -0.14, s: 0.18 },
+          ].map((leaf, j) => (
+            <mesh
+              key={`leaf-${i}-${j}`}
+              position={[leaf.x, leaf.y, leaf.z]}
+            >
+              <sphereGeometry args={[leaf.s, 8, 6]} />
+              <meshStandardMaterial
+                color="#4a8038"
+                emissive="#2a5020"
+                emissiveIntensity={0.18}
+                roughness={0.85}
+              />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </>
+  );
+};
+
 // FloorMist — subtle additive layer di low y, slow rotation, atmospheric
 // depth. Restored more visible drpd drought.
 const FloorMist = ({ restored }) => {
@@ -633,21 +806,34 @@ const PosterFrame = ({ entry, index, restored, hovered, onClick, onHover, onUnho
   );
 };
 
-// SceneLights — ambient + key directional. Subtle warm tone.
+// SceneLights — ambient + key directional. Restored: warm cream tone
+// brighter overall. Drought: dim cool brown.
 const SceneLights = ({ restored }) => (
   <>
-    <ambientLight intensity={restored ? 0.35 : 0.2} color="#3a2c20" />
+    <ambientLight
+      intensity={restored ? 0.7 : 0.2}
+      color={restored ? '#f4d8a8' : '#3a2c20'}
+    />
     <directionalLight
       position={[6, 10, 6]}
-      intensity={restored ? 0.4 : 0.18}
-      color="#a89070"
+      intensity={restored ? 0.65 : 0.18}
+      color={restored ? '#f4e0b8' : '#a89070'}
     />
     {/* Fill light dari depan biar wall + posters kebaca */}
     <directionalLight
       position={[0, 5, 8]}
-      intensity={0.15}
-      color="#4a3828"
+      intensity={restored ? 0.4 : 0.15}
+      color={restored ? '#e8d4a8' : '#4a3828'}
     />
+    {/* Hemispheric ambient — kasih warm sky tint dari atas + dark floor
+        bouncenya ke bawah, restored only */}
+    {restored && (
+      <hemisphereLight
+        skyColor="#f4d8a0"
+        groundColor="#a87848"
+        intensity={0.4}
+      />
+    )}
   </>
 );
 
@@ -702,6 +888,7 @@ const Scene = ({
       <GalleryWalls restored={restored} />
       <GallerySconces restored={restored} />
       <CeilingTrackLights restored={restored} />
+      <PottedPlants restored={restored} />
       <ViewingBench restored={restored} />
       <IntroPlaque restored={restored} />
       {entries.map((entry, i) => (
@@ -1109,7 +1296,10 @@ const TamanPanggungSorotan = ({ restored = false }) => {
         path="/armeniacaTown/r5"
       />
       <RotateRecommendation />
-      <div className="relative w-full h-screen bg-[#0a0608] overflow-hidden select-none">
+      <div
+        className="relative w-full h-screen overflow-hidden select-none"
+        style={{ background: restored ? '#1f1208' : '#0a0608' }}
+      >
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 42, position: CAMERA_START, near: 0.1, far: 200 }}
