@@ -6266,6 +6266,35 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
           </mesh>
         </>
       )}
+      {/* A1 (Bundle 1): Soil pile + 2-3 visible roots di tree base.
+              "Tumbuh dari tanah" reinforced. Roots scale dgn eased. */}
+      {eased > 0.1 && (
+        <>
+          {/* Soil mound — slight dark disc di base */}
+          <mesh
+            position={[0, 0.02, 0]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <circleGeometry args={[0.2 + eased * 0.15, 10]} />
+            <meshStandardMaterial color="#3a2410" roughness={1} />
+          </mesh>
+          {/* Roots — 3 radial visible roots emerging dari base */}
+          {[0, 2.1, 4.2].map((rotAngle, j) => (
+            <mesh
+              key={`root-${j}`}
+              position={[
+                Math.cos(rotAngle) * (0.13 + eased * 0.1),
+                0.025,
+                Math.sin(rotAngle) * (0.13 + eased * 0.1),
+              ]}
+              rotation={[-Math.PI / 2, 0, rotAngle]}
+            >
+              <boxGeometry args={[0.18 + eased * 0.1, 0.04, 0.03]} />
+              <meshStandardMaterial color={trunkColorTone} roughness={0.95} />
+            </mesh>
+          ))}
+        </>
+      )}
       {/* B: Apricot fruits — 3-5 small orange-peach spheres pada
               foliage saat eased > 0.7 (project identity Armeniaca = aprikot) */}
       {eased > 0.7 && (
@@ -6284,6 +6313,37 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
                 emissiveIntensity={0.2}
                 roughness={0.55}
                 metalness={0.05}
+              />
+            </mesh>
+          ))}
+        </>
+      )}
+      {/* C (Bundle 1): Fallen leaves — 4-6 small leaf scatter di tanah
+              sekitar tree base saat eased >= 0.8. Cycle hidup natural:
+              pohon mature → leaves gugur. Mixed warna autumn (kuning,
+              orange, hijau lewat). */}
+      {eased >= 0.8 && (
+        <>
+          {[
+            { x: 0.35, z: 0.2, rot: 0.4, color: '#a87830' },
+            { x: -0.3, z: 0.3, rot: -0.6, color: '#c89060' },
+            { x: 0.25, z: -0.4, rot: 0.9, color: '#8a6840' },
+            { x: -0.4, z: -0.2, rot: 1.2, color: '#a87838' },
+            { x: 0.55, z: 0.05, rot: -0.3, color: '#c89060' },
+            { x: -0.15, z: 0.45, rot: 0.7, color: '#8a6840' },
+          ].slice(0, eased > 0.95 ? 6 : 4).map((leaf, j) => (
+            <mesh
+              key={`fallen-${j}`}
+              position={[leaf.x, 0.012, leaf.z]}
+              rotation={[-Math.PI / 2, 0, leaf.rot]}
+            >
+              <planeGeometry args={[0.12, 0.06]} />
+              <meshStandardMaterial
+                color={leaf.color}
+                roughness={1}
+                transparent
+                opacity={0.85}
+                side={THREE.DoubleSide}
               />
             </mesh>
           ))}
