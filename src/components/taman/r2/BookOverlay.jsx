@@ -18,7 +18,13 @@
  * & Escape. Reading progress bar di top. Mark as read on >80% scroll.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import {
   getRakSiblings,
@@ -159,22 +165,29 @@ const ProseStoryBody = ({ body }) => (
 // animation. Aktif untuk story >3 paragraf (chunked into 2-3 pages).
 // =====================================================================
 
-// Split paragraf array jadi pages. Aim: 3 paragraf/page, distributed
-// rata. Single page kalau ≤3 paragraf (caller should bypass pagination).
-const paginate = (paragraphs) => {
+// Bin-pack paragraf jadi pages dgn measured heights — tiap page muat
+// dlm `target` pixel. Greedy: tambahkan paragraf ke current page sampai
+// next paragraf overflow, lalu mulai page baru.
+// `gap` = vertical spacing antar paragraf (space-y-5 = 20px).
+const binPackParagraphs = (paragraphs, heights, target, gap = 20) => {
   if (!paragraphs || paragraphs.length === 0) return [];
-  const len = paragraphs.length;
-  let pageCount;
-  if (len <= 3) pageCount = 1;
-  else if (len <= 6) pageCount = 2;
-  else if (len <= 10) pageCount = 3;
-  else pageCount = Math.ceil(len / 4);
-  const perPage = Math.ceil(len / pageCount);
+  if (heights.length !== paragraphs.length) return [paragraphs];
   const result = [];
-  for (let i = 0; i < len; i += perPage) {
-    result.push(paragraphs.slice(i, i + perPage));
-  }
-  return result;
+  let cur = [];
+  let curH = 0;
+  paragraphs.forEach((p, i) => {
+    const addH = heights[i] + (cur.length > 0 ? gap : 0);
+    if (cur.length > 0 && curH + addH > target) {
+      result.push(cur);
+      cur = [p];
+      curH = heights[i];
+    } else {
+      cur.push(p);
+      curH += addH;
+    }
+  });
+  if (cur.length > 0) result.push(cur);
+  return result.length > 0 ? result : [paragraphs];
 };
 
 // Render single page's paragraph content. Drop cap muncul cuma di
@@ -249,17 +262,56 @@ const PageNavBar = ({ page, total, onPrev, onNext, flipping }) => (
   </div>
 );
 
-const PaginatedProseStoryBody = ({ body, onPageChange }) => {
-  const pages = useMemo(() => paginate(body.paragraphs), [body.paragraphs]);
-  const totalPages = pages.length;
+const PaginatedProseStoryBody = ({ body, onPageChange, crossLinkSlot }) => {
+  const paragraphs = body.paragraphs;
+  const containerRef = useRef(null);
+  const measureRef = useRef(null);
+  const [containerHeight, setContainerHeight] = useState(400);
+  // prosePages = result of bin-packing. Default: single page (all paras),
+  // then re-computed via useLayoutEffect setelah measurement.
+  const [prosePages, setProsePages] = useState([paragraphs]);
   const [activePage, setActivePage] = useState(0);
-  // flip: { direction: 'next'|'prev', fromPage, toPage } selama animasi
   const [flip, setFlip] = useState(null);
   const touchRef = useRef({ x: 0, y: 0 });
   const flipTimerRef = useRef(null);
 
-  // Reset ke page 0 saat body berubah (user pindah buku). Body memo'd
-  // di parent, jadi reference change = book change.
+  // Total pages = prose pages + (1 untuk cross-link kalau ada)
+  const hasCrossLink = !!crossLinkSlot;
+  const totalPages = prosePages.length + (hasCrossLink ? 1 : 0);
+  const isCrossLinkPage = (idx) => hasCrossLink && idx === prosePages.length;
+
+  // Measure container height — drives bin-pack target. ResizeObserver
+  // auto re-pack saat resize window/modal.
+  useLayoutEffect(() => {
+    if (!containerRef.current) return undefined;
+    const el = containerRef.current;
+    const update = () => {
+      const h = el.clientHeight;
+      if (h && h > 100) setContainerHeight(h);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Bin-pack based on measured paragraph heights. Re-pack saat body
+  // (paragraphs) atau containerHeight berubah.
+  useLayoutEffect(() => {
+    if (!measureRef.current) return;
+    const children = Array.from(measureRef.current.children);
+    if (children.length === 0) return;
+    const heights = children.map(
+      (el) => el.getBoundingClientRect().height,
+    );
+    // Reserve space untuk PageNavBar (~52px termasuk border + padding)
+    // + bottom breathing room (12px safety).
+    const target = Math.max(180, containerHeight - 64);
+    const packed = binPackParagraphs(paragraphs, heights, target, 20);
+    setProsePages(packed);
+  }, [paragraphs, containerHeight]);
+
+  // Reset ke page 0 saat body berubah (user pindah buku).
   useEffect(() => {
     setActivePage(0);
     setFlip(null);
@@ -269,8 +321,7 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
     }
   }, [body]);
 
-  // Notify parent (BookOverlay) of page changes — drives CrossLinkFooter
-  // visibility (hanya muncul di last page).
+  // Notify parent (BookOverlay) — drives progress bar + mark-as-read.
   useEffect(() => {
     onPageChange?.(activePage, totalPages);
   }, [activePage, totalPages, onPageChange]);
@@ -295,7 +346,7 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
     }, 720);
   };
 
-  // Swipe gesture — horizontal swipe > vertical, threshold 60px.
+  // Swipe gesture
   const onTouchStart = (e) => {
     const t = e.touches[0];
     touchRef.current = { x: t.clientX, y: t.clientY };
@@ -310,17 +361,15 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
   };
 
   // Keyboard nav via capture phase — preempts BookOverlay's listener
-  // sebelum dia trigger sibling nav. Di page boundaries (page 0 prev,
-  // last page next) handler fall-through tanpa stopImmediatePropagation,
-  // jadi BookOverlay handler jalan & navigate ke sibling buku.
+  // di page boundaries (page 0 prev, last page next) handler
+  // fall-through tanpa stopImmediatePropagation, BookOverlay handler
+  // jalan & navigate ke sibling buku.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       const isPrev = e.key === 'ArrowLeft';
-      // At boundary → let parent handle (sibling nav)
       if (isPrev && activePage === 0) return;
       if (!isPrev && activePage === totalPages - 1) return;
-      // Consume + transition
       e.stopImmediatePropagation();
       transition(isPrev ? 'prev' : 'next');
     };
@@ -328,10 +377,6 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
     return () => window.removeEventListener('keydown', onKey, true);
   }, [activePage, totalPages, flip]);
 
-  // Settled page: yang user akan lihat after flip selesai.
-  // - NEXT: settled = toPage (incoming, sits below leaf flipping away)
-  // - PREV: settled = fromPage (current, leaf flipping in covers it)
-  // - idle: settled = activePage
   const settledIdx = flip
     ? flip.direction === 'next'
       ? flip.toPage
@@ -343,9 +388,15 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
       : flip.toPage
     : null;
 
+  // Render page content — bisa prose paragraphs atau cross-link slot.
+  const renderPageContent = (idx) => {
+    if (isCrossLinkPage(idx)) return crossLinkSlot;
+    return renderPageParagraphs(prosePages[idx] || [], idx === 0);
+  };
+
   return (
     <div
-      className="paginatedContainer"
+      className="paginatedContainer flex flex-col"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -353,11 +404,19 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
         .paginatedContainer {
           position: relative;
           perspective: 1800px;
-          min-height: 320px;
+          flex: 1 1 0;
+          min-height: 240px;
+        }
+        .paginatedPagesWrapper {
+          position: relative;
+          flex: 1 1 0;
+          overflow: hidden;
         }
         .paginatedSettled {
-          position: relative;
+          position: absolute;
+          inset: 0;
           z-index: 1;
+          overflow: hidden;
         }
         .paginatedLeaf {
           position: absolute;
@@ -375,9 +434,8 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
           background-blend-mode: multiply;
           padding: 0;
           will-change: transform, box-shadow;
+          overflow: hidden;
         }
-        /* Shadow gradient yang sweep dari spine edge during flip —
-           kerasa "page catching light as it lifts." */
         .paginatedLeaf::before {
           content: '';
           position: absolute;
@@ -397,49 +455,79 @@ const PaginatedProseStoryBody = ({ body, onPageChange }) => {
           animation: paginatedFlipPrev 720ms cubic-bezier(0.55, 0.05, 0.4, 0.95) forwards;
         }
         @keyframes paginatedFlipNext {
-          0% {
-            transform: rotateY(0deg);
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-          }
-          40% {
-            box-shadow: 28px 8px 36px -8px rgba(58, 36, 24, 0.35);
-          }
-          100% {
-            transform: rotateY(-180deg);
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-          }
+          0% { transform: rotateY(0deg); box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+          40% { box-shadow: 28px 8px 36px -8px rgba(58, 36, 24, 0.35); }
+          100% { transform: rotateY(-180deg); box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
         }
         @keyframes paginatedFlipPrev {
-          0% {
-            transform: rotateY(-180deg);
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-          }
-          60% {
-            box-shadow: 28px 8px 36px -8px rgba(58, 36, 24, 0.35);
-          }
-          100% {
-            transform: rotateY(0deg);
-            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-          }
+          0% { transform: rotateY(-180deg); box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+          60% { box-shadow: 28px 8px 36px -8px rgba(58, 36, 24, 0.35); }
+          100% { transform: rotateY(0deg); box-shadow: 0 0 0 rgba(0, 0, 0, 0); }
+        }
+        /* Hidden measurement layer — rendered di posisi absolute, visibility
+           hidden, tapi ada di layout supaya getBoundingClientRect works. */
+        .paginatedMeasure {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          visibility: hidden;
+          pointer-events: none;
+          z-index: -1;
         }
       `}</style>
 
-      <div className="paginatedSettled">
-        {renderPageParagraphs(pages[settledIdx], settledIdx === 0)}
+      {/* Hidden measurement — render semua paragraf di full container
+          width buat measure each rendered height. Same styles as actual
+          page render supaya layout matches. */}
+      <div
+        ref={measureRef}
+        aria-hidden="true"
+        className="paginatedMeasure space-y-5"
+      >
+        {paragraphs.map((p, i) => (
+          <p
+            key={`m-${i}`}
+            className="text-[color:var(--retro-brown-dark)] leading-[1.75]"
+            style={{
+              fontFamily: '"Fraunces Variable", serif',
+              fontSize: '17px',
+            }}
+          >
+            {i === 0 && p.length > 1 && (
+              <span
+                className="float-left text-[color:var(--retro-burgundy)] mr-2"
+                style={{
+                  fontFamily: '"Fraunces Variable", serif',
+                  fontSize: '54px',
+                  lineHeight: '0.85',
+                  fontWeight: 600,
+                }}
+              >
+                {p.charAt(0)}
+              </span>
+            )}
+            {i === 0 ? p.slice(1) : p}
+          </p>
+        ))}
       </div>
 
-      {flip && leafIdx !== null && (
-        <div
-          key={`${flip.fromPage}-${flip.toPage}-${flip.direction}`}
-          className={`paginatedLeaf ${
-            flip.direction === 'next' ? 'flipNext' : 'flipPrev'
-          }`}
-        >
-          <div className="px-0 py-0">
-            {renderPageParagraphs(pages[leafIdx], leafIdx === 0)}
+      {/* Pages wrapper — flex-1 takes all available space; overflow
+          hidden ensures no scroll. */}
+      <div ref={containerRef} className="paginatedPagesWrapper">
+        <div className="paginatedSettled">{renderPageContent(settledIdx)}</div>
+
+        {flip && leafIdx !== null && (
+          <div
+            key={`${flip.fromPage}-${flip.toPage}-${flip.direction}`}
+            className={`paginatedLeaf ${
+              flip.direction === 'next' ? 'flipNext' : 'flipPrev'
+            }`}
+          >
+            {renderPageContent(leafIdx)}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <PageNavBar
         page={activePage}
@@ -883,7 +971,7 @@ const CrossLinkFooter = ({ book, onClose, onNavigate, restored }) => {
 // Body dispatcher
 // =====================================================================
 
-const BookBody = ({ body, onPageChange }) => {
+const BookBody = ({ body, onPageChange, crossLinkSlot }) => {
   switch (body.type) {
     case 'quote':
       return <QuoteBody body={body} />;
@@ -894,7 +982,11 @@ const BookBody = ({ body, onPageChange }) => {
       // pendek (meta-intro, dll) tetap single page tanpa nav bar.
       if (body.paragraphs && body.paragraphs.length > 3) {
         return (
-          <PaginatedProseStoryBody body={body} onPageChange={onPageChange} />
+          <PaginatedProseStoryBody
+            body={body}
+            onPageChange={onPageChange}
+            crossLinkSlot={crossLinkSlot}
+          />
         );
       }
       return <ProseStoryBody body={body} />;
@@ -938,23 +1030,11 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
     body?.paragraphs &&
     body.paragraphs.length > 3;
 
-  // atLastPage drives CrossLinkFooter visibility & also serves as
-  // "fully read" signal untuk paginated stories.
-  // - Non-paginated body: true from start (footer always visible).
-  // - Paginated body: starts false, becomes true on reaching last page.
-  const [atLastPage, setAtLastPage] = useState(!isPaginated);
-
-  // Reset atLastPage saat user pindah buku
-  useEffect(() => {
-    setAtLastPage(!isPaginated);
-  }, [bookId, isPaginated]);
-
   const handlePageChange = (page, total) => {
     // Progress bar di header track page progress untuk paginated body
     // (override scroll-based progress yang gak akurat dlm pagination).
     if (total > 1) setProgress((page + 1) / total);
     if (page >= total - 1) {
-      setAtLastPage(true);
       // Mark as read saat reach last page (paginated counterpart of
       // scroll-based >80% trigger).
       if (book) onMarkRead?.(book.id);
@@ -1187,15 +1267,24 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
           </div>
         </header>
 
-        {/* Scrollable body — direct child of article flex column.
-            flex-1 ngambil ruang antara header & footer. */}
+        {/* Body container — layout switch berdasarkan paginated atau gak.
+            - Paginated: overflow-hidden + flex column. Title block
+              flex-shrink-0, paginated container flex-1 (ngambil sisa
+              tinggi). Tidak ada scroll. Cross-link footer di-pass jadi
+              final page slot.
+            - Non-paginated: overflow-y-auto (current behavior). Title +
+              body + CrossLinkFooter flow vertikal & scroll kalau panjang. */}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="arsipBookScroll flex-1 overflow-y-auto px-6 sm:px-10 py-6 sm:py-8"
+          className={`arsipBookScroll flex-1 px-6 sm:px-10 py-6 sm:py-8 ${
+            isPaginated
+              ? 'overflow-hidden flex flex-col min-h-0'
+              : 'overflow-y-auto'
+          }`}
           style={{ paddingLeft: 'calc(1.5rem + 8px)' }}
         >
-          <div className="mb-6">
+          <div className="mb-6 flex-shrink-0">
             <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
               {book.eyebrow}
             </div>
@@ -1216,35 +1305,39 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
             </div>
           </div>
 
-          <div className="border-t border-[color:var(--retro-brown-dark)]/15 pt-6">
-            <BookBody body={body} onPageChange={handlePageChange} />
+          <div
+            className={`border-t border-[color:var(--retro-brown-dark)]/15 pt-6 ${
+              isPaginated ? 'flex-1 min-h-0 flex flex-col' : ''
+            }`}
+          >
+            <BookBody
+              body={body}
+              onPageChange={handlePageChange}
+              crossLinkSlot={
+                isPaginated ? (
+                  <CrossLinkFooter
+                    book={book}
+                    onClose={onClose}
+                    onNavigate={onNavigate}
+                    restored={restored}
+                  />
+                ) : null
+              }
+            />
           </div>
 
-          {/* Cross-link footer — "Lihat juga" untuk buku yang punya
-              relasi ke ruangan lain. Tujuan: ngehubungin Arsip ke
-              Konstelasi (via book.era) & Pohon (via category kebaikan).
-              Untuk buku refleksi (tanpa era), kasih link ke /about
-              (Armeniaca etymology fuller version).
-              Untuk paginated stories: cuma muncul setelah user reach
-              halaman terakhir — kerasa "ending kemudian linkages."
-              Fade-in dengan max-height transition. */}
-          <div
-            style={{
-              opacity: atLastPage ? 1 : 0,
-              maxHeight: atLastPage ? '2000px' : '0',
-              overflow: 'hidden',
-              transition:
-                'opacity 480ms ease, max-height 480ms ease',
-            }}
-            aria-hidden={!atLastPage}
-          >
+          {/* Cross-link footer inline — cuma untuk non-paginated body
+              (quote, timeline, era-fight, dll). Paginated body
+              receives this sebagai crossLinkSlot final page (passed di
+              atas). */}
+          {!isPaginated && (
             <CrossLinkFooter
               book={book}
               onClose={onClose}
               onNavigate={onNavigate}
               restored={restored}
             />
-          </div>
+          )}
         </div>
 
         {/* Footer prev/next */}
