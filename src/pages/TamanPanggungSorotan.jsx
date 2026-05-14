@@ -46,27 +46,31 @@ import {
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
-// Gallery layout — U-shape opening toward +z (viewer side).
-const GALLERY_W = 10;
-const GALLERY_D = 6;
-const WALL_H = 5;
-const BACK_WALL_Z = -3;
-const SIDE_WALL_X = 5;
-const TRACK_BEAM_Y = 4.6;
+// Gallery layout — U-shape opening toward +z (viewer side). Bigger
+// environment: pameran khusus di left + right walls, back wall jadi
+// pure panggung backdrop, audience kursi mengisi center floor.
+const GALLERY_W = 14;
+const GALLERY_D = 10;
+const WALL_H = 5.5;
+const BACK_WALL_Z = -5;
+const SIDE_WALL_X = 7;
+const TRACK_BEAM_Y = 5;
 
-const ORBIT_TARGET = [0, 2.4, -0.5];
-const CAMERA_START = [0, 10, 2];
-const CAMERA_END = [0, 3.2, 6];
-const FLY_IN_DURATION = 2.4;
+const ORBIT_TARGET = [0, 2.5, -1.5];
+const CAMERA_START = [0, 14, 4];
+const CAMERA_END = [0, 4, 10];
+const FLY_IN_DURATION = 2.6;
 
-// Posters mounted di walls — 5 slot prioritas: center-back dulu, terus
-// side walls, terakhir back-left/right. Single entry pakai slot 0.
+// Posters mounted di SIDE walls only — back wall jadi panggung backdrop
+// murni. 6 slot prioritas: left-back, left-mid, left-front, right-back,
+// right-mid, right-front. Single entry → left-back (slot 0).
 const WALL_POSITIONS = [
-  { x: 0, y: 2.6, z: BACK_WALL_Z + 0.13, ry: 0 },         // back-center
-  { x: -SIDE_WALL_X + 0.13, y: 2.6, z: -0.5, ry: Math.PI / 2 },  // left-wall
-  { x: SIDE_WALL_X - 0.13, y: 2.6, z: -0.5, ry: -Math.PI / 2 },  // right-wall
-  { x: -2.8, y: 2.6, z: BACK_WALL_Z + 0.13, ry: 0 },      // back-left
-  { x: 2.8, y: 2.6, z: BACK_WALL_Z + 0.13, ry: 0 },       // back-right
+  { x: -SIDE_WALL_X + 0.13, y: 2.7, z: -2.5, ry: Math.PI / 2 },   // left-back
+  { x: -SIDE_WALL_X + 0.13, y: 2.7, z: 0,    ry: Math.PI / 2 },   // left-mid
+  { x: -SIDE_WALL_X + 0.13, y: 2.7, z: 2.5,  ry: Math.PI / 2 },   // left-front
+  { x: SIDE_WALL_X - 0.13,  y: 2.7, z: -2.5, ry: -Math.PI / 2 },  // right-back
+  { x: SIDE_WALL_X - 0.13,  y: 2.7, z: 0,    ry: -Math.PI / 2 },  // right-mid
+  { x: SIDE_WALL_X - 0.13,  y: 2.7, z: 2.5,  ry: -Math.PI / 2 },  // right-front
 ];
 
 const useIsMobile = () => {
@@ -130,19 +134,19 @@ const NightSky = () => (
 const ExhibitionFloor = ({ restored }) => (
   <>
     <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[14, 12]} />
+      <planeGeometry args={[20, 16]} />
       <meshStandardMaterial
         color={restored ? '#a87848' : '#5a4030'}
         roughness={0.85}
       />
     </mesh>
-    {[-5, -3, -1, 1, 3, 5].map((x, i) => (
+    {[-8, -6, -4, -2, 0, 2, 4, 6, 8].map((x, i) => (
       <mesh
         key={`plank-${i}`}
         position={[x, -0.04, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
-        <planeGeometry args={[0.03, 12]} />
+        <planeGeometry args={[0.03, 16]} />
         <meshStandardMaterial
           color={restored ? '#5a3a20' : '#1a0e08'}
           roughness={1}
@@ -331,21 +335,81 @@ const GalleryWalls = ({ restored }) => {
   );
 };
 
-// ViewingBench — simple wooden bench, center viewing area facing back.
+// AudienceKursi — 2 rows × 5 kursi facing panggung, mengisi tempat
+// kosong di tengah floor antara dais dan back of audience. Restored:
+// cushion velvet merah. Drought: tanpa cushion.
+const AudienceKursi = ({ restored }) => {
+  // Row positions di z (closer to stage di z lebih negatif)
+  const rows = [
+    { z: -1.5, count: 5, spread: 3.5 },
+    { z: -0.2, count: 5, spread: 3.8 },
+    { z: 1.1, count: 5, spread: 4.0 },
+  ];
+  return (
+    <>
+      {rows.flatMap((row, rowIdx) =>
+        Array.from({ length: row.count }).map((_, i) => {
+          const x = -row.spread + (i / (row.count - 1)) * (row.spread * 2);
+          const tiltZ =
+            !restored && (i + rowIdx) % 4 === 0 ? 0.1 : 0; // slight tilt drought
+          return (
+            <group
+              key={`kursi-${rowIdx}-${i}`}
+              position={[x, 0.2, row.z]}
+              rotation={[0, 0, tiltZ]}
+            >
+              {/* Seat slab */}
+              <mesh>
+                <boxGeometry args={[0.48, 0.16, 0.46]} />
+                <meshStandardMaterial
+                  color={restored ? '#6a5040' : '#4a3a2c'}
+                  roughness={1}
+                />
+              </mesh>
+              {/* Back rest */}
+              <mesh position={[0, 0.38, -0.2]}>
+                <boxGeometry args={[0.48, 0.55, 0.06]} />
+                <meshStandardMaterial
+                  color={restored ? '#5a4030' : '#3a2c20'}
+                  roughness={1}
+                />
+              </mesh>
+              {/* Cushion restored only — small fabric pad */}
+              {restored && (
+                <mesh position={[0, 0.11, 0]}>
+                  <boxGeometry args={[0.42, 0.06, 0.38]} />
+                  <meshStandardMaterial
+                    color="#9a3838"
+                    emissive="#3a1818"
+                    emissiveIntensity={0.12}
+                    roughness={0.85}
+                  />
+                </mesh>
+              )}
+            </group>
+          );
+        }),
+      )}
+    </>
+  );
+};
+
+// ViewingBench — long bench di back of audience area, untuk viewer
+// yang mau duduk sambil overview panggung + posters.
 const ViewingBench = ({ restored }) => (
-  <group position={[0, 0, 1.5]}>
-    {/* Seat slab */}
+  <group position={[0, 0, 2.8]}>
+    {/* Seat slab — lebih panjang biar fit bigger env */}
     <mesh position={[0, 0.4, 0]}>
-      <boxGeometry args={[2.2, 0.1, 0.5]} />
+      <boxGeometry args={[3, 0.12, 0.55]} />
       <meshStandardMaterial
         color={restored ? '#6a4830' : '#3a2818'}
         roughness={0.9}
       />
     </mesh>
     {/* Legs */}
-    {[-0.9, 0.9].map((x, i) => (
+    {[-1.3, 0, 1.3].map((x, i) => (
       <mesh key={`leg-${i}`} position={[x, 0.2, 0]}>
-        <boxGeometry args={[0.15, 0.4, 0.4]} />
+        <boxGeometry args={[0.18, 0.4, 0.45]} />
         <meshStandardMaterial
           color={restored ? '#5a3a20' : '#2a1810'}
           roughness={0.95}
@@ -353,17 +417,18 @@ const ViewingBench = ({ restored }) => (
       </mesh>
     ))}
     {/* Plank line on seat — visual detail */}
-    <mesh position={[0, 0.456, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[2.2, 0.02]} />
+    <mesh position={[0, 0.466, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[3, 0.02]} />
       <meshStandardMaterial color="#1a0e08" roughness={1} />
     </mesh>
   </group>
 );
 
-// IntroPlaque — pedestal dgn welcome card antara viewer area + panggung
-// dais. Facing back wall (kayak narrator stand sebelum masuk ke pameran).
+// IntroPlaque — pedestal dgn welcome card di entry area (di belakang
+// bench), facing toward back wall + audience. Sebagai "narrator
+// stand" sebelum masuk ke ruang pameran-panggung.
 const IntroPlaque = ({ restored }) => (
-  <group position={[0, 0, 2.5]}>
+  <group position={[0, 0, 4.2]}>
     {/* Pedestal column */}
     <mesh position={[0, 0.55, 0]}>
       <boxGeometry args={[0.7, 1.1, 0.4]} />
@@ -428,29 +493,30 @@ const CeilingTrackLights = ({ restored }) => {
       mat.emissiveIntensity = 0.65 + Math.sin(t * 0.5 + i * 0.4) * 0.1;
     }
   });
-  const positions = restored ? [-3, -1, 1, 3] : [0];
+  const positions = restored ? [-2.4, -0.8, 0.8, 2.4] : [0];
+  const trackZ = BACK_WALL_Z + 2.2; // overhead di front of dais
   return (
     <>
-      {/* Track beam — horizontal di atas back wall area */}
-      <mesh position={[0, TRACK_BEAM_Y, BACK_WALL_Z + 1.2]}>
-        <boxGeometry args={[GALLERY_W - 1, 0.1, 0.12]} />
+      {/* Track beam — horizontal di atas panggung dais area */}
+      <mesh position={[0, TRACK_BEAM_Y, trackZ]}>
+        <boxGeometry args={[GALLERY_W - 2, 0.1, 0.12]} />
         <meshStandardMaterial color="#2a1810" roughness={0.9} />
       </mesh>
       {/* Track mounts (2 brackets ke ceiling) */}
-      {[-3.5, 3.5].map((x, i) => (
+      {[-5, 5].map((x, i) => (
         <mesh
           key={`bracket-${i}`}
-          position={[x, TRACK_BEAM_Y + 0.18, BACK_WALL_Z + 1.2]}
+          position={[x, TRACK_BEAM_Y + 0.18, trackZ]}
         >
           <boxGeometry args={[0.08, 0.36, 0.08]} />
           <meshStandardMaterial color="#2a1810" roughness={0.95} />
         </mesh>
       ))}
-      {/* Downlights mounted on track, angled toward back wall */}
+      {/* Downlights mounted on track, angled toward dais */}
       {positions.map((x, i) => (
         <group
           key={`light-${i}`}
-          position={[x, TRACK_BEAM_Y - 0.06, BACK_WALL_Z + 1.2]}
+          position={[x, TRACK_BEAM_Y - 0.06, trackZ]}
         >
           {/* Stem ke track */}
           <mesh position={[0, 0.04, 0]}>
@@ -490,7 +556,7 @@ const CeilingTrackLights = ({ restored }) => {
       {/* Drought center dim ambient — gak ada track light aktif */}
       {!restored && (
         <pointLight
-          position={[0, TRACK_BEAM_Y - 0.4, BACK_WALL_Z + 1.2]}
+          position={[0, TRACK_BEAM_Y - 0.4, trackZ]}
           color="#a89070"
           intensity={0.35}
           distance={6}
@@ -576,9 +642,9 @@ const GallerySconces = ({ restored }) => {
 // PanggungDais — low raised stage platform di base back wall. Center
 // featured poster sit "on stage" backdrop. 4 wide × 1.5 deep × 0.3
 // high. Restored: brighter wood + edge lip. Drought: muted.
-const DAIS_W = 4.2;
-const DAIS_D = 1.5;
-const DAIS_H = 0.3;
+const DAIS_W = 6;
+const DAIS_D = 2;
+const DAIS_H = 0.4;
 const DAIS_Z = BACK_WALL_Z + 0.13 + DAIS_D / 2;
 
 const PanggungDais = ({ restored }) => (
@@ -655,8 +721,9 @@ const StageCurtainSwag = ({ restored }) => {
   const fabricEm = restored ? '#3a0808' : '#000000';
   return (
     <>
-      {/* Top swag — 4 scallop drape panels across back wall width */}
-      {[-3.0, -1.0, 1.0, 3.0].map((x, i) => (
+      {/* Top swag — 6 scallop drape panels across back wall width
+          (wall sekarang 14 wide, sebelumnya 10) */}
+      {[-5, -3, -1, 1, 3, 5].map((x, i) => (
         <mesh
           key={`swag-${i}`}
           ref={(m) => {
@@ -664,7 +731,7 @@ const StageCurtainSwag = ({ restored }) => {
           }}
           position={[x, swagY, swagZ]}
         >
-          <planeGeometry args={[2.1, 0.9]} />
+          <planeGeometry args={[2.1, 1]} />
           <meshStandardMaterial
             color={fabricColor}
             emissive={fabricEm}
@@ -674,11 +741,11 @@ const StageCurtainSwag = ({ restored }) => {
           />
         </mesh>
       ))}
-      {/* Tassels — small gold beads di tiap swag join, restored only */}
+      {/* Tassels — gold beads di tiap swag join, restored only */}
       {restored &&
-        [-2.0, 0, 2.0].map((x, i) => (
-          <mesh key={`tassel-${i}`} position={[x, swagY - 0.45, swagZ + 0.02]}>
-            <sphereGeometry args={[0.06, 8, 6]} />
+        [-4, -2, 0, 2, 4].map((x, i) => (
+          <mesh key={`tassel-${i}`} position={[x, swagY - 0.5, swagZ + 0.02]}>
+            <sphereGeometry args={[0.08, 8, 6]} />
             <meshStandardMaterial
               color="#d4a848"
               emissive="#a87830"
@@ -1177,6 +1244,7 @@ const Scene = ({
       <StageCurtainSwag restored={restored} />
       <DaisFootlights restored={restored} />
       <PottedPlants restored={restored} />
+      <AudienceKursi restored={restored} />
       <ViewingBench restored={restored} />
       <IntroPlaque restored={restored} />
       {entries.map((entry, i) => (
@@ -1208,8 +1276,8 @@ const Scene = ({
         enabled={!flyInActive}
         enablePan={false}
         enableZoom
-        minDistance={4}
-        maxDistance={isMobile ? 14 : 12}
+        minDistance={6}
+        maxDistance={isMobile ? 22 : 18}
         minPolarAngle={Math.PI / 4}
         maxPolarAngle={Math.PI / 2.05}
         enableDamping
