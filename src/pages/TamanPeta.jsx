@@ -6790,6 +6790,147 @@ const SaplingCluster = () => (
   </>
 );
 
+// NpcVillager — simple static low-poly humanoid silhouette. Stylized
+// body sphere + head sphere + optional 2 stick arms. Robe color
+// varied per seed. Used scattered di town areas as "ada yg tinggal".
+// No animation — gak gerak (static) supaya scope kecil + perf ringan.
+const NpcVillager = ({ pos, rot = 0, robeColor = '#7a3838', seed = 0 }) => {
+  const headBob = useRef();
+  // Subtle gentle bob via useFrame (very small, kerasa "alive")
+  useFrame((state) => {
+    if (!headBob.current) return;
+    const t = state.clock.elapsedTime;
+    const phase = (seed * 13) % 100;
+    headBob.current.position.y = 0.7 + Math.sin(t * 1.2 + phase) * 0.008;
+  });
+  const headTone = '#e8c8a0';
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Body — tapered robe shape (cone from bottom up) */}
+      <mesh position={[0, 0.3, 0]}>
+        <cylinderGeometry args={[0.08, 0.16, 0.6, 8]} />
+        <meshStandardMaterial color={robeColor} roughness={0.85} />
+      </mesh>
+      {/* Sash belt — thin contrasting band */}
+      <mesh position={[0, 0.42, 0]}>
+        <cylinderGeometry args={[0.11, 0.11, 0.04, 8]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Head — sphere atop body */}
+      <mesh ref={headBob} position={[0, 0.7, 0]}>
+        <sphereGeometry args={[0.09, 10, 8]} />
+        <meshStandardMaterial color={headTone} roughness={0.85} />
+      </mesh>
+      {/* Hair — small dark cap */}
+      <mesh position={[0, 0.75, 0]}>
+        <sphereGeometry args={[0.095, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+      </mesh>
+      {/* 2 small arm stubs di sides */}
+      <mesh position={[-0.13, 0.5, 0]} rotation={[0, 0, 0.4]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.18, 5]} />
+        <meshStandardMaterial color={robeColor} roughness={0.85} />
+      </mesh>
+      <mesh position={[0.13, 0.5, 0]} rotation={[0, 0, -0.4]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.18, 5]} />
+        <meshStandardMaterial color={robeColor} roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// NpcVillagers — scattered villagers around town. Reveal di m65
+// (panggung restored + market opens, kehidupan kembali). Positions
+// safe dari landmark exclusion zones, dekat houses + market stalls.
+const NPC_VILLAGER_DEFS = [
+  // Near east house cluster
+  { pos: [9.5, 0, 0], rot: -0.5, robeColor: '#7a3838', seed: 1 },
+  { pos: [10, 0, -2], rot: 0.8, robeColor: '#3a5868', seed: 2 },
+  // Near west house cluster
+  { pos: [-10, 0, 4], rot: 0.3, robeColor: '#5a3878', seed: 3 },
+  { pos: [-11.5, 0, 3.2], rot: -0.6, robeColor: '#a85838', seed: 4 },
+  // Near south house cluster
+  { pos: [5, 0, 10.5], rot: -1.2, robeColor: '#3a5878', seed: 5 },
+  // Near market stalls (lorong entry)
+  { pos: [-1, 0, 7], rot: 0.5, robeColor: '#7a3838', seed: 6 },
+  { pos: [2.5, 0, 7.5], rot: -0.4, robeColor: '#3a5868', seed: 7 },
+  // Near AirMancur / center plaza
+  { pos: [-2, 0, 1.5], rot: 1.5, robeColor: '#5a3878', seed: 8 },
+];
+const NpcVillagers = ({ count }) => {
+  if (count < MAP_THRESHOLDS.r5Restore) return null;
+  return (
+    <>
+      {NPC_VILLAGER_DEFS.map((n, i) => (
+        <NpcVillager
+          key={`npc-${i}`}
+          pos={n.pos}
+          rot={n.rot}
+          robeColor={n.robeColor}
+          seed={n.seed}
+        />
+      ))}
+    </>
+  );
+};
+
+// ChimneySmoke — vertical wisp smoke rising dari rumah chimneys saat
+// restored. Subtle wispy particles. Used buat tiap RestoredHouse
+// position dgn small offset.
+const ChimneySmoke = ({ count }) => {
+  const smokeRefs = useRef([]);
+  const SMOKE_PER_HOUSE = 3;
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < smokeRefs.current.length; i += 1) {
+      const m = smokeRefs.current[i];
+      if (!m) continue;
+      const phase = i * 0.4;
+      // Vertical rise cycle 0..1 looping, hide saat reaching top
+      const cycle = ((t * 0.25 + phase) % 1);
+      m.position.y = 1.2 + cycle * 1.5;
+      const fade = 1 - cycle;
+      m.scale.setScalar(fade * 0.4);
+    }
+  });
+  // Only show after m65 (RestoredHouses appear)
+  if (count < MAP_THRESHOLDS.r5Restore) return null;
+  // Chimney positions: offset above each RestoredHouse position
+  const allSmokes = [];
+  RESTORED_HOUSE_DEFS.forEach((h, hIdx) => {
+    for (let s = 0; s < SMOKE_PER_HOUSE; s += 1) {
+      allSmokes.push({
+        x: h.pos[0] + (s - 1) * 0.04,
+        z: h.pos[2] + ((hIdx + s) % 2) * 0.06 - 0.03,
+        houseIdx: hIdx,
+        smokeIdx: s,
+      });
+    }
+  });
+  return (
+    <>
+      {allSmokes.map((s, i) => (
+        <mesh
+          key={`smoke-${i}`}
+          ref={(m) => {
+            smokeRefs.current[i] = m;
+          }}
+          position={[s.x, 1.2, s.z]}
+        >
+          <sphereGeometry args={[0.08, 6, 5]} />
+          <meshBasicMaterial
+            color="#c8b8a8"
+            transparent
+            opacity={0.4}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
 // MarketStall — single wooden stall with awning + counter + product
 // baskets. Simple low-poly Japanese pasar booth. Used in cluster.
 const MarketStall = ({ pos, rot = 0, awningColor = '#a83838' }) => (
@@ -13439,6 +13580,9 @@ const TamanScene = ({
       />
       {/* === Bundle 4 — town populated: market stalls === */}
       <MarketStalls count={armeniacaCount} />
+      {/* === Bundle 5 — village life signs: NPCs + chimney smoke === */}
+      <NpcVillagers count={armeniacaCount} />
+      <ChimneySmoke count={armeniacaCount} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
