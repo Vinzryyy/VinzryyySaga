@@ -42,6 +42,12 @@ import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
+import {
+  HiddenInteractables,
+  DiscoveryRevealCard,
+  DiscoveryProgressBadge,
+  useDiscoveries,
+} from '../components/taman/peta/HiddenDiscoveries';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -14062,6 +14068,8 @@ const TamanScene = ({
   onAirMancurHover,
   onAirMancurOut,
   onAirMancurClick,
+  discovered,
+  onDiscover,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -14484,6 +14492,12 @@ const TamanScene = ({
         onPointerOver={onAirMancurHover}
         onPointerOut={onAirMancurOut}
         onClick={onAirMancurClick}
+      />
+      <HiddenInteractables
+        armeniacaCount={armeniacaCount}
+        armeniacaLoaded={armeniacaLoaded}
+        discovered={discovered}
+        onDiscover={onDiscover}
       />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
@@ -15240,6 +15254,14 @@ const TamanPetaPage = () => {
   const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
   const compassRotateRef = useRef(null);
+  // Hidden discoveries — 8 easter egg objek tersembunyi di sudut peta,
+  // tiap satu ngasih fakta personal Eli saat ditemuin. Unlock @ 4000.
+  const {
+    discovered,
+    revealed,
+    markDiscovered,
+    dismissReveal,
+  } = useDiscoveries();
 
   // Purified — full city restoration (count >= 7000). Diteruskan ke
   // AmbientAudio (swell + shimmer) di samping dipakai di scene.
@@ -15680,6 +15702,8 @@ const TamanPetaPage = () => {
               onAirMancurHover={handleAirMancurHover}
               onAirMancurOut={handleAirMancurOut}
               onAirMancurClick={handleAirMancurClick}
+              discovered={discovered}
+              onDiscover={markDiscovered}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
@@ -15721,6 +15745,12 @@ const TamanPetaPage = () => {
           onClose={handlePetakPreviewClose}
           onConfirm={handlePetakPreviewConfirm}
         />
+        <DiscoveryProgressBadge
+          discovered={discovered}
+          armeniacaCount={armeniacaCount}
+          modalOpen={Boolean(petakPreview) || Boolean(revealed)}
+        />
+        <DiscoveryRevealCard def={revealed} onClose={dismissReveal} />
         {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
             selesai, persisted via localStorage. */}
         {!petakPreview && <TamanPetaIntroTitle />}

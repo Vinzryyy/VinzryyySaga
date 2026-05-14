@@ -1,0 +1,545 @@
+/**
+ * HiddenDiscoveries — sistem easter egg di /armeniacaTown/peta.
+ *
+ * 8 objek kecil tersembunyi di sudut-sudut peta yang kalau diklik kasih
+ * "fakta Eli" (data real dari src/data/eliProfile.js: ELI_TRIVIA + ELI_FUN_FACTS).
+ * Tujuan: ngundang user explore corner-corner map yang biasanya cuma
+ * lewat, dan kasih reward kecil yang spesifik personal — bukan generic
+ * trivia, tapi hal yang bener-bener bikin user kerasa "kenal" Eli.
+ *
+ * Mekanika:
+ * - Object tampil saat count >= UNLOCK_THRESHOLD (4000, sinkron dgn
+ *   "manusia pertama" muncul — kota mulai punya cerita)
+ * - Subtle pulse glow ketika belum ditemuin, dim ketika udah
+ * - Klik → reveal card HTML overlay (icon + label + value)
+ * - Progress ke-track via localStorage 'armeniaca-discoveries'
+ * - Badge "Rahasia X/8" di pojok kiri-bawah (offset dari compass kanan-
+ *   bawah biar gak tabrakan)
+ *
+ * Positioning: tiap objek ditempatin >=4 unit dari landmark terdekat
+ * supaya gak overlap sama tap-target petak/air mancur/dll.
+ */
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useFrame } from '@react-three/fiber';
+
+const STORAGE_KEY = 'armeniaca-discoveries';
+const UNLOCK_THRESHOLD = 4000;
+
+// 8 hidden objects — pos verified safe (>=4 unit) dari semua landmark:
+// Gerbang [0,0,8], Telaga [-7,0,-1], Arsip [7,0,-1], Menara [0,0,-8],
+// Panggung [5,0,5], AirMancur [-3,0,3.5], Lorong (corridor z=1..7).
+//
+// Visual types map ke render branch di HiddenInteractable. Tiap object
+// kasih fakta yang ringkas + intim — bukan stat kaku, tapi sesuatu yg
+// bikin user senyum kecil.
+const HIDDEN_DISCOVERY_DEFS = [
+  {
+    id: 'apricot-bloom',
+    pos: [-2, 0.05, 11.5],
+    visual: 'flower',
+    icon: 'ri-cake-2-line',
+    label: 'Tanggal Lahir',
+    value: '15 Juni 2000',
+    note: 'Hari yang sedang kita tunggu bersama.',
+  },
+  {
+    id: 'sundanese-kendi',
+    pos: [-9, 0.4, -7],
+    visual: 'kendi',
+    icon: 'ri-map-pin-2-line',
+    label: 'Asal',
+    value: 'Bandung, Jawa Barat',
+    note: 'Sebuah kendi tua — pengingat tanah kelahiran.',
+  },
+  {
+    id: 'gen7-plank',
+    pos: [4, 0.05, -10.5],
+    visual: 'plank',
+    icon: 'ri-team-line',
+    label: 'Generasi',
+    value: 'Generasi 7 JKT48',
+    note: 'Papan kayu dengan angka "7" — ditandai oleh tangan yang ingat.',
+  },
+  {
+    id: 'height-signpost',
+    pos: [-9.5, 0, 6.5],
+    visual: 'signpost-mini',
+    icon: 'ri-ruler-line',
+    label: 'Tinggi Badan',
+    value: '167 cm',
+    note: 'Rambu kayu kecil — penanda tinggi yang pas.',
+  },
+  {
+    id: 'cat-bowl',
+    pos: [10.5, 0.05, 4],
+    visual: 'bowl',
+    icon: 'ri-bear-smile-line',
+    label: 'Hewan Peliharaan',
+    value: 'Kucing (TanTan) & anjing',
+    note: 'Mangkuk kecil — TanTan pernah duduk di sini.',
+  },
+  {
+    id: 'retro-cassette',
+    pos: [-10.5, 0.05, -4],
+    visual: 'cassette',
+    icon: 'ri-music-2-line',
+    label: 'K-Pop Bias',
+    value: 'Jaehyun NCT',
+    note: 'Kaset retro tertinggal — lagunya masih tersimpan.',
+  },
+  {
+    id: 'forgotten-book',
+    pos: [7, 0.05, -7],
+    visual: 'book',
+    icon: 'ri-book-open-line',
+    label: 'Hobi',
+    value: 'Baca — di sela ngemil, dance, dan tidur',
+    note: 'Buku terbuka di rerumputan — penanda yang lupa diangkat.',
+  },
+  {
+    id: 'cangcorang-basket',
+    pos: [9.5, 0.4, 7.5],
+    visual: 'basket',
+    icon: 'ri-group-line',
+    label: 'Cangcorang Family',
+    value: 'Eli, Gita, Muthe',
+    note: 'Keranjang anyaman — tempat cerita-cerita kecil sering dibawa pulang.',
+  },
+];
+
+const TOTAL = HIDDEN_DISCOVERY_DEFS.length;
+
+// localStorage helpers — defensive (private mode, SSR safe).
+const readDiscovered = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const writeDiscovered = (set) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
+  } catch {
+    /* private mode — no-op */
+  }
+};
+
+/**
+ * useDiscoveries — hook yang manage discovered Set + reveal card state.
+ * Pakai di TamanPetaPage (root level).
+ */
+export const useDiscoveries = () => {
+  const [discovered, setDiscovered] = useState(() => readDiscovered());
+  const [revealed, setRevealed] = useState(null);
+
+  const markDiscovered = useCallback((def) => {
+    setDiscovered((prev) => {
+      if (prev.has(def.id)) {
+        // Already found — show card again (re-read), gak update storage.
+        setRevealed(def);
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(def.id);
+      writeDiscovered(next);
+      setRevealed(def);
+      return next;
+    });
+  }, []);
+
+  const dismissReveal = useCallback(() => setRevealed(null), []);
+
+  return { discovered, revealed, markDiscovered, dismissReveal };
+};
+
+// =============================================================
+// 3D VISUALS — primitive geometries per visual type. Lightweight
+// (no shared meshes, no instancing — total 8 objects, fine).
+// =============================================================
+
+const FlowerBloom = () => (
+  <group>
+    {/* Stem */}
+    <mesh position={[0, 0.2, 0]}>
+      <cylinderGeometry args={[0.015, 0.02, 0.4, 6]} />
+      <meshStandardMaterial color="#3a5a3a" roughness={0.9} />
+    </mesh>
+    {/* Petals — pink apricot bloom */}
+    <mesh position={[0, 0.45, 0]}>
+      <sphereGeometry args={[0.14, 8, 8]} />
+      <meshStandardMaterial
+        color="#f4c8d0"
+        emissive="#c8869a"
+        emissiveIntensity={0.18}
+        roughness={0.7}
+      />
+    </mesh>
+    {/* Center bud */}
+    <mesh position={[0, 0.45, 0]}>
+      <sphereGeometry args={[0.05, 6, 6]} />
+      <meshStandardMaterial color="#e8a648" />
+    </mesh>
+  </group>
+);
+
+const Kendi = () => (
+  <group>
+    {/* Body */}
+    <mesh position={[0, 0.22, 0]}>
+      <cylinderGeometry args={[0.18, 0.22, 0.4, 10]} />
+      <meshStandardMaterial color="#8a5840" roughness={0.95} />
+    </mesh>
+    {/* Neck */}
+    <mesh position={[0, 0.5, 0]}>
+      <cylinderGeometry args={[0.08, 0.12, 0.18, 10]} />
+      <meshStandardMaterial color="#7a4a32" roughness={0.95} />
+    </mesh>
+    {/* Lip */}
+    <mesh position={[0, 0.6, 0]}>
+      <torusGeometry args={[0.08, 0.02, 6, 12]} />
+      <meshStandardMaterial color="#6a3a25" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+const Plank = () => (
+  <group>
+    <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0.3]}>
+      <boxGeometry args={[0.5, 0.04, 0.7]} />
+      <meshStandardMaterial color="#5a3e28" roughness={0.95} />
+    </mesh>
+    {/* Carved "7" notch — small darker rect */}
+    <mesh position={[0.05, 0.07, -0.05]} rotation={[-Math.PI / 2, 0, 0.3]}>
+      <boxGeometry args={[0.18, 0.005, 0.04]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+    <mesh position={[0.12, 0.07, 0.05]} rotation={[-Math.PI / 2, 0, 0.3]}>
+      <boxGeometry args={[0.04, 0.005, 0.24]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+  </group>
+);
+
+const SignpostMini = () => (
+  <group>
+    {/* Stick */}
+    <mesh position={[0, 0.35, 0]}>
+      <cylinderGeometry args={[0.025, 0.025, 0.7, 6]} />
+      <meshStandardMaterial color="#4a3220" roughness={0.95} />
+    </mesh>
+    {/* Plank — angled */}
+    <mesh position={[0.05, 0.55, 0]} rotation={[0, 0, -0.15]}>
+      <boxGeometry args={[0.32, 0.12, 0.03]} />
+      <meshStandardMaterial color="#6a4a30" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+const CatBowl = () => (
+  <group>
+    {/* Bowl exterior */}
+    <mesh position={[0, 0.05, 0]}>
+      <cylinderGeometry args={[0.18, 0.14, 0.1, 12]} />
+      <meshStandardMaterial color="#a8c8e0" roughness={0.6} />
+    </mesh>
+    {/* Bowl interior (dark) */}
+    <mesh position={[0, 0.08, 0]}>
+      <cylinderGeometry args={[0.14, 0.1, 0.06, 12]} />
+      <meshStandardMaterial color="#3a4858" roughness={0.85} />
+    </mesh>
+  </group>
+);
+
+const RetroCassette = () => (
+  <group>
+    {/* Main casing */}
+    <mesh position={[0, 0.03, 0]}>
+      <boxGeometry args={[0.4, 0.06, 0.25]} />
+      <meshStandardMaterial color="#1a1a22" roughness={0.5} />
+    </mesh>
+    {/* Tape window */}
+    <mesh position={[0, 0.065, 0]}>
+      <boxGeometry args={[0.22, 0.005, 0.1]} />
+      <meshStandardMaterial color="#3a3a4a" roughness={0.3} />
+    </mesh>
+    {/* Reels */}
+    <mesh position={[-0.08, 0.07, 0]}>
+      <cylinderGeometry args={[0.035, 0.035, 0.005, 8]} />
+      <meshStandardMaterial color="#dadada" roughness={0.4} />
+    </mesh>
+    <mesh position={[0.08, 0.07, 0]}>
+      <cylinderGeometry args={[0.035, 0.035, 0.005, 8]} />
+      <meshStandardMaterial color="#dadada" roughness={0.4} />
+    </mesh>
+  </group>
+);
+
+const Book = () => (
+  <group>
+    {/* Cover */}
+    <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0.2]}>
+      <boxGeometry args={[0.32, 0.06, 0.42]} />
+      <meshStandardMaterial color="#7a3a30" roughness={0.9} />
+    </mesh>
+    {/* Pages slightly lighter */}
+    <mesh position={[0, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0.2]}>
+      <boxGeometry args={[0.3, 0.005, 0.4]} />
+      <meshStandardMaterial color="#e8d8b8" roughness={0.95} />
+    </mesh>
+  </group>
+);
+
+const WovenBasket = () => (
+  <group>
+    {/* Open cylinder body */}
+    <mesh position={[0, 0.18, 0]}>
+      <cylinderGeometry args={[0.25, 0.2, 0.36, 12, 1, true]} />
+      <meshStandardMaterial color="#a07a48" roughness={0.95} side={2} />
+    </mesh>
+    {/* Rim */}
+    <mesh position={[0, 0.36, 0]}>
+      <torusGeometry args={[0.25, 0.025, 6, 14]} />
+      <meshStandardMaterial color="#705028" roughness={0.95} />
+    </mesh>
+    {/* Inside shadow base */}
+    <mesh position={[0, 0.04, 0]}>
+      <cylinderGeometry args={[0.19, 0.19, 0.04, 12]} />
+      <meshStandardMaterial color="#2a1810" roughness={1} />
+    </mesh>
+  </group>
+);
+
+const VisualFor = ({ visual }) => {
+  switch (visual) {
+    case 'flower':
+      return <FlowerBloom />;
+    case 'kendi':
+      return <Kendi />;
+    case 'plank':
+      return <Plank />;
+    case 'signpost-mini':
+      return <SignpostMini />;
+    case 'bowl':
+      return <CatBowl />;
+    case 'cassette':
+      return <RetroCassette />;
+    case 'book':
+      return <Book />;
+    case 'basket':
+      return <WovenBasket />;
+    default:
+      return null;
+  }
+};
+
+// =============================================================
+// HiddenInteractable — single object di scene.
+// =============================================================
+const HiddenInteractable = ({ def, found, onDiscover, phase }) => {
+  const groupRef = useRef();
+  const glowRef = useRef();
+
+  // Gentle bob + hint pulse glow saat belum found.
+  useFrame((state) => {
+    const t = state.clock.elapsedTime + phase;
+    if (groupRef.current) {
+      // Subtle vertical bob — bring to attention without being garish.
+      groupRef.current.position.y = Math.sin(t * 1.2) * 0.025;
+    }
+    if (glowRef.current && !found) {
+      // Pulse intensity 0.15 → 0.45 over ~3s.
+      const pulse = 0.3 + Math.sin(t * 2.1) * 0.15;
+      glowRef.current.material.opacity = pulse;
+    }
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={def.pos}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'auto';
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onDiscover(def);
+      }}
+    >
+      {/* Invisible larger hitbox — easier to click esp di mobile.
+          Tap-target ~0.7 unit cube around object. */}
+      <mesh position={[0, 0.4, 0]} visible={false}>
+        <boxGeometry args={[0.8, 1, 0.8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Hint glow ring — cuma tampil saat undiscovered. Sangat subtle
+          biar feel "rahasia" — bukan signpost neon. */}
+      {!found && (
+        <mesh
+          ref={glowRef}
+          position={[0, 0.02, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <ringGeometry args={[0.25, 0.5, 24]} />
+          <meshBasicMaterial
+            color="#f4d8a8"
+            transparent
+            opacity={0.3}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+
+      <VisualFor visual={def.visual} />
+    </group>
+  );
+};
+
+// =============================================================
+// HiddenInteractables — render semua 8 sekaligus. Wrap di sini biar
+// caller (TamanScene) tinggal pasang satu element.
+// =============================================================
+export const HiddenInteractables = ({
+  armeniacaCount = 0,
+  armeniacaLoaded = false,
+  discovered,
+  onDiscover,
+}) => {
+  // Threshold gate — sebelum 4000, objek belum exist di kota (sejalan
+  // dgn "manusia pertama" yang muncul di count 4000).
+  if (!armeniacaLoaded) return null;
+  if (armeniacaCount < UNLOCK_THRESHOLD) return null;
+
+  return (
+    <group>
+      {HIDDEN_DISCOVERY_DEFS.map((def, i) => (
+        <HiddenInteractable
+          key={def.id}
+          def={def}
+          found={discovered.has(def.id)}
+          onDiscover={onDiscover}
+          phase={i * 0.7}
+        />
+      ))}
+    </group>
+  );
+};
+
+// =============================================================
+// HTML overlay UI — reveal card + progress badge.
+// Render di luar Canvas (parent: TamanPetaPage).
+// =============================================================
+
+export const DiscoveryRevealCard = ({ def, onClose }) => {
+  // Lock body scroll selama card terbuka (kayak modal pattern lain).
+  useEffect(() => {
+    if (!def) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [def, onClose]);
+
+  if (!def) return null;
+
+  return (
+    <div
+      className="absolute inset-0 z-50 flex items-center justify-center px-4 pb-4 bg-black/60 backdrop-blur-sm"
+      style={{ paddingTop: '6rem' }}
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="relative max-w-sm w-full bg-gradient-to-br from-[#3a2a20]/95 to-[#1a1208]/95 border border-[color:var(--retro-burgundy-light)]/40 rounded-2xl p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)]">
+            Rahasia ditemukan
+          </span>
+          <span className="flex-1 h-px bg-[color:var(--retro-burgundy-light)]/30" />
+        </div>
+
+        <div className="flex items-start gap-4 mb-4">
+          <div className="shrink-0 w-12 h-12 rounded-full bg-[color:var(--retro-burgundy)]/30 ring-1 ring-[color:var(--retro-burgundy-light)]/40 flex items-center justify-center">
+            <i
+              className={`${def.icon} text-2xl text-[color:var(--retro-cream)]`}
+              aria-hidden="true"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55 mb-1">
+              {def.label}
+            </p>
+            <p
+              className="text-lg font-bold text-[color:var(--retro-cream)] leading-tight"
+              style={{ fontFamily: '"Fraunces Variable", serif' }}
+            >
+              {def.value}
+            </p>
+          </div>
+        </div>
+
+        <p
+          className="text-sm text-[color:var(--retro-cream)]/75 leading-relaxed italic mb-5"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          {def.note}
+        </p>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-full px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-burgundy)]/60 border border-[color:var(--retro-burgundy-light)]/40 text-[color:var(--retro-cream)] text-[11px] font-black uppercase tracking-[0.3em] transition"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export const DiscoveryProgressBadge = ({ discovered, armeniacaCount = 0, modalOpen = false }) => {
+  // Hide before unlock threshold — gak ngasih spoiler "ada rahasia"
+  // sebelum kota mulai punya kehidupan.
+  if (armeniacaCount < UNLOCK_THRESHOLD) return null;
+  if (modalOpen) return null;
+
+  const count = discovered.size;
+  const isComplete = count >= TOTAL;
+
+  return (
+    <div className="pointer-events-none absolute bottom-6 left-4 md:bottom-8 md:left-6 z-10">
+      <div
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-sm ring-1 transition-colors ${
+          isComplete
+            ? 'ring-[color:var(--retro-gold-light)]/60'
+            : 'ring-white/15'
+        }`}
+      >
+        <i
+          className={`${isComplete ? 'ri-treasure-map-fill text-[color:var(--retro-gold-light)]' : 'ri-treasure-map-line text-white/70'} text-base`}
+          aria-hidden="true"
+        />
+        <span className="text-white/85 text-[11px] font-bold tracking-wider tabular-nums">
+          {count}/{TOTAL}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export { HIDDEN_DISCOVERY_DEFS, UNLOCK_THRESHOLD };
