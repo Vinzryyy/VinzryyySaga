@@ -12102,6 +12102,7 @@ const TamanScene = ({
   armeniacaCount = 0,
   armeniacaLoaded = false,
   purified = false,
+  purifyProgress = 0,
   compassRotateRef,
   onFlyInComplete,
   onPetakHover,
@@ -12189,39 +12190,54 @@ const TamanScene = ({
   // tapi atmosfer + life-layer berubah (less dust, more fireflies +
   // petals, dawn palette).
 
+  // Atmosphere palette interp — color + numeric values lerp dari
+  // drought→purified pakai purifyProgress (0-1). Smooth gradual feel
+  // bukan flip discrete. Hybrid Opsi C: atmosphere lerp continuous,
+  // milestone-gated objects (CobblestonePath dst.) tetep discrete via
+  // `purified` boolean.
+  const atmosphere = useMemo(() => {
+    const t = purifyProgress;
+    const lerp01 = (a, b) => a + (b - a) * t;
+    const lerpColor = (a, b) => {
+      const ca = new THREE.Color(a);
+      const cb = new THREE.Color(b);
+      return ca.lerp(cb, t).getStyle();
+    };
+    return {
+      fogColor: lerpColor('#5a3540', '#7a5868'),
+      fogNear: lerp01(18, 22),
+      fogFar: lerp01(52, 58),
+      bgColor: lerpColor('#1a1018', '#2a1d28'),
+      ambientColor: lerpColor('#c0a090', '#e0c0a8'),
+      ambientIntensity: lerp01(0.28, 0.32),
+      keyColor: lerpColor('#f4b078', '#f8c898'),
+      keyIntensity: lerp01(1.5, 1.55),
+      fillColor: lerpColor('#b8907a', '#c8a890'),
+      fillIntensity: lerp01(0.45, 0.48),
+    };
+  }, [purifyProgress]);
   return (
     <>
-      {/* Palette — dua mode:
-          drought  → desert dusk warm dusty rose horizon, dark plum zenith.
-                     Sun baru tenggelam, langit simpan sisa warmth.
-          purified → soft dawn rose + lighter background, fog mundur sedikit
-                     (visibility lebih jauh — kota udah gak ngumpet di debu). */}
-      {/* Fog far di-push lebih jauh (38→52, 44→58) — foreground gak murky,
-          distance still attenuates. Contrast push. */}
+      {/* Atmosphere — fog/bg/ambient/key/fill di-lerp continuous
+          drought→purified via purifyProgress. */}
       <fog
         attach="fog"
-        args={purified ? ['#7a5868', 22, 58] : ['#5a3540', 18, 52]}
+        args={[atmosphere.fogColor, atmosphere.fogNear, atmosphere.fogFar]}
       />
-      <color attach="background" args={[purified ? '#2a1d28' : '#1a1018']} />
-      {/* Ambient turunin (0.5→0.28, 0.55→0.32) — shadow side deeper.
-          Key light naikin sedikit (1.32→1.5, 1.35→1.55) — highlight pop. */}
+      <color attach="background" args={[atmosphere.bgColor]} />
       <ambientLight
-        intensity={purified ? 0.32 : 0.28}
-        color={purified ? '#e0c0a8' : '#c0a090'}
+        intensity={atmosphere.ambientIntensity}
+        color={atmosphere.ambientColor}
       />
-      {/* Key light — drought: amber pucat ("matahari nembus debu").
-          Purified: golden hour cozy (peach-amber, intensity naik). */}
       <directionalLight
         position={[8, 12, 6]}
-        intensity={purified ? 1.55 : 1.5}
-        color={purified ? '#f8c898' : '#f4b078'}
+        intensity={atmosphere.keyIntensity}
+        color={atmosphere.keyColor}
       />
-      {/* Fill — drought: warm dusty, shadow side ruins tetep keliatan.
-          Purified: rose-amber warmer untuk wash atmosfer pulih. */}
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={purified ? 0.48 : 0.45}
-        color={purified ? '#c8a890' : '#b8907a'}
+        intensity={atmosphere.fillIntensity}
+        color={atmosphere.fillColor}
       />
       <TamanFloor purified={purified} />
       <DroughtRing purified={purified} />
@@ -13111,6 +13127,28 @@ const TamanPetaPage = () => {
   const purified =
     purifiedOverride ||
     (armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore);
+  // Continuous purify progress 0-1 — drives gradual atmosphere lerp
+  // (fog, background, lights) yg smooth dari drought ke restored,
+  // bukan flip discrete di milestone tunggal. Milestone-gated elements
+  // (CobblestonePath, JizoStatue, dll.) tetap discrete via `purified`.
+  // Mulai dari mapUnlock (2000) — sebelum peta buka, progress 0.
+  // Hit fullRestore (7000) → progress 1. Linear interp di antaranya.
+  // Dev override `?purifyProgress=N` (0-1) buat preview tier custom.
+  const purifyProgress = useMemo(() => {
+    if (import.meta.env.DEV) {
+      const override = searchParams.get('purifyProgress');
+      if (override !== null) {
+        const n = parseFloat(override);
+        if (!Number.isNaN(n)) return Math.max(0, Math.min(1, n));
+      }
+    }
+    if (purified) return 1;
+    if (!armeniacaLoaded) return 0;
+    const min = MAP_THRESHOLDS.mapUnlock;
+    const max = MAP_THRESHOLDS.fullRestore;
+    if (armeniacaCount <= min) return 0;
+    return Math.max(0, Math.min(1, (armeniacaCount - min) / (max - min)));
+  }, [armeniacaCount, armeniacaLoaded, purified, searchParams]);
   // Compute telaga visual state dari live count:
   //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
   // Purified override: paksa 'restored' supaya petak konsisten sama
@@ -13491,6 +13529,7 @@ const TamanPetaPage = () => {
               armeniacaCount={armeniacaCount}
               armeniacaLoaded={armeniacaLoaded}
               purified={purified}
+              purifyProgress={purifyProgress}
               compassRotateRef={compassRotateRef}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
