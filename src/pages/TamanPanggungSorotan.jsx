@@ -366,8 +366,9 @@ const AudienceKursi = ({ restored }) => {
                   roughness={1}
                 />
               </mesh>
-              {/* Back rest */}
-              <mesh position={[0, 0.38, -0.2]}>
+              {/* Back rest — di +z (sisi viewer) supaya kursi menghadap
+                  panggung di -z. Sebelumnya kebalik. */}
+              <mesh position={[0, 0.38, 0.2]}>
                 <boxGeometry args={[0.48, 0.55, 0.06]} />
                 <meshStandardMaterial
                   color={restored ? '#5a4030' : '#3a2c20'}
