@@ -6790,6 +6790,137 @@ const SaplingCluster = () => (
   </>
 );
 
+// MarketStall — single wooden stall with awning + counter + product
+// baskets. Simple low-poly Japanese pasar booth. Used in cluster.
+const MarketStall = ({ pos, rot = 0, awningColor = '#a83838' }) => (
+  <group position={pos} rotation={[0, rot, 0]}>
+    {/* 4 corner poles */}
+    {[
+      { x: -0.4, z: -0.3 },
+      { x: 0.4, z: -0.3 },
+      { x: -0.4, z: 0.3 },
+      { x: 0.4, z: 0.3 },
+    ].map((p, i) => (
+      <mesh key={`pole-${i}`} position={[p.x, 0.5, p.z]}>
+        <cylinderGeometry args={[0.03, 0.035, 1, 5]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+    ))}
+    {/* Top frame beams (4 sides) */}
+    <mesh position={[0, 1, -0.3]}>
+      <boxGeometry args={[0.85, 0.04, 0.04]} />
+      <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+    </mesh>
+    <mesh position={[0, 1, 0.3]}>
+      <boxGeometry args={[0.85, 0.04, 0.04]} />
+      <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+    </mesh>
+    <mesh position={[-0.4, 1, 0]}>
+      <boxGeometry args={[0.04, 0.04, 0.65]} />
+      <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.4, 1, 0]}>
+      <boxGeometry args={[0.04, 0.04, 0.65]} />
+      <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+    </mesh>
+    {/* Awning roof — sloped panels */}
+    <mesh position={[0, 1.1, 0]} rotation={[0.15, 0, 0]}>
+      <boxGeometry args={[0.95, 0.04, 0.42]} />
+      <meshStandardMaterial
+        color={awningColor}
+        emissive={awningColor}
+        emissiveIntensity={0.18}
+        roughness={0.85}
+      />
+    </mesh>
+    {/* Counter table — front opening */}
+    <mesh position={[0, 0.45, 0.32]}>
+      <boxGeometry args={[0.85, 0.06, 0.1]} />
+      <meshStandardMaterial color="#7a5028" roughness={0.9} />
+    </mesh>
+    {/* Counter legs (front) */}
+    <mesh position={[-0.35, 0.22, 0.3]}>
+      <boxGeometry args={[0.04, 0.4, 0.04]} />
+      <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.35, 0.22, 0.3]}>
+      <boxGeometry args={[0.04, 0.4, 0.04]} />
+      <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+    </mesh>
+    {/* Product baskets on counter — 2 small woven bowls */}
+    <mesh position={[-0.18, 0.52, 0.32]}>
+      <cylinderGeometry args={[0.08, 0.07, 0.06, 8]} />
+      <meshStandardMaterial color="#9a7045" roughness={0.95} />
+    </mesh>
+    <mesh position={[0.18, 0.52, 0.32]}>
+      <cylinderGeometry args={[0.08, 0.07, 0.06, 8]} />
+      <meshStandardMaterial color="#9a7045" roughness={0.95} />
+    </mesh>
+    {/* Products — 3 small apricots di kiri basket, 3 small dark items
+        (sake bottles?) di kanan */}
+    {[0, 1, 2].map((j) => {
+      const angle = j * 2.1;
+      return (
+        <mesh
+          key={`apk-${j}`}
+          position={[
+            -0.18 + Math.cos(angle) * 0.03,
+            0.56,
+            0.32 + Math.sin(angle) * 0.03,
+          ]}
+        >
+          <sphereGeometry args={[0.025, 6, 5]} />
+          <meshStandardMaterial color="#e89870" roughness={0.6} />
+        </mesh>
+      );
+    })}
+    {[0, 1, 2].map((j) => (
+      <mesh
+        key={`bot-${j}`}
+        position={[0.18 + (j - 1) * 0.025, 0.58, 0.32]}
+      >
+        <cylinderGeometry args={[0.012, 0.015, 0.06, 5]} />
+        <meshStandardMaterial color="#3a2a10" roughness={0.85} />
+      </mesh>
+    ))}
+    {/* Hanging lantern di pojok front (subtle warm) */}
+    <mesh position={[0.4, 0.95, 0.32]}>
+      <sphereGeometry args={[0.05, 8, 6]} />
+      <meshStandardMaterial
+        color="#f4d8a0"
+        emissive="#f4c478"
+        emissiveIntensity={0.45}
+        roughness={0.5}
+        toneMapped={false}
+      />
+    </mesh>
+  </group>
+);
+
+// MarketStalls — 3 stalls dekat Lorong entry, formed mini pasar/bazaar.
+// Reveal saat m65 (panggung restored, ekonomi kembali jalan).
+// Positions clear dari AirMancur, Panggung, Lorong corridor.
+const MARKET_STALL_DEFS = [
+  { pos: [-1.5, 0, 6.5], rot: 0.3, color: '#a83838' },     // SW of lorong
+  { pos: [3.5, 0, 7], rot: -0.5, color: '#7a3838' },       // SE, away from Panggung
+  { pos: [-3, 0, 8.5], rot: 0.6, color: '#a85828' },       // S further, near Gerbang
+];
+const MarketStalls = ({ count }) => {
+  if (count < MAP_THRESHOLDS.r5Restore) return null;
+  return (
+    <>
+      {MARKET_STALL_DEFS.map((s, i) => (
+        <MarketStall
+          key={`stall-${i}`}
+          pos={s.pos}
+          rot={s.rot}
+          awningColor={s.color}
+        />
+      ))}
+    </>
+  );
+};
+
 // LandmarkAura — soft glow disc di base landmark yg ramp intensity
 // dgn purifyProgress. Kasih "anticipation" feel — landmark kerasa
 // hidup bertahap, bukan stuck di state diskrit sampai threshold hit.
@@ -9840,11 +9971,21 @@ const CollapsedWallFragments = () => (
 // dengan tipe kerusakan beda — collapsed roof, tilted leaning, wall
 // stubs + chimney, doorframe ruin. Posisi di x=9-12 supaya cluster
 // di antara petak Arsip dan outer-ring city ruins.
+// RUBBLE_HOUSE_DEFS — expanded 4 → 8 houses untuk town density.
+// 3 cluster zones (east existing + west + south), all clear of
+// landmark exclusion zones.
 const RUBBLE_HOUSE_DEFS = [
+  // East cluster (existing) — near Arsip area
   { pos: [9, 0, 0.8], rot: 0.3, variant: 0 },
   { pos: [10.5, 0, -1.2], rot: -0.5, variant: 1 },
   { pos: [11, 0, -2.8], rot: 0.7, variant: 2 },
   { pos: [9.2, 0, -3.2], rot: -0.2, variant: 3 },
+  // West cluster (new) — west of Telaga (-7,-1) di area aman
+  { pos: [-11, 0, 2.5], rot: 0.6, variant: 0 },
+  { pos: [-10.5, 0, 5], rot: -0.4, variant: 2 },
+  // South cluster (new) — beyond Gerbang (z=8), avoid Panggung (5,5)
+  { pos: [4, 0, 10.5], rot: 0.2, variant: 1 },
+  { pos: [7.5, 0, 11], rot: -0.6, variant: 3 },
 ];
 const RubbleHouse = ({ pos, rot, variant }) => {
   if (variant === 0) {
@@ -10077,11 +10218,17 @@ const RubbleHouses = () => (
 // dinding plester warm cream, atap terakota miring rapi, pintu kayu
 // utuh, jendela bersinar dari dalam (warm interior glow). Tone: "rumah
 // kembali dihuni" — masih sederhana, gak mewah, tapi hangat dan hidup.
+// RESTORED_HOUSE_DEFS — mirror RUBBLE_HOUSE_DEFS positions setelah
+// expansion. 8 houses total: 4 east + 2 west + 2 south.
 const RESTORED_HOUSE_DEFS = [
   { pos: [9, 0, 0.8], rot: 0.3, variant: 0 },
   { pos: [10.5, 0, -1.2], rot: -0.5, variant: 1 },
   { pos: [11, 0, -2.8], rot: 0.7, variant: 2 },
   { pos: [9.2, 0, -3.2], rot: -0.2, variant: 3 },
+  { pos: [-11, 0, 2.5], rot: 0.6, variant: 0 },
+  { pos: [-10.5, 0, 5], rot: -0.4, variant: 2 },
+  { pos: [4, 0, 10.5], rot: 0.2, variant: 1 },
+  { pos: [7.5, 0, 11], rot: -0.6, variant: 3 },
 ];
 const RestoredHouse = ({ pos, rot, variant }) => {
   // Palette restored — 4 gaya arsitektur beda, palette warm hangat:
@@ -13290,6 +13437,8 @@ const TamanScene = ({
         loaded={armeniacaLoaded}
         isMobile={isMobile}
       />
+      {/* === Bundle 4 — town populated: market stalls === */}
+      <MarketStalls count={armeniacaCount} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
