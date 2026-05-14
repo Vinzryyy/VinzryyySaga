@@ -355,7 +355,7 @@ export const SITE_CONFIG = {
       title: 'Harmoni Kebaikan',
       titleAccent: 'untuk Ceu Eli.',
       lead:
-        'Tiga aksi kecil yang dikumpulkan jadi perayaan besar — sirami pohon untuk Eli, hitung mundur bersama, dan tinggalkan ucapan. Setiap tangan ikut tumbuh.',
+        'Lima cara kecil yang dikumpulkan jadi perayaan besar — sirami pohon untuk Eli, hitung mundur bersama, tinggalkan ucapan, tunggu lagu, dan ikut menumbuhkan kota. Setiap tangan ikut tumbuh.',
       cards: [
         {
           eyebrow: 'Project Inti',

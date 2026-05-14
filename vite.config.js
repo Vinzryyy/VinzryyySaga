@@ -24,6 +24,18 @@ export default defineConfig({
           "react-vendor": ["react", "react-dom", "react-router-dom"],
           firebase: ["firebase/app", "firebase/database"],
           helmet: ["react-helmet-async"],
+          // Three.js + R3F + drei dibundle eksplisit ke chunk vendor
+          // sendiri. Tanpa ini, auto-chunking nempelin lib 3D ke shared
+          // component pertama yang ke-pick (e.g. RotateRecommendation) →
+          // chunk ~977KB dengan nama menyesatkan. Eksplisit-ny vendor
+          // chunk juga bikin cache stabil: update app code gak invalidate
+          // vendor Three.js (jarang berubah).
+          "three-vendor": [
+            "three",
+            "@react-three/fiber",
+            "@react-three/drei",
+            "@react-three/postprocessing",
+          ],
         },
       },
     },
