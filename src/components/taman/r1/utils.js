@@ -114,11 +114,13 @@ const getSfxCtx = () => {
   return _sfxCtx;
 };
 
+// Default auto-ON: kalau localStorage belum di-set (null), anggap enabled.
+// Yang explicit '0' aja yg di-treat off. Sync sama townAudioBus.readEnabled.
 const isAudioEnabled = () => {
   try {
-    return localStorage.getItem('taman-audio-enabled') === '1';
+    return localStorage.getItem('taman-audio-enabled') !== '0';
   } catch {
-    return false;
+    return true;
   }
 };
 

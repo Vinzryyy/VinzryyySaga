@@ -1,30 +1,34 @@
 /**
- * AmbientAudio — tombol toggle on/off untuk audio ArmeniacaTown.
+ * AmbientAudio — UI control untuk audio ArmeniacaTown.
  *
- * Asalnya generator suara latar prosedural via Web Audio API (drone /
- * crickets / wind / paper rustle per profil halaman). Sekarang sekadar
- * UI toggle — produksi audio dialihkan ke TownMusic (scoring-music-1.mp3
- * global lintas /armeniacaTown/*).
+ * Sekarang punya 2 control: mute icon button (toggle enabled) + volume
+ * slider (0-100). State persisted via townAudioBus → localStorage.
+ * TownMusic (global di AppShell) subscribe ke bus yang sama.
  *
- * State on/off di-persist via townAudioBus → localStorage key
- * 'taman-audio-enabled'. TownMusic subscribe ke bus yang sama, jadi
- * satu klik tombol kontrol song global. r1/utils.js (WindChime SFX
- * one-shot) juga baca key yang sama.
+ * Default state: enabled=true (auto-ON), volume=0.5. User cuma butuh
+ * geser slider atau klik mute manual kalau mau matiin. First user
+ * gesture di page (click di mana aja) bakal trigger TownMusic.play()
+ * walaupun gak klik button ini — handle autoplay-blocked browser case.
  *
- * UX constraints:
- * - Browser autoplay policy: TownMusic baru bisa start setelah user
- *   gesture (klik tombol ini). Saat localStorage '1' tapi session baru,
- *   indikator 'pending' kasih tau user harus klik sekali lagi tiap
- *   session untuk re-engage.
+ * Click mute icon ↔ toggle enabled (gain ke 0 kalau muted, balik ke
+ * volume slider value kalau unmuted). Slider value 0 ≠ muted (enabled
+ * tetep true, gain 0). Mute = explicit kill switch.
  */
 
-import React, { useState } from 'react';
-import { readEnabled as readStored, writeEnabled as writeStored } from '../../lib/townAudioBus';
+import React, { useEffect, useState } from 'react';
+import {
+  readEnabled,
+  writeEnabled,
+  readVolume,
+  writeVolume,
+  subscribeEnabled,
+  subscribeVolume,
+} from '../../lib/townAudioBus';
 
 const SoundOnIcon = () => (
   <svg
-    width="16"
-    height="16"
+    width="14"
+    height="14"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -41,8 +45,8 @@ const SoundOnIcon = () => (
 
 const SoundOffIcon = () => (
   <svg
-    width="16"
-    height="16"
+    width="14"
+    height="14"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -58,16 +62,34 @@ const SoundOffIcon = () => (
 );
 
 const AmbientAudio = ({ position = 'top-right' }) => {
-  const [enabled, setEnabled] = useState(false);
-  // Pending: localStorage udah '1' dari session sebelumnya, tapi state
-  // ini selalu start false (browser autoplay policy — perlu klik baru
-  // di session ini). Indikator beda label biar user paham harus klik.
-  const [pendingEnable] = useState(() => readStored());
+  const [enabled, setEnabled] = useState(() => readEnabled());
+  const [volume, setVolume] = useState(() => readVolume());
+
+  // Sync cross-tab + cross-component (kalau ada AmbientAudio lain).
+  useEffect(() => {
+    const unsubE = subscribeEnabled(setEnabled);
+    const unsubV = subscribeVolume(setVolume);
+    return () => {
+      unsubE();
+      unsubV();
+    };
+  }, []);
 
   const handleToggle = () => {
     const next = !enabled;
     setEnabled(next);
-    writeStored(next);
+    writeEnabled(next);
+  };
+
+  const handleVolumeChange = (e) => {
+    const v = parseFloat(e.target.value) / 100;
+    setVolume(v);
+    writeVolume(v);
+    // Geser slider dari 0 ke >0 saat muted → auto-unmute, friendly UX.
+    if (!enabled && v > 0) {
+      setEnabled(true);
+      writeEnabled(true);
+    }
   };
 
   const positionClass =
@@ -77,22 +99,59 @@ const AmbientAudio = ({ position = 'top-right' }) => {
         ? 'bottom-5 right-5'
         : 'bottom-5 left-5';
 
-  const label = enabled
-    ? 'Matikan suara taman'
-    : pendingEnable
-      ? 'Klik untuk nyalakan suara taman'
-      : 'Nyalakan suara taman';
+  const muted = !enabled || volume === 0;
 
   return (
-    <button
-      type="button"
-      onClick={handleToggle}
-      className={`pointer-events-auto absolute ${positionClass} z-20 w-9 h-9 rounded-full border border-white/20 bg-black/30 backdrop-blur-sm hover:bg-white/10 transition flex items-center justify-center text-white/70`}
-      aria-label={label}
-      title={label}
+    <div
+      className={`pointer-events-auto absolute ${positionClass} z-20 flex items-center gap-2 h-9 px-3 rounded-full border border-white/20 bg-black/30 backdrop-blur-sm text-white/70`}
     >
-      {enabled ? <SoundOnIcon /> : <SoundOffIcon />}
-    </button>
+      <button
+        type="button"
+        onClick={handleToggle}
+        aria-label={muted ? 'Nyalakan suara' : 'Matikan suara'}
+        title={muted ? 'Nyalakan suara' : 'Matikan suara'}
+        className="flex items-center justify-center hover:text-white transition"
+      >
+        {muted ? <SoundOffIcon /> : <SoundOnIcon />}
+      </button>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        value={Math.round((enabled ? volume : 0) * 100)}
+        onChange={handleVolumeChange}
+        aria-label="Volume suara taman"
+        className="taman-volume-slider w-20 h-1 appearance-none bg-white/15 rounded-full outline-none cursor-pointer"
+        style={{
+          background: `linear-gradient(to right, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.7) ${
+            Math.round((enabled ? volume : 0) * 100)
+          }%, rgba(255,255,255,0.15) ${
+            Math.round((enabled ? volume : 0) * 100)
+          }%, rgba(255,255,255,0.15) 100%)`,
+        }}
+      />
+      <style>{`
+        .taman-volume-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.9);
+          cursor: pointer;
+          border: none;
+        }
+        .taman-volume-slider::-moz-range-thumb {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.9);
+          cursor: pointer;
+          border: none;
+        }
+      `}</style>
+    </div>
   );
 };
 
