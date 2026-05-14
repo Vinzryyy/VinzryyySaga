@@ -104,12 +104,17 @@ const formatDate = (iso) => {
 // ============================================================
 
 // NightSky — dome background dgn stars subtle (gallery semi-open,
-// langit visible above walls).
-const NightSky = () => (
+// langit visible above walls). Plus exponential fog supaya floor
+// edge ngeblend mulus ke sky color (gak ada visible cutoff).
+const NightSky = ({ restored }) => (
   <>
+    <fog
+      attach="fog"
+      args={[restored ? '#1f1208' : '#150f0a', 18, 55]}
+    />
     <mesh>
       <sphereGeometry args={[60, 32, 16]} />
-      <meshBasicMaterial color="#0a0608" side={THREE.BackSide} />
+      <meshBasicMaterial color={restored ? '#1a0e08' : '#0a0608'} side={THREE.BackSide} />
     </mesh>
     {Array.from({ length: 60 }).map((_, i) => {
       const angle = (i / 60) * Math.PI * 2 + ((i * 17) % 11) * 0.04;
@@ -133,6 +138,24 @@ const NightSky = () => (
 // rug viewing zone (restored).
 const ExhibitionFloor = ({ restored }) => (
   <>
+    {/* Outer terrain — large dark plane jauh ke luar, biar gallery
+        gak keliatan melayang di angkasa. Tone gelap blend ke skybox. */}
+    <mesh position={[0, -0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[80, 80]} />
+      <meshStandardMaterial
+        color={restored ? '#3a2818' : '#2a1810'}
+        roughness={1}
+      />
+    </mesh>
+    {/* Plaza apron — medium-size warm floor surrounding gallery */}
+    <mesh position={[0, -0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[28, 24]} />
+      <meshStandardMaterial
+        color={restored ? '#7a5430' : '#4a3020'}
+        roughness={1}
+      />
+    </mesh>
+    {/* Main gallery floor — wood */}
     <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[20, 16]} />
       <meshStandardMaterial
@@ -1924,7 +1947,7 @@ const Scene = ({
 
   return (
     <>
-      <NightSky />
+      <NightSky restored={restored} />
       <SceneLights restored={restored} />
       <ExhibitionFloor restored={restored} />
       <FloorMist restored={restored} />
