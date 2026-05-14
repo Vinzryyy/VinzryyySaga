@@ -46,8 +46,9 @@ import { subscribeToTreeSupports } from '../lib/treeDb';
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
 // 3000 = r4 (Menara Jam) unlock drought, 4000 = r1 restored + r3 unlocked
-// drought, 5000 = r2 (Perpustakaan) unlock drought + r4 restore, 6000 = r3
-// restored, 7000 = r2 restored (pulih penuh — milestone akhir).
+// drought, 4500 = r5 (Panggung) unlock drought, 5000 = r2 (Perpustakaan)
+// unlock drought + r4 restore, 6000 = r3 restored, 6500 = r5 restored,
+// 7000 = r2 restored (pulih penuh — milestone akhir).
 // airMancur* = micro-landmark di plaza tengah, continuous progression
 // dari 2000 sampai epilog 10k (satu-satunya landmark yg tetep tumbuh
 // post-fullRestore).
@@ -56,9 +57,11 @@ const MAP_THRESHOLDS = {
   r4Unlock: 3000,
   r1Restore: 4000,
   r3Unlock: 4000,
+  r5Unlock: 4500,
   r4Restore: 5000,
   r2Unlock: 5000,
   r3Restore: 6000,
+  r5Restore: 6500,
   r2Restore: 7000,
   fullRestore: 7000,
   airMancurT1: 2000,
@@ -10739,6 +10742,397 @@ const PetaMenara = ({
   );
 };
 
+// PetaPanggung — petak r5 di SE ring (x=+5, z=+5), mirror Air Mancur
+// tapi side ring scale (ring distance ≈√50, sebanding telaga/arsip).
+// Anfiteater terbuka: kursi batu semicircle + panggung kayu + backdrop
+// wall + spotlight pole + tirai. Stage face local +z (outward dari
+// center), audience face local -z (toward center) — group rotated
+// y=π/4 supaya audience nyamping ke pohon, stage di belakang.
+// 3 state berdasarkan tree support count:
+//   locked   (count < 4500) — reruntuhan: kursi tumpang tindih di tanah,
+//                             panggung ambruk tilted, backdrop ambruk,
+//                             spotlight pole tergeletak, opacity 0.55,
+//                             lock cube indicator center.
+//   drought  (4500-6499)    — kursi semicircle disusun balik (crack
+//                             visible), panggung berdiri tapi miring
+//                             tipis, backdrop berdiri, spotlight pole
+//                             berdiri tapi cone unlit, tirai sobek
+//                             setengah (geometri y=0.5).
+//   restored (>=6500)       — kursi utuh, panggung clean, backdrop
+//                             utuh, spotlight cone GLOW + point light
+//                             ke center stage, tirai full + sway anim,
+//                             3 audience ghost di front row (front row
+//                             glow pulse), center stage marker.
+const PetaPanggung = ({
+  hovered,
+  visited = false,
+  isMobile = false,
+  petakState = 'locked',
+  modalOpen = false,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
+  const groupRef = useRef();
+  const spotlightMatRef = useRef();
+  const tiraiRefs = useRef([]);
+  const audienceMatRefs = useRef([]);
+  const stageMarkerMatRef = useRef();
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      const targetY = hovered && petakState !== 'locked' ? 0.3 : 0;
+      const factor = Math.min(delta * 8, 1);
+      groupRef.current.position.y = lerp(
+        groupRef.current.position.y,
+        targetY,
+        factor,
+      );
+    }
+    const t = state.clock.elapsedTime;
+    if (spotlightMatRef.current && petakState === 'restored') {
+      spotlightMatRef.current.emissiveIntensity =
+        0.7 + Math.sin(t * 0.5) * 0.15;
+    }
+    if (stageMarkerMatRef.current && petakState === 'restored') {
+      stageMarkerMatRef.current.emissiveIntensity =
+        0.55 + Math.sin(t * 0.45) * 0.15;
+    }
+    if (petakState !== 'locked' && tiraiRefs.current.length > 0) {
+      for (let i = 0; i < tiraiRefs.current.length; i += 1) {
+        const m = tiraiRefs.current[i];
+        if (!m) continue;
+        m.rotation.z = Math.sin(t * 0.55 + i * 0.6) * 0.06;
+      }
+    }
+    if (petakState === 'restored' && audienceMatRefs.current.length > 0) {
+      for (let i = 0; i < audienceMatRefs.current.length; i += 1) {
+        const mat = audienceMatRefs.current[i];
+        if (!mat) continue;
+        mat.emissiveIntensity = 0.28 + Math.sin(t * 0.4 + i * 0.7) * 0.1;
+      }
+    }
+  });
+
+  const isLocked = petakState === 'locked';
+  const isDrought = petakState === 'drought';
+  const isRestored = petakState === 'restored';
+  const baseOpacity = isLocked ? 0.55 : 1;
+
+  const stoneColor = isRestored ? '#b89878' : isLocked ? '#5a5048' : '#8a7868';
+  const woodColor = isRestored ? '#a87848' : isLocked ? '#3a2820' : '#6a4830';
+  const tiraiColor = isRestored ? '#a83a3a' : isDrought ? '#6a3030' : '#3a2020';
+  const tiraiEmissive = isRestored ? '#5a1818' : '#000000';
+  const backdropColor = isRestored ? '#5a4838' : isLocked ? '#3a3028' : '#4a3a2a';
+
+  const sublabel = isLocked
+    ? 'Belum terbuka'
+    : isDrought
+    ? 'Panggung sepi'
+    : 'Lampu nyala';
+
+  // Tirai height — drought sobek setengah, restored full
+  const tiraiHeight = isRestored ? 0.7 : 0.35;
+
+  return (
+    <group
+      ref={groupRef}
+      position={[5, 0, 5]}
+      rotation={[0, Math.PI / 4, 0]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {/* Mobile-friendly tap target — cover anfiteater footprint */}
+      <mesh position={[0, 1, 0.5]} visible={false}>
+        <boxGeometry args={isMobile ? [4.5, 3, 4.5] : [3.8, 2.5, 3.8]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Visited halo — ring di base saat petak udah dikunjungi */}
+      {visited && petakState !== 'locked' && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0.4]}>
+          <ringGeometry args={[1.85, 2.05, 32]} />
+          <meshStandardMaterial
+            color={isRestored ? '#f4d8a0' : '#d4a868'}
+            emissive={isRestored ? '#d4a848' : '#a87848'}
+            emissiveIntensity={0.45}
+            transparent
+            opacity={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+
+      {/* Ground stage platform — disc batu di bawah seating arc, kasih
+          footprint anfiteater. */}
+      <mesh position={[0, 0.04, 0.2]}>
+        <cylinderGeometry args={[1.95, 2.0, 0.08, 12]} />
+        <meshStandardMaterial
+          color={isRestored ? '#7a6850' : '#4a3e30'}
+          roughness={1}
+          transparent
+          opacity={baseOpacity}
+        />
+      </mesh>
+
+      {/* Audience semicircle — 5 kursi front row di arc dari -π/2 ke
+          +π/2 (180°). Locked = tumpang tindih di tanah, drought+restored
+          = arranged. */}
+      {[0, 1, 2, 3, 4].map((i) => {
+        const angle = -Math.PI / 2 + (i / 4) * Math.PI;
+        const r = 1.55;
+        const px = Math.cos(angle) * r;
+        const pz = -Math.sin(angle) * r; // -sin to put arc on -z side (audience facing -z)
+        const lying = isLocked;
+        const seatY = lying ? 0.05 : 0.2;
+        const seatRotX = lying ? Math.PI / 2 - 0.3 + i * 0.1 : 0;
+        const seatRotY = lying ? i * 0.7 : -angle - Math.PI / 2;
+        return (
+          <group
+            key={`seat-${i}`}
+            position={[px, seatY, pz]}
+            rotation={[seatRotX, seatRotY, 0]}
+          >
+            <mesh>
+              <boxGeometry args={[0.36, 0.16, 0.24]} />
+              <meshStandardMaterial
+                ref={(m) => {
+                  if (isRestored && i === 2) audienceMatRefs.current[0] = m;
+                  if (isRestored && i === 1) audienceMatRefs.current[1] = m;
+                  if (isRestored && i === 3) audienceMatRefs.current[2] = m;
+                }}
+                color={stoneColor}
+                emissive={isRestored ? '#5a3018' : '#000000'}
+                emissiveIntensity={isRestored ? 0.28 : 0}
+                roughness={1}
+                transparent
+                opacity={baseOpacity}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Back row — 4 kursi di outer arc, drought+restored only.
+          Locked: ke-skip biar kacau jadi front row jumble. */}
+      {!isLocked &&
+        [0, 1, 2, 3].map((i) => {
+          const angle = -Math.PI / 2 + ((i + 0.5) / 4) * Math.PI;
+          const r = 2.05;
+          const px = Math.cos(angle) * r;
+          const pz = -Math.sin(angle) * r;
+          return (
+            <mesh
+              key={`seat-back-${i}`}
+              position={[px, 0.22, pz]}
+              rotation={[0, -angle - Math.PI / 2, 0]}
+            >
+              <boxGeometry args={[0.32, 0.18, 0.22]} />
+              <meshStandardMaterial color={stoneColor} roughness={1} />
+            </mesh>
+          );
+        })}
+
+      {/* Stage platform — wooden rectangle di +z side (behind audience
+          from center view). Locked: tilted ambruk. Drought: berdiri
+          miring tipis. Restored: clean upright. */}
+      <group
+        position={[0, isLocked ? 0.08 : 0.2, 0.95]}
+        rotation={[isLocked ? -0.6 : isDrought ? -0.08 : 0, 0, isLocked ? 0.2 : 0]}
+      >
+        <mesh>
+          <boxGeometry args={[2.4, 0.18, 0.9]} />
+          <meshStandardMaterial
+            color={woodColor}
+            roughness={0.9}
+            transparent
+            opacity={baseOpacity}
+          />
+        </mesh>
+        {/* Stage center marker — restored only, single warm dot di
+            pusat panggung tempat spotlight jatuh. */}
+        {isRestored && (
+          <mesh position={[0, 0.1, 0]}>
+            <cylinderGeometry args={[0.18, 0.18, 0.01, 16]} />
+            <meshStandardMaterial
+              ref={stageMarkerMatRef}
+              color="#f4d8a0"
+              emissive="#f4c478"
+              emissiveIntensity={0.55}
+              transparent
+              opacity={0.75}
+              toneMapped={false}
+            />
+          </mesh>
+        )}
+        {/* Papan jebol drought — 2 plank dark line di stage surface */}
+        {isDrought &&
+          [-0.5, 0.6].map((x, i) => (
+            <mesh key={`plank-${i}`} position={[x, 0.095, 0]}>
+              <boxGeometry args={[0.04, 0.005, 0.85]} />
+              <meshStandardMaterial color="#1a1008" roughness={1} />
+            </mesh>
+          ))}
+      </group>
+
+      {/* Backdrop wall — di +z far side, vertical wall behind stage.
+          Locked: ambruk tilted. Drought+restored: berdiri. */}
+      <group
+        position={[0, isLocked ? 0.4 : 0.9, 1.55]}
+        rotation={[0, 0, isLocked ? 0.35 : 0]}
+      >
+        <mesh>
+          <boxGeometry args={[2.4, isLocked ? 1.0 : 1.4, 0.15]} />
+          <meshStandardMaterial
+            color={backdropColor}
+            roughness={1}
+            transparent
+            opacity={baseOpacity}
+          />
+        </mesh>
+        {/* Wall notch (decorative arch) restored only */}
+        {isRestored && (
+          <mesh position={[0, 0.2, 0.08]}>
+            <boxGeometry args={[1.4, 0.5, 0.04]} />
+            <meshStandardMaterial
+              color="#7a5838"
+              emissive="#4a2818"
+              emissiveIntensity={0.25}
+              roughness={0.85}
+            />
+          </mesh>
+        )}
+      </group>
+
+      {/* Tirai — 2 cloth strips gantung dari backdrop top. Locked:
+          gak render. Drought: sobek setengah. Restored: full + sway. */}
+      {!isLocked &&
+        [-0.8, 0.8].map((x, i) => (
+          <mesh
+            key={`tirai-${i}`}
+            ref={(m) => {
+              tiraiRefs.current[i] = m;
+            }}
+            position={[x, 1.5 - tiraiHeight / 2, 1.48]}
+          >
+            <planeGeometry args={[0.7, tiraiHeight]} />
+            <meshStandardMaterial
+              color={tiraiColor}
+              emissive={tiraiEmissive}
+              emissiveIntensity={isRestored ? 0.18 : 0}
+              roughness={0.95}
+              transparent
+              opacity={isDrought ? 0.82 : 0.95}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        ))}
+
+      {/* Spotlight pole — vertical pole + cone hanging. Locked: tergeletak
+          horizontal. Drought+restored: berdiri. */}
+      <group
+        position={[0, isLocked ? 0.08 : 0, 0.95]}
+        rotation={[0, 0, isLocked ? Math.PI / 2 - 0.15 : 0]}
+      >
+        {/* Pole */}
+        <mesh position={[0, isLocked ? 0 : 1.4, isLocked ? 0.5 : 0]}>
+          <cylinderGeometry args={[0.04, 0.05, 2.6, 6]} />
+          <meshStandardMaterial
+            color="#3a2a1c"
+            roughness={0.95}
+            transparent
+            opacity={baseOpacity}
+          />
+        </mesh>
+        {/* Cross arm — horizontal di top */}
+        {!isLocked && (
+          <mesh position={[0, 2.55, 0.25]}>
+            <boxGeometry args={[0.6, 0.06, 0.06]} />
+            <meshStandardMaterial color="#3a2a1c" roughness={0.95} />
+          </mesh>
+        )}
+        {/* Cone — facing down, glowing kalau restored */}
+        {!isLocked && (
+          <mesh position={[0, 2.4, 0.5]} rotation={[Math.PI, 0, 0]}>
+            <coneGeometry args={[0.18, 0.3, 8]} />
+            <meshStandardMaterial
+              ref={spotlightMatRef}
+              color={isRestored ? '#f4d8a0' : '#5a4838'}
+              emissive={isRestored ? '#f4c478' : '#000000'}
+              emissiveIntensity={isRestored ? 0.7 : 0}
+              roughness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+        )}
+      </group>
+
+      {/* Spotlight beam point light — restored only. Warm cone ke stage
+          center marker. */}
+      {isRestored && (
+        <pointLight
+          position={[0, 2.2, 0.95]}
+          color="#f4d8a0"
+          intensity={0.5}
+          distance={3.5}
+          decay={2}
+        />
+      )}
+
+      {/* Lock cube indicator — locked only, hover di pusat */}
+      {isLocked && (
+        <mesh position={[0, 0.6, 0]}>
+          <boxGeometry args={[0.22, 0.2, 0.12]} />
+          <meshStandardMaterial color="#5a5048" roughness={1} />
+        </mesh>
+      )}
+
+      {!modalOpen && (
+        <Html position={[0, 1.6, 0]} center distanceFactor={10} occlude={false}>
+          <div
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered && petakState !== 'locked' ? '-translate-y-1' : ''
+            }`}
+          >
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                isLocked
+                  ? 'text-white/45'
+                  : hovered
+                  ? 'text-white'
+                  : 'text-white/80'
+              }`}
+            >
+              Panggung Terbuka
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                isLocked
+                  ? 'text-white/30'
+                  : hovered
+                  ? 'text-amber-200/85'
+                  : 'text-white/55'
+              }`}
+            >
+              {sublabel}
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
 // PetaAirMancur — micro-landmark plaza di antara pohon (center) dan
 // gerbang (selatan), offset barat dari lorong path. Beda dari petak
 // lain — bukan 3-state discrete tapi 7-tier continuous progression:
@@ -11693,6 +12087,7 @@ const TamanScene = ({
   hoveredTelaga,
   hoveredArsip,
   hoveredMenara,
+  hoveredPanggung,
   hoveredAirMancur,
   previewedPetak,
   flyInActive,
@@ -11702,6 +12097,7 @@ const TamanScene = ({
   telagaState = 'locked',
   arsipState = 'drought',
   menaraState = 'locked',
+  panggungState = 'locked',
   airMancurTier = 0,
   armeniacaCount = 0,
   armeniacaLoaded = false,
@@ -11729,6 +12125,9 @@ const TamanScene = ({
   onMenaraHover,
   onMenaraOut,
   onMenaraClick,
+  onPanggungHover,
+  onPanggungOut,
+  onPanggungClick,
   onAirMancurHover,
   onAirMancurOut,
   onAirMancurClick,
@@ -11746,6 +12145,7 @@ const TamanScene = ({
     hoveredTelaga ||
     hoveredArsip ||
     hoveredMenara ||
+    hoveredPanggung ||
     hoveredAirMancur;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
@@ -11982,6 +12382,16 @@ const TamanScene = ({
         onPointerOut={onMenaraOut}
         onClick={onMenaraClick}
       />
+      <PetaPanggung
+        hovered={hoveredPanggung}
+        visited={previewedPetak.has('panggung')}
+        isMobile={isMobile}
+        petakState={panggungState}
+        modalOpen={modalOpen}
+        onPointerOver={onPanggungHover}
+        onPointerOut={onPanggungOut}
+        onClick={onPanggungClick}
+      />
       <PetaAirMancur
         hovered={hoveredAirMancur}
         tier={airMancurTier}
@@ -12153,6 +12563,38 @@ const PETA_PETAK_INFO = {
       'Dua jarum lengkap, dial bersih, kaca patri di belakangnya nyala lembut. Bel hourly chime berdentang halus tiap jam. Almanak Kota di base menara — daftar tanggal-tanggal milestone perjalanan Eli — bisa dibaca lagi. Kota inget waktu, dan ingatannya jalan tiap detik.',
     cta: 'Masuki menara',
     route: '/armeniacaTown/r4',
+    accent: '#e8d4a8',
+  },
+  // Panggung Terbuka (r5) — 3 varian copy mirror Telaga/Arsip/Menara.
+  // State dipilih di handler berdasarkan panggungState computed dari count.
+  panggungLocked: {
+    id: 'panggung',
+    name: 'Panggung Terbuka',
+    eyebrow: 'Belum terbuka',
+    longDesc:
+      'Anfiteater di sisi tenggara kota ini masih reruntuhan. Kursi-kursinya tumpang tindih, panggungnya ambruk, spotlight-nya tergeletak di tanah. Pintunya nungguin 4.500 kebaikan terkumpul di Pohon — sebelum ada yang mau nyusun kursinya balik, panggung ini belum bisa cerita lagi.',
+    cta: 'Siram di /26',
+    route: '/26',
+    accent: '#9aa0a8',
+  },
+  panggungDrought: {
+    id: 'panggung',
+    name: 'Panggung Terbuka',
+    eyebrow: 'Panggung sepi',
+    longDesc:
+      'Kursi udah disusun balik di semicircle — tapi panggungnya masih sepi. Spotlight tergantung di pole, tapi belum nyala. Tirai sobek setengah, masih bisa goyang pelan kalau angin lewat. Kerasa kayak nungguin: ada yang berani naik panggung dulu, atau ada penonton yang berani duduk di depan.',
+    cta: 'Masuki panggung',
+    route: '/armeniacaTown/r5',
+    accent: '#c8a060',
+  },
+  panggungRestored: {
+    id: 'panggung',
+    name: 'Panggung Terbuka',
+    eyebrow: 'Lampu nyala',
+    longDesc:
+      'Satu spotlight, satu panggung. Audience-nya sengaja ditinggal kosong di belakang — biar tiap orang yang masuk ke sini bisa duduk di mana aja. Tirai utuh, papan stage di-polish. Yang penting bukan siapa yang nonton; yang penting cerita-cerita itu masih dipentasin.',
+    cta: 'Masuki panggung',
+    route: '/armeniacaTown/r5',
     accent: '#e8d4a8',
   },
 };
@@ -12653,6 +13095,7 @@ const TamanPetaPage = () => {
   const [hoveredTelaga, setHoveredTelaga] = useState(false);
   const [hoveredArsip, setHoveredArsip] = useState(false);
   const [hoveredMenara, setHoveredMenara] = useState(false);
+  const [hoveredPanggung, setHoveredPanggung] = useState(false);
   const [hoveredAirMancur, setHoveredAirMancur] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [petakPreview, setPetakPreview] = useState(null);
@@ -12696,6 +13139,15 @@ const TamanPetaPage = () => {
     if (!armeniacaLoaded) return 'locked';
     if (armeniacaCount >= MAP_THRESHOLDS.r4Restore) return 'restored';
     if (armeniacaCount >= MAP_THRESHOLDS.r4Unlock) return 'drought';
+    return 'locked';
+  }, [armeniacaCount, armeniacaLoaded, purified]);
+  // Panggung Terbuka visual state (mid-game, di SE ring):
+  //   <4500 = locked, 4500-6499 = drought, >=6500 = restored
+  const panggungState = useMemo(() => {
+    if (purified) return 'restored';
+    if (!armeniacaLoaded) return 'locked';
+    if (armeniacaCount >= MAP_THRESHOLDS.r5Restore) return 'restored';
+    if (armeniacaCount >= MAP_THRESHOLDS.r5Unlock) return 'drought';
     return 'locked';
   }, [armeniacaCount, armeniacaLoaded, purified]);
   // Air Mancur tier — 7 step continuous progression (0=hidden, 6=epilog
@@ -12749,6 +13201,7 @@ const TamanPetaPage = () => {
         hoveredTelaga ||
         hoveredArsip ||
         hoveredMenara ||
+        hoveredPanggung ||
         hoveredAirMancur);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
@@ -12762,6 +13215,7 @@ const TamanPetaPage = () => {
     hoveredTelaga,
     hoveredArsip,
     hoveredMenara,
+    hoveredPanggung,
     hoveredAirMancur,
     flyInActive,
   ]);
@@ -12876,6 +13330,24 @@ const TamanPetaPage = () => {
         : menaraState === 'drought'
         ? PETA_PETAK_INFO.menaraDrought
         : PETA_PETAK_INFO.menaraLocked;
+    setPetakPreview(info);
+  };
+
+  // Panggung handlers — anfiteater di SE ring [5, 0, 5]. Preview info
+  // dipilih dari 3 varian berdasarkan computed panggungState.
+  const handlePanggungHover = () => {
+    if (flyInActive) return;
+    setHoveredPanggung(true);
+  };
+  const handlePanggungOut = () => setHoveredPanggung(false);
+  const handlePanggungClick = () => {
+    if (flyInActive) return;
+    const info =
+      panggungState === 'restored'
+        ? PETA_PETAK_INFO.panggungRestored
+        : panggungState === 'drought'
+        ? PETA_PETAK_INFO.panggungDrought
+        : PETA_PETAK_INFO.panggungLocked;
     setPetakPreview(info);
   };
 
@@ -13004,6 +13476,7 @@ const TamanPetaPage = () => {
               hoveredTelaga={hoveredTelaga}
               hoveredArsip={hoveredArsip}
               hoveredMenara={hoveredMenara}
+              hoveredPanggung={hoveredPanggung}
               hoveredAirMancur={hoveredAirMancur}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
@@ -13013,6 +13486,7 @@ const TamanPetaPage = () => {
               telagaState={telagaState}
               arsipState={arsipState}
               menaraState={menaraState}
+              panggungState={panggungState}
               airMancurTier={airMancurTier}
               armeniacaCount={armeniacaCount}
               armeniacaLoaded={armeniacaLoaded}
@@ -13040,6 +13514,9 @@ const TamanPetaPage = () => {
               onMenaraHover={handleMenaraHover}
               onMenaraOut={handleMenaraOut}
               onMenaraClick={handleMenaraClick}
+              onPanggungHover={handlePanggungHover}
+              onPanggungOut={handlePanggungOut}
+              onPanggungClick={handlePanggungClick}
               onAirMancurHover={handleAirMancurHover}
               onAirMancurOut={handleAirMancurOut}
               onAirMancurClick={handleAirMancurClick}

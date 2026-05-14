@@ -18,6 +18,7 @@ import {
   Routes,
   Route,
   Navigate,
+  Link,
   useLocation,
   useSearchParams,
 } from 'react-router-dom';
@@ -33,6 +34,7 @@ import Footer from './components/layout/Footer';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
 import TownMusic from './components/taman/TownMusic';
+import Seo from './components/Seo';
 import useIsBirthdayToday from './hooks/useIsBirthdayToday';
 import { SITE_CONFIG } from './config/siteConfig';
 
@@ -158,6 +160,12 @@ const R3_RESTORATION_THRESHOLD = 6000;
 // dengan r2 unlock, milestone "kota fungsional".
 const R4_UNLOCK_THRESHOLD = 3000;
 const R4_RESTORATION_THRESHOLD = 5000;
+// r5 (Panggung Terbuka) mid-game tier — unlock 4500 (antara r3 unlock
+// 4000 dan r4 restore 5000), restore 6500 (antara r3 restore 6000 dan
+// r2 restore 7000). Halaman penuh (galeri teater Eli) TBD — sementara
+// route ke placeholder.
+const R5_UNLOCK_THRESHOLD = 4500;
+const R5_RESTORATION_THRESHOLD = 6500;
 
 // Returns { count, loaded }. `loaded` flag false sampai first RTDB
 // snapshot masuk — penting biar route guard / chooser gak bikin
@@ -289,6 +297,79 @@ const TamanR4RouteChooser = () => {
   return <TamanMenaraJamPage restored={restored} />;
 };
 
+// Placeholder page buat /armeniacaTown/r5 — full page (galeri pertunjukan
+// teater Eli) TBD. Sementara cuma kasih Seo + back link biar modal CTA
+// "Masuki panggung" gak 404. Extract jadi file dedicated waktu build
+// galeri penuh.
+const TamanPanggungPlaceholder = ({ restored }) => (
+  <>
+    <Seo
+      title="Panggung Terbuka — ArmeniacaTown"
+      description="Panggung Terbuka ArmeniacaTown — anfiteater untuk pertunjukan teater di kota yang tumbuh dari siraman komunitas Helismiley."
+      path="/armeniacaTown/r5"
+    />
+    <div className="min-h-screen bg-[#1a1410] text-white/85 flex flex-col items-center justify-center px-6 py-20 text-center">
+      <div
+        className="text-[10px] uppercase tracking-[0.4em] mb-3"
+        style={{ color: restored ? '#e8d4a8' : '#c8a060' }}
+      >
+        {restored ? 'Lampu nyala' : 'Panggung sepi'}
+      </div>
+      <h1
+        className="text-3xl sm:text-4xl mb-6 leading-tight"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          fontStyle: 'italic',
+        }}
+      >
+        Panggung Terbuka
+      </h1>
+      <p
+        className="max-w-md text-sm sm:text-base text-white/70 leading-relaxed mb-10"
+        style={{ fontFamily: '"Fraunces Variable", serif' }}
+      >
+        {restored
+          ? 'Satu spotlight, satu panggung. Audience-nya sengaja ditinggal kosong di belakang — biar tiap orang yang masuk ke sini bisa duduk di mana aja. Yang penting bukan siapa yang nonton; yang penting cerita-cerita itu masih dipentasin.'
+          : 'Kursi udah disusun balik di semicircle, tapi panggungnya masih sepi. Spotlight tergantung di pole — belum nyala. Kerasa kayak nungguin ada yang berani naik dulu.'}
+      </p>
+      <p className="text-xs text-white/40 mb-6">
+        Halaman penuh galeri pertunjukan segera tiba.
+      </p>
+      <Link
+        to="/armeniacaTown/peta"
+        className="px-5 py-2.5 rounded-full border border-white/20 text-white/70 text-sm hover:bg-white/10 transition"
+      >
+        ← Balik ke peta
+      </Link>
+    </div>
+  </>
+);
+
+const TamanR5RouteChooser = () => {
+  const { count, loaded } = useTreeSupportCount();
+  const [searchParams] = useSearchParams();
+  const override = import.meta.env.DEV
+    ? searchParams.get('restoration')
+    : null;
+  const forceUnlock =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
+
+  if (override !== null) {
+    const n = parseFloat(override);
+    const restored = !Number.isNaN(n) && n >= 0.5;
+    return <TamanPanggungPlaceholder restored={restored} />;
+  }
+  if (forceUnlock) {
+    return <TamanPanggungPlaceholder restored={false} />;
+  }
+  if (!loaded) return <PageLoader />;
+  if (count < R5_UNLOCK_THRESHOLD) {
+    return <Navigate to="/armeniacaTown/peta" replace />;
+  }
+  const restored = count >= R5_RESTORATION_THRESHOLD;
+  return <TamanPanggungPlaceholder restored={restored} />;
+};
+
 const TamanR3RouteChooser = () => {
   const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
@@ -368,6 +449,7 @@ function AppShell() {
             <Route path="/armeniacaTown/r2" element={<TamanR2RouteChooser />} />
             <Route path="/armeniacaTown/r3" element={<TamanR3RouteChooser />} />
             <Route path="/armeniacaTown/r4" element={<TamanR4RouteChooser />} />
+            <Route path="/armeniacaTown/r5" element={<TamanR5RouteChooser />} />
             {/* Backward-compat: rute /taman/* dari era sebelum rebrand
                 ke /armeniacaTown. Link lama tetep valid. */}
             <Route
@@ -393,6 +475,10 @@ function AppShell() {
             <Route
               path="/taman/r4"
               element={<Navigate to="/armeniacaTown/r4" replace />}
+            />
+            <Route
+              path="/taman/r5"
+              element={<Navigate to="/armeniacaTown/r5" replace />}
             />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand
                 Museum → Taman → ArmeniacaTown */}
