@@ -6176,6 +6176,104 @@ const PetaBloom = ({ pos }) => (
     })}
   </group>
 );
+// MilestoneBurst — celebration particle burst saat crossing milestone
+// during user session. 14 emissive specks fly out radially dari center
+// pohon + arc upward + fade dlm 1.8s. Visible feedback "tier baru
+// terbuka" buat user yang siram pohon dan crosses threshold.
+// Page load past threshold gak trigger (cuma runtime crossings).
+const MilestoneBurst = ({ count, loaded }) => {
+  const PARTICLE_COUNT = 14;
+  const DURATION = 1.8;
+  const MAX_RADIUS = 5;
+  const particleRefs = useRef([]);
+  const burstStartRef = useRef(null);
+  const prevCountRef = useRef(null);
+  const shouldStartRef = useRef(false);
+
+  useEffect(() => {
+    if (!loaded) return;
+    if (prevCountRef.current === null) {
+      prevCountRef.current = count;
+      return;
+    }
+    const prev = prevCountRef.current;
+    const thresholds = [
+      MAP_THRESHOLDS.r4Unlock,
+      MAP_THRESHOLDS.r1Restore,
+      MAP_THRESHOLDS.r4Restore,
+      MAP_THRESHOLDS.r3Restore,
+      MAP_THRESHOLDS.r5Restore,
+      MAP_THRESHOLDS.fullRestore,
+    ];
+    const crossed = thresholds.some((th) => prev < th && count >= th);
+    if (crossed) {
+      shouldStartRef.current = true;
+    }
+    prevCountRef.current = count;
+  }, [count, loaded]);
+
+  useFrame((state) => {
+    // Pickup pending trigger di useFrame (clock time akurat di sini)
+    if (shouldStartRef.current && !burstStartRef.current) {
+      burstStartRef.current = state.clock.elapsedTime;
+      shouldStartRef.current = false;
+    }
+    if (!burstStartRef.current) {
+      // Idle — hide all particles
+      for (let i = 0; i < particleRefs.current.length; i += 1) {
+        const m = particleRefs.current[i];
+        if (m) m.scale.setScalar(0);
+      }
+      return;
+    }
+    const elapsed = state.clock.elapsedTime - burstStartRef.current;
+    if (elapsed > DURATION) {
+      burstStartRef.current = null;
+      return;
+    }
+    const t = elapsed / DURATION;
+    // Outward easing — ease-out so particles fly fast then slow
+    const radial = 1 - Math.pow(1 - t, 2);
+    // Vertical arc — sin curve up then back down
+    const verticalArc = Math.sin(t * Math.PI);
+    const fade = 1 - Math.pow(t, 3);
+    for (let i = 0; i < particleRefs.current.length; i += 1) {
+      const m = particleRefs.current[i];
+      if (!m) continue;
+      const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + (i % 3) * 0.18;
+      const variance = (i % 5) * 0.18 - 0.4;
+      const radius = radial * MAX_RADIUS * (1 + variance * 0.15);
+      m.position.x = Math.cos(angle) * radius;
+      m.position.z = Math.sin(angle) * radius;
+      m.position.y = 0.5 + verticalArc * (1.8 + variance * 0.4);
+      m.scale.setScalar(fade * 0.35);
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {Array.from({ length: PARTICLE_COUNT }).map((_, i) => (
+        <mesh
+          key={`milestone-burst-${i}`}
+          ref={(m) => {
+            particleRefs.current[i] = m;
+          }}
+          scale={[0, 0, 0]}
+        >
+          <sphereGeometry args={[0.45, 8, 6]} />
+          <meshBasicMaterial
+            color={i % 3 === 0 ? '#f4d8a0' : i % 3 === 1 ? '#f8c4a0' : '#fff0d8'}
+            transparent
+            opacity={0.85}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 const HopeEcho = ({ count, loaded }) => {
   if (!loaded) return null;
   return (
@@ -12432,6 +12530,7 @@ const TamanScene = ({
       <PetaFootprintTrails />
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
+      <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
