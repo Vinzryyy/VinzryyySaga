@@ -7457,6 +7457,202 @@ const ChimneySmoke = ({ count }) => {
   );
 };
 
+// FestivalLanterns (m8, count >= 8000) — string of small paper lanterns
+// hung between trees + houses. Festival celebration prep. Lit warm
+// emissive, flicker via useFrame.
+const FESTIVAL_LANTERN_STRINGS = [
+  // String 1: between south houses (4,10.5)-(7.5,11)
+  { from: [4, 3, 10.5], to: [7.5, 3, 11], count: 5 },
+  // String 2: between east houses
+  { from: [9, 2.5, 0.8], to: [11, 2.5, -2.8], count: 5 },
+  // String 3: between west houses
+  { from: [-11, 2.5, 2.5], to: [-10.5, 2.5, 5], count: 4 },
+  // String 4: across market area (lorong entry south)
+  { from: [-3, 2.8, 8.5], to: [3.5, 2.8, 7], count: 7 },
+];
+const FestivalLanterns = ({ count }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const m = matRefs.current[i];
+      if (!m) continue;
+      m.emissiveIntensity = 0.65 + Math.sin(t * 0.7 + i * 0.4) * 0.15;
+    }
+  });
+  if (count < MAP_THRESHOLDS.festivalPrep) return null;
+  let idx = 0;
+  return (
+    <>
+      {FESTIVAL_LANTERN_STRINGS.map((str, strIdx) => {
+        const lanterns = [];
+        for (let i = 0; i < str.count; i += 1) {
+          const t = (i + 1) / (str.count + 1);
+          const x = str.from[0] + (str.to[0] - str.from[0]) * t;
+          // Slight sag droop di tengah string
+          const sagY =
+            str.from[1] +
+            (str.to[1] - str.from[1]) * t -
+            Math.sin(t * Math.PI) * 0.15;
+          const z = str.from[2] + (str.to[2] - str.from[2]) * t;
+          const refIdx = idx;
+          idx += 1;
+          // Alternate colors red/orange/cream
+          const colorIdx = (strIdx + i) % 3;
+          const color =
+            colorIdx === 0 ? '#f4d8a0' : colorIdx === 1 ? '#f4a868' : '#e88848';
+          lanterns.push(
+            <group key={`fest-l-${strIdx}-${i}`} position={[x, sagY, z]}>
+              {/* Small paper lantern body */}
+              <mesh>
+                <sphereGeometry args={[0.08, 8, 6]} />
+                <meshStandardMaterial
+                  ref={(m) => {
+                    matRefs.current[refIdx] = m;
+                  }}
+                  color={color}
+                  emissive={color}
+                  emissiveIntensity={0.65}
+                  roughness={0.6}
+                  transparent
+                  opacity={0.9}
+                  toneMapped={false}
+                />
+              </mesh>
+              {/* Top cap */}
+              <mesh position={[0, 0.085, 0]}>
+                <cylinderGeometry args={[0.025, 0.035, 0.025, 6]} />
+                <meshStandardMaterial color="#3a2418" roughness={0.9} />
+              </mesh>
+            </group>,
+          );
+        }
+        // String wire (subtle dark line)
+        const midX = (str.from[0] + str.to[0]) / 2;
+        const midZ = (str.from[2] + str.to[2]) / 2;
+        const length = Math.hypot(str.to[0] - str.from[0], str.to[2] - str.from[2]);
+        const angle = Math.atan2(str.to[2] - str.from[2], str.to[0] - str.from[0]);
+        lanterns.push(
+          <mesh
+            key={`fest-wire-${strIdx}`}
+            position={[midX, str.from[1] - 0.08, midZ]}
+            rotation={[0, -angle, 0]}
+          >
+            <boxGeometry args={[length, 0.008, 0.008]} />
+            <meshStandardMaterial color="#1a0e08" roughness={0.95} />
+          </mesh>,
+        );
+        return <React.Fragment key={`str-${strIdx}`}>{lanterns}</React.Fragment>;
+      })}
+    </>
+  );
+};
+
+// FestivalPetals (m9, count >= 9000) — dense apricot petals falling
+// dari sky, festive peak. Mirror ApricotPetals existing tapi denser
+// + slightly different fall pattern (lebih banyak swirl).
+const FestivalPetals = ({ count, isMobile = false }) => {
+  if (count < MAP_THRESHOLDS.festivalPeak) return null;
+  // Extra petals layer di top of regular ApricotPetals
+  return <ApricotPetals count={isMobile ? 30 : 60} />;
+};
+
+// LegacyMonument (m10, count >= 10000) — stone monument di safe spot,
+// commemorating "kota ikonik permanen". Pedestal + obelisk + golden
+// finial + plaque. Visible saat user push ke 10k.
+const LegacyMonument = ({ count }) => {
+  const auraRef = useRef();
+  useFrame((state) => {
+    if (!auraRef.current) return;
+    const t = state.clock.elapsedTime;
+    auraRef.current.material.opacity = 0.4 + Math.sin(t * 0.4) * 0.15;
+    auraRef.current.scale.setScalar(1 + Math.sin(t * 0.3) * 0.05);
+  });
+  if (count < MAP_THRESHOLDS.legacy) return null;
+  // Safe position — south, beyond Gerbang area, clear of all landmarks
+  return (
+    <group position={[-3, 0, 11]} rotation={[0, 0.4, 0]}>
+      {/* Glow aura — pulsing ring di base */}
+      <mesh ref={auraRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <ringGeometry args={[1.2, 1.8, 32]} />
+        <meshBasicMaterial
+          color="#f4d8a0"
+          transparent
+          opacity={0.4}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Pedestal base — 3 tier stacked */}
+      <mesh position={[0, 0.15, 0]}>
+        <boxGeometry args={[1.4, 0.3, 1.4]} />
+        <meshStandardMaterial color="#8a7858" roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.4, 0]}>
+        <boxGeometry args={[1.2, 0.2, 1.2]} />
+        <meshStandardMaterial color="#a89878" roughness={0.95} />
+      </mesh>
+      <mesh position={[0, 0.55, 0]}>
+        <boxGeometry args={[1, 0.1, 1]} />
+        <meshStandardMaterial color="#c8b898" roughness={0.85} />
+      </mesh>
+      {/* Obelisk — tapered pillar */}
+      <mesh position={[0, 1.5, 0]}>
+        <cylinderGeometry args={[0.1, 0.22, 1.8, 4]} />
+        <meshStandardMaterial
+          color="#d8c8a8"
+          emissive="#a87830"
+          emissiveIntensity={0.12}
+          roughness={0.75}
+        />
+      </mesh>
+      {/* Plaque — front of obelisk */}
+      <mesh position={[0, 1, 0.23]}>
+        <planeGeometry args={[0.32, 0.5]} />
+        <meshStandardMaterial
+          color="#3a2418"
+          emissive="#1a0e08"
+          emissiveIntensity={0.2}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Plaque inscription line */}
+      <mesh position={[0, 1.05, 0.235]}>
+        <planeGeometry args={[0.22, 0.02]} />
+        <meshStandardMaterial color="#d4a848" roughness={0.5} metalness={0.4} />
+      </mesh>
+      <mesh position={[0, 1, 0.235]}>
+        <planeGeometry args={[0.2, 0.02]} />
+        <meshStandardMaterial color="#d4a848" roughness={0.5} metalness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.95, 0.235]}>
+        <planeGeometry args={[0.18, 0.02]} />
+        <meshStandardMaterial color="#d4a848" roughness={0.5} metalness={0.4} />
+      </mesh>
+      {/* Golden finial sphere di puncak obelisk */}
+      <mesh position={[0, 2.5, 0]}>
+        <sphereGeometry args={[0.12, 12, 10]} />
+        <meshStandardMaterial
+          color="#f4d8a0"
+          emissive="#f4c478"
+          emissiveIntensity={0.7}
+          roughness={0.4}
+          metalness={0.6}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Point light dari finial */}
+      <pointLight
+        position={[0, 2.5, 0]}
+        color="#f4d8a0"
+        intensity={0.8}
+        distance={6}
+        decay={2}
+      />
+    </group>
+  );
+};
+
 // MarketStall — single wooden stall with awning + counter + product
 // baskets. Simple low-poly Japanese pasar booth. Used in cluster.
 const MarketStall = ({ pos, rot = 0, awningColor = '#a83838' }) => (
@@ -13924,19 +14120,13 @@ const TamanScene = ({
   // tapi atmosfer + life-layer berubah (less dust, more fireflies +
   // petals, dawn palette).
 
-  // Atmosphere palette — 3-stop key-frame interpolation untuk story
-  // arc transition (bukan monotonic blend). Stops:
-  //   0.0 (drought, count 2000)  — cold rose-plum desolation, dim
-  //                                 ambient. Tone: "kota mati dingin"
-  //   0.5 (mid, count ~4500)     — warm amber dawn break, brighter
-  //                                 ambient. Tone: "matahari pertama
-  //                                 nyentuh, kota mulai panas lagi"
-  //   1.0 (purified, count 7000) — golden hour cozy + cool warm moss
-  //                                 lighting. Tone: "kota hidup, dawn
-  //                                 telah resmi"
-  // Hybrid Opsi C: atmosphere lerp continuous, milestone-gated objects
-  // (CobblestonePath dst.) tetep discrete via `purified` boolean +
-  // milestone thresholds.
+  // Atmosphere palette — 4-stop key-frame story arc transition.
+  // Range mapUnlock 2000 → legacy 10000:
+  //   0.0     (count 2000) — drought, cold rose-plum desolation
+  //   0.3125  (count 4500) — dawn break, warm amber hopeful
+  //   0.625   (count 7000) — meadow purified, golden hour cozy
+  //   1.0     (count 10000) — legacy, permanent golden hour glow +
+  //                            saturasi warm vibrant (kota ikonik)
   const atmosphere = useMemo(() => {
     const stops = [
       {
@@ -13953,8 +14143,7 @@ const TamanScene = ({
         fillIntensity: 0.45,
       },
       {
-        at: 0.5,
-        // Dawn break — warmer hue, slightly hopeful. Fog mundur sedikit.
+        at: 0.3125, // count 4500 — dawn break
         fogColor: '#6f4a55',
         fogNear: 20,
         fogFar: 55,
@@ -13967,7 +14156,7 @@ const TamanScene = ({
         fillIntensity: 0.5,
       },
       {
-        at: 1.0,
+        at: 0.625, // count 7000 — meadow purified
         fogColor: '#7a5868',
         fogNear: 22,
         fogFar: 58,
@@ -13978,6 +14167,19 @@ const TamanScene = ({
         keyIntensity: 1.55,
         fillColor: '#c8a890',
         fillIntensity: 0.48,
+      },
+      {
+        at: 1.0, // count 10000 — legacy permanent golden hour
+        fogColor: '#9a7858',
+        fogNear: 26,
+        fogFar: 65,
+        bgColor: '#3a2a18',
+        ambientColor: '#f4d8a8',
+        ambientIntensity: 0.4,
+        keyColor: '#ffd8a0',
+        keyIntensity: 1.7,
+        fillColor: '#e8b890',
+        fillIntensity: 0.58,
       },
     ];
     const t = Math.max(0, Math.min(1, purifyProgress));
@@ -14113,6 +14315,10 @@ const TamanScene = ({
       <WaterWell count={armeniacaCount} />
       <TownBell count={armeniacaCount} />
       <TownSignpost count={armeniacaCount} />
+      {/* === Bundle 7 — Post-restore legacy tiers (m8, m9, m10) === */}
+      <FestivalLanterns count={armeniacaCount} />
+      <FestivalPetals count={armeniacaCount} isMobile={isMobile} />
+      <LegacyMonument count={armeniacaCount} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
@@ -14555,8 +14761,14 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
   // restorasi, bukan cuma "X dari Y". Tone match intro/petak (cerita-
   // rakyat omniscient, simple casual Indonesian).
   const nextLabel = (() => {
+    if (count >= MAP_THRESHOLDS.legacy)
+      return 'Kota legacy — golden hour permanen, monumen berdiri.';
+    if (count >= MAP_THRESHOLDS.festivalPeak)
+      return 'Festival puncak. Lanjut ke 10.000 untuk legacy phase.';
+    if (count >= MAP_THRESHOLDS.festivalPrep)
+      return 'Festival prep — lentera hias gantung. Lanjut ke 9.000 untuk peak.';
     if (count >= fullRestore)
-      return 'Rak perpustakaan berdiri lagi. Kota pulih sepenuhnya.';
+      return 'Kota pulih sepenuhnya. Lanjut ke 8.000 untuk festival prep.';
     if (count >= MAP_THRESHOLDS.r3Restore)
       return 'Telaga terisi air, teratai mekar. Lanjut ke 7.000 untuk perpustakaan pulih.';
     if (count >= MAP_THRESHOLDS.r2Unlock)
@@ -14603,9 +14815,9 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
             style={{ width: `${pct}%` }}
           />
         </div>
-        {/* Milestone tier dots — visible progress feedback. 6 dots
-            represent unlocks: m3 m4 m5 m6 m65 m7. Filled = reached,
-            pulse = next target, empty = ahead. */}
+        {/* Milestone tier dots — visible progress feedback. 9 dots
+            represent unlocks: m3 m4 m5 m6 m65 m7 m8 m9 m10. Filled =
+            reached, pulse = next target, empty = ahead. */}
         <div className="flex items-center gap-1.5">
           {[
             { threshold: MAP_THRESHOLDS.r4Unlock, label: '3k' },
@@ -14614,6 +14826,9 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
             { threshold: MAP_THRESHOLDS.r3Restore, label: '6k' },
             { threshold: MAP_THRESHOLDS.r5Restore, label: '6.5k' },
             { threshold: MAP_THRESHOLDS.fullRestore, label: '7k' },
+            { threshold: MAP_THRESHOLDS.festivalPrep, label: '8k' },
+            { threshold: MAP_THRESHOLDS.festivalPeak, label: '9k' },
+            { threshold: MAP_THRESHOLDS.legacy, label: '10k' },
           ].map((m, i, arr) => {
             const reached = count >= m.threshold;
             // Next-target: smallest unreached threshold
@@ -15035,13 +15250,12 @@ const TamanPetaPage = () => {
   const purified =
     purifiedOverride ||
     (armeniacaLoaded && armeniacaCount >= MAP_THRESHOLDS.fullRestore);
-  // Continuous purify progress 0-1 — drives gradual atmosphere lerp
-  // (fog, background, lights) yg smooth dari drought ke restored,
-  // bukan flip discrete di milestone tunggal. Milestone-gated elements
-  // (CobblestonePath, JizoStatue, dll.) tetap discrete via `purified`.
-  // Mulai dari mapUnlock (2000) — sebelum peta buka, progress 0.
-  // Hit fullRestore (7000) → progress 1. Linear interp di antaranya.
-  // Dev override `?purifyProgress=N` (0-1) buat preview tier custom.
+  // Continuous purify progress 0-1 — extended range mapUnlock (2000)
+  // → legacy (10000). At fullRestore (7000), progress = 0.625 (kota
+  // pulih). Past 7000 lerp toward legacy state (golden hour permanen).
+  // purified flag (count >= 7000) gak auto-set progress=1 anymore —
+  // lerp continuous sampai count 10000.
+  // Dev override `?purifyProgress=N` (0-1) tetep available.
   const purifyProgress = useMemo(() => {
     if (import.meta.env.DEV) {
       const override = searchParams.get('purifyProgress');
@@ -15050,13 +15264,12 @@ const TamanPetaPage = () => {
         if (!Number.isNaN(n)) return Math.max(0, Math.min(1, n));
       }
     }
-    if (purified) return 1;
     if (!armeniacaLoaded) return 0;
-    const min = MAP_THRESHOLDS.mapUnlock;
-    const max = MAP_THRESHOLDS.fullRestore;
+    const min = MAP_THRESHOLDS.mapUnlock; // 2000
+    const max = MAP_THRESHOLDS.legacy; // 10000
     if (armeniacaCount <= min) return 0;
     return Math.max(0, Math.min(1, (armeniacaCount - min) / (max - min)));
-  }, [armeniacaCount, armeniacaLoaded, purified, searchParams]);
+  }, [armeniacaCount, armeniacaLoaded, searchParams]);
   // Compute telaga visual state dari live count:
   //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
   // Purified override: paksa 'restored' supaya petak konsisten sama
