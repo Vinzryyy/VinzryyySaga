@@ -12066,6 +12066,32 @@ const PetaAirMancur = ({
   );
 };
 
+// TierReveal — wrapper component yg animate scale 0→1 saat unlocked
+// become true. Easing cubic-out, default 1.5s duration. Tiap milestone
+// elements grow into existence saat tier kebuka (entrance reveal
+// effect). Mount-with-unlocked also animates (page reload past
+// threshold = entrance animation tetep play).
+const TierReveal = ({ unlocked, duration = 1.5, children }) => {
+  const groupRef = useRef();
+  const startRef = useRef(null);
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    if (startRef.current === null) {
+      startRef.current = state.clock.elapsedTime;
+    }
+    const elapsed = state.clock.elapsedTime - startRef.current;
+    const t = Math.min(1, elapsed / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    groupRef.current.scale.setScalar(eased);
+  });
+  if (!unlocked) return null;
+  return (
+    <group ref={groupRef} scale={[0.001, 0.001, 0.001]}>
+      {children}
+    </group>
+  );
+};
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -12239,65 +12265,53 @@ const TamanScene = ({
       {/* m3 — Menara Jam unlock; kota mulai inget waktu. Rumput tipis
               + lumut di reruntuhan = sinyal "kehidupan kecil mulai
               kembali". */}
-      {(purified || armeniacaCount >= MAP_THRESHOLDS.r4Unlock) && (
-        <>
-          <GrassBlades isMobile={isMobile} />
-          <MossyBoulders isMobile={isMobile} />
-        </>
-      )}
+      <TierReveal unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r4Unlock}>
+        <GrassBlades isMobile={isMobile} />
+        <MossyBoulders isMobile={isMobile} />
+      </TierReveal>
       {/* m4 — Lorong restored + Telaga unlock; bunga liar + vines
               reclaiming ruins. */}
-      {(purified || armeniacaCount >= MAP_THRESHOLDS.r1Restore) && (
-        <>
-          <WildflowerBushes isMobile={isMobile} />
-          <VineCreeps />
-          <MossyRimStones />
-        </>
-      )}
+      <TierReveal unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r1Restore}>
+        <WildflowerBushes isMobile={isMobile} />
+        <VineCreeps />
+        <MossyRimStones />
+      </TierReveal>
       {/* m5 — Menara restored + Perpustakaan unlock; paths + light
               fixtures hadir. Kota udah bisa "dilewatin" properly. */}
-      {(purified || armeniacaCount >= MAP_THRESHOLDS.r4Restore) && (
-        <>
-          <CobblestonePath />
-          <SteppingStones />
-          <StoneLanterns />
-          {!isMobile && <StringLights />}
-        </>
-      )}
+      <TierReveal unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r4Restore}>
+        <CobblestonePath />
+        <SteppingStones />
+        <StoneLanterns />
+        {!isMobile && <StringLights />}
+      </TierReveal>
       {/* m6 — Telaga pulih; air kembali (teratai, koi, ripples, mist,
               tsukubai japanese cuci tangan, birdbath). */}
-      {(purified || armeniacaCount >= MAP_THRESHOLDS.r3Restore) && (
-        <>
-          <LotusPads />
-          <Cattails />
-          <KoiShadows />
-          <WaterRipples />
-          {!isMobile && <WaterMist />}
-          <Tsukubai />
-          <StoneBirdbath pos={[-1.8, 0, 1.5]} />
-        </>
-      )}
+      <TierReveal unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r3Restore}>
+        <LotusPads />
+        <Cattails />
+        <KoiShadows />
+        <WaterRipples />
+        {!isMobile && <WaterMist />}
+        <Tsukubai />
+        <StoneBirdbath pos={[-1.8, 0, 1.5]} />
+      </TierReveal>
       {/* m65 — Panggung restored; shrine elements + bamboo + signposts. */}
-      {(purified || armeniacaCount >= MAP_THRESHOLDS.r5Restore) && (
-        <>
-          <WoodenTorii />
-          <JizoStatue />
-          <WoodenSignpost />
-          {!isMobile && <BambooCluster />}
-        </>
-      )}
+      <TierReveal unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r5Restore}>
+        <WoodenTorii />
+        <JizoStatue />
+        <WoodenSignpost />
+        {!isMobile && <BambooCluster />}
+      </TierReveal>
       {/* m7 — Full pulih (purified); delicate touches: floating
               lanterns, festive flowers, fortunes, chimes, hammock. */}
-      {purified && (
-        <>
-          <FlowerClusters isMobile={isMobile} />
-          <FloatingPaperLanterns />
-          <MushroomClusters />
-          <OmikujiStrips />
-          {!isMobile && <WindChimes pos={[-6.5, 1.6, -3.5]} />}
-          {!isMobile && <Hammock start={[-7, 1.4, 6]} end={[-4, 1.4, 8]} />}
-        </>
-      )}
+      <TierReveal unlocked={purified}>
+        <FlowerClusters isMobile={isMobile} />
+        <FloatingPaperLanterns />
+        <MushroomClusters />
+        <OmikujiStrips />
+        {!isMobile && <WindChimes pos={[-6.5, 1.6, -3.5]} />}
+        {!isMobile && <Hammock start={[-7, 1.4, 6]} end={[-4, 1.4, 8]} />}
+      </TierReveal>
       <PetaFootprintTrails />
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
