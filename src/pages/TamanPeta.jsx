@@ -465,6 +465,7 @@ const CenterTree = ({
   visited = false,
   isMobile = false,
   purified = false,
+  purifyProgress = 0,
   modalOpen = false,
   onPointerOver,
   onPointerOut,
@@ -548,36 +549,55 @@ const CenterTree = ({
         <cylinderGeometry args={[0.1, 0.15, 1.4, 10]} />
         <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
       </mesh>
-      {/* Foliage clusters — material ref-tracked utk hover emissive +
-          breathing scale animation (per-cluster phase offset supaya
-          gak in-sync). */}
-      {FOLIAGE_CLUSTERS.map((c, i) => (
-        <BreathingFoliage
-          key={`foliage-${i}`}
-          position={c.pos}
-          radius={c.radius}
-          color={c.color}
-          phase={i * 1.3}
-          matRefCallback={(el) => {
-            foliageMatRefs.current[i] = el;
-          }}
-        />
-      ))}
-      {/* Fruit aprikot — emissive subtle untuk kerasa hidup. Purified
-          bump intensity +0.15 (buah pulih kelihatan ranum, gak setengah
-          mati). */}
-      {FRUIT_POSITIONS.map((f, i) => (
-        <mesh key={`fruit-${i}`} position={f.pos}>
-          <sphereGeometry args={[0.11, 12, 10]} />
-          <meshStandardMaterial
-            color={f.color}
-            emissive={f.color}
-            emissiveIntensity={purified ? 0.3 : 0.15}
-            roughness={0.55}
-            metalness={0.05}
+      {/* Foliage clusters — count progressive: foliage radius + cluster
+          count scale dgn purifyProgress. Cluster 0 (biggest, main)
+          always visible, additional clusters reveal at progress
+          thresholds. Sapling→canopy continuous lerp. */}
+      {FOLIAGE_CLUSTERS.map((c, i) => {
+        // Cluster 0 always shown, 1-3 revealed gradually
+        const revealAt = i === 0 ? 0 : 0.15 + (i - 1) * 0.25;
+        if (purifyProgress < revealAt && !purified) return null;
+        // Scale within cluster — grows from 60% to 100% across progress
+        const localProgress = purified
+          ? 1
+          : Math.min(1, (purifyProgress - revealAt) / 0.3);
+        const sizeScale = 0.6 + localProgress * 0.4;
+        return (
+          <BreathingFoliage
+            key={`foliage-${i}`}
+            position={c.pos}
+            radius={c.radius * sizeScale}
+            color={c.color}
+            phase={i * 1.3}
+            matRefCallback={(el) => {
+              foliageMatRefs.current[i] = el;
+            }}
           />
-        </mesh>
-      ))}
+        );
+      })}
+      {/* Fruit aprikot — progressive reveal per count. Fruit 0 visible
+          at progress 0.2, fruit 5 visible at 0.95. Ranum (high emissive
+          intensity) saat mendekati purified. */}
+      {FRUIT_POSITIONS.map((f, i) => {
+        const fruitRevealAt = 0.2 + i * 0.13;
+        if (purifyProgress < fruitRevealAt && !purified) return null;
+        const fruitProgress = purified
+          ? 1
+          : Math.min(1, (purifyProgress - fruitRevealAt) / 0.2);
+        const fruitSize = 0.06 + fruitProgress * 0.05;
+        return (
+          <mesh key={`fruit-${i}`} position={f.pos}>
+            <sphereGeometry args={[fruitSize, 12, 10]} />
+            <meshStandardMaterial
+              color={f.color}
+              emissive={f.color}
+              emissiveIntensity={purified ? 0.3 : 0.15 + fruitProgress * 0.15}
+              roughness={0.55}
+              metalness={0.05}
+            />
+          </mesh>
+        );
+      })}
       {/* Purified bloom halo — 4 ring concentric translucent di base
           pohon (radius 0.7→2.0), peach-amber gradient. Kerasa "aura
           mekarnya pohon kebaikan", sinyal puncak restorasi. */}
@@ -6183,13 +6203,22 @@ const PetaBloom = ({ pos }) => (
 
 // ProgressiveTree — single tree dgn continuous growth (sapling → mature)
 // based on count proximity ke own unlock/maturity range. Per-tree
-// random seed offset supaya scattered organic.
+// random seed offset supaya scattered organic. Mature trees dapet
+// apricot fruits + bird nest. Gentle sway animation via useFrame.
 const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
+  const groupRef = useRef();
+  // Sway animation — gentle Z rotation, per-tree phase offset.
+  // Active selalu (kecuali ProgressiveTree gak rendered saat locked).
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    const phase = (seed * 17) % 100;
+    groupRef.current.rotation.z = Math.sin(t * 0.45 + phase) * 0.025;
+  });
+
   if (count < unlockAt) return null;
   const t = Math.max(0, Math.min(1, (count - unlockAt) / (maturityAt - unlockAt)));
-  // Growth curve — ease-out (rapid early growth, slow approach maturity)
   const eased = 1 - Math.pow(1 - t, 2);
-  // Per-tree variance via seed
   const heightScale = 0.85 + ((seed * 13) % 30) / 100;
   const foliageScale = 0.9 + ((seed * 17) % 25) / 100;
   const trunkColorTone = (seed * 7) % 2 === 0 ? '#5a3a20' : '#6a4828';
@@ -6200,9 +6229,8 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
   const trunkH = (0.3 + eased * 1.4) * heightScale;
   const foliageR = (0.18 + eased * 0.42) * foliageScale;
   const foliageY = trunkH + foliageR * 0.4;
-  // Foliage cluster — main + 2 offset bumps di stage mid+
   return (
-    <group position={pos} rotation={[0, ((seed * 19) % 100) / 16, 0]}>
+    <group ref={groupRef} position={pos} rotation={[0, ((seed * 19) % 100) / 16, 0]}>
       <mesh position={[0, trunkH / 2, 0]}>
         <cylinderGeometry args={[0.04 + eased * 0.04, 0.06 + eased * 0.04, trunkH, 6]} />
         <meshStandardMaterial color={trunkColorTone} roughness={0.95} />
@@ -6216,7 +6244,6 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
           roughness={0.85}
         />
       </mesh>
-      {/* Offset bumps di stage mid+ */}
       {eased > 0.5 && (
         <>
           <mesh position={[foliageR * 0.6, foliageY - 0.05, foliageR * 0.3]}>
@@ -6238,6 +6265,54 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
             />
           </mesh>
         </>
+      )}
+      {/* B: Apricot fruits — 3-5 small orange-peach spheres pada
+              foliage saat eased > 0.7 (project identity Armeniaca = aprikot) */}
+      {eased > 0.7 && (
+        <>
+          {[
+            { x: foliageR * 0.5, y: foliageY, z: foliageR * 0.4, color: '#e89870' },
+            { x: -foliageR * 0.55, y: foliageY - 0.1, z: foliageR * 0.2, color: '#e8a87c' },
+            { x: foliageR * 0.2, y: foliageY + 0.1, z: -foliageR * 0.5, color: '#ed9b6a' },
+            { x: -foliageR * 0.3, y: foliageY + 0.05, z: -foliageR * 0.35, color: '#e89870' },
+          ].map((f, j) => (
+            <mesh key={`apricot-${j}`} position={[f.x, f.y, f.z]}>
+              <sphereGeometry args={[0.05 + (eased - 0.7) * 0.05, 8, 6]} />
+              <meshStandardMaterial
+                color={f.color}
+                emissive={f.color}
+                emissiveIntensity={0.2}
+                roughness={0.55}
+                metalness={0.05}
+              />
+            </mesh>
+          ))}
+        </>
+      )}
+      {/* E: Bird nest — small brown bowl di top branch saat eased = 1
+              (fully mature). Narrative "pohon udah hidup, ada yg
+              nempatin". Per seed, hanya ~half pohon dapet nest. */}
+      {eased >= 0.95 && seed % 2 === 0 && (
+        <group position={[foliageR * 0.3, foliageY + foliageR * 0.5, 0]}>
+          {/* Nest bowl — short cylinder + inset top */}
+          <mesh>
+            <cylinderGeometry args={[0.09, 0.07, 0.05, 8]} />
+            <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0.01, 0]}>
+            <cylinderGeometry args={[0.07, 0.06, 0.04, 8]} />
+            <meshStandardMaterial color="#3a2418" roughness={1} />
+          </mesh>
+          {/* 2 tiny eggs di nest */}
+          <mesh position={[0.02, 0.04, 0]}>
+            <sphereGeometry args={[0.018, 6, 5]} />
+            <meshStandardMaterial color="#e8e0c8" roughness={0.7} />
+          </mesh>
+          <mesh position={[-0.02, 0.04, 0.01]}>
+            <sphereGeometry args={[0.018, 6, 5]} />
+            <meshStandardMaterial color="#e8e0c8" roughness={0.7} />
+          </mesh>
+        </group>
       )}
     </group>
   );
@@ -13033,6 +13108,7 @@ const TamanScene = ({
         visited={previewedPetak.has('pohon')}
         isMobile={isMobile}
         purified={purified}
+        purifyProgress={purifyProgress}
         modalOpen={modalOpen}
         onPointerOver={onCenterHover}
         onPointerOut={onCenterOut}
