@@ -12066,28 +12066,50 @@ const PetaAirMancur = ({
   );
 };
 
-// TierReveal — wrapper component yg animate scale 0→1 saat unlocked
-// become true. Easing cubic-out, default 1.5s duration. Tiap milestone
-// elements grow into existence saat tier kebuka (entrance reveal
-// effect). Mount-with-unlocked also animates (page reload past
-// threshold = entrance animation tetep play).
-const TierReveal = ({ unlocked, duration = 1.5, children }) => {
+// TierReveal — wrapper animate scale 0→1 + Y emerge from below ground
+// saat unlocked CROSSED during user session. Back-easing slight
+// overshoot then settle. Default 1.6s duration.
+//
+// IMPORTANT: animation HANYA play untuk runtime crossings, BUKAN saat
+// page-load. Kalau unlocked=true di first mount (user reload past
+// threshold), snap langsung scale 1 + y 0 — gak ada zoom-out competing
+// sama FlyInCamera. Capture initial unlock state via useRef sekali,
+// stays untuk lifetime component.
+const TierReveal = ({ unlocked, duration = 1.6, emergeY = 0.3, children }) => {
   const groupRef = useRef();
   const startRef = useRef(null);
+  // Capture sekali via useState initializer — true kalau tier unlocked
+  // dari first mount (user reload past threshold). Stays consistent
+  // sepanjang component lifecycle. useRef gak dipake karena lint
+  // forbids ref access during render — useState fine.
+  const [initialUnlocked] = useState(unlocked);
   useFrame((state) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || !unlocked) return;
+    if (initialUnlocked) {
+      // Sudah revealed dari mount — snap, gak animate.
+      groupRef.current.scale.setScalar(1);
+      groupRef.current.position.y = 0;
+      return;
+    }
+    // Locked di mount, sekarang unlocked = runtime crossing → animate
     if (startRef.current === null) {
       startRef.current = state.clock.elapsedTime;
     }
     const elapsed = state.clock.elapsedTime - startRef.current;
     const t = Math.min(1, elapsed / duration);
-    const eased = 1 - Math.pow(1 - t, 3);
-    groupRef.current.scale.setScalar(eased);
+    const s = 1.4;
+    const eased = 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
+    groupRef.current.scale.setScalar(Math.max(0.001, eased));
+    const yEased = 1 - Math.pow(1 - t, 3);
+    groupRef.current.position.y = -emergeY * (1 - yEased);
   });
-  if (!unlocked) return null;
   return (
-    <group ref={groupRef} scale={[0.001, 0.001, 0.001]}>
-      {children}
+    <group
+      ref={groupRef}
+      scale={initialUnlocked ? [1, 1, 1] : [0.001, 0.001, 0.001]}
+      position={[0, initialUnlocked ? 0 : -emergeY, 0]}
+    >
+      {unlocked && children}
     </group>
   );
 };
