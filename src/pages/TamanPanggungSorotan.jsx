@@ -138,20 +138,29 @@ const NightSky = ({ restored }) => (
 // rug viewing zone (restored).
 const ExhibitionFloor = ({ restored }) => (
   <>
-    {/* Outer terrain — large dark plane jauh ke luar, biar gallery
-        gak keliatan melayang di angkasa. Tone gelap blend ke skybox. */}
+    {/* Outer terrain — circular base mirror peta (round map), jauh
+        ke luar, gak floating di angkasa. */}
     <mesh position={[0, -0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[80, 80]} />
+      <circleGeometry args={[40, 48]} />
       <meshStandardMaterial
         color={restored ? '#3a2818' : '#2a1810'}
         roughness={1}
       />
     </mesh>
-    {/* Plaza apron — medium-size warm floor surrounding gallery */}
+    {/* Plaza apron — circular medium-size warm floor surrounding
+        gallery. Round, kayak di peta. */}
     <mesh position={[0, -0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[28, 24]} />
+      <circleGeometry args={[15, 48]} />
       <meshStandardMaterial
         color={restored ? '#7a5430' : '#4a3020'}
+        roughness={1}
+      />
+    </mesh>
+    {/* Plaza apron border ring — subtle decorative outline */}
+    <mesh position={[0, -0.055, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[14.7, 15, 48]} />
+      <meshStandardMaterial
+        color={restored ? '#4a3020' : '#2a1810'}
         roughness={1}
       />
     </mesh>
@@ -690,139 +699,257 @@ const Moon = ({ restored }) => {
   );
 };
 
-// PathTrees — 4 trees flanking cobble path, simple tree shape (trunk
-// + foliage sphere cluster). Restored: green vibrant. Drought: bare
-// branches, no leaves.
-const PathTrees = ({ restored }) => {
-  const trees = [
-    { x: -2.2, z: 6.5 },
-    { x: 2.2, z: 6.5 },
-    { x: -2.2, z: 8.5 },
-    { x: 2.2, z: 8.5 },
-  ];
+// PerformanceEquipment — wooden crates, prop trunk, spotlight tripod,
+// cable coil, mic case di plaza area sekitar gallery. Restored:
+// tertata rapi backstage style. Drought: berserakan, tumbang, terbuka.
+const PerformanceEquipment = ({ restored }) => {
+  // Crates — 3 wooden boxes. Restored stacked. Drought scattered.
+  const crates = restored
+    ? [
+        { x: 6.5, y: 0.4, z: -2, w: 0.9, h: 0.8, d: 0.9, rotY: 0.1 },
+        { x: 6.5, y: 1.2, z: -2, w: 0.85, h: 0.75, d: 0.85, rotY: -0.05 },
+        { x: 6.4, y: 1.95, z: -2, w: 0.7, h: 0.6, d: 0.7, rotY: 0.15 },
+      ]
+    : [
+        { x: 6.2, y: 0.4, z: -2, w: 0.9, h: 0.8, d: 0.9, rotY: 0.3, rotZ: 0 },
+        { x: 4.8, y: 0.35, z: -0.3, w: 0.85, h: 0.7, d: 0.85, rotY: -0.5, rotZ: Math.PI / 2 - 0.1 },
+        { x: 5.5, y: 0.3, z: 1.5, w: 0.7, h: 0.6, d: 0.7, rotY: 1.1, rotZ: 0 },
+      ];
   return (
     <>
-      {trees.map((t, i) => {
-        const tilt = !restored && i % 2 === 0 ? 0.15 : 0;
+      {/* Wooden crates */}
+      {crates.map((c, i) => (
+        <group
+          key={`crate-${i}`}
+          position={[c.x, c.y, c.z]}
+          rotation={[0, c.rotY, c.rotZ || 0]}
+        >
+          {/* Crate body */}
+          <mesh>
+            <boxGeometry args={[c.w, c.h, c.d]} />
+            <meshStandardMaterial
+              color={restored ? '#7a5028' : '#5a3820'}
+              roughness={0.95}
+            />
+          </mesh>
+          {/* Slat lines — 3 horizontal dark strips for wood planks look */}
+          {[-c.h * 0.3, 0, c.h * 0.3].map((y, j) => (
+            <mesh
+              key={`slat-${i}-${j}`}
+              position={[0, y, c.d / 2 + 0.001]}
+            >
+              <planeGeometry args={[c.w * 0.95, 0.02]} />
+              <meshStandardMaterial color="#2a1810" roughness={1} />
+            </mesh>
+          ))}
+          {/* Corner reinforcement strips */}
+          {[
+            { x: -c.w / 2 + 0.04, z: c.d / 2 + 0.001 },
+            { x: c.w / 2 - 0.04, z: c.d / 2 + 0.001 },
+          ].map((p, j) => (
+            <mesh key={`corner-${i}-${j}`} position={[p.x, 0, p.z]}>
+              <planeGeometry args={[0.04, c.h * 0.95]} />
+              <meshStandardMaterial color="#3a2010" roughness={1} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {/* Prop trunk — large brown trunk with metal corners */}
+      {(() => {
+        const trunkRestored = { x: -6.5, y: 0.3, z: -2, rotY: -0.1, lidOpen: false };
+        const trunkDrought = { x: -5.5, y: 0.3, z: 1, rotY: 0.6, lidOpen: true };
+        const t = restored ? trunkRestored : trunkDrought;
         return (
-          <group
-            key={`tree-${i}`}
-            position={[t.x, 0, t.z]}
-            rotation={[0, 0, tilt]}
-          >
-            {/* Trunk — cylinder */}
-            <mesh position={[0, 1.2, 0]}>
-              <cylinderGeometry args={[0.12, 0.18, 2.4, 8]} />
+          <group position={[t.x, t.y, t.z]} rotation={[0, t.rotY, 0]}>
+            {/* Trunk body */}
+            <mesh>
+              <boxGeometry args={[1.2, 0.6, 0.7]} />
               <meshStandardMaterial
                 color={restored ? '#5a3a20' : '#3a2418'}
-                roughness={0.95}
+                roughness={0.9}
               />
             </mesh>
-            {/* Foliage cluster — restored only (3 sphere stacked) */}
-            {restored &&
-              [
-                { y: 2.6, s: 0.65 },
-                { y: 3.0, s: 0.55, x: 0.2 },
-                { y: 3.0, s: 0.55, x: -0.2 },
-                { y: 3.3, s: 0.5, z: 0.15 },
-              ].map((f, j) => (
-                <mesh
-                  key={`foliage-${i}-${j}`}
-                  position={[f.x || 0, f.y, f.z || 0]}
-                >
-                  <sphereGeometry args={[f.s, 8, 6]} />
-                  <meshStandardMaterial
-                    color="#4a8038"
-                    emissive="#2a5020"
-                    emissiveIntensity={0.15}
-                    roughness={0.85}
-                  />
-                </mesh>
-              ))}
-            {/* Bare branches — drought only, 3 thin cylinders */}
-            {!restored && (
-              <>
-                <mesh
-                  position={[0.2, 2.7, 0]}
-                  rotation={[0, 0, 0.7]}
-                >
-                  <cylinderGeometry args={[0.04, 0.06, 0.8, 5]} />
-                  <meshStandardMaterial color="#2a1810" roughness={1} />
-                </mesh>
-                <mesh
-                  position={[-0.18, 2.6, 0.1]}
-                  rotation={[0.2, 0, -0.6]}
-                >
-                  <cylinderGeometry args={[0.04, 0.06, 0.7, 5]} />
-                  <meshStandardMaterial color="#2a1810" roughness={1} />
-                </mesh>
-                <mesh
-                  position={[0.05, 2.9, -0.2]}
-                  rotation={[-0.3, 0, 0.3]}
-                >
-                  <cylinderGeometry args={[0.03, 0.05, 0.65, 5]} />
-                  <meshStandardMaterial color="#2a1810" roughness={1} />
-                </mesh>
-              </>
+            {/* Lid — opened tilted up for drought */}
+            <mesh
+              position={[0, t.lidOpen ? 0.55 : 0.32, t.lidOpen ? -0.3 : 0]}
+              rotation={[t.lidOpen ? -Math.PI / 3 : 0, 0, 0]}
+            >
+              <boxGeometry args={[1.2, 0.08, 0.7]} />
+              <meshStandardMaterial
+                color={restored ? '#6a4830' : '#4a3020'}
+                roughness={0.9}
+              />
+            </mesh>
+            {/* Metal corner caps × 4 (only visible from front) */}
+            {[
+              { x: -0.55, y: -0.25 },
+              { x: 0.55, y: -0.25 },
+              { x: -0.55, y: 0.25 },
+              { x: 0.55, y: 0.25 },
+            ].map((c, j) => (
+              <mesh key={`corner-${j}`} position={[c.x, c.y, 0.36]}>
+                <boxGeometry args={[0.1, 0.1, 0.04]} />
+                <meshStandardMaterial
+                  color={restored ? '#a87830' : '#3a2418'}
+                  emissive={restored ? '#5a3818' : '#000000'}
+                  emissiveIntensity={restored ? 0.15 : 0}
+                  roughness={0.5}
+                  metalness={restored ? 0.5 : 0.2}
+                />
+              </mesh>
+            ))}
+            {/* Lock plate front center */}
+            <mesh position={[0, 0, 0.36]}>
+              <boxGeometry args={[0.16, 0.18, 0.04]} />
+              <meshStandardMaterial
+                color={restored ? '#a87830' : '#3a2418'}
+                roughness={0.5}
+                metalness={restored ? 0.5 : 0.2}
+              />
+            </mesh>
+          </group>
+        );
+      })()}
+
+      {/* Spotlight tripod stand — outdoor */}
+      {(() => {
+        const tripod = restored
+          ? { x: 8, y: 0, z: 2, tiltZ: 0 }
+          : { x: 7.5, y: 0, z: 3.5, tiltZ: 0.7 };
+        return (
+          <group position={[tripod.x, tripod.y, tripod.z]} rotation={[0, 0.4, tripod.tiltZ]}>
+            {/* Tripod legs × 3 */}
+            {[0, 2.1, 4.2].map((rot, i) => (
+              <mesh
+                key={`leg-${i}`}
+                position={[
+                  Math.cos(rot) * 0.3,
+                  0.6,
+                  Math.sin(rot) * 0.3,
+                ]}
+                rotation={[0, rot, Math.PI / 8]}
+              >
+                <cylinderGeometry args={[0.03, 0.04, 1.4, 5]} />
+                <meshStandardMaterial color="#2a1810" roughness={0.9} />
+              </mesh>
+            ))}
+            {/* Vertical pole */}
+            <mesh position={[0, 1.6, 0]}>
+              <cylinderGeometry args={[0.04, 0.04, 1.6, 6]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.85} />
+            </mesh>
+            {/* Spotlight head */}
+            <mesh position={[0, 2.4, 0.05]} rotation={[-0.3, 0, 0]}>
+              <cylinderGeometry args={[0.14, 0.18, 0.32, 8]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.85} />
+            </mesh>
+            {/* Bulb disk */}
+            <mesh position={[0, 2.4, 0.21]} rotation={[Math.PI / 2 - 0.3, 0, 0]}>
+              <circleGeometry args={[0.13, 12]} />
+              <meshStandardMaterial
+                color={restored ? '#f4d8a0' : '#3a2818'}
+                emissive={restored ? '#f4c478' : '#000000'}
+                emissiveIntensity={restored ? 0.55 : 0}
+                roughness={0.4}
+                toneMapped={false}
+              />
+            </mesh>
+            {restored && (
+              <pointLight
+                position={[0, 2.4, 0.3]}
+                color="#f4d8a0"
+                intensity={0.4}
+                distance={3}
+                decay={2}
+              />
             )}
           </group>
         );
-      })}
-    </>
-  );
-};
+      })()}
 
-// GardenShrubs — small bush clusters scattered di plaza apron area,
-// fill empty space. Restored: green. Drought: brown wilted.
-const GardenShrubs = ({ restored }) => {
-  const shrubs = [
-    { x: -6, z: 5, s: 0.45 },
-    { x: 6, z: 5, s: 0.45 },
-    { x: -8, z: 3, s: 0.55 },
-    { x: 8, z: 3, s: 0.55 },
-    { x: -9.5, z: -2, s: 0.5 },
-    { x: 9.5, z: -2, s: 0.5 },
-    { x: -7, z: -7, s: 0.6 },
-    { x: 7, z: -7, s: 0.6 },
-  ];
-  const color = restored ? '#5a8040' : '#5a3818';
-  const emissive = restored ? '#2a5020' : '#1a0a04';
-  return (
-    <>
-      {shrubs.map((s, i) => (
-        <group key={`shrub-${i}`} position={[s.x, 0, s.z]}>
-          {/* Main cluster */}
-          <mesh position={[0, s.s, 0]}>
-            <sphereGeometry args={[s.s, 8, 6]} />
-            <meshStandardMaterial
-              color={color}
-              emissive={emissive}
-              emissiveIntensity={restored ? 0.12 : 0.05}
-              roughness={0.85}
-            />
+      {/* Cable coil — black rubber coil */}
+      {(() => {
+        const cable = restored
+          ? { x: 6, y: 0.05, z: -0.5, rotZ: 0 }
+          : { x: 4.5, y: 0.05, z: 2.5, rotZ: 0.5 };
+        return (
+          <group position={[cable.x, cable.y, cable.z]}>
+            <mesh rotation={[Math.PI / 2, 0, cable.rotZ]}>
+              <torusGeometry args={[0.2, 0.05, 6, 16]} />
+              <meshStandardMaterial color="#1a1008" roughness={0.85} />
+            </mesh>
+            <mesh position={[0, 0.05, 0]} rotation={[Math.PI / 2, 0, cable.rotZ + 0.3]}>
+              <torusGeometry args={[0.18, 0.05, 6, 16]} />
+              <meshStandardMaterial color="#1a1008" roughness={0.85} />
+            </mesh>
+          </group>
+        );
+      })()}
+
+      {/* Microphone case — small black case */}
+      {(() => {
+        const mic = restored
+          ? { x: -5.8, y: 0.06, z: -1, rotY: 0.2, rotZ: 0, lidOpen: false }
+          : { x: -4.3, y: 0.06, z: 0.3, rotY: 0.8, rotZ: 0, lidOpen: true };
+        return (
+          <group position={[mic.x, mic.y, mic.z]} rotation={[0, mic.rotY, mic.rotZ]}>
+            {/* Case body */}
+            <mesh>
+              <boxGeometry args={[0.5, 0.12, 0.3]} />
+              <meshStandardMaterial color="#1a1008" roughness={0.7} />
+            </mesh>
+            {/* Lid — opened tilted up for drought */}
+            <mesh
+              position={[0, mic.lidOpen ? 0.18 : 0.07, mic.lidOpen ? -0.13 : 0]}
+              rotation={[mic.lidOpen ? -Math.PI / 2.5 : 0, 0, 0]}
+            >
+              <boxGeometry args={[0.5, 0.04, 0.3]} />
+              <meshStandardMaterial color="#1a1008" roughness={0.7} />
+            </mesh>
+            {/* Handle */}
+            <mesh position={[0, 0.08, 0.16]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.05, 0.012, 6, 8, Math.PI]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.7} />
+            </mesh>
+          </group>
+        );
+      })()}
+
+      {/* Drought extras — scattered loose props biar lebih chaos */}
+      {!restored && (
+        <>
+          {/* Loose cable strand di lantai */}
+          <mesh position={[3, 0.04, 2]} rotation={[Math.PI / 2, 0, 0.8]}>
+            <torusGeometry args={[0.3, 0.04, 5, 24, Math.PI * 1.4]} />
+            <meshStandardMaterial color="#1a1008" roughness={0.85} />
           </mesh>
-          {/* Smaller side bump */}
-          <mesh position={[s.s * 0.7, s.s * 0.8, s.s * 0.3]}>
-            <sphereGeometry args={[s.s * 0.6, 8, 6]} />
-            <meshStandardMaterial
-              color={color}
-              emissive={emissive}
-              emissiveIntensity={restored ? 0.1 : 0.04}
-              roughness={0.85}
-            />
+          {/* Broken plank pieces */}
+          <mesh position={[-3.5, 0.06, 2.8]} rotation={[0, 0.6, 0.3]}>
+            <boxGeometry args={[0.6, 0.05, 0.12]} />
+            <meshStandardMaterial color="#3a2010" roughness={1} />
           </mesh>
-          {/* Smaller back bump */}
-          <mesh position={[-s.s * 0.5, s.s * 0.9, -s.s * 0.4]}>
-            <sphereGeometry args={[s.s * 0.55, 8, 6]} />
-            <meshStandardMaterial
-              color={color}
-              emissive={emissive}
-              emissiveIntensity={restored ? 0.1 : 0.04}
-              roughness={0.85}
-            />
+          <mesh position={[-2.5, 0.04, 3.4]} rotation={[0, 1.2, -0.2]}>
+            <boxGeometry args={[0.5, 0.04, 0.1]} />
+            <meshStandardMaterial color="#2a1810" roughness={1} />
           </mesh>
-        </group>
-      ))}
+          {/* Tipped folding chair / prop stool */}
+          <group position={[4, 0.15, 3.5]} rotation={[Math.PI / 2 - 0.2, 0.5, 0]}>
+            <mesh position={[0, 0.3, 0]}>
+              <boxGeometry args={[0.45, 0.08, 0.4]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+            <mesh position={[-0.2, 0.05, -0.18]}>
+              <boxGeometry args={[0.05, 0.4, 0.05]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.95} />
+            </mesh>
+            <mesh position={[0.2, 0.05, -0.18]}>
+              <boxGeometry args={[0.05, 0.4, 0.05]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.95} />
+            </mesh>
+          </group>
+        </>
+      )}
     </>
   );
 };
@@ -1066,83 +1193,6 @@ const OutdoorLamps = ({ restored }) => {
               distance={5}
               decay={2}
             />
-          )}
-        </group>
-      ))}
-    </>
-  );
-};
-
-// OutdoorPlanters — 2 large planters flank gallery entrance opening.
-// Restored: lush green leaves. Drought: empty + dead twig.
-const OutdoorPlanters = ({ restored }) => {
-  const positions = [
-    { x: -SIDE_WALL_X - 0.5, z: 4.6 },
-    { x: SIDE_WALL_X + 0.5, z: 4.6 },
-  ];
-  return (
-    <>
-      {positions.map((p, i) => (
-        <group key={`planter-${i}`} position={[p.x, 0, p.z]}>
-          {/* Planter box — stone */}
-          <mesh position={[0, 0.3, 0]}>
-            <boxGeometry args={[0.7, 0.6, 0.7]} />
-            <meshStandardMaterial
-              color={restored ? '#8a6038' : '#4a3020'}
-              roughness={0.95}
-            />
-          </mesh>
-          {/* Top rim */}
-          <mesh position={[0, 0.62, 0]}>
-            <boxGeometry args={[0.78, 0.06, 0.78]} />
-            <meshStandardMaterial
-              color={restored ? '#a87038' : '#5a3818'}
-              roughness={0.9}
-            />
-          </mesh>
-          {/* Soil */}
-          <mesh position={[0, 0.6, 0]}>
-            <boxGeometry args={[0.66, 0.04, 0.66]} />
-            <meshStandardMaterial color="#3a2010" roughness={1} />
-          </mesh>
-          {/* Foliage — restored only */}
-          {restored &&
-            [
-              { x: 0, y: 0.92, z: 0, s: 0.32 },
-              { x: 0.22, y: 0.85, z: 0.08, s: 0.22 },
-              { x: -0.2, y: 0.88, z: -0.1, s: 0.25 },
-              { x: 0.06, y: 1.12, z: 0.14, s: 0.24 },
-              { x: -0.12, y: 1.05, z: 0.18, s: 0.2 },
-              { x: 0.18, y: 1.02, z: -0.16, s: 0.22 },
-            ].map((leaf, j) => (
-              <mesh
-                key={`outdoor-leaf-${i}-${j}`}
-                position={[leaf.x, leaf.y, leaf.z]}
-              >
-                <sphereGeometry args={[leaf.s, 8, 6]} />
-                <meshStandardMaterial
-                  color="#4a8038"
-                  emissive="#2a5020"
-                  emissiveIntensity={0.18}
-                  roughness={0.85}
-                />
-              </mesh>
-            ))}
-          {/* Dead twig — drought only */}
-          {!restored && (
-            <>
-              <mesh position={[0.08, 0.85, 0]} rotation={[0, 0, 0.25]}>
-                <cylinderGeometry args={[0.025, 0.018, 0.6, 5]} />
-                <meshStandardMaterial color="#2a1810" roughness={1} />
-              </mesh>
-              <mesh
-                position={[0.14, 1.05, 0.04]}
-                rotation={[0.3, 0, 0.55]}
-              >
-                <cylinderGeometry args={[0.014, 0.012, 0.3, 5]} />
-                <meshStandardMaterial color="#2a1810" roughness={1} />
-              </mesh>
-            </>
           )}
         </group>
       ))}
@@ -2085,94 +2135,6 @@ const DaisFootlights = ({ restored }) => {
   );
 };
 
-// PottedPlants — small leafy plants di 2 corners (back-left + back-right
-// di depan wall), kasih green accent + life. Restored only.
-const PottedPlants = ({ restored }) => {
-  // Drought: pots empty + 1 tipped, no leaves. Restored: full leaves.
-  const corners = [
-    { x: -SIDE_WALL_X + 0.8, z: BACK_WALL_Z + 0.8, tipped: false },
-    { x: SIDE_WALL_X - 0.8, z: BACK_WALL_Z + 0.8, tipped: true },
-  ];
-  return (
-    <>
-      {corners.map((c, i) => {
-        // Drought tipped: rotate pot lying on side + offset position
-        const isTipped = !restored && c.tipped;
-        const potRotation = isTipped ? [Math.PI / 2 - 0.3, 0, 0.4] : [0, 0, 0];
-        const potOffset = isTipped ? [0.3, 0, 0.4] : [0, 0, 0];
-        const potColor = restored ? '#a85838' : '#5a3018';
-        const potEmI = restored ? 0.08 : 0;
-        return (
-          <group
-            key={`plant-${i}`}
-            position={[c.x + potOffset[0], potOffset[1], c.z + potOffset[2]]}
-            rotation={potRotation}
-          >
-            {/* Pot — terracotta tapered */}
-            <mesh position={[0, 0.25, 0]}>
-              <cylinderGeometry args={[0.28, 0.22, 0.5, 12]} />
-              <meshStandardMaterial
-                color={potColor}
-                emissive="#5a2818"
-                emissiveIntensity={potEmI}
-                roughness={0.9}
-              />
-            </mesh>
-            {/* Pot rim — slightly darker */}
-            <mesh position={[0, 0.52, 0]}>
-              <cylinderGeometry args={[0.3, 0.28, 0.06, 12]} />
-              <meshStandardMaterial
-                color={restored ? '#7a3818' : '#3a1808'}
-                roughness={0.95}
-              />
-            </mesh>
-            {/* Soil — only kalau pot upright */}
-            {!isTipped && (
-              <mesh position={[0, 0.5, 0]}>
-                <cylinderGeometry args={[0.26, 0.26, 0.04, 12]} />
-                <meshStandardMaterial color="#3a2010" roughness={1} />
-              </mesh>
-            )}
-            {/* Leaf cluster — restored only (green vibrant) */}
-            {restored &&
-              [
-                { x: 0, y: 0.75, z: 0, s: 0.25 },
-                { x: 0.18, y: 0.7, z: 0.05, s: 0.18 },
-                { x: -0.16, y: 0.72, z: -0.06, s: 0.2 },
-                { x: 0.04, y: 0.95, z: 0.1, s: 0.22 },
-                { x: -0.1, y: 0.88, z: 0.12, s: 0.16 },
-                { x: 0.12, y: 0.85, z: -0.14, s: 0.18 },
-              ].map((leaf, j) => (
-                <mesh
-                  key={`leaf-${i}-${j}`}
-                  position={[leaf.x, leaf.y, leaf.z]}
-                >
-                  <sphereGeometry args={[leaf.s, 8, 6]} />
-                  <meshStandardMaterial
-                    color="#4a8038"
-                    emissive="#2a5020"
-                    emissiveIntensity={0.18}
-                    roughness={0.85}
-                  />
-                </mesh>
-              ))}
-            {/* Dead twig sticking out — drought upright pot only */}
-            {!restored && !isTipped && (
-              <mesh
-                position={[0.06, 0.7, 0]}
-                rotation={[0, 0, 0.2]}
-              >
-                <cylinderGeometry args={[0.02, 0.015, 0.4, 5]} />
-                <meshStandardMaterial color="#2a1810" roughness={1} />
-              </mesh>
-            )}
-          </group>
-        );
-      })}
-    </>
-  );
-};
-
 // FloorMist — subtle additive layer di low y, slow rotation, atmospheric
 // depth. Restored more visible drpd drought.
 const FloorMist = ({ restored }) => {
@@ -2540,12 +2502,10 @@ const Scene = ({
       <FloorMist restored={restored} />
       <Moon restored={restored} />
       <DistantCitySilhouette restored={restored} />
-      <GardenShrubs restored={restored} />
       <CobblePath restored={restored} />
-      <PathTrees restored={restored} />
       <OutdoorLamps restored={restored} />
       <PlazaStatue restored={restored} />
-      <OutdoorPlanters restored={restored} />
+      <PerformanceEquipment restored={restored} />
       <EntranceColumns restored={restored} />
       <WelcomeArch restored={restored} />
       <GalleryWalls restored={restored} />
@@ -2564,7 +2524,6 @@ const Scene = ({
       <StageLectern restored={restored} />
       <VolumetricBeams restored={restored} />
       {restored && <StageDustMotes count={isMobile ? 12 : 24} />}
-      <PottedPlants restored={restored} />
       <AudienceKursi restored={restored} />
       <ViewingBench restored={restored} z={2.8} showBooks={true} />
       <ViewingBench restored={restored} z={4.2} showBooks={false} />
