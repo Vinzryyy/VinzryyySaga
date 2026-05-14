@@ -48,6 +48,9 @@ import { subscribeToTreeSupports } from '../lib/treeDb';
 // 3000 = r4 (Menara Jam) unlock drought, 4000 = r1 restored + r3 unlocked
 // drought, 5000 = r2 (Perpustakaan) unlock drought + r4 restore, 6000 = r3
 // restored, 7000 = r2 restored (pulih penuh — milestone akhir).
+// airMancur* = micro-landmark di plaza tengah, continuous progression
+// dari 2000 sampai epilog 10k (satu-satunya landmark yg tetep tumbuh
+// post-fullRestore).
 const MAP_THRESHOLDS = {
   mapUnlock: 2000,
   r4Unlock: 3000,
@@ -58,6 +61,12 @@ const MAP_THRESHOLDS = {
   r3Restore: 6000,
   r2Restore: 7000,
   fullRestore: 7000,
+  airMancurT1: 2000,
+  airMancurT2: 3000,
+  airMancurT3: 4500,
+  airMancurT4: 6000,
+  airMancurT5: 7500,
+  airMancurT6: 10000,
 };
 
 const useArmeniacaProgress = () => {
@@ -10786,6 +10795,367 @@ const PetaMenara = ({
   );
 };
 
+// PetaAirMancur — micro-landmark plaza di antara pohon (center) dan
+// gerbang (selatan), offset barat dari lorong path. Beda dari petak
+// lain — bukan 3-state discrete tapi 7-tier continuous progression:
+//   0 (count < 2000)   — hidden (air mancur belum "ada" di kota)
+//   1 (2000-2999)      — reruntuhan: basin retak, lengan patung jatuh
+//   2 (3000-4499)      — genangan: basin nempel balik (seam), lengan
+//                        balik nempel (seam ring), air tipis di dasar
+//   3 (4500-5999)      — trickle: tetesan tipis dari tangan ke basin
+//   4 (6000-7499)      — setengah: fountain pendek + droplets, water
+//                        emissive pulse
+//   5 (7500-9999)      — full: multi-droplets, warm point light malam
+//   6 (>=10000)        — epilog: 4 bunga aprikot di rim basin
+// Continuous pacing kasih reward visual yang tetep jalan past r2 Restore
+// (7000) — petak lain udah "selesai" di milestone akhir, air mancur
+// terus tumbuh ke epilog 10k. Click → modal status (no nav).
+const AIR_MANCUR_POS = [-3, 0, 3.5];
+
+const PetaAirMancur = ({
+  hovered,
+  tier = 0,
+  isMobile = false,
+  modalOpen = false,
+  onPointerOver,
+  onPointerOut,
+  onClick,
+}) => {
+  const groupRef = useRef();
+  const waterMatRef = useRef();
+  const streamMatRef = useRef();
+  const dropletRefs = useRef([]);
+  const blossomRefs = useRef([]);
+
+  // Tier-derived visual flags. waterLevelY = absolute world-y untuk
+  // surface plane water (di-stack di atas basin floor 0.18 + offset).
+  // Basin selalu render kalau tier >= 1 (di-guard sama early return
+  // tier===0 di bawah), jadi gak ada flag terpisah.
+  const hasWater = tier >= 2;
+  const waterLevelY =
+    tier === 2 ? 0.21 :
+    tier === 3 ? 0.26 :
+    tier >= 4 ? 0.31 : 0;
+  const hasTrickle = tier === 3;
+  const hasFountain = tier >= 4;
+  const dropletCount = tier >= 5 ? 6 : tier === 4 ? 4 : 0;
+  const hasNightGlow = tier >= 5;
+  const hasBlossoms = tier >= 6;
+  const armsBroken = tier === 1;
+  const armsSeam = tier === 2;
+
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
+    const targetY = hovered ? 0.15 : 0;
+    const factor = Math.min(delta * 8, 1);
+    groupRef.current.position.y = lerp(
+      groupRef.current.position.y,
+      targetY,
+      factor
+    );
+    const t = state.clock.elapsedTime;
+    // Water surface — emissive pulse cuma saat fountain aktif (T4+)
+    if (waterMatRef.current && hasFountain) {
+      waterMatRef.current.emissiveIntensity = 0.12 + Math.sin(t * 0.6) * 0.05;
+    }
+    // Fountain stream — slight vertical scale wobble biar gak static
+    if (streamMatRef.current && hasFountain) {
+      streamMatRef.current.emissiveIntensity = 0.28 + Math.sin(t * 1.4) * 0.08;
+    }
+    // Droplets — fall cycle 0..1 looping, hide pas hit basin
+    if (dropletCount > 0) {
+      for (let i = 0; i < dropletRefs.current.length; i += 1) {
+        const m = dropletRefs.current[i];
+        if (!m) continue;
+        const phase = i * 0.27;
+        const cycle = ((t * 0.9 + phase) % 1.2) / 1.2;
+        m.position.y = 1.35 - cycle * 1.05;
+        const visScale = cycle < 0.92 ? 1 : 0;
+        m.scale.setScalar(visScale);
+      }
+    }
+    // Blossoms — slow rotation gentle biar kerasa hidup
+    if (hasBlossoms) {
+      for (let i = 0; i < blossomRefs.current.length; i += 1) {
+        const m = blossomRefs.current[i];
+        if (!m) continue;
+        m.rotation.y = t * 0.15 + i * 0.4;
+      }
+    }
+  });
+
+  if (tier === 0) return null;
+
+  // Statue palette — body warm stone, seam state slightly darker to
+  // signal "baru disambung". hasBasin guaranteed true at this point.
+  const stoneColor = '#5a4a38';
+  const stoneRimColor = '#6a5a44';
+  const statueColor = armsSeam ? '#5a4a38' : '#6a5a48';
+  const waterColor = hasFountain ? '#3a6485' : '#2a3540';
+  const waterEmissive = hasFountain ? '#4a8aa8' : '#000000';
+
+  return (
+    <group
+      ref={groupRef}
+      position={AIR_MANCUR_POS}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        onPointerOver?.();
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        onPointerOut?.();
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
+    >
+      {/* Mobile-friendly tap target — cover full statue+basin volume */}
+      <mesh position={[0, 0.8, 0]} visible={false}>
+        <cylinderGeometry
+          args={[isMobile ? 1.6 : 1.2, isMobile ? 1.6 : 1.2, 2, 8]}
+        />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Basin — octagonal stone (8 segments biar low-poly mood
+          konsisten sama landmark lain). Top rim slightly larger biar
+          ada lip yang catch light. */}
+      <mesh position={[0, 0.09, 0]}>
+        <cylinderGeometry args={[1.0, 1.05, 0.18, 8]} />
+        <meshStandardMaterial color={stoneColor} roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.19, 0]}>
+        <cylinderGeometry args={[1.02, 1.0, 0.04, 8]} />
+        <meshStandardMaterial color={stoneRimColor} roughness={1} />
+      </mesh>
+
+      {/* Debris di T1 — pecahan batu di sekitar basin, signal "baru
+          ditemuin, belum dibenerin" */}
+      {tier === 1 &&
+        [0, 1, 2].map((i) => {
+          const angle = (i / 3) * Math.PI * 2 + 0.4;
+          const r = 1.2;
+          return (
+            <mesh
+              key={`debris-${i}`}
+              position={[Math.cos(angle) * r, 0.06, Math.sin(angle) * r]}
+              rotation={[0.2, i * 1.1, 0.3]}
+            >
+              <boxGeometry args={[0.24, 0.14, 0.18]} />
+              <meshStandardMaterial color="#3a2a20" roughness={1} />
+            </mesh>
+          );
+        })}
+
+      {/* Water surface — disc di dalam basin, level naik per tier */}
+      {hasWater && (
+        <mesh position={[0, waterLevelY, 0]}>
+          <cylinderGeometry args={[0.85, 0.85, 0.02, 16]} />
+          <meshStandardMaterial
+            ref={waterMatRef}
+            color={waterColor}
+            emissive={waterEmissive}
+            emissiveIntensity={hasFountain ? 0.12 : 0}
+            roughness={0.4}
+            metalness={0.2}
+            transparent
+            opacity={0.92}
+          />
+        </mesh>
+      )}
+
+      {/* Central pedestal — short pillar yg nopang patung */}
+      <mesh position={[0, 0.48, 0]}>
+        <cylinderGeometry args={[0.2, 0.25, 0.5, 8]} />
+        <meshStandardMaterial color={stoneColor} roughness={1} />
+      </mesh>
+
+      {/* Statue body — sphere torso. Skipped detail (no head/legs) —
+          stylized abstract figure, fokusnya di lengan & gesture. */}
+      <mesh position={[0, 0.88, 0]}>
+        <sphereGeometry args={[0.18, 10, 8]} />
+        <meshStandardMaterial color={statueColor} roughness={1} />
+      </mesh>
+
+      {/* Arms — kalau broken (T1), lying di rim basin. Kalau ada (T2+),
+          raised dalam pose menampung air. Seam ring di joint kalau T2. */}
+      {armsBroken ? (
+        <>
+          <mesh
+            position={[0.55, 0.22, 0.15]}
+            rotation={[0, 0.4, Math.PI / 2 - 0.3]}
+          >
+            <cylinderGeometry args={[0.05, 0.07, 0.35, 6]} />
+            <meshStandardMaterial color={stoneColor} roughness={1} />
+          </mesh>
+          <mesh
+            position={[-0.5, 0.22, -0.2]}
+            rotation={[0, -0.3, -Math.PI / 2 + 0.4]}
+          >
+            <cylinderGeometry args={[0.05, 0.07, 0.35, 6]} />
+            <meshStandardMaterial color={stoneColor} roughness={1} />
+          </mesh>
+        </>
+      ) : (
+        <>
+          <mesh position={[-0.16, 1.04, 0]} rotation={[0, 0, 0.55]}>
+            <cylinderGeometry args={[0.045, 0.06, 0.36, 6]} />
+            <meshStandardMaterial color={statueColor} roughness={1} />
+          </mesh>
+          <mesh position={[0.16, 1.04, 0]} rotation={[0, 0, -0.55]}>
+            <cylinderGeometry args={[0.045, 0.06, 0.36, 6]} />
+            <meshStandardMaterial color={statueColor} roughness={1} />
+          </mesh>
+          {armsSeam && (
+            <>
+              <mesh position={[-0.07, 0.93, 0]} rotation={[0, 0, 0.55]}>
+                <torusGeometry args={[0.055, 0.011, 6, 12]} />
+                <meshStandardMaterial color="#2a1a10" roughness={1} />
+              </mesh>
+              <mesh position={[0.07, 0.93, 0]} rotation={[0, 0, -0.55]}>
+                <torusGeometry args={[0.055, 0.011, 6, 12]} />
+                <meshStandardMaterial color="#2a1a10" roughness={1} />
+              </mesh>
+            </>
+          )}
+        </>
+      )}
+
+      {/* Trickle T3 — single thin stream dari tangan ke water surface */}
+      {hasTrickle && (
+        <mesh position={[0, 0.6, 0]}>
+          <cylinderGeometry args={[0.012, 0.012, 0.55, 5]} />
+          <meshStandardMaterial
+            color="#7aa8c0"
+            transparent
+            opacity={0.7}
+            emissive="#5a8aa8"
+            emissiveIntensity={0.22}
+          />
+        </mesh>
+      )}
+
+      {/* Fountain stream T4+ — vertical column rising up dari tangan */}
+      {hasFountain && (
+        <mesh position={[0, 1.22, 0]}>
+          <cylinderGeometry args={[0.035, 0.022, 0.45, 8]} />
+          <meshStandardMaterial
+            ref={streamMatRef}
+            color="#a8c8e0"
+            transparent
+            opacity={0.62}
+            emissive="#7aa8c0"
+            emissiveIntensity={0.28}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+
+      {/* Droplets — small spheres yang animated fall cycle. Ref array
+          dipake useFrame buat update y position + visibility. */}
+      {dropletCount > 0 &&
+        Array.from({ length: dropletCount }).map((_, i) => {
+          const angle = (i / dropletCount) * Math.PI * 2;
+          const r = 0.45;
+          return (
+            <mesh
+              key={`drop-${i}`}
+              ref={(m) => {
+                dropletRefs.current[i] = m;
+              }}
+              position={[Math.cos(angle) * r, 1.35, Math.sin(angle) * r]}
+            >
+              <sphereGeometry args={[0.024, 6, 5]} />
+              <meshStandardMaterial
+                color="#a8c8e0"
+                emissive="#7aa8c0"
+                emissiveIntensity={0.4}
+                transparent
+                opacity={0.88}
+                toneMapped={false}
+              />
+            </mesh>
+          );
+        })}
+
+      {/* Night warm point light T5+ — pas malam patung di-light tipis
+          dari bawah, kasih kesan "air mancur hidup setelah gelap" */}
+      {hasNightGlow && (
+        <pointLight
+          position={[0, 0.55, 0]}
+          color="#f4d8a0"
+          intensity={0.45}
+          distance={3.2}
+          decay={2}
+        />
+      )}
+
+      {/* Apricot blossoms T6 — 4 kuncup di rim basin sebagai epilog
+          marker. Link visual ke Pohon Terakhir (aprikot motif). */}
+      {hasBlossoms &&
+        [0, 1, 2, 3].map((i) => {
+          const angle = (i / 4) * Math.PI * 2 + 0.25;
+          const r = 0.95;
+          return (
+            <mesh
+              key={`blossom-${i}`}
+              ref={(m) => {
+                blossomRefs.current[i] = m;
+              }}
+              position={[Math.cos(angle) * r, 0.26, Math.sin(angle) * r]}
+            >
+              <sphereGeometry args={[0.07, 8, 6]} />
+              <meshStandardMaterial
+                color="#f4c8d8"
+                emissive="#e09bb0"
+                emissiveIntensity={0.5}
+                roughness={0.6}
+                toneMapped={false}
+              />
+            </mesh>
+          );
+        })}
+
+      {!modalOpen && (
+        <Html position={[0, 1.55, 0]} center distanceFactor={10} occlude={false}>
+          <div
+            className={`text-center pointer-events-none select-none whitespace-nowrap transition-all duration-300 ease-out ${
+              hovered ? '-translate-y-1' : ''
+            }`}
+          >
+            <div
+              className={`text-[11px] font-medium tracking-wide transition-colors ${
+                hovered ? 'text-white' : 'text-white/80'
+              }`}
+            >
+              Air Mancur Plaza
+            </div>
+            <div
+              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+                hovered ? 'text-amber-200/85' : 'text-white/55'
+              }`}
+            >
+              {tier === 1
+                ? 'Reruntuhan'
+                : tier === 2
+                ? 'Genangan tipis'
+                : tier === 3
+                ? 'Tetesan'
+                : tier === 4
+                ? 'Setengah pulih'
+                : tier === 5
+                ? 'Air mengalir'
+                : 'Mekar lagi'}
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
 const TamanScene = ({
   hoveredPetakId,
   hoveredCenter,
@@ -10794,6 +11164,7 @@ const TamanScene = ({
   hoveredTelaga,
   hoveredArsip,
   hoveredMenara,
+  hoveredAirMancur,
   previewedPetak,
   flyInActive,
   isMobile = false,
@@ -10802,6 +11173,7 @@ const TamanScene = ({
   telagaState = 'locked',
   arsipState = 'drought',
   menaraState = 'locked',
+  airMancurTier = 0,
   armeniacaCount = 0,
   armeniacaLoaded = false,
   purified = false,
@@ -10828,6 +11200,9 @@ const TamanScene = ({
   onMenaraHover,
   onMenaraOut,
   onMenaraClick,
+  onAirMancurHover,
+  onAirMancurOut,
+  onAirMancurClick,
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -10841,7 +11216,8 @@ const TamanScene = ({
     hoveredLorong ||
     hoveredTelaga ||
     hoveredArsip ||
-    hoveredMenara;
+    hoveredMenara ||
+    hoveredAirMancur;
 
   // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
   // berputar. Resume manual control begitu user drag/zoom/touch atau
@@ -11078,6 +11454,15 @@ const TamanScene = ({
         onPointerOut={onMenaraOut}
         onClick={onMenaraClick}
       />
+      <PetaAirMancur
+        hovered={hoveredAirMancur}
+        tier={airMancurTier}
+        isMobile={isMobile}
+        modalOpen={modalOpen}
+        onPointerOver={onAirMancurHover}
+        onPointerOut={onAirMancurOut}
+        onClick={onAirMancurClick}
+      />
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
         OrbitControls dirender selalu, tapi enabled=false saat fly-in.
@@ -11246,9 +11631,11 @@ const PETA_PETAK_INFO = {
 
 // PetakPreviewModal — info panel yg muncul saat user click petak.
 // Show name + description + CTA "Lanjut" yang trigger navigate. Modal
-// dismiss via tap luar, button Batal, atau Escape.
+// dismiss via tap luar, button Batal, atau Escape. Kalau petak.statusOnly
+// true, CTA disembunyiin (status info aja, no nav — buat air mancur).
 const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
   if (!petak) return null;
+  const statusOnly = Boolean(petak.statusOnly);
   return (
     <div
       className="absolute inset-0 z-40 flex items-center justify-center px-4 pb-4"
@@ -11280,7 +11667,7 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
           {petak.name}
         </h3>
         <p
-          className="text-white/75 text-[12px] sm:text-sm leading-relaxed mb-6"
+          className="text-white/75 text-[12px] sm:text-sm leading-relaxed mb-6 whitespace-pre-line"
           style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
           {petak.longDesc}
@@ -11291,15 +11678,17 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
             onClick={onClose}
             className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/20 text-white/70 text-xs sm:text-sm hover:bg-white/10 transition"
           >
-            Batal
+            {statusOnly ? 'Tutup' : 'Batal'}
           </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-black text-xs sm:text-sm font-medium hover:bg-white/90 transition"
-          >
-            {petak.cta} →
-          </button>
+          {!statusOnly && (
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-black text-xs sm:text-sm font-medium hover:bg-white/90 transition"
+            >
+              {petak.cta} →
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -11736,6 +12125,7 @@ const TamanPetaPage = () => {
   const [hoveredTelaga, setHoveredTelaga] = useState(false);
   const [hoveredArsip, setHoveredArsip] = useState(false);
   const [hoveredMenara, setHoveredMenara] = useState(false);
+  const [hoveredAirMancur, setHoveredAirMancur] = useState(false);
   const [selectedPetak, setSelectedPetak] = useState(null);
   const [petakPreview, setPetakPreview] = useState(null);
   const [flyInActive, setFlyInActive] = useState(true);
@@ -11780,6 +12170,28 @@ const TamanPetaPage = () => {
     if (armeniacaCount >= MAP_THRESHOLDS.r4Unlock) return 'drought';
     return 'locked';
   }, [armeniacaCount, armeniacaLoaded, purified]);
+  // Air Mancur tier — 7 step continuous progression (0=hidden, 6=epilog
+  // dengan bunga aprikot). Beda dari petak lain — tetep tumbuh past 7k
+  // fullRestore sampai 10k. Dev override `?airmancur=N` (0-6) buat
+  // preview tier tanpa nunggu count naik. Purified TIDAK auto-bump tier
+  // — biar air mancur murni reflect actual count progression.
+  const airMancurTier = useMemo(() => {
+    if (import.meta.env.DEV) {
+      const override = searchParams.get('airmancur');
+      if (override !== null) {
+        const n = parseInt(override, 10);
+        if (!Number.isNaN(n)) return Math.max(0, Math.min(6, n));
+      }
+    }
+    if (!armeniacaLoaded) return 0;
+    if (armeniacaCount >= MAP_THRESHOLDS.airMancurT6) return 6;
+    if (armeniacaCount >= MAP_THRESHOLDS.airMancurT5) return 5;
+    if (armeniacaCount >= MAP_THRESHOLDS.airMancurT4) return 4;
+    if (armeniacaCount >= MAP_THRESHOLDS.airMancurT3) return 3;
+    if (armeniacaCount >= MAP_THRESHOLDS.airMancurT2) return 2;
+    if (armeniacaCount >= MAP_THRESHOLDS.airMancurT1) return 1;
+    return 0;
+  }, [armeniacaCount, armeniacaLoaded, searchParams]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
@@ -11806,7 +12218,8 @@ const TamanPetaPage = () => {
         hoveredLorong ||
         hoveredTelaga ||
         hoveredArsip ||
-        hoveredMenara);
+        hoveredMenara ||
+        hoveredAirMancur);
     document.body.style.cursor = showPointer ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
@@ -11819,6 +12232,7 @@ const TamanPetaPage = () => {
     hoveredTelaga,
     hoveredArsip,
     hoveredMenara,
+    hoveredAirMancur,
     flyInActive,
   ]);
 
@@ -11935,6 +12349,79 @@ const TamanPetaPage = () => {
     setPetakPreview(info);
   };
 
+  // Air Mancur handlers — micro-landmark di plaza tengah. Click buka
+  // modal status (no nav) yg show live count + tier percent. longDesc
+  // dikomposisi dinamis per tier biar nyambung sama visual state.
+  const handleAirMancurHover = () => {
+    if (flyInActive) return;
+    setHoveredAirMancur(true);
+  };
+  const handleAirMancurOut = () => setHoveredAirMancur(false);
+  const handleAirMancurClick = () => {
+    if (flyInActive) return;
+    const tier = airMancurTier;
+    const countLabel = armeniacaCount.toLocaleString('id-ID');
+    const ceiling = MAP_THRESHOLDS.airMancurT6;
+    const pct = Math.min(100, Math.round((armeniacaCount / ceiling) * 100));
+    const tierMeta = {
+      0: {
+        eyebrow: 'Belum muncul',
+        desc:
+          'Plaza tengah kota masih kosong — cuma tanah retak. Air mancur baru bakal muncul setelah 2.000 siraman terkumpul di Pohon. Sampai saat itu, plaza ini nungguin.',
+        accent: '#9aa0a8',
+      },
+      1: {
+        eyebrow: 'Reruntuhan',
+        desc:
+          'Basin air mancur ditemuin lagi — retak, lengan patung di pusatnya tergeletak di sekitar. Belum ada air. Tapi setidaknya, plaza-nya udah keinget bentuknya.',
+        accent: '#8a7868',
+      },
+      2: {
+        eyebrow: 'Genangan tipis',
+        desc:
+          'Lengan patung balik nempel — sambungannya masih keliatan. Di dasar basin, genangan tipis pertama. Refleksi langit pulang, walau cuma sebentar tiap angin lewat.',
+        accent: '#a89878',
+      },
+      3: {
+        eyebrow: 'Tetesan',
+        desc:
+          'Tetesan tipis turun dari tangan patung ke basin. Belum mancur — tapi udah gak diem. Air mulai inget jalan pulangnya.',
+        accent: '#a8b8c8',
+      },
+      4: {
+        eyebrow: 'Setengah pulih',
+        desc:
+          'Air mancur jalan setengah tinggi. Droplets jatuh teratur, riak ripple di permukaan. Plaza ini mulai kerasa kayak tempat orang berhenti sejenak — bukan cuma lewat.',
+        accent: '#8ab0c8',
+      },
+      5: {
+        eyebrow: 'Air mengalir',
+        desc:
+          'Air mancur penuh, droplets banyak. Pas malem, ada glow hangat tipis dari bawah patung — kayak ada yang ngingetin: tempat ini hidup, walau sepi.',
+        accent: '#c8e0f0',
+      },
+      6: {
+        eyebrow: 'Mekar lagi',
+        desc:
+          'Air mancur full, dan di rim basin — empat kuncup aprikot kecil tumbuh. Akarnya dari air yang lo bantu balikin. Plaza ini gak cuma pulih; dia jadi tempat hidup baru tumbuh.',
+        accent: '#f4c8d8',
+      },
+    };
+    const meta = tierMeta[tier];
+    const longDesc =
+      tier === 0
+        ? meta.desc
+        : `${meta.desc}\n\n${countLabel} kebaikan terkumpul · air mancur ${pct}% menuju mekar penuh.`;
+    setPetakPreview({
+      id: 'airmancur',
+      name: 'Air Mancur Plaza',
+      eyebrow: meta.eyebrow,
+      longDesc,
+      accent: meta.accent,
+      statusOnly: true,
+    });
+  };
+
   // Modal preview handlers — close (dismiss tanpa navigate) atau
   // confirm (close modal lalu navigate ke petak route).
   const handlePetakPreviewClose = () => setPetakPreview(null);
@@ -11987,6 +12474,7 @@ const TamanPetaPage = () => {
               hoveredTelaga={hoveredTelaga}
               hoveredArsip={hoveredArsip}
               hoveredMenara={hoveredMenara}
+              hoveredAirMancur={hoveredAirMancur}
               previewedPetak={previewedPetak}
               flyInActive={flyInActive}
               isMobile={isMobile}
@@ -11995,6 +12483,7 @@ const TamanPetaPage = () => {
               telagaState={telagaState}
               arsipState={arsipState}
               menaraState={menaraState}
+              airMancurTier={airMancurTier}
               armeniacaCount={armeniacaCount}
               armeniacaLoaded={armeniacaLoaded}
               purified={purified}
@@ -12021,6 +12510,9 @@ const TamanPetaPage = () => {
               onMenaraHover={handleMenaraHover}
               onMenaraOut={handleMenaraOut}
               onMenaraClick={handleMenaraClick}
+              onAirMancurHover={handleAirMancurHover}
+              onAirMancurOut={handleAirMancurOut}
+              onAirMancurClick={handleAirMancurClick}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
