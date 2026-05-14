@@ -6196,6 +6196,123 @@ const PetaBloom = ({ pos }) => (
     })}
   </group>
 );
+// WateringDroplets (Bundle 2 B) — subtle water drop particles falling
+// toward CenterTree pedestal, narrative "siram pohon" visual payoff.
+// Particle count scales dgn purifyProgress (more droplets = more
+// kebaikan numpuk). Positions di area sekitar CenterTree (0,0) clear
+// dari Lorong corridor.
+const WateringDroplets = ({ purifyProgress, loaded }) => {
+  const groupRef = useRef();
+  const dropletRefs = useRef([]);
+  const DROP_COUNT = 8;
+  useFrame((state) => {
+    if (!groupRef.current || !loaded) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < dropletRefs.current.length; i += 1) {
+      const m = dropletRefs.current[i];
+      if (!m) continue;
+      const phase = i * 0.7;
+      // Vertical fall cycle 0..1 looping per droplet
+      const cycle = ((t * 0.4 + phase) % 1.2) / 1.2;
+      // Start high (y=3) → fall to base (y=0.2)
+      m.position.y = 3 - cycle * 2.8;
+      // Hide saat cycle nearing end (touches base)
+      const visible = cycle < 0.95 && purifyProgress > 0.05;
+      m.scale.setScalar(visible ? 1 : 0);
+    }
+  });
+  if (!loaded || purifyProgress < 0.05) return null;
+  return (
+    <group ref={groupRef}>
+      {Array.from({ length: DROP_COUNT }).map((_, i) => {
+        const angle = (i / DROP_COUNT) * Math.PI * 2 + (i * 13) % 7 * 0.18;
+        const radius = 0.4 + ((i * 11) % 4) * 0.15;
+        return (
+          <mesh
+            key={`droplet-${i}`}
+            ref={(m) => {
+              dropletRefs.current[i] = m;
+            }}
+            position={[Math.cos(angle) * radius, 3, Math.sin(angle) * radius]}
+          >
+            <sphereGeometry args={[0.045, 6, 5]} />
+            <meshStandardMaterial
+              color="#a8d4f0"
+              emissive="#5a8ab0"
+              emissiveIntensity={0.4 + purifyProgress * 0.3}
+              transparent
+              opacity={0.7}
+              toneMapped={false}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
+// WindDriftParticles (Bundle 2 F) — subtle floating particles drifting
+// across scene horizontally, representing wind. Visible saat
+// purifyProgress > 0.3 (kota mulai breathing). Particles drift +X
+// direction, recycle posisi saat keluar bounds.
+const WindDriftParticles = ({ purifyProgress, loaded, isMobile = false }) => {
+  const groupRef = useRef();
+  const partRefs = useRef([]);
+  const PART_COUNT = isMobile ? 12 : 24;
+  // Pre-compute per-particle initial positions + speeds via seed
+  const partSeeds = useMemo(
+    () =>
+      Array.from({ length: PART_COUNT }, (_, i) => ({
+        startX: -14 - (i * 0.9) % 8,
+        y: 1 + ((i * 17) % 100) / 20,
+        z: -8 + ((i * 13) % 16) - 1,
+        speed: 0.6 + ((i * 11) % 5) * 0.12,
+        size: 0.04 + ((i * 7) % 4) * 0.012,
+        phase: ((i * 23) % 100) / 16,
+      })),
+    [PART_COUNT],
+  );
+  useFrame((state) => {
+    if (!groupRef.current || !loaded) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < partRefs.current.length; i += 1) {
+      const m = partRefs.current[i];
+      const seed = partSeeds[i];
+      if (!m || !seed) continue;
+      // X drift right, wrap when reach +14
+      const totalDist = 28;
+      const offset = ((t * seed.speed + seed.phase) % totalDist);
+      m.position.x = seed.startX + offset;
+      // Y bob slightly
+      m.position.y = seed.y + Math.sin(t * 0.5 + seed.phase) * 0.15;
+      m.position.z = seed.z;
+    }
+  });
+  if (!loaded || purifyProgress < 0.3) return null;
+  return (
+    <group ref={groupRef}>
+      {partSeeds.map((s, i) => (
+        <mesh
+          key={`wind-part-${i}`}
+          ref={(m) => {
+            partRefs.current[i] = m;
+          }}
+          position={[s.startX, s.y, s.z]}
+        >
+          <sphereGeometry args={[s.size, 5, 4]} />
+          <meshBasicMaterial
+            color="#f4e8c8"
+            transparent
+            opacity={0.35 * purifyProgress}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
 // === REFORESTATION POLISH (A, B, C, D) ===
 // Theme reinforcement: peta sentral fokus mereboisasi area drought.
 // Per-count: pohon tumbuh continuous, mati pulih leaves regrow,
@@ -13095,6 +13212,13 @@ const TamanScene = ({
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
       <DeadTreeRevival count={armeniacaCount} />
       <ForestSilhouettes count={armeniacaCount} />
+      {/* === Bundle 2 — watering payoff + wind drift === */}
+      <WateringDroplets purifyProgress={purifyProgress} loaded={armeniacaLoaded} />
+      <WindDriftParticles
+        purifyProgress={purifyProgress}
+        loaded={armeniacaLoaded}
+        isMobile={isMobile}
+      />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
