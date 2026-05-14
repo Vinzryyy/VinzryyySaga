@@ -12075,28 +12075,36 @@ const PetaAirMancur = ({
 // threshold), snap langsung scale 1 + y 0 — gak ada zoom-out competing
 // sama FlyInCamera. Capture initial unlock state via useRef sekali,
 // stays untuk lifetime component.
-const TierReveal = ({ unlocked, duration = 1.6, emergeY = 0.3, children }) => {
+// StaggeredItem — single-child wrapper handling scale grow + Y emerge
+// dengan optional delay. Dipake di-internal sama TierReveal untuk
+// stagger per child.
+const StaggeredItem = ({
+  delay = 0,
+  duration = 1.6,
+  emergeY = 0.3,
+  skipAnimation = false,
+  children,
+}) => {
   const groupRef = useRef();
   const startRef = useRef(null);
-  // Capture sekali via useState initializer — true kalau tier unlocked
-  // dari first mount (user reload past threshold). Stays consistent
-  // sepanjang component lifecycle. useRef gak dipake karena lint
-  // forbids ref access during render — useState fine.
-  const [initialUnlocked] = useState(unlocked);
   useFrame((state) => {
-    if (!groupRef.current || !unlocked) return;
-    if (initialUnlocked) {
-      // Sudah revealed dari mount — snap, gak animate.
+    if (!groupRef.current) return;
+    if (skipAnimation) {
       groupRef.current.scale.setScalar(1);
       groupRef.current.position.y = 0;
       return;
     }
-    // Locked di mount, sekarang unlocked = runtime crossing → animate
     if (startRef.current === null) {
       startRef.current = state.clock.elapsedTime;
     }
     const elapsed = state.clock.elapsedTime - startRef.current;
-    const t = Math.min(1, elapsed / duration);
+    if (elapsed < delay) {
+      // Pre-delay: stay hidden di scale 0.001 + below ground
+      groupRef.current.scale.setScalar(0.001);
+      groupRef.current.position.y = -emergeY;
+      return;
+    }
+    const t = Math.min(1, (elapsed - delay) / duration);
     const s = 1.4;
     const eased = 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
     groupRef.current.scale.setScalar(Math.max(0.001, eased));
@@ -12106,11 +12114,44 @@ const TierReveal = ({ unlocked, duration = 1.6, emergeY = 0.3, children }) => {
   return (
     <group
       ref={groupRef}
-      scale={initialUnlocked ? [1, 1, 1] : [0.001, 0.001, 0.001]}
-      position={[0, initialUnlocked ? 0 : -emergeY, 0]}
+      scale={skipAnimation ? [1, 1, 1] : [0.001, 0.001, 0.001]}
+      position={[0, skipAnimation ? 0 : -emergeY, 0]}
     >
-      {unlocked && children}
+      {children}
     </group>
+  );
+};
+
+// TierReveal — wrapper untuk milestone reveals. Animate scale 0→1 + Y
+// emerge from below ground saat unlocked. Children dapet stagger delay
+// (0.1s default antara tiap child) — group reveal kerasa organik
+// satu-per-satu, bukan semua bareng.
+//
+// Skip animation kalau initially unlocked (page reload past threshold)
+// — capture via useState [initialUnlocked].
+const TierReveal = ({
+  unlocked,
+  duration = 1.6,
+  emergeY = 0.3,
+  stagger = 0.1,
+  children,
+}) => {
+  const [initialUnlocked] = useState(unlocked);
+  if (!unlocked) return null;
+  return (
+    <>
+      {React.Children.map(children, (child, i) => (
+        <StaggeredItem
+          key={`stagger-${i}`}
+          delay={initialUnlocked ? 0 : i * stagger}
+          duration={duration}
+          emergeY={emergeY}
+          skipAnimation={initialUnlocked}
+        >
+          {child}
+        </StaggeredItem>
+      ))}
+    </>
   );
 };
 
