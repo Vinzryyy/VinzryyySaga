@@ -13788,19 +13788,24 @@ const TamanPetaPage = () => {
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
-                {/* Bloom — threshold tinggi 0.78 supaya cuma highlight
-                    emissive (tree fruits, moon, stars, lanterns, fireflies,
-                    path stones visited, light cone) yang glow. Mipmap blur
-                    biar soft & sinematik. */}
+                {/* Bloom — intensity ramp drought→purified (0.45 → 0.7).
+                    Drought scene gelap, bloom dim (highlight pas-pasan).
+                    Purified scene cerah, bloom brighter (kota hidup,
+                    cahaya kerasa). */}
                 <Bloom
-                  intensity={0.55}
+                  intensity={0.45 + purifyProgress * 0.25}
                   luminanceThreshold={0.78}
                   luminanceSmoothing={0.4}
                   mipmapBlur
                 />
-                {/* Vignette darken edges — frame fokus ke pohon di tengah,
-                    juga ngebantu hide harsh ground edge di tepi screen. */}
-                <Vignette eskil={false} offset={0.28} darkness={0.78} />
+                {/* Vignette darkness ramp — drought oppressive heavy
+                    edge (0.85), purified open lighter (0.62). Visualizes
+                    "kota lebih terbuka" feeling progressive. */}
+                <Vignette
+                  eskil={false}
+                  offset={0.28}
+                  darkness={0.85 - purifyProgress * 0.23}
+                />
                 {/* ACES filmic tonemapping — pal warm-cool twilight jadi
                     lebih dramatik & film-grade, bukan flat sRGB. */}
                 <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
