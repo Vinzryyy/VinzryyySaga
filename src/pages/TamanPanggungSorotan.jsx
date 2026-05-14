@@ -648,6 +648,310 @@ const GallerySconces = ({ restored }) => {
   );
 };
 
+// Moon — single big bright sphere di sky, focal anchor + glow halo.
+// Restored: brighter warm. Drought: muted pale.
+const Moon = ({ restored }) => {
+  const moonY = 22;
+  const moonZ = -30;
+  const moonX = -10;
+  return (
+    <group position={[moonX, moonY, moonZ]}>
+      {/* Glow halo — large faint disc */}
+      <mesh rotation={[0, Math.atan2(-moonX, -moonZ), 0]}>
+        <circleGeometry args={[4, 32]} />
+        <meshBasicMaterial
+          color={restored ? '#f4e8c8' : '#a89878'}
+          transparent
+          opacity={0.06}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Inner glow */}
+      <mesh rotation={[0, Math.atan2(-moonX, -moonZ), 0]}>
+        <circleGeometry args={[2.2, 24]} />
+        <meshBasicMaterial
+          color={restored ? '#f4e8c8' : '#a89878'}
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Moon sphere */}
+      <mesh>
+        <sphereGeometry args={[1.2, 24, 16]} />
+        <meshBasicMaterial
+          color={restored ? '#f4e8c8' : '#a89878'}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// PathTrees — 4 trees flanking cobble path, simple tree shape (trunk
+// + foliage sphere cluster). Restored: green vibrant. Drought: bare
+// branches, no leaves.
+const PathTrees = ({ restored }) => {
+  const trees = [
+    { x: -2.2, z: 6.5 },
+    { x: 2.2, z: 6.5 },
+    { x: -2.2, z: 8.5 },
+    { x: 2.2, z: 8.5 },
+  ];
+  return (
+    <>
+      {trees.map((t, i) => {
+        const tilt = !restored && i % 2 === 0 ? 0.15 : 0;
+        return (
+          <group
+            key={`tree-${i}`}
+            position={[t.x, 0, t.z]}
+            rotation={[0, 0, tilt]}
+          >
+            {/* Trunk — cylinder */}
+            <mesh position={[0, 1.2, 0]}>
+              <cylinderGeometry args={[0.12, 0.18, 2.4, 8]} />
+              <meshStandardMaterial
+                color={restored ? '#5a3a20' : '#3a2418'}
+                roughness={0.95}
+              />
+            </mesh>
+            {/* Foliage cluster — restored only (3 sphere stacked) */}
+            {restored &&
+              [
+                { y: 2.6, s: 0.65 },
+                { y: 3.0, s: 0.55, x: 0.2 },
+                { y: 3.0, s: 0.55, x: -0.2 },
+                { y: 3.3, s: 0.5, z: 0.15 },
+              ].map((f, j) => (
+                <mesh
+                  key={`foliage-${i}-${j}`}
+                  position={[f.x || 0, f.y, f.z || 0]}
+                >
+                  <sphereGeometry args={[f.s, 8, 6]} />
+                  <meshStandardMaterial
+                    color="#4a8038"
+                    emissive="#2a5020"
+                    emissiveIntensity={0.15}
+                    roughness={0.85}
+                  />
+                </mesh>
+              ))}
+            {/* Bare branches — drought only, 3 thin cylinders */}
+            {!restored && (
+              <>
+                <mesh
+                  position={[0.2, 2.7, 0]}
+                  rotation={[0, 0, 0.7]}
+                >
+                  <cylinderGeometry args={[0.04, 0.06, 0.8, 5]} />
+                  <meshStandardMaterial color="#2a1810" roughness={1} />
+                </mesh>
+                <mesh
+                  position={[-0.18, 2.6, 0.1]}
+                  rotation={[0.2, 0, -0.6]}
+                >
+                  <cylinderGeometry args={[0.04, 0.06, 0.7, 5]} />
+                  <meshStandardMaterial color="#2a1810" roughness={1} />
+                </mesh>
+                <mesh
+                  position={[0.05, 2.9, -0.2]}
+                  rotation={[-0.3, 0, 0.3]}
+                >
+                  <cylinderGeometry args={[0.03, 0.05, 0.65, 5]} />
+                  <meshStandardMaterial color="#2a1810" roughness={1} />
+                </mesh>
+              </>
+            )}
+          </group>
+        );
+      })}
+    </>
+  );
+};
+
+// GardenShrubs — small bush clusters scattered di plaza apron area,
+// fill empty space. Restored: green. Drought: brown wilted.
+const GardenShrubs = ({ restored }) => {
+  const shrubs = [
+    { x: -6, z: 5, s: 0.45 },
+    { x: 6, z: 5, s: 0.45 },
+    { x: -8, z: 3, s: 0.55 },
+    { x: 8, z: 3, s: 0.55 },
+    { x: -9.5, z: -2, s: 0.5 },
+    { x: 9.5, z: -2, s: 0.5 },
+    { x: -7, z: -7, s: 0.6 },
+    { x: 7, z: -7, s: 0.6 },
+  ];
+  const color = restored ? '#5a8040' : '#5a3818';
+  const emissive = restored ? '#2a5020' : '#1a0a04';
+  return (
+    <>
+      {shrubs.map((s, i) => (
+        <group key={`shrub-${i}`} position={[s.x, 0, s.z]}>
+          {/* Main cluster */}
+          <mesh position={[0, s.s, 0]}>
+            <sphereGeometry args={[s.s, 8, 6]} />
+            <meshStandardMaterial
+              color={color}
+              emissive={emissive}
+              emissiveIntensity={restored ? 0.12 : 0.05}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Smaller side bump */}
+          <mesh position={[s.s * 0.7, s.s * 0.8, s.s * 0.3]}>
+            <sphereGeometry args={[s.s * 0.6, 8, 6]} />
+            <meshStandardMaterial
+              color={color}
+              emissive={emissive}
+              emissiveIntensity={restored ? 0.1 : 0.04}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Smaller back bump */}
+          <mesh position={[-s.s * 0.5, s.s * 0.9, -s.s * 0.4]}>
+            <sphereGeometry args={[s.s * 0.55, 8, 6]} />
+            <meshStandardMaterial
+              color={color}
+              emissive={emissive}
+              emissiveIntensity={restored ? 0.1 : 0.04}
+              roughness={0.85}
+            />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// PlazaStatue — small monument di plaza, behind entrance area di z
+// jauh. Sederhana: pedestal + abstract figure (sphere + cone).
+const PlazaStatue = ({ restored }) => {
+  const stoneColor = restored ? '#b8a888' : '#5a4838';
+  return (
+    <group position={[-9, 0, 6]}>
+      {/* Pedestal — 3 tier */}
+      <mesh position={[0, 0.2, 0]}>
+        <boxGeometry args={[1.2, 0.4, 1.2]} />
+        <meshStandardMaterial
+          color={restored ? '#7a5840' : '#3a2818'}
+          roughness={0.95}
+        />
+      </mesh>
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[1, 0.25, 1]} />
+        <meshStandardMaterial
+          color={restored ? '#8a6850' : '#4a3828'}
+          roughness={0.9}
+        />
+      </mesh>
+      <mesh position={[0, 0.72, 0]}>
+        <boxGeometry args={[0.8, 0.15, 0.8]} />
+        <meshStandardMaterial
+          color={restored ? '#9a7860' : '#5a4838'}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Figure — abstract: body sphere + raised arm cone */}
+      <mesh position={[0, 1.15, 0]}>
+        <sphereGeometry args={[0.3, 12, 10]} />
+        <meshStandardMaterial color={stoneColor} roughness={0.9} />
+      </mesh>
+      {/* Raised hand/figure top */}
+      <mesh position={[0, 1.6, 0]}>
+        <coneGeometry args={[0.16, 0.5, 8]} />
+        <meshStandardMaterial color={stoneColor} roughness={0.9} />
+      </mesh>
+      {/* Tiny finial top — symbolic */}
+      <mesh position={[0, 1.95, 0]}>
+        <sphereGeometry args={[0.07, 8, 6]} />
+        <meshStandardMaterial
+          color={restored ? '#d4a848' : '#3a2418'}
+          emissive={restored ? '#a87830' : '#000000'}
+          emissiveIntensity={restored ? 0.3 : 0}
+          roughness={0.5}
+          metalness={restored ? 0.5 : 0.1}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// WelcomeArch — decorative arch atas gallery opening, kasih grand
+// entrance feel. Spans across entrance front, dgn keystone gold.
+const WelcomeArch = ({ restored }) => {
+  const archColor = restored ? '#d4c0a0' : '#5a4838';
+  const accentColor = restored ? '#d4a848' : '#3a2418';
+  return (
+    <group position={[0, 5.4, 4]}>
+      {/* Main horizontal beam */}
+      <mesh>
+        <boxGeometry args={[SIDE_WALL_X * 2 + 0.4, 0.5, 0.4]} />
+        <meshStandardMaterial
+          color={archColor}
+          emissive={restored ? '#7a5828' : '#000000'}
+          emissiveIntensity={restored ? 0.1 : 0}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Top molding */}
+      <mesh position={[0, 0.3, 0]}>
+        <boxGeometry args={[SIDE_WALL_X * 2 + 0.6, 0.12, 0.5]} />
+        <meshStandardMaterial color={accentColor} roughness={0.6} metalness={restored ? 0.4 : 0.1} />
+      </mesh>
+      {/* Keystone — center decorative bump */}
+      <mesh position={[0, -0.05, 0.25]}>
+        <boxGeometry args={[0.5, 0.55, 0.2]} />
+        <meshStandardMaterial
+          color={accentColor}
+          emissive={restored ? '#7a5818' : '#000000'}
+          emissiveIntensity={restored ? 0.28 : 0}
+          roughness={0.5}
+          metalness={restored ? 0.5 : 0.1}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Banner text below arch beam — center "Selamat Datang" */}
+      {restored && (
+        <Html
+          position={[0, -0.7, 0.22]}
+          center
+          distanceFactor={5}
+          occlude={false}
+          transform
+        >
+          <div
+            className="pointer-events-none select-none text-center"
+            style={{ width: 280 }}
+          >
+            <div
+              className="text-[9px] uppercase tracking-[0.4em] mb-0.5"
+              style={{ color: '#d4a848' }}
+            >
+              ✦ Selamat Datang ✦
+            </div>
+            <div
+              className="text-[14px] leading-tight"
+              style={{
+                color: '#f4d8a0',
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+              }}
+            >
+              Pameran Sorotan Kebaikan
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
 // CobblePath — stone slabs dari outer plaza ke gallery entrance,
 // kasih clear approach feel. Spread from z=+8 (jauh dari gallery)
 // sampai z=+5 (di front gallery opening).
@@ -2234,11 +2538,16 @@ const Scene = ({
       <SceneLights restored={restored} />
       <ExhibitionFloor restored={restored} />
       <FloorMist restored={restored} />
+      <Moon restored={restored} />
       <DistantCitySilhouette restored={restored} />
+      <GardenShrubs restored={restored} />
       <CobblePath restored={restored} />
+      <PathTrees restored={restored} />
       <OutdoorLamps restored={restored} />
+      <PlazaStatue restored={restored} />
       <OutdoorPlanters restored={restored} />
       <EntranceColumns restored={restored} />
+      <WelcomeArch restored={restored} />
       <GalleryWalls restored={restored} />
       <WallCracks restored={restored} />
       <GallerySconces restored={restored} />
