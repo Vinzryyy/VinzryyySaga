@@ -6990,72 +6990,199 @@ const TownSignpost = ({ count }) => {
   );
 };
 
-// NpcVillager — simple static low-poly humanoid silhouette. Stylized
-// body sphere + head sphere + optional 2 stick arms. Robe color
-// varied per seed. Used scattered di town areas as "ada yg tinggal".
-// No animation — gak gerak (static) supaya scope kecil + perf ringan.
-const NpcVillager = ({ pos, rot = 0, robeColor = '#7a3838', seed = 0 }) => {
-  const headBob = useRef();
-  // Subtle gentle bob via useFrame (very small, kerasa "alive")
+// NpcVillager — chibi-style low-poly Japanese villager. Better
+// proportions (head:body 1:2.5 cute ratio), kimono V-collar detail,
+// bell sleeves, hair styling (back + bangs + side bands), eyes,
+// small geta sandals di base.
+// Type param menentukan variation:
+//   'adult'  — default villager dgn kimono + sash
+//   'farmer' — adult + caping (conical straw hat)
+//   'monk'   — adult + shaved head (no hair) + prayer beads sash
+//   'child'  — smaller scale + bigger head proportion
+//   'elder'  — slight bent posture + walking stick
+const NpcVillager = ({
+  pos,
+  rot = 0,
+  robeColor = '#7a3838',
+  accentColor = '#e8d4a8',
+  type = 'adult',
+  seed = 0,
+}) => {
+  const bobRef = useRef();
   useFrame((state) => {
-    if (!headBob.current) return;
+    if (!bobRef.current) return;
     const t = state.clock.elapsedTime;
     const phase = (seed * 13) % 100;
-    headBob.current.position.y = 0.7 + Math.sin(t * 1.2 + phase) * 0.008;
+    // Bob amplitude varies by type (child = bigger bounce)
+    const amp = type === 'child' ? 0.015 : 0.008;
+    bobRef.current.position.y = (type === 'child' ? 0.55 : 0.7) + Math.sin(t * 1.2 + phase) * amp;
   });
   const headTone = '#e8c8a0';
+  const hairColor = '#1a0e08';
+  const isChild = type === 'child';
+  const isMonk = type === 'monk';
+  const isFarmer = type === 'farmer';
+  const isElder = type === 'elder';
+  // Scale modifier
+  const scale = isChild ? 0.7 : isElder ? 0.92 : 1;
+  // Posture lean for elder
+  const leanZ = isElder ? 0.08 : 0;
   return (
-    <group position={pos} rotation={[0, rot, 0]}>
-      {/* Body — tapered robe shape (cone from bottom up) */}
-      <mesh position={[0, 0.3, 0]}>
-        <cylinderGeometry args={[0.08, 0.16, 0.6, 8]} />
-        <meshStandardMaterial color={robeColor} roughness={0.85} />
-      </mesh>
-      {/* Sash belt — thin contrasting band */}
-      <mesh position={[0, 0.42, 0]}>
-        <cylinderGeometry args={[0.11, 0.11, 0.04, 8]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      {/* Head — sphere atop body */}
-      <mesh ref={headBob} position={[0, 0.7, 0]}>
-        <sphereGeometry args={[0.09, 10, 8]} />
-        <meshStandardMaterial color={headTone} roughness={0.85} />
-      </mesh>
-      {/* Hair — small dark cap */}
-      <mesh position={[0, 0.75, 0]}>
-        <sphereGeometry args={[0.095, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#1a0e08" roughness={0.95} />
-      </mesh>
-      {/* 2 small arm stubs di sides */}
-      <mesh position={[-0.13, 0.5, 0]} rotation={[0, 0, 0.4]}>
-        <cylinderGeometry args={[0.025, 0.025, 0.18, 5]} />
-        <meshStandardMaterial color={robeColor} roughness={0.85} />
-      </mesh>
-      <mesh position={[0.13, 0.5, 0]} rotation={[0, 0, -0.4]}>
-        <cylinderGeometry args={[0.025, 0.025, 0.18, 5]} />
-        <meshStandardMaterial color={robeColor} roughness={0.85} />
-      </mesh>
+    <group position={pos} rotation={[0, rot, 0]} scale={scale}>
+      {/* Geta sandals — 2 small dark boxes di base */}
+      {[-0.06, 0.06].map((x, i) => (
+        <mesh key={`geta-${i}`} position={[x, 0.025, 0.05]}>
+          <boxGeometry args={[0.07, 0.04, 0.12]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Body group — bent slight for elder */}
+      <group rotation={[0, 0, leanZ]}>
+        {/* Body — tapered kimono shape (fuller skirt) */}
+        <mesh position={[0, 0.28, 0]}>
+          <cylinderGeometry args={[0.09, 0.18, 0.5, 8]} />
+          <meshStandardMaterial color={robeColor} roughness={0.85} />
+        </mesh>
+        {/* V-collar overlay — accent color triangle hint di chest */}
+        <mesh position={[0, 0.48, 0.11]} rotation={[0.1, 0, 0]}>
+          <planeGeometry args={[0.14, 0.1]} />
+          <meshStandardMaterial
+            color={accentColor}
+            emissive={accentColor}
+            emissiveIntensity={0.08}
+            roughness={0.85}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        {/* Sash belt — thicker contrasting band */}
+        <mesh position={[0, 0.4, 0]}>
+          <cylinderGeometry args={[0.13, 0.13, 0.06, 8]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Sash tie knot di belakang */}
+        <mesh position={[0, 0.41, -0.12]}>
+          <boxGeometry args={[0.08, 0.08, 0.05]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Bell sleeves — flare di sides (wider at bottom) */}
+        <mesh
+          position={[-0.16, 0.36, 0]}
+          rotation={[0, 0, 0.5]}
+        >
+          <cylinderGeometry args={[0.04, 0.08, 0.18, 6]} />
+          <meshStandardMaterial color={robeColor} roughness={0.85} />
+        </mesh>
+        <mesh
+          position={[0.16, 0.36, 0]}
+          rotation={[0, 0, -0.5]}
+        >
+          <cylinderGeometry args={[0.04, 0.08, 0.18, 6]} />
+          <meshStandardMaterial color={robeColor} roughness={0.85} />
+        </mesh>
+        {/* Monk prayer beads — di sash if monk type */}
+        {isMonk && (
+          <mesh position={[0.1, 0.4, 0.12]}>
+            <torusGeometry args={[0.05, 0.012, 5, 12]} />
+            <meshStandardMaterial color="#7a5028" roughness={0.7} />
+          </mesh>
+        )}
+      </group>
+      {/* Head — bigger ratio for chibi (0.13 vs body 0.5) */}
+      <group ref={bobRef} position={[0, isChild ? 0.55 : 0.7, 0]}>
+        <mesh>
+          <sphereGeometry args={[isChild ? 0.13 : 0.12, 12, 10]} />
+          <meshStandardMaterial color={headTone} roughness={0.85} />
+        </mesh>
+        {/* Eyes — 2 tiny dark dots di front */}
+        <mesh position={[0.04, 0.01, 0.105]}>
+          <sphereGeometry args={[0.012, 6, 5]} />
+          <meshStandardMaterial color="#1a0e08" roughness={0.7} />
+        </mesh>
+        <mesh position={[-0.04, 0.01, 0.105]}>
+          <sphereGeometry args={[0.012, 6, 5]} />
+          <meshStandardMaterial color="#1a0e08" roughness={0.7} />
+        </mesh>
+        {/* Hair — back hair (not for monk) */}
+        {!isMonk && (
+          <>
+            {/* Back/top hair — flatter dome */}
+            <mesh position={[0, 0.05, -0.02]}>
+              <sphereGeometry
+                args={[0.125, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2]}
+              />
+              <meshStandardMaterial color={hairColor} roughness={0.95} />
+            </mesh>
+            {/* Bangs — small front fringe */}
+            <mesh position={[0, 0.04, 0.08]}>
+              <boxGeometry args={[0.18, 0.06, 0.05]} />
+              <meshStandardMaterial color={hairColor} roughness={0.95} />
+            </mesh>
+            {/* Side hair bands (longer untuk adult/elder, gak untuk child) */}
+            {!isChild && (
+              <>
+                <mesh position={[-0.115, -0.04, 0.02]}>
+                  <boxGeometry args={[0.04, 0.12, 0.08]} />
+                  <meshStandardMaterial color={hairColor} roughness={0.95} />
+                </mesh>
+                <mesh position={[0.115, -0.04, 0.02]}>
+                  <boxGeometry args={[0.04, 0.12, 0.08]} />
+                  <meshStandardMaterial color={hairColor} roughness={0.95} />
+                </mesh>
+              </>
+            )}
+          </>
+        )}
+        {/* Monk shaved head dome — slight tan tone bald */}
+        {isMonk && (
+          <mesh position={[0, 0.02, 0]}>
+            <sphereGeometry
+              args={[0.122, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2.2]}
+            />
+            <meshStandardMaterial color="#d8b890" roughness={0.85} />
+          </mesh>
+        )}
+        {/* Farmer caping — conical straw hat */}
+        {isFarmer && (
+          <mesh position={[0, 0.12, 0]}>
+            <coneGeometry args={[0.22, 0.16, 8]} />
+            <meshStandardMaterial color="#c89a48" roughness={0.95} />
+          </mesh>
+        )}
+      </group>
+      {/* Elder walking stick — vertical pole + hand grip */}
+      {isElder && (
+        <group position={[0.2, 0, 0.05]} rotation={[0, 0, 0.08]}>
+          <mesh position={[0, 0.35, 0]}>
+            <cylinderGeometry args={[0.018, 0.022, 0.7, 5]} />
+            <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0.7, 0]}>
+            <sphereGeometry args={[0.028, 6, 5]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 };
 
-// NpcVillagers — scattered villagers around town. Reveal di m65
-// (panggung restored + market opens, kehidupan kembali). Positions
-// safe dari landmark exclusion zones, dekat houses + market stalls.
+// NpcVillagers — 8 villagers w/ type variety, scattered town areas.
+// Reveal di m65. Variety: 3 adults, 1 farmer, 1 monk, 1 child, 1 elder,
+// 1 adult — distributed across town areas.
 const NPC_VILLAGER_DEFS = [
   // Near east house cluster
-  { pos: [9.5, 0, 0], rot: -0.5, robeColor: '#7a3838', seed: 1 },
-  { pos: [10, 0, -2], rot: 0.8, robeColor: '#3a5868', seed: 2 },
+  { pos: [9.5, 0, 0], rot: -0.5, robeColor: '#7a3838', accentColor: '#e8c4a0', type: 'adult', seed: 1 },
+  { pos: [10, 0, -2], rot: 0.8, robeColor: '#3a5868', accentColor: '#d8b890', type: 'elder', seed: 2 },
   // Near west house cluster
-  { pos: [-10, 0, 4], rot: 0.3, robeColor: '#5a3878', seed: 3 },
-  { pos: [-11.5, 0, 3.2], rot: -0.6, robeColor: '#a85838', seed: 4 },
+  { pos: [-10, 0, 4], rot: 0.3, robeColor: '#5a3878', accentColor: '#e8d4a8', type: 'adult', seed: 3 },
+  { pos: [-11.5, 0, 3.2], rot: -0.6, robeColor: '#a85838', accentColor: '#f0e0c0', type: 'farmer', seed: 4 },
   // Near south house cluster
-  { pos: [5, 0, 10.5], rot: -1.2, robeColor: '#3a5878', seed: 5 },
+  { pos: [5, 0, 10.5], rot: -1.2, robeColor: '#3a5878', accentColor: '#d8a880', type: 'child', seed: 5 },
   // Near market stalls (lorong entry)
-  { pos: [-1, 0, 7], rot: 0.5, robeColor: '#7a3838', seed: 6 },
-  { pos: [2.5, 0, 7.5], rot: -0.4, robeColor: '#3a5868', seed: 7 },
+  { pos: [-1, 0, 7], rot: 0.5, robeColor: '#7a3838', accentColor: '#e8c4a0', type: 'adult', seed: 6 },
+  { pos: [2.5, 0, 7.5], rot: -0.4, robeColor: '#5a3a20', accentColor: '#c8a878', type: 'monk', seed: 7 },
   // Near AirMancur / center plaza
-  { pos: [-2, 0, 1.5], rot: 1.5, robeColor: '#5a3878', seed: 8 },
+  { pos: [-2, 0, 1.5], rot: 1.5, robeColor: '#5a3878', accentColor: '#e8d4a8', type: 'child', seed: 8 },
 ];
 const NpcVillagers = ({ count }) => {
   if (count < MAP_THRESHOLDS.r5Restore) return null;
@@ -7067,6 +7194,8 @@ const NpcVillagers = ({ count }) => {
           pos={n.pos}
           rot={n.rot}
           robeColor={n.robeColor}
+          accentColor={n.accentColor}
+          type={n.type}
           seed={n.seed}
         />
       ))}
