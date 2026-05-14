@@ -12225,30 +12225,84 @@ const TamanScene = ({
   // tapi atmosfer + life-layer berubah (less dust, more fireflies +
   // petals, dawn palette).
 
-  // Atmosphere palette interp — color + numeric values lerp dari
-  // drought→purified pakai purifyProgress (0-1). Smooth gradual feel
-  // bukan flip discrete. Hybrid Opsi C: atmosphere lerp continuous,
-  // milestone-gated objects (CobblestonePath dst.) tetep discrete via
-  // `purified` boolean.
+  // Atmosphere palette — 3-stop key-frame interpolation untuk story
+  // arc transition (bukan monotonic blend). Stops:
+  //   0.0 (drought, count 2000)  — cold rose-plum desolation, dim
+  //                                 ambient. Tone: "kota mati dingin"
+  //   0.5 (mid, count ~4500)     — warm amber dawn break, brighter
+  //                                 ambient. Tone: "matahari pertama
+  //                                 nyentuh, kota mulai panas lagi"
+  //   1.0 (purified, count 7000) — golden hour cozy + cool warm moss
+  //                                 lighting. Tone: "kota hidup, dawn
+  //                                 telah resmi"
+  // Hybrid Opsi C: atmosphere lerp continuous, milestone-gated objects
+  // (CobblestonePath dst.) tetep discrete via `purified` boolean +
+  // milestone thresholds.
   const atmosphere = useMemo(() => {
-    const t = purifyProgress;
-    const lerp01 = (a, b) => a + (b - a) * t;
-    const lerpColor = (a, b) => {
-      const ca = new THREE.Color(a);
-      const cb = new THREE.Color(b);
-      return ca.lerp(cb, t).getStyle();
-    };
+    const stops = [
+      {
+        at: 0.0,
+        fogColor: '#5a3540',
+        fogNear: 18,
+        fogFar: 52,
+        bgColor: '#1a1018',
+        ambientColor: '#c0a090',
+        ambientIntensity: 0.28,
+        keyColor: '#f4b078',
+        keyIntensity: 1.5,
+        fillColor: '#b8907a',
+        fillIntensity: 0.45,
+      },
+      {
+        at: 0.5,
+        // Dawn break — warmer hue, slightly hopeful. Fog mundur sedikit.
+        fogColor: '#6f4a55',
+        fogNear: 20,
+        fogFar: 55,
+        bgColor: '#221721',
+        ambientColor: '#d0b09c',
+        ambientIntensity: 0.32,
+        keyColor: '#f6c08a',
+        keyIntensity: 1.6,
+        fillColor: '#c0a088',
+        fillIntensity: 0.5,
+      },
+      {
+        at: 1.0,
+        fogColor: '#7a5868',
+        fogNear: 22,
+        fogFar: 58,
+        bgColor: '#2a1d28',
+        ambientColor: '#e0c0a8',
+        ambientIntensity: 0.32,
+        keyColor: '#f8c898',
+        keyIntensity: 1.55,
+        fillColor: '#c8a890',
+        fillIntensity: 0.48,
+      },
+    ];
+    const t = Math.max(0, Math.min(1, purifyProgress));
+    // Find active segment between stops[i] and stops[i+1]
+    let i = 0;
+    while (i < stops.length - 2 && stops[i + 1].at < t) i += 1;
+    const a = stops[i];
+    const b = stops[i + 1];
+    const span = b.at - a.at;
+    const segT = span > 0 ? (t - a.at) / span : 0;
+    const lerp01 = (av, bv) => av + (bv - av) * segT;
+    const lerpColor = (ac, bc) =>
+      new THREE.Color(ac).lerp(new THREE.Color(bc), segT).getStyle();
     return {
-      fogColor: lerpColor('#5a3540', '#7a5868'),
-      fogNear: lerp01(18, 22),
-      fogFar: lerp01(52, 58),
-      bgColor: lerpColor('#1a1018', '#2a1d28'),
-      ambientColor: lerpColor('#c0a090', '#e0c0a8'),
-      ambientIntensity: lerp01(0.28, 0.32),
-      keyColor: lerpColor('#f4b078', '#f8c898'),
-      keyIntensity: lerp01(1.5, 1.55),
-      fillColor: lerpColor('#b8907a', '#c8a890'),
-      fillIntensity: lerp01(0.45, 0.48),
+      fogColor: lerpColor(a.fogColor, b.fogColor),
+      fogNear: lerp01(a.fogNear, b.fogNear),
+      fogFar: lerp01(a.fogFar, b.fogFar),
+      bgColor: lerpColor(a.bgColor, b.bgColor),
+      ambientColor: lerpColor(a.ambientColor, b.ambientColor),
+      ambientIntensity: lerp01(a.ambientIntensity, b.ambientIntensity),
+      keyColor: lerpColor(a.keyColor, b.keyColor),
+      keyIntensity: lerp01(a.keyIntensity, b.keyIntensity),
+      fillColor: lerpColor(a.fillColor, b.fillColor),
+      fillIntensity: lerp01(a.fillIntensity, b.fillIntensity),
     };
   }, [purifyProgress]);
   return (
@@ -12389,18 +12443,39 @@ const TamanScene = ({
       {!purified && <CrackedRimStones />}
       {!purified && <SnappedDeadTrees />}
       {!purified && <CollapsedWallFragments />}
-      {!purified && <RubbleHouses />}
-      {purified && <RestoredHouses />}
+      {/* RubbleHouses → RestoredHouses swap di m65 (panggung restored
+          → rumah-rumah balik berdiri). Sebelum m65: rubble visible. */}
+      {!(purified || armeniacaCount >= MAP_THRESHOLDS.r5Restore) && (
+        <RubbleHouses />
+      )}
       {/* Atmospheric drought polish — sky/distance motion biar sky gak
           kerasa kosong dan kota jauh punya "life" sisa post-storm. */}
       {!purified && <CirclingVultures />}
       {!purified && <DistantSmokeWisps />}
       {/* Depth polish — sand drifts. */}
       {!purified && <SandDrifts />}
-      {purified && <Fireflies isMobile={isMobile} />}
-      {purified && <Butterflies isMobile={isMobile} />}
-      {purified && <BirdsFlock />}
-      {purified && <ApricotPetals count={isMobile ? 30 : 50} />}
+      {/* m6 — Fireflies + Butterflies (water-area life saat telaga pulih). */}
+      <TierReveal
+        unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r3Restore}
+        duration={2}
+      >
+        <Fireflies isMobile={isMobile} />
+        <Butterflies isMobile={isMobile} />
+      </TierReveal>
+      {/* m65 — RestoredHouses + BirdsFlock (rumah pulih + kawanan
+              burung balik). */}
+      <TierReveal
+        unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r5Restore}
+        duration={2.2}
+      >
+        <RestoredHouses />
+        <BirdsFlock />
+      </TierReveal>
+      {/* m7 — ApricotPetals (delicate floating celebration, full
+              purified only). */}
+      <TierReveal unlocked={purified} duration={2.5}>
+        <ApricotPetals count={isMobile ? 30 : 50} />
+      </TierReveal>
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
       {!purified && <DistantCrow />}
