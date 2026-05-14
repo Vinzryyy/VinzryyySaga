@@ -3752,26 +3752,32 @@ const PetaArsip = ({
 //   drought  → dark warm sandy "desert dusk" (#2a2018)
 //   purified → warm-moss green; grid color hampir merge sama floor
 //              supaya gak kelihatan banding "lubang"
-const TamanFloor = ({ purified = false }) => (
-  <>
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-      <planeGeometry args={[40, 40]} />
-      <meshStandardMaterial
-        color={purified ? '#3e4a30' : '#2a2018'}
-        roughness={1}
+const TamanFloor = ({ purified = false, purifyProgress = 0 }) => {
+  // Continuous color lerp dari drought (warm dusty brown) ke purified
+  // (warm-moss green). Per +100 count, tanah sedikit lebih hijau.
+  const colors = useMemo(() => {
+    const t = purified ? 1 : purifyProgress;
+    const lerpHex = (a, b) =>
+      new THREE.Color(a).lerp(new THREE.Color(b), t).getStyle();
+    return {
+      floor: lerpHex('#2a2018', '#3e4a30'),
+      gridMajor: lerpHex('#3a2c22', '#3e4a30'),
+      gridMinor: lerpHex('#2a2018', '#3e4a30'),
+    };
+  }, [purified, purifyProgress]);
+  return (
+    <>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[40, 40]} />
+        <meshStandardMaterial color={colors.floor} roughness={1} />
+      </mesh>
+      <gridHelper
+        args={[40, 40, colors.gridMajor, colors.gridMinor]}
+        position={[0, 0.005, 0]}
       />
-    </mesh>
-    <gridHelper
-      args={[
-        40,
-        40,
-        purified ? '#3e4a30' : '#3a2c22',
-        purified ? '#3e4a30' : '#2a2018',
-      ]}
-      position={[0, 0.005, 0]}
-    />
-  </>
-);
+    </>
+  );
+};
 
 // Drought ring — visual hint "padang kering masih ada di luar peta".
 // Ring tone warm brown (match R0 GROUND_COLOR) di radius 10-18,
@@ -3797,63 +3803,67 @@ const DROUGHT_PATCH_DEFS = (() => {
 //   purified → meadow (lush green carpet bridging dari petak hex ke
 //              outer floor seamless, gak ada banding "lubang" gap).
 //              Patches jadi flower beds.
-const DroughtRing = ({ purified = false }) => (
-  <>
-    {/* Outer ring — sand amber (drought) atau warm-moss (purified).
-        Purified pakai tone match floor base supaya boundary radius 19
-        gak kerasa cliff color shift. */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
-      <ringGeometry args={[9.5, 19, 64]} />
-      <meshStandardMaterial
-        color={purified ? '#445230' : '#5a3520'}
-        roughness={1}
-      />
-    </mesh>
-    {/* Inner meadow carpet — purified: full disc (0-11.5) nutup pusat
-        hex juga supaya gak ada dark moss "hole" di tengah scene yang
-        keliatan kayak floor base color bocor. Drought tetep narrow
-        band 9.5-11.5 (sun-bleached transition). Y=0.0015 di bawah
-        petak pedestal (0.04+) + visited halo (0.025+), gak z-fight. */}
-    {purified ? (
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
-        <circleGeometry args={[11.5, 64]} />
-        <meshStandardMaterial
-          color="#5a7038"
-          roughness={1}
-          transparent
-          opacity={0.92}
-        />
+const DroughtRing = ({ purified = false, purifyProgress = 0 }) => {
+  // Continuous lerp drought→purified per count. Outer ring, inner band,
+  // dan patch colors smooth shift drought (amber sand) → meadow (green).
+  // Geometry tetep discrete swap (band vs disc) di purified karena
+  // beda topology, tapi color band ramps continuously.
+  const colors = useMemo(() => {
+    const t = purified ? 1 : purifyProgress;
+    const lerpHex = (a, b) =>
+      new THREE.Color(a).lerp(new THREE.Color(b), t).getStyle();
+    return {
+      outerRing: lerpHex('#5a3520', '#445230'),
+      innerBand: lerpHex('#7a5535', '#6a8838'),
+      patch: lerpHex('#8a6535', '#6a8848'),
+    };
+  }, [purified, purifyProgress]);
+  const innerBandOpacity = purified ? 0.9 : 0.75 + purifyProgress * 0.15;
+  return (
+    <>
+      {/* Outer ring */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
+        <ringGeometry args={[9.5, 19, 64]} />
+        <meshStandardMaterial color={colors.outerRing} roughness={1} />
       </mesh>
-    ) : (
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
-        <ringGeometry args={[9.5, 11.5, 64]} />
-        <meshStandardMaterial
-          color="#7a5535"
-          roughness={1}
-          transparent
-          opacity={0.75}
-        />
-      </mesh>
-    )}
-    {/* Scattered patches — dry sand (drought) atau flower bed (purified).
-        Purified: tone shift closer to meadow (#6a8848) supaya gak
-        kerasa "spot" terang nge-pop kayak lubang/bercak. */}
-    {DROUGHT_PATCH_DEFS.map((p, i) => (
-      <mesh
-        key={`dp-${i}`}
-        rotation={[-Math.PI / 2, 0, p.rot]}
-        position={p.pos}
-        scale={p.scale}
-      >
-        <circleGeometry args={[0.5, 8]} />
-        <meshStandardMaterial
-          color={purified ? '#6a8848' : '#8a6535'}
-          roughness={1}
-        />
-      </mesh>
-    ))}
-  </>
-);
+      {/* Inner meadow carpet — geometry swap di purified (disc lebih
+          luas nutup pusat hex). Drought: narrow band 9.5-11.5. */}
+      {purified ? (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+          <circleGeometry args={[11.5, 64]} />
+          <meshStandardMaterial
+            color={colors.innerBand}
+            roughness={1}
+            transparent
+            opacity={innerBandOpacity}
+          />
+        </mesh>
+      ) : (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+          <ringGeometry args={[9.5, 11.5, 64]} />
+          <meshStandardMaterial
+            color={colors.innerBand}
+            roughness={1}
+            transparent
+            opacity={innerBandOpacity}
+          />
+        </mesh>
+      )}
+      {/* Scattered patches — color lerp drought→meadow continuous */}
+      {DROUGHT_PATCH_DEFS.map((p, i) => (
+        <mesh
+          key={`dp-${i}`}
+          rotation={[-Math.PI / 2, 0, p.rot]}
+          position={p.pos}
+          scale={p.scale}
+        >
+          <circleGeometry args={[0.5, 8]} />
+          <meshStandardMaterial color={colors.patch} roughness={1} />
+        </mesh>
+      ))}
+    </>
+  );
+};
 
 // FlowerClusters — purified-only. ~24 small flower bouquet clusters
 // scatter di outer ring + petak-adjacent area. Tiap cluster = 1 stem
@@ -4704,43 +4714,6 @@ const LilyPondRipples = () => {
     </>
   );
 };
-
-// Wooden bench — rest spot di taman, kasih kerasa "safe place" /
-// sanctuary. Sederhana 4 element: seat plank + back rest + 3 slats +
-// 2 legs. Wood brown tones.
-const WoodenBench = ({ position = [3.5, 0, -1.8], rotation = [0, -Math.PI / 2.5, 0] }) => (
-  <group position={position} rotation={rotation}>
-    {/* Seat plank */}
-    <mesh position={[0, 0.32, 0]}>
-      <boxGeometry args={[1.3, 0.07, 0.3]} />
-      <meshStandardMaterial color="#7a5530" roughness={0.95} />
-    </mesh>
-    {/* Back rest panel — tilt slightly */}
-    <mesh position={[0, 0.58, -0.13]} rotation={[-0.12, 0, 0]}>
-      <boxGeometry args={[1.3, 0.42, 0.04]} />
-      <meshStandardMaterial color="#6a4a2d" roughness={0.95} />
-    </mesh>
-    {/* Back rest vertical slats — 3 spaced */}
-    {[-0.42, 0, 0.42].map((dx, i) => (
-      <mesh key={`slat-${i}`} position={[dx, 0.55, -0.13]} rotation={[-0.12, 0, 0]}>
-        <boxGeometry args={[0.05, 0.36, 0.04]} />
-        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-      </mesh>
-    ))}
-    {/* Left + right legs */}
-    {[-0.55, 0.55].map((dx, i) => (
-      <mesh key={`leg-${i}`} position={[dx, 0.16, 0]}>
-        <boxGeometry args={[0.07, 0.32, 0.28]} />
-        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-      </mesh>
-    ))}
-    {/* Subtle drop shadow */}
-    <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[1.5, 0.6]} />
-      <meshBasicMaterial color="#0a0d14" transparent opacity={0.32} depthWrite={false} />
-    </mesh>
-  </group>
-);
 
 // Path lantern — wooden post dgn lampu kaca + flame glow flicker.
 // Scattered di 3 spot antara petak utk warm atmosphere.
@@ -12253,8 +12226,8 @@ const TamanScene = ({
         intensity={atmosphere.fillIntensity}
         color={atmosphere.fillColor}
       />
-      <TamanFloor purified={purified} />
-      <DroughtRing purified={purified} />
+      <TamanFloor purified={purified} purifyProgress={purifyProgress} />
+      <DroughtRing purified={purified} purifyProgress={purifyProgress} />
       {/* MossOverlay sengaja gak di-render — DroughtRing purified udah
           ngasih lush meadow carpet yg lebih lebar, MossOverlay patches
           jadi keliatan banding spot di atasnya. */}
