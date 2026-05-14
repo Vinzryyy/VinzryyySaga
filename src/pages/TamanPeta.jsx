@@ -6641,8 +6641,8 @@ const Cattails = () => (
 );
 
 // SteppingStones — 4 flat slate stones connecting bridge north end
-// (~-5.3, 1.5) ke PicnicSet (-2.5, 2.2). Bridge jadi connector, bukan
-// dead-end. Slight tilt rotation per stone supaya organik.
+// (~-5.3, 1.5) menuju area SW dekat plaza. Bridge jadi connector,
+// bukan dead-end. Slight tilt rotation per stone supaya organik.
 const STEPPING_STONE_DEFS = [
   { pos: [-4.7, 0.04, 1.65], rot: 0.4, scale: 1.0 },
   { pos: [-4.05, 0.04, 1.78], rot: -0.2, scale: 0.95 },
@@ -7600,62 +7600,6 @@ const MushroomClusters = () => (
       <Mushroom key={`mush-${i}`} {...m} />
     ))}
   </>
-);
-
-// PicnicSet — kasur jalin (blanket) plus basket plus item kecil di rumput
-// dekat WoodenBridge. Naratif: domestic life balik, ada yg sempetin
-// piknik di taman.
-const PicnicSet = ({ pos = [-2.5, 0, 2.2], rot = 0.4 }) => (
-  <group position={pos} rotation={[0, rot, 0]}>
-    {/* Blanket — checkered cream/peach square */}
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
-      <planeGeometry args={[1.2, 1.0]} />
-      <meshStandardMaterial color="#f4d8b0" roughness={0.95} />
-    </mesh>
-    {/* Checkered overlay — 4 lighter squares */}
-    {[
-      [-0.3, 0.014, -0.25],
-      [0.3, 0.014, -0.25],
-      [-0.3, 0.014, 0.25],
-      [0.3, 0.014, 0.25],
-    ].map((p, i) => (
-      <mesh
-        key={`check-${i}`}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={p}
-      >
-        <planeGeometry args={[0.5, 0.4]} />
-        <meshStandardMaterial color="#f8e8c8" roughness={0.95} />
-      </mesh>
-    ))}
-    {/* Basket — woven brown cube + handle arch */}
-    <group position={[-0.35, 0.1, -0.15]}>
-      <mesh position={[0, 0.06, 0]}>
-        <boxGeometry args={[0.22, 0.16, 0.18]} />
-        <meshStandardMaterial color="#8a6038" roughness={0.95} />
-      </mesh>
-      {/* Handle — torus arch */}
-      <mesh position={[0, 0.18, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.11, 0.012, 6, 12, Math.PI]} />
-        <meshStandardMaterial color="#5a3e25" roughness={0.95} />
-      </mesh>
-    </group>
-    {/* Apple — small red sphere on blanket */}
-    <mesh position={[0.2, 0.05, 0.1]}>
-      <sphereGeometry args={[0.05, 8, 6]} />
-      <meshStandardMaterial color="#d44848" roughness={0.7} />
-    </mesh>
-    {/* Bread loaf — small oblong */}
-    <mesh position={[0.05, 0.04, -0.2]} rotation={[0, 0.3, 0]}>
-      <boxGeometry args={[0.18, 0.08, 0.1]} />
-      <meshStandardMaterial color="#d8a868" roughness={0.85} />
-    </mesh>
-    {/* Mug — small cylinder */}
-    <mesh position={[0.3, 0.05, -0.05]}>
-      <cylinderGeometry args={[0.04, 0.04, 0.08, 8]} />
-      <meshStandardMaterial color="#e8e8e0" roughness={0.7} />
-    </mesh>
-  </group>
 );
 
 // WindChimes — gantung dari branch DeadTree yg revived. 1 string + 4-5
@@ -10830,6 +10774,7 @@ const PetaAirMancur = ({
   const lilyRefs = useRef([]);
   const lanternMatRefs = useRef([]);
   const petalRefs = useRef([]);
+  const moteRefs = useRef([]);
 
   // Tier-derived visual flags. waterLevelY = absolute world-y untuk
   // surface plane water (di-stack di atas basin floor 0.18 + offset).
@@ -10849,12 +10794,19 @@ const PetaAirMancur = ({
   const armsSeam = tier === 2;
   // Decorative reveals — unlock per tier biar progression kerasa kaya:
   const hasCobbleRing = tier >= 1;
+  const hasFoundation = tier >= 1;
+  const hasBasinFloor = tier >= 1;
+  const hasRimNotches = tier >= 2;
+  const hasBenches = tier >= 3;
   const hasLanterns = tier >= 3;
   const lanternLit = tier >= 5;
   const hasSplash = tier >= 4;
   const hasLilyPads = tier >= 4;
+  const hasPedestalMoss = tier >= 4;
   const hasPlazaFlowers = tier >= 5;
+  const hasLanternMotes = tier >= 5;
   const hasFloatingPetals = tier >= 6;
+  const hasPathStub = tier >= 1;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -10931,6 +10883,25 @@ const PetaAirMancur = ({
         m.rotation.z = t * 0.4 + phase;
       }
     }
+    // Lantern motes T5+ — orbit horizontal pelan keliling lantern globe
+    // height + sedikit bob. 3 motes per lantern × 2 lanterns = 6 total.
+    if (hasLanternMotes) {
+      for (let i = 0; i < moteRefs.current.length; i += 1) {
+        const m = moteRefs.current[i];
+        if (!m) continue;
+        const lanternIdx = Math.floor(i / 3);
+        const moteIdx = i % 3;
+        const lanternAngle = lanternIdx === 0 ? Math.PI * 0.25 : Math.PI * 1.25;
+        const lr = 1.55;
+        const lx = Math.cos(lanternAngle) * lr;
+        const lz = Math.sin(lanternAngle) * lr;
+        const orbitR = 0.18 + moteIdx * 0.04;
+        const orbitA = t * 0.6 + moteIdx * 2.1;
+        m.position.x = lx + Math.cos(orbitA) * orbitR;
+        m.position.z = lz + Math.sin(orbitA) * orbitR;
+        m.position.y = 0.92 + Math.sin(t * 1.5 + moteIdx) * 0.04;
+      }
+    }
   });
 
   if (tier === 0) return null;
@@ -10967,6 +10938,68 @@ const PetaAirMancur = ({
         />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
+
+      {/* Foundation step — octagonal base lebih lebar di bawah basin,
+          kasih kesan basin set-in plaza, bukan floating. */}
+      {hasFoundation && (
+        <mesh position={[0, 0.025, 0]}>
+          <cylinderGeometry args={[1.35, 1.4, 0.05, 8]} />
+          <meshStandardMaterial color="#4a3a2a" roughness={1} />
+        </mesh>
+      )}
+
+      {/* Stone path stub — 4 cobbles dari plaza ke arah lorong path
+          (eastward, +x), implies plaza connected to entry path. */}
+      {hasPathStub &&
+        [
+          { x: 1.8, z: 0.2, r: 0.22 },
+          { x: 2.3, z: 0.5, r: 0.2 },
+          { x: 2.7, z: 0.1, r: 0.24 },
+          { x: 3.2, z: 0.4, r: 0.2 },
+        ].map((p, i) => (
+          <mesh
+            key={`path-${i}`}
+            position={[p.x, 0.025, p.z]}
+            rotation={[0, i * 0.5, 0]}
+          >
+            <cylinderGeometry args={[p.r, p.r * 1.05, 0.06, 6]} />
+            <meshStandardMaterial color="#6a5848" roughness={1} />
+          </mesh>
+        ))}
+
+      {/* Stone benches T3+ — 2 simple bench di sisi E+W plaza, low
+          stone block dgn 2 leg. "Tempat orang duduk" — gathering vibe. */}
+      {hasBenches &&
+        [
+          { angle: 0, r: 1.85 },
+          { angle: Math.PI, r: 1.85 },
+        ].map((b, i) => {
+          const bx = Math.cos(b.angle) * b.r;
+          const bz = Math.sin(b.angle) * b.r;
+          return (
+            <group
+              key={`bench-${i}`}
+              position={[bx, 0, bz]}
+              rotation={[0, b.angle + Math.PI / 2, 0]}
+            >
+              {/* Seat — slab horizontal */}
+              <mesh position={[0, 0.18, 0]}>
+                <boxGeometry args={[0.7, 0.08, 0.22]} />
+                <meshStandardMaterial color="#5a4838" roughness={0.95} />
+              </mesh>
+              {/* Leg L */}
+              <mesh position={[-0.25, 0.08, 0]}>
+                <boxGeometry args={[0.08, 0.16, 0.18]} />
+                <meshStandardMaterial color="#4a3828" roughness={1} />
+              </mesh>
+              {/* Leg R */}
+              <mesh position={[0.25, 0.08, 0]}>
+                <boxGeometry args={[0.08, 0.16, 0.18]} />
+                <meshStandardMaterial color="#4a3828" roughness={1} />
+              </mesh>
+            </group>
+          );
+        })}
 
       {/* Cobble ring — paving stones di sekeliling basin, mirror style
           lorong masuk. 8 batu di radius 1.45, slight angle offset biar
@@ -11008,6 +11041,55 @@ const PetaAirMancur = ({
           <torusGeometry args={[0.94, 0.012, 6, 32]} />
           <meshStandardMaterial color="#3a2a1c" roughness={1} />
         </mesh>
+      )}
+
+      {/* Decorative rim notches T2+ — 8 small box accents at octagon
+          vertex points biar rim kerasa hand-carved, bukan plain disc. */}
+      {hasRimNotches &&
+        Array.from({ length: 8 }).map((_, i) => {
+          const angle = (i / 8) * Math.PI * 2 + Math.PI / 8;
+          const r = 0.97;
+          return (
+            <mesh
+              key={`notch-${i}`}
+              position={[Math.cos(angle) * r, 0.22, Math.sin(angle) * r]}
+              rotation={[0, angle, 0]}
+            >
+              <boxGeometry args={[0.06, 0.04, 0.1]} />
+              <meshStandardMaterial color={stoneRimColor} roughness={1} />
+            </mesh>
+          );
+        })}
+
+      {/* Basin interior floor — disc lebih gelap di dasar basin, kasih
+          kedalaman. Visible sebelum water naik (tier 1) atau lewat water
+          transparency (tier 2+). */}
+      {hasBasinFloor && (
+        <mesh position={[0, 0.185, 0]}>
+          <cylinderGeometry args={[0.88, 0.88, 0.012, 16]} />
+          <meshStandardMaterial color="#2a1f18" roughness={1} />
+        </mesh>
+      )}
+
+      {/* Submerged debris di basin floor — 2 pecahan kecil di dasar
+          (T1-T2 only). Hilang dari T3+ karena air udah jernih + clear. */}
+      {tier <= 2 && (
+        <>
+          <mesh
+            position={[0.25, 0.195, -0.15]}
+            rotation={[0.1, 0.4, 0.2]}
+          >
+            <boxGeometry args={[0.12, 0.04, 0.08]} />
+            <meshStandardMaterial color="#3a2a20" roughness={1} />
+          </mesh>
+          <mesh
+            position={[-0.3, 0.193, 0.2]}
+            rotation={[0, -0.6, 0]}
+          >
+            <boxGeometry args={[0.1, 0.03, 0.07]} />
+            <meshStandardMaterial color="#3a2a20" roughness={1} />
+          </mesh>
+        </>
       )}
 
       {/* Debris di T1 — pecahan batu di sekitar basin, signal "baru
@@ -11100,6 +11182,27 @@ const PetaAirMancur = ({
         <meshStandardMaterial color={stoneColor} roughness={1} />
       </mesh>
 
+      {/* Pedestal moss/vines T4+ — green spheres clustered di base
+          pedestal, signal life returning. Asymmetric biar gak rapi. */}
+      {hasPedestalMoss &&
+        [
+          { x: 0.18, y: 0.27, z: 0.05, s: 0.08 },
+          { x: 0.15, y: 0.35, z: 0.14, s: 0.06 },
+          { x: -0.16, y: 0.3, z: 0.1, s: 0.07 },
+          { x: -0.05, y: 0.27, z: -0.18, s: 0.07 },
+          { x: 0.1, y: 0.42, z: 0.18, s: 0.05 },
+        ].map((m, i) => (
+          <mesh key={`moss-${i}`} position={[m.x, m.y, m.z]}>
+            <sphereGeometry args={[m.s, 8, 6]} />
+            <meshStandardMaterial
+              color="#4a6838"
+              emissive="#2a4020"
+              emissiveIntensity={0.15}
+              roughness={0.85}
+            />
+          </mesh>
+        ))}
+
       {/* Lantern posts T3+ — 2 tiang dgn globe lampu di NE+SW corners
           plaza. Globe lit (emissive flicker via useFrame) di T5+ —
           sebelumnya unlit, signal "tiangnya udah berdiri tapi belum
@@ -11151,6 +11254,29 @@ const PetaAirMancur = ({
             </group>
           );
         })}
+
+      {/* Lantern motes T5+ — 3 tiny floating sparks per lit lantern,
+          orbit horizontal via useFrame. Magic atmospheric touch malam. */}
+      {hasLanternMotes &&
+        Array.from({ length: 6 }).map((_, i) => (
+          <mesh
+            key={`mote-${i}`}
+            ref={(m) => {
+              moteRefs.current[i] = m;
+            }}
+            position={[0, 0.92, 0]}
+          >
+            <sphereGeometry args={[0.018, 6, 5]} />
+            <meshStandardMaterial
+              color="#f4d8a0"
+              emissive="#f4c478"
+              emissiveIntensity={0.85}
+              transparent
+              opacity={0.9}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
 
       {/* Statue body — sphere torso. Skipped detail (no head/legs) —
           stylized abstract figure, fokusnya di lengan & gesture. */}
@@ -11568,7 +11694,6 @@ const TamanScene = ({
       {purified && <WildflowerBushes isMobile={isMobile} />}
       {purified && !isMobile && <StringLights />}
       {purified && <MushroomClusters />}
-      {purified && <PicnicSet pos={[-2.5, 0, 2.2]} rot={0.4} />}
       {purified && !isMobile && <WindChimes pos={[-6.5, 1.6, -3.5]} />}
       {purified && !isMobile && <Hammock start={[-7, 1.4, 6]} end={[-4, 1.4, 8]} />}
       {purified && <FlowerClusters isMobile={isMobile} />}
