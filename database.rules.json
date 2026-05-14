@@ -1,0 +1,70 @@
+{
+  "//": "Firebase RTDB security rules untuk project VinzryyySaga (Armeniaca / Eli).",
+  "//1": "Cara apply: Firebase Console → Realtime Database → Rules tab → paste isi file ini → Publish.",
+  "//2": "Atau via CLI: `firebase deploy --only database` (butuh firebase-tools + login).",
+  "//3": "Default-deny di root — semua path yang gak di-declare di-tolak write & read.",
+
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "tree_support": {
+      ".read": true,
+      "total": {
+        ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
+      }
+    },
+
+    "wishes": {
+      ".read": true,
+      "$wishId": {
+        ".write": "!data.exists() && newData.exists()",
+        ".validate": "newData.hasChildren(['name', 'message', 'date'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 60"
+        },
+        "handle": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 240"
+        },
+        "template": {
+          ".validate": "newData.isString() && newData.val().length <= 32"
+        },
+        "date": {
+          ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+
+    "wish_hearts": {
+      ".read": true,
+      "$wishId": {
+        ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
+      }
+    },
+
+    "byu_support_count": {
+      ".read": true,
+      ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
+    },
+
+    "presence": {
+      ".read": true,
+      "$sessionId": {
+        ".write": true,
+        ".validate": "!newData.exists() || (newData.hasChild('joinedAt') && newData.child('joinedAt').val() === now)",
+        "joinedAt": {
+          ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    }
+  }
+}
