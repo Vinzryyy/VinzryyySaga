@@ -6176,6 +6176,280 @@ const PetaBloom = ({ pos }) => (
     })}
   </group>
 );
+// === REFORESTATION POLISH (A, B, C, D) ===
+// Theme reinforcement: peta sentral fokus mereboisasi area drought.
+// Per-count: pohon tumbuh continuous, mati pulih leaves regrow,
+// background forest density build up.
+
+// ProgressiveTree — single tree dgn continuous growth (sapling → mature)
+// based on count proximity ke own unlock/maturity range. Per-tree
+// random seed offset supaya scattered organic.
+const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
+  if (count < unlockAt) return null;
+  const t = Math.max(0, Math.min(1, (count - unlockAt) / (maturityAt - unlockAt)));
+  // Growth curve — ease-out (rapid early growth, slow approach maturity)
+  const eased = 1 - Math.pow(1 - t, 2);
+  // Per-tree variance via seed
+  const heightScale = 0.85 + ((seed * 13) % 30) / 100;
+  const foliageScale = 0.9 + ((seed * 17) % 25) / 100;
+  const trunkColorTone = (seed * 7) % 2 === 0 ? '#5a3a20' : '#6a4828';
+  const foliageColorTone =
+    (seed * 11) % 3 === 0 ? '#4a7838'
+    : (seed * 11) % 3 === 1 ? '#5a8838'
+    : '#3a6828';
+  const trunkH = (0.3 + eased * 1.4) * heightScale;
+  const foliageR = (0.18 + eased * 0.42) * foliageScale;
+  const foliageY = trunkH + foliageR * 0.4;
+  // Foliage cluster — main + 2 offset bumps di stage mid+
+  return (
+    <group position={pos} rotation={[0, ((seed * 19) % 100) / 16, 0]}>
+      <mesh position={[0, trunkH / 2, 0]}>
+        <cylinderGeometry args={[0.04 + eased * 0.04, 0.06 + eased * 0.04, trunkH, 6]} />
+        <meshStandardMaterial color={trunkColorTone} roughness={0.95} />
+      </mesh>
+      <mesh position={[0, foliageY, 0]}>
+        <sphereGeometry args={[foliageR, 8, 6]} />
+        <meshStandardMaterial
+          color={foliageColorTone}
+          emissive="#2a4a20"
+          emissiveIntensity={0.12}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Offset bumps di stage mid+ */}
+      {eased > 0.5 && (
+        <>
+          <mesh position={[foliageR * 0.6, foliageY - 0.05, foliageR * 0.3]}>
+            <sphereGeometry args={[foliageR * 0.7, 8, 6]} />
+            <meshStandardMaterial
+              color={foliageColorTone}
+              emissive="#2a4a20"
+              emissiveIntensity={0.1}
+              roughness={0.85}
+            />
+          </mesh>
+          <mesh position={[-foliageR * 0.5, foliageY + 0.05, -foliageR * 0.4]}>
+            <sphereGeometry args={[foliageR * 0.65, 8, 6]} />
+            <meshStandardMaterial
+              color={foliageColorTone}
+              emissive="#2a4a20"
+              emissiveIntensity={0.1}
+              roughness={0.85}
+            />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+};
+
+// ProgressiveTrees — 12 trees scattered di outer ring radius 6-13,
+// growth continuous tied ke count. Per-tree unlock/maturity stagger
+// (2300-2700 unlock, 6300-6800 mature) supaya organic distribution.
+const PROGRESSIVE_TREE_DEFS = (() => {
+  const arr = [];
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 + ((i * 17) % 7) * 0.08;
+    const radius = 7 + ((i * 13) % 5) * 1.2;
+    const unlockAt = 2300 + ((i * 23) % 5) * 80;
+    const maturityAt = 6300 + ((i * 29) % 6) * 90;
+    arr.push({
+      pos: [Math.cos(angle) * radius, 0, Math.sin(angle) * radius],
+      unlockAt,
+      maturityAt,
+      seed: i,
+    });
+  }
+  return arr;
+})();
+const ProgressiveTrees = ({ count, loaded }) => {
+  if (!loaded) return null;
+  return (
+    <>
+      {PROGRESSIVE_TREE_DEFS.map((d, i) => (
+        <ProgressiveTree key={`prog-tree-${i}`} count={count} {...d} />
+      ))}
+    </>
+  );
+};
+
+// DeadTreeRevival — overlay leaves regrowth on existing SNAPPED_TREE
+// stumps di later tier (m65+ panggung restored). Saat hit threshold,
+// mati pohon "tumbuh ulang" dari stump nya — narrative redemption beat.
+const DeadTreeRevival = ({ count }) => {
+  // Use same SNAPPED_TREE_DEFS positions tapi cuma stump tinggi nya
+  // dapat overlay foliage. Threshold: r5Restore (6500).
+  if (count < MAP_THRESHOLDS.r5Restore) return null;
+  const SNAPPED_REVIVAL_DEFS = [
+    { pos: [4.5, 0, 5.5], stumpH: 0.7 },
+    { pos: [-4.0, 0, 6.2], stumpH: 0.5 },
+    { pos: [5.5, 0, -3.5], stumpH: 0.9 },
+  ];
+  return (
+    <>
+      {SNAPPED_REVIVAL_DEFS.map((d, i) => (
+        <group key={`revive-${i}`} position={d.pos}>
+          {/* New growth — small foliage cluster di top of stump */}
+          <mesh position={[0, d.stumpH + 0.15, 0]}>
+            <sphereGeometry args={[0.25, 8, 6]} />
+            <meshStandardMaterial
+              color="#5a8838"
+              emissive="#2a5020"
+              emissiveIntensity={0.18}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Side sprout shoots — 2 small leaf clusters */}
+          <mesh
+            position={[0.12, d.stumpH + 0.2, 0.08]}
+            rotation={[0.3, 0.5, 0.1]}
+          >
+            <sphereGeometry args={[0.13, 6, 5]} />
+            <meshStandardMaterial
+              color="#4a7838"
+              emissive="#2a4a20"
+              emissiveIntensity={0.15}
+              roughness={0.85}
+            />
+          </mesh>
+          <mesh
+            position={[-0.1, d.stumpH + 0.18, -0.06]}
+            rotation={[0.2, -0.4, -0.1]}
+          >
+            <sphereGeometry args={[0.12, 6, 5]} />
+            <meshStandardMaterial
+              color="#5a8838"
+              emissive="#2a5020"
+              emissiveIntensity={0.15}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Thin sapling stem rising from stump */}
+          <mesh position={[0, d.stumpH + 0.08, 0]}>
+            <cylinderGeometry args={[0.025, 0.035, 0.16, 5]} />
+            <meshStandardMaterial color="#4a3a20" roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// ForestSilhouettes — background distant trees di horizon (z=-15 to
+// z=-25) + sides (x=±18+). Simple cone+trunk shape, dark color blend
+// ke fog. Reveal di m5+ (kota fungsional, forest expanding).
+const FOREST_SILHOUETTE_DEFS = (() => {
+  const arr = [];
+  // Behind back (far north)
+  const behindZ = -22;
+  for (let i = -8; i <= 8; i++) {
+    const x = i * 2.2 + ((i * 11) % 5) * 0.3;
+    const z = behindZ + ((i * 17) % 7) * 0.6;
+    arr.push({
+      pos: [x, 0, z],
+      h: 2 + ((i * 13) % 5) * 0.4,
+      r: 0.45 + ((i * 19) % 4) * 0.08,
+    });
+  }
+  // Sides far
+  for (let i = -5; i <= 5; i++) {
+    const z = i * 2.4;
+    const xL = -20 - ((i * 11) % 4) * 0.6;
+    const xR = 20 + ((i * 13) % 4) * 0.6;
+    arr.push({
+      pos: [xL, 0, z],
+      h: 2.2 + ((i * 17) % 5) * 0.5,
+      r: 0.5 + ((i * 23) % 3) * 0.1,
+    });
+    arr.push({
+      pos: [xR, 0, z],
+      h: 2.4 + ((i * 19) % 5) * 0.5,
+      r: 0.5 + ((i * 29) % 3) * 0.1,
+    });
+  }
+  return arr;
+})();
+const ForestSilhouettes = ({ count }) => {
+  if (count < MAP_THRESHOLDS.r4Restore) return null;
+  return (
+    <>
+      {FOREST_SILHOUETTE_DEFS.map((d, i) => (
+        <group key={`forest-sil-${i}`} position={d.pos}>
+          {/* Trunk */}
+          <mesh position={[0, d.h / 2 - d.r * 0.3, 0]}>
+            <cylinderGeometry args={[0.08, 0.12, d.h - d.r * 0.6, 5]} />
+            <meshStandardMaterial color="#1a0e08" roughness={1} />
+          </mesh>
+          {/* Foliage — cone shape (pine-like silhouette) */}
+          <mesh position={[0, d.h, 0]}>
+            <coneGeometry args={[d.r, d.h * 0.9, 6]} />
+            <meshStandardMaterial color="#1a2818" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
+// SaplingCluster — small sapling + scrub bushes di sparse tiers (m3).
+// Beda dari ProgressiveTrees (outer ring) — SaplingCluster di inner
+// area dekat petak ring, fill the gap di m3 yang cuma 2 elements.
+const SAPLING_CLUSTER_DEFS = [
+  { x: -3.5, z: 2.5, seed: 1 },
+  { x: 3.5, z: 2.8, seed: 2 },
+  { x: -4, z: -1.5, seed: 3 },
+  { x: 4, z: -1.8, seed: 4 },
+  { x: -1.5, z: 4.5, seed: 5 },
+  { x: 1.8, z: 4.2, seed: 6 },
+];
+const SaplingCluster = () => (
+  <>
+    {SAPLING_CLUSTER_DEFS.map((s, i) => (
+      <group
+        key={`sapling-${i}`}
+        position={[s.x, 0, s.z]}
+        rotation={[0, ((s.seed * 17) % 100) / 16, 0]}
+      >
+        {/* Thin sapling stem */}
+        <mesh position={[0, 0.18, 0]}>
+          <cylinderGeometry args={[0.025, 0.035, 0.36, 5]} />
+          <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+        </mesh>
+        {/* Few leaves clustered di top */}
+        <mesh position={[0, 0.4, 0]}>
+          <sphereGeometry args={[0.13, 6, 5]} />
+          <meshStandardMaterial
+            color="#5a8838"
+            emissive="#2a4a20"
+            emissiveIntensity={0.13}
+            roughness={0.85}
+          />
+        </mesh>
+        {/* Lower scrub bush — separate small sphere di tanah */}
+        <mesh position={[0.18, 0.08, 0.1]}>
+          <sphereGeometry args={[0.13, 6, 5]} />
+          <meshStandardMaterial
+            color="#4a7838"
+            emissive="#2a4a20"
+            emissiveIntensity={0.12}
+            roughness={0.85}
+          />
+        </mesh>
+        {/* Second scrub bush opposite side */}
+        <mesh position={[-0.16, 0.07, -0.12]}>
+          <sphereGeometry args={[0.11, 6, 5]} />
+          <meshStandardMaterial
+            color="#5a8838"
+            emissive="#2a5020"
+            emissiveIntensity={0.12}
+            roughness={0.85}
+          />
+        </mesh>
+      </group>
+    ))}
+  </>
+);
+
 // LandmarkAura — soft glow disc di base landmark yg ramp intensity
 // dgn purifyProgress. Kasih "anticipation" feel — landmark kerasa
 // hidup bertahap, bukan stuck di state diskrit sampai threshold hit.
@@ -12612,6 +12886,7 @@ const TamanScene = ({
       <TierReveal unlocked={purified || armeniacaCount >= MAP_THRESHOLDS.r4Unlock}>
         <GrassBlades isMobile={isMobile} />
         <MossyBoulders isMobile={isMobile} />
+        <SaplingCluster />
       </TierReveal>
       {/* m4 — Lorong restored + Telaga unlock; bunga liar + vines
               reclaiming ruins. */}
@@ -12661,6 +12936,10 @@ const TamanScene = ({
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
       <LandmarkAuras count={armeniacaCount} loaded={armeniacaLoaded} />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
+      {/* === Reforestation system (A, B, C) === */}
+      <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
+      <DeadTreeRevival count={armeniacaCount} />
+      <ForestSilhouettes count={armeniacaCount} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
