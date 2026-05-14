@@ -64,6 +64,12 @@ const MAP_THRESHOLDS = {
   r5Restore: 6500,
   r2Restore: 7000,
   fullRestore: 7000,
+  // Post-restore tiers — "celebration & legacy" phase. Map extends
+  // dari 7000 (kota pulih) → 10000 (legacy phase, kota jadi
+  // ikonik permanen).
+  festivalPrep: 8000, // string lanterns, banners decorate kota
+  festivalPeak: 9000, // dense petals, additional dancing NPCs
+  legacy: 10000, // mega pohon + golden permanent glow + monument
   airMancurT1: 2000,
   airMancurT2: 3000,
   airMancurT3: 4500,
@@ -7220,14 +7226,24 @@ const NpcVillager = ({
   );
 };
 
-// NpcVillagers — 8 villagers w/ type variety + walking paths.
+// NpcVillagers — 8 villagers w/ type variety + walking paths + per-NPC
+// unlockAt staging. "Manusia pertama" muncul di 4000 (r1Restore),
+// progressively more arrive sampai 7000 — kota repopulating bertahap.
+//
+// Unlock distribution:
+//   4000 (r1Restore): 1 NPC — monk (manusia pertama, wisdom-keeper
+//                              kembali ke kota)
+//   4500 (r5Unlock):  1 NPC — farmer (yg kerja static, mempersiapkan)
+//   5000 (r4Restore): 2 NPCs — adults (warga balik)
+//   6000 (r3Restore): 1 NPC — elder (slow walker)
+//   6500 (r5Restore): 2 NPCs — 1 adult market + 1 child (commerce+life)
+//   7000 (fullRestore): 1 NPC — child (final, kota udah penuh hidup)
+//
 // Speed per type: adult 0.5, elder 0.18, monk 0.28, child 0.75,
-// farmer 0 (static, working). All path waypoints verified safe
-// dari landmark exclusion zones (Arsip r=2.5, Telaga r=2.5,
-// Menara r=2.5, Panggung r=2.5, AirMancur r=1.8, Center r=2.5,
-// Gerbang ~1.5).
+// farmer 0 (static, working). All path waypoints safe dari landmark
+// exclusion zones.
 const NPC_VILLAGER_DEFS = [
-  // East cluster — adult walking loop around houses
+  // East cluster — adult walking loop around houses (arrives 5000)
   {
     pos: [9.5, 0, 0],
     rot: -0.5,
@@ -7236,6 +7252,7 @@ const NPC_VILLAGER_DEFS = [
     type: 'adult',
     seed: 1,
     speed: 0.5,
+    unlockAt: 5000,
     path: [
       { x: 9.5, z: 0 },
       { x: 11, z: 1.5 },
@@ -7244,7 +7261,7 @@ const NPC_VILLAGER_DEFS = [
       { x: 8.5, z: -3.5 },
     ],
   },
-  // East — elder slow triangle (small loop)
+  // East — elder slow triangle (arrives 6000)
   {
     pos: [10, 0, -2],
     rot: 0.8,
@@ -7253,13 +7270,14 @@ const NPC_VILLAGER_DEFS = [
     type: 'elder',
     seed: 2,
     speed: 0.18,
+    unlockAt: 6000,
     path: [
       { x: 10, z: -2 },
       { x: 10.5, z: -0.5 },
       { x: 9, z: 1 },
     ],
   },
-  // West — adult walking around west houses
+  // West — adult walking around west houses (arrives 5000)
   {
     pos: [-10, 0, 4],
     rot: 0.3,
@@ -7268,6 +7286,7 @@ const NPC_VILLAGER_DEFS = [
     type: 'adult',
     seed: 3,
     speed: 0.5,
+    unlockAt: 5000,
     path: [
       { x: -10, z: 4 },
       { x: -11.5, z: 5 },
@@ -7275,7 +7294,7 @@ const NPC_VILLAGER_DEFS = [
       { x: -10.5, z: 2 },
     ],
   },
-  // West — farmer STATIC (working, no walking)
+  // West — farmer STATIC (arrives 4500, "siapkan ladang")
   {
     pos: [-11.5, 0, 3.2],
     rot: -0.6,
@@ -7284,9 +7303,10 @@ const NPC_VILLAGER_DEFS = [
     type: 'farmer',
     seed: 4,
     speed: 0,
+    unlockAt: 4500,
     path: null,
   },
-  // South — child bouncy play loop
+  // South — child bouncy play loop (arrives 7000, full kota hidup)
   {
     pos: [5, 0, 10.5],
     rot: -1.2,
@@ -7295,6 +7315,7 @@ const NPC_VILLAGER_DEFS = [
     type: 'child',
     seed: 5,
     speed: 0.75,
+    unlockAt: 7000,
     path: [
       { x: 5, z: 10.5 },
       { x: 6.5, z: 11 },
@@ -7302,7 +7323,7 @@ const NPC_VILLAGER_DEFS = [
       { x: 4, z: 11.5 },
     ],
   },
-  // Market — adult walking between stalls
+  // Market — adult walking between stalls (arrives 6500, market opens)
   {
     pos: [-1, 0, 7],
     rot: 0.5,
@@ -7311,6 +7332,7 @@ const NPC_VILLAGER_DEFS = [
     type: 'adult',
     seed: 6,
     speed: 0.5,
+    unlockAt: 6500,
     path: [
       { x: -1, z: 7 },
       { x: -2.5, z: 8 },
@@ -7318,7 +7340,8 @@ const NPC_VILLAGER_DEFS = [
       { x: 1, z: 7.5 },
     ],
   },
-  // Gerbang — monk slow walk near entry
+  // Gerbang — monk slow walk near entry. MANUSIA PERTAMA — arrives
+  // di 4000 (r1Restore), wisdom-keeper masuk duluan ke kota baru.
   {
     pos: [2.5, 0, 7.5],
     rot: -0.4,
@@ -7327,6 +7350,7 @@ const NPC_VILLAGER_DEFS = [
     type: 'monk',
     seed: 7,
     speed: 0.28,
+    unlockAt: 4000,
     path: [
       { x: 2.5, z: 7.5 },
       { x: 1.5, z: 8.5 },
@@ -7334,8 +7358,7 @@ const NPC_VILLAGER_DEFS = [
       { x: 2.5, z: 8 },
     ],
   },
-  // West-north — child play loop (relocated dari pusat plaza biar
-  // gak overlap CenterTree/AirMancur exclusion)
+  // West-north — child play loop (arrives 6500, kota repopulating)
   {
     pos: [-3, 0, -2],
     rot: 1.5,
@@ -7344,6 +7367,7 @@ const NPC_VILLAGER_DEFS = [
     type: 'child',
     seed: 8,
     speed: 0.75,
+    unlockAt: 6500,
     path: [
       { x: -3, z: -2 },
       { x: -4, z: -2.5 },
@@ -7353,12 +7377,15 @@ const NPC_VILLAGER_DEFS = [
   },
 ];
 const NpcVillagers = ({ count }) => {
-  if (count < MAP_THRESHOLDS.r5Restore) return null;
+  // Gate earliest unlock (r1Restore = 4000, "manusia pertama"). Per-NPC
+  // unlockAt staging handled di filter — NPCs muncul bertahap saat
+  // count crosses respective threshold.
+  if (count < MAP_THRESHOLDS.r1Restore) return null;
   return (
     <>
-      {NPC_VILLAGER_DEFS.map((n, i) => (
+      {NPC_VILLAGER_DEFS.filter((n) => count >= n.unlockAt).map((n, i) => (
         <NpcVillager
-          key={`npc-${i}`}
+          key={`npc-${n.seed}`}
           pos={n.pos}
           rot={n.rot}
           robeColor={n.robeColor}
