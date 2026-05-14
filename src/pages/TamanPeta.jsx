@@ -6790,6 +6790,206 @@ const SaplingCluster = () => (
   </>
 );
 
+// WaterWell — communal village well, stone circular base + wooden
+// roof on 4 posts + bucket gantung dari rope. Reveal di m6 (telaga
+// pulih = air kembali available, well bisa dipakai).
+const WaterWell = ({ count }) => {
+  const bucketRef = useRef();
+  useFrame((state) => {
+    if (!bucketRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Subtle sway gentle
+    bucketRef.current.rotation.z = Math.sin(t * 0.5) * 0.08;
+  });
+  if (count < MAP_THRESHOLDS.r3Restore) return null;
+  // Safe position — between Telaga (-7,-1) and AirMancur (-3,3.5),
+  // di belakang CenterTree zone. Avoid landmark exclusions.
+  return (
+    <group position={[-5.5, 0, 2.5]} rotation={[0, 0.4, 0]}>
+      {/* Stone base — circular well rim */}
+      <mesh position={[0, 0.2, 0]}>
+        <cylinderGeometry args={[0.45, 0.5, 0.4, 12]} />
+        <meshStandardMaterial color="#7a6850" roughness={1} />
+      </mesh>
+      {/* Inner dark water (or empty pit) */}
+      <mesh position={[0, 0.38, 0]}>
+        <cylinderGeometry args={[0.34, 0.34, 0.02, 12]} />
+        <meshStandardMaterial
+          color="#1a1810"
+          emissive="#2a3a48"
+          emissiveIntensity={0.18}
+          roughness={0.5}
+        />
+      </mesh>
+      {/* 4 corner posts */}
+      {[
+        { x: -0.4, z: -0.4 },
+        { x: 0.4, z: -0.4 },
+        { x: -0.4, z: 0.4 },
+        { x: 0.4, z: 0.4 },
+      ].map((p, i) => (
+        <mesh key={`well-post-${i}`} position={[p.x, 0.85, p.z]}>
+          <cylinderGeometry args={[0.04, 0.045, 1.3, 5]} />
+          <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Roof — pyramid */}
+      <mesh position={[0, 1.65, 0]}>
+        <coneGeometry args={[0.65, 0.5, 4]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Cross beam horizontal — bucket hangs dari sini */}
+      <mesh position={[0, 1.4, 0]}>
+        <boxGeometry args={[0.95, 0.06, 0.06]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+      {/* Rope — vertical thin cylinder hanging */}
+      <mesh position={[0, 0.9, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, 0.95, 5]} />
+        <meshStandardMaterial color="#5a4a30" roughness={0.95} />
+      </mesh>
+      {/* Bucket — hangs at end of rope */}
+      <group ref={bucketRef} position={[0, 0.5, 0]}>
+        <mesh>
+          <cylinderGeometry args={[0.085, 0.075, 0.12, 6]} />
+          <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+        </mesh>
+        {/* Bucket handle */}
+        <mesh position={[0, 0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.07, 0.012, 4, 8, Math.PI]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.9} />
+        </mesh>
+      </group>
+    </group>
+  );
+};
+
+// TownBell — bell tower mini di safe zone (between center and panggung
+// area). Single post w/ traditional Japanese bell (bonshō style) +
+// striker rod. Reveal di m65 (kota fungsional+panggung pulih).
+const TownBell = ({ count }) => {
+  const bellRef = useRef();
+  useFrame((state) => {
+    if (!bellRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Subtle sway pelan
+    bellRef.current.rotation.z = Math.sin(t * 0.3) * 0.025;
+  });
+  if (count < MAP_THRESHOLDS.r5Restore) return null;
+  // Safe position — south interior, between Air Mancur and Gerbang area.
+  // Avoid AirMancur (-3,3.5), Lorong (z=0..8 |x|<1.5)
+  return (
+    <group position={[2, 0, 4.5]} rotation={[0, -0.3, 0]}>
+      {/* Base stone disc */}
+      <mesh position={[0, 0.04, 0]}>
+        <cylinderGeometry args={[0.4, 0.45, 0.08, 10]} />
+        <meshStandardMaterial color="#5a4838" roughness={1} />
+      </mesh>
+      {/* 2 main posts */}
+      <mesh position={[-0.25, 0.9, 0]}>
+        <cylinderGeometry args={[0.05, 0.06, 1.8, 6]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+      <mesh position={[0.25, 0.9, 0]}>
+        <cylinderGeometry args={[0.05, 0.06, 1.8, 6]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+      {/* Top crossbeam */}
+      <mesh position={[0, 1.75, 0]}>
+        <boxGeometry args={[0.6, 0.08, 0.08]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Small roof cap */}
+      <mesh position={[0, 1.85, 0]}>
+        <boxGeometry args={[0.72, 0.05, 0.18]} />
+        <meshStandardMaterial color="#2a1810" roughness={0.95} />
+      </mesh>
+      {/* Bell — bonshō style cylinder w/ rounded top */}
+      <group ref={bellRef} position={[0, 1.45, 0]}>
+        <mesh>
+          <cylinderGeometry args={[0.16, 0.18, 0.32, 10]} />
+          <meshStandardMaterial
+            color="#8a7028"
+            emissive="#5a4818"
+            emissiveIntensity={0.2}
+            roughness={0.5}
+            metalness={0.6}
+          />
+        </mesh>
+        {/* Rounded top dome */}
+        <mesh position={[0, 0.16, 0]}>
+          <sphereGeometry args={[0.16, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+          <meshStandardMaterial
+            color="#7a5828"
+            roughness={0.5}
+            metalness={0.5}
+          />
+        </mesh>
+        {/* Suspension loop */}
+        <mesh position={[0, 0.26, 0]}>
+          <torusGeometry args={[0.04, 0.012, 4, 8]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.5} />
+        </mesh>
+      </group>
+      {/* Striker rod — horizontal log gantung dari side */}
+      <mesh position={[0.45, 1.4, 0]} rotation={[0, 0, 0]}>
+        <cylinderGeometry args={[0.025, 0.025, 0.5, 6]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+      {/* Rope holding striker */}
+      <mesh position={[0.7, 1.55, 0]} rotation={[0, 0, 0.2]}>
+        <cylinderGeometry args={[0.008, 0.008, 0.4, 5]} />
+        <meshStandardMaterial color="#5a4a30" roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+
+// TownSignpost — wooden directional signpost di safe spot, dgn 3 arrow
+// boards menunjuk ke landmark utama. Reveal di m5 (kota fungsional).
+const TownSignpost = ({ count }) => {
+  if (count < MAP_THRESHOLDS.r4Restore) return null;
+  // Safe position — di south interior, dekat lorong tapi gak nutupin
+  return (
+    <group position={[3, 0, 5.5]} rotation={[0, 0.4, 0]}>
+      {/* Vertical post */}
+      <mesh position={[0, 0.8, 0]}>
+        <cylinderGeometry args={[0.04, 0.05, 1.6, 5]} />
+        <meshStandardMaterial color="#5a3a20" roughness={0.95} />
+      </mesh>
+      {/* Top cap */}
+      <mesh position={[0, 1.65, 0]}>
+        <coneGeometry args={[0.06, 0.1, 4]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.9} />
+      </mesh>
+      {/* 3 arrow boards pointing different directions */}
+      {[
+        { y: 1.35, rotY: 0, color: '#8a6038' },
+        { y: 1.15, rotY: 2.1, color: '#7a5028' },
+        { y: 0.95, rotY: 4.2, color: '#9a7048' },
+      ].map((arr, i) => (
+        <group key={`arr-${i}`} position={[0, arr.y, 0]} rotation={[0, arr.rotY, 0]}>
+          {/* Arrow board — rect with pointed end */}
+          <mesh position={[0.18, 0, 0]}>
+            <boxGeometry args={[0.32, 0.12, 0.025]} />
+            <meshStandardMaterial color={arr.color} roughness={0.9} />
+          </mesh>
+          {/* Arrow tip — small triangle (4-sided cone) */}
+          <mesh position={[0.36, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+            <coneGeometry args={[0.07, 0.1, 3]} />
+            <meshStandardMaterial color={arr.color} roughness={0.9} />
+          </mesh>
+          {/* Faux text strip dark */}
+          <mesh position={[0.16, 0, 0.014]}>
+            <planeGeometry args={[0.22, 0.025]} />
+            <meshStandardMaterial color="#2a1810" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+    </group>
+  );
+};
+
 // NpcVillager — simple static low-poly humanoid silhouette. Stylized
 // body sphere + head sphere + optional 2 stick arms. Robe color
 // varied per seed. Used scattered di town areas as "ada yg tinggal".
@@ -13583,6 +13783,10 @@ const TamanScene = ({
       {/* === Bundle 5 — village life signs: NPCs + chimney smoke === */}
       <NpcVillagers count={armeniacaCount} />
       <ChimneySmoke count={armeniacaCount} />
+      {/* === Bundle 6 — town infrastructure === */}
+      <WaterWell count={armeniacaCount} />
+      <TownBell count={armeniacaCount} />
+      <TownSignpost count={armeniacaCount} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
       <HoverHalo pos={[0, 0.02, 0]} visible={hoveredCenter} color="#a8d088" />
