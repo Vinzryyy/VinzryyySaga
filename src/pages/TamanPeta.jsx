@@ -10775,6 +10775,8 @@ const PetaAirMancur = ({
   const lanternMatRefs = useRef([]);
   const petalRefs = useRef([]);
   const moteRefs = useRef([]);
+  const fireflyRef = useRef();
+  const rippleRefs = useRef([]);
 
   // Tier-derived visual flags. waterLevelY = absolute world-y untuk
   // surface plane water (di-stack di atas basin floor 0.18 + offset).
@@ -10807,6 +10809,13 @@ const PetaAirMancur = ({
   const hasLanternMotes = tier >= 5;
   const hasFloatingPetals = tier >= 6;
   const hasPathStub = tier >= 1;
+  const hasRobeDrape = tier >= 2;
+  const hasInscription = tier >= 2;
+  const hasTablet = tier >= 3;
+  const hasRipples = tier >= 4;
+  const hasCoins = tier >= 5;
+  const hasTeaCup = tier >= 5;
+  const hasFirefly = tier >= 5;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -10882,6 +10891,27 @@ const PetaAirMancur = ({
         m.position.y = 0.6 + ((t * 0.15 + phase) % 1.4) * 0.6;
         m.rotation.z = t * 0.4 + phase;
       }
+    }
+    // Ripples T4+ — concentric torus expand+fade looping di water surface
+    if (hasRipples) {
+      for (let i = 0; i < rippleRefs.current.length; i += 1) {
+        const m = rippleRefs.current[i];
+        if (!m) continue;
+        const phase = i * 0.7;
+        const cycle = ((t * 0.45 + phase) % 1) ;
+        const scale = 0.25 + cycle * 1.4;
+        m.scale.set(scale, 1, scale);
+        if (m.material) m.material.opacity = 0.5 * (1 - cycle);
+      }
+    }
+    // Firefly T5+ — orbit single mesh slow keliling fountain area,
+    // varying altitude + radius biar gak monoton.
+    if (hasFirefly && fireflyRef.current) {
+      const fa = t * 0.35;
+      const fr = 1.3 + Math.sin(t * 0.4) * 0.25;
+      fireflyRef.current.position.x = Math.cos(fa) * fr;
+      fireflyRef.current.position.z = Math.sin(fa) * fr;
+      fireflyRef.current.position.y = 0.85 + Math.sin(t * 0.9) * 0.2;
     }
     // Lantern motes T5+ — orbit horizontal pelan keliling lantern globe
     // height + sedikit bob. 3 motes per lantern × 2 lanterns = 6 total.
@@ -10968,7 +10998,9 @@ const PetaAirMancur = ({
         ))}
 
       {/* Stone benches T3+ — 2 simple bench di sisi E+W plaza, low
-          stone block dgn 2 leg. "Tempat orang duduk" — gathering vibe. */}
+          stone block dgn 2 leg. "Tempat orang duduk" — gathering vibe.
+          Bench East (i===0) dapet tea cup T5+ — narrative "someone was
+          just here". */}
       {hasBenches &&
         [
           { angle: 0, r: 1.85 },
@@ -10997,6 +11029,29 @@ const PetaAirMancur = ({
                 <boxGeometry args={[0.08, 0.16, 0.18]} />
                 <meshStandardMaterial color="#4a3828" roughness={1} />
               </mesh>
+              {/* Tea cup T5+ — small ceramic cup + saucer di bench
+                  pertama. Narrative beat. */}
+              {hasTeaCup && i === 0 && (
+                <>
+                  <mesh position={[0.15, 0.235, 0.04]}>
+                    <cylinderGeometry args={[0.045, 0.04, 0.005, 10]} />
+                    <meshStandardMaterial color="#e8e0d4" roughness={0.7} />
+                  </mesh>
+                  <mesh position={[0.15, 0.26, 0.04]}>
+                    <cylinderGeometry args={[0.035, 0.03, 0.05, 10]} />
+                    <meshStandardMaterial color="#f4ece0" roughness={0.6} />
+                  </mesh>
+                  <mesh position={[0.15, 0.282, 0.04]}>
+                    <cylinderGeometry args={[0.028, 0.028, 0.005, 10]} />
+                    <meshStandardMaterial
+                      color="#3a2818"
+                      emissive="#1a0e08"
+                      emissiveIntensity={0.2}
+                      roughness={0.5}
+                    />
+                  </mesh>
+                </>
+              )}
             </group>
           );
         })}
@@ -11070,6 +11125,37 @@ const PetaAirMancur = ({
           <meshStandardMaterial color="#2a1f18" roughness={1} />
         </mesh>
       )}
+
+      {/* Carved inscription T2+ — small dark rectangle plane di basin
+          exterior, kasih hint "ada cerita di sini". 1 di front-facing side. */}
+      {hasInscription && (
+        <mesh position={[0, 0.12, 1.04]}>
+          <planeGeometry args={[0.35, 0.07]} />
+          <meshStandardMaterial color="#2a1810" roughness={1} />
+        </mesh>
+      )}
+
+      {/* Wishing coins T5+ — 4 small emissive specks di basin floor,
+          narrative "tradition started here". Pakai sphere kecil. */}
+      {hasCoins &&
+        [
+          { x: 0.15, z: 0.1 },
+          { x: -0.2, z: 0.05 },
+          { x: 0.05, z: -0.25 },
+          { x: -0.1, z: -0.1 },
+        ].map((c, i) => (
+          <mesh key={`coin-${i}`} position={[c.x, 0.2, c.z]}>
+            <cylinderGeometry args={[0.025, 0.025, 0.005, 8]} />
+            <meshStandardMaterial
+              color="#f4d878"
+              emissive="#d4a848"
+              emissiveIntensity={0.55}
+              roughness={0.4}
+              metalness={0.6}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
 
       {/* Submerged debris di basin floor — 2 pecahan kecil di dasar
           (T1-T2 only). Hilang dari T3+ karena air udah jernih + clear. */}
@@ -11176,11 +11262,51 @@ const PetaAirMancur = ({
         </mesh>
       )}
 
+      {/* Concentric ripples T4+ — 2 torus rings expand+fade looping.
+          Phase di-stagger biar gak sync. Animated via useFrame. */}
+      {hasRipples &&
+        [0, 1].map((i) => (
+          <mesh
+            key={`ripple-${i}`}
+            ref={(m) => {
+              rippleRefs.current[i] = m;
+            }}
+            rotation={[Math.PI / 2, 0, 0]}
+            position={[0, waterLevelY + 0.011, 0]}
+          >
+            <torusGeometry args={[0.4, 0.008, 4, 24]} />
+            <meshStandardMaterial
+              color="#a8c8e0"
+              emissive="#7aa8c0"
+              emissiveIntensity={0.4}
+              transparent
+              opacity={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
+
       {/* Central pedestal — short pillar yg nopang patung */}
       <mesh position={[0, 0.48, 0]}>
         <cylinderGeometry args={[0.2, 0.25, 0.5, 8]} />
         <meshStandardMaterial color={stoneColor} roughness={1} />
       </mesh>
+
+      {/* Stone tablet T3+ — small memorial plaque di base depan pedestal.
+          Box tipis + thin engraving line di atas. Suggests "this place
+          remembers". */}
+      {hasTablet && (
+        <group position={[0, 0.04, 0.32]} rotation={[0, 0, 0]}>
+          <mesh>
+            <boxGeometry args={[0.24, 0.08, 0.05]} />
+            <meshStandardMaterial color="#4a3828" roughness={1} />
+          </mesh>
+          <mesh position={[0, 0.005, 0.026]}>
+            <planeGeometry args={[0.16, 0.018]} />
+            <meshStandardMaterial color="#2a1810" roughness={1} />
+          </mesh>
+        </group>
+      )}
 
       {/* Pedestal moss/vines T4+ — green spheres clustered di base
           pedestal, signal life returning. Asymmetric biar gak rapi. */}
@@ -11284,6 +11410,20 @@ const PetaAirMancur = ({
         <sphereGeometry args={[0.18, 10, 8]} />
         <meshStandardMaterial color={statueColor} roughness={1} />
       </mesh>
+
+      {/* Robe drape lines T2+ — 3 thin vertical accents di torso, kasih
+          kesan fabric folds tanpa face/head detail. Asymmetric. */}
+      {hasRobeDrape &&
+        [-0.08, 0.02, 0.09].map((x, i) => (
+          <mesh
+            key={`robe-${i}`}
+            position={[x, 0.84, 0.16]}
+            rotation={[0, 0, i * 0.08]}
+          >
+            <boxGeometry args={[0.012, 0.18, 0.008]} />
+            <meshStandardMaterial color="#3a2a1c" roughness={1} />
+          </mesh>
+        ))}
 
       {/* Arms — kalau broken (T1), lying di rim basin. Kalau ada (T2+),
           raised dalam pose menampung air. Seam ring di joint kalau T2. */}
@@ -11460,6 +11600,22 @@ const PetaAirMancur = ({
             </mesh>
           );
         })}
+
+      {/* Firefly T5+ — single mesh orbit slow keliling fountain area,
+          altitude + radius variant via useFrame. Single life beat malam. */}
+      {hasFirefly && (
+        <mesh ref={fireflyRef} position={[1.3, 0.85, 0]}>
+          <sphereGeometry args={[0.025, 8, 6]} />
+          <meshStandardMaterial
+            color="#f4e8a0"
+            emissive="#f4d878"
+            emissiveIntensity={1.2}
+            transparent
+            opacity={0.9}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
 
       {/* Floating petals T6 — 3 specks pink drift naik-turun lambat
           sekitar height blossom. Loop y wrap via useFrame. Tiap petal
@@ -12545,8 +12701,9 @@ const TamanPetaPage = () => {
   // Air Mancur tier — 7 step continuous progression (0=hidden, 6=epilog
   // dengan bunga aprikot). Beda dari petak lain — tetep tumbuh past 7k
   // fullRestore sampai 10k. Dev override `?airmancur=N` (0-6) buat
-  // preview tier tanpa nunggu count naik. Purified TIDAK auto-bump tier
-  // — biar air mancur murni reflect actual count progression.
+  // preview tier tanpa nunggu count naik. Purified state (count >=7k
+  // atau ?purified=1) langsung force ke T6 — preview hasil akhir, sync
+  // sama treatment landmark lain yg di-treat 'restored' di purified.
   const airMancurTier = useMemo(() => {
     if (import.meta.env.DEV) {
       const override = searchParams.get('airmancur');
@@ -12555,6 +12712,7 @@ const TamanPetaPage = () => {
         if (!Number.isNaN(n)) return Math.max(0, Math.min(6, n));
       }
     }
+    if (purified) return 6;
     if (!armeniacaLoaded) return 0;
     if (armeniacaCount >= MAP_THRESHOLDS.airMancurT6) return 6;
     if (armeniacaCount >= MAP_THRESHOLDS.airMancurT5) return 5;
@@ -12563,7 +12721,7 @@ const TamanPetaPage = () => {
     if (armeniacaCount >= MAP_THRESHOLDS.airMancurT2) return 2;
     if (armeniacaCount >= MAP_THRESHOLDS.airMancurT1) return 1;
     return 0;
-  }, [armeniacaCount, armeniacaLoaded, searchParams]);
+  }, [armeniacaCount, armeniacaLoaded, searchParams, purified]);
   // Set of petak IDs yang udah dibuka overlay-nya. Init dari
   // localStorage (merge new + legacy keys).
   const [previewedPetak, setPreviewedPetak] = useState(() => readPreviewed());
