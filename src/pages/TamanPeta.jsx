@@ -6318,25 +6318,37 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
   );
 };
 
-// ProgressiveTrees — 12 trees scattered di outer ring radius 6-13,
-// growth continuous tied ke count. Per-tree unlock/maturity stagger
-// (2300-2700 unlock, 6300-6800 mature) supaya organic distribution.
-const PROGRESSIVE_TREE_DEFS = (() => {
-  const arr = [];
-  for (let i = 0; i < 12; i++) {
-    const angle = (i / 12) * Math.PI * 2 + ((i * 17) % 7) * 0.08;
-    const radius = 7 + ((i * 13) % 5) * 1.2;
-    const unlockAt = 2300 + ((i * 23) % 5) * 80;
-    const maturityAt = 6300 + ((i * 29) % 6) * 90;
-    arr.push({
-      pos: [Math.cos(angle) * radius, 0, Math.sin(angle) * radius],
-      unlockAt,
-      maturityAt,
-      seed: i,
-    });
-  }
-  return arr;
-})();
+// ProgressiveTrees — 12 trees di safe zones (gak overlap landmark
+// exclusion). Hand-picked positions avoid:
+//   CenterTree (0,0) r<2.5
+//   Gerbang+Lorong (|x|<1.5, z 0..9)
+//   Telaga (-7,-1) r<2.5
+//   Arsip (7,-1) r<2.5
+//   Menara (0,-8) r<2.5
+//   Panggung (5,5) r<2.5
+//   AirMancur (-3,3.5) r<1.8
+// Per-tree unlockAt (2300-2700) + maturityAt (6300-6800) staggered.
+const PROGRESSIVE_TREE_DEFS = [
+  // North-west area (between Menara and Telaga)
+  { pos: [-4, 0, -10], unlockAt: 2300, maturityAt: 6300, seed: 0 },
+  { pos: [-8, 0, -5], unlockAt: 2380, maturityAt: 6360, seed: 1 },
+  // West (clear of Telaga -7,-1)
+  { pos: [-10, 0, 2], unlockAt: 2460, maturityAt: 6420, seed: 2 },
+  { pos: [-10, 0, -6], unlockAt: 2540, maturityAt: 6480, seed: 3 },
+  // South-west (between Telaga and Gerbang)
+  { pos: [-8, 0, 6], unlockAt: 2620, maturityAt: 6540, seed: 4 },
+  { pos: [-4, 0, 10], unlockAt: 2700, maturityAt: 6600, seed: 5 },
+  // South (far, beyond Gerbang z=8)
+  { pos: [2, 0, 11.5], unlockAt: 2300, maturityAt: 6660, seed: 6 },
+  // South-east (beyond Panggung 5,5)
+  { pos: [9, 0, 8.5], unlockAt: 2380, maturityAt: 6720, seed: 7 },
+  // East (clear of Arsip 7,-1)
+  { pos: [11, 0, 1.5], unlockAt: 2460, maturityAt: 6780, seed: 8 },
+  { pos: [10, 0, -5], unlockAt: 2540, maturityAt: 6300, seed: 9 },
+  // North-east (between Arsip and Menara)
+  { pos: [5, 0, -10], unlockAt: 2620, maturityAt: 6360, seed: 10 },
+  { pos: [3, 0, -11], unlockAt: 2700, maturityAt: 6420, seed: 11 },
+];
 const ProgressiveTrees = ({ count, loaded }) => {
   if (!loaded) return null;
   return (
@@ -6355,8 +6367,10 @@ const DeadTreeRevival = ({ count }) => {
   // Use same SNAPPED_TREE_DEFS positions tapi cuma stump tinggi nya
   // dapat overlay foliage. Threshold: r5Restore (6500).
   if (count < MAP_THRESHOLDS.r5Restore) return null;
+  // Mirror SNAPPED_TREE_DEFS positions setelah relocation supaya
+  // revival leaves muncul tepat di stump positions yang udah safe.
   const SNAPPED_REVIVAL_DEFS = [
-    { pos: [4.5, 0, 5.5], stumpH: 0.7 },
+    { pos: [-4, 0, -5], stumpH: 0.7 },
     { pos: [-4.0, 0, 6.2], stumpH: 0.5 },
     { pos: [5.5, 0, -3.5], stumpH: 0.9 },
   ];
@@ -6469,13 +6483,16 @@ const ForestSilhouettes = ({ count }) => {
 // SaplingCluster — small sapling + scrub bushes di sparse tiers (m3).
 // Beda dari ProgressiveTrees (outer ring) — SaplingCluster di inner
 // area dekat petak ring, fill the gap di m3 yang cuma 2 elements.
+// SAPLING_CLUSTER_DEFS — safe zones avoid landmark overlaps:
+//   Avoid: AirMancur (-3,3.5) r<1.8, Lorong (|x|<1.5, z 0..9),
+//          Center r<2.5, Telaga/Arsip/Menara/Panggung r<2.5
 const SAPLING_CLUSTER_DEFS = [
-  { x: -3.5, z: 2.5, seed: 1 },
-  { x: 3.5, z: 2.8, seed: 2 },
-  { x: -4, z: -1.5, seed: 3 },
-  { x: 4, z: -1.8, seed: 4 },
-  { x: -1.5, z: 4.5, seed: 5 },
-  { x: 1.8, z: 4.2, seed: 6 },
+  { x: -5, z: 2.5, seed: 1 },      // west, clear of Telaga + AirMancur
+  { x: 3, z: 3.5, seed: 2 },       // east interior, clear of Panggung
+  { x: -4, z: -3, seed: 3 },       // northwest, clear of Telaga
+  { x: 4, z: -3, seed: 4 },        // northeast, clear of Arsip
+  { x: -3, z: -5.5, seed: 5 },     // north, clear of Menara
+  { x: 3, z: -5.5, seed: 6 },      // north, clear of Menara
 ];
 const SaplingCluster = () => (
   <>
@@ -9462,8 +9479,11 @@ const CrackedRimStones = () => (
 // SnappedDeadTrees — 3 dead tree trunk yg patah violent (beda dari
 // DeadTrees yg cuma mati berdiri). Stump pendek di bawah, trunk
 // atas terlepas rebah di tanah. Splinter chunks tersebar.
+// SNAPPED_TREE_DEFS — relocated (4.5,5.5) → (-4,-5) supaya gak overlap
+// Panggung (5,5). 3 safe positions: northwest, southwest (clear of
+// Lorong path), east (clear of Arsip).
 const SNAPPED_TREE_DEFS = [
-  { pos: [4.5, 0, 5.5], stumpH: 0.7, trunkH: 1.6, rot: 0.5 },
+  { pos: [-4, 0, -5], stumpH: 0.7, trunkH: 1.6, rot: 0.5 },
   { pos: [-4.0, 0, 6.2], stumpH: 0.5, trunkH: 1.8, rot: -0.8 },
   { pos: [5.5, 0, -3.5], stumpH: 0.9, trunkH: 1.4, rot: 1.1 },
 ];
