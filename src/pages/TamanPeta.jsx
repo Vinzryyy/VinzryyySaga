@@ -12805,6 +12805,52 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
             style={{ width: `${pct}%` }}
           />
         </div>
+        {/* Milestone tier dots — visible progress feedback. 6 dots
+            represent unlocks: m3 m4 m5 m6 m65 m7. Filled = reached,
+            pulse = next target, empty = ahead. */}
+        <div className="flex items-center gap-1.5">
+          {[
+            { threshold: MAP_THRESHOLDS.r4Unlock, label: '3k' },
+            { threshold: MAP_THRESHOLDS.r1Restore, label: '4k' },
+            { threshold: MAP_THRESHOLDS.r4Restore, label: '5k' },
+            { threshold: MAP_THRESHOLDS.r3Restore, label: '6k' },
+            { threshold: MAP_THRESHOLDS.r5Restore, label: '6.5k' },
+            { threshold: MAP_THRESHOLDS.fullRestore, label: '7k' },
+          ].map((m, i, arr) => {
+            const reached = count >= m.threshold;
+            // Next-target: smallest unreached threshold
+            const prevReached = i === 0 || count >= arr[i - 1].threshold;
+            const isNext = !reached && prevReached;
+            return (
+              <div
+                key={`tier-dot-${i}`}
+                className="flex flex-col items-center gap-0.5"
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${
+                    reached
+                      ? 'bg-emerald-300/90 shadow-[0_0_4px_rgba(110,231,183,0.6)]'
+                      : isNext
+                      ? 'bg-amber-200/85 animate-pulse'
+                      : 'bg-white/20'
+                  }`}
+                  aria-label={`Milestone ${m.label} ${reached ? 'tercapai' : 'belum'}`}
+                />
+                <span
+                  className={`text-[7px] tracking-[0.1em] tabular-nums transition-colors ${
+                    reached
+                      ? 'text-emerald-300/70'
+                      : isNext
+                      ? 'text-amber-200/75'
+                      : 'text-white/25'
+                  }`}
+                >
+                  {m.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
         <p className="text-white/45 text-[9px] sm:text-[10px] tracking-wide italic">
           {nextLabel}
         </p>
