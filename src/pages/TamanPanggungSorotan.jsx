@@ -441,6 +441,33 @@ const ViewingBench = ({ restored }) => (
       <planeGeometry args={[3, 0.02]} />
       <meshStandardMaterial color="#1a0e08" roughness={1} />
     </mesh>
+    {/* Programmes — stack of small books left on bench, restored only.
+        Narrative "ada pengunjung yang baru aja keluar". */}
+    {restored && (
+      <group position={[-1.1, 0.46, 0]}>
+        {/* Book 1 — bottom */}
+        <mesh position={[0, 0.025, 0]} rotation={[0, 0.15, 0]}>
+          <boxGeometry args={[0.22, 0.05, 0.18]} />
+          <meshStandardMaterial color="#a83838" roughness={0.85} />
+        </mesh>
+        {/* Book 2 — middle */}
+        <mesh position={[0.02, 0.075, 0.01]} rotation={[0, -0.1, 0]}>
+          <boxGeometry args={[0.22, 0.05, 0.18]} />
+          <meshStandardMaterial color="#3a2818" roughness={0.85} />
+        </mesh>
+        {/* Book 3 — top, slightly askew */}
+        <mesh position={[-0.03, 0.125, -0.02]} rotation={[0, 0.3, 0]}>
+          <boxGeometry args={[0.22, 0.04, 0.18]} />
+          <meshStandardMaterial
+            color="#d4a848"
+            emissive="#7a5818"
+            emissiveIntensity={0.15}
+            roughness={0.6}
+            metalness={0.2}
+          />
+        </mesh>
+      </group>
+    )}
   </group>
 );
 
@@ -638,6 +665,221 @@ const GallerySconces = ({ restored }) => {
   );
 };
 
+// Chandelier — central hanging fixture di ceiling above audience.
+// Gold ring frame + 6 small bulbs + chain ke ceiling. Drought: dim.
+const Chandelier = ({ restored }) => {
+  const bulbMatRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < bulbMatRefs.current.length; i += 1) {
+      const mat = bulbMatRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.75 + Math.sin(t * 0.8 + i * 0.6) * 0.12;
+    }
+  });
+  const chandY = 4.2;
+  const chandZ = 0;
+  const ringR = 0.6;
+  return (
+    <group position={[0, chandY, chandZ]}>
+      {/* Chain ke ceiling */}
+      <mesh position={[0, 0.8, 0]}>
+        <cylinderGeometry args={[0.012, 0.012, 1.6, 5]} />
+        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+      </mesh>
+      {/* Top cap */}
+      <mesh position={[0, 0.05, 0]}>
+        <cylinderGeometry args={[0.08, 0.05, 0.08, 8]} />
+        <meshStandardMaterial
+          color={restored ? '#d4a848' : '#3a2418'}
+          emissive={restored ? '#a87830' : '#000000'}
+          emissiveIntensity={restored ? 0.3 : 0}
+          roughness={0.5}
+          metalness={0.5}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Ring frame — gold metallic */}
+      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[ringR, 0.04, 8, 24]} />
+        <meshStandardMaterial
+          color={restored ? '#d4a848' : '#3a2418'}
+          emissive={restored ? '#a87830' : '#000000'}
+          emissiveIntensity={restored ? 0.35 : 0}
+          roughness={0.5}
+          metalness={0.5}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* 6 bulbs spread along ring */}
+      {Array.from({ length: 6 }).map((_, i) => {
+        const angle = (i / 6) * Math.PI * 2;
+        const bx = Math.cos(angle) * ringR;
+        const bz = Math.sin(angle) * ringR;
+        return (
+          <group key={`bulb-${i}`} position={[bx, -0.1, bz]}>
+            {/* Bulb holder */}
+            <mesh position={[0, 0.04, 0]}>
+              <cylinderGeometry args={[0.025, 0.03, 0.06, 6]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.9} />
+            </mesh>
+            {/* Bulb — emissive */}
+            <mesh position={[0, -0.04, 0]}>
+              <sphereGeometry args={[0.06, 10, 8]} />
+              <meshStandardMaterial
+                ref={(m) => {
+                  bulbMatRefs.current[i] = m;
+                }}
+                color={restored ? '#f4d8a0' : '#5a4838'}
+                emissive={restored ? '#f4c478' : '#000000'}
+                emissiveIntensity={restored ? 0.75 : 0}
+                roughness={0.4}
+                toneMapped={false}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+      {/* Center point light */}
+      {restored && (
+        <pointLight
+          position={[0, -0.1, 0]}
+          color="#f4d8a0"
+          intensity={0.6}
+          distance={5}
+          decay={2}
+        />
+      )}
+    </group>
+  );
+};
+
+// CofferedCeilingBeams — wooden grid pattern di ceiling above audience.
+// 3 cross beams (X-dir) + 4 perpendicular (Z-dir) kasih architectural
+// depth tanpa solid ceiling (gallery tetep "terbuka").
+const CofferedCeilingBeams = ({ restored }) => {
+  const beamColor = restored ? '#5a3a20' : '#3a2418';
+  const beamY = 5.1;
+  return (
+    <>
+      {/* Cross beams X direction — span full GALLERY_W di z positions */}
+      {[-2.5, 0, 2.5].map((z, i) => (
+        <mesh key={`beam-x-${i}`} position={[0, beamY, z]}>
+          <boxGeometry args={[GALLERY_W - 1, 0.18, 0.16]} />
+          <meshStandardMaterial color={beamColor} roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Perpendicular Z direction — short spans di x positions */}
+      {[-5, -1.5, 1.5, 5].map((x, i) => (
+        <mesh key={`beam-z-${i}`} position={[x, beamY, 0]}>
+          <boxGeometry args={[0.16, 0.18, 5.5]} />
+          <meshStandardMaterial color={beamColor} roughness={0.95} />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// AisleFloorLights — embedded small emissive dots along center aisle,
+// kasih warm "stage runway" guide light. Restored only.
+const AisleFloorLights = ({ restored }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const mat = matRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.7 + Math.sin(t * 0.6 + i * 0.3) * 0.12;
+    }
+  });
+  if (!restored) return null;
+  const positions = [-3.5, -2.5, -1.5, 0, 1.5, 2.5, 3.5];
+  return (
+    <>
+      {positions.map((z, i) => (
+        <mesh
+          key={`aisle-light-${i}`}
+          position={[0, 0.005, z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <circleGeometry args={[0.06, 12]} />
+          <meshStandardMaterial
+            ref={(m) => {
+              matRefs.current[i] = m;
+            }}
+            color="#f4d8a0"
+            emissive="#f4c478"
+            emissiveIntensity={0.7}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// WallMedallions — small decorative ornaments mounted di side walls
+// between poster slots. Restored only.
+const WallMedallions = ({ restored }) => {
+  if (!restored) return null;
+  // Position between poster slots on each wall — di z between WALL_POSITIONS
+  // slot 0 dan slot 1 (z=-1.25), dan slot 1 dan slot 2 (z=+1.25).
+  const positions = [
+    { x: -SIDE_WALL_X + 0.16, z: -1.25, ry: Math.PI / 2 },
+    { x: -SIDE_WALL_X + 0.16, z: 1.25, ry: Math.PI / 2 },
+    { x: SIDE_WALL_X - 0.16, z: -1.25, ry: -Math.PI / 2 },
+    { x: SIDE_WALL_X - 0.16, z: 1.25, ry: -Math.PI / 2 },
+  ];
+  return (
+    <>
+      {positions.map((p, i) => (
+        <group
+          key={`medallion-${i}`}
+          position={[p.x, 2.7, p.z]}
+          rotation={[0, p.ry, 0]}
+        >
+          {/* Outer ring — gold */}
+          <mesh>
+            <torusGeometry args={[0.18, 0.025, 8, 16]} />
+            <meshStandardMaterial
+              color="#d4a848"
+              emissive="#a87830"
+              emissiveIntensity={0.32}
+              roughness={0.5}
+              metalness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+          {/* Inner medallion plate */}
+          <mesh position={[0, 0, 0.01]}>
+            <circleGeometry args={[0.15, 16]} />
+            <meshStandardMaterial
+              color="#7a3030"
+              emissive="#3a1010"
+              emissiveIntensity={0.18}
+              roughness={0.85}
+            />
+          </mesh>
+          {/* Center bead — gold */}
+          <mesh position={[0, 0, 0.04]}>
+            <sphereGeometry args={[0.05, 10, 8]} />
+            <meshStandardMaterial
+              color="#d4a848"
+              emissive="#a87830"
+              emissiveIntensity={0.35}
+              roughness={0.45}
+              metalness={0.55}
+              toneMapped={false}
+            />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
 // PanggungDais — low raised stage platform di base back wall. Center
 // featured poster sit "on stage" backdrop. 4 wide × 1.5 deep × 0.3
 // high. Restored: brighter wood + edge lip. Drought: muted.
@@ -792,6 +1034,40 @@ const StageCurtainSwag = ({ restored }) => {
             />
           </mesh>
         ))}
+      {/* Backdrop banner — italic serif text di tengah back wall di
+          atas curtain swag. HTML transform-positioned, restored only. */}
+      {restored && (
+        <Html
+          position={[0, swagY + 0.7, swagZ + 0.02]}
+          center
+          distanceFactor={5}
+          occlude={false}
+          transform
+        >
+          <div
+            className="pointer-events-none select-none text-center"
+            style={{ width: 320 }}
+          >
+            <div
+              className="text-[10px] uppercase tracking-[0.4em] mb-1"
+              style={{ color: '#d4a848' }}
+            >
+              ✦ ✦ ✦
+            </div>
+            <div
+              className="text-[20px] leading-tight"
+              style={{
+                color: '#f4d8a0',
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+                textShadow: '0 2px 8px rgba(0,0,0,0.6)',
+              }}
+            >
+              Sorotan Kebaikan
+            </div>
+          </div>
+        </Html>
+      )}
     </>
   );
 };
@@ -1418,7 +1694,11 @@ const Scene = ({
       <FloorMist restored={restored} />
       <GalleryWalls restored={restored} />
       <GallerySconces restored={restored} />
+      <WallMedallions restored={restored} />
+      <CofferedCeilingBeams restored={restored} />
+      <Chandelier restored={restored} />
       <CeilingTrackLights restored={restored} />
+      <AisleFloorLights restored={restored} />
       <PanggungDais restored={restored} />
       <StageCurtainSwag restored={restored} />
       <DaisFootlights restored={restored} />
