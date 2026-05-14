@@ -132,7 +132,7 @@ const ExhibitionFloor = ({ restored }) => (
     <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[14, 12]} />
       <meshStandardMaterial
-        color={restored ? '#a87848' : '#3a2820'}
+        color={restored ? '#a87848' : '#5a4030'}
         roughness={0.85}
       />
     </mesh>
@@ -183,9 +183,9 @@ const ExhibitionFloor = ({ restored }) => (
 // GalleryWalls — 3 walls U-shape (back + 2 sides). Restored: cream
 // warm plaster + gold crown + dark wood baseboard. Drought: dark muted.
 const GalleryWalls = ({ restored }) => {
-  const wallColor = restored ? '#e4cfa8' : '#3a2c20';
-  const wallEmissive = restored ? '#a87848' : '#000000';
-  const wallEmI = restored ? 0.06 : 0;
+  const wallColor = restored ? '#e4cfa8' : '#6a5040';
+  const wallEmissive = restored ? '#a87848' : '#2a1810';
+  const wallEmI = restored ? 0.06 : 0.05;
   const trimColor = restored ? '#3a2418' : '#2a1810';
   const crownColor = restored ? '#d4a848' : '#3a2418';
   const accentStripColor = restored ? '#8a1818' : null;
@@ -806,34 +806,110 @@ const PosterFrame = ({ entry, index, restored, hovered, onClick, onHover, onUnho
   );
 };
 
+// PlaceholderFrame — empty slot di walls untuk donasi yg belum ada.
+// Muncul di slot WALL_POSITIONS yg gak ke-fill sama KEBAIKAN_ENTRIES.
+// Restored only (drought walls terlalu gelap untuk visible). Signal
+// "ruang ini disediain untuk sorotan baru".
+const PlaceholderFrame = ({ slotIdx, restored }) => {
+  const pos = WALL_POSITIONS[slotIdx];
+  if (!pos) return null;
+  return (
+    <group position={[pos.x, pos.y, pos.z]} rotation={[0, pos.ry, 0]}>
+      {/* Frame backing — muted wood, transparent */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[POSTER_W + 0.18, POSTER_H + 0.18, 0.04]} />
+        <meshStandardMaterial
+          color={restored ? '#5a3a20' : '#3a2818'}
+          roughness={0.9}
+          transparent
+          opacity={restored ? 0.55 : 0.7}
+        />
+      </mesh>
+      {/* Inner panel — muted, dashed-style hint */}
+      <mesh position={[0, 0, 0.025]}>
+        <planeGeometry args={[POSTER_W - 0.05, POSTER_H - 0.05]} />
+        <meshStandardMaterial
+          color={restored ? '#b8a888' : '#5a4838'}
+          emissive={restored ? '#3a2818' : '#1a1008'}
+          emissiveIntensity={restored ? 0.08 : 0.18}
+          roughness={0.95}
+          transparent
+          opacity={restored ? 0.6 : 0.7}
+        />
+      </mesh>
+      {/* HTML label — placeholder text */}
+      <Html
+        position={[0, 0, 0.05]}
+        center
+        distanceFactor={4}
+        occlude={false}
+      >
+        <div
+          className="pointer-events-none select-none text-center"
+          style={{ width: 140 }}
+        >
+          <div
+            className="text-[8px] uppercase tracking-[0.3em] mb-1"
+            style={{
+              color: restored ? '#7a4820' : '#c8a878',
+              opacity: 0.7,
+            }}
+          >
+            Slot kosong
+          </div>
+          <div
+            className="text-[10px] leading-tight"
+            style={{
+              color: restored ? '#3a2818' : '#e8d4a8',
+              fontFamily: '"Fraunces Variable", serif',
+              fontStyle: 'italic',
+              opacity: 0.8,
+            }}
+          >
+            Sorotan berikutnya
+          </div>
+          <div
+            className="text-[7px] mt-1.5 tracking-wider"
+            style={{
+              color: restored ? '#7a4820' : '#a87848',
+              opacity: 0.55,
+            }}
+          >
+            ··· nungguin diisi
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // SceneLights — ambient + key directional. Restored: warm cream tone
-// brighter overall. Drought: dim cool brown.
+// brighter overall. Drought: dim warm brown but cukup visible untuk
+// pengunjung baca konten + lihat layout.
 const SceneLights = ({ restored }) => (
   <>
     <ambientLight
-      intensity={restored ? 0.7 : 0.2}
-      color={restored ? '#f4d8a8' : '#3a2c20'}
+      intensity={restored ? 0.7 : 0.45}
+      color={restored ? '#f4d8a8' : '#7a5838'}
     />
     <directionalLight
       position={[6, 10, 6]}
-      intensity={restored ? 0.65 : 0.18}
-      color={restored ? '#f4e0b8' : '#a89070'}
+      intensity={restored ? 0.65 : 0.4}
+      color={restored ? '#f4e0b8' : '#c89878'}
     />
     {/* Fill light dari depan biar wall + posters kebaca */}
     <directionalLight
       position={[0, 5, 8]}
-      intensity={restored ? 0.4 : 0.15}
-      color={restored ? '#e8d4a8' : '#4a3828'}
+      intensity={restored ? 0.4 : 0.3}
+      color={restored ? '#e8d4a8' : '#8a6848'}
     />
     {/* Hemispheric ambient — kasih warm sky tint dari atas + dark floor
-        bouncenya ke bawah, restored only */}
-    {restored && (
-      <hemisphereLight
-        skyColor="#f4d8a0"
-        groundColor="#a87848"
-        intensity={0.4}
-      />
-    )}
+        bouncenya ke bawah */}
+    <hemisphereLight
+      skyColor={restored ? '#f4d8a0' : '#a87848'}
+      groundColor={restored ? '#a87848' : '#3a2818'}
+      intensity={restored ? 0.4 : 0.25}
+    />
   </>
 );
 
@@ -901,6 +977,17 @@ const Scene = ({
           onHover={() => onBannerHover(entry.id)}
           onUnhover={() => onBannerHover(null)}
           onClick={() => onBannerClick(entry)}
+        />
+      ))}
+      {/* Placeholder frames untuk slot WALL_POSITIONS yg belum kepake.
+          Signal "ruang ini disediain untuk sorotan baru". */}
+      {Array.from({
+        length: Math.max(0, WALL_POSITIONS.length - entries.length),
+      }).map((_, i) => (
+        <PlaceholderFrame
+          key={`placeholder-${i}`}
+          slotIdx={entries.length + i}
+          restored={restored}
         />
       ))}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
@@ -1298,7 +1385,7 @@ const TamanPanggungSorotan = ({ restored = false }) => {
       <RotateRecommendation />
       <div
         className="relative w-full h-screen overflow-hidden select-none"
-        style={{ background: restored ? '#1f1208' : '#0a0608' }}
+        style={{ background: restored ? '#1f1208' : '#150f0a' }}
       >
         <Suspense fallback={<SceneFallback />}>
           <Canvas
