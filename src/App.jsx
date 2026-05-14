@@ -192,21 +192,33 @@ const TamanR1RouteChooser = () => {
   const { count, loaded } = useTreeSupportCount();
   const [searchParams] = useSearchParams();
   // Dev-only override: ?restoration=0|1 paksa pilih variant r1.
+  // ?unlock=1 buka r1 walau count belum 2000.
   // Gated import.meta.env.DEV — di production param ini diabaikan
   // total (user gak bisa bypass gating dari URL).
   const override = import.meta.env.DEV
     ? searchParams.get('restoration')
     : null;
+  const forceUnlock =
+    import.meta.env.DEV && searchParams.get('unlock') === '1';
   // Override bypass loading wait — dev preview tetep instant.
   if (override !== null) {
     const n = parseFloat(override);
     const useRestored = !Number.isNaN(n) && n >= 0.5;
     return useRestored ? <TamanLorongPohonPage /> : <TamanLorongPohonGersangPage />;
   }
+  if (forceUnlock) {
+    return <TamanLorongPohonGersangPage />;
+  }
   // Hold rendering sampai first snapshot. Tanpa ini, user dengan count
   // real 4000+ sempet liat drought variant briefly sebelum canonical
   // ke-render (jelek banget visual).
   if (!loaded) return <PageLoader />;
+  // r1 share unlock threshold dgn peta (2000) — user harus lewat gerbang
+  // dulu sebelum bisa masuk lorong pohon. Sebelum patch ini, /armeniacaTown/r1
+  // bisa diakses langsung walau count = 0 (gating hole).
+  if (count < MAP_UNLOCK_THRESHOLD) {
+    return <Navigate to="/armeniacaTown" replace />;
+  }
   const useRestored = count >= R1_RESTORATION_THRESHOLD;
   return useRestored ? <TamanLorongPohonPage /> : <TamanLorongPohonGersangPage />;
 };
