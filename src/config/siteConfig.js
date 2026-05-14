@@ -384,6 +384,24 @@ export const SITE_CONFIG = {
           icon: 'ri-mail-send-line',
           hash: 'wishes',
         },
+        {
+          eyebrow: 'Lagu Penanda',
+          label: 'ByU Music — Putri Helisma',
+          description:
+            'Page dedicated buat lagu By-U yang dirilis untuk Eli. Pre-release support phase — auto-reveal player saat 15 Juni 2026 tiba.',
+          ctaLabel: 'Buka ByU Music',
+          icon: 'ri-music-line',
+          hash: 'byu-music',
+        },
+        {
+          eyebrow: 'Kota Tumbuh',
+          label: 'ArmeniacaTown',
+          description:
+            'Kota yang tumbuh dari setiap kebaikan. Reforest area yang dulu kering, panggung untuk donasi nyata, peta dengan landmark — semua hidup bertahap per siraman.',
+          ctaLabel: 'Masuki Kota',
+          icon: 'ri-map-pin-2-line',
+          hash: 'armeniacaTown',
+        },
       ],
     },
     data: {

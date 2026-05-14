@@ -23,6 +23,7 @@ import {
   ELI_FIGHT_2026,
   ELI_TRIVIA,
   ELI_FUN_FACTS,
+  ELI_FAVORITE_FOODS,
   ELI_TAGLINES,
 } from '../data/eliProfile';
 
@@ -766,7 +767,10 @@ const TriviaSection = () => {
   // Catchphrase tile portrait — face is upper-left in the source frame, so
   // object-position is biased to keep it visible above the gradient overlay
   // both in the square (mobile) and 2:1 (lg) crops.
-  const featurePhoto = '/archive/img-019.jpg';
+  // Feature photo dgn picture element fallback (avif → webp → jpg).
+  // Sebelumnya pakai img-019.jpg langsung, kadang gak ke-load (mungkin
+  // path/cache). Picture fallback lebih robust + smaller modern format.
+  const featurePhotoBase = '/archive/img-019';
   const { elementRef: idRef, isVisible: idVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   const { elementRef: funRef, isVisible: funVisible } = useScrollReveal({ threshold: 0.05, rootMargin: '-40px' });
   return (
@@ -788,12 +792,23 @@ const TriviaSection = () => {
             style={staggerStyle(0)}
             className={`col-span-2 row-span-2 relative aspect-square lg:aspect-auto rounded-2xl overflow-hidden bg-[color:var(--retro-brown-dark)] group ${staggerClass(idVisible)}`}
           >
-            <img
-              src={featurePhoto}
-              alt={eli.stageName || 'Eli'}
-              loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover object-[35%_25%] transition-transform duration-700 group-hover:scale-105"
-            />
+            <picture>
+              <source srcSet={`${featurePhotoBase}.avif`} type="image/avif" />
+              <source srcSet={`${featurePhotoBase}.webp`} type="image/webp" />
+              <img
+                src={`${featurePhotoBase}.jpg`}
+                alt={eli.stageName || 'Eli'}
+                loading="lazy"
+                onError={(e) => {
+                  // Fallback chain — kalau img-019 fail, coba img-015
+                  if (!e.target.dataset.fallback) {
+                    e.target.dataset.fallback = '1';
+                    e.target.src = '/archive/img-015.jpg';
+                  }
+                }}
+                className="absolute inset-0 w-full h-full object-cover object-[35%_25%] transition-transform duration-700 group-hover:scale-105"
+              />
+            </picture>
             <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/95 via-[color:var(--retro-brown-dark)]/35 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-7 text-[color:var(--retro-cream)]">
               <p className="font-header text-base md:text-lg leading-snug font-medium">
@@ -861,6 +876,38 @@ const TriviaSection = () => {
           ))}
         </div>
       </div>
+
+      {/* Makanan Favorit section sendiri — pindah dari grid yang
+          disukai supaya kerasa featured + chip layout. */}
+      <div className="space-y-4 mt-10">
+        <div className="flex items-baseline justify-between gap-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            Makanan Favorit
+          </p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+            {ELI_FAVORITE_FOODS.items.length} item
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-burgundy)]/5 p-5 md:p-6">
+          <p
+            className="font-header italic text-base md:text-lg text-[color:var(--retro-text-primary)] mb-4 leading-snug"
+          >
+            <i className="ri-restaurant-line text-[color:var(--retro-burgundy)] mr-2" />
+            {ELI_FAVORITE_FOODS.intro}
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {ELI_FAVORITE_FOODS.items.map((food) => (
+              <li
+                key={food.name}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[color:var(--retro-bg-primary)] border border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] text-xs md:text-sm font-bold hover:border-[color:var(--retro-burgundy)]/45 hover:bg-[color:var(--retro-burgundy)]/5 transition-colors"
+              >
+                <i className={`${food.icon} text-[color:var(--retro-burgundy)]`} />
+                <span>{food.name}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </>
   );
 };
@@ -877,13 +924,29 @@ const TriviaCard = ({ fact, accent = false }) => (
       <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
         <i className={`${fact.icon} text-lg`} />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mb-1">
           {fact.label}
         </p>
         <p className="text-sm font-bold text-[color:var(--retro-text-primary)] leading-snug">
           {fact.value}
         </p>
+        {/* iconList — render small icon row di bawah value (e.g.,
+            Hobi Utama: dance / ngemil / baca / tidur). */}
+        {Array.isArray(fact.iconList) && fact.iconList.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {fact.iconList.map((item, j) => (
+              <span
+                key={`${fact.label}-icon-${j}`}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)] text-[10px] font-bold"
+                title={item.name}
+              >
+                <i className={`${item.icon} text-xs`} />
+                <span>{item.name}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   </div>

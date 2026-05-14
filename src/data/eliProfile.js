@@ -377,19 +377,17 @@ export const ELI_TRIVIA = [
   { icon: 'ri-cake-2-line', label: 'Tanggal Lahir', value: '15 Juni 2000' },
   { icon: 'ri-map-pin-2-line', label: 'Asal', value: 'Bandung, Jawa Barat' },
   { icon: 'ri-calendar-event-line', label: 'Zodiak', value: 'Gemini' },
-  { icon: 'ri-ruler-line', label: 'Tinggi Badan', value: '165 cm' },
+  { icon: 'ri-ruler-line', label: 'Tinggi Badan', value: '167 cm' },
   { icon: 'ri-graduation-cap-line', label: 'Pendidikan', value: 'Mahasiswi Sastra Korea' },
   { icon: 'ri-team-line', label: 'Generasi', value: 'Generasi 7 JKT48' },
   { icon: 'ri-flag-line', label: 'Team Saat Ini', value: 'Team Dream' },
   { icon: 'ri-heart-line', label: 'Fanbase Resmi', value: 'Helismiley' },
 ];
 
+// ELI_FUN_FACTS — "yang disukai" grid. Note: Makanan Favorit pindah
+// jadi section sendiri (lihat ELI_FAVORITE_FOODS di bawah), gak ikut
+// di grid ini lagi.
 export const ELI_FUN_FACTS = [
-  {
-    icon: 'ri-restaurant-line',
-    label: 'Makanan Favorit',
-    value: 'Seblak & Martabak',
-  },
   {
     icon: 'ri-music-2-line',
     label: 'K-Pop Bias',
@@ -403,12 +401,18 @@ export const ELI_FUN_FACTS = [
   {
     icon: 'ri-bear-smile-line',
     label: 'Hewan Peliharaan',
-    value: 'Kucing',
+    value: 'Kucing (TamTam) & anjing',
   },
   {
     icon: 'ri-dance-line',
     label: 'Hobi Utama',
     value: 'Dance cover, ngemil, baca, tidur',
+    iconList: [
+      { icon: 'ri-dance-line', name: 'Dance cover' },
+      { icon: 'ri-cake-3-line', name: 'Ngemil' },
+      { icon: 'ri-book-open-line', name: 'Baca' },
+      { icon: 'ri-zzz-line', name: 'Tidur' },
+    ],
   },
   {
     icon: 'ri-star-smile-line',
@@ -418,7 +422,12 @@ export const ELI_FUN_FACTS = [
   {
     icon: 'ri-tv-2-line',
     label: 'Tontonan',
-    value: 'Drama Korea',
+    value: 'Drama Korea & Jepang — yang penting ganteng',
+  },
+  {
+    icon: 'ri-user-heart-line',
+    label: 'Favorit Junior',
+    value: 'Celline Thefani',
   },
   {
     icon: 'ri-group-line',
@@ -426,6 +435,23 @@ export const ELI_FUN_FACTS = [
     value: 'Teman dekat bareng Gita & Muthe',
   },
 ];
+
+// ELI_FAVORITE_FOODS — section sendiri "Tergantung mood biasanya suka"
+// Pindah dari ELI_FUN_FACTS supaya kerasa featured + bisa pakai
+// tampilan grid khusus (chip/badge style).
+export const ELI_FAVORITE_FOODS = {
+  intro: 'Tergantung mood biasanya suka:',
+  items: [
+    { icon: 'ri-bowl-line', name: 'Seblak' },
+    { icon: 'ri-restaurant-2-line', name: 'Batagor' },
+    { icon: 'ri-restaurant-line', name: 'Sate kacang' },
+    { icon: 'ri-leaf-line', name: 'Pulut durian Medan' },
+    { icon: 'ri-circle-line', name: 'Cilok' },
+    { icon: 'ri-fire-line', name: 'Cireng' },
+    { icon: 'ri-plant-line', name: 'Ubi Cilembu' },
+    { icon: 'ri-seedling-line', name: 'Singkong' },
+  ],
+};
 
 export const ELI_PROFILE_SECTIONS = [
   { id: 'timeline', label: 'Timeline', icon: 'ri-route-line' },
