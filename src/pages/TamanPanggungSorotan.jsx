@@ -360,10 +360,10 @@ const ViewingBench = ({ restored }) => (
   </group>
 );
 
-// IntroPlaque — pedestal dgn welcome card di tengah area, facing back
-// wall (sebagai "selamat datang" untuk pengunjung).
+// IntroPlaque — pedestal dgn welcome card antara viewer area + panggung
+// dais. Facing back wall (kayak narrator stand sebelum masuk ke pameran).
 const IntroPlaque = ({ restored }) => (
-  <group position={[0, 0, 3]}>
+  <group position={[0, 0, 2.5]}>
     {/* Pedestal column */}
     <mesh position={[0, 0.55, 0]}>
       <boxGeometry args={[0.7, 1.1, 0.4]} />
@@ -569,6 +569,215 @@ const GallerySconces = ({ restored }) => {
           decay={2}
         />
       </group>
+    </>
+  );
+};
+
+// PanggungDais — low raised stage platform di base back wall. Center
+// featured poster sit "on stage" backdrop. 4 wide × 1.5 deep × 0.3
+// high. Restored: brighter wood + edge lip. Drought: muted.
+const DAIS_W = 4.2;
+const DAIS_D = 1.5;
+const DAIS_H = 0.3;
+const DAIS_Z = BACK_WALL_Z + 0.13 + DAIS_D / 2;
+
+const PanggungDais = ({ restored }) => (
+  <>
+    {/* Dais base */}
+    <mesh position={[0, DAIS_H / 2, DAIS_Z]}>
+      <boxGeometry args={[DAIS_W, DAIS_H, DAIS_D]} />
+      <meshStandardMaterial
+        color={restored ? '#a87038' : '#5a3a20'}
+        roughness={0.85}
+      />
+    </mesh>
+    {/* Dais surface — slightly polished top */}
+    <mesh position={[0, DAIS_H + 0.005, DAIS_Z]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[DAIS_W - 0.08, DAIS_D - 0.08]} />
+      <meshStandardMaterial
+        color={restored ? '#c88848' : '#6a4828'}
+        roughness={0.7}
+      />
+    </mesh>
+    {/* Front lip edge — dark trim */}
+    <mesh position={[0, DAIS_H / 2, DAIS_Z + DAIS_D / 2 + 0.025]}>
+      <boxGeometry args={[DAIS_W + 0.04, DAIS_H + 0.04, 0.05]} />
+      <meshStandardMaterial color="#3a2010" roughness={0.95} />
+    </mesh>
+    {/* Plank lines on dais — 3 thin strips for wood texture */}
+    {[-1.2, 0, 1.2].map((x, i) => (
+      <mesh
+        key={`dais-plank-${i}`}
+        position={[x, DAIS_H + 0.012, DAIS_Z]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <planeGeometry args={[0.03, DAIS_D - 0.1]} />
+        <meshStandardMaterial color="#1a0e08" roughness={1} />
+      </mesh>
+    ))}
+    {/* Side steps — 2 step rises di kanan-kiri dais, kasih akses naik */}
+    {[-DAIS_W / 2 - 0.3, DAIS_W / 2 + 0.3].map((x, i) => (
+      <mesh
+        key={`step-${i}`}
+        position={[x, DAIS_H / 4, DAIS_Z]}
+      >
+        <boxGeometry args={[0.5, DAIS_H / 2, DAIS_D - 0.1]} />
+        <meshStandardMaterial
+          color={restored ? '#7a5028' : '#3a2818'}
+          roughness={0.95}
+        />
+      </mesh>
+    ))}
+  </>
+);
+
+// StageCurtainSwag — fabric drape di top back wall (di bawah crown
+// molding) + 2 side curtain legs framing back wall. Restored: deep red
+// velvet w/ gold tassels. Drought: muted.
+const StageCurtainSwag = ({ restored }) => {
+  const swagRefs = useRef([]);
+  const legRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < swagRefs.current.length; i += 1) {
+      const m = swagRefs.current[i];
+      if (m) m.rotation.x = Math.sin(t * 0.45 + i * 0.4) * 0.015;
+    }
+    for (let i = 0; i < legRefs.current.length; i += 1) {
+      const m = legRefs.current[i];
+      if (m) m.rotation.z = Math.sin(t * 0.35 + i * 0.6) * 0.012;
+    }
+  });
+  const swagY = WALL_H - 0.65;
+  const swagZ = BACK_WALL_Z + 0.15;
+  const fabricColor = restored ? '#7a1818' : '#3a1010';
+  const fabricEm = restored ? '#3a0808' : '#000000';
+  return (
+    <>
+      {/* Top swag — 4 scallop drape panels across back wall width */}
+      {[-3.0, -1.0, 1.0, 3.0].map((x, i) => (
+        <mesh
+          key={`swag-${i}`}
+          ref={(m) => {
+            swagRefs.current[i] = m;
+          }}
+          position={[x, swagY, swagZ]}
+        >
+          <planeGeometry args={[2.1, 0.9]} />
+          <meshStandardMaterial
+            color={fabricColor}
+            emissive={fabricEm}
+            emissiveIntensity={restored ? 0.18 : 0}
+            roughness={0.95}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+      {/* Tassels — small gold beads di tiap swag join, restored only */}
+      {restored &&
+        [-2.0, 0, 2.0].map((x, i) => (
+          <mesh key={`tassel-${i}`} position={[x, swagY - 0.45, swagZ + 0.02]}>
+            <sphereGeometry args={[0.06, 8, 6]} />
+            <meshStandardMaterial
+              color="#d4a848"
+              emissive="#a87830"
+              emissiveIntensity={0.4}
+              roughness={0.5}
+              metalness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
+      {/* Side legs — vertical curtain panels framing back wall, dari
+          swag turun ke dais level */}
+      {[-DAIS_W / 2 - 0.5, DAIS_W / 2 + 0.5].map((x, i) => (
+        <mesh
+          key={`leg-${i}`}
+          ref={(m) => {
+            legRefs.current[i] = m;
+          }}
+          position={[x, (swagY + DAIS_H) / 2, swagZ]}
+        >
+          <planeGeometry args={[0.8, swagY - DAIS_H]} />
+          <meshStandardMaterial
+            color={restored ? '#6a1414' : '#2a0c0c'}
+            emissive={restored ? '#2a0606' : '#000000'}
+            emissiveIntensity={restored ? 0.12 : 0}
+            roughness={0.95}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+      {/* Leg tie-back — gold cord cinch di mid-height legs, restored */}
+      {restored &&
+        [-DAIS_W / 2 - 0.5, DAIS_W / 2 + 0.5].map((x, i) => (
+          <mesh
+            key={`legtie-${i}`}
+            position={[x, (swagY + DAIS_H) / 2 - 0.2, swagZ + 0.06]}
+          >
+            <torusGeometry args={[0.18, 0.03, 6, 12]} />
+            <meshStandardMaterial
+              color="#d4a848"
+              emissive="#a87830"
+              emissiveIntensity={0.35}
+              roughness={0.5}
+              metalness={0.4}
+            />
+          </mesh>
+        ))}
+    </>
+  );
+};
+
+// DaisFootlights — 5 small emissive disks di front edge of dais,
+// pointing up + warm point lights. Restored only.
+const DaisFootlights = ({ restored }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const mat = matRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.7 + Math.sin(t * 1.2 + i * 0.5) * 0.12;
+    }
+  });
+  if (!restored) return null;
+  const positions = [-1.6, -0.8, 0, 0.8, 1.6];
+  const y = DAIS_H + 0.05;
+  const z = DAIS_Z + DAIS_D / 2 - 0.08;
+  return (
+    <>
+      {positions.map((x, i) => (
+        <group key={`foot-${i}`} position={[x, y, z]}>
+          {/* Housing — small dome */}
+          <mesh>
+            <sphereGeometry args={[0.05, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+            <meshStandardMaterial color="#2a1810" roughness={0.95} />
+          </mesh>
+          {/* Bulb disk */}
+          <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.04, 12]} />
+            <meshStandardMaterial
+              ref={(m) => {
+                matRefs.current[i] = m;
+              }}
+              color="#f4d8a0"
+              emissive="#f4c478"
+              emissiveIntensity={0.7}
+              toneMapped={false}
+            />
+          </mesh>
+          <pointLight
+            position={[0, 0.1, 0]}
+            color="#f4d8a0"
+            intensity={0.18}
+            distance={1.5}
+            decay={2}
+          />
+        </group>
+      ))}
     </>
   );
 };
@@ -964,6 +1173,9 @@ const Scene = ({
       <GalleryWalls restored={restored} />
       <GallerySconces restored={restored} />
       <CeilingTrackLights restored={restored} />
+      <PanggungDais restored={restored} />
+      <StageCurtainSwag restored={restored} />
+      <DaisFootlights restored={restored} />
       <PottedPlants restored={restored} />
       <ViewingBench restored={restored} />
       <IntroPlaque restored={restored} />
