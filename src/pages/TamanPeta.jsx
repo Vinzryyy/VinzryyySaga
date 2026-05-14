@@ -10824,8 +10824,12 @@ const PetaAirMancur = ({
   const groupRef = useRef();
   const waterMatRef = useRef();
   const streamMatRef = useRef();
+  const splashRef = useRef();
   const dropletRefs = useRef([]);
   const blossomRefs = useRef([]);
+  const lilyRefs = useRef([]);
+  const lanternMatRefs = useRef([]);
+  const petalRefs = useRef([]);
 
   // Tier-derived visual flags. waterLevelY = absolute world-y untuk
   // surface plane water (di-stack di atas basin floor 0.18 + offset).
@@ -10843,6 +10847,14 @@ const PetaAirMancur = ({
   const hasBlossoms = tier >= 6;
   const armsBroken = tier === 1;
   const armsSeam = tier === 2;
+  // Decorative reveals — unlock per tier biar progression kerasa kaya:
+  const hasCobbleRing = tier >= 1;
+  const hasLanterns = tier >= 3;
+  const lanternLit = tier >= 5;
+  const hasSplash = tier >= 4;
+  const hasLilyPads = tier >= 4;
+  const hasPlazaFlowers = tier >= 5;
+  const hasFloatingPetals = tier >= 6;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -10862,6 +10874,11 @@ const PetaAirMancur = ({
     if (streamMatRef.current && hasFountain) {
       streamMatRef.current.emissiveIntensity = 0.28 + Math.sin(t * 1.4) * 0.08;
     }
+    // Splash ring di base fountain — pulse scale + opacity sync stream
+    if (splashRef.current && hasSplash) {
+      const pulse = 0.85 + Math.sin(t * 2.2) * 0.15;
+      splashRef.current.scale.set(pulse, 1, pulse);
+    }
     // Droplets — fall cycle 0..1 looping, hide pas hit basin
     if (dropletCount > 0) {
       for (let i = 0; i < dropletRefs.current.length; i += 1) {
@@ -10874,12 +10891,44 @@ const PetaAirMancur = ({
         m.scale.setScalar(visScale);
       }
     }
+    // Lily pads — gentle bob naik-turun + slow drift rotate. Stagger
+    // phase per pad biar gak sync robotic.
+    if (hasLilyPads) {
+      for (let i = 0; i < lilyRefs.current.length; i += 1) {
+        const m = lilyRefs.current[i];
+        if (!m) continue;
+        const phase = i * 1.3;
+        m.position.y = waterLevelY + 0.012 + Math.sin(t * 0.8 + phase) * 0.008;
+        m.rotation.y = t * 0.08 + phase;
+      }
+    }
+    // Lantern globes — flicker emissive saat lit (T5+). Subtle, gak
+    // distract dari fountain center.
+    if (hasLanterns && lanternLit) {
+      const flicker = 0.55 + Math.sin(t * 3.2) * 0.08 + Math.sin(t * 7.1) * 0.04;
+      for (let i = 0; i < lanternMatRefs.current.length; i += 1) {
+        const mat = lanternMatRefs.current[i];
+        if (!mat) continue;
+        mat.emissiveIntensity = flicker;
+      }
+    }
     // Blossoms — slow rotation gentle biar kerasa hidup
     if (hasBlossoms) {
       for (let i = 0; i < blossomRefs.current.length; i += 1) {
         const m = blossomRefs.current[i];
         if (!m) continue;
         m.rotation.y = t * 0.15 + i * 0.4;
+      }
+    }
+    // Floating petals T6 — drift naik-turun lambat sekitar blossom
+    // height, slight horizontal sway. Loop y wrap biar gak hilang.
+    if (hasFloatingPetals) {
+      for (let i = 0; i < petalRefs.current.length; i += 1) {
+        const m = petalRefs.current[i];
+        if (!m) continue;
+        const phase = i * 1.7;
+        m.position.y = 0.6 + ((t * 0.15 + phase) % 1.4) * 0.6;
+        m.rotation.z = t * 0.4 + phase;
       }
     }
   });
@@ -10919,6 +10968,26 @@ const PetaAirMancur = ({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
+      {/* Cobble ring — paving stones di sekeliling basin, mirror style
+          lorong masuk. 8 batu di radius 1.45, slight angle offset biar
+          gak terlalu rapi geometris. */}
+      {hasCobbleRing &&
+        Array.from({ length: 8 }).map((_, i) => {
+          const angle = (i / 8) * Math.PI * 2 + 0.15;
+          const r = 1.45;
+          const sizeJitter = i % 3 === 0 ? 0.28 : 0.24;
+          return (
+            <mesh
+              key={`cobble-${i}`}
+              position={[Math.cos(angle) * r, 0.02, Math.sin(angle) * r]}
+              rotation={[0, angle + i * 0.4, 0]}
+            >
+              <cylinderGeometry args={[sizeJitter, sizeJitter * 1.05, 0.06, 6]} />
+              <meshStandardMaterial color="#6a5848" roughness={1} />
+            </mesh>
+          );
+        })}
+
       {/* Basin — octagonal stone (8 segments biar low-poly mood
           konsisten sama landmark lain). Top rim slightly larger biar
           ada lip yang catch light. */}
@@ -10930,6 +10999,16 @@ const PetaAirMancur = ({
         <cylinderGeometry args={[1.02, 1.0, 0.04, 8]} />
         <meshStandardMaterial color={stoneRimColor} roughness={1} />
       </mesh>
+
+      {/* Engraved torus di rim basin — decorative line tipis, kasih
+          texture detail. T2+ baru muncul (waktu basin "dibenerin",
+          relief pattern jadi visible lagi). */}
+      {tier >= 2 && (
+        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.21, 0]}>
+          <torusGeometry args={[0.94, 0.012, 6, 32]} />
+          <meshStandardMaterial color="#3a2a1c" roughness={1} />
+        </mesh>
+      )}
 
       {/* Debris di T1 — pecahan batu di sekitar basin, signal "baru
           ditemuin, belum dibenerin" */}
@@ -10966,11 +11045,112 @@ const PetaAirMancur = ({
         </mesh>
       )}
 
+      {/* Lily pads T4+ — 3 disc kecil floating di atas water surface,
+          gentle bob via useFrame. Avoid center (pedestal area). */}
+      {hasLilyPads &&
+        [
+          { angle: 0.4, r: 0.45 },
+          { angle: 2.3, r: 0.55 },
+          { angle: 4.1, r: 0.5 },
+        ].map((p, i) => (
+          <mesh
+            key={`lily-${i}`}
+            ref={(m) => {
+              lilyRefs.current[i] = m;
+            }}
+            position={[
+              Math.cos(p.angle) * p.r,
+              waterLevelY + 0.012,
+              Math.sin(p.angle) * p.r,
+            ]}
+          >
+            <cylinderGeometry args={[0.13, 0.13, 0.01, 8]} />
+            <meshStandardMaterial
+              color="#4a7848"
+              emissive="#2a5028"
+              emissiveIntensity={0.18}
+              roughness={0.7}
+            />
+          </mesh>
+        ))}
+
+      {/* Splash ring T4+ — torus di water surface tempat fountain
+          jatuh, pulse scale via useFrame sync sama stream wobble. */}
+      {hasSplash && (
+        <mesh
+          ref={splashRef}
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[0, waterLevelY + 0.014, 0]}
+        >
+          <torusGeometry args={[0.16, 0.018, 6, 16]} />
+          <meshStandardMaterial
+            color="#c8e0f0"
+            emissive="#8ab8d4"
+            emissiveIntensity={0.55}
+            transparent
+            opacity={0.7}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+
       {/* Central pedestal — short pillar yg nopang patung */}
       <mesh position={[0, 0.48, 0]}>
         <cylinderGeometry args={[0.2, 0.25, 0.5, 8]} />
         <meshStandardMaterial color={stoneColor} roughness={1} />
       </mesh>
+
+      {/* Lantern posts T3+ — 2 tiang dgn globe lampu di NE+SW corners
+          plaza. Globe lit (emissive flicker via useFrame) di T5+ —
+          sebelumnya unlit, signal "tiangnya udah berdiri tapi belum
+          dinyalain". */}
+      {hasLanterns &&
+        [
+          { angle: Math.PI * 0.25 },
+          { angle: Math.PI * 1.25 },
+        ].map((p, i) => {
+          const r = 1.55;
+          const px = Math.cos(p.angle) * r;
+          const pz = Math.sin(p.angle) * r;
+          return (
+            <group key={`lantern-${i}`} position={[px, 0, pz]}>
+              <mesh position={[0, 0.4, 0]}>
+                <cylinderGeometry args={[0.04, 0.05, 0.8, 6]} />
+                <meshStandardMaterial color="#3a2e22" roughness={0.9} />
+              </mesh>
+              <mesh position={[0, 0.83, 0]}>
+                <boxGeometry args={[0.16, 0.04, 0.16]} />
+                <meshStandardMaterial color="#2a2218" roughness={1} />
+              </mesh>
+              <mesh position={[0, 0.92, 0]}>
+                <sphereGeometry args={[0.08, 10, 8]} />
+                <meshStandardMaterial
+                  ref={(m) => {
+                    lanternMatRefs.current[i] = m;
+                  }}
+                  color={lanternLit ? '#f4d8a0' : '#5a4838'}
+                  emissive={lanternLit ? '#f4c878' : '#000000'}
+                  emissiveIntensity={lanternLit ? 0.55 : 0}
+                  roughness={0.5}
+                  toneMapped={false}
+                />
+              </mesh>
+              <mesh position={[0, 0.99, 0]}>
+                <coneGeometry args={[0.1, 0.08, 6]} />
+                <meshStandardMaterial color="#3a2e22" roughness={0.9} />
+              </mesh>
+              {lanternLit && (
+                <pointLight
+                  position={[0, 0.92, 0]}
+                  color="#f4d8a0"
+                  intensity={0.25}
+                  distance={1.6}
+                  decay={2}
+                />
+              )}
+            </group>
+          );
+        })}
 
       {/* Statue body — sphere torso. Skipped detail (no head/legs) —
           stylized abstract figure, fokusnya di lengan & gesture. */}
@@ -11092,6 +11272,43 @@ const PetaAirMancur = ({
         />
       )}
 
+      {/* Plaza flowers T5+ — small bunga di tanah sekitar plaza, outside
+          cobble ring. Cluster di 4 spot, warna mixed (pink, kuning,
+          putih) — life returning ke sekitar fountain. */}
+      {hasPlazaFlowers &&
+        [
+          { angle: 0.6, r: 1.95, color: '#f4c8d8', em: '#e09bb0' },
+          { angle: 1.8, r: 2.1, color: '#f4d878', em: '#d4b048' },
+          { angle: 3.2, r: 1.9, color: '#e8e0d4', em: '#b8a890' },
+          { angle: 4.7, r: 2.0, color: '#f4c8d8', em: '#e09bb0' },
+        ].flatMap((p, ci) => {
+          const cx = Math.cos(p.angle) * p.r;
+          const cz = Math.sin(p.angle) * p.r;
+          return [0, 1, 2].map((j) => {
+            const ja = j * 2.1;
+            const jr = 0.13 + j * 0.04;
+            return (
+              <mesh
+                key={`pf-${ci}-${j}`}
+                position={[
+                  cx + Math.cos(ja) * jr,
+                  0.04,
+                  cz + Math.sin(ja) * jr,
+                ]}
+              >
+                <sphereGeometry args={[0.045, 6, 5]} />
+                <meshStandardMaterial
+                  color={p.color}
+                  emissive={p.em}
+                  emissiveIntensity={0.3}
+                  roughness={0.7}
+                  toneMapped={false}
+                />
+              </mesh>
+            );
+          });
+        })}
+
       {/* Apricot blossoms T6 — 4 kuncup di rim basin sebagai epilog
           marker. Link visual ke Pohon Terakhir (aprikot motif). */}
       {hasBlossoms &&
@@ -11112,6 +11329,36 @@ const PetaAirMancur = ({
                 emissive="#e09bb0"
                 emissiveIntensity={0.5}
                 roughness={0.6}
+                toneMapped={false}
+              />
+            </mesh>
+          );
+        })}
+
+      {/* Floating petals T6 — 3 specks pink drift naik-turun lambat
+          sekitar height blossom. Loop y wrap via useFrame. Tiap petal
+          tilted plane biar pipih kayak kelopak, bukan bulat. */}
+      {hasFloatingPetals &&
+        [0, 1, 2].map((i) => {
+          const angle = (i / 3) * Math.PI * 2 + 0.8;
+          const r = 0.7 + (i % 2) * 0.2;
+          return (
+            <mesh
+              key={`petal-${i}`}
+              ref={(m) => {
+                petalRefs.current[i] = m;
+              }}
+              position={[Math.cos(angle) * r, 0.7, Math.sin(angle) * r]}
+              rotation={[Math.PI / 2.2, 0, i * 0.7]}
+            >
+              <planeGeometry args={[0.07, 0.045]} />
+              <meshStandardMaterial
+                color="#f4c8d8"
+                emissive="#e09bb0"
+                emissiveIntensity={0.45}
+                transparent
+                opacity={0.85}
+                side={THREE.DoubleSide}
                 toneMapped={false}
               />
             </mesh>
