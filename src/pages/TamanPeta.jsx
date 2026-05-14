@@ -6466,6 +6466,77 @@ const ProgressiveTree = ({ pos, count, unlockAt, maturityAt, seed = 0 }) => {
           ))}
         </>
       )}
+      {/* E1 (Bundle 3): Vines climbing trunk saat eased >= 0.7 +
+              seed % 3 === 0 (~1/3 trees). Forest interlinked feel. */}
+      {eased >= 0.7 && seed % 3 === 0 && (
+        <>
+          {/* Vine 1 — wrapping di trunk side, multiple segments */}
+          <mesh
+            position={[0.05 + eased * 0.02, trunkH * 0.5, 0]}
+            rotation={[0, 0, 0.15]}
+          >
+            <cylinderGeometry args={[0.015, 0.018, trunkH * 0.8, 5]} />
+            <meshStandardMaterial color="#3a5028" roughness={0.9} />
+          </mesh>
+          {/* Small leaves di vine */}
+          {[0.3, 0.55, 0.75].map((vY, j) => (
+            <mesh
+              key={`vine-leaf-${j}`}
+              position={[0.08, trunkH * vY, 0.04]}
+              rotation={[0, j * 0.7, 0.3]}
+            >
+              <sphereGeometry args={[0.05, 6, 5]} />
+              <meshStandardMaterial
+                color="#5a8838"
+                emissive="#2a4a20"
+                emissiveIntensity={0.14}
+                roughness={0.85}
+              />
+            </mesh>
+          ))}
+        </>
+      )}
+      {/* G (Bundle 3): Mushrooms di tree base saat eased > 0.5 + seed
+              % 4 === 1 (~1/4 trees). Forest ecosystem fully connected. */}
+      {eased > 0.5 && seed % 4 === 1 && (
+        <>
+          {[
+            { x: 0.18, z: 0.12, color: '#a83838' },
+            { x: -0.15, z: 0.16, color: '#c84838' },
+            { x: 0.05, z: -0.18, color: '#a83838' },
+          ].map((mush, j) => (
+            <group
+              key={`mush-${j}`}
+              position={[mush.x, 0, mush.z]}
+            >
+              {/* Stem */}
+              <mesh position={[0, 0.045, 0]}>
+                <cylinderGeometry args={[0.02, 0.025, 0.09, 5]} />
+                <meshStandardMaterial color="#e8d4a8" roughness={0.95} />
+              </mesh>
+              {/* Cap — flat-top dome */}
+              <mesh position={[0, 0.1, 0]}>
+                <sphereGeometry args={[0.05, 6, 5, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                <meshStandardMaterial
+                  color={mush.color}
+                  emissive="#5a1c1c"
+                  emissiveIntensity={0.18}
+                  roughness={0.85}
+                />
+              </mesh>
+              {/* White spots — 2 small dots di cap */}
+              <mesh position={[0.022, 0.13, 0]}>
+                <sphereGeometry args={[0.008, 4, 3]} />
+                <meshStandardMaterial color="#f4f0e0" roughness={0.9} />
+              </mesh>
+              <mesh position={[-0.018, 0.135, 0.012]}>
+                <sphereGeometry args={[0.007, 4, 3]} />
+                <meshStandardMaterial color="#f4f0e0" roughness={0.9} />
+              </mesh>
+            </group>
+          ))}
+        </>
+      )}
       {/* E: Bird nest — small brown bowl di top branch saat eased = 1
               (fully mature). Narrative "pohon udah hidup, ada yg
               nempatin". Per seed, hanya ~half pohon dapet nest. */}
