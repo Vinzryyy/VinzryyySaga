@@ -6274,15 +6274,44 @@ const MilestoneBurst = ({ count, loaded }) => {
   );
 };
 
+// HopeEcho — kebaikan kecil tumbuh dari pohon: sprouts + blooms muncul
+// progressively per milestone. Tied ke armeniacaCount thresholds yang
+// sama dgn TierReveal system, kasih "kebaikan keluar dari pohon" beat
+// pas user cross milestone.
 const HopeEcho = ({ count, loaded }) => {
   if (!loaded) return null;
   return (
     <>
-      {/* T0 always: sprout dekat center tree base */}
+      {/* Always: sprout dekat center tree base (peta unlock = ada hope) */}
       <PetaSprout pos={[0.4, 0, 0.6]} />
-      {/* T1 >= 4000: bloom dekat lorong stones area (r1 restored,
-          hint kehidupan balik) */}
-      {count >= 4000 && <PetaBloom pos={[1.4, 0, 3.5]} />}
+      {/* m3 — kota mulai inget: extra sprout di pohon area */}
+      {count >= MAP_THRESHOLDS.r4Unlock && (
+        <PetaSprout pos={[-0.5, 0, 0.4]} />
+      )}
+      {/* m4 — r1 restored: bloom pertama, "kehidupan balik" */}
+      {count >= MAP_THRESHOLDS.r1Restore && (
+        <PetaBloom pos={[1.4, 0, 3.5]} />
+      )}
+      {/* m5 — menara restored: extra sprout di sisi lorong */}
+      {count >= MAP_THRESHOLDS.r4Restore && (
+        <PetaSprout pos={[0.2, 0, -0.7]} />
+      )}
+      {/* m6 — telaga restored: bloom dekat telaga edge */}
+      {count >= MAP_THRESHOLDS.r3Restore && (
+        <PetaBloom pos={[-1.5, 0, 2.8]} />
+      )}
+      {/* m65 — panggung restored: bloom dekat panggung area */}
+      {count >= MAP_THRESHOLDS.r5Restore && (
+        <PetaBloom pos={[1.0, 0, -2.2]} />
+      )}
+      {/* m7 — fullRestore: cluster bloom final */}
+      {count >= MAP_THRESHOLDS.fullRestore && (
+        <>
+          <PetaBloom pos={[-1.2, 0, -2.5]} />
+          <PetaSprout pos={[2.0, 0, 1.5]} />
+          <PetaSprout pos={[-2.2, 0, -0.5]} />
+        </>
+      )}
     </>
   );
 };
