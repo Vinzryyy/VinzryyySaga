@@ -6176,6 +6176,106 @@ const PetaBloom = ({ pos }) => (
     })}
   </group>
 );
+// LandmarkAura — soft glow disc di base landmark yg ramp intensity
+// dgn purifyProgress. Kasih "anticipation" feel — landmark kerasa
+// hidup bertahap, bukan stuck di state diskrit sampai threshold hit.
+// Per-landmark color match theme (telaga blue, arsip amber, dst.).
+const LandmarkAura = ({ position, color, baseColor, progress, pulsePhase = 0 }) => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (!matRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Progress ramps base intensity. Pulse adds breathing modulation
+    // on top — slow sine 0.3hz.
+    const baseIntensity = progress * 0.55;
+    const pulse = Math.sin(t * 0.5 + pulsePhase) * 0.12 * progress;
+    matRef.current.emissiveIntensity = Math.max(0, baseIntensity + pulse);
+    // Slight scale breathing
+    if (matRef.current.parent) {
+      const scaleBreathe = 1 + Math.sin(t * 0.4 + pulsePhase) * 0.04 * progress;
+      matRef.current.parent.scale.x = scaleBreathe;
+      matRef.current.parent.scale.z = scaleBreathe;
+    }
+  });
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0]}>
+        <ringGeometry args={[1.6, 2.4, 32]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color={baseColor}
+          emissive={color}
+          emissiveIntensity={progress * 0.55}
+          transparent
+          opacity={0.45 * (0.4 + progress * 0.6)}
+          toneMapped={false}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+// LandmarkAuras — render 4 landmark glow discs. Air Mancur excluded
+// karena udah punya 7-tier continuous system sendiri.
+const LandmarkAuras = ({ count, loaded }) => {
+  if (!loaded) return null;
+  // Per-landmark progress 0-1 antara unlock → restored threshold.
+  const computeProgress = (unlockAt, restoredAt) => {
+    if (count >= restoredAt) return 1;
+    if (count < unlockAt) return 0;
+    return (count - unlockAt) / (restoredAt - unlockAt);
+  };
+  return (
+    <>
+      {/* Telaga — west, blue */}
+      <LandmarkAura
+        position={[-7, 0, -1]}
+        color="#5a8aa8"
+        baseColor="#3a5868"
+        progress={computeProgress(
+          MAP_THRESHOLDS.r3Unlock,
+          MAP_THRESHOLDS.r3Restore,
+        )}
+        pulsePhase={0}
+      />
+      {/* Arsip — east, amber */}
+      <LandmarkAura
+        position={[7, 0, -1]}
+        color="#a87830"
+        baseColor="#7a5828"
+        progress={computeProgress(
+          MAP_THRESHOLDS.r2Unlock,
+          MAP_THRESHOLDS.r2Restore,
+        )}
+        pulsePhase={1.5}
+      />
+      {/* Menara — north, gold */}
+      <LandmarkAura
+        position={[0, 0, -8]}
+        color="#d4a848"
+        baseColor="#8a6828"
+        progress={computeProgress(
+          MAP_THRESHOLDS.r4Unlock,
+          MAP_THRESHOLDS.r4Restore,
+        )}
+        pulsePhase={3}
+      />
+      {/* Panggung — southeast, vermillion */}
+      <LandmarkAura
+        position={[5, 0, 5]}
+        color="#c83828"
+        baseColor="#8a2818"
+        progress={computeProgress(
+          MAP_THRESHOLDS.r5Unlock,
+          MAP_THRESHOLDS.r5Restore,
+        )}
+        pulsePhase={4.5}
+      />
+    </>
+  );
+};
+
 // MilestoneBurst — celebration particle burst saat crossing milestone
 // during user session. 14 emissive specks fly out radially dari center
 // pohon + arc upward + fade dlm 1.8s. Visible feedback "tier baru
@@ -12559,6 +12659,7 @@ const TamanScene = ({
       <PetaFootprintTrails />
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
+      <LandmarkAuras count={armeniacaCount} loaded={armeniacaLoaded} />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* Hover halo overlays — expanding ring saat petak hovered.
           Generic additive layer, gak ngubah internal petak component. */}
