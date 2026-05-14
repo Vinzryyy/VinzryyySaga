@@ -75,6 +75,20 @@ const MAP_THRESHOLDS = {
 const useArmeniacaProgress = () => {
   const [state, setState] = useState({ count: 0, loaded: false });
   useEffect(() => {
+    // Dev override `?count=N` — bypass Firebase, paksa count tertentu
+    // buat preview tier specific (Phase 2 milestone reveals). Gated
+    // import.meta.env.DEV — production diabaikan.
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const override = params.get('count');
+      if (override !== null) {
+        const n = parseInt(override, 10);
+        if (!Number.isNaN(n)) {
+          setState({ count: Math.max(0, n), loaded: true });
+          return undefined;
+        }
+      }
+    }
     const unsubscribe = subscribeToTreeSupports((count) => {
       setState({ count, loaded: true });
     });
