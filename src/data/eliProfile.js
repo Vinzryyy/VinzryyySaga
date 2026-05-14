@@ -401,18 +401,12 @@ export const ELI_FUN_FACTS = [
   {
     icon: 'ri-bear-smile-line',
     label: 'Hewan Peliharaan',
-    value: 'Kucing (TamTam) & anjing',
+    value: 'Kucing (TanTan) & anjing',
   },
   {
-    icon: 'ri-dance-line',
+    icon: 'ri-gamepad-line',
     label: 'Hobi Utama',
-    value: 'Dance cover, ngemil, baca, tidur',
-    iconList: [
-      { icon: 'ri-dance-line', name: 'Dance cover' },
-      { icon: 'ri-cake-3-line', name: 'Ngemil' },
-      { icon: 'ri-book-open-line', name: 'Baca' },
-      { icon: 'ri-zzz-line', name: 'Tidur' },
-    ],
+    value: 'Bermain',
   },
   {
     icon: 'ri-star-smile-line',
