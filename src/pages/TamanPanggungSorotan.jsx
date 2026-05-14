@@ -185,41 +185,8 @@ const ExhibitionFloor = ({ restored }) => (
         />
       </mesh>
     ))}
-    {restored && (
-      <>
-        {/* Center aisle runner — long red strip dari entry ke dais
-            front, kasih clear path naratif. */}
-        <mesh position={[0, -0.025, -0.5]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.9, 8]} />
-          <meshStandardMaterial
-            color="#8a2828"
-            emissive="#5a1010"
-            emissiveIntensity={0.18}
-            roughness={0.9}
-            transparent
-            opacity={0.92}
-          />
-        </mesh>
-        {/* Runner gold border lines — 2 thin parallel strips */}
-        {[-0.42, 0.42].map((x, i) => (
-          <mesh
-            key={`runner-line-${i}`}
-            position={[x, -0.02, -0.5]}
-            rotation={[-Math.PI / 2, 0, 0]}
-          >
-            <planeGeometry args={[0.03, 8]} />
-            <meshStandardMaterial
-              color="#d4a848"
-              emissive="#a87830"
-              emissiveIntensity={0.3}
-              roughness={0.5}
-              metalness={0.4}
-              toneMapped={false}
-            />
-          </mesh>
-        ))}
-      </>
-    )}
+    {/* Center aisle runner removed — Hanamichi (raised wooden
+        walkway, kabuki-style) replaces it. */}
   </>
 );
 
@@ -606,51 +573,387 @@ const CeilingTrackLights = ({ restored }) => {
   );
 };
 
-// GallerySconces — 2 wall-mounted lamps di side walls (mid-height),
-// restored only. Kasih ambient fill di samping.
-const GallerySconces = ({ restored }) => {
-  if (!restored) return null;
-  // 4 sconces: 2 per wall (1 back + 1 front di tiap wall) covers
-  // sepanjang side wall yang sekarang lebih panjang (10 deep).
+// SakeBarrels (komodaru) — stacked ceremonial barrels di plaza. Tradisi
+// Jepang: barrel sake didonasi ke kuil/festival. Cocok sama tema
+// donasi pameran. Restored: 3 stacked neat. Drought: scattered, 1 tipped.
+const SakeBarrels = ({ restored }) => {
+  // Position di plaza area, di samping path
+  const barrelsRestored = [
+    { x: -7.5, y: 0.35, z: 2, rotZ: 0, rotX: 0 },
+    { x: -6.7, y: 0.35, z: 2, rotZ: 0, rotX: 0 },
+    { x: -7.1, y: 1.0, z: 2, rotZ: 0, rotX: 0 },
+  ];
+  const barrelsDrought = [
+    { x: -7.5, y: 0.35, z: 2, rotZ: 0, rotX: 0 },
+    { x: -6.4, y: 0.32, z: 2.6, rotZ: Math.PI / 2 - 0.2, rotX: 0 },
+    { x: -5.8, y: 0.3, z: 1.4, rotZ: 0.3, rotX: 0 },
+  ];
+  const barrels = restored ? barrelsRestored : barrelsDrought;
+  return (
+    <>
+      {barrels.map((b, i) => (
+        <group
+          key={`barrel-${i}`}
+          position={[b.x, b.y, b.z]}
+          rotation={[b.rotX, 0, b.rotZ]}
+        >
+          {/* Barrel body — cylinder dgn straw-wrap top */}
+          <mesh>
+            <cylinderGeometry args={[0.32, 0.32, 0.65, 14]} />
+            <meshStandardMaterial
+              color={restored ? '#e8d4a8' : '#7a6440'}
+              roughness={0.9}
+            />
+          </mesh>
+          {/* Top straw cap (komo wrap) */}
+          <mesh position={[0, 0.32, 0]}>
+            <cylinderGeometry args={[0.34, 0.32, 0.06, 14]} />
+            <meshStandardMaterial
+              color={restored ? '#c8a878' : '#5a4828'}
+              roughness={1}
+            />
+          </mesh>
+          {/* Bottom straw cap */}
+          <mesh position={[0, -0.32, 0]}>
+            <cylinderGeometry args={[0.32, 0.34, 0.06, 14]} />
+            <meshStandardMaterial
+              color={restored ? '#c8a878' : '#5a4828'}
+              roughness={1}
+            />
+          </mesh>
+          {/* 3 binding strips dark horizontal */}
+          {[-0.15, 0, 0.15].map((y, j) => (
+            <mesh key={`strap-${i}-${j}`} position={[0, y, 0]}>
+              <torusGeometry args={[0.325, 0.014, 5, 18]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.95} />
+            </mesh>
+          ))}
+          {/* Front label — dark kanji-like rectangle, restored only */}
+          {restored && (
+            <mesh position={[0, 0, 0.33]}>
+              <planeGeometry args={[0.28, 0.32]} />
+              <meshStandardMaterial
+                color="#3a1818"
+                emissive="#1a0808"
+                emissiveIntensity={0.1}
+                roughness={1}
+              />
+            </mesh>
+          )}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// TaikoDrum — large Japanese drum di corner dais (performance prop).
+// Cylinder horizontal dgn dual face + tension lugs. Restored: on
+// wooden stand neat. Drought: tipped over di lantai.
+const TaikoDrum = ({ restored }) => {
+  const drumPos = restored
+    ? { x: 2.4, y: 0.75, z: DAIS_Z - 0.2, rotX: Math.PI / 2, rotZ: 0 }
+    : { x: 1.5, y: 0.3, z: DAIS_Z + DAIS_D / 2 + 0.6, rotX: 0, rotZ: 0.3 };
+  return (
+    <group position={[drumPos.x, drumPos.y, drumPos.z]} rotation={[drumPos.rotX, 0, drumPos.rotZ]}>
+      {/* Drum body — large cylinder */}
+      <mesh>
+        <cylinderGeometry args={[0.42, 0.42, 0.55, 16]} />
+        <meshStandardMaterial
+          color={restored ? '#7a3818' : '#3a1810'}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Drum heads — 2 leather faces (emissive cream restored) */}
+      <mesh position={[0, 0.29, 0]}>
+        <cylinderGeometry args={[0.42, 0.42, 0.02, 16]} />
+        <meshStandardMaterial
+          color={restored ? '#e8d4a8' : '#5a4838'}
+          roughness={0.85}
+        />
+      </mesh>
+      <mesh position={[0, -0.29, 0]}>
+        <cylinderGeometry args={[0.42, 0.42, 0.02, 16]} />
+        <meshStandardMaterial
+          color={restored ? '#e8d4a8' : '#5a4838'}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Center hub each face — small dark dot */}
+      {[0.3, -0.3].map((y, j) => (
+        <mesh key={`hub-${j}`} position={[0, y, 0]}>
+          <cylinderGeometry args={[0.08, 0.08, 0.005, 8]} />
+          <meshStandardMaterial color="#3a2418" roughness={1} />
+        </mesh>
+      ))}
+      {/* Tension lugs — 6 small metal studs sekitar circumference */}
+      {Array.from({ length: 8 }).map((_, j) => {
+        const angle = (j / 8) * Math.PI * 2;
+        return (
+          <mesh
+            key={`lug-${j}`}
+            position={[Math.cos(angle) * 0.43, 0, Math.sin(angle) * 0.43]}
+          >
+            <sphereGeometry args={[0.025, 6, 4]} />
+            <meshStandardMaterial
+              color={restored ? '#a87830' : '#3a2418'}
+              roughness={0.5}
+              metalness={restored ? 0.5 : 0.2}
+            />
+          </mesh>
+        );
+      })}
+      {/* Wooden stand X-shape — restored only (drought drum lying) */}
+      {restored && (
+        <>
+          <mesh position={[0, -0.6, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <boxGeometry args={[0.08, 0.7, 0.08]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, -0.6, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
+            <boxGeometry args={[0.08, 0.7, 0.08]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+};
+
+// MonBanners — 2 vertical fabric banners hanging dari Torii flanking
+// pillars. Indigo blue dgn white center motif/crest.
+const MonBanners = ({ restored }) => {
+  const banners = [
+    { x: -SIDE_WALL_X - 0.4 },
+    { x: SIDE_WALL_X + 0.4 },
+  ];
+  return (
+    <>
+      {banners.map((b, i) => (
+        <group key={`mon-${i}`} position={[b.x, 0, 4.4]}>
+          {/* Top mounting rod (horizontal small bar at top) */}
+          <mesh position={[0, 3.5, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.018, 0.018, 0.4, 6]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.9} />
+          </mesh>
+          {/* Banner fabric — tall narrow plane */}
+          <mesh position={[0, 1.9, 0]}>
+            <planeGeometry args={[0.35, 3]} />
+            <meshStandardMaterial
+              color={restored ? '#2a3858' : '#1a1c30'}
+              emissive={restored ? '#0a1830' : '#000000'}
+              emissiveIntensity={restored ? 0.12 : 0}
+              roughness={0.95}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          {/* Mon crest motif — circle in middle, restored only */}
+          {restored && (
+            <>
+              <mesh position={[0, 2.4, 0.01]}>
+                <ringGeometry args={[0.1, 0.13, 16]} />
+                <meshStandardMaterial color="#e8d4a8" roughness={0.85} />
+              </mesh>
+              <mesh position={[0, 2.4, 0.01]}>
+                <circleGeometry args={[0.08, 16]} />
+                <meshStandardMaterial
+                  color="#e8d4a8"
+                  emissive="#a87830"
+                  emissiveIntensity={0.2}
+                  roughness={0.85}
+                />
+              </mesh>
+              {/* Center sun mark — small inner gold dot */}
+              <mesh position={[0, 2.4, 0.02]}>
+                <circleGeometry args={[0.035, 12]} />
+                <meshStandardMaterial
+                  color="#d4a848"
+                  emissive="#a87830"
+                  emissiveIntensity={0.4}
+                  roughness={0.5}
+                  metalness={0.4}
+                  toneMapped={false}
+                />
+              </mesh>
+            </>
+          )}
+          {/* Bottom weight bar — kasih banner lurus jatuh */}
+          <mesh position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.022, 0.022, 0.36, 6]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.9} />
+          </mesh>
+          {/* Drought tatter — 2 fabric strips lepas */}
+          {!restored && (
+            <>
+              <mesh
+                position={[0.18, 1.4, 0.02]}
+                rotation={[0, 0, -0.4]}
+              >
+                <planeGeometry args={[0.18, 0.8]} />
+                <meshStandardMaterial
+                  color="#1a1c30"
+                  roughness={0.95}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            </>
+          )}
+        </group>
+      ))}
+    </>
+  );
+};
+
+// Hanamichi — raised wooden walkway di center aisle, signature kabuki
+// theater feature. Performer berjalan melalui audience to stage.
+// Replace flat center aisle runner.
+const Hanamichi = ({ restored }) => {
+  // Walkway dari z=+4.5 (back of audience) ke z=-1.8 (dais front)
+  const walkwayY = 0.15;
+  const walkwayW = 0.85;
+  const walkwayZStart = 4.5;
+  const walkwayZEnd = -2;
+  const walkwayLen = walkwayZStart - walkwayZEnd;
+  const walkwayZ = (walkwayZStart + walkwayZEnd) / 2;
+  const woodColor = restored ? '#8a5828' : '#4a3018';
+  const trimColor = '#2a1810';
+  return (
+    <>
+      {/* Walkway top surface */}
+      <mesh position={[0, walkwayY, walkwayZ]}>
+        <boxGeometry args={[walkwayW, 0.06, walkwayLen]} />
+        <meshStandardMaterial color={woodColor} roughness={0.85} />
+      </mesh>
+      {/* Walkway side facade — kasih grounded look (front + 2 sides) */}
+      <mesh position={[0, walkwayY / 2, walkwayZ]}>
+        <boxGeometry args={[walkwayW, walkwayY, walkwayLen]} />
+        <meshStandardMaterial color={trimColor} roughness={0.95} />
+      </mesh>
+      {/* Plank lines along walkway — 3 thin dark strips lengthwise */}
+      {[-0.3, 0, 0.3].map((x, i) => (
+        <mesh
+          key={`plank-${i}`}
+          position={[x, walkwayY + 0.032, walkwayZ]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <planeGeometry args={[0.02, walkwayLen]} />
+          <meshStandardMaterial color={trimColor} roughness={1} />
+        </mesh>
+      ))}
+      {/* Cross plank lines — 5 across walkway width */}
+      {[-2.5, -0.8, 0.8, 2.5, 4.0].map((z, i) => (
+        <mesh
+          key={`cross-plank-${i}`}
+          position={[0, walkwayY + 0.032, z]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <planeGeometry args={[walkwayW - 0.05, 0.02]} />
+          <meshStandardMaterial color={trimColor} roughness={1} />
+        </mesh>
+      ))}
+      {/* Side trim rails — 2 thin strips di edge */}
+      {[-walkwayW / 2 + 0.025, walkwayW / 2 - 0.025].map((x, i) => (
+        <mesh
+          key={`rail-${i}`}
+          position={[x, walkwayY + 0.05, walkwayZ]}
+        >
+          <boxGeometry args={[0.03, 0.04, walkwayLen]} />
+          <meshStandardMaterial
+            color={restored ? '#5a3818' : '#2a1810'}
+            roughness={0.9}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+};
+
+// AndonLanterns — square paper wall lanterns (replace GallerySconces
+// Western style). 4 di side walls, 2 per wall (back + front).
+const AndonLanterns = ({ restored }) => {
+  const matRefs = useRef([]);
+  useFrame((state) => {
+    if (!restored) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < matRefs.current.length; i += 1) {
+      const mat = matRefs.current[i];
+      if (!mat) continue;
+      mat.emissiveIntensity = 0.7 + Math.sin(t * 0.4 + i * 0.6) * 0.1;
+    }
+  });
   const sconces = [
-    { x: -SIDE_WALL_X + 0.16, z: -2.5, ry: Math.PI / 2 },   // left-back
-    { x: -SIDE_WALL_X + 0.16, z: 2,    ry: Math.PI / 2 },   // left-front
-    { x: SIDE_WALL_X - 0.16,  z: -2.5, ry: -Math.PI / 2 },  // right-back
-    { x: SIDE_WALL_X - 0.16,  z: 2,    ry: -Math.PI / 2 },  // right-front
+    { x: -SIDE_WALL_X + 0.16, z: -2.5, ry: Math.PI / 2 },
+    { x: -SIDE_WALL_X + 0.16, z: 2, ry: Math.PI / 2 },
+    { x: SIDE_WALL_X - 0.16, z: -2.5, ry: -Math.PI / 2 },
+    { x: SIDE_WALL_X - 0.16, z: 2, ry: -Math.PI / 2 },
   ];
   return (
     <>
       {sconces.map((s, i) => (
         <group
-          key={`sconce-${i}`}
+          key={`andon-${i}`}
           position={[s.x, 2.8, s.z]}
           rotation={[0, s.ry, 0]}
         >
-          <mesh position={[0, 0, 0.04]}>
-            <boxGeometry args={[0.08, 0.3, 0.08]} />
+          {/* Mount arm bracket */}
+          <mesh position={[0, 0, 0.06]}>
+            <boxGeometry args={[0.05, 0.18, 0.12]} />
             <meshStandardMaterial color="#3a2418" roughness={0.95} />
           </mesh>
-          <mesh position={[0, 0.06, 0.2]}>
-            <sphereGeometry args={[0.1, 10, 8]} />
-            <meshStandardMaterial
+          {/* Andon frame — wood vertical posts (4) + bottom + top plate */}
+          <group position={[0, 0, 0.22]}>
+            {/* Paper body — cube w/ emissive paper material */}
+            <mesh>
+              <boxGeometry args={[0.28, 0.4, 0.24]} />
+              <meshStandardMaterial
+                ref={(m) => {
+                  matRefs.current[i] = m;
+                }}
+                color={restored ? '#f4e8c8' : '#3a2818'}
+                emissive={restored ? '#f4c478' : '#000000'}
+                emissiveIntensity={restored ? 0.7 : 0}
+                roughness={0.7}
+                transparent
+                opacity={0.9}
+                toneMapped={false}
+              />
+            </mesh>
+            {/* Top wooden cap */}
+            <mesh position={[0, 0.22, 0]}>
+              <boxGeometry args={[0.32, 0.04, 0.28]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.9} />
+            </mesh>
+            {/* Bottom wooden cap */}
+            <mesh position={[0, -0.22, 0]}>
+              <boxGeometry args={[0.32, 0.04, 0.28]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.9} />
+            </mesh>
+            {/* Vertical wooden frame posts × 4 corners */}
+            {[
+              { x: -0.14, z: -0.12 },
+              { x: 0.14, z: -0.12 },
+              { x: -0.14, z: 0.12 },
+              { x: 0.14, z: 0.12 },
+            ].map((p, j) => (
+              <mesh key={`post-${i}-${j}`} position={[p.x, 0, p.z]}>
+                <boxGeometry args={[0.03, 0.4, 0.03]} />
+                <meshStandardMaterial color="#3a2418" roughness={0.9} />
+              </mesh>
+            ))}
+            {/* Horizontal frame middle band */}
+            <mesh position={[0, 0, 0.121]}>
+              <planeGeometry args={[0.28, 0.03]} />
+              <meshStandardMaterial color="#3a2418" roughness={0.9} />
+            </mesh>
+          </group>
+          {restored && (
+            <pointLight
+              position={[0, 0, 0.3]}
               color="#f4d8a0"
-              emissive="#f4c478"
-              emissiveIntensity={0.7}
-              roughness={0.5}
-              toneMapped={false}
+              intensity={0.4}
+              distance={2.8}
+              decay={2}
             />
-          </mesh>
-          <mesh position={[0, 0.18, 0.2]} rotation={[Math.PI, 0, 0]}>
-            <coneGeometry args={[0.12, 0.1, 8]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.95} />
-          </mesh>
-          <pointLight
-            position={[0, 0.06, 0.28]}
-            color="#f4d8a0"
-            intensity={0.4}
-            distance={3}
-            decay={2}
-          />
+          )}
         </group>
       ))}
     </>
@@ -1346,77 +1649,6 @@ const PlazaStatue = ({ restored }) => {
   );
 };
 
-// WelcomeArch — decorative arch atas gallery opening, kasih grand
-// entrance feel. Spans across entrance front, dgn keystone gold.
-const WelcomeArch = ({ restored }) => {
-  const archColor = restored ? '#d4c0a0' : '#5a4838';
-  const accentColor = restored ? '#d4a848' : '#3a2418';
-  return (
-    <group position={[0, 5.4, 4]}>
-      {/* Main horizontal beam */}
-      <mesh>
-        <boxGeometry args={[SIDE_WALL_X * 2 + 0.4, 0.5, 0.4]} />
-        <meshStandardMaterial
-          color={archColor}
-          emissive={restored ? '#7a5828' : '#000000'}
-          emissiveIntensity={restored ? 0.1 : 0}
-          roughness={0.85}
-        />
-      </mesh>
-      {/* Top molding */}
-      <mesh position={[0, 0.3, 0]}>
-        <boxGeometry args={[SIDE_WALL_X * 2 + 0.6, 0.12, 0.5]} />
-        <meshStandardMaterial color={accentColor} roughness={0.6} metalness={restored ? 0.4 : 0.1} />
-      </mesh>
-      {/* Keystone — center decorative bump */}
-      <mesh position={[0, -0.05, 0.25]}>
-        <boxGeometry args={[0.5, 0.55, 0.2]} />
-        <meshStandardMaterial
-          color={accentColor}
-          emissive={restored ? '#7a5818' : '#000000'}
-          emissiveIntensity={restored ? 0.28 : 0}
-          roughness={0.5}
-          metalness={restored ? 0.5 : 0.1}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* Banner text below arch beam — center "Selamat Datang" */}
-      {restored && (
-        <Html
-          position={[0, -0.7, 0.22]}
-          center
-          distanceFactor={5}
-          occlude={false}
-          transform
-        >
-          <div
-            className="pointer-events-none select-none text-center"
-            style={{ width: 280 }}
-          >
-            <div
-              className="text-[9px] uppercase tracking-[0.4em] mb-0.5"
-              style={{ color: '#d4a848' }}
-            >
-              ✦ Selamat Datang ✦
-            </div>
-            <div
-              className="text-[14px] leading-tight"
-              style={{
-                color: '#f4d8a0',
-                fontFamily: '"Fraunces Variable", serif',
-                fontStyle: 'italic',
-                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
-              }}
-            >
-              Pameran Sorotan Kebaikan
-            </div>
-          </div>
-        </Html>
-      )}
-    </group>
-  );
-};
-
 // CobblePath — stone slabs dari outer plaza ke gallery entrance,
 // kasih clear approach feel. Spread from z=+8 (jauh dari gallery)
 // sampai z=+5 (di front gallery opening).
@@ -1443,96 +1675,6 @@ const CobblePath = ({ restored }) => {
           <planeGeometry args={[p.w - 0.05, p.d - 0.05]} />
           <meshStandardMaterial color={stoneColor} roughness={1} />
         </mesh>
-      ))}
-    </>
-  );
-};
-
-// OutdoorLamps — 2 tall lamp posts di plaza apron, flanking gallery
-// entrance pathway. Lit restored (glow + point light). Drought: unlit,
-// some tilted (broken).
-const OutdoorLamps = ({ restored }) => {
-  const matRefs = useRef([]);
-  useFrame((state) => {
-    if (!restored) return;
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < matRefs.current.length; i += 1) {
-      const mat = matRefs.current[i];
-      if (!mat) continue;
-      mat.emissiveIntensity = 0.7 + Math.sin(t * 0.4 + i * 0.6) * 0.1;
-    }
-  });
-  // Drought: lamps tilted (rusak)
-  const lamps = [
-    { x: -3, z: 7, tiltZ: restored ? 0 : 0.25 },
-    { x: 3, z: 7, tiltZ: restored ? 0 : -0.4 },
-  ];
-  return (
-    <>
-      {lamps.map((l, i) => (
-        <group
-          key={`lamp-${i}`}
-          position={[l.x, 0, l.z]}
-          rotation={[0, 0, l.tiltZ]}
-        >
-          {/* Base — short square block */}
-          <mesh position={[0, 0.15, 0]}>
-            <boxGeometry args={[0.4, 0.3, 0.4]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.95} />
-          </mesh>
-          {/* Pole */}
-          <mesh position={[0, 1.5, 0]}>
-            <cylinderGeometry args={[0.05, 0.06, 2.7, 8]} />
-            <meshStandardMaterial color="#2a1810" roughness={0.85} />
-          </mesh>
-          {/* Decorative ring mid-pole */}
-          <mesh position={[0, 1.8, 0]}>
-            <torusGeometry args={[0.1, 0.025, 6, 12]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.9} />
-          </mesh>
-          {/* Lantern housing */}
-          <group position={[0, 3, 0]}>
-            <mesh position={[0, -0.04, 0]}>
-              <boxGeometry args={[0.34, 0.06, 0.34]} />
-              <meshStandardMaterial color="#2a1810" roughness={0.95} />
-            </mesh>
-            {/* Glass globe */}
-            <mesh position={[0, 0.1, 0]}>
-              <sphereGeometry args={[0.18, 12, 10]} />
-              <meshStandardMaterial
-                ref={(m) => {
-                  matRefs.current[i] = m;
-                }}
-                color={restored ? '#f4d8a0' : '#3a2818'}
-                emissive={restored ? '#f4c478' : '#000000'}
-                emissiveIntensity={restored ? 0.7 : 0}
-                roughness={0.4}
-                transparent
-                opacity={0.92}
-                toneMapped={false}
-              />
-            </mesh>
-            {/* Roof cap — pyramid */}
-            <mesh position={[0, 0.3, 0]}>
-              <coneGeometry args={[0.24, 0.18, 4]} />
-              <meshStandardMaterial color="#2a1810" roughness={0.95} />
-            </mesh>
-            {/* Top finial */}
-            <mesh position={[0, 0.46, 0]}>
-              <sphereGeometry args={[0.04, 6, 5]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.9} />
-            </mesh>
-          </group>
-          {restored && (
-            <pointLight
-              position={[0, 3.1, 0]}
-              color="#f4d8a0"
-              intensity={0.7}
-              distance={5}
-              decay={2}
-            />
-          )}
-        </group>
       ))}
     </>
   );
@@ -1742,106 +1884,6 @@ const WallCracks = ({ restored }) => {
   );
 };
 
-// Chandelier — central hanging fixture di ceiling above audience.
-// Gold ring frame + 6 small bulbs + chain ke ceiling. Drought: dim.
-const Chandelier = ({ restored }) => {
-  const bulbMatRefs = useRef([]);
-  useFrame((state) => {
-    if (!restored) return;
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < bulbMatRefs.current.length; i += 1) {
-      const mat = bulbMatRefs.current[i];
-      if (!mat) continue;
-      mat.emissiveIntensity = 0.75 + Math.sin(t * 0.8 + i * 0.6) * 0.12;
-    }
-  });
-  const chandY = restored ? 4.2 : 3.7;
-  const chandZ = 0;
-  const ringR = 0.6;
-  // Drought: chandelier tilted (rotation Z) + dropped lower + half
-  // bulbs missing — kayak rusak gantung miring.
-  return (
-    <group
-      position={[0, chandY, chandZ]}
-      rotation={[0, 0, restored ? 0 : 0.35]}
-    >
-      {/* Chain ke ceiling — drought: shorter + offset (one side broken) */}
-      <mesh position={[restored ? 0 : -0.15, restored ? 0.8 : 0.6, 0]}>
-        <cylinderGeometry args={[0.012, 0.012, restored ? 1.6 : 1.0, 5]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      {/* Top cap */}
-      <mesh position={[0, 0.05, 0]}>
-        <cylinderGeometry args={[0.08, 0.05, 0.08, 8]} />
-        <meshStandardMaterial
-          color={restored ? '#d4a848' : '#3a2418'}
-          emissive={restored ? '#a87830' : '#000000'}
-          emissiveIntensity={restored ? 0.3 : 0}
-          roughness={0.5}
-          metalness={0.5}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* Ring frame — gold metallic */}
-      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[ringR, 0.04, 8, 24]} />
-        <meshStandardMaterial
-          color={restored ? '#d4a848' : '#3a2418'}
-          emissive={restored ? '#a87830' : '#000000'}
-          emissiveIntensity={restored ? 0.35 : 0}
-          roughness={0.5}
-          metalness={0.5}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* 6 bulbs spread along ring — drought: 3 of 6 missing (gone) */}
-      {Array.from({ length: 6 }).map((_, i) => {
-        // Drought: bulbs 1, 3, 5 missing (rusak/jatuh)
-        if (!restored && i % 2 === 1) return null;
-        const angle = (i / 6) * Math.PI * 2;
-        const bx = Math.cos(angle) * ringR;
-        const bz = Math.sin(angle) * ringR;
-        return (
-          <group key={`bulb-${i}`} position={[bx, -0.1, bz]}>
-            {/* Bulb holder — drought: tilted (rusak) */}
-            <mesh
-              position={[0, 0.04, 0]}
-              rotation={[0, 0, restored ? 0 : 0.4]}
-            >
-              <cylinderGeometry args={[0.025, 0.03, 0.06, 6]} />
-              <meshStandardMaterial color="#3a2418" roughness={0.9} />
-            </mesh>
-            {/* Bulb — emissive */}
-            <mesh position={[0, -0.04, 0]}>
-              <sphereGeometry args={[0.06, 10, 8]} />
-              <meshStandardMaterial
-                ref={(m) => {
-                  bulbMatRefs.current[i] = m;
-                }}
-                color={restored ? '#f4d8a0' : '#3a2818'}
-                emissive={restored ? '#f4c478' : '#000000'}
-                emissiveIntensity={restored ? 0.75 : 0}
-                roughness={0.4}
-                toneMapped={false}
-              />
-            </mesh>
-          </group>
-        );
-      })}
-      {/* Center point light */}
-      {restored && (
-        <pointLight
-          position={[0, -0.1, 0]}
-          color="#f4d8a0"
-          intensity={0.6}
-          distance={5}
-          decay={2}
-        />
-      )}
-    </group>
-  );
-};
-
 // CofferedCeilingBeams — wooden grid pattern di ceiling above audience.
 // 3 cross beams (X-dir) + 4 perpendicular (Z-dir) kasih architectural
 // depth tanpa solid ceiling (gallery tetep "terbuka").
@@ -1882,13 +1924,15 @@ const AisleFloorLights = ({ restored }) => {
     }
   });
   if (!restored) return null;
-  const positions = [-3.5, -2.5, -1.5, 0, 1.5, 2.5, 3.5];
+  // Embedded di hanamichi walkway surface (y=0.19), spread along
+  // walkway length (z=-2 ke +4.5).
+  const positions = [-1.5, -0.3, 0.9, 2.1, 3.3];
   return (
     <>
       {positions.map((z, i) => (
         <mesh
           key={`aisle-light-${i}`}
-          position={[0, 0.005, z]}
+          position={[0, 0.195, z]}
           rotation={[-Math.PI / 2, 0, 0]}
         >
           <circleGeometry args={[0.06, 12]} />
@@ -2849,12 +2893,15 @@ const Scene = ({
       <CobblePath restored={restored} />
       <IshiDoroLanterns restored={restored} />
       <PlazaStatue restored={restored} />
+      <SakeBarrels restored={restored} />
       <PerformanceEquipment restored={restored} />
+      <Hanamichi restored={restored} />
       <EntranceColumns restored={restored} />
       <Torii restored={restored} />
+      <MonBanners restored={restored} />
       <GalleryWalls restored={restored} />
       <WallCracks restored={restored} />
-      <GallerySconces restored={restored} />
+      <AndonLanterns restored={restored} />
       <WallMedallions restored={restored} />
       <CofferedCeilingBeams restored={restored} />
       <BonboriLanterns restored={restored} />
@@ -2867,6 +2914,7 @@ const Scene = ({
       <DaisFootlights restored={restored} />
       <DaisStepLight restored={restored} />
       <StageLectern restored={restored} />
+      <TaikoDrum restored={restored} />
       <VolumetricBeams restored={restored} />
       {restored && <StageDustMotes count={isMobile ? 12 : 24} />}
       <AudienceKursi restored={restored} />
