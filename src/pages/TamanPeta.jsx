@@ -6994,29 +6994,79 @@ const TownSignpost = ({ count }) => {
 // proportions (head:body 1:2.5 cute ratio), kimono V-collar detail,
 // bell sleeves, hair styling (back + bangs + side bands), eyes,
 // small geta sandals di base.
-// Type param menentukan variation:
+// Type variants:
 //   'adult'  — default villager dgn kimono + sash
 //   'farmer' — adult + caping (conical straw hat)
-//   'monk'   — adult + shaved head (no hair) + prayer beads sash
-//   'child'  — smaller scale + bigger head proportion
+//   'monk'   — shaved head + prayer beads
+//   'child'  — smaller scale + bigger head proportion + bouncy
 //   'elder'  — slight bent posture + walking stick
+// Walking: kalau `path` array dengan 2+ waypoints + speed > 0, NPC
+// jalan loop ke seluruh waypoints. Body rotate face direction. Arms
+// swing useFrame. Static kalau path empty/speed 0.
 const NpcVillager = ({
   pos,
   rot = 0,
   robeColor = '#7a3838',
   accentColor = '#e8d4a8',
   type = 'adult',
+  path = null,
+  speed = 0,
   seed = 0,
 }) => {
+  const groupRef = useRef();
   const bobRef = useRef();
-  useFrame((state) => {
-    if (!bobRef.current) return;
+  const armLRef = useRef();
+  const armRRef = useRef();
+  const segIdxRef = useRef(0);
+  const segProgressRef = useRef(0);
+  const isWalking = path && path.length > 1 && speed > 0;
+  useFrame((state, delta) => {
+    if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
     const phase = (seed * 13) % 100;
-    // Bob amplitude varies by type (child = bigger bounce)
-    const amp = type === 'child' ? 0.015 : 0.008;
-    bobRef.current.position.y = (type === 'child' ? 0.55 : 0.7) + Math.sin(t * 1.2 + phase) * amp;
+    // Walking: update position along path waypoints
+    if (isWalking) {
+      const i = segIdxRef.current;
+      const next = (i + 1) % path.length;
+      const from = path[i];
+      const to = path[next];
+      const segLen = Math.hypot(to.x - from.x, to.z - from.z) || 0.001;
+      segProgressRef.current += (delta * speed) / segLen;
+      if (segProgressRef.current >= 1) {
+        segProgressRef.current = 0;
+        segIdxRef.current = next;
+      }
+      const tp = segProgressRef.current;
+      groupRef.current.position.x = from.x + (to.x - from.x) * tp;
+      groupRef.current.position.z = from.z + (to.z - from.z) * tp;
+      // Face direction
+      groupRef.current.rotation.y = Math.atan2(to.x - from.x, to.z - from.z);
+    }
+    // Head bob — walking = faster + bigger bob; static = subtle idle
+    if (bobRef.current) {
+      const bobSpeed = isWalking ? 5 : 1.2;
+      const bobAmp = isWalking
+        ? 0.025
+        : type === 'child'
+          ? 0.015
+          : 0.008;
+      const headY = type === 'child' ? 0.55 : 0.7;
+      bobRef.current.position.y = headY + Math.sin(t * bobSpeed + phase) * bobAmp;
+    }
+    // Arm swing — walking only, opposite phase between arms
+    if (isWalking) {
+      const swingAmp = 0.25;
+      const swingSpeed = 5;
+      if (armLRef.current) {
+        armLRef.current.rotation.x = Math.sin(t * swingSpeed + phase) * swingAmp;
+      }
+      if (armRRef.current) {
+        armRRef.current.rotation.x = -Math.sin(t * swingSpeed + phase) * swingAmp;
+      }
+    }
   });
+  // Initial position — start at first waypoint if walking, else pos
+  const initialPos = isWalking ? [path[0].x, 0, path[0].z] : pos;
   const headTone = '#e8c8a0';
   const hairColor = '#1a0e08';
   const isChild = type === 'child';
@@ -7028,7 +7078,12 @@ const NpcVillager = ({
   // Posture lean for elder
   const leanZ = isElder ? 0.08 : 0;
   return (
-    <group position={pos} rotation={[0, rot, 0]} scale={scale}>
+    <group
+      ref={groupRef}
+      position={initialPos}
+      rotation={[0, rot, 0]}
+      scale={scale}
+    >
       {/* Geta sandals — 2 small dark boxes di base */}
       {[-0.06, 0.06].map((x, i) => (
         <mesh key={`geta-${i}`} position={[x, 0.025, 0.05]}>
@@ -7064,21 +7119,20 @@ const NpcVillager = ({
           <boxGeometry args={[0.08, 0.08, 0.05]} />
           <meshStandardMaterial color="#3a2418" roughness={0.95} />
         </mesh>
-        {/* Bell sleeves — flare di sides (wider at bottom) */}
-        <mesh
-          position={[-0.16, 0.36, 0]}
-          rotation={[0, 0, 0.5]}
-        >
-          <cylinderGeometry args={[0.04, 0.08, 0.18, 6]} />
-          <meshStandardMaterial color={robeColor} roughness={0.85} />
-        </mesh>
-        <mesh
-          position={[0.16, 0.36, 0]}
-          rotation={[0, 0, -0.5]}
-        >
-          <cylinderGeometry args={[0.04, 0.08, 0.18, 6]} />
-          <meshStandardMaterial color={robeColor} roughness={0.85} />
-        </mesh>
+        {/* Bell sleeves — wrapped di group dgn ref untuk swing animation
+            saat walking. Shoulder pivot point, sleeve hang dari sana. */}
+        <group ref={armLRef} position={[-0.13, 0.42, 0]}>
+          <mesh position={[-0.03, -0.09, 0]} rotation={[0, 0, 0.5]}>
+            <cylinderGeometry args={[0.04, 0.08, 0.18, 6]} />
+            <meshStandardMaterial color={robeColor} roughness={0.85} />
+          </mesh>
+        </group>
+        <group ref={armRRef} position={[0.13, 0.42, 0]}>
+          <mesh position={[0.03, -0.09, 0]} rotation={[0, 0, -0.5]}>
+            <cylinderGeometry args={[0.04, 0.08, 0.18, 6]} />
+            <meshStandardMaterial color={robeColor} roughness={0.85} />
+          </mesh>
+        </group>
         {/* Monk prayer beads — di sash if monk type */}
         {isMonk && (
           <mesh position={[0.1, 0.4, 0.12]}>
@@ -7166,23 +7220,137 @@ const NpcVillager = ({
   );
 };
 
-// NpcVillagers — 8 villagers w/ type variety, scattered town areas.
-// Reveal di m65. Variety: 3 adults, 1 farmer, 1 monk, 1 child, 1 elder,
-// 1 adult — distributed across town areas.
+// NpcVillagers — 8 villagers w/ type variety + walking paths.
+// Speed per type: adult 0.5, elder 0.18, monk 0.28, child 0.75,
+// farmer 0 (static, working). All path waypoints verified safe
+// dari landmark exclusion zones (Arsip r=2.5, Telaga r=2.5,
+// Menara r=2.5, Panggung r=2.5, AirMancur r=1.8, Center r=2.5,
+// Gerbang ~1.5).
 const NPC_VILLAGER_DEFS = [
-  // Near east house cluster
-  { pos: [9.5, 0, 0], rot: -0.5, robeColor: '#7a3838', accentColor: '#e8c4a0', type: 'adult', seed: 1 },
-  { pos: [10, 0, -2], rot: 0.8, robeColor: '#3a5868', accentColor: '#d8b890', type: 'elder', seed: 2 },
-  // Near west house cluster
-  { pos: [-10, 0, 4], rot: 0.3, robeColor: '#5a3878', accentColor: '#e8d4a8', type: 'adult', seed: 3 },
-  { pos: [-11.5, 0, 3.2], rot: -0.6, robeColor: '#a85838', accentColor: '#f0e0c0', type: 'farmer', seed: 4 },
-  // Near south house cluster
-  { pos: [5, 0, 10.5], rot: -1.2, robeColor: '#3a5878', accentColor: '#d8a880', type: 'child', seed: 5 },
-  // Near market stalls (lorong entry)
-  { pos: [-1, 0, 7], rot: 0.5, robeColor: '#7a3838', accentColor: '#e8c4a0', type: 'adult', seed: 6 },
-  { pos: [2.5, 0, 7.5], rot: -0.4, robeColor: '#5a3a20', accentColor: '#c8a878', type: 'monk', seed: 7 },
-  // Near AirMancur / center plaza
-  { pos: [-2, 0, 1.5], rot: 1.5, robeColor: '#5a3878', accentColor: '#e8d4a8', type: 'child', seed: 8 },
+  // East cluster — adult walking loop around houses
+  {
+    pos: [9.5, 0, 0],
+    rot: -0.5,
+    robeColor: '#7a3838',
+    accentColor: '#e8c4a0',
+    type: 'adult',
+    seed: 1,
+    speed: 0.5,
+    path: [
+      { x: 9.5, z: 0 },
+      { x: 11, z: 1.5 },
+      { x: 11.5, z: -1.5 },
+      { x: 10, z: -3.5 },
+      { x: 8.5, z: -3.5 },
+    ],
+  },
+  // East — elder slow triangle (small loop)
+  {
+    pos: [10, 0, -2],
+    rot: 0.8,
+    robeColor: '#3a5868',
+    accentColor: '#d8b890',
+    type: 'elder',
+    seed: 2,
+    speed: 0.18,
+    path: [
+      { x: 10, z: -2 },
+      { x: 10.5, z: -0.5 },
+      { x: 9, z: 1 },
+    ],
+  },
+  // West — adult walking around west houses
+  {
+    pos: [-10, 0, 4],
+    rot: 0.3,
+    robeColor: '#5a3878',
+    accentColor: '#e8d4a8',
+    type: 'adult',
+    seed: 3,
+    speed: 0.5,
+    path: [
+      { x: -10, z: 4 },
+      { x: -11.5, z: 5 },
+      { x: -12, z: 3 },
+      { x: -10.5, z: 2 },
+    ],
+  },
+  // West — farmer STATIC (working, no walking)
+  {
+    pos: [-11.5, 0, 3.2],
+    rot: -0.6,
+    robeColor: '#a85838',
+    accentColor: '#f0e0c0',
+    type: 'farmer',
+    seed: 4,
+    speed: 0,
+    path: null,
+  },
+  // South — child bouncy play loop
+  {
+    pos: [5, 0, 10.5],
+    rot: -1.2,
+    robeColor: '#3a5878',
+    accentColor: '#d8a880',
+    type: 'child',
+    seed: 5,
+    speed: 0.75,
+    path: [
+      { x: 5, z: 10.5 },
+      { x: 6.5, z: 11 },
+      { x: 5.5, z: 12 },
+      { x: 4, z: 11.5 },
+    ],
+  },
+  // Market — adult walking between stalls
+  {
+    pos: [-1, 0, 7],
+    rot: 0.5,
+    robeColor: '#7a3838',
+    accentColor: '#e8c4a0',
+    type: 'adult',
+    seed: 6,
+    speed: 0.5,
+    path: [
+      { x: -1, z: 7 },
+      { x: -2.5, z: 8 },
+      { x: -0.5, z: 8 },
+      { x: 1, z: 7.5 },
+    ],
+  },
+  // Gerbang — monk slow walk near entry
+  {
+    pos: [2.5, 0, 7.5],
+    rot: -0.4,
+    robeColor: '#5a3a20',
+    accentColor: '#c8a878',
+    type: 'monk',
+    seed: 7,
+    speed: 0.28,
+    path: [
+      { x: 2.5, z: 7.5 },
+      { x: 1.5, z: 8.5 },
+      { x: 1.5, z: 9.5 },
+      { x: 2.5, z: 8 },
+    ],
+  },
+  // West-north — child play loop (relocated dari pusat plaza biar
+  // gak overlap CenterTree/AirMancur exclusion)
+  {
+    pos: [-3, 0, -2],
+    rot: 1.5,
+    robeColor: '#5a3878',
+    accentColor: '#e8d4a8',
+    type: 'child',
+    seed: 8,
+    speed: 0.75,
+    path: [
+      { x: -3, z: -2 },
+      { x: -4, z: -2.5 },
+      { x: -4, z: -1.5 },
+      { x: -3, z: -1 },
+    ],
+  },
 ];
 const NpcVillagers = ({ count }) => {
   if (count < MAP_THRESHOLDS.r5Restore) return null;
@@ -7197,6 +7365,8 @@ const NpcVillagers = ({ count }) => {
           accentColor={n.accentColor}
           type={n.type}
           seed={n.seed}
+          path={n.path}
+          speed={n.speed}
         />
       ))}
     </>
