@@ -1,27 +1,25 @@
 /**
  * Taman Kebaikan — Petak R5: Panggung Terbuka — Sorotan Kebaikan.
  *
- * Full 3D anfiteater scene — Three.js / R3F. Audience semicircle 3 row +
- * stage kayu elevated + backdrop wall + tirai velvet + spotlight rig di
- * rafters overhead + volumetric beam cones + hanging banners (donasi)
- * di backdrop. Click banner → DonationOverlay HTML modal dgn detail
- * + photo gallery + ProofLightbox.
+ * 3D pameran sederhana — Three.js / R3F. Gallery U-shape (back wall +
+ * 2 side walls) dgn poster donasi mounted di walls, bench viewing
+ * tengah, pedestal welcome plaque. Click poster → DonationOverlay HTML
+ * modal dgn detail + photo gallery + ProofLightbox.
  *
- * Konten arsip donasi pull dari data/galeriKebaikan.js (shared dgn /26
- * KebaikanArchive + /galeri-kebaikan disabled). Tiap entry = satu papan
- * sorotan gantung di backdrop, spread across arc.
+ * Konten arsip donasi pull dari data/galeriKebaikan.js. Tiap entry =
+ * satu poster mounted di wall. Layout WALL_POSITIONS prioritize back-
+ * center buat single entry, spread ke sides + back-left/right ke depan.
  *
  * State: prop `restored` dari TamanR5RouteChooser di App.jsx.
  *   locked   (count < 4500)         — chooser redirect ke peta
- *   drought  (4500 ≤ count < 6500)  — 1 spotlight dim, backdrop muted,
- *                                     audience tanpa cushion, banner
- *                                     opacity 0.7, no dust motes
- *   restored (count ≥ 6500)         — 4 spotlight full, dust motes
- *                                     volumetric, audience cushioned,
- *                                     banner full, stage marker glow
+ *   drought  (4500 ≤ count < 6500)  — track lights dim, no sconces,
+ *                                     poster muted, no rug, no mist
+ *   restored (count ≥ 6500)         — track lights flicker warm, wall
+ *                                     sconces lit, area rug visible,
+ *                                     floor mist subtle, poster glow
  */
 
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
@@ -48,19 +46,28 @@ import {
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
-const STAGE_W = 8;
-const STAGE_D = 3.2;
-const STAGE_H = 0.5;
-const BACKDROP_W = 10;
-const BACKDROP_H = 6;
-const BACKDROP_Z = -2.4;
-const RAFTERS_Y = 5.3;
-const AUDIENCE_ROW_GAP = 1.2;
-const AUDIENCE_ROW_RISE = 0.35;
-const ORBIT_TARGET = [0, 2.8, 0];
-const CAMERA_START = [0, 12, 1];
-const CAMERA_END = [0, 4.5, 11];
-const FLY_IN_DURATION = 2.6;
+// Gallery layout — U-shape opening toward +z (viewer side).
+const GALLERY_W = 10;
+const GALLERY_D = 6;
+const WALL_H = 5;
+const BACK_WALL_Z = -3;
+const SIDE_WALL_X = 5;
+const TRACK_BEAM_Y = 4.6;
+
+const ORBIT_TARGET = [0, 2.4, -0.5];
+const CAMERA_START = [0, 10, 2];
+const CAMERA_END = [0, 3.2, 6];
+const FLY_IN_DURATION = 2.4;
+
+// Posters mounted di walls — 5 slot prioritas: center-back dulu, terus
+// side walls, terakhir back-left/right. Single entry pakai slot 0.
+const WALL_POSITIONS = [
+  { x: 0, y: 2.6, z: BACK_WALL_Z + 0.13, ry: 0 },         // back-center
+  { x: -SIDE_WALL_X + 0.13, y: 2.6, z: -0.5, ry: Math.PI / 2 },  // left-wall
+  { x: SIDE_WALL_X - 0.13, y: 2.6, z: -0.5, ry: -Math.PI / 2 },  // right-wall
+  { x: -2.8, y: 2.6, z: BACK_WALL_Z + 0.13, ry: 0 },      // back-left
+  { x: 2.8, y: 2.6, z: BACK_WALL_Z + 0.13, ry: 0 },       // back-right
+];
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -92,18 +99,18 @@ const formatDate = (iso) => {
 // 3D Components
 // ============================================================
 
-// NightSky — dome background dgn stars sederhana
+// NightSky — dome background dgn stars subtle (gallery semi-open,
+// langit visible above walls).
 const NightSky = () => (
   <>
     <mesh>
       <sphereGeometry args={[60, 32, 16]} />
       <meshBasicMaterial color="#0a0608" side={THREE.BackSide} />
     </mesh>
-    {/* Stars — random spread di hemisphere atas */}
-    {Array.from({ length: 80 }).map((_, i) => {
-      const angle = (i / 80) * Math.PI * 2 + ((i * 17) % 11) * 0.04;
+    {Array.from({ length: 60 }).map((_, i) => {
+      const angle = (i / 60) * Math.PI * 2 + ((i * 17) % 11) * 0.04;
       const dist = 40 + ((i * 23) % 13) * 0.6;
-      const y = 5 + ((i * 31) % 41) * 0.6;
+      const y = 8 + ((i * 31) % 41) * 0.5;
       const size = ((i * 13) % 5) * 0.02 + 0.06;
       return (
         <mesh
@@ -118,221 +125,186 @@ const NightSky = () => (
   </>
 );
 
-// AnfiteaterFloor — circular stone tile platform di base
-const AnfiteaterFloor = ({ restored }) => (
+// ExhibitionFloor — rectangular gallery floor dgn plank lines + area
+// rug viewing zone (restored).
+const ExhibitionFloor = ({ restored }) => (
   <>
-    <mesh position={[0, -0.05, 1]} rotation={[-Math.PI / 2, 0, 0]}>
-      <circleGeometry args={[14, 32]} />
+    <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[14, 12]} />
       <meshStandardMaterial
-        color={restored ? '#3a2820' : '#2a1c14'}
+        color={restored ? '#5a4030' : '#3a2820'}
         roughness={1}
       />
     </mesh>
-    {/* Concentric stone ring detail — radial tile divisions */}
-    {[3.5, 6.5, 9.5, 12.5].map((r, i) => (
-      <mesh key={`ring-${i}`} position={[0, 0.005, 1]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[r - 0.04, r, 48]} />
-        <meshStandardMaterial
-          color="#1a100a"
-          roughness={1}
-        />
+    {[-5, -3, -1, 1, 3, 5].map((x, i) => (
+      <mesh
+        key={`plank-${i}`}
+        position={[x, -0.04, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <planeGeometry args={[0.03, 12]} />
+        <meshStandardMaterial color="#1a0e08" roughness={1} />
       </mesh>
     ))}
+    {restored && (
+      <mesh position={[0, -0.03, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[4, 2.8]} />
+        <meshStandardMaterial
+          color="#7a2828"
+          emissive="#3a0c0c"
+          emissiveIntensity={0.1}
+          roughness={0.95}
+          transparent
+          opacity={0.85}
+        />
+      </mesh>
+    )}
   </>
 );
 
-// AudienceSeating — semicircle 3 rows, masing-masing rise lebih tinggi
-// drpd depan. Drought: tanpa cushion + beberapa kursi miring. Restored:
-// cushioned + rapih.
-const AudienceSeating = ({ restored }) => {
-  const rows = [
-    { radius: 4.5, count: 7, y: 0 },
-    { radius: 5.8, count: 9, y: AUDIENCE_ROW_RISE },
-    { radius: 7.1, count: 11, y: AUDIENCE_ROW_RISE * 2 },
-  ];
+// GalleryWalls — 3 walls U-shape (back + 2 sides), warm stone/plaster
+// color. Baseboard trim restored only.
+const GalleryWalls = ({ restored }) => {
+  const wallColor = restored ? '#6a4838' : '#3a2c20';
+  const trimColor = '#2a1810';
   return (
     <>
-      {/* Tier platforms — stone steps yg jadi base kursi */}
-      {rows.map((row, rowIdx) => (
-        <mesh
-          key={`tier-${rowIdx}`}
-          position={[0, row.y + 0.05, 1]}
-          rotation={[-Math.PI / 2, 0, 0]}
-        >
-          <ringGeometry
-            args={[row.radius - 0.4, row.radius + 0.4, 32, 1, Math.PI, Math.PI]}
-          />
-          <meshStandardMaterial
-            color={restored ? '#5a4838' : '#3a2c20'}
-            roughness={1}
-          />
+      {/* Back wall */}
+      <mesh position={[0, WALL_H / 2, BACK_WALL_Z]}>
+        <boxGeometry args={[GALLERY_W, WALL_H, 0.25]} />
+        <meshStandardMaterial color={wallColor} roughness={1} />
+      </mesh>
+      {/* Left wall */}
+      <mesh position={[-SIDE_WALL_X, WALL_H / 2, -0.5]} rotation={[0, Math.PI / 2, 0]}>
+        <boxGeometry args={[GALLERY_D - 1, WALL_H, 0.25]} />
+        <meshStandardMaterial color={wallColor} roughness={1} />
+      </mesh>
+      {/* Right wall */}
+      <mesh position={[SIDE_WALL_X, WALL_H / 2, -0.5]} rotation={[0, -Math.PI / 2, 0]}>
+        <boxGeometry args={[GALLERY_D - 1, WALL_H, 0.25]} />
+        <meshStandardMaterial color={wallColor} roughness={1} />
+      </mesh>
+      {/* Baseboard trim — thin dark strip di base tiap wall, restored */}
+      {restored && (
+        <>
+          <mesh position={[0, 0.08, BACK_WALL_Z + 0.13]}>
+            <boxGeometry args={[GALLERY_W, 0.15, 0.04]} />
+            <meshStandardMaterial color={trimColor} roughness={0.9} />
+          </mesh>
+          <mesh
+            position={[-SIDE_WALL_X + 0.13, 0.08, -0.5]}
+            rotation={[0, Math.PI / 2, 0]}
+          >
+            <boxGeometry args={[GALLERY_D - 1, 0.15, 0.04]} />
+            <meshStandardMaterial color={trimColor} roughness={0.9} />
+          </mesh>
+          <mesh
+            position={[SIDE_WALL_X - 0.13, 0.08, -0.5]}
+            rotation={[0, -Math.PI / 2, 0]}
+          >
+            <boxGeometry args={[GALLERY_D - 1, 0.15, 0.04]} />
+            <meshStandardMaterial color={trimColor} roughness={0.9} />
+          </mesh>
+        </>
+      )}
+      {/* Crown molding — thin strip di top of back wall, restored */}
+      {restored && (
+        <mesh position={[0, WALL_H - 0.15, BACK_WALL_Z + 0.13]}>
+          <boxGeometry args={[GALLERY_W, 0.15, 0.04]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.9} />
         </mesh>
-      ))}
-      {/* Center aisle steps — stone slabs going from front (stage area)
-          backward menuju back row, raising di setiap tier. */}
-      {[
-        { y: 0.06, z: 4.3, w: 0.7, d: 0.6 },
-        { y: 0.06 + AUDIENCE_ROW_RISE, z: 5.6, w: 0.7, d: 0.6 },
-        { y: 0.06 + AUDIENCE_ROW_RISE * 2, z: 6.9, w: 0.7, d: 0.6 },
-      ].map((step, i) => (
-        <mesh key={`aisle-${i}`} position={[0, step.y, step.z]}>
-          <boxGeometry args={[step.w, 0.04, step.d]} />
-          <meshStandardMaterial
-            color={restored ? '#7a6048' : '#4a3a2c'}
-            roughness={1}
-          />
-        </mesh>
-      ))}
-      {/* Kursi individu di tiap row — arc dibagi 2 half dgn aisle gap
-          di center. Left half + right half each get half of kursi. */}
-      {rows.flatMap((row, rowIdx) =>
-        Array.from({ length: row.count }).map((_, i) => {
-          const arcStart = Math.PI + 0.25;
-          const arcSpan = Math.PI - 0.5;
-          const aisleGap = 0.28;
-          const halfSpan = (arcSpan - aisleGap) / 2;
-          const halfCount = Math.ceil(row.count / 2);
-          const isLeft = i < halfCount;
-          const halfIdx = isLeft ? i : i - halfCount;
-          const halfLen = isLeft ? halfCount : row.count - halfCount;
-          const angle = isLeft
-            ? arcStart + (halfIdx / Math.max(1, halfLen - 1)) * halfSpan
-            : arcStart + halfSpan + aisleGap + (halfIdx / Math.max(1, halfLen - 1)) * halfSpan;
-          const px = Math.cos(angle) * row.radius;
-          const pz = Math.sin(angle) * row.radius + 1;
-          const rotY = -angle - Math.PI / 2;
-          const tiltZ = !restored && (i + rowIdx) % 5 === 0 ? 0.15 : 0;
-          return (
-            <group
-              key={`seat-${rowIdx}-${i}`}
-              position={[px, row.y + 0.2, pz]}
-              rotation={[0, rotY, tiltZ]}
-            >
-              {/* Seat slab */}
-              <mesh>
-                <boxGeometry args={[0.46, 0.18, 0.42]} />
-                <meshStandardMaterial
-                  color={restored ? '#6a5848' : '#4a3a2c'}
-                  roughness={1}
-                />
-              </mesh>
-              {/* Back rest */}
-              <mesh position={[0, 0.35, -0.18]}>
-                <boxGeometry args={[0.46, 0.5, 0.06]} />
-                <meshStandardMaterial
-                  color={restored ? '#5a4838' : '#3a2c20'}
-                  roughness={1}
-                />
-              </mesh>
-              {/* Cushion restored only — small fabric pad di atas seat */}
-              {restored && (
-                <mesh position={[0, 0.12, 0]}>
-                  <boxGeometry args={[0.4, 0.06, 0.34]} />
-                  <meshStandardMaterial
-                    color="#8a3838"
-                    emissive="#3a1818"
-                    emissiveIntensity={0.1}
-                    roughness={0.85}
-                  />
-                </mesh>
-              )}
-            </group>
-          );
-        }),
       )}
     </>
   );
 };
 
-// Proscenium — top valance + 2 side leg panels frame stage opening dari
-// front. Velvet merah sama dgn backdrop tirai. Top valance ada scallop
-// shape (bezier-ish via triangle strip approximation).
-const Proscenium = ({ restored }) => {
-  const valanceRefs = useRef([]);
-  const legRefs = useRef([]);
-  useFrame((state) => {
-    if (!restored) return;
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < valanceRefs.current.length; i += 1) {
-      const m = valanceRefs.current[i];
-      if (m) m.rotation.x = Math.sin(t * 0.5 + i * 0.4) * 0.018;
-    }
-    for (let i = 0; i < legRefs.current.length; i += 1) {
-      const m = legRefs.current[i];
-      if (m) m.rotation.z = Math.sin(t * 0.4 + i * 0.6) * 0.012;
-    }
-  });
-  const procZ = 0.7; // front of stage area
-  const procY = 4.2;
-  const procH = 1.2;
-  return (
-    <>
-      {/* Top valance — 5 scallop drape panels */}
-      {[-3.2, -1.6, 0, 1.6, 3.2].map((x, i) => (
-        <mesh
-          key={`valance-${i}`}
-          ref={(m) => {
-            valanceRefs.current[i] = m;
-          }}
-          position={[x, procY + 0.5, procZ]}
-        >
-          <planeGeometry args={[1.55, procH]} />
-          <meshStandardMaterial
-            color={restored ? '#7a1818' : '#3a1010'}
-            emissive={restored ? '#3a0808' : '#000000'}
-            emissiveIntensity={restored ? 0.15 : 0}
-            roughness={0.95}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      ))}
-      {/* Valance rail — horizontal beam atas */}
-      <mesh position={[0, procY + 1.1, procZ - 0.05]}>
-        <boxGeometry args={[8.5, 0.12, 0.12]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
+// ViewingBench — simple wooden bench, center viewing area facing back.
+const ViewingBench = ({ restored }) => (
+  <group position={[0, 0, 1.5]}>
+    {/* Seat slab */}
+    <mesh position={[0, 0.4, 0]}>
+      <boxGeometry args={[2.2, 0.1, 0.5]} />
+      <meshStandardMaterial
+        color={restored ? '#6a4830' : '#3a2818'}
+        roughness={0.9}
+      />
+    </mesh>
+    {/* Legs */}
+    {[-0.9, 0.9].map((x, i) => (
+      <mesh key={`leg-${i}`} position={[x, 0.2, 0]}>
+        <boxGeometry args={[0.15, 0.4, 0.4]} />
+        <meshStandardMaterial
+          color={restored ? '#5a3a20' : '#2a1810'}
+          roughness={0.95}
+        />
       </mesh>
-      {/* Side legs — 2 vertical curtain panels framing stage */}
-      {[-4.0, 4.0].map((x, i) => (
-        <mesh
-          key={`leg-${i}`}
-          ref={(m) => {
-            legRefs.current[i] = m;
-          }}
-          position={[x, procY / 2 + 0.5, procZ]}
-        >
-          <planeGeometry args={[1.4, procY + 0.5]} />
-          <meshStandardMaterial
-            color={restored ? '#6a1414' : '#2a0c0c'}
-            emissive={restored ? '#2a0606' : '#000000'}
-            emissiveIntensity={restored ? 0.12 : 0}
-            roughness={0.95}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      ))}
-      {/* Leg ties — gold cord cinch di middle of each leg, restored only */}
-      {restored &&
-        [-4.0, 4.0].map((x, i) => (
-          <group key={`legtie-${i}`} position={[x, procY / 2, procZ + 0.06]}>
-            <mesh>
-              <torusGeometry args={[0.22, 0.04, 6, 12]} />
-              <meshStandardMaterial
-                color="#d4a848"
-                emissive="#a87828"
-                emissiveIntensity={0.35}
-                roughness={0.5}
-                metalness={0.4}
-              />
-            </mesh>
-          </group>
-        ))}
-    </>
-  );
-};
+    ))}
+    {/* Plank line on seat — visual detail */}
+    <mesh position={[0, 0.456, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[2.2, 0.02]} />
+      <meshStandardMaterial color="#1a0e08" roughness={1} />
+    </mesh>
+  </group>
+);
 
-// Footlights — row di stage front edge, small emissive disks + point
-// lights. Restored: 7 lit. Drought: 7 dim/off.
-const Footlights = ({ restored }) => {
+// IntroPlaque — pedestal dgn welcome card di tengah area, facing back
+// wall (sebagai "selamat datang" untuk pengunjung).
+const IntroPlaque = ({ restored }) => (
+  <group position={[0, 0, 3]}>
+    {/* Pedestal column */}
+    <mesh position={[0, 0.55, 0]}>
+      <boxGeometry args={[0.7, 1.1, 0.4]} />
+      <meshStandardMaterial
+        color={restored ? '#5a4030' : '#3a2820'}
+        roughness={0.95}
+      />
+    </mesh>
+    {/* Top plate */}
+    <mesh position={[0, 1.13, 0]}>
+      <boxGeometry args={[0.78, 0.05, 0.48]} />
+      <meshStandardMaterial color="#3a2418" roughness={0.9} />
+    </mesh>
+    {/* Plaque card — tilted facing back */}
+    <mesh position={[0, 1.18, 0.07]} rotation={[-Math.PI / 6, Math.PI, 0]}>
+      <planeGeometry args={[0.6, 0.4]} />
+      <meshStandardMaterial
+        color={restored ? '#d4c8a0' : '#6a5848'}
+        emissive={restored ? '#5a4828' : '#000000'}
+        emissiveIntensity={restored ? 0.18 : 0}
+        roughness={0.85}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    <Html
+      position={[0, 1.22, 0.12]}
+      rotation={[-Math.PI / 6, Math.PI, 0]}
+      center
+      distanceFactor={4}
+      occlude={false}
+      transform
+    >
+      <div className="pointer-events-none select-none text-center" style={{ width: 120 }}>
+        <div className="text-[7px] uppercase tracking-[0.3em] text-[#5a3818] mb-0.5">
+          Selamat datang
+        </div>
+        <div
+          className="text-[9px] text-[#2a1810] leading-tight"
+          style={{ fontFamily: '"Fraunces Variable", serif', fontStyle: 'italic' }}
+        >
+          Pameran Sorotan Kebaikan
+        </div>
+        <div className="text-[6px] text-[#5a3818] mt-1 leading-snug">
+          Tiap papan = satu cerita. Klik untuk baca.
+        </div>
+      </div>
+    </Html>
+  </group>
+);
+
+// CeilingTrackLights — horizontal beam dgn 4 small downlights pointing
+// ke posters di back wall. Restored: warm flicker + point lights.
+// Drought: dim center light only.
+const CeilingTrackLights = ({ restored }) => {
   const matRefs = useRef([]);
   useFrame((state) => {
     if (!restored) return;
@@ -340,154 +312,169 @@ const Footlights = ({ restored }) => {
     for (let i = 0; i < matRefs.current.length; i += 1) {
       const mat = matRefs.current[i];
       if (!mat) continue;
-      mat.emissiveIntensity = 0.7 + Math.sin(t * 1.2 + i * 0.5) * 0.12;
+      mat.emissiveIntensity = 0.65 + Math.sin(t * 0.5 + i * 0.4) * 0.1;
     }
   });
-  const positions = [-3.0, -2.0, -1.0, 0, 1.0, 2.0, 3.0];
-  const z = -0.5 + STAGE_D / 2 + 0.05;
-  const y = STAGE_H + 0.08;
+  const positions = restored ? [-3, -1, 1, 3] : [0];
   return (
     <>
+      {/* Track beam — horizontal di atas back wall area */}
+      <mesh position={[0, TRACK_BEAM_Y, BACK_WALL_Z + 1.2]}>
+        <boxGeometry args={[GALLERY_W - 1, 0.1, 0.12]} />
+        <meshStandardMaterial color="#2a1810" roughness={0.9} />
+      </mesh>
+      {/* Track mounts (2 brackets ke ceiling) */}
+      {[-3.5, 3.5].map((x, i) => (
+        <mesh
+          key={`bracket-${i}`}
+          position={[x, TRACK_BEAM_Y + 0.18, BACK_WALL_Z + 1.2]}
+        >
+          <boxGeometry args={[0.08, 0.36, 0.08]} />
+          <meshStandardMaterial color="#2a1810" roughness={0.95} />
+        </mesh>
+      ))}
+      {/* Downlights mounted on track, angled toward back wall */}
       {positions.map((x, i) => (
-        <group key={`foot-${i}`} position={[x, y, z]}>
-          {/* Housing — small dome */}
-          <mesh position={[0, 0, 0]}>
-            <sphereGeometry args={[0.07, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <group
+          key={`light-${i}`}
+          position={[x, TRACK_BEAM_Y - 0.06, BACK_WALL_Z + 1.2]}
+        >
+          {/* Stem ke track */}
+          <mesh position={[0, 0.04, 0]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.1, 6]} />
             <meshStandardMaterial color="#2a1810" roughness={0.95} />
           </mesh>
-          {/* Bulb disk */}
-          <mesh position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.05, 12]} />
-            <meshStandardMaterial
-              ref={(m) => {
-                matRefs.current[i] = m;
-              }}
-              color={restored ? '#f4d8a0' : '#5a4838'}
-              emissive={restored ? '#f4c478' : '#000000'}
-              emissiveIntensity={restored ? 0.7 : 0}
-              toneMapped={false}
-            />
-          </mesh>
-          {/* Point light — restored only */}
+          {/* Lamp barrel — angled toward poster di back wall */}
+          <group rotation={[-0.85, 0, 0]} position={[0, -0.12, 0]}>
+            <mesh>
+              <cylinderGeometry args={[0.1, 0.13, 0.22, 8]} />
+              <meshStandardMaterial color="#2a1810" roughness={0.85} />
+            </mesh>
+            <mesh position={[0, -0.13, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <circleGeometry args={[0.1, 12]} />
+              <meshStandardMaterial
+                ref={(m) => {
+                  matRefs.current[i] = m;
+                }}
+                color={restored ? '#f4d8a0' : '#5a4838'}
+                emissive={restored ? '#f4c478' : '#000000'}
+                emissiveIntensity={restored ? 0.65 : 0}
+                toneMapped={false}
+              />
+            </mesh>
+          </group>
           {restored && (
             <pointLight
-              position={[0, 0.1, 0]}
+              position={[0, -0.3, -0.4]}
               color="#f4d8a0"
-              intensity={0.15}
-              distance={1.6}
+              intensity={0.6}
+              distance={5}
               decay={2}
             />
           )}
         </group>
       ))}
+      {/* Drought center dim ambient — gak ada track light aktif */}
+      {!restored && (
+        <pointLight
+          position={[0, TRACK_BEAM_Y - 0.4, BACK_WALL_Z + 1.2]}
+          color="#a89070"
+          intensity={0.35}
+          distance={6}
+          decay={2}
+        />
+      )}
     </>
   );
 };
 
-// BackdropSconces — 2 mounted wall lamps di backdrop corners, restored
-// only. Vertical sconce shape + globe.
-const BackdropSconces = ({ restored }) => {
+// GallerySconces — 2 wall-mounted lamps di side walls (mid-height),
+// restored only. Kasih ambient fill di samping.
+const GallerySconces = ({ restored }) => {
   if (!restored) return null;
-  const positions = [-BACKDROP_W / 2 + 1.0, BACKDROP_W / 2 - 1.0];
   return (
     <>
-      {positions.map((x, i) => (
-        <group key={`sconce-${i}`} position={[x, BACKDROP_H - 1.2, BACKDROP_Z + 0.18]}>
-          {/* Mount bracket */}
-          <mesh position={[0, 0, 0.04]}>
-            <boxGeometry args={[0.08, 0.4, 0.08]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.95} />
-          </mesh>
-          {/* Arm extending forward */}
-          <mesh position={[0, 0, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.025, 0.025, 0.18, 6]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.95} />
-          </mesh>
-          {/* Globe — emissive warm */}
-          <mesh position={[0, 0.08, 0.26]}>
-            <sphereGeometry args={[0.1, 10, 8]} />
-            <meshStandardMaterial
-              color="#f4d8a0"
-              emissive="#f4c478"
-              emissiveIntensity={0.8}
-              roughness={0.5}
-              toneMapped={false}
-            />
-          </mesh>
-          {/* Cup shade above globe */}
-          <mesh position={[0, 0.2, 0.26]} rotation={[Math.PI, 0, 0]}>
-            <coneGeometry args={[0.12, 0.1, 8]} />
-            <meshStandardMaterial color="#3a2418" roughness={0.95} />
-          </mesh>
-          <pointLight
-            position={[0, 0.08, 0.32]}
+      {/* Left wall sconce — facing right (inward) */}
+      <group
+        position={[-SIDE_WALL_X + 0.16, 2.8, -0.5]}
+        rotation={[0, Math.PI / 2, 0]}
+      >
+        <mesh position={[0, 0, 0.04]}>
+          <boxGeometry args={[0.08, 0.3, 0.08]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 0.06, 0.2]}>
+          <sphereGeometry args={[0.1, 10, 8]} />
+          <meshStandardMaterial
             color="#f4d8a0"
-            intensity={0.5}
-            distance={3}
-            decay={2}
+            emissive="#f4c478"
+            emissiveIntensity={0.7}
+            roughness={0.5}
+            toneMapped={false}
           />
-        </group>
-      ))}
+        </mesh>
+        <mesh position={[0, 0.18, 0.2]} rotation={[Math.PI, 0, 0]}>
+          <coneGeometry args={[0.12, 0.1, 8]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <pointLight
+          position={[0, 0.06, 0.28]}
+          color="#f4d8a0"
+          intensity={0.45}
+          distance={3}
+          decay={2}
+        />
+      </group>
+      {/* Right wall sconce — facing left (inward) */}
+      <group
+        position={[SIDE_WALL_X - 0.16, 2.8, -0.5]}
+        rotation={[0, -Math.PI / 2, 0]}
+      >
+        <mesh position={[0, 0, 0.04]}>
+          <boxGeometry args={[0.08, 0.3, 0.08]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <mesh position={[0, 0.06, 0.2]}>
+          <sphereGeometry args={[0.1, 10, 8]} />
+          <meshStandardMaterial
+            color="#f4d8a0"
+            emissive="#f4c478"
+            emissiveIntensity={0.7}
+            roughness={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+        <mesh position={[0, 0.18, 0.2]} rotation={[Math.PI, 0, 0]}>
+          <coneGeometry args={[0.12, 0.1, 8]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        <pointLight
+          position={[0, 0.06, 0.28]}
+          color="#f4d8a0"
+          intensity={0.45}
+          distance={3}
+          decay={2}
+        />
+      </group>
     </>
   );
 };
 
-// MicStand — single mic stand di center stage, restored only. Narrative
-// "panggung nungguin satu cerita yang berani dipentasin".
-const MicStand = ({ restored }) => {
-  if (!restored) return null;
-  return (
-    <group position={[0, STAGE_H, -0.5]}>
-      {/* Base disk */}
-      <mesh position={[0, 0.02, 0]}>
-        <cylinderGeometry args={[0.16, 0.18, 0.04, 12]} />
-        <meshStandardMaterial color="#1a0e08" roughness={0.6} metalness={0.7} />
-      </mesh>
-      {/* Pole */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.018, 0.018, 1.2, 6]} />
-        <meshStandardMaterial color="#2a2218" roughness={0.5} metalness={0.6} />
-      </mesh>
-      {/* Mic head */}
-      <mesh position={[0, 1.3, 0.03]} rotation={[Math.PI / 8, 0, 0]}>
-        <sphereGeometry args={[0.06, 10, 8]} />
-        <meshStandardMaterial
-          color="#3a2818"
-          emissive="#1a0c08"
-          emissiveIntensity={0.15}
-          roughness={0.4}
-          metalness={0.5}
-        />
-      </mesh>
-      {/* Mic shaft below head */}
-      <mesh position={[0, 1.22, 0.015]} rotation={[Math.PI / 16, 0, 0]}>
-        <cylinderGeometry args={[0.022, 0.022, 0.1, 6]} />
-        <meshStandardMaterial color="#1a0e08" roughness={0.5} metalness={0.6} />
-      </mesh>
-    </group>
-  );
-};
-
-// FloorMist — subtle additive layer at low y, kasih atmospheric depth.
-// Slow rotation untuk visual interest. Tone down kalau drought.
+// FloorMist — subtle additive layer di low y, slow rotation, atmospheric
+// depth. Restored more visible drpd drought.
 const FloorMist = ({ restored }) => {
   const meshRef = useRef();
   useFrame((state) => {
     if (!meshRef.current) return;
-    const t = state.clock.elapsedTime;
-    meshRef.current.rotation.z = t * 0.04;
+    meshRef.current.rotation.z = state.clock.elapsedTime * 0.04;
   });
   return (
-    <mesh
-      ref={meshRef}
-      position={[0, 0.25, 1]}
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
-      <ringGeometry args={[1.5, 11, 48]} />
+    <mesh ref={meshRef} position={[0, 0.25, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[1.5, 7, 48]} />
       <meshBasicMaterial
         color={restored ? '#d4a878' : '#6a5848'}
         transparent
-        opacity={restored ? 0.06 : 0.04}
+        opacity={restored ? 0.05 : 0.03}
         depthWrite={false}
         side={THREE.DoubleSide}
         toneMapped={false}
@@ -497,313 +484,13 @@ const FloorMist = ({ restored }) => {
   );
 };
 
-// Stage — wooden platform di tengah, slight elevated, facing audience
-const Stage = ({ restored }) => {
-  const markerMatRef = useRef();
-  useFrame((state) => {
-    if (markerMatRef.current && restored) {
-      const t = state.clock.elapsedTime;
-      markerMatRef.current.emissiveIntensity = 0.55 + Math.sin(t * 0.5) * 0.15;
-    }
-  });
-  return (
-    <>
-      {/* Stage base */}
-      <mesh position={[0, STAGE_H / 2, -0.5]}>
-        <boxGeometry args={[STAGE_W, STAGE_H, STAGE_D]} />
-        <meshStandardMaterial
-          color={restored ? '#7a5838' : '#4a3424'}
-          roughness={0.85}
-        />
-      </mesh>
-      {/* Stage surface — slightly different shade kasih plank visual */}
-      <mesh position={[0, STAGE_H + 0.005, -0.5]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[STAGE_W - 0.1, STAGE_D - 0.1]} />
-        <meshStandardMaterial
-          color={restored ? '#8a6848' : '#5a4030'}
-          roughness={0.8}
-        />
-      </mesh>
-      {/* Plank divisions — 5 thin lines along stage width */}
-      {[-2.5, -1.25, 0, 1.25, 2.5].map((x, i) => (
-        <mesh
-          key={`plank-${i}`}
-          position={[x, STAGE_H + 0.012, -0.5]}
-          rotation={[-Math.PI / 2, 0, 0]}
-        >
-          <planeGeometry args={[0.04, STAGE_D - 0.1]} />
-          <meshStandardMaterial color="#1a0e08" roughness={1} />
-        </mesh>
-      ))}
-      {/* Stage edge front lip */}
-      <mesh position={[0, STAGE_H / 2, -0.5 + STAGE_D / 2 + 0.04]}>
-        <boxGeometry args={[STAGE_W + 0.1, STAGE_H + 0.08, 0.08]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      {/* Center stage marker — warm glow disc, restored only */}
-      {restored && (
-        <mesh position={[0, STAGE_H + 0.02, -0.5]} rotation={[-Math.PI / 2, 0, 0]}>
-          <circleGeometry args={[0.7, 24]} />
-          <meshStandardMaterial
-            ref={markerMatRef}
-            color="#f4d8a0"
-            emissive="#f4c478"
-            emissiveIntensity={0.55}
-            transparent
-            opacity={0.65}
-            toneMapped={false}
-          />
-        </mesh>
-      )}
-    </>
-  );
-};
+// PosterFrame — wall-mounted poster (no rope, mounted on wall surface).
+// Frame + photo + title strip. Replace HangingBanner.
+const POSTER_W = 1.7;
+const POSTER_H = 2.4;
+const POSTER_PHOTO_H = 1.6;
 
-// BackdropWall — tall stone wall behind stage + tirai velvet panels +
-// arch detail. Locked/drought: tirai partial sobek. Restored: full.
-const BackdropWall = ({ restored }) => {
-  const tiraiRefs = useRef([]);
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < tiraiRefs.current.length; i += 1) {
-      const m = tiraiRefs.current[i];
-      if (m) m.rotation.z = Math.sin(t * 0.4 + i * 0.7) * 0.02;
-    }
-  });
-  return (
-    <>
-      {/* Wall */}
-      <mesh position={[0, BACKDROP_H / 2, BACKDROP_Z]}>
-        <boxGeometry args={[BACKDROP_W, BACKDROP_H, 0.25]} />
-        <meshStandardMaterial
-          color={restored ? '#4a3828' : '#2a1f14'}
-          roughness={1}
-        />
-      </mesh>
-      {/* Stone block lines — horizontal divisions kasih masonry feel */}
-      {[1, 2.5, 4].map((y, i) => (
-        <mesh
-          key={`stone-line-${i}`}
-          position={[0, y, BACKDROP_Z + 0.13]}
-        >
-          <planeGeometry args={[BACKDROP_W, 0.03]} />
-          <meshStandardMaterial color="#1a0c06" roughness={1} />
-        </mesh>
-      ))}
-      {/* Arch notch decorative — restored only, di center upper */}
-      {restored && (
-        <mesh position={[0, BACKDROP_H * 0.65, BACKDROP_Z + 0.13]}>
-          <boxGeometry args={[3, 1.8, 0.05]} />
-          <meshStandardMaterial
-            color="#6a4830"
-            emissive="#3a2010"
-            emissiveIntensity={0.2}
-            roughness={0.85}
-          />
-        </mesh>
-      )}
-      {/* Tirai panels — 2 di sides, drop dari rafters ke floor. Sway
-          via useFrame ref Z rotation. */}
-      {[-BACKDROP_W / 2 + 0.8, BACKDROP_W / 2 - 0.8].map((x, i) => (
-        <mesh
-          key={`tirai-${i}`}
-          ref={(m) => {
-            tiraiRefs.current[i] = m;
-          }}
-          position={[x, BACKDROP_H / 2, BACKDROP_Z + 0.18]}
-        >
-          <planeGeometry args={[1.4, BACKDROP_H * (restored ? 0.95 : 0.7)]} />
-          <meshStandardMaterial
-            color={restored ? '#7a1818' : '#3a1010'}
-            emissive={restored ? '#3a0808' : '#000000'}
-            emissiveIntensity={restored ? 0.18 : 0}
-            roughness={0.95}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      ))}
-      {/* Tirai ties — rope cinch di sisi atas */}
-      {[-BACKDROP_W / 2 + 0.8, BACKDROP_W / 2 - 0.8].map((x, i) => (
-        <mesh
-          key={`tie-${i}`}
-          position={[x, BACKDROP_H * 0.7, BACKDROP_Z + 0.2]}
-        >
-          <torusGeometry args={[0.18, 0.03, 6, 12]} />
-          <meshStandardMaterial color="#3a2a1c" roughness={0.95} />
-        </mesh>
-      ))}
-    </>
-  );
-};
-
-// Rafters — wooden beams overhead, mounted across stage area
-const Rafters = () => (
-  <>
-    {/* 2 main horizontal beams */}
-    <mesh position={[0, RAFTERS_Y, -1.2]}>
-      <boxGeometry args={[BACKDROP_W + 1, 0.25, 0.25]} />
-      <meshStandardMaterial color="#3a2418" roughness={0.95} />
-    </mesh>
-    <mesh position={[0, RAFTERS_Y, 0.3]}>
-      <boxGeometry args={[BACKDROP_W + 1, 0.25, 0.25]} />
-      <meshStandardMaterial color="#3a2418" roughness={0.95} />
-    </mesh>
-    {/* Cross supports — perpendicular */}
-    {[-4, -2, 0, 2, 4].map((x, i) => (
-      <mesh key={`cross-${i}`} position={[x, RAFTERS_Y, -0.45]}>
-        <boxGeometry args={[0.18, 0.18, 1.7]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-    ))}
-    {/* Vertical posts ke ground (sisi backdrop) */}
-    {[-BACKDROP_W / 2 - 0.1, BACKDROP_W / 2 + 0.1].map((x, i) => (
-      <mesh key={`post-${i}`} position={[x, RAFTERS_Y / 2, BACKDROP_Z + 0.2]}>
-        <boxGeometry args={[0.22, RAFTERS_Y, 0.22]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-    ))}
-  </>
-);
-
-// SpotlightRig — physical lamp fixtures mounted on rafters + actual
-// point lights pointing toward stage. Drought: 1 dim center, Restored: 4
-const SpotlightRig = ({ restored }) => {
-  const positions = restored
-    ? [-3, -1, 1, 3]
-    : [0]; // drought = 1 dim center light
-  const lampMatRefs = useRef([]);
-  useFrame((state) => {
-    if (!restored) return;
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < lampMatRefs.current.length; i += 1) {
-      const mat = lampMatRefs.current[i];
-      if (!mat) continue;
-      mat.emissiveIntensity = 0.75 + Math.sin(t * 0.6 + i * 0.5) * 0.15;
-    }
-  });
-  return (
-    <>
-      {positions.map((x, i) => (
-        <group key={`spot-${i}`} position={[x, RAFTERS_Y - 0.2, -0.45]}>
-          {/* Lamp mount bracket */}
-          <mesh position={[0, 0, 0]}>
-            <boxGeometry args={[0.1, 0.2, 0.1]} />
-            <meshStandardMaterial color="#2a1810" roughness={0.95} />
-          </mesh>
-          {/* Lamp body — barrel tilted toward stage */}
-          <group rotation={[-0.55, 0, 0]} position={[0, -0.2, 0.1]}>
-            <mesh>
-              <cylinderGeometry args={[0.16, 0.2, 0.4, 10]} />
-              <meshStandardMaterial color="#2a1810" roughness={0.85} />
-            </mesh>
-            {/* Lens — emissive disc di bawah */}
-            <mesh position={[0, -0.22, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.16, 16]} />
-              <meshStandardMaterial
-                ref={(m) => {
-                  lampMatRefs.current[i] = m;
-                }}
-                color={restored ? '#f4d8a0' : '#5a4838'}
-                emissive={restored ? '#f4c478' : '#000000'}
-                emissiveIntensity={restored ? 0.75 : 0}
-                roughness={0.4}
-                toneMapped={false}
-              />
-            </mesh>
-          </group>
-          {/* Light source — point light pointing down toward stage */}
-          {restored && (
-            <pointLight
-              position={[0, -0.5, 0]}
-              color="#f4d8a0"
-              intensity={0.9}
-              distance={8}
-              decay={2}
-            />
-          )}
-        </group>
-      ))}
-      {/* Center dim light untuk drought — ada minimal lighting */}
-      {!restored && (
-        <pointLight
-          position={[0, RAFTERS_Y - 0.5, -0.5]}
-          color="#a89070"
-          intensity={0.4}
-          distance={6}
-          decay={2}
-        />
-      )}
-    </>
-  );
-};
-
-// SpotlightBeam — volumetric cone yg "visible" via transparent cone mesh
-// dgn gradient opacity. Hanya restored.
-const SpotlightBeam = ({ x, opacity = 0.15 }) => (
-  <mesh position={[x, RAFTERS_Y - 0.8, -0.45]} rotation={[0, 0, 0]}>
-    <coneGeometry args={[1.2, 4.5, 16, 1, true]} />
-    <meshBasicMaterial
-      color="#f4d8a0"
-      transparent
-      opacity={opacity}
-      side={THREE.DoubleSide}
-      depthWrite={false}
-      toneMapped={false}
-      blending={THREE.AdditiveBlending}
-    />
-  </mesh>
-);
-
-// DustMotes — small floating particles in spotlight area, restored only
-const DustMotes = ({ count = 24 }) => {
-  const groupRef = useRef();
-  const positions = useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < count; i += 1) {
-      arr.push({
-        x: ((i * 13) % 100) / 100 * 6 - 3,
-        y: 1 + ((i * 17) % 100) / 100 * 3.5,
-        z: -1.5 + ((i * 23) % 100) / 100 * 2.5,
-        phase: ((i * 31) % 100) / 100 * Math.PI * 2,
-      });
-    }
-    return arr;
-  }, [count]);
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    const t = state.clock.elapsedTime;
-    for (let i = 0; i < groupRef.current.children.length; i += 1) {
-      const m = groupRef.current.children[i];
-      const p = positions[i];
-      if (!m || !p) continue;
-      m.position.y = p.y + Math.sin(t * 0.3 + p.phase) * 0.2;
-      m.position.x = p.x + Math.cos(t * 0.2 + p.phase) * 0.15;
-    }
-  });
-  return (
-    <group ref={groupRef}>
-      {positions.map((p, i) => (
-        <mesh key={`dust-${i}`} position={[p.x, p.y, p.z]}>
-          <sphereGeometry args={[0.025, 4, 3]} />
-          <meshBasicMaterial
-            color="#f4e8a0"
-            transparent
-            opacity={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-};
-
-// HangingBanner — wooden frame + photo texture + title panel below
-// hanging dari rafters dgn rope. Loop dari KEBAIKAN_ENTRIES.
-const BANNER_W = 1.6;
-const BANNER_H = 2.2;
-const PHOTO_H = 1.4;
-
-const BannerTexture = ({ src }) => {
+const PosterTexture = ({ src }) => {
   const texture = useLoader(THREE.TextureLoader, src);
   return (
     <meshStandardMaterial
@@ -814,7 +501,7 @@ const BannerTexture = ({ src }) => {
   );
 };
 
-const BannerPlaceholder = () => (
+const PosterPlaceholder = () => (
   <meshStandardMaterial
     color="#3a2818"
     roughness={1}
@@ -822,28 +509,19 @@ const BannerPlaceholder = () => (
   />
 );
 
-const HangingBanner = ({ entry, index, total, restored, onClick, hovered, onHover, onUnhover }) => {
-  const groupRef = useRef();
+const PosterFrame = ({ entry, index, restored, hovered, onClick, onHover, onUnhover }) => {
+  const innerRef = useRef();
   const frameMatRef = useRef();
-  // Spread arc — banners across backdrop width
-  const x = total === 1 ? 0 : -3 + (index / (total - 1)) * 6;
-  const z = BACKDROP_Z + 0.32;
-  const y = BANNER_H / 2 + 1.6;
+  const pos = WALL_POSITIONS[index % WALL_POSITIONS.length];
   const cat = KEBAIKAN_CATEGORIES.find((c) => c.id === entry.category);
 
-  useFrame((state, delta) => {
-    if (!groupRef.current) return;
-    const t = state.clock.elapsedTime;
-    const targetY = hovered ? y + 0.15 : y;
-    // Idle sway slow + subtle (amplitude 0.008, freq 0.5),
-    // hover sway lebih cepat + besar (0.015, 1.5).
-    const swayPhase = index * 0.7;
-    const swayAmp = hovered ? 0.015 : 0.008;
-    const swayFreq = hovered ? 1.5 : 0.5;
-    const targetRotZ = Math.sin(t * swayFreq + swayPhase) * swayAmp;
+  useFrame((_, delta) => {
+    if (!innerRef.current) return;
     const factor = Math.min(delta * 8, 1);
-    groupRef.current.position.y = lerp(groupRef.current.position.y, targetY, factor);
-    groupRef.current.rotation.z = lerp(groupRef.current.rotation.z, targetRotZ, factor);
+    // Subtle "lift" forward (positive local z) saat hover — kerasa
+    // mendekat ke viewer tanpa fly off wall.
+    const targetZ = hovered ? 0.06 : 0;
+    innerRef.current.position.z = lerp(innerRef.current.position.z, targetZ, factor);
     if (frameMatRef.current) {
       const targetEm = hovered && restored ? 0.4 : restored ? 0.12 : 0;
       frameMatRef.current.emissiveIntensity = lerp(
@@ -855,101 +533,102 @@ const HangingBanner = ({ entry, index, total, restored, onClick, hovered, onHove
   });
 
   return (
-    <group
-      ref={groupRef}
-      position={[x, y, z]}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        onHover?.();
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={(e) => {
-        e.stopPropagation();
-        onUnhover?.();
-        document.body.style.cursor = 'auto';
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.();
-      }}
-    >
-      {/* Rope ke rafters atas */}
-      <mesh position={[-BANNER_W / 2 + 0.1, BANNER_H / 2 + 0.6, 0]}>
-        <cylinderGeometry args={[0.015, 0.015, 1.2, 5]} />
-        <meshStandardMaterial color="#5a3a25" roughness={0.95} />
-      </mesh>
-      <mesh position={[BANNER_W / 2 - 0.1, BANNER_H / 2 + 0.6, 0]}>
-        <cylinderGeometry args={[0.015, 0.015, 1.2, 5]} />
-        <meshStandardMaterial color="#5a3a25" roughness={0.95} />
-      </mesh>
-      {/* Frame backing — slight larger than banner */}
-      <mesh position={[0, 0, -0.02]}>
-        <boxGeometry args={[BANNER_W + 0.1, BANNER_H + 0.1, 0.04]} />
-        <meshStandardMaterial
-          ref={frameMatRef}
-          color="#5a3a25"
-          emissive="#a87848"
-          emissiveIntensity={restored ? 0.12 : 0}
-          roughness={0.85}
-        />
-      </mesh>
-      {/* Photo panel — atas, kotak vertical 4:3-ish */}
-      <mesh position={[0, (BANNER_H - PHOTO_H) / 2, 0.01]}>
-        <planeGeometry args={[BANNER_W - 0.15, PHOTO_H]} />
-        {entry.proofUrl ? (
-          <Suspense fallback={<BannerPlaceholder />}>
-            <BannerTexture src={entry.proofUrl} />
-          </Suspense>
-        ) : (
-          <BannerPlaceholder />
-        )}
-      </mesh>
-      {/* Title strip — bawah, dark plate */}
-      <mesh position={[0, -(BANNER_H - 0.6) / 2 - 0.05, 0.01]}>
-        <planeGeometry args={[BANNER_W - 0.15, 0.6]} />
-        <meshStandardMaterial
-          color={restored ? '#3a2418' : '#2a1810'}
-          emissive={restored ? '#1a0c08' : '#000000'}
-          emissiveIntensity={restored ? 0.18 : 0}
-          roughness={0.9}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      {/* HTML label di title strip — title + category */}
-      <Html
-        position={[0, -(BANNER_H - 0.6) / 2 - 0.05, 0.02]}
-        center
-        distanceFactor={4}
-        occlude={false}
+    <group position={[pos.x, pos.y, pos.z]} rotation={[0, pos.ry, 0]}>
+      <group
+        ref={innerRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          onHover?.();
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          onUnhover?.();
+          document.body.style.cursor = 'auto';
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.();
+        }}
       >
-        <div
-          className="pointer-events-none select-none text-center"
-          style={{ width: '160px' }}
-        >
-          {cat && (
-            <div
-              className="text-[8px] uppercase tracking-[0.2em] mb-0.5"
-              style={{ color: '#e8c878' }}
-            >
-              {cat.label}
-            </div>
+        {/* Frame backing — wood plate slightly larger than poster */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[POSTER_W + 0.18, POSTER_H + 0.18, 0.05]} />
+          <meshStandardMaterial
+            ref={frameMatRef}
+            color="#5a3a20"
+            emissive="#a87848"
+            emissiveIntensity={restored ? 0.12 : 0}
+            roughness={0.9}
+          />
+        </mesh>
+        {/* Inner mat — light cream behind photo, restored only */}
+        {restored && (
+          <mesh position={[0, 0, 0.03]}>
+            <planeGeometry args={[POSTER_W, POSTER_H]} />
+            <meshStandardMaterial
+              color="#d4c8a0"
+              roughness={0.95}
+            />
+          </mesh>
+        )}
+        {/* Photo panel — atas */}
+        <mesh position={[0, (POSTER_H - POSTER_PHOTO_H) / 2 - 0.05, 0.05]}>
+          <planeGeometry args={[POSTER_W - 0.2, POSTER_PHOTO_H]} />
+          {entry.proofUrl ? (
+            <Suspense fallback={<PosterPlaceholder />}>
+              <PosterTexture src={entry.proofUrl} />
+            </Suspense>
+          ) : (
+            <PosterPlaceholder />
           )}
+        </mesh>
+        {/* Title strip — bawah, lighter background di restored */}
+        <mesh position={[0, -(POSTER_H - 0.7) / 2 + 0.05, 0.05]}>
+          <planeGeometry args={[POSTER_W - 0.2, 0.65]} />
+          <meshStandardMaterial
+            color={restored ? '#e8dcb0' : '#5a4838'}
+            roughness={0.9}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        {/* HTML label di title strip */}
+        <Html
+          position={[0, -(POSTER_H - 0.7) / 2 + 0.05, 0.07]}
+          center
+          distanceFactor={4}
+          occlude={false}
+        >
           <div
-            className="text-[10px] text-white/90 leading-tight"
-            style={{
-              fontFamily: '"Fraunces Variable", serif',
-              fontStyle: 'italic',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}
+            className="pointer-events-none select-none text-center"
+            style={{ width: '170px' }}
           >
-            {entry.title}
+            {cat && (
+              <div
+                className="text-[8px] uppercase tracking-[0.2em] mb-0.5"
+                style={{ color: restored ? '#7a4820' : '#a87848' }}
+              >
+                {cat.label}
+              </div>
+            )}
+            <div
+              className="text-[10px] leading-tight"
+              style={{
+                color: restored ? '#2a1810' : '#d4c8a0',
+                fontFamily: '"Fraunces Variable", serif',
+                fontStyle: 'italic',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {entry.title}
+            </div>
           </div>
-        </div>
-      </Html>
+        </Html>
+      </group>
     </group>
   );
 };
@@ -957,22 +636,22 @@ const HangingBanner = ({ entry, index, total, restored, onClick, hovered, onHove
 // SceneLights — ambient + key directional. Subtle warm tone.
 const SceneLights = ({ restored }) => (
   <>
-    <ambientLight intensity={restored ? 0.32 : 0.2} color="#3a2c20" />
+    <ambientLight intensity={restored ? 0.35 : 0.2} color="#3a2c20" />
     <directionalLight
-      position={[8, 12, 6]}
-      intensity={restored ? 0.35 : 0.18}
+      position={[6, 10, 6]}
+      intensity={restored ? 0.4 : 0.18}
       color="#a89070"
     />
-    {/* Fill light dari belakang biar backdrop wall gak hitam pekat */}
+    {/* Fill light dari depan biar wall + posters kebaca */}
     <directionalLight
-      position={[0, 6, -8]}
-      intensity={0.12}
+      position={[0, 5, 8]}
+      intensity={0.15}
       color="#4a3828"
     />
   </>
 );
 
-// FlyInCamera — intro animation top-down spiral ke audience POV
+// FlyInCamera — intro animation top-down ke front viewing position
 const FlyInCamera = ({ onComplete }) => {
   const { camera } = useThree();
   const elapsedRef = useRef(0);
@@ -994,10 +673,9 @@ const FlyInCamera = ({ onComplete }) => {
   return null;
 };
 
-// SceneFallback
 const SceneFallback = () => (
   <div className="absolute inset-0 grid place-items-center bg-black text-white/50 text-sm">
-    Memuat panggung...
+    Memuat pameran...
   </div>
 );
 
@@ -1019,33 +697,18 @@ const Scene = ({
     <>
       <NightSky />
       <SceneLights restored={restored} />
-      <AnfiteaterFloor restored={restored} />
+      <ExhibitionFloor restored={restored} />
       <FloorMist restored={restored} />
-      <AudienceSeating restored={restored} />
-      <Stage restored={restored} />
-      <Footlights restored={restored} />
-      <MicStand restored={restored} />
-      <BackdropWall restored={restored} />
-      <BackdropSconces restored={restored} />
-      <Rafters />
-      <Proscenium restored={restored} />
-      <SpotlightRig restored={restored} />
-      {/* Volumetric beams — restored only, additive blending */}
-      {restored && (
-        <>
-          {[-3, -1, 1, 3].map((x, i) => (
-            <SpotlightBeam key={`beam-${i}`} x={x} opacity={0.1} />
-          ))}
-          <DustMotes count={isMobile ? 14 : 28} />
-        </>
-      )}
-      {/* Hanging banners — one per donation entry */}
+      <GalleryWalls restored={restored} />
+      <GallerySconces restored={restored} />
+      <CeilingTrackLights restored={restored} />
+      <ViewingBench restored={restored} />
+      <IntroPlaque restored={restored} />
       {entries.map((entry, i) => (
-        <HangingBanner
+        <PosterFrame
           key={entry.id}
           entry={entry}
           index={i}
-          total={entries.length}
           restored={restored}
           hovered={hoveredBannerId === entry.id}
           onHover={() => onBannerHover(entry.id)}
@@ -1059,10 +722,10 @@ const Scene = ({
         enabled={!flyInActive}
         enablePan={false}
         enableZoom
-        minDistance={6}
-        maxDistance={isMobile ? 18 : 16}
+        minDistance={4}
+        maxDistance={isMobile ? 14 : 12}
         minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2.1}
+        maxPolarAngle={Math.PI / 2.05}
         enableDamping
         dampingFactor={0.08}
       />
@@ -1170,7 +833,6 @@ const ProofLightbox = ({ images, index, entryTitle, onClose, onPrev, onNext, onS
   );
 };
 
-// DonationOverlay — center-screen modal dgn detail entry + photo gallery
 const STATUS_LABEL = {
   proposed: { label: 'Diusulkan', tone: 'bg-white/10 text-white/65 border-white/20' },
   approved: { label: 'Disetujui', tone: 'bg-amber-300/15 text-amber-200/85 border-amber-300/40' },
@@ -1210,7 +872,6 @@ const DonationOverlay = ({ entry, onClose, onOpenLightbox }) => {
         className="relative w-full max-w-2xl max-h-full overflow-y-auto rounded-2xl border border-amber-200/15 bg-[#1a1410]/95 shadow-2xl panggung-lightbox-img-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
         <button
           type="button"
           onClick={onClose}
@@ -1222,7 +883,6 @@ const DonationOverlay = ({ entry, onClose, onOpenLightbox }) => {
             <line x1="18" y1="6" x2="6" y2="18" />
           </svg>
         </button>
-        {/* Hero image */}
         {images.length > 0 && (
           <button
             type="button"
@@ -1254,7 +914,6 @@ const DonationOverlay = ({ entry, onClose, onOpenLightbox }) => {
             )}
           </button>
         )}
-        {/* Body */}
         <div className="px-6 py-6 md:px-8 md:py-8">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] uppercase tracking-[0.18em] border ${status.tone}`}>
@@ -1314,7 +973,6 @@ const DonationOverlay = ({ entry, onClose, onOpenLightbox }) => {
               </div>
             )}
           </div>
-          {/* Mini gallery thumbnails — kalau >1 image */}
           {images.length > 1 && (
             <div className="pt-5 border-t border-white/10">
               <p className="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-3">
@@ -1345,7 +1003,6 @@ const DonationOverlay = ({ entry, onClose, onOpenLightbox }) => {
   );
 };
 
-// Header — top bar dgn back button + audio + state eyebrow
 const Header = ({ restored }) => (
   <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between pointer-events-none">
     <Link
@@ -1359,7 +1016,7 @@ const Header = ({ restored }) => (
         className="text-[10px] uppercase tracking-[0.4em]"
         style={{ color: restored ? '#f4d8a0' : '#c8a060' }}
       >
-        {restored ? 'Lampu nyala' : 'Panggung sepi'}
+        {restored ? 'Lampu nyala' : 'Lampu redup'}
       </div>
       <div
         className="text-base sm:text-lg text-white mt-0.5"
@@ -1374,14 +1031,13 @@ const Header = ({ restored }) => (
   </div>
 );
 
-// Footer hint — small text bawah-tengah
 const FooterHint = ({ entriesCount, restored }) => (
   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 max-w-[92vw] pointer-events-none">
     <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 text-[10px] uppercase tracking-[0.3em] text-white/55">
       <i className="ri-image-line text-amber-200/65" />
       <span>{entriesCount} sorotan</span>
       <span className="opacity-40">·</span>
-      <span>Klik papan untuk detail</span>
+      <span>Klik poster untuk detail</span>
       {!restored && (
         <>
           <span className="opacity-40">·</span>
@@ -1449,7 +1105,7 @@ const TamanPanggungSorotan = ({ restored = false }) => {
     <>
       <Seo
         title={`Panggung Terbuka${restored ? ' (Pulih)' : ''} · ArmeniacaTown`}
-        description="Anfiteater Panggung Terbuka — sorotan kebaikan dilakukan atas nama Helisma Putri (Eli JKT48). Arsip donasi & aksi nyata Helismiley × Armeniaca."
+        description="Pameran sederhana Panggung Terbuka — sorotan kebaikan dilakukan atas nama Helisma Putri (Eli JKT48). Arsip donasi & aksi nyata Helismiley × Armeniaca."
         path="/armeniacaTown/r5"
       />
       <RotateRecommendation />
@@ -1480,12 +1136,12 @@ const TamanPanggungSorotan = ({ restored = false }) => {
             {!isMobile && (
               <EffectComposer multisampling={0}>
                 <Bloom
-                  intensity={0.6}
-                  luminanceThreshold={0.72}
+                  intensity={0.55}
+                  luminanceThreshold={0.74}
                   luminanceSmoothing={0.4}
                   mipmapBlur
                 />
-                <Vignette eskil={false} offset={0.28} darkness={0.82} />
+                <Vignette eskil={false} offset={0.3} darkness={0.8} />
                 <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
               </EffectComposer>
             )}
