@@ -136,7 +136,7 @@ const ExhibitionFloor = ({ restored }) => (
     <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[20, 16]} />
       <meshStandardMaterial
-        color={restored ? '#a87848' : '#5a4030'}
+        color={restored ? '#a87848' : '#7a5840'}
         roughness={0.85}
       />
     </mesh>
@@ -148,7 +148,7 @@ const ExhibitionFloor = ({ restored }) => (
       >
         <planeGeometry args={[0.03, 16]} />
         <meshStandardMaterial
-          color={restored ? '#5a3a20' : '#1a0e08'}
+          color={restored ? '#5a3a20' : '#1a0a04'}
           roughness={1}
         />
       </mesh>
@@ -194,8 +194,8 @@ const ExhibitionFloor = ({ restored }) => (
 // GalleryWalls — 3 walls U-shape (back + 2 sides). Restored: cream
 // warm plaster + gold crown + dark wood baseboard. Drought: dark muted.
 const GalleryWalls = ({ restored }) => {
-  const wallColor = restored ? '#e4cfa8' : '#6a5040';
-  const wallEmissive = restored ? '#a87848' : '#2a1810';
+  const wallColor = restored ? '#e4cfa8' : '#8a6850';
+  const wallEmissive = restored ? '#a87848' : '#3a2418';
   const wallEmI = restored ? 0.06 : 0.05;
   const trimColor = restored ? '#3a2418' : '#2a1810';
   const crownColor = restored ? '#d4a848' : '#3a2418';
@@ -979,11 +979,12 @@ const DAIS_Z = BACK_WALL_Z + 0.13 + DAIS_D / 2;
 
 const PanggungDais = ({ restored }) => (
   <>
-    {/* Dais base */}
+    {/* Dais base — darker color biar contrast dari floor (lantai
+        warm brown, dais base coklat tua kebumian — gak blend) */}
     <mesh position={[0, DAIS_H / 2, DAIS_Z]}>
       <boxGeometry args={[DAIS_W, DAIS_H, DAIS_D]} />
       <meshStandardMaterial
-        color={restored ? '#a87038' : '#5a3a20'}
+        color={restored ? '#6a3818' : '#3a2010'}
         roughness={0.85}
       />
     </mesh>
@@ -1094,10 +1095,38 @@ const StageCurtainSwag = ({ restored }) => {
   });
   const swagY = WALL_H - 0.65;
   const swagZ = BACK_WALL_Z + 0.15;
+  const railColor = restored ? '#5a3a20' : '#3a2418';
+  const railEm = restored ? '#a87830' : '#000000';
   const fabricColor = restored ? '#7a1818' : '#3a1010';
   const fabricEm = restored ? '#3a0808' : '#000000';
   return (
     <>
+      {/* Curtain rail — horizontal bar mounted di back wall, swag
+          panels gantung dari sini supaya gak keliatan melayang. */}
+      <mesh
+        position={[0, swagY + 0.55, swagZ - 0.02]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <cylinderGeometry args={[0.06, 0.06, GALLERY_W - 0.5, 8]} />
+        <meshStandardMaterial
+          color={railColor}
+          emissive={railEm}
+          emissiveIntensity={restored ? 0.2 : 0}
+          roughness={0.5}
+          metalness={0.5}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Rail mounts — 2 brackets di sisi yang anchor rail ke wall */}
+      {[-GALLERY_W / 2 + 0.4, GALLERY_W / 2 - 0.4].map((x, i) => (
+        <mesh
+          key={`rail-mount-${i}`}
+          position={[x, swagY + 0.55, swagZ + 0.04]}
+        >
+          <boxGeometry args={[0.1, 0.18, 0.12]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.9} />
+        </mesh>
+      ))}
       {/* Top swag — 6 scallop drape panels across back wall width
           (wall sekarang 14 wide, sebelumnya 10) */}
       {[-5, -3, -1, 1, 3, 5].map((x, i) => (
@@ -1790,26 +1819,26 @@ const PlaceholderFrame = ({ slotIdx, restored }) => {
 const SceneLights = ({ restored }) => (
   <>
     <ambientLight
-      intensity={restored ? 0.7 : 0.45}
-      color={restored ? '#f4d8a8' : '#7a5838'}
+      intensity={restored ? 0.7 : 0.7}
+      color={restored ? '#f4d8a8' : '#a07058'}
     />
     <directionalLight
       position={[6, 10, 6]}
-      intensity={restored ? 0.65 : 0.4}
-      color={restored ? '#f4e0b8' : '#c89878'}
+      intensity={restored ? 0.65 : 0.65}
+      color={restored ? '#f4e0b8' : '#d8a888'}
     />
     {/* Fill light dari depan biar wall + posters kebaca */}
     <directionalLight
       position={[0, 5, 8]}
-      intensity={restored ? 0.4 : 0.3}
-      color={restored ? '#e8d4a8' : '#8a6848'}
+      intensity={restored ? 0.4 : 0.5}
+      color={restored ? '#e8d4a8' : '#a87858'}
     />
     {/* Hemispheric ambient — kasih warm sky tint dari atas + dark floor
         bouncenya ke bawah */}
     <hemisphereLight
-      skyColor={restored ? '#f4d8a0' : '#a87848'}
-      groundColor={restored ? '#a87848' : '#3a2818'}
-      intensity={restored ? 0.4 : 0.25}
+      skyColor={restored ? '#f4d8a0' : '#c89070'}
+      groundColor={restored ? '#a87848' : '#4a3020'}
+      intensity={restored ? 0.4 : 0.45}
     />
   </>
 );
