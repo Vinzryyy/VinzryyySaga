@@ -19,7 +19,7 @@
  *                                     floor mist subtle, poster glow
  */
 
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
@@ -155,30 +155,37 @@ const ExhibitionFloor = ({ restored }) => (
     ))}
     {restored && (
       <>
-        {/* Area rug — vibrant deep red dgn warm emissive */}
-        <mesh position={[0, -0.03, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[4.2, 3]} />
+        {/* Center aisle runner — long red strip dari entry ke dais
+            front, kasih clear path naratif. */}
+        <mesh position={[0, -0.025, -0.5]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.9, 8]} />
           <meshStandardMaterial
-            color="#a82828"
-            emissive="#7a1818"
-            emissiveIntensity={0.22}
+            color="#8a2828"
+            emissive="#5a1010"
+            emissiveIntensity={0.18}
             roughness={0.9}
             transparent
-            opacity={0.9}
+            opacity={0.92}
           />
         </mesh>
-        {/* Rug border — gold trim */}
-        <mesh position={[0, -0.025, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.95, 2.1, 24]} />
-          <meshStandardMaterial
-            color="#d4a848"
-            emissive="#a87830"
-            emissiveIntensity={0.3}
-            roughness={0.5}
-            metalness={0.4}
-            toneMapped={false}
-          />
-        </mesh>
+        {/* Runner gold border lines — 2 thin parallel strips */}
+        {[-0.42, 0.42].map((x, i) => (
+          <mesh
+            key={`runner-line-${i}`}
+            position={[x, -0.02, -0.5]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <planeGeometry args={[0.03, 8]} />
+            <meshStandardMaterial
+              color="#d4a848"
+              emissive="#a87830"
+              emissiveIntensity={0.3}
+              roughness={0.5}
+              metalness={0.4}
+              toneMapped={false}
+            />
+          </mesh>
+        ))}
       </>
     )}
   </>
@@ -339,19 +346,31 @@ const GalleryWalls = ({ restored }) => {
 // kosong di tengah floor antara dais dan back of audience. Restored:
 // cushion velvet merah. Drought: tanpa cushion.
 const AudienceKursi = ({ restored }) => {
-  // Row positions di z (closer to stage di z lebih negatif)
+  // Row positions di z (closer to stage di z lebih negatif). 6 kursi
+  // per row split 3+3 dgn center aisle gap 0.6 (mirror real theater).
   const rows = [
-    { z: -1.5, count: 5, spread: 3.5 },
-    { z: -0.2, count: 5, spread: 3.8 },
-    { z: 1.1, count: 5, spread: 4.0 },
+    { z: -1.5, spread: 3.6 },
+    { z: -0.2, spread: 3.9 },
+    { z: 1.1, spread: 4.2 },
   ];
+  const SEATS_PER_ROW = 6;
+  const AISLE_GAP = 0.6;
   return (
     <>
       {rows.flatMap((row, rowIdx) =>
-        Array.from({ length: row.count }).map((_, i) => {
-          const x = -row.spread + (i / (row.count - 1)) * (row.spread * 2);
+        Array.from({ length: SEATS_PER_ROW }).map((_, i) => {
+          const halfCount = SEATS_PER_ROW / 2;
+          const isLeft = i < halfCount;
+          const halfIdx = isLeft ? i : i - halfCount;
+          const halfWidth = row.spread - AISLE_GAP / 2;
+          const halfStep = halfWidth / (halfCount - 1);
+          // Left: x = -spread to -aisleGap/2
+          // Right: x = +aisleGap/2 to +spread
+          const x = isLeft
+            ? -row.spread + halfIdx * halfStep
+            : AISLE_GAP / 2 + halfIdx * halfStep;
           const tiltZ =
-            !restored && (i + rowIdx) % 4 === 0 ? 0.1 : 0; // slight tilt drought
+            !restored && (i + rowIdx) % 4 === 0 ? 0.1 : 0;
           return (
             <group
               key={`kursi-${rowIdx}-${i}`}
@@ -572,70 +591,49 @@ const CeilingTrackLights = ({ restored }) => {
 // restored only. Kasih ambient fill di samping.
 const GallerySconces = ({ restored }) => {
   if (!restored) return null;
+  // 4 sconces: 2 per wall (1 back + 1 front di tiap wall) covers
+  // sepanjang side wall yang sekarang lebih panjang (10 deep).
+  const sconces = [
+    { x: -SIDE_WALL_X + 0.16, z: -2.5, ry: Math.PI / 2 },   // left-back
+    { x: -SIDE_WALL_X + 0.16, z: 2,    ry: Math.PI / 2 },   // left-front
+    { x: SIDE_WALL_X - 0.16,  z: -2.5, ry: -Math.PI / 2 },  // right-back
+    { x: SIDE_WALL_X - 0.16,  z: 2,    ry: -Math.PI / 2 },  // right-front
+  ];
   return (
     <>
-      {/* Left wall sconce — facing right (inward) */}
-      <group
-        position={[-SIDE_WALL_X + 0.16, 2.8, -0.5]}
-        rotation={[0, Math.PI / 2, 0]}
-      >
-        <mesh position={[0, 0, 0.04]}>
-          <boxGeometry args={[0.08, 0.3, 0.08]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <mesh position={[0, 0.06, 0.2]}>
-          <sphereGeometry args={[0.1, 10, 8]} />
-          <meshStandardMaterial
+      {sconces.map((s, i) => (
+        <group
+          key={`sconce-${i}`}
+          position={[s.x, 2.8, s.z]}
+          rotation={[0, s.ry, 0]}
+        >
+          <mesh position={[0, 0, 0.04]}>
+            <boxGeometry args={[0.08, 0.3, 0.08]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          <mesh position={[0, 0.06, 0.2]}>
+            <sphereGeometry args={[0.1, 10, 8]} />
+            <meshStandardMaterial
+              color="#f4d8a0"
+              emissive="#f4c478"
+              emissiveIntensity={0.7}
+              roughness={0.5}
+              toneMapped={false}
+            />
+          </mesh>
+          <mesh position={[0, 0.18, 0.2]} rotation={[Math.PI, 0, 0]}>
+            <coneGeometry args={[0.12, 0.1, 8]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          <pointLight
+            position={[0, 0.06, 0.28]}
             color="#f4d8a0"
-            emissive="#f4c478"
-            emissiveIntensity={0.7}
-            roughness={0.5}
-            toneMapped={false}
+            intensity={0.4}
+            distance={3}
+            decay={2}
           />
-        </mesh>
-        <mesh position={[0, 0.18, 0.2]} rotation={[Math.PI, 0, 0]}>
-          <coneGeometry args={[0.12, 0.1, 8]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <pointLight
-          position={[0, 0.06, 0.28]}
-          color="#f4d8a0"
-          intensity={0.45}
-          distance={3}
-          decay={2}
-        />
-      </group>
-      {/* Right wall sconce — facing left (inward) */}
-      <group
-        position={[SIDE_WALL_X - 0.16, 2.8, -0.5]}
-        rotation={[0, -Math.PI / 2, 0]}
-      >
-        <mesh position={[0, 0, 0.04]}>
-          <boxGeometry args={[0.08, 0.3, 0.08]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <mesh position={[0, 0.06, 0.2]}>
-          <sphereGeometry args={[0.1, 10, 8]} />
-          <meshStandardMaterial
-            color="#f4d8a0"
-            emissive="#f4c478"
-            emissiveIntensity={0.7}
-            roughness={0.5}
-            toneMapped={false}
-          />
-        </mesh>
-        <mesh position={[0, 0.18, 0.2]} rotation={[Math.PI, 0, 0]}>
-          <coneGeometry args={[0.12, 0.1, 8]} />
-          <meshStandardMaterial color="#3a2418" roughness={0.95} />
-        </mesh>
-        <pointLight
-          position={[0, 0.06, 0.28]}
-          color="#f4d8a0"
-          intensity={0.45}
-          distance={3}
-          decay={2}
-        />
-      </group>
+        </group>
+      ))}
     </>
   );
 };
@@ -795,6 +793,186 @@ const StageCurtainSwag = ({ restored }) => {
           </mesh>
         ))}
     </>
+  );
+};
+
+// StageLectern — small wooden podium di center dais. Symbolic panggung
+// prop "panggung nungguin satu cerita yang berani dipentasin". Restored
+// dapet gold trim + lamp baca; drought wood polos.
+const StageLectern = ({ restored }) => {
+  const lampMatRef = useRef();
+  useFrame((state) => {
+    if (lampMatRef.current && restored) {
+      const t = state.clock.elapsedTime;
+      lampMatRef.current.emissiveIntensity = 0.65 + Math.sin(t * 0.7) * 0.1;
+    }
+  });
+  return (
+    <group position={[0, DAIS_H, DAIS_Z]}>
+      {/* Lectern base — wider bottom */}
+      <mesh position={[0, 0.4, 0]}>
+        <boxGeometry args={[0.55, 0.8, 0.5]} />
+        <meshStandardMaterial
+          color={restored ? '#7a5028' : '#3a2818'}
+          roughness={0.85}
+        />
+      </mesh>
+      {/* Lectern top — angled writing surface */}
+      <mesh position={[0, 0.86, 0]} rotation={[-Math.PI / 8, 0, 0]}>
+        <boxGeometry args={[0.55, 0.05, 0.4]} />
+        <meshStandardMaterial
+          color={restored ? '#9a6838' : '#4a3820'}
+          roughness={0.75}
+        />
+      </mesh>
+      {/* Gold band trim — restored */}
+      {restored && (
+        <mesh position={[0, 0.05, 0.26]}>
+          <boxGeometry args={[0.56, 0.04, 0.02]} />
+          <meshStandardMaterial
+            color="#d4a848"
+            emissive="#a87830"
+            emissiveIntensity={0.3}
+            roughness={0.5}
+            metalness={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
+      {/* Reading lamp — small bulb di top, restored only */}
+      {restored && (
+        <>
+          <mesh position={[0.18, 0.95, 0.05]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.15, 6]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          <mesh position={[0.18, 1.05, 0.08]} rotation={[Math.PI / 4, 0, 0]}>
+            <coneGeometry args={[0.06, 0.08, 8]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+          <mesh position={[0.18, 1.04, 0.13]}>
+            <sphereGeometry args={[0.04, 8, 6]} />
+            <meshStandardMaterial
+              ref={lampMatRef}
+              color="#f4d8a0"
+              emissive="#f4c478"
+              emissiveIntensity={0.65}
+              toneMapped={false}
+            />
+          </mesh>
+          <pointLight
+            position={[0.18, 1.02, 0.15]}
+            color="#f4d8a0"
+            intensity={0.3}
+            distance={1.5}
+            decay={2}
+          />
+        </>
+      )}
+    </group>
+  );
+};
+
+// VolumetricBeams — visible light cones dari track lights ke dais.
+// Additive blending, transparent. Restored only.
+const VolumetricBeams = ({ restored }) => {
+  if (!restored) return null;
+  const positions = [-2.4, -0.8, 0.8, 2.4];
+  const trackZ = BACK_WALL_Z + 2.2;
+  return (
+    <>
+      {positions.map((x, i) => {
+        // Beam angled dari track posisi turun ke dais center
+        const beamLength = 4.5;
+        return (
+          <mesh
+            key={`vbeam-${i}`}
+            position={[x, TRACK_BEAM_Y - 1.1, trackZ - 0.7]}
+            rotation={[0.3, 0, 0]}
+          >
+            <coneGeometry args={[0.7, beamLength, 12, 1, true]} />
+            <meshBasicMaterial
+              color="#f4d8a0"
+              transparent
+              opacity={0.06}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+              toneMapped={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        );
+      })}
+    </>
+  );
+};
+
+// StageDustMotes — small particles floating di stage area, kasih
+// atmospheric depth. Restored only.
+const StageDustMotes = ({ count = 20 }) => {
+  const groupRef = useRef();
+  const positions = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < count; i += 1) {
+      arr.push({
+        x: ((i * 13) % 100) / 100 * 6 - 3,
+        y: 0.8 + ((i * 17) % 100) / 100 * 3,
+        z: DAIS_Z + ((i * 23) % 100) / 100 * 1.5 - 0.5,
+        phase: ((i * 31) % 100) / 100 * Math.PI * 2,
+      });
+    }
+    return arr;
+  }, [count]);
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < groupRef.current.children.length; i += 1) {
+      const m = groupRef.current.children[i];
+      const p = positions[i];
+      if (!m || !p) continue;
+      m.position.y = p.y + Math.sin(t * 0.3 + p.phase) * 0.2;
+      m.position.x = p.x + Math.cos(t * 0.2 + p.phase) * 0.15;
+    }
+  });
+  return (
+    <group ref={groupRef}>
+      {positions.map((p, i) => (
+        <mesh key={`stage-dust-${i}`} position={[p.x, p.y, p.z]}>
+          <sphereGeometry args={[0.025, 4, 3]} />
+          <meshBasicMaterial
+            color="#f4e8a0"
+            transparent
+            opacity={0.5}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// DaisStepLight — emissive strip under dais front lip, kasih warm
+// glow di edge dais. Restored only.
+const DaisStepLight = ({ restored }) => {
+  const matRef = useRef();
+  useFrame((state) => {
+    if (matRef.current && restored) {
+      const t = state.clock.elapsedTime;
+      matRef.current.emissiveIntensity = 0.55 + Math.sin(t * 0.4) * 0.08;
+    }
+  });
+  if (!restored) return null;
+  return (
+    <mesh position={[0, 0.04, DAIS_Z + DAIS_D / 2 + 0.04]}>
+      <boxGeometry args={[DAIS_W - 0.2, 0.02, 0.02]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color="#f4d8a0"
+        emissive="#f4c478"
+        emissiveIntensity={0.55}
+        toneMapped={false}
+      />
+    </mesh>
   );
 };
 
@@ -1244,6 +1422,10 @@ const Scene = ({
       <PanggungDais restored={restored} />
       <StageCurtainSwag restored={restored} />
       <DaisFootlights restored={restored} />
+      <DaisStepLight restored={restored} />
+      <StageLectern restored={restored} />
+      <VolumetricBeams restored={restored} />
+      {restored && <StageDustMotes count={isMobile ? 12 : 24} />}
       <PottedPlants restored={restored} />
       <AudienceKursi restored={restored} />
       <ViewingBench restored={restored} />
