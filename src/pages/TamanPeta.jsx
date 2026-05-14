@@ -12244,32 +12244,73 @@ const TamanScene = ({
       {/* MossOverlay sengaja gak di-render — DroughtRing purified udah
           ngasih lush meadow carpet yg lebih lebar, MossOverlay patches
           jadi keliatan banding spot di atasnya. */}
-      {purified && <CobblestonePath />}
-      {purified && <StoneLanterns />}
-      {purified && <LotusPads />}
-      {purified && <Cattails />}
-      {purified && <SteppingStones />}
-      {purified && <Tsukubai />}
-      {purified && !isMobile && <BambooCluster />}
-      {purified && <FloatingPaperLanterns />}
-      {purified && <JizoStatue />}
-      {purified && <WoodenTorii />}
-      {purified && <KoiShadows />}
-      {purified && <WaterRipples />}
-      {purified && <OmikujiStrips />}
-      {purified && !isMobile && <WaterMist />}
-      {purified && <MossyRimStones />}
-      {purified && <WoodenSignpost />}
-      {purified && <MossyBoulders isMobile={isMobile} />}
-      {purified && <StoneBirdbath pos={[-1.8, 0, 1.5]} />}
-      {purified && <VineCreeps />}
-      {purified && <WildflowerBushes isMobile={isMobile} />}
-      {purified && !isMobile && <StringLights />}
-      {purified && <MushroomClusters />}
-      {purified && !isMobile && <WindChimes pos={[-6.5, 1.6, -3.5]} />}
-      {purified && !isMobile && <Hammock start={[-7, 1.4, 6]} end={[-4, 1.4, 8]} />}
-      {purified && <FlowerClusters isMobile={isMobile} />}
-      {purified && <GrassBlades isMobile={isMobile} />}
+      {/* === Milestone-gated reveals (Phase 2 hybrid) === */}
+      {/* Tiap milestone "unlock" elemen baru sesuai narrative tier.
+          Variabel mN dideklarasi inline: m3 = count >=3000 OR purified,
+          m4 = >=4000, m5 = >=5000, m6 = >=6000, m65 = >=6500,
+          m7 = >=7000 (purified). Drought=true purify shortcut ke max. */}
+      {/* m3 — Menara Jam unlock; kota mulai inget waktu. Rumput tipis
+              + lumut di reruntuhan = sinyal "kehidupan kecil mulai
+              kembali". */}
+      {(purified || armeniacaCount >= MAP_THRESHOLDS.r4Unlock) && (
+        <>
+          <GrassBlades isMobile={isMobile} />
+          <MossyBoulders isMobile={isMobile} />
+        </>
+      )}
+      {/* m4 — Lorong restored + Telaga unlock; bunga liar + vines
+              reclaiming ruins. */}
+      {(purified || armeniacaCount >= MAP_THRESHOLDS.r1Restore) && (
+        <>
+          <WildflowerBushes isMobile={isMobile} />
+          <VineCreeps />
+          <MossyRimStones />
+        </>
+      )}
+      {/* m5 — Menara restored + Perpustakaan unlock; paths + light
+              fixtures hadir. Kota udah bisa "dilewatin" properly. */}
+      {(purified || armeniacaCount >= MAP_THRESHOLDS.r4Restore) && (
+        <>
+          <CobblestonePath />
+          <SteppingStones />
+          <StoneLanterns />
+          {!isMobile && <StringLights />}
+        </>
+      )}
+      {/* m6 — Telaga pulih; air kembali (teratai, koi, ripples, mist,
+              tsukubai japanese cuci tangan, birdbath). */}
+      {(purified || armeniacaCount >= MAP_THRESHOLDS.r3Restore) && (
+        <>
+          <LotusPads />
+          <Cattails />
+          <KoiShadows />
+          <WaterRipples />
+          {!isMobile && <WaterMist />}
+          <Tsukubai />
+          <StoneBirdbath pos={[-1.8, 0, 1.5]} />
+        </>
+      )}
+      {/* m65 — Panggung restored; shrine elements + bamboo + signposts. */}
+      {(purified || armeniacaCount >= MAP_THRESHOLDS.r5Restore) && (
+        <>
+          <WoodenTorii />
+          <JizoStatue />
+          <WoodenSignpost />
+          {!isMobile && <BambooCluster />}
+        </>
+      )}
+      {/* m7 — Full pulih (purified); delicate touches: floating
+              lanterns, festive flowers, fortunes, chimes, hammock. */}
+      {purified && (
+        <>
+          <FlowerClusters isMobile={isMobile} />
+          <FloatingPaperLanterns />
+          <MushroomClusters />
+          <OmikujiStrips />
+          {!isMobile && <WindChimes pos={[-6.5, 1.6, -3.5]} />}
+          {!isMobile && <Hammock start={[-7, 1.4, 6]} end={[-4, 1.4, 8]} />}
+        </>
+      )}
       <PetaFootprintTrails />
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
