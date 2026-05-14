@@ -428,9 +428,10 @@ const AudienceKursi = ({ restored }) => {
 };
 
 // ViewingBench — long bench di back of audience area, untuk viewer
-// yang mau duduk sambil overview panggung + posters.
-const ViewingBench = ({ restored }) => (
-  <group position={[0, 0, 2.8]}>
+// yang mau duduk sambil overview panggung + posters. Position param
+// supaya bisa di-instance multiple kali di row beda.
+const ViewingBench = ({ restored, z = 2.8, showBooks = true }) => (
+  <group position={[0, 0, z]}>
     {/* Seat slab — lebih panjang biar fit bigger env */}
     <mesh position={[0, 0.4, 0]}>
       <boxGeometry args={[3, 0.12, 0.55]} />
@@ -455,8 +456,9 @@ const ViewingBench = ({ restored }) => (
       <meshStandardMaterial color="#1a0e08" roughness={1} />
     </mesh>
     {/* Programmes — stack of small books left on bench, restored only.
-        Narrative "ada pengunjung yang baru aja keluar". */}
-    {restored && (
+        Narrative "ada pengunjung yang baru aja keluar". showBooks
+        prop biar bench kedua gak ikut nampilin books. */}
+    {restored && showBooks && (
       <group position={[-1.1, 0.46, 0]}>
         {/* Book 1 — bottom */}
         <mesh position={[0, 0.025, 0]} rotation={[0, 0.15, 0]}>
@@ -481,61 +483,6 @@ const ViewingBench = ({ restored }) => (
         </mesh>
       </group>
     )}
-  </group>
-);
-
-// IntroPlaque — pedestal dgn welcome card di entry area (di belakang
-// bench), facing toward back wall + audience. Sebagai "narrator
-// stand" sebelum masuk ke ruang pameran-panggung.
-const IntroPlaque = ({ restored }) => (
-  <group position={[0, 0, 4.2]}>
-    {/* Pedestal column */}
-    <mesh position={[0, 0.55, 0]}>
-      <boxGeometry args={[0.7, 1.1, 0.4]} />
-      <meshStandardMaterial
-        color={restored ? '#5a4030' : '#3a2820'}
-        roughness={0.95}
-      />
-    </mesh>
-    {/* Top plate */}
-    <mesh position={[0, 1.13, 0]}>
-      <boxGeometry args={[0.78, 0.05, 0.48]} />
-      <meshStandardMaterial color="#3a2418" roughness={0.9} />
-    </mesh>
-    {/* Plaque card — tilted facing back */}
-    <mesh position={[0, 1.18, 0.07]} rotation={[-Math.PI / 6, Math.PI, 0]}>
-      <planeGeometry args={[0.6, 0.4]} />
-      <meshStandardMaterial
-        color={restored ? '#d4c8a0' : '#6a5848'}
-        emissive={restored ? '#5a4828' : '#000000'}
-        emissiveIntensity={restored ? 0.18 : 0}
-        roughness={0.85}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
-    <Html
-      position={[0, 1.22, 0.12]}
-      rotation={[-Math.PI / 6, Math.PI, 0]}
-      center
-      distanceFactor={4}
-      occlude={false}
-      transform
-    >
-      <div className="pointer-events-none select-none text-center" style={{ width: 120 }}>
-        <div className="text-[7px] uppercase tracking-[0.3em] text-[#5a3818] mb-0.5">
-          Selamat datang
-        </div>
-        <div
-          className="text-[9px] text-[#2a1810] leading-tight"
-          style={{ fontFamily: '"Fraunces Variable", serif', fontStyle: 'italic' }}
-        >
-          Pameran Sorotan Kebaikan
-        </div>
-        <div className="text-[6px] text-[#5a3818] mt-1 leading-snug">
-          Tiap papan = satu cerita. Klik untuk baca.
-        </div>
-      </div>
-    </Html>
   </group>
 );
 
@@ -1909,6 +1856,43 @@ const Scene = ({
   onFlyInComplete,
 }) => {
   const entries = KEBAIKAN_ENTRIES;
+  const controlsRef = useRef();
+  const idleTimerRef = useRef();
+  const [autoRotate, setAutoRotate] = useState(false);
+
+  // Idle auto-rotate: setelah 6 detik user gak interact, kamera pelan
+  // berputar. Resume manual control begitu user drag/zoom/touch.
+  useEffect(() => {
+    if (flyInActive) return undefined;
+    const controls = controlsRef.current;
+    if (!controls) return undefined;
+    const armIdle = () => {
+      clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = setTimeout(() => setAutoRotate(true), 6000);
+    };
+    const onStart = () => {
+      setAutoRotate(false);
+      clearTimeout(idleTimerRef.current);
+    };
+    const onEnd = () => {
+      armIdle();
+    };
+    controls.addEventListener('start', onStart);
+    controls.addEventListener('end', onEnd);
+    armIdle();
+    return () => {
+      controls.removeEventListener('start', onStart);
+      controls.removeEventListener('end', onEnd);
+      clearTimeout(idleTimerRef.current);
+    };
+  }, [flyInActive]);
+
+  // Pause auto-rotate saat user hover banner (kerasa weird kalau kamera
+  // muter sambil user fokus baca poster).
+  useEffect(() => {
+    if (hoveredBannerId && autoRotate) setAutoRotate(false);
+  }, [hoveredBannerId, autoRotate]);
+
   return (
     <>
       <NightSky />
@@ -1933,8 +1917,8 @@ const Scene = ({
       {restored && <StageDustMotes count={isMobile ? 12 : 24} />}
       <PottedPlants restored={restored} />
       <AudienceKursi restored={restored} />
-      <ViewingBench restored={restored} />
-      <IntroPlaque restored={restored} />
+      <ViewingBench restored={restored} z={2.8} showBooks={true} />
+      <ViewingBench restored={restored} z={4.2} showBooks={false} />
       {entries.map((entry, i) => (
         <PosterFrame
           key={entry.id}
@@ -1960,16 +1944,20 @@ const Scene = ({
       ))}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       <OrbitControls
+        ref={controlsRef}
         target={ORBIT_TARGET}
         enabled={!flyInActive}
         enablePan={false}
         enableZoom
-        minDistance={6}
-        maxDistance={isMobile ? 22 : 18}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2.05}
+        minDistance={5}
+        maxDistance={isMobile ? 24 : 22}
+        minPolarAngle={Math.PI / 6}
+        maxPolarAngle={Math.PI / 1.9}
         enableDamping
         dampingFactor={0.08}
+        rotateSpeed={0.55}
+        autoRotate={autoRotate && !flyInActive}
+        autoRotateSpeed={0.3}
       />
     </>
   );
