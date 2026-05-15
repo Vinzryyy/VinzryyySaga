@@ -4761,19 +4761,71 @@ const LilyPondRipples = () => {
 
 // Path lantern — wooden post dgn lampu kaca + flame glow flicker.
 // Scattered di 3 spot antara petak utk warm atmosphere.
+//
+// Interactive: click → pendulum swing 2.5s, damped sinusoidal decay.
+// Pivot di base (ground level) — whole-group rotation, post ikut tilt
+// karena visually mendingan dari split-group yang kerasa loose.
 const PathLantern = ({ position }) => {
+  const groupRef = useRef();
   const flameRef = useRef();
   const haloRef = useRef();
+  const elapsedRef = useRef(0);
+  const swingRef = useRef({ active: false, startTime: 0, amplitude: 0 });
+
   useFrame((state) => {
+    elapsedRef.current = state.clock.elapsedTime;
     if (!flameRef.current || !haloRef.current) return;
     const t = state.clock.elapsedTime;
     // Flicker via phase shift dari posisi
     const seed = position[0] * 3 + position[2] * 5;
     flameRef.current.emissiveIntensity = 1.4 + Math.sin(t * 4 + seed) * 0.45;
     haloRef.current.material.opacity = 0.16 + Math.sin(t * 4 + seed) * 0.05;
+
+    // Pendulum swing — amp × cos(ωt) × e^(-decay·t). Frequency ~0.9Hz
+    // (omega 5.5), decay 1.4/s — visible motion ~2.5s, gentle.
+    if (groupRef.current && swingRef.current.active) {
+      const elapsed = t - swingRef.current.startTime;
+      const decay = Math.exp(-elapsed * 1.4);
+      const angle =
+        swingRef.current.amplitude * Math.cos(elapsed * 5.5) * decay;
+      groupRef.current.rotation.z = angle;
+      if (decay < 0.015) {
+        swingRef.current.active = false;
+        groupRef.current.rotation.z = 0;
+      }
+    }
   });
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    playSfx('chime');
+    // Restart swing dari t=0, amplitude ~12.6°. Re-click resets phase.
+    swingRef.current = {
+      active: true,
+      startTime: elapsedRef.current,
+      amplitude: 0.22,
+    };
+  };
+
   return (
-    <group position={position}>
+    <group
+      ref={groupRef}
+      position={position}
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Larger invisible hitbox utk easier tap esp mobile */}
+      <mesh position={[0, 0.9, 0]} visible={false}>
+        <boxGeometry args={[0.5, 1.6, 0.5]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
       {/* Post */}
       <mesh position={[0, 0.55, 0]}>
         <cylinderGeometry args={[0.04, 0.06, 1.1, 6]} />
@@ -5285,27 +5337,122 @@ const BirdsFlock = () => {
 
 // Pulsing lotus — emissive scale ke up/down rhythm, untuk landmark
 // telaga r3.
+//
+// Interactive: click → splash SFX + expanding ripple ring(s). Pre-
+// allocated 3 ring slots, reuse round-robin. Tiap ripple: scale 1→7,
+// opacity 0.4→0 over 1.8s, ground-level (y=0 absolute, lotus origin
+// di y=0.08 jadi ring di local -0.08).
 const PulsingLotus = ({ position = [-0.05, 0.08, -0.25] }) => {
   const ref = useRef();
   const matRef = useRef();
+  const ringRefs = useRef([null, null, null]);
+  const ripplesRef = useRef([null, null, null]); // { startTime } | null
+  const elapsedRef = useRef(0);
+
+  const RIPPLE_DUR = 1.8;
+  const RIPPLE_MAX_SCALE = 7;
+  const RIPPLE_PEAK_OPACITY = 0.4;
+
   useFrame((state) => {
     if (!ref.current || !matRef.current) return;
     const t = state.clock.elapsedTime;
+    elapsedRef.current = t;
     const pulse = 1 + Math.sin(t * 1.1) * 0.08;
     ref.current.scale.set(pulse, pulse, pulse);
     matRef.current.emissiveIntensity = 0.35 + Math.sin(t * 1.1) * 0.18;
+
+    // Update ripples
+    ripplesRef.current.forEach((rip, i) => {
+      const mesh = ringRefs.current[i];
+      if (!mesh) return;
+      if (rip === null) {
+        if (mesh.visible) mesh.visible = false;
+        return;
+      }
+      const elapsed = t - rip.startTime;
+      if (elapsed >= RIPPLE_DUR) {
+        mesh.visible = false;
+        ripplesRef.current[i] = null;
+        return;
+      }
+      const progress = elapsed / RIPPLE_DUR;
+      const scale = 1 + progress * (RIPPLE_MAX_SCALE - 1);
+      const opacity = (1 - progress) * RIPPLE_PEAK_OPACITY;
+      mesh.scale.set(scale, scale, scale);
+      mesh.material.opacity = opacity;
+      mesh.visible = true;
+    });
   });
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    playSfx('splash');
+    // Pakai slot kosong, kalau semua isi pakai yang paling tua (overwrite).
+    let target = ripplesRef.current.findIndex((r) => r === null);
+    if (target === -1) {
+      let oldest = 0;
+      for (let i = 1; i < ripplesRef.current.length; i += 1) {
+        if (
+          ripplesRef.current[i].startTime < ripplesRef.current[oldest].startTime
+        ) {
+          oldest = i;
+        }
+      }
+      target = oldest;
+    }
+    ripplesRef.current[target] = { startTime: elapsedRef.current };
+  };
+
   return (
-    <mesh ref={ref} position={position}>
-      <sphereGeometry args={[0.07, 10, 8]} />
-      <meshStandardMaterial
-        ref={matRef}
-        color="#f4a8c0"
-        emissive="#f4a8c0"
-        emissiveIntensity={0.4}
-        roughness={0.6}
-      />
-    </mesh>
+    <group
+      position={position}
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Larger tap hitbox — lotus kecil banget, butuh easier target */}
+      <mesh position={[0, 0, 0]} visible={false}>
+        <sphereGeometry args={[0.2, 8, 6]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      <mesh ref={ref}>
+        <sphereGeometry args={[0.07, 10, 8]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color="#f4a8c0"
+          emissive="#f4a8c0"
+          emissiveIntensity={0.4}
+          roughness={0.6}
+        />
+      </mesh>
+      {/* 3 ripple ring slots — invisible default, animated via useFrame */}
+      {[0, 1, 2].map((i) => (
+        <mesh
+          key={`lotus-ripple-${i}`}
+          ref={(el) => {
+            ringRefs.current[i] = el;
+          }}
+          position={[0, -0.07, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          visible={false}
+        >
+          <ringGeometry args={[0.06, 0.085, 28]} />
+          <meshBasicMaterial
+            color="#bce0e8"
+            transparent
+            opacity={0}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 };
 
