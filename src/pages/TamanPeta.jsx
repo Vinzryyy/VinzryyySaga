@@ -15350,7 +15350,7 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/20 text-white/70 text-xs sm:text-sm hover:bg-white/10 transition"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/20 text-white/70 text-xs sm:text-sm hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1614] transition"
           >
             {statusOnly ? 'Tutup' : 'Batal'}
           </button>
@@ -15358,7 +15358,7 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
             <button
               type="button"
               onClick={onConfirm}
-              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-black text-xs sm:text-sm font-medium hover:bg-white/90 transition"
+              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-black text-xs sm:text-sm font-medium hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1c1614] transition"
             >
               {petak.cta} →
             </button>
