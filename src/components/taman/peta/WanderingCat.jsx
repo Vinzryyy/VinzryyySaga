@@ -120,17 +120,22 @@ const WanderingCat = () => {
         if (Math.random() < 0.4) startSit();
         else startPause();
       } else {
-        const step = WALK_SPEED * dt;
-        const ratio = Math.min(1, step / dist);
-        positionRef.current[0] = px + dx * ratio;
-        positionRef.current[2] = pz + dz * ratio;
-        // Smooth facing — lerp toward target dir
+        // Rotate toward target first
         const targetFacing = Math.atan2(dx, dz);
         const cur = facingRef.current;
         let diff = targetFacing - cur;
         while (diff > Math.PI) diff -= Math.PI * 2;
         while (diff < -Math.PI) diff += Math.PI * 2;
         facingRef.current = cur + diff * Math.min(1, dt * 6);
+        // Gate forward motion on facing alignment — cegah slide sideways/
+        // mundur saat muter ke target di belakang. cos(diff)=1 aligned,
+        // 0 perpendicular, <0 facing menjauh (clamped). Hasilnya: kucing
+        // muter di tempat dulu kalau target di belakang, baru jalan.
+        const alignment = Math.max(0, Math.cos(diff));
+        const step = WALK_SPEED * dt * alignment;
+        const ratio = Math.min(1, step / dist);
+        positionRef.current[0] = px + dx * ratio;
+        positionRef.current[2] = pz + dz * ratio;
       }
     } else {
       stateTimerRef.current -= dt;
