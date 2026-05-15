@@ -137,6 +137,34 @@ const useIsMobile = () => {
   return isMobile;
 };
 
+// WIB hour decimal (e.g. 14.5 = 14:30) — anchor untuk time-of-day cycle.
+// Update tiap menit; lighting transition gak perlu sub-menit precision.
+const computeWibHourDecimal = () => {
+  try {
+    const fmt = new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const parts = fmt.formatToParts(new Date());
+    const h = Number(parts.find((p) => p.type === 'hour')?.value ?? 12);
+    const m = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
+    return h + m / 60;
+  } catch {
+    return 12; // fallback noon kalau Intl gagal
+  }
+};
+
+const useWibHour = () => {
+  const [hour, setHour] = useState(() => computeWibHourDecimal());
+  useEffect(() => {
+    const id = setInterval(() => setHour(computeWibHourDecimal()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return hour;
+};
+
 // localStorage key untuk track petak yang udah dibuka overlay-nya.
 // Set of petak IDs (string[]) di-serialize ke JSON. Key legacy
 // dari era 'Museum Kebaikan' di-merge sekali saat init supaya
@@ -14552,28 +14580,60 @@ const TamanScene = ({
       fillIntensity: lerp01(a.fillIntensity, b.fillIntensity),
     };
   }, [purifyProgress]);
+
+  // Time-of-day overlay — nightness (0=noon, 1=midnight) via cosine
+  // (smooth, no phase boundaries). Applied as multiplier di atas
+  // baseAtmosphere supaya purify progression tetep dominant; time
+  // cycle cuma "moonlight tint" subtle. Effect:
+  //   - bg blend toward deep purple-navy
+  //   - ambient/key/fill intensity diturunin proporsional ke nightness
+  // Visit jam 11 malam jelas lebih gelap dari jam 10 pagi.
+  const wibHour = useWibHour();
+  const timeOfDayAtmosphere = useMemo(() => {
+    const nightness =
+      (1 - Math.cos(((wibHour - 12) * Math.PI) / 12)) / 2;
+    const NIGHT_BG = '#0a0712';
+    const ambientMult = 1 - nightness * 0.45;
+    const keyMult = 1 - nightness * 0.42;
+    const fillMult = 1 - nightness * 0.3;
+    const blendedBg = new THREE.Color(atmosphere.bgColor)
+      .lerp(new THREE.Color(NIGHT_BG), nightness * 0.78)
+      .getStyle();
+    return {
+      ...atmosphere,
+      bgColor: blendedBg,
+      ambientIntensity: atmosphere.ambientIntensity * ambientMult,
+      keyIntensity: atmosphere.keyIntensity * keyMult,
+      fillIntensity: atmosphere.fillIntensity * fillMult,
+    };
+  }, [atmosphere, wibHour]);
   return (
     <>
       {/* Atmosphere — fog/bg/ambient/key/fill di-lerp continuous
-          drought→purified via purifyProgress. */}
+          drought→purified via purifyProgress, lalu time-of-day WIB
+          overlay (nightness multiplier) di atasnya. */}
       <fog
         attach="fog"
-        args={[atmosphere.fogColor, atmosphere.fogNear, atmosphere.fogFar]}
+        args={[
+          timeOfDayAtmosphere.fogColor,
+          timeOfDayAtmosphere.fogNear,
+          timeOfDayAtmosphere.fogFar,
+        ]}
       />
-      <color attach="background" args={[atmosphere.bgColor]} />
+      <color attach="background" args={[timeOfDayAtmosphere.bgColor]} />
       <ambientLight
-        intensity={atmosphere.ambientIntensity}
-        color={atmosphere.ambientColor}
+        intensity={timeOfDayAtmosphere.ambientIntensity}
+        color={timeOfDayAtmosphere.ambientColor}
       />
       <directionalLight
         position={[8, 12, 6]}
-        intensity={atmosphere.keyIntensity}
-        color={atmosphere.keyColor}
+        intensity={timeOfDayAtmosphere.keyIntensity}
+        color={timeOfDayAtmosphere.keyColor}
       />
       <directionalLight
         position={[-6, 8, -4]}
-        intensity={atmosphere.fillIntensity}
-        color={atmosphere.fillColor}
+        intensity={timeOfDayAtmosphere.fillIntensity}
+        color={timeOfDayAtmosphere.fillColor}
       />
       <TamanFloor purified={purified} purifyProgress={purifyProgress} />
       <DroughtRing purified={purified} purifyProgress={purifyProgress} />
