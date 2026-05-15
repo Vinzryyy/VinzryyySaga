@@ -9875,35 +9875,91 @@ const MoonShafts = () => {
   );
 };
 
-const Moon = () => (
-  <group position={[-13, 14, -12]}>
-    {/* Core moon */}
-    <mesh>
-      <sphereGeometry args={[1.1, 24, 16]} />
-      <meshBasicMaterial color="#fff4d0" toneMapped={false} />
-    </mesh>
-    {/* Inner halo */}
-    <mesh>
-      <sphereGeometry args={[1.7, 24, 16]} />
-      <meshBasicMaterial
-        color="#fff4d0"
-        transparent
-        opacity={0.18}
-        toneMapped={false}
-      />
-    </mesh>
-    {/* Outer halo */}
-    <mesh>
-      <sphereGeometry args={[2.6, 24, 16]} />
-      <meshBasicMaterial
-        color="#ffe5a0"
-        transparent
-        opacity={0.08}
-        toneMapped={false}
-      />
-    </mesh>
-  </group>
-);
+// Moon — sky landmark NW (far from camera). Click → halo burst:
+// inner halo opacity 0.18→0.58, outer 0.08→0.33, peak di 10% durasi
+// 1.4s lalu decay balik. Bukan glow continuous, jadi gak distract idle.
+const Moon = () => {
+  const innerHaloRef = useRef();
+  const outerHaloRef = useRef();
+  const elapsedRef = useRef(0);
+  const burstRef = useRef({ active: false, startTime: 0 });
+  const DURATION = 1.4;
+  const BASE_INNER = 0.18;
+  const BASE_OUTER = 0.08;
+  const PEAK_INNER = 0.4; // additive on top of base
+  const PEAK_OUTER = 0.25;
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    elapsedRef.current = t;
+    if (!burstRef.current.active) return;
+    const inner = innerHaloRef.current;
+    const outer = outerHaloRef.current;
+    if (!inner || !outer) return;
+    const elapsed = t - burstRef.current.startTime;
+    if (elapsed >= DURATION) {
+      inner.material.opacity = BASE_INNER;
+      outer.material.opacity = BASE_OUTER;
+      burstRef.current.active = false;
+      return;
+    }
+    const progress = elapsed / DURATION;
+    // Spike (0→0.1) then exponential decay (0.1→1)
+    const intensity =
+      progress < 0.1
+        ? progress / 0.1
+        : Math.exp(-(progress - 0.1) * 4);
+    inner.material.opacity = BASE_INNER + intensity * PEAK_INNER;
+    outer.material.opacity = BASE_OUTER + intensity * PEAK_OUTER;
+  });
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    playSfx('chime');
+    burstRef.current = { active: true, startTime: elapsedRef.current };
+  };
+
+  return (
+    <group
+      position={[-13, 14, -12]}
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Core moon */}
+      <mesh>
+        <sphereGeometry args={[1.1, 24, 16]} />
+        <meshBasicMaterial color="#fff4d0" toneMapped={false} />
+      </mesh>
+      {/* Inner halo */}
+      <mesh ref={innerHaloRef}>
+        <sphereGeometry args={[1.7, 24, 16]} />
+        <meshBasicMaterial
+          color="#fff4d0"
+          transparent
+          opacity={BASE_INNER}
+          toneMapped={false}
+        />
+      </mesh>
+      {/* Outer halo */}
+      <mesh ref={outerHaloRef}>
+        <sphereGeometry args={[2.6, 24, 16]} />
+        <meshBasicMaterial
+          color="#ffe5a0"
+          transparent
+          opacity={BASE_OUTER}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+};
 
 // Fireflies — sphere kecil emissive yg drift Lissajous di sekitar
 // scene. Pulse intensity per partikel dgn phase random. Kerasa taman
@@ -15722,6 +15778,7 @@ const TamanPetaPage = () => {
   const handleCenterOut = () => setHoveredCenter(false);
   const handleCenterClick = () => {
     if (flyInActive) return;
+    playSfx('chime');
     setPetakPreview(PETA_PETAK_INFO.pohon);
   };
 
@@ -15734,6 +15791,7 @@ const TamanPetaPage = () => {
   const handleGerbangOut = () => setHoveredGerbang(false);
   const handleGerbangClick = () => {
     if (flyInActive) return;
+    playSfx('tap');
     setPetakPreview(PETA_PETAK_INFO.gerbang);
   };
 
