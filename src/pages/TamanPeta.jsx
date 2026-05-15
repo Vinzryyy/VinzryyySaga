@@ -26,7 +26,7 @@
  *   di-merge sekali waktu init supaya progress user nggak hilang.
  */
 
-import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, OrbitControls, Stats } from '@react-three/drei';
@@ -194,6 +194,49 @@ const writePreviewed = (set) => {
   } catch {
     /* storage blocked — no-op */
   }
+};
+
+// Visit history per petak — track kapan tiap petak terakhir di-klik.
+// Format: { [petakId]: ISO date string }. Dipake di PetakTooltip
+// (display "X hari lalu") supaya user kerasa kota "kenal" mereka balik
+// dan ngeh petak yang lama gak dikunjungi.
+const PETAK_VISITS_KEY = 'armeniaca-petak-visits';
+const readPetakVisits = () => {
+  try {
+    const raw = localStorage.getItem(PETAK_VISITS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+const writePetakVisits = (visits) => {
+  try {
+    localStorage.setItem(PETAK_VISITS_KEY, JSON.stringify(visits));
+  } catch {
+    /* storage blocked — no-op */
+  }
+};
+
+// Relative time formatter untuk "X waktu lalu" — Indonesian, casual.
+// Granularity: jam (< 24h), hari (< 7d), minggu (< 30d), bulan (lebih).
+const formatRelativeVisit = (isoDate) => {
+  if (!isoDate) return null;
+  const ts = new Date(isoDate).getTime();
+  if (Number.isNaN(ts)) return null;
+  const diff = Date.now() - ts;
+  if (diff < 0) return null;
+  const minutes = diff / (1000 * 60);
+  const hours = minutes / 60;
+  const days = hours / 24;
+  if (minutes < 5) return 'baru saja';
+  if (hours < 1) return `${Math.floor(minutes)} menit lalu`;
+  if (hours < 24) return `${Math.floor(hours)} jam lalu`;
+  if (days < 2) return 'kemarin';
+  if (days < 7) return `${Math.floor(days)} hari lalu`;
+  if (days < 30) return `${Math.floor(days / 7)} minggu lalu`;
+  return `${Math.floor(days / 30)} bulan lalu`;
 };
 
 // Kamera akhir setelah fly-in. Posisi sama dengan camera default di
@@ -4225,7 +4268,7 @@ const petakStatusLabel = (state) => {
 // Mount/unmount driven oleh parent berdasarkan hovered* state. Mobile
 // gak nampil (pointerOver kurang akurat di touch). Sengaja gak butuh
 // onPointerOver di tooltip itself — purely visual, pointer-events:none.
-const PetakTooltip = ({ name, status, pos }) => (
+const PetakTooltip = ({ name, status, lastVisit, pos }) => (
   <Html
     position={pos}
     center
@@ -4236,6 +4279,9 @@ const PetakTooltip = ({ name, status, pos }) => (
     <div className="petakTooltipPill">
       <span className="petakTooltipName">{name}</span>
       {status && <span className="petakTooltipStatus">{status}</span>}
+      {lastVisit && (
+        <span className="petakTooltipVisit">terakhir · {lastVisit}</span>
+      )}
     </div>
     <style>{`
       .petakTooltipPill {
@@ -4265,6 +4311,15 @@ const PetakTooltip = ({ name, status, pos }) => (
         color: rgba(244, 216, 168, 0.55);
         font-size: 10px;
         margin-top: 1px;
+      }
+      .petakTooltipVisit {
+        display: block;
+        font-family: 'Fraunces Variable', serif;
+        color: rgba(244, 216, 168, 0.4);
+        font-size: 9px;
+        letter-spacing: 0.04em;
+        margin-top: 2px;
+        text-transform: uppercase;
       }
       @keyframes petakTooltipIn {
         from { opacity: 0; transform: translateY(6px); }
@@ -14470,6 +14525,7 @@ const TamanScene = ({
   onAirMancurClick,
   discovered,
   onDiscover,
+  petakVisits = {},
 }) => {
   const controlsRef = useRef();
   const idleTimerRef = useRef();
@@ -14983,6 +15039,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Pohon Kebaikan"
               status="pusat ingatan"
+              lastVisit={formatRelativeVisit(petakVisits.pohon)}
               pos={[0, 3.0, 0]}
             />
           )}
@@ -14990,6 +15047,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Gerbang"
               status="batas pertama kota"
+              lastVisit={formatRelativeVisit(petakVisits.gerbang)}
               pos={[0, 2.6, 8]}
             />
           )}
@@ -14997,6 +15055,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Lorong Masuk"
               status="pintu menuju kota"
+              lastVisit={formatRelativeVisit(petakVisits.lorong)}
               pos={[0, 1.6, 4.5]}
             />
           )}
@@ -15004,6 +15063,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Telaga Harapan"
               status={petakStatusLabel(telagaState)}
+              lastVisit={formatRelativeVisit(petakVisits.telaga)}
               pos={[-7, 2.2, -1]}
             />
           )}
@@ -15011,6 +15071,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Perpustakaan"
               status={petakStatusLabel(arsipState)}
+              lastVisit={formatRelativeVisit(petakVisits.arsip)}
               pos={[7, 3.0, -1]}
             />
           )}
@@ -15018,6 +15079,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Menara Jam"
               status={petakStatusLabel(menaraState)}
+              lastVisit={formatRelativeVisit(petakVisits.menara)}
               pos={[0, 4.5, -8]}
             />
           )}
@@ -15025,6 +15087,7 @@ const TamanScene = ({
             <PetakTooltip
               name="Panggung Terbuka"
               status={petakStatusLabel(panggungState)}
+              lastVisit={formatRelativeVisit(petakVisits.panggung)}
               pos={[5, 2.5, 5]}
             />
           )}
@@ -15036,6 +15099,7 @@ const TamanScene = ({
                   ? 'belum muncul'
                   : `tahap ${airMancurTier}/6`
               }
+              lastVisit={formatRelativeVisit(petakVisits.airmancur)}
               pos={[-3, 1.5, 3.5]}
             />
           )}
@@ -15807,6 +15871,17 @@ const TamanPetaPage = () => {
     dismissCompletion,
   } = useDiscoveries();
 
+  // Visit history per petak — record klik time, display "X waktu lalu"
+  // di hover tooltip. Kota "kenal" user yang sering balik.
+  const [petakVisits, setPetakVisits] = useState(() => readPetakVisits());
+  const recordPetakVisit = useCallback((petakId) => {
+    setPetakVisits((prev) => {
+      const next = { ...prev, [petakId]: new Date().toISOString() };
+      writePetakVisits(next);
+      return next;
+    });
+  }, []);
+
   // Purified — full city restoration (count >= 7000). Diteruskan ke
   // AmbientAudio (swell + shimmer) di samping dipakai di scene.
   // Dev override `?purified=1` paksa state purified utk preview tanpa
@@ -15978,6 +16053,7 @@ const TamanPetaPage = () => {
   const handleCenterClick = () => {
     if (flyInActive) return;
     playSfx('chime');
+    recordPetakVisit('pohon');
     setPetakPreview(PETA_PETAK_INFO.pohon);
   };
 
@@ -15991,6 +16067,7 @@ const TamanPetaPage = () => {
   const handleGerbangClick = () => {
     if (flyInActive) return;
     playSfx('tap');
+    recordPetakVisit('gerbang');
     setPetakPreview(PETA_PETAK_INFO.gerbang);
   };
 
@@ -16004,6 +16081,7 @@ const TamanPetaPage = () => {
   const handleLorongClick = () => {
     if (flyInActive) return;
     playSfx('tap');
+    recordPetakVisit('lorong');
     setPetakPreview(PETA_PETAK_INFO.lorong);
   };
 
@@ -16017,6 +16095,7 @@ const TamanPetaPage = () => {
   const handleTelagaClick = () => {
     if (flyInActive) return;
     playSfx('splash');
+    recordPetakVisit('telaga');
     const info =
       telagaState === 'restored'
         ? PETA_PETAK_INFO.telagaRestored
@@ -16036,6 +16115,7 @@ const TamanPetaPage = () => {
   const handleArsipClick = () => {
     if (flyInActive) return;
     playSfx('pageTurn');
+    recordPetakVisit('arsip');
     const info =
       arsipState === 'restored'
         ? PETA_PETAK_INFO.arsipRestored
@@ -16055,6 +16135,7 @@ const TamanPetaPage = () => {
   const handleMenaraClick = () => {
     if (flyInActive) return;
     playSfx('chime');
+    recordPetakVisit('menara');
     const info =
       menaraState === 'restored'
         ? PETA_PETAK_INFO.menaraRestored
@@ -16074,6 +16155,7 @@ const TamanPetaPage = () => {
   const handlePanggungClick = () => {
     if (flyInActive) return;
     playSfx('tap');
+    recordPetakVisit('panggung');
     const info =
       panggungState === 'restored'
         ? PETA_PETAK_INFO.panggungRestored
@@ -16094,6 +16176,7 @@ const TamanPetaPage = () => {
   const handleAirMancurClick = () => {
     if (flyInActive) return;
     playSfx('splash');
+    recordPetakVisit('airmancur');
     const tier = airMancurTier;
     const countLabel = armeniacaCount.toLocaleString('id-ID');
     const ceiling = MAP_THRESHOLDS.airMancurT6;
@@ -16259,6 +16342,7 @@ const TamanPetaPage = () => {
               onAirMancurClick={handleAirMancurClick}
               discovered={discovered}
               onDiscover={markDiscovered}
+              petakVisits={petakVisits}
             />
             {!isMobile && (
               <EffectComposer multisampling={0}>
