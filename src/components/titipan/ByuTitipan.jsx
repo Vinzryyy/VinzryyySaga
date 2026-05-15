@@ -1034,7 +1034,7 @@ const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
     const audio = audioRef.current;
     if (!audio) return undefined;
     audio.muted = true;
-    audio.volume = 0.7;
+    audio.volume = 0.25;
     audio.play().catch(() => {
       /* autoplay blocked — user can still manual click */
     });

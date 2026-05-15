@@ -5,7 +5,7 @@
  * slider (0-100). State persisted via townAudioBus → localStorage.
  * TownMusic (global di AppShell) subscribe ke bus yang sama.
  *
- * Default state: enabled=true (auto-ON), volume=0.5. User cuma butuh
+ * Default state: enabled=true (auto-ON), volume=0.25. User cuma butuh
  * geser slider atau klik mute manual kalau mau matiin. First user
  * gesture di page (click di mana aja) bakal trigger TownMusic.play()
  * walaupun gak klik button ini — handle autoplay-blocked browser case.

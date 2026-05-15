@@ -5,8 +5,8 @@
  * Dua state independen:
  * - enabled (bool): user mau music play atau gak. Default true (auto-ON).
  *   User cuma matiin manual kalau geser slider ke 0 atau klik mute.
- * - volume (0..1): gain target saat enabled. Default 0.5. Slider UI di
- *   AmbientAudio.
+ * - volume (0..1): gain target saat enabled. Default 0.25 (gentle —
+ *   ambient layer, bukan dominant). Slider UI di AmbientAudio.
  *
  * Kenapa butuh bus:
  * - AmbientAudio (per-halaman UI) dan TownMusic (global mount sekali di
@@ -22,7 +22,7 @@ const KEY_ENABLED = 'taman-audio-enabled';
 const KEY_VOLUME = 'taman-audio-volume';
 const EVENT = 'taman-audio-changed';
 
-const DEFAULT_VOLUME = 0.5;
+const DEFAULT_VOLUME = 0.25;
 
 export const readEnabled = () => {
   try {
