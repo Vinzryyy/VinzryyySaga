@@ -49,6 +49,7 @@ import {
   useDiscoveries,
 } from '../components/taman/peta/HiddenDiscoveries';
 import WanderingCat from '../components/taman/peta/WanderingCat';
+import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -15549,6 +15550,7 @@ const TamanPetaPage = () => {
   const handleLorongOut = () => setHoveredLorong(false);
   const handleLorongClick = () => {
     if (flyInActive) return;
+    playSfx('tap');
     setPetakPreview(PETA_PETAK_INFO.lorong);
   };
 
@@ -15561,6 +15563,7 @@ const TamanPetaPage = () => {
   const handleTelagaOut = () => setHoveredTelaga(false);
   const handleTelagaClick = () => {
     if (flyInActive) return;
+    playSfx('splash');
     const info =
       telagaState === 'restored'
         ? PETA_PETAK_INFO.telagaRestored
@@ -15579,6 +15582,7 @@ const TamanPetaPage = () => {
   const handleArsipOut = () => setHoveredArsip(false);
   const handleArsipClick = () => {
     if (flyInActive) return;
+    playSfx('pageTurn');
     const info =
       arsipState === 'restored'
         ? PETA_PETAK_INFO.arsipRestored
@@ -15597,6 +15601,7 @@ const TamanPetaPage = () => {
   const handleMenaraOut = () => setHoveredMenara(false);
   const handleMenaraClick = () => {
     if (flyInActive) return;
+    playSfx('chime');
     const info =
       menaraState === 'restored'
         ? PETA_PETAK_INFO.menaraRestored
@@ -15615,6 +15620,7 @@ const TamanPetaPage = () => {
   const handlePanggungOut = () => setHoveredPanggung(false);
   const handlePanggungClick = () => {
     if (flyInActive) return;
+    playSfx('tap');
     const info =
       panggungState === 'restored'
         ? PETA_PETAK_INFO.panggungRestored
@@ -15634,6 +15640,7 @@ const TamanPetaPage = () => {
   const handleAirMancurOut = () => setHoveredAirMancur(false);
   const handleAirMancurClick = () => {
     if (flyInActive) return;
+    playSfx('splash');
     const tier = airMancurTier;
     const countLabel = armeniacaCount.toLocaleString('id-ID');
     const ceiling = MAP_THRESHOLDS.airMancurT6;
@@ -15699,7 +15706,10 @@ const TamanPetaPage = () => {
 
   // Modal preview handlers — close (dismiss tanpa navigate) atau
   // confirm (close modal lalu navigate ke petak route).
-  const handlePetakPreviewClose = () => setPetakPreview(null);
+  const handlePetakPreviewClose = () => {
+    playSfx('paperSlide');
+    setPetakPreview(null);
+  };
   const handlePetakPreviewConfirm = () => {
     if (!petakPreview) return;
     const { route, id } = petakPreview;

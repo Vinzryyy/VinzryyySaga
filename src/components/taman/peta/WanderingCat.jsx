@@ -20,6 +20,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import { playSfx } from '../../../lib/townSfx';
 
 // Spawn home + safe wander targets — semua di NE quadrant peta, radius
 // >=3 dari petak utama. cat-bowl pos: [10.5, 0.05, 4].
@@ -152,6 +153,7 @@ const WanderingCat = () => {
   const handleClick = useCallback(
     (e) => {
       e.stopPropagation();
+      playSfx('meow');
       startSit();
       const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
       setSpeech(msg);

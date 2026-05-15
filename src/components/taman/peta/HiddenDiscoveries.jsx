@@ -22,6 +22,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { playSfx } from '../../../lib/townSfx';
 
 const STORAGE_KEY = 'armeniaca-discoveries';
 const UNLOCK_THRESHOLD = 4000;
@@ -373,6 +374,7 @@ const HiddenInteractable = ({ def, found, onDiscover, phase }) => {
       }}
       onClick={(e) => {
         e.stopPropagation();
+        playSfx('chime');
         onDiscover(def);
       }}
     >
@@ -449,6 +451,13 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
   const [displayDef, setDisplayDef] = useState(def);
   const [isExiting, setIsExiting] = useState(false);
 
+  // Wrap onClose dgn paperSlide SFX — manual close (backdrop/ESC/btn)
+  // semua lewat sini. Auto-close via def→null tetep silent (rare case).
+  const handleClose = useCallback(() => {
+    playSfx('paperSlide');
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     if (def && (!displayDef || displayDef.id !== def.id)) {
       setDisplayDef(def);
@@ -469,11 +478,11 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
   useEffect(() => {
     if (!displayDef) return undefined;
     const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [displayDef, onClose]);
+  }, [displayDef, handleClose]);
 
   if (!displayDef) return null;
 
@@ -483,7 +492,7 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
         isExiting ? 'animate-discoveryBackdropOut' : 'animate-discoveryBackdropIn'
       }`}
       style={{ paddingTop: '6rem' }}
-      onClick={onClose}
+      onClick={handleClose}
       role="dialog"
       aria-modal="true"
     >
@@ -529,7 +538,7 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
 
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="w-full px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-burgundy)]/60 border border-[color:var(--retro-burgundy-light)]/40 text-[color:var(--retro-cream)] text-[11px] font-black uppercase tracking-[0.3em] transition"
         >
           Tutup
