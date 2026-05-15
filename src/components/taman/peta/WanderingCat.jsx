@@ -63,6 +63,22 @@ const WanderingCat = () => {
   const legFRRef = useRef();
   const legBLRef = useRef();
   const legBRRef = useRef();
+  // Head group ref untuk idle look-around (sit/pause) + nod tipis saat
+  // jalan. Wrap semua bagian kepala (sphere, ears, eyes, nose) supaya
+  // rotate sebagai unit.
+  const headGroupRef = useRef();
+  const leftEyeRef = useRef();
+  const rightEyeRef = useRef();
+  // Tail flick — transient burst tambahan saat di-click, decay 0.6s.
+  // Stored as ref karena gak butuh re-render, cuma dibaca per-frame.
+  const tailFlickStartRef = useRef(-Infinity);
+  // Random offsets per-instance — bikin blink/look gak full sync sama
+  // clock. Sekali generate, gak re-render. Math.random aman karena
+  // useRef init sekali.
+  const phaseOffsetRef = useRef({
+    blink: Math.random() * 5,
+    look: Math.random() * 3,
+  });
   const positionRef = useRef([...HOME_POS]);
   const targetRef = useRef([...HOME_POS]);
   const stateRef = useRef('walking'); // 'walking' | 'sitting' | 'pausing'
@@ -168,13 +184,6 @@ const WanderingCat = () => {
     groupRef.current.position.set(px, py + bob, pz);
     groupRef.current.rotation.y = facingRef.current;
 
-    if (tailRef.current) {
-      // Tail sway — faster saat walking, lazy saat sitting
-      const speed = s === 'walking' ? 3.5 : 1.4;
-      const amp = s === 'walking' ? 0.22 : 0.12;
-      tailRef.current.rotation.y = Math.sin(t * speed) * amp;
-    }
-
     // Leg trot cycle — diagonal pairs (FL+BR vs FR+BL) phase π apart.
     // Tanpa ini, body slide forward sementara cylinder kaki diam =
     // "moving doll" effect klasik (patah-patah). Setiap kaki lift naik
@@ -183,9 +192,10 @@ const WanderingCat = () => {
     const legBaseY = 0.04;
     const legLiftAmp = 0.05;
     const cycleFreq = 7.5;
+    const trotPhase = t * cycleFreq;
     if (s === 'walking') {
-      const pairA = Math.max(0, Math.sin(t * cycleFreq)) * legLiftAmp;
-      const pairB = Math.max(0, Math.sin(t * cycleFreq + Math.PI)) * legLiftAmp;
+      const pairA = Math.max(0, Math.sin(trotPhase)) * legLiftAmp;
+      const pairB = Math.max(0, Math.sin(trotPhase + Math.PI)) * legLiftAmp;
       if (legFLRef.current) legFLRef.current.position.y = legBaseY + pairA;
       if (legBRRef.current) legBRRef.current.position.y = legBaseY + pairA;
       if (legFRRef.current) legFRRef.current.position.y = legBaseY + pairB;
@@ -196,6 +206,61 @@ const WanderingCat = () => {
       if (legBLRef.current) legBLRef.current.position.y = legBaseY;
       if (legBRRef.current) legBRRef.current.position.y = legBaseY;
     }
+
+    // Body roll — sync sama leg trot. Saat pair A (FL+BR) lift, body
+    // lean tipis ke arah pair B yang nopang. Quadruped feel, bukan
+    // rigid plank. rotation.z independent dari .y (yaw facing).
+    groupRef.current.rotation.z =
+      s === 'walking' ? Math.sin(trotPhase) * 0.04 : 0;
+
+    // Head animation:
+    //  - walking: nod halus (Y) + sedikit pitch (X) — alert forward
+    //  - sit/pause: idle look-around lambat (slower Y, periodic peek X)
+    if (headGroupRef.current) {
+      if (s === 'walking') {
+        headGroupRef.current.rotation.y = Math.sin(t * 1.3) * 0.05;
+        headGroupRef.current.rotation.x = Math.sin(t * 4 + 0.3) * 0.025;
+      } else {
+        const lookT = t + phaseOffsetRef.current.look;
+        headGroupRef.current.rotation.y = Math.sin(lookT * 0.55) * 0.4;
+        headGroupRef.current.rotation.x = Math.sin(lookT * 0.32) * 0.07;
+      }
+    }
+
+    // Eye blink — sekali setiap ~3.5s, closure ~0.16s. Symmetric scaleY
+    // dari 1 → 0.12 → 1 lewat cos curve. Phase offset per-instance bikin
+    // kalo nanti ada multi-cat, gak blink barengan.
+    const blinkCycle = 3.5;
+    const blinkDur = 0.16;
+    const blinkT = (t + phaseOffsetRef.current.blink) % blinkCycle;
+    let eyeScaleY = 1;
+    if (blinkT < blinkDur) {
+      const u = blinkT / blinkDur;
+      // cos(π·u) goes 1 → -1; map to 1 → 0.12 → 1 via abs+blend
+      eyeScaleY = 0.12 + 0.88 * Math.abs(Math.cos(u * Math.PI));
+    }
+    if (leftEyeRef.current) leftEyeRef.current.scale.y = eyeScaleY;
+    if (rightEyeRef.current) rightEyeRef.current.scale.y = eyeScaleY;
+
+    // Tail sway base + transient flick boost saat di-click. Flick decay
+    // 0.6s lewat exp curve, ditambahin ke amplitude dasar.
+    if (tailRef.current) {
+      // Handoff sentinel -1 → capture current clock.elapsedTime sebagai
+      // flick start. Click handler set sentinel; useFrame resolve di
+      // frame berikutnya pakai basis yg sama dgn t.
+      if (tailFlickStartRef.current === -1) {
+        tailFlickStartRef.current = t;
+      }
+      const baseSpeed = s === 'walking' ? 3.5 : 1.4;
+      const baseAmp = s === 'walking' ? 0.22 : 0.12;
+      const flickElapsed = t - tailFlickStartRef.current;
+      const flickBoost =
+        flickElapsed >= 0 && flickElapsed < 0.6
+          ? Math.exp(-flickElapsed * 5) * 0.35
+          : 0;
+      tailRef.current.rotation.y =
+        Math.sin(t * (baseSpeed + flickBoost * 8)) * (baseAmp + flickBoost);
+    }
   });
 
   const handleClick = useCallback(
@@ -203,6 +268,10 @@ const WanderingCat = () => {
       e.stopPropagation();
       playSfx('meow');
       startSit();
+      // Sentinel -1: tell useFrame to capture current clock.elapsedTime
+      // as flick baseline next frame. performance.now() bukan basis yg
+      // sama dgn three.js clock, jadi pake handoff via sentinel.
+      tailFlickStartRef.current = -1;
       const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)];
       setSpeech(msg);
       if (speechTimerRef.current) clearTimeout(speechTimerRef.current);
@@ -248,55 +317,62 @@ const WanderingCat = () => {
         <meshStandardMaterial color="#d8c0a4" roughness={0.9} />
       </mesh>
 
-      {/* Head */}
-      <mesh position={[0, 0.18, 0.24]} scale={[0.13, 0.12, 0.12]}>
-        <sphereGeometry args={[1, 14, 12]} />
-        <meshStandardMaterial color="#3a2e26" roughness={0.92} />
-      </mesh>
+      {/* Head group — all head meshes wrap di sini supaya bisa
+          rotate sebagai unit (idle look-around saat sit/pause, nod tipis
+          saat walk). Group origin di head center [0, 0.18, 0.24]; semua
+          mesh child diposisikan relatif ke origin itu. */}
+      <group ref={headGroupRef} position={[0, 0.18, 0.24]}>
+        {/* Head sphere */}
+        <mesh scale={[0.13, 0.12, 0.12]}>
+          <sphereGeometry args={[1, 14, 12]} />
+          <meshStandardMaterial color="#3a2e26" roughness={0.92} />
+        </mesh>
 
-      {/* Ears — 2 cones tilted out */}
-      <mesh position={[-0.07, 0.28, 0.23]} rotation={[0, 0, 0.32]}>
-        <coneGeometry args={[0.04, 0.09, 6]} />
-        <meshStandardMaterial color="#2a201a" roughness={0.95} />
-      </mesh>
-      <mesh position={[0.07, 0.28, 0.23]} rotation={[0, 0, -0.32]}>
-        <coneGeometry args={[0.04, 0.09, 6]} />
-        <meshStandardMaterial color="#2a201a" roughness={0.95} />
-      </mesh>
+        {/* Ears — 2 cones tilted out */}
+        <mesh position={[-0.07, 0.1, -0.01]} rotation={[0, 0, 0.32]}>
+          <coneGeometry args={[0.04, 0.09, 6]} />
+          <meshStandardMaterial color="#2a201a" roughness={0.95} />
+        </mesh>
+        <mesh position={[0.07, 0.1, -0.01]} rotation={[0, 0, -0.32]}>
+          <coneGeometry args={[0.04, 0.09, 6]} />
+          <meshStandardMaterial color="#2a201a" roughness={0.95} />
+        </mesh>
 
-      {/* Inner ear tint — subtle pink */}
-      <mesh position={[-0.07, 0.27, 0.235]} rotation={[0, 0, 0.32]}>
-        <coneGeometry args={[0.02, 0.05, 6]} />
-        <meshStandardMaterial color="#a07060" roughness={0.95} />
-      </mesh>
-      <mesh position={[0.07, 0.27, 0.235]} rotation={[0, 0, -0.32]}>
-        <coneGeometry args={[0.02, 0.05, 6]} />
-        <meshStandardMaterial color="#a07060" roughness={0.95} />
-      </mesh>
+        {/* Inner ear tint — subtle pink */}
+        <mesh position={[-0.07, 0.09, -0.005]} rotation={[0, 0, 0.32]}>
+          <coneGeometry args={[0.02, 0.05, 6]} />
+          <meshStandardMaterial color="#a07060" roughness={0.95} />
+        </mesh>
+        <mesh position={[0.07, 0.09, -0.005]} rotation={[0, 0, -0.32]}>
+          <coneGeometry args={[0.02, 0.05, 6]} />
+          <meshStandardMaterial color="#a07060" roughness={0.95} />
+        </mesh>
 
-      {/* Eyes — small dots with subtle warm emissive (catch light) */}
-      <mesh position={[-0.05, 0.2, 0.33]}>
-        <sphereGeometry args={[0.018, 8, 8]} />
-        <meshStandardMaterial
-          color="#1a0e08"
-          emissive="#f4d895"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-      <mesh position={[0.05, 0.2, 0.33]}>
-        <sphereGeometry args={[0.018, 8, 8]} />
-        <meshStandardMaterial
-          color="#1a0e08"
-          emissive="#f4d895"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
+        {/* Eyes — small dots with subtle warm emissive (catch light).
+            Refs untuk blink scale.y mutation. */}
+        <mesh ref={leftEyeRef} position={[-0.05, 0.02, 0.09]}>
+          <sphereGeometry args={[0.018, 8, 8]} />
+          <meshStandardMaterial
+            color="#1a0e08"
+            emissive="#f4d895"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
+        <mesh ref={rightEyeRef} position={[0.05, 0.02, 0.09]}>
+          <sphereGeometry args={[0.018, 8, 8]} />
+          <meshStandardMaterial
+            color="#1a0e08"
+            emissive="#f4d895"
+            emissiveIntensity={0.2}
+          />
+        </mesh>
 
-      {/* Nose — tiny */}
-      <mesh position={[0, 0.16, 0.34]}>
-        <sphereGeometry args={[0.012, 6, 6]} />
-        <meshStandardMaterial color="#5a3028" roughness={0.9} />
-      </mesh>
+        {/* Nose — tiny */}
+        <mesh position={[0, -0.02, 0.1]}>
+          <sphereGeometry args={[0.012, 6, 6]} />
+          <meshStandardMaterial color="#5a3028" roughness={0.9} />
+        </mesh>
+      </group>
 
       {/* Tail group — rotates Y via tailRef sway */}
       <group position={[0, 0.13, -0.22]} ref={tailRef}>
