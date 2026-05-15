@@ -405,21 +405,23 @@ const HiddenInteractable = ({ def, found, onDiscover, phase }) => {
       }}
     >
       {/* Invisible larger hitbox — easier to click esp di mobile.
-          Tap-target ~0.7 unit cube around object. */}
-      <mesh position={[0, 0.4, 0]} visible={false}>
-        <boxGeometry args={[0.8, 1, 0.8]} />
+          Bumped 0.8u → 1.2u (~17% screen width @ camera dist ≈ 64px on
+          375px viewport) supaya nyaman tap di portrait. */}
+      <mesh position={[0, 0.5, 0]} visible={false}>
+        <boxGeometry args={[1.2, 1.4, 1.2]} />
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
       {/* Hint glow ring — cuma tampil saat undiscovered. Sangat subtle
-          biar feel "rahasia" — bukan signpost neon. */}
+          biar feel "rahasia" — bukan signpost neon. Outer radius mild
+          bump 0.5→0.6 supaya footprint tap nyambung sama hitbox. */}
       {!found && (
         <mesh
           ref={glowRef}
           position={[0, 0.02, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          <ringGeometry args={[0.25, 0.5, 24]} />
+          <ringGeometry args={[0.3, 0.6, 24]} />
           <meshBasicMaterial
             color="#f4d8a8"
             transparent
