@@ -46,6 +46,7 @@ import {
   HiddenInteractables,
   DiscoveryRevealCard,
   DiscoveryProgressBadge,
+  DiscoveryCompletionCard,
   useDiscoveries,
 } from '../components/taman/peta/HiddenDiscoveries';
 import WanderingCat from '../components/taman/peta/WanderingCat';
@@ -4211,6 +4212,70 @@ const ChapterFlowBead = () => {
     </>
   );
 };
+
+// Petak status label — map state ke copy cerita-rakyat tone
+const petakStatusLabel = (state) => {
+  if (state === 'restored') return 'sudah pulih';
+  if (state === 'drought') return 'sedang gersang';
+  if (state === 'locked') return 'belum terbuka';
+  return null;
+};
+
+// PetakTooltip — hover pill 3D-anchored via Html. Fade-in 200ms ease-out.
+// Mount/unmount driven oleh parent berdasarkan hovered* state. Mobile
+// gak nampil (pointerOver kurang akurat di touch). Sengaja gak butuh
+// onPointerOver di tooltip itself — purely visual, pointer-events:none.
+const PetakTooltip = ({ name, status, pos }) => (
+  <Html
+    position={pos}
+    center
+    distanceFactor={11}
+    occlude={false}
+    style={{ pointerEvents: 'none' }}
+  >
+    <div className="petakTooltipPill">
+      <span className="petakTooltipName">{name}</span>
+      {status && <span className="petakTooltipStatus">{status}</span>}
+    </div>
+    <style>{`
+      .petakTooltipPill {
+        padding: 4px 11px 5px;
+        background: rgba(20, 14, 10, 0.86);
+        border: 1px solid rgba(244, 216, 168, 0.32);
+        border-radius: 14px;
+        backdrop-filter: blur(5px);
+        text-align: center;
+        white-space: nowrap;
+        animation: petakTooltipIn 200ms ease-out both;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+        line-height: 1.15;
+      }
+      .petakTooltipName {
+        display: block;
+        font-family: 'Fraunces Variable', serif;
+        font-style: italic;
+        color: #f4d8a8;
+        font-size: 13px;
+        letter-spacing: 0.01em;
+      }
+      .petakTooltipStatus {
+        display: block;
+        font-family: 'Fraunces Variable', serif;
+        font-style: italic;
+        color: rgba(244, 216, 168, 0.55);
+        font-size: 10px;
+        margin-top: 1px;
+      }
+      @keyframes petakTooltipIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .petakTooltipPill { animation: none; }
+      }
+    `}</style>
+  </Html>
+);
 
 // Visited petak halo — ring marker around top of visited petak.
 // Lebih visible drpd just ✓ di label. Mengindikasikan progress
@@ -14816,6 +14881,10 @@ const TamanScene = ({
       </TierReveal>
       <Stars count={isMobile ? 50 : 90} />
       <Moon />
+      {/* Self-scheduled shooting star — fires 12-37s antar shots,
+          random arc across sky perimeter. Existing component yang
+          udah well-built tapi belum di-render. */}
+      <ShootingStar />
       {!purified && <DistantCrow />}
       <CenterTree
         hovered={hoveredCenter}
@@ -14904,6 +14973,74 @@ const TamanScene = ({
       {/* TanTan, kucing Eli — muncul setelah user discover cat-bowl
           (story: "dia keluar sembunyiannya"). Wander zone NE peta. */}
       {discovered.has('cat-bowl') && <WanderingCat />}
+      {/* Petak hover tooltips — 8 petak, hanya satu visible per waktu.
+          Gated by !flyInActive && !modalOpen supaya gak nampil saat
+          intro fly-in atau modal preview ke-buka. Position y di atas
+          struktur masing-masing petak (rough kira-kira). */}
+      {!flyInActive && !modalOpen && (
+        <>
+          {hoveredCenter && (
+            <PetakTooltip
+              name="Pohon Kebaikan"
+              status="pusat ingatan"
+              pos={[0, 3.0, 0]}
+            />
+          )}
+          {hoveredGerbang && (
+            <PetakTooltip
+              name="Gerbang"
+              status="batas pertama kota"
+              pos={[0, 2.6, 8]}
+            />
+          )}
+          {hoveredLorong && (
+            <PetakTooltip
+              name="Lorong Masuk"
+              status="pintu menuju kota"
+              pos={[0, 1.6, 4.5]}
+            />
+          )}
+          {hoveredTelaga && (
+            <PetakTooltip
+              name="Telaga Harapan"
+              status={petakStatusLabel(telagaState)}
+              pos={[-7, 2.2, -1]}
+            />
+          )}
+          {hoveredArsip && (
+            <PetakTooltip
+              name="Perpustakaan"
+              status={petakStatusLabel(arsipState)}
+              pos={[7, 3.0, -1]}
+            />
+          )}
+          {hoveredMenara && (
+            <PetakTooltip
+              name="Menara Jam"
+              status={petakStatusLabel(menaraState)}
+              pos={[0, 4.5, -8]}
+            />
+          )}
+          {hoveredPanggung && (
+            <PetakTooltip
+              name="Panggung Terbuka"
+              status={petakStatusLabel(panggungState)}
+              pos={[5, 2.5, 5]}
+            />
+          )}
+          {hoveredAirMancur && (
+            <PetakTooltip
+              name="Air Mancur"
+              status={
+                airMancurTier === 0
+                  ? 'belum muncul'
+                  : `tahap ${airMancurTier}/6`
+              }
+              pos={[-3, 1.5, 3.5]}
+            />
+          )}
+        </>
+      )}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
         OrbitControls dirender selalu, tapi enabled=false saat fly-in.
@@ -15666,6 +15803,8 @@ const TamanPetaPage = () => {
     revealed,
     markDiscovered,
     dismissReveal,
+    showCompletion,
+    dismissCompletion,
   } = useDiscoveries();
 
   // Purified — full city restoration (count >= 7000). Diteruskan ke
@@ -16167,6 +16306,10 @@ const TamanPetaPage = () => {
           modalOpen={Boolean(petakPreview) || Boolean(revealed)}
         />
         <DiscoveryRevealCard def={revealed} onClose={dismissReveal} />
+        <DiscoveryCompletionCard
+          open={showCompletion}
+          onClose={dismissCompletion}
+        />
         {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
             selesai, persisted via localStorage. */}
         {!petakPreview && <TamanPetaIntroTitle />}

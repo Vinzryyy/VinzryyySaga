@@ -25,6 +25,7 @@ import { useFrame } from '@react-three/fiber';
 import { playSfx } from '../../../lib/townSfx';
 
 const STORAGE_KEY = 'armeniaca-discoveries';
+const COMPLETION_KEY = 'armeniaca-discoveries-completed';
 const UNLOCK_THRESHOLD = 4000;
 
 // 8 hidden objects — pos verified safe (>=4 unit) dari semua landmark:
@@ -138,6 +139,7 @@ const writeDiscovered = (set) => {
 export const useDiscoveries = () => {
   const [discovered, setDiscovered] = useState(() => readDiscovered());
   const [revealed, setRevealed] = useState(null);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   const markDiscovered = useCallback((def) => {
     setDiscovered((prev) => {
@@ -150,13 +152,37 @@ export const useDiscoveries = () => {
       next.add(def.id);
       writeDiscovered(next);
       setRevealed(def);
+      // Trigger completion celebration kalau ini discovery ke-8 dan
+      // belum pernah ditampilkan. Delay 4.5s supaya reveal card sempet
+      // dilihat + ditutup user organik dulu, baru completion modal
+      // muncul layered di atas. Persist localStorage flag — one-shot.
+      if (next.size === TOTAL) {
+        try {
+          const alreadyShown =
+            localStorage.getItem(COMPLETION_KEY) === '1';
+          if (!alreadyShown) {
+            setTimeout(() => setShowCompletion(true), 4500);
+            localStorage.setItem(COMPLETION_KEY, '1');
+          }
+        } catch {
+          /* private mode — no-op */
+        }
+      }
       return next;
     });
   }, []);
 
   const dismissReveal = useCallback(() => setRevealed(null), []);
+  const dismissCompletion = useCallback(() => setShowCompletion(false), []);
 
-  return { discovered, revealed, markDiscovered, dismissReveal };
+  return {
+    discovered,
+    revealed,
+    markDiscovered,
+    dismissReveal,
+    showCompletion,
+    dismissCompletion,
+  };
 };
 
 // =============================================================
@@ -643,6 +669,123 @@ export const DiscoveryProgressBadge = ({ discovered, armeniacaCount = 0, modalOp
         @media (prefers-reduced-motion: reduce) {
           .animate-discoveryBadgePulse,
           .animate-discoveryPlusOne { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// =============================================================
+// DiscoveryCompletionCard — celebration moment saat user dapet 8/8.
+// One-shot (persist localStorage flag), modal layered di atas peta.
+// Triggered ~4.5s setelah discovery ke-8 supaya reveal card sempet
+// di-tutup organik dulu, lalu completion fade in over it.
+// =============================================================
+export const DiscoveryCompletionCard = ({ open, onClose }) => {
+  const [mounted, setMounted] = useState(open);
+  const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    if (open && !mounted) {
+      setMounted(true);
+      setIsExiting(false);
+      // Spawn chime saat muncul — celebratory ting
+      playSfx('chime');
+      return undefined;
+    }
+    if (!open && mounted && !isExiting) {
+      setIsExiting(true);
+      const t = setTimeout(() => {
+        setMounted(false);
+        setIsExiting(false);
+      }, 280);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [open, mounted, isExiting]);
+
+  useEffect(() => {
+    if (!mounted) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        playSfx('paperSlide');
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mounted, onClose]);
+
+  if (!mounted) return null;
+
+  const handleClose = () => {
+    playSfx('paperSlide');
+    onClose();
+  };
+
+  return (
+    <div
+      className={`absolute inset-0 z-[60] flex items-center justify-center px-4 pb-4 bg-black/70 backdrop-blur-sm ${
+        isExiting ? 'animate-discoveryBackdropOut' : 'animate-discoveryBackdropIn'
+      }`}
+      style={{ paddingTop: '5rem' }}
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className={`relative max-w-md w-full bg-gradient-to-br from-[#4a3220]/95 to-[#1a0f08]/95 border border-[color:var(--retro-gold-light)]/50 rounded-3xl p-7 sm:p-8 shadow-[0_0_60px_rgba(244,216,168,0.25)] ${
+          isExiting ? 'animate-discoveryCardOut' : 'animate-completionCardIn'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Golden eyebrow header */}
+        <div className="text-center mb-5">
+          <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]/90 mb-2">
+            8 / 8 Rahasia Terkuak
+          </div>
+          <div className="mx-auto w-14 h-px bg-[color:var(--retro-gold-light)]/55" />
+        </div>
+
+        {/* Main title */}
+        <p
+          className="text-center text-[color:var(--retro-cream)] text-xl sm:text-[1.4rem] mb-5 leading-tight italic"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          Kamu sudah mengenal Eli<br />sedikit lebih dalam.
+        </p>
+
+        {/* Body */}
+        <p
+          className="text-center text-[color:var(--retro-cream)]/75 text-[13px] sm:text-sm leading-relaxed italic mb-6"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          Setiap fakta kecil yang kamu temukan di sudut kota — tanggal lahir,
+          asal Bandung, mangkuk TanTan, kaset Jaehyun, keranjang Cangcorang —
+          satu per satu menyusun gambar yang lebih lengkap. Kota ini sekarang
+          tahu kamu juga peduli.
+        </p>
+
+        <button
+          type="button"
+          onClick={handleClose}
+          className="w-full px-5 py-3 rounded-full bg-[color:var(--retro-gold)]/30 hover:bg-[color:var(--retro-gold)]/50 border border-[color:var(--retro-gold-light)]/50 text-[color:var(--retro-cream)] text-[11px] font-black uppercase tracking-[0.3em] transition"
+        >
+          Lanjut menjelajah
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes completionCardIn {
+          0%   { opacity: 0; transform: translateY(28px) scale(0.9); }
+          55%  { opacity: 1; transform: translateY(-4px) scale(1.03); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-completionCardIn {
+          animation: completionCardIn 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-completionCardIn { animation: none; }
         }
       `}</style>
     </div>
