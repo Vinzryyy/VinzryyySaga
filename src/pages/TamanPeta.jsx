@@ -296,6 +296,42 @@ const FlyInCamera = ({ onComplete, duration = FLY_IN_DURATION }) => {
   return null;
 };
 
+// FovTuner — adjust camera FOV based on viewport orientation. Default
+// FOV 38° dirancang untuk landscape (16:9 → hFov ~60°). Di portrait
+// (9:16 → hFov ~22°), scene kerasa squished karena Three.js
+// PerspectiveCamera.fov adalah vertikal. Untuk portrait + mobile, bump
+// FOV ke 55° supaya hFov ~32°. Kompromi: scene gak terlalu zoom, masih
+// kepake feel isometrik.
+//
+// Dipake di Canvas sebagai child. Listen matchMedia portrait/landscape;
+// update camera.fov + projectionMatrix saat orientation berubah.
+// RotateRecommendation banner masih show — FOV tweak ini cuma buat user
+// yg dismiss banner / stick di portrait.
+const FovTuner = () => {
+  const { camera, size } = useThree();
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const portraitMq = window.matchMedia('(orientation: portrait)');
+    const smallMq = window.matchMedia('(max-width: 767px)');
+    const apply = () => {
+      const portrait = portraitMq.matches && smallMq.matches;
+      const targetFov = portrait ? 55 : 38;
+      if (Math.abs(camera.fov - targetFov) > 0.5) {
+        camera.fov = targetFov;
+        camera.updateProjectionMatrix();
+      }
+    };
+    apply();
+    portraitMq.addEventListener('change', apply);
+    smallMq.addEventListener('change', apply);
+    return () => {
+      portraitMq.removeEventListener('change', apply);
+      smallMq.removeEventListener('change', apply);
+    };
+  }, [camera, size]);
+  return null;
+};
+
 // Kelopak bunga jatuh pelan dari atas — dekoratif, kerasa kayak
 // taman senja yang hidup. Pakai BufferGeometry untuk render banyak
 // kelopak dalam 1 draw call. Posisi reset ke atas saat jatuh ke
@@ -15106,6 +15142,7 @@ const TamanScene = ({
         </>
       )}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
+      <FovTuner />
       {/*
         OrbitControls dirender selalu, tapi enabled=false saat fly-in.
         Constraint: rotate horizontal bebas, vertical dikunci di range
