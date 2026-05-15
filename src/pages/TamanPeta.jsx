@@ -16022,6 +16022,39 @@ const TamanPetaPage = () => {
 
   const handleFlyInComplete = () => setFlyInActive(false);
 
+  // Mobile tap-preview pattern: first tap petak = stay di hover state
+  // (label keliatan, modal belum buka), second tap dalam 3s = open
+  // modal. Desktop bypass — single click langsung modal kayak biasa.
+  // Solves: di mobile tanpa hover, user gak sempet baca petak label
+  // sebelum modal nge-cover scene.
+  const mobileTapRef = useRef({ id: null, timer: null });
+  useEffect(() => {
+    return () => {
+      if (mobileTapRef.current.timer) clearTimeout(mobileTapRef.current.timer);
+    };
+  }, []);
+  const runTapOrOpen = useCallback(
+    (petakId, openModalFn) => {
+      if (!isMobile) {
+        openModalFn();
+        return;
+      }
+      const prev = mobileTapRef.current;
+      if (prev.id === petakId) {
+        clearTimeout(prev.timer);
+        mobileTapRef.current = { id: null, timer: null };
+        openModalFn();
+      } else {
+        clearTimeout(prev.timer);
+        const t = setTimeout(() => {
+          mobileTapRef.current = { id: null, timer: null };
+        }, 3000);
+        mobileTapRef.current = { id: petakId, timer: t };
+      }
+    },
+    [isMobile],
+  );
+
   const handlePetakHover = (petakId) => {
     if (flyInActive) return;
     setHoveredPetakId(petakId);
@@ -16053,8 +16086,10 @@ const TamanPetaPage = () => {
   const handleCenterClick = () => {
     if (flyInActive) return;
     playSfx('chime');
-    recordPetakVisit('pohon');
-    setPetakPreview(PETA_PETAK_INFO.pohon);
+    runTapOrOpen('pohon', () => {
+      recordPetakVisit('pohon');
+      setPetakPreview(PETA_PETAK_INFO.pohon);
+    });
   };
 
   // Gerbang handlers — petak mini "Gerbang" di selatan pohon, link
@@ -16067,8 +16102,10 @@ const TamanPetaPage = () => {
   const handleGerbangClick = () => {
     if (flyInActive) return;
     playSfx('tap');
-    recordPetakVisit('gerbang');
-    setPetakPreview(PETA_PETAK_INFO.gerbang);
+    runTapOrOpen('gerbang', () => {
+      recordPetakVisit('gerbang');
+      setPetakPreview(PETA_PETAK_INFO.gerbang);
+    });
   };
 
   // Lorong Masuk handlers — stepping stones antara gerbang dan pohon,
@@ -16081,8 +16118,10 @@ const TamanPetaPage = () => {
   const handleLorongClick = () => {
     if (flyInActive) return;
     playSfx('tap');
-    recordPetakVisit('lorong');
-    setPetakPreview(PETA_PETAK_INFO.lorong);
+    runTapOrOpen('lorong', () => {
+      recordPetakVisit('lorong');
+      setPetakPreview(PETA_PETAK_INFO.lorong);
+    });
   };
 
   // Telaga handlers — sungai di barat. Preview info dipilih dari 3
@@ -16095,14 +16134,16 @@ const TamanPetaPage = () => {
   const handleTelagaClick = () => {
     if (flyInActive) return;
     playSfx('splash');
-    recordPetakVisit('telaga');
-    const info =
-      telagaState === 'restored'
-        ? PETA_PETAK_INFO.telagaRestored
-        : telagaState === 'drought'
-        ? PETA_PETAK_INFO.telagaDrought
-        : PETA_PETAK_INFO.telagaLocked;
-    setPetakPreview(info);
+    runTapOrOpen('telaga', () => {
+      recordPetakVisit('telaga');
+      const info =
+        telagaState === 'restored'
+          ? PETA_PETAK_INFO.telagaRestored
+          : telagaState === 'drought'
+          ? PETA_PETAK_INFO.telagaDrought
+          : PETA_PETAK_INFO.telagaLocked;
+      setPetakPreview(info);
+    });
   };
 
   // Arsip handlers — perpustakaan di timur (mirror Telaga). Preview info
@@ -16115,14 +16156,16 @@ const TamanPetaPage = () => {
   const handleArsipClick = () => {
     if (flyInActive) return;
     playSfx('pageTurn');
-    recordPetakVisit('arsip');
-    const info =
-      arsipState === 'restored'
-        ? PETA_PETAK_INFO.arsipRestored
-        : arsipState === 'drought'
-        ? PETA_PETAK_INFO.arsipDrought
-        : PETA_PETAK_INFO.arsipLocked;
-    setPetakPreview(info);
+    runTapOrOpen('arsip', () => {
+      recordPetakVisit('arsip');
+      const info =
+        arsipState === 'restored'
+          ? PETA_PETAK_INFO.arsipRestored
+          : arsipState === 'drought'
+          ? PETA_PETAK_INFO.arsipDrought
+          : PETA_PETAK_INFO.arsipLocked;
+      setPetakPreview(info);
+    });
   };
 
   // Menara handlers — clock tower di utara (z=-8, lebih jauh dari hub).
@@ -16135,14 +16178,16 @@ const TamanPetaPage = () => {
   const handleMenaraClick = () => {
     if (flyInActive) return;
     playSfx('chime');
-    recordPetakVisit('menara');
-    const info =
-      menaraState === 'restored'
-        ? PETA_PETAK_INFO.menaraRestored
-        : menaraState === 'drought'
-        ? PETA_PETAK_INFO.menaraDrought
-        : PETA_PETAK_INFO.menaraLocked;
-    setPetakPreview(info);
+    runTapOrOpen('menara', () => {
+      recordPetakVisit('menara');
+      const info =
+        menaraState === 'restored'
+          ? PETA_PETAK_INFO.menaraRestored
+          : menaraState === 'drought'
+          ? PETA_PETAK_INFO.menaraDrought
+          : PETA_PETAK_INFO.menaraLocked;
+      setPetakPreview(info);
+    });
   };
 
   // Panggung handlers — anfiteater di SE ring [5, 0, 5]. Preview info
@@ -16155,14 +16200,16 @@ const TamanPetaPage = () => {
   const handlePanggungClick = () => {
     if (flyInActive) return;
     playSfx('tap');
-    recordPetakVisit('panggung');
-    const info =
-      panggungState === 'restored'
-        ? PETA_PETAK_INFO.panggungRestored
-        : panggungState === 'drought'
-        ? PETA_PETAK_INFO.panggungDrought
-        : PETA_PETAK_INFO.panggungLocked;
-    setPetakPreview(info);
+    runTapOrOpen('panggung', () => {
+      recordPetakVisit('panggung');
+      const info =
+        panggungState === 'restored'
+          ? PETA_PETAK_INFO.panggungRestored
+          : panggungState === 'drought'
+          ? PETA_PETAK_INFO.panggungDrought
+          : PETA_PETAK_INFO.panggungLocked;
+      setPetakPreview(info);
+    });
   };
 
   // Air Mancur handlers — micro-landmark di plaza tengah. Click buka
@@ -16176,6 +16223,7 @@ const TamanPetaPage = () => {
   const handleAirMancurClick = () => {
     if (flyInActive) return;
     playSfx('splash');
+    runTapOrOpen('airmancur', () => {
     recordPetakVisit('airmancur');
     const tier = airMancurTier;
     const countLabel = armeniacaCount.toLocaleString('id-ID');
@@ -16237,6 +16285,7 @@ const TamanPetaPage = () => {
       longDesc,
       accent: meta.accent,
       statusOnly: true,
+    });
     });
   };
 
