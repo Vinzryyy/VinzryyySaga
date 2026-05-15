@@ -441,29 +441,56 @@ export const HiddenInteractables = ({
 // Render di luar Canvas (parent: TamanPetaPage).
 // =============================================================
 
+// Reveal card enter/exit pattern: `displayDef` mirror `def` tapi delay
+// unmount 220ms supaya exit anim sempet jalan. `isExiting` flag toggle
+// class animate-out. Cancel timer kalau def baru datang mid-exit (rapid
+// klik antar discovery) — instant swap, restart enter anim.
 export const DiscoveryRevealCard = ({ def, onClose }) => {
-  // Lock body scroll selama card terbuka (kayak modal pattern lain).
+  const [displayDef, setDisplayDef] = useState(def);
+  const [isExiting, setIsExiting] = useState(false);
+
   useEffect(() => {
-    if (!def) return undefined;
+    if (def && (!displayDef || displayDef.id !== def.id)) {
+      setDisplayDef(def);
+      setIsExiting(false);
+      return undefined;
+    }
+    if (!def && displayDef && !isExiting) {
+      setIsExiting(true);
+      const t = setTimeout(() => {
+        setDisplayDef(null);
+        setIsExiting(false);
+      }, 220);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [def, displayDef, isExiting]);
+
+  useEffect(() => {
+    if (!displayDef) return undefined;
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [def, onClose]);
+  }, [displayDef, onClose]);
 
-  if (!def) return null;
+  if (!displayDef) return null;
 
   return (
     <div
-      className="absolute inset-0 z-50 flex items-center justify-center px-4 pb-4 bg-black/60 backdrop-blur-sm"
+      className={`absolute inset-0 z-50 flex items-center justify-center px-4 pb-4 bg-black/60 backdrop-blur-sm ${
+        isExiting ? 'animate-discoveryBackdropOut' : 'animate-discoveryBackdropIn'
+      }`}
       style={{ paddingTop: '6rem' }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="relative max-w-sm w-full bg-gradient-to-br from-[#3a2a20]/95 to-[#1a1208]/95 border border-[color:var(--retro-burgundy-light)]/40 rounded-2xl p-6 shadow-2xl"
+        className={`relative max-w-sm w-full bg-gradient-to-br from-[#3a2a20]/95 to-[#1a1208]/95 border border-[color:var(--retro-burgundy-light)]/40 rounded-2xl p-6 shadow-2xl ${
+          isExiting ? 'animate-discoveryCardOut' : 'animate-discoveryCardIn'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 mb-3">
@@ -476,19 +503,19 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
         <div className="flex items-start gap-4 mb-4">
           <div className="shrink-0 w-12 h-12 rounded-full bg-[color:var(--retro-burgundy)]/30 ring-1 ring-[color:var(--retro-burgundy-light)]/40 flex items-center justify-center">
             <i
-              className={`${def.icon} text-2xl text-[color:var(--retro-cream)]`}
+              className={`${displayDef.icon} text-2xl text-[color:var(--retro-cream)]`}
               aria-hidden="true"
             />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55 mb-1">
-              {def.label}
+              {displayDef.label}
             </p>
             <p
               className="text-lg font-bold text-[color:var(--retro-cream)] leading-tight"
               style={{ fontFamily: '"Fraunces Variable", serif' }}
             >
-              {def.value}
+              {displayDef.value}
             </p>
           </div>
         </div>
@@ -497,7 +524,7 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
           className="text-sm text-[color:var(--retro-cream)]/75 leading-relaxed italic mb-5"
           style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
-          {def.note}
+          {displayDef.note}
         </p>
 
         <button
@@ -508,36 +535,107 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
           Tutup
         </button>
       </div>
+      <style>{`
+        @keyframes discoveryBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes discoveryBackdropOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes discoveryCardIn {
+          0%   { opacity: 0; transform: translateY(20px) scale(0.94); }
+          100% { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+        @keyframes discoveryCardOut {
+          0%   { opacity: 1; transform: translateY(0)    scale(1); }
+          100% { opacity: 0; transform: translateY(12px) scale(0.97); }
+        }
+        .animate-discoveryBackdropIn  { animation: discoveryBackdropIn  220ms ease-out both; }
+        .animate-discoveryBackdropOut { animation: discoveryBackdropOut 200ms ease-in  both; }
+        .animate-discoveryCardIn      { animation: discoveryCardIn      320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .animate-discoveryCardOut     { animation: discoveryCardOut     220ms cubic-bezier(0.65, 0, 0.85, 0) both; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-discoveryBackdropIn,
+          .animate-discoveryBackdropOut,
+          .animate-discoveryCardIn,
+          .animate-discoveryCardOut { animation: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
 
 export const DiscoveryProgressBadge = ({ discovered, armeniacaCount = 0, modalOpen = false }) => {
+  const count = discovered.size;
+  // pulseKey naik tiap discovery baru — re-mount badge dgn key supaya
+  // animasi `discoveryBadgePulse` restart dari awal (animation: ... both
+  // tetep di end-state, jadi butuh re-mount buat replay). floatKey trigger
+  // "+1" floating teks one-shot per finding.
+  const prevCountRef = useRef(count);
+  const [pulseKey, setPulseKey] = useState(0);
+  const [floatKey, setFloatKey] = useState(0);
+
+  useEffect(() => {
+    if (count > prevCountRef.current) {
+      setPulseKey((k) => k + 1);
+      setFloatKey((k) => k + 1);
+    }
+    prevCountRef.current = count;
+  }, [count]);
+
   // Hide before unlock threshold — gak ngasih spoiler "ada rahasia"
   // sebelum kota mulai punya kehidupan.
   if (armeniacaCount < UNLOCK_THRESHOLD) return null;
   if (modalOpen) return null;
 
-  const count = discovered.size;
   const isComplete = count >= TOTAL;
 
   return (
     <div className="pointer-events-none absolute bottom-6 left-4 md:bottom-8 md:left-6 z-10">
-      <div
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-sm ring-1 transition-colors ${
-          isComplete
-            ? 'ring-[color:var(--retro-gold-light)]/60'
-            : 'ring-white/15'
-        }`}
-      >
-        <i
-          className={`${isComplete ? 'ri-treasure-map-fill text-[color:var(--retro-gold-light)]' : 'ri-treasure-map-line text-white/70'} text-base`}
-          aria-hidden="true"
-        />
-        <span className="text-white/85 text-[11px] font-bold tracking-wider tabular-nums">
-          {count}/{TOTAL}
-        </span>
+      <div className="relative">
+        <div
+          key={`badge-${pulseKey}`}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-sm ring-1 transition-colors ${
+            pulseKey > 0 ? 'animate-discoveryBadgePulse' : ''
+          } ${
+            isComplete
+              ? 'ring-[color:var(--retro-gold-light)]/60'
+              : 'ring-white/15'
+          }`}
+        >
+          <i
+            className={`${isComplete ? 'ri-treasure-map-fill text-[color:var(--retro-gold-light)]' : 'ri-treasure-map-line text-white/70'} text-base`}
+            aria-hidden="true"
+          />
+          <span className="text-white/85 text-[11px] font-bold tracking-wider tabular-nums">
+            {count}/{TOTAL}
+          </span>
+        </div>
+        {floatKey > 0 && (
+          <span
+            key={`plus-${floatKey}`}
+            className="absolute left-1/2 -translate-x-1/2 -top-1 text-[11px] font-black tracking-wider text-[color:var(--retro-gold-light)] animate-discoveryPlusOne"
+            aria-hidden="true"
+          >
+            +1
+          </span>
+        )}
       </div>
+      <style>{`
+        @keyframes discoveryBadgePulse {
+          0%   { transform: scale(1); }
+          40%  { transform: scale(1.12); }
+          100% { transform: scale(1); }
+        }
+        @keyframes discoveryPlusOne {
+          0%   { opacity: 0; transform: translate(-50%, 0)    scale(0.8); }
+          15%  { opacity: 1; transform: translate(-50%, -8px) scale(1); }
+          75%  { opacity: 1; transform: translate(-50%, -22px) scale(1); }
+          100% { opacity: 0; transform: translate(-50%, -30px) scale(0.95); }
+        }
+        .animate-discoveryBadgePulse { animation: discoveryBadgePulse 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+        .animate-discoveryPlusOne    { animation: discoveryPlusOne    1300ms ease-out both; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-discoveryBadgePulse,
+          .animate-discoveryPlusOne { animation: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
