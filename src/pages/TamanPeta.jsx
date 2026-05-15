@@ -16070,6 +16070,26 @@ const TamanPetaPage = () => {
   // modal. Desktop bypass — single click langsung modal kayak biasa.
   // Solves: di mobile tanpa hover, user gak sempet baca petak label
   // sebelum modal nge-cover scene.
+  //
+  // Hover cleanup (mobile-only): touch event gak punya pointerout
+  // counterpart, jadi hoveredX nyangkut perma. Tanpa cleanup, setelah
+  // modal close enableRotate stuck false → user gak bisa muter peta.
+  // hoverSettersMap by petakId dipake utk clear hover spesifik (prev
+  // petak saat ganti target, atau current petak saat modal buka /
+  // preview expire).
+  const hoverSettersMap = useMemo(
+    () => ({
+      pohon: setHoveredCenter,
+      gerbang: setHoveredGerbang,
+      lorong: setHoveredLorong,
+      telaga: setHoveredTelaga,
+      arsip: setHoveredArsip,
+      menara: setHoveredMenara,
+      panggung: setHoveredPanggung,
+      airmancur: setHoveredAirMancur,
+    }),
+    [],
+  );
   const mobileTapRef = useRef({ id: null, timer: null });
   useEffect(() => {
     return () => {
@@ -16084,18 +16104,31 @@ const TamanPetaPage = () => {
       }
       const prev = mobileTapRef.current;
       if (prev.id === petakId) {
+        // Second tap match — open modal. Clear current hover supaya
+        // setelah modal close, enableRotate kembali true.
         clearTimeout(prev.timer);
         mobileTapRef.current = { id: null, timer: null };
+        hoverSettersMap[petakId]?.(false);
+        setHoveredPetakId(null);
         openModalFn();
       } else {
+        // First tap of new petak. Clear hover petak sebelumnya (kalau
+        // ada) supaya gak ada stale label nyangkut. Current petak hover
+        // dibiarin (just-set oleh pointerover, drives label visibility
+        // utk preview).
         clearTimeout(prev.timer);
+        if (prev.id) hoverSettersMap[prev.id]?.(false);
         const t = setTimeout(() => {
+          // Preview expired without confirm — clear hover supaya
+          // enableRotate kembali available di mobile.
+          hoverSettersMap[petakId]?.(false);
+          setHoveredPetakId(null);
           mobileTapRef.current = { id: null, timer: null };
         }, 3000);
         mobileTapRef.current = { id: petakId, timer: t };
       }
     },
-    [isMobile],
+    [isMobile, hoverSettersMap],
   );
 
   const handlePetakHover = (petakId) => {
