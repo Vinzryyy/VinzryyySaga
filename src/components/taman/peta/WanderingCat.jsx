@@ -180,13 +180,13 @@ const WanderingCat = () => {
     }
 
     const [px, py, pz] = positionRef.current;
-    // Bob amplitude di-trim 0.03 → 0.012. Sebelumnya kerasa "trampolin"
-    // karena 0.03 ~ 7.5% tinggi badan kucing (visible naik-turun
-    // berlebihan). Sync ke leg cycle (t*7.5) supaya bob highest pas leg
-    // pair lift, bukan random t*8 yang beat dengan trot.
-    const bob = s === 'walking' ? Math.sin(t * 7.5) * 0.012 : 0;
-    groupRef.current.position.set(px, py + bob, pz);
+    // Body bob fully removed — sebelumnya kelihatan "naik-naik palanya
+    // seram" karena head naik bareng body. Cat trot real-nya body
+    // mostly stable, cuma kaki yang move. Tinggal sisa: leg lift,
+    // tail sway, eye blink.
+    groupRef.current.position.set(px, py, pz);
     groupRef.current.rotation.y = facingRef.current;
+    groupRef.current.rotation.z = 0;
 
     // Leg trot cycle — diagonal pairs (FL+BR vs FR+BL) phase π apart.
     // Tanpa ini, body slide forward sementara cylinder kaki diam =
@@ -211,26 +211,14 @@ const WanderingCat = () => {
       if (legBRRef.current) legBRRef.current.position.y = legBaseY;
     }
 
-    // Body roll — sync sama leg trot. Amp di-trim 0.04 → 0.02 supaya
-    // gak kerasa "kapal goyang". rotation.z independent dari .y (yaw).
-    groupRef.current.rotation.z =
-      s === 'walking' ? Math.sin(trotPhase) * 0.02 : 0;
-
-    // Head animation:
-    //  - walking: HEAD LEVEL (no pitch X, no Y nod). Real cats keep
-    //    kepala stabil saat trot — body bawah-nya yang bergerak. Pitch
-    //    + nod compound dengan bob bikin "head naik-naik" feel aneh.
-    //  - sit/pause: idle look-around lambat, amp di-trim supaya
-    //    movement kerasa thoughtful bukan twitchy.
+    // Head locked level — semua rotasi off. Idle look-around dihapus
+    // karena efek motion-nya (terutama compound dgn body bob lama)
+    // bikin kepala kelihatan goyang aneh. Cat bakal kerasa lebih
+    // tenang, lebih predictable.
     if (headGroupRef.current) {
-      if (s === 'walking') {
-        headGroupRef.current.rotation.y = 0;
-        headGroupRef.current.rotation.x = 0;
-      } else {
-        const lookT = t + phaseOffsetRef.current.look;
-        headGroupRef.current.rotation.y = Math.sin(lookT * 0.55) * 0.25;
-        headGroupRef.current.rotation.x = Math.sin(lookT * 0.32) * 0.035;
-      }
+      headGroupRef.current.rotation.y = 0;
+      headGroupRef.current.rotation.x = 0;
+      headGroupRef.current.rotation.z = 0;
     }
 
     // Eye blink — sekali setiap ~3.5s, closure ~0.16s. Symmetric scaleY
