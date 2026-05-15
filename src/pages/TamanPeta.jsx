@@ -48,6 +48,7 @@ import {
   DiscoveryProgressBadge,
   useDiscoveries,
 } from '../components/taman/peta/HiddenDiscoveries';
+import WanderingCat from '../components/taman/peta/WanderingCat';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -14587,6 +14588,9 @@ const TamanScene = ({
         discovered={discovered}
         onDiscover={onDiscover}
       />
+      {/* TanTan, kucing Eli — muncul setelah user discover cat-bowl
+          (story: "dia keluar sembunyiannya"). Wander zone NE peta. */}
+      {discovered.has('cat-bowl') && <WanderingCat />}
       {flyInActive && <FlyInCamera onComplete={onFlyInComplete} />}
       {/*
         OrbitControls dirender selalu, tapi enabled=false saat fly-in.
