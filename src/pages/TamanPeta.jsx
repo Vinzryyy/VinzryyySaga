@@ -15499,7 +15499,7 @@ const TamanHeader = ({ modalOpen = false }) => {
     <div className="pointer-events-auto">
       <Link
         to="/"
-        className="text-white/50 hover:text-white/85 text-[11px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
+        className="inline-flex items-center min-h-[44px] px-2 -mx-2 text-white/50 hover:text-white/85 text-[11px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         ← Keluar
       </Link>
@@ -15521,7 +15521,7 @@ const TamanHeader = ({ modalOpen = false }) => {
     <div className="pointer-events-auto">
       <Link
         to="/armeniacaTown"
-        className="text-white/50 hover:text-white/85 text-[11px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
+        className="inline-flex items-center min-h-[44px] px-2 -mx-2 text-white/50 hover:text-white/85 text-[11px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         <span className="md:hidden">Gerbang →</span>
         <span className="hidden md:inline">Ulangi gerbang →</span>
