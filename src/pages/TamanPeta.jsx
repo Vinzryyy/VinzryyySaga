@@ -15126,6 +15126,12 @@ const TamanScene = ({
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.5}
+        // Mobile-only rotate gate: kalau user lagi hovered petak, drag
+        // gesture (terutama jitter natural di touch) bisa keangkat sama
+        // OrbitControls dan curi tap event. Disabling rotate sementara
+        // bikin tap confirm (atau modal open) reliable. Desktop tetep
+        // bisa rotate karena hover != commitment di mouse.
+        enableRotate={!flyInActive && !(isMobile && userIsHovering)}
         autoRotate={autoRotate && !flyInActive && !userIsHovering}
         autoRotateSpeed={0.35}
       />
