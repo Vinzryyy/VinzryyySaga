@@ -57,6 +57,12 @@ const PAUSE_DURATION_RANGE = [0.6, 1.5];
 const WanderingCat = () => {
   const groupRef = useRef();
   const tailRef = useRef();
+  // 4 leg refs untuk trot animation. Order: FL, FR, BL, BR (depan-kiri,
+  // depan-kanan, belakang-kiri, belakang-kanan).
+  const legFLRef = useRef();
+  const legFRRef = useRef();
+  const legBLRef = useRef();
+  const legBRRef = useRef();
   const positionRef = useRef([...HOME_POS]);
   const targetRef = useRef([...HOME_POS]);
   const stateRef = useRef('walking'); // 'walking' | 'sitting' | 'pausing'
@@ -76,7 +82,22 @@ const WanderingCat = () => {
         Math.hypot(t[0] - targetRef.current[0], t[2] - targetRef.current[2]) >
         1,
     );
-    const next = pool[Math.floor(Math.random() * pool.length)];
+    // Bias avoid U-turn: prefer target yang gak butuh >135° rotation
+    // dari current facing. Hindari "freeze-then-walk" yang keliatan
+    // patah-patah. Kalau semua target di belakang, fall back ke pool
+    // full (rare — cuma kalau cat lagi nyudut).
+    const [px, , pz] = positionRef.current;
+    const inFrontPool = pool.filter((target) => {
+      const dx = target[0] - px;
+      const dz = target[2] - pz;
+      const angleToTarget = Math.atan2(dx, dz);
+      let diff = angleToTarget - facingRef.current;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      return Math.abs(diff) < Math.PI * 0.75;
+    });
+    const finalPool = inFrontPool.length > 0 ? inFrontPool : pool;
+    const next = finalPool[Math.floor(Math.random() * finalPool.length)];
     targetRef.current = [...next];
   }, []);
 
@@ -143,7 +164,7 @@ const WanderingCat = () => {
     }
 
     const [px, py, pz] = positionRef.current;
-    const bob = s === 'walking' ? Math.sin(t * 8) * 0.015 : 0;
+    const bob = s === 'walking' ? Math.sin(t * 8) * 0.03 : 0;
     groupRef.current.position.set(px, py + bob, pz);
     groupRef.current.rotation.y = facingRef.current;
 
@@ -152,6 +173,28 @@ const WanderingCat = () => {
       const speed = s === 'walking' ? 3.5 : 1.4;
       const amp = s === 'walking' ? 0.22 : 0.12;
       tailRef.current.rotation.y = Math.sin(t * speed) * amp;
+    }
+
+    // Leg trot cycle — diagonal pairs (FL+BR vs FR+BL) phase π apart.
+    // Tanpa ini, body slide forward sementara cylinder kaki diam =
+    // "moving doll" effect klasik (patah-patah). Setiap kaki lift naik
+    // ke max(0, sin(...)) supaya cuma "step up" — gak nyemplung ke
+    // bawah tanah. Saat sitting/pausing, leg balik ke base.
+    const legBaseY = 0.04;
+    const legLiftAmp = 0.05;
+    const cycleFreq = 7.5;
+    if (s === 'walking') {
+      const pairA = Math.max(0, Math.sin(t * cycleFreq)) * legLiftAmp;
+      const pairB = Math.max(0, Math.sin(t * cycleFreq + Math.PI)) * legLiftAmp;
+      if (legFLRef.current) legFLRef.current.position.y = legBaseY + pairA;
+      if (legBRRef.current) legBRRef.current.position.y = legBaseY + pairA;
+      if (legFRRef.current) legFRRef.current.position.y = legBaseY + pairB;
+      if (legBLRef.current) legBLRef.current.position.y = legBaseY + pairB;
+    } else {
+      if (legFLRef.current) legFLRef.current.position.y = legBaseY;
+      if (legFRRef.current) legFRRef.current.position.y = legBaseY;
+      if (legBLRef.current) legBLRef.current.position.y = legBaseY;
+      if (legBRRef.current) legBRRef.current.position.y = legBaseY;
     }
   });
 
@@ -263,20 +306,22 @@ const WanderingCat = () => {
         </mesh>
       </group>
 
-      {/* Legs — 4 small cylinders */}
-      <mesh position={[-0.13, 0.04, 0.13]}>
+      {/* Legs — 4 small cylinders. Refs untuk trot cycle animation
+          (FL+BR pair vs FR+BL pair, diagonal). X/Z stay fixed; cuma Y
+          yang di-mutate per frame. */}
+      <mesh ref={legFLRef} position={[-0.13, 0.04, 0.13]}>
         <cylinderGeometry args={[0.025, 0.025, 0.08, 6]} />
         <meshStandardMaterial color="#2a201a" roughness={0.95} />
       </mesh>
-      <mesh position={[0.13, 0.04, 0.13]}>
+      <mesh ref={legFRRef} position={[0.13, 0.04, 0.13]}>
         <cylinderGeometry args={[0.025, 0.025, 0.08, 6]} />
         <meshStandardMaterial color="#2a201a" roughness={0.95} />
       </mesh>
-      <mesh position={[-0.13, 0.04, -0.12]}>
+      <mesh ref={legBLRef} position={[-0.13, 0.04, -0.12]}>
         <cylinderGeometry args={[0.025, 0.025, 0.08, 6]} />
         <meshStandardMaterial color="#2a201a" roughness={0.95} />
       </mesh>
-      <mesh position={[0.13, 0.04, -0.12]}>
+      <mesh ref={legBRRef} position={[0.13, 0.04, -0.12]}>
         <cylinderGeometry args={[0.025, 0.025, 0.08, 6]} />
         <meshStandardMaterial color="#2a201a" roughness={0.95} />
       </mesh>
