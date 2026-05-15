@@ -66,7 +66,7 @@ const BirthdayMusic = () => {
     if (!audio) return undefined;
     audio.muted = true;
     audio.loop = true;
-    audio.volume = 0.25;
+    audio.volume = 0.55;
     audio
       .play()
       .then(() => setPlaying(true))
