@@ -15490,7 +15490,7 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
             );
           })}
         </div>
-        <p className="text-white/45 text-[9px] sm:text-[10px] tracking-wide italic">
+        <p className="text-white/45 text-[10px] sm:text-[10px] tracking-wide italic">
           {nextLabel}
         </p>
       </div>
@@ -15582,7 +15582,7 @@ const TamanPetaIntroTitle = () => {
       }`}
     >
       <div className="text-center max-w-md mx-4 sm:mx-6 max-h-full overflow-y-auto px-5 py-5 sm:px-8 sm:py-9 sm:-translate-y-10 rounded-md border border-white/12 bg-[#1c1f2a]/85 backdrop-blur-md shadow-2xl">
-        <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-4">
+        <div className="text-white/55 text-[10px] uppercase tracking-[0.35em] sm:tracking-[0.5em] mb-3 sm:mb-4">
           ArmeniacaTown
         </div>
         <p
@@ -15662,7 +15662,7 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedS
       <div className="bg-[#1c1f2a]/80 backdrop-blur-sm rounded-md border border-white/10 px-4 py-3 shadow-lg">
         <div className="flex items-center gap-2 mb-2">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 animate-pulse" />
-          <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/65">
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] sm:tracking-[0.3em] text-white/65">
             Pemulihan Taman
           </span>
         </div>
