@@ -5458,26 +5458,75 @@ const PulsingLotus = ({ position = [-0.05, 0.08, -0.25] }) => {
 
 // Mini-fruit pulse glow — animasi subtle emissive di buah aprikot
 // kecil, untuk landmark mini-tree r6.
+// PulsingMiniFruit — apricot buah kecil di mini-tree r6.
+// Click → bounce drop animasi 1.2s + chime SFX. Damped spring:
+// y(t) = -0.06 × cos(ω·t) × e^(-decay·t) → drop dulu, lalu ayun balik
+// ke origin. Decay 3.5/s bikin gerak cepat hilang (gak distract dari
+// pulse rhythm idle).
 const PulsingMiniFruit = ({ position }) => {
+  const groupRef = useRef();
   const matRef = useRef();
+  const elapsedRef = useRef(0);
+  const bounceRef = useRef({ active: false, startTime: 0 });
+
   useFrame((state) => {
-    if (!matRef.current) return;
     const t = state.clock.elapsedTime;
-    // Phase shift via position hash supaya fruit gak in-sync
-    const phase = (position[0] * 7 + position[2] * 13) % (Math.PI * 2);
-    matRef.current.emissiveIntensity = 0.2 + Math.sin(t * 1.3 + phase) * 0.12;
+    elapsedRef.current = t;
+
+    if (matRef.current) {
+      const phase = (position[0] * 7 + position[2] * 13) % (Math.PI * 2);
+      matRef.current.emissiveIntensity =
+        0.2 + Math.sin(t * 1.3 + phase) * 0.12;
+    }
+
+    if (groupRef.current && bounceRef.current.active) {
+      const elapsed = t - bounceRef.current.startTime;
+      const decay = Math.exp(-elapsed * 3.5);
+      const offset = -0.06 * Math.cos(elapsed * 11) * decay;
+      groupRef.current.position.y = offset;
+      if (decay < 0.02) {
+        bounceRef.current.active = false;
+        groupRef.current.position.y = 0;
+      }
+    }
   });
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    playSfx('chime');
+    bounceRef.current = { active: true, startTime: elapsedRef.current };
+  };
+
   return (
-    <mesh position={position}>
-      <sphereGeometry args={[0.06, 8, 6]} />
-      <meshStandardMaterial
-        ref={matRef}
-        color="#e8a87c"
-        emissive="#e8a87c"
-        emissiveIntensity={0.2}
-        roughness={0.55}
-      />
-    </mesh>
+    <group
+      ref={groupRef}
+      position={position}
+      onClick={handleClick}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Larger hitbox — buah kecil radius 0.06, tap target butuh expand */}
+      <mesh visible={false}>
+        <sphereGeometry args={[0.18, 8, 6]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.06, 8, 6]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color="#e8a87c"
+          emissive="#e8a87c"
+          emissiveIntensity={0.2}
+          roughness={0.55}
+        />
+      </mesh>
+    </group>
   );
 };
 
