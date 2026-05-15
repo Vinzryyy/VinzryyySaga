@@ -28,9 +28,24 @@ import {
   readVolume,
 } from '../../lib/townAudioBus';
 
-const SRC = '/byUmusic/scoring-music-1.mp3';
+const SRC_DEFAULT = '/byUmusic/scoring-music-1.mp3';
+// Per-route source overrides: saat pathname match (startsWith), swap
+// audio element src ke file ini. Fade-out current → swap src + load →
+// fade-in. Dipake utk Menara Jam (r4): tone bell-tower ambient beda
+// dari scoring default, jadi kesan "kota inget waktu" lebih kerasa
+// pas berdiri di petak jam.
+const SRC_BY_ROUTE = [
+  { match: '/armeniacaTown/r4', src: '/byUmusic/EFFECT%20JAM%202.mp3' },
+];
 const FADE_IN_DUR = 1.8;
 const FADE_OUT_DUR = 0.6;
+const SWAP_FADE_DUR = 0.45;
+
+const resolveSrc = (pathname) => {
+  if (!pathname) return SRC_DEFAULT;
+  const override = SRC_BY_ROUTE.find((r) => pathname.startsWith(r.match));
+  return override ? override.src : SRC_DEFAULT;
+};
 
 const TownMusic = () => {
   const { pathname } = useLocation();
@@ -39,10 +54,13 @@ const TownMusic = () => {
   const enabledRef = useRef(readEnabled());
   const volumeRef = useRef(readVolume());
   const inTownRef = useRef(inTown);
+  const pathnameRef = useRef(pathname);
+  const currentSrcRef = useRef(null);
   const audioRef = useRef(null);
   const ctxRef = useRef(null);
   const gainRef = useRef(null);
   const pauseTimerRef = useRef(null);
+  const swapTimerRef = useRef(null);
   const gestureCleanupRef = useRef(null);
 
   const ensure = () => {
@@ -50,7 +68,8 @@ const TownMusic = () => {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return false;
     try {
-      const audio = new Audio(SRC);
+      const initialSrc = resolveSrc(pathnameRef.current);
+      const audio = new Audio(initialSrc);
       audio.loop = true;
       audio.preload = 'auto';
       const ctx = new Ctx();
@@ -62,10 +81,44 @@ const TownMusic = () => {
       audioRef.current = audio;
       ctxRef.current = ctx;
       gainRef.current = gain;
+      currentSrcRef.current = initialSrc;
       return true;
     } catch {
       return false;
     }
+  };
+
+  // swapSrc — fade gain ke 0 cepat, ganti audio.src + load(), apply()
+  // bakal fade-in lagi otomatis. Reuse audio element + MediaElementSource
+  // (cuma boleh dibuat sekali per audio element), jadi cuma src yg di-
+  // tukar. Cancel swap timer kalau pathname berubah lagi sebelum swap
+  // selesai (rapid nav r4 → r2 → r4) supaya tidak race.
+  const swapSrc = (newSrc) => {
+    const audio = audioRef.current;
+    const ctx = ctxRef.current;
+    const gain = gainRef.current;
+    if (!audio || !ctx || !gain) return;
+    if (currentSrcRef.current === newSrc) return;
+    if (swapTimerRef.current) {
+      clearTimeout(swapTimerRef.current);
+      swapTimerRef.current = null;
+    }
+    const now = ctx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + SWAP_FADE_DUR);
+    swapTimerRef.current = setTimeout(() => {
+      swapTimerRef.current = null;
+      try {
+        audio.pause();
+        audio.src = newSrc;
+        audio.load();
+        currentSrcRef.current = newSrc;
+      } catch {
+        /* noop */
+      }
+      apply();
+    }, Math.ceil(SWAP_FADE_DUR * 1000) + 40);
   };
 
   const apply = () => {
@@ -158,6 +211,7 @@ const TownMusic = () => {
       unsubEnabled();
       unsubVolume();
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+      if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
       if (gestureCleanupRef.current) gestureCleanupRef.current();
       try {
         audioRef.current?.pause();
@@ -177,11 +231,23 @@ const TownMusic = () => {
 
   useEffect(() => {
     inTownRef.current = inTown;
+    pathnameRef.current = pathname;
     if (enabledRef.current && inTown) {
       ensure();
     }
-    apply();
-  }, [inTown]);
+    // Kalau pathname pindah ke route yg punya src override beda, swap;
+    // selain itu apply() biasa (handle in/out town transition).
+    const desiredSrc = resolveSrc(pathname);
+    if (
+      audioRef.current &&
+      currentSrcRef.current &&
+      currentSrcRef.current !== desiredSrc
+    ) {
+      swapSrc(desiredSrc);
+    } else {
+      apply();
+    }
+  }, [pathname, inTown]);
 
   return null;
 };
