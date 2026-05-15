@@ -15499,13 +15499,13 @@ const TamanHeader = ({ modalOpen = false }) => {
     <div className="pointer-events-auto">
       <Link
         to="/"
-        className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[11px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         ← Keluar
       </Link>
     </div>
     <div className="text-center">
-      <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
+      <div className="text-white/45 text-[10px] md:text-[10px] uppercase tracking-[0.25em] md:tracking-[0.4em] mb-0.5">
         ArmeniacaTown
       </div>
       <div
@@ -15521,7 +15521,7 @@ const TamanHeader = ({ modalOpen = false }) => {
     <div className="pointer-events-auto">
       <Link
         to="/armeniacaTown"
-        className="text-white/50 hover:text-white/85 text-[10px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
+        className="text-white/50 hover:text-white/85 text-[11px] md:text-xs tracking-[0.15em] md:tracking-[0.2em] uppercase transition"
       >
         <span className="md:hidden">Gerbang →</span>
         <span className="hidden md:inline">Ulangi gerbang →</span>
