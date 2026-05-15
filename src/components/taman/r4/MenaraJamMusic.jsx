@@ -1,60 +1,42 @@
 /**
- * TownMusic — main song global ArmeniacaTown.
+ * MenaraJamMusic — track khusus halaman r4 Menara Jam.
  *
- * Mount sekali di AppShell (di atas Routes), nggak unmount saat user
- * navigasi antar /armeniacaTown/* — playback continuous lintas halaman.
- * Saat user keluar dari /armeniacaTown, fade out + pause; saat balik,
- * resume dari posisi terakhir (audio element retain currentTime).
+ * Mount di TamanMenaraJam.jsx (halaman r4), unmount saat user keluar
+ * halaman. Plays EFFECT JAM 2.mp3 — tone bell-tower ambient, beda dari
+ * scoring default armeniacaTown.
  *
- * Pengecualian: /armeniacaTown/r4 (Menara Jam) — di-treat kayak keluar
- * town, fade out + pause. Halaman r4 mount MenaraJamMusic.jsx yg punya
- * track sendiri (EFFECT JAM 2.mp3). Saat user balik dari r4 ke peta /
- * petak lain, TownMusic resume dari posisi terakhir.
+ * Pasangan dgn TownMusic (di AppShell): TownMusic mengecualikan r4 dari
+ * `inTown` calc, jadi pas user masuk r4, TownMusic fade-out dan
+ * MenaraJamMusic fade-in. Pas keluar r4, sebaliknya. Hasilnya: gak ada
+ * dua track main bareng, transisi smooth.
  *
- * Autoplay policy:
- * - Default enabled = true (auto-ON) dibaca dari bus pas mount.
- * - Coba play langsung saat user masuk /armeniacaTown — kalau browser
- *   block (no user gesture yet), pasang gestureListener global: first
- *   click/keydown/touchstart di mana aja → trigger play. Setelah berhasil
- *   sekali, listener dilepas.
- * - Volume di-gate via gain node — subscribe ke bus volume changes.
- *   User geser slider ke 0 ≠ disabled; disabled flag terpisah (mute btn).
+ * Pakai bus yg sama (townAudioBus) buat enabled + volume, jadi slider
+ * AmbientAudio mengontrol kedua track konsisten.
  *
- * Routing detection: pathname startsWith '/armeniacaTown' AND bukan
- * /armeniacaTown/r4. Rute /taman/* lama udah di-redirect di App.jsx,
- * jadi pathname efektif canonical.
+ * Autoplay/gesture handling persis sama dgn TownMusic.
  */
 
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 import {
   subscribeEnabled,
   subscribeVolume,
   readEnabled,
   readVolume,
-} from '../../lib/townAudioBus';
+} from '../../../lib/townAudioBus';
 
-const SRC = '/byUmusic/scoring-music-1.mp3';
-const FADE_IN_DUR = 1.8;
+const SRC = '/byUmusic/EFFECT%20JAM%202.mp3';
+const FADE_IN_DUR = 1.4;
 const FADE_OUT_DUR = 0.6;
 
-const TownMusic = () => {
-  const { pathname } = useLocation();
-  // r4 dikecualikan — petak Menara Jam punya music sendiri di
-  // MenaraJamMusic.jsx (mount di halaman r4). TownMusic fade-out saat
-  // user pindah ke r4.
-  const inTown =
-    pathname.startsWith('/armeniacaTown') &&
-    !pathname.startsWith('/armeniacaTown/r4');
-
+const MenaraJamMusic = () => {
   const enabledRef = useRef(readEnabled());
   const volumeRef = useRef(readVolume());
-  const inTownRef = useRef(inTown);
   const audioRef = useRef(null);
   const ctxRef = useRef(null);
   const gainRef = useRef(null);
   const pauseTimerRef = useRef(null);
   const gestureCleanupRef = useRef(null);
+  const mountedRef = useRef(true);
 
   const ensure = () => {
     if (ctxRef.current) return true;
@@ -86,7 +68,9 @@ const TownMusic = () => {
     if (!ctx || !gain || !audio) return;
 
     const targetGain = enabledRef.current ? volumeRef.current : 0;
-    const shouldPlay = inTownRef.current && enabledRef.current && targetGain > 0;
+    // shouldPlay gak butuh check "inTown" — komponen ini cuma mount saat
+    // user di r4. Cuma cek enabled + volume > 0.
+    const shouldPlay = mountedRef.current && enabledRef.current && targetGain > 0;
     const now = ctx.currentTime;
 
     if (pauseTimerRef.current) {
@@ -97,8 +81,6 @@ const TownMusic = () => {
     if (shouldPlay) {
       if (ctx.state === 'suspended') ctx.resume().catch(() => {});
       audio.play().catch(() => {
-        // play() rejected — pasang gesture listener global, retry sekali
-        // begitu user interact di mana aja.
         armGestureFallback();
       });
       gain.gain.cancelScheduledValues(now);
@@ -118,11 +100,8 @@ const TownMusic = () => {
     }
   };
 
-  // Pasang gesture listener global — first click/keydown/touchstart di
-  // mana aja trigger retry play(). Dipasang sekali, di-lepas setelah
-  // first fire. Buat handle autoplay-blocked-on-first-mount case.
   const armGestureFallback = () => {
-    if (gestureCleanupRef.current) return; // already armed
+    if (gestureCleanupRef.current) return;
     const onGesture = () => {
       const ctx = ctxRef.current;
       const audio = audioRef.current;
@@ -146,10 +125,9 @@ const TownMusic = () => {
     gestureCleanupRef.current = cleanup;
   };
 
-  // Initial mount — kalau auto-ON dan udah inTown, ensure context + try
-  // play (auto-attempt). Pasang gesture fallback kalau ditolak.
   useEffect(() => {
-    if (enabledRef.current && inTownRef.current) {
+    mountedRef.current = true;
+    if (enabledRef.current) {
       if (ensure()) {
         apply();
       }
@@ -161,24 +139,42 @@ const TownMusic = () => {
     });
     const unsubVolume = subscribeVolume((v) => {
       volumeRef.current = v;
-      // Reapply gain target via apply() — kalau volume turun ke 0 saat
-      // enabled, music tetep "running" tapi muted. Naik balik → fade in.
       apply();
     });
+
     return () => {
+      mountedRef.current = false;
       unsubEnabled();
       unsubVolume();
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (gestureCleanupRef.current) gestureCleanupRef.current();
-      try {
-        audioRef.current?.pause();
-      } catch {
-        /* noop */
-      }
-      try {
-        ctxRef.current?.close();
-      } catch {
-        /* noop */
+      // Fade-out + pause cepat saat unmount supaya transisi balik ke
+      // TownMusic gak hard-cut.
+      const ctx = ctxRef.current;
+      const gain = gainRef.current;
+      const audio = audioRef.current;
+      if (ctx && gain && audio) {
+        try {
+          const now = ctx.currentTime;
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.setValueAtTime(gain.gain.value, now);
+          gain.gain.linearRampToValueAtTime(0, now + FADE_OUT_DUR);
+          setTimeout(() => {
+            try {
+              audio.pause();
+              ctx.close();
+            } catch {
+              /* noop */
+            }
+          }, Math.ceil(FADE_OUT_DUR * 1000) + 100);
+        } catch {
+          try {
+            audio.pause();
+            ctx.close();
+          } catch {
+            /* noop */
+          }
+        }
       }
       audioRef.current = null;
       ctxRef.current = null;
@@ -186,15 +182,7 @@ const TownMusic = () => {
     };
   }, []);
 
-  useEffect(() => {
-    inTownRef.current = inTown;
-    if (enabledRef.current && inTown) {
-      ensure();
-    }
-    apply();
-  }, [inTown]);
-
   return null;
 };
 
-export default TownMusic;
+export default MenaraJamMusic;

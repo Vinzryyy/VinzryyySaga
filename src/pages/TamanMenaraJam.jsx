@@ -48,6 +48,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
+import MenaraJamMusic from '../components/taman/r4/MenaraJamMusic';
 import { useIsMobile } from '../components/taman/r4/utils';
 import {
   SkyBackdrop,
@@ -102,6 +103,7 @@ const TamanMenaraJamPage = ({ restored = false }) => {
         path="/armeniacaTown/r4"
       />
       <RotateRecommendation />
+      <MenaraJamMusic />
       <div className="relative w-full h-screen bg-[#1a1018] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
