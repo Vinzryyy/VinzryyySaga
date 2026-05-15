@@ -36,6 +36,17 @@ function Navbar() {
       return next;
     });
   };
+  // ArmeniacaTown routes default to navbar-hidden — peta UI udah punya
+  // header sendiri (Keluar / Peta Kota / Ulangi gerbang) jadi nav global
+  // cuma bikin clutter. User masih bisa re-open via ▾ menu tab.
+  const isArmeniacaTownRoute = location.pathname.startsWith('/armeniacaTown');
+  const prevWasTownRef = useRef(false);
+  useEffect(() => {
+    if (isArmeniacaTownRoute && !prevWasTownRef.current) {
+      setHidden(true);
+    }
+    prevWasTownRef.current = isArmeniacaTownRoute;
+  }, [isArmeniacaTownRoute]);
   const activeHash = useMemo(
     () => hrefToActiveId(location.pathname, location.hash),
     [location.pathname, location.hash]
