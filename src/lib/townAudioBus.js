@@ -16,10 +16,15 @@
  *
  * Storage keys legacy: `taman-audio-enabled` dipertahanin dari era
  * pre-rebrand /taman → /armeniacaTown supaya preference lama nggak reset.
+ *
+ * Volume key di-bump ke `-v2` saat default diturunin ke 0.25 — supaya
+ * user yang udah set value lama (mis. 0.5) ikut reset ke ambient yg
+ * lebih halus. Old key di-cleanup di readVolume biar localStorage rapih.
  */
 
 const KEY_ENABLED = 'taman-audio-enabled';
-const KEY_VOLUME = 'taman-audio-volume';
+const KEY_VOLUME = 'taman-audio-volume-v2';
+const KEY_VOLUME_LEGACY = 'taman-audio-volume';
 const EVENT = 'taman-audio-changed';
 
 const DEFAULT_VOLUME = 0.25;
@@ -52,6 +57,16 @@ export const writeEnabled = (v) => {
 
 export const readVolume = () => {
   try {
+    // One-shot cleanup: legacy key (taman-audio-volume) di-remove kalau
+    // ada. Value-nya gak di-migrate — tujuan bump key justru supaya old
+    // value (mis. 50% atau 70%) di-reset ke default baru 25%.
+    if (localStorage.getItem(KEY_VOLUME_LEGACY) !== null) {
+      try {
+        localStorage.removeItem(KEY_VOLUME_LEGACY);
+      } catch {
+        /* noop */
+      }
+    }
     const raw = localStorage.getItem(KEY_VOLUME);
     if (raw === null) return DEFAULT_VOLUME;
     const n = parseFloat(raw);
