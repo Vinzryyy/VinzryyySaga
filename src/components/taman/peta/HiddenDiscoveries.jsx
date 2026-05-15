@@ -525,7 +525,7 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
       aria-modal="true"
     >
       <div
-        className={`relative max-w-sm w-full bg-gradient-to-br from-[#3a2a20]/95 to-[#1a1208]/95 border border-[color:var(--retro-burgundy-light)]/40 rounded-2xl p-6 shadow-2xl ${
+        className={`relative max-w-sm w-full max-h-[80vh] overflow-y-auto bg-gradient-to-br from-[#3a2a20]/95 to-[#1a1208]/95 border border-[color:var(--retro-burgundy-light)]/40 rounded-2xl p-5 sm:p-6 shadow-2xl ${
           isExiting ? 'animate-discoveryCardOut' : 'animate-discoveryCardIn'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -736,7 +736,7 @@ export const DiscoveryCompletionCard = ({ open, onClose }) => {
       aria-modal="true"
     >
       <div
-        className={`relative max-w-md w-full bg-gradient-to-br from-[#4a3220]/95 to-[#1a0f08]/95 border border-[color:var(--retro-gold-light)]/50 rounded-3xl p-7 sm:p-8 shadow-[0_0_60px_rgba(244,216,168,0.25)] ${
+        className={`relative max-w-md w-full max-h-[80vh] overflow-y-auto bg-gradient-to-br from-[#4a3220]/95 to-[#1a0f08]/95 border border-[color:var(--retro-gold-light)]/50 rounded-3xl p-5 sm:p-8 shadow-[0_0_60px_rgba(244,216,168,0.25)] ${
           isExiting ? 'animate-discoveryCardOut' : 'animate-completionCardIn'
         }`}
         onClick={(e) => e.stopPropagation()}
