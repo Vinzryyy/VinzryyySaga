@@ -50,6 +50,7 @@ import {
   useDiscoveries,
 } from '../components/taman/peta/HiddenDiscoveries';
 import WanderingCat from '../components/taman/peta/WanderingCat';
+import QuadrantFill from '../components/taman/peta/QuadrantFill';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -14866,6 +14867,10 @@ const TamanScene = ({
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
       <DeadTreeRevival count={armeniacaCount} />
       <ForestSilhouettes count={armeniacaCount} />
+      {/* NE + E quadrant fill — dried bush, rubble pile, burnt stump
+          scattered antara CenterTree, Menara, Arsip. Drought-compatible,
+          purified-aware (bush bloom, rubble lichen, stump sapling). */}
+      <QuadrantFill purified={purified} purifyProgress={purifyProgress} />
       {/* === Bundle 2 — watering payoff + wind drift === */}
       <WateringDroplets purifyProgress={purifyProgress} loaded={armeniacaLoaded} />
       <WindDriftParticles
