@@ -5,8 +5,8 @@
  * /schedule (live from the jkt48.com API).
  */
 
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Section from '../components/layout/Section';
 import Seo from '../components/Seo';
 import MotifBackdrop from '../components/about/MotifBackdrop';
@@ -62,27 +62,51 @@ const AnimatedStat = ({ value, start, duration = 1400 }) => {
 
 const ProfilePage = () => {
   const eli = SITE_CONFIG.eli;
-  const [activeSection, setActiveSection] = useState(ELI_PROFILE_SECTIONS[0].id);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const navRef = useRef(null);
 
-  // Track which anchor is in view so the sticky sub-nav can highlight it
+  // Tab state driven by URL hash. Sebelumnya scroll-anchor + IntersectionObserver
+  // (semua section render & scroll continous). Sekarang true tabs: cuma 1 section
+  // visible, sisanya display:none. Hash di URL jadi source of truth — direct
+  // deep-link (/profile#discography) atau browser back/forward auto-buka tab yg
+  // benar via useEffect sync.
+  const validIds = useMemo(
+    () => new Set(ELI_PROFILE_SECTIONS.map((s) => s.id)),
+    []
+  );
+  const initialHash = (location.hash || '').replace('#', '');
+  const [activeSection, setActiveSection] = useState(
+    validIds.has(initialHash) ? initialHash : ELI_PROFILE_SECTIONS[0].id
+  );
+
+  // Sync URL hash → active tab (handle browser back/forward, also handles
+  // first-mount deep-link). Invalid/empty hash defaults ke first section.
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible[0]) setActiveSection(visible[0].target.id);
-      },
-      { rootMargin: '-30% 0px -55% 0px', threshold: [0.1, 0.5, 1] }
-    );
+    const cleanHash = (location.hash || '').replace('#', '');
+    const next = validIds.has(cleanHash)
+      ? cleanHash
+      : ELI_PROFILE_SECTIONS[0].id;
+    if (next !== activeSection) {
+      setActiveSection(next);
+    }
+  }, [location.hash, validIds, activeSection]);
 
-    ELI_PROFILE_SECTIONS.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  // Tab click: update hash via replace (gak nambah history entry per click),
+  // scroll nav strip ke top supaya content section langsung visible di bawahnya.
+  // Navbar fixed top (~80px) jadi target scroll = navRef.offsetTop - navbar.
+  const handleTabClick = (e, id) => {
+    e.preventDefault();
+    if (id === activeSection) return;
+    setActiveSection(id);
+    navigate({ hash: id }, { replace: true });
+    if (navRef.current) {
+      const navTop =
+        navRef.current.getBoundingClientRect().top + window.scrollY;
+      const navbarOffset = 80;
+      window.scrollTo({ top: navTop - navbarOffset, behavior: 'smooth' });
+    }
+  };
 
   const profile = SITE_CONFIG.profile;
   const { elementRef: statsRef, isVisible: statsVisible } = useScrollReveal({
@@ -200,8 +224,13 @@ const ProfilePage = () => {
           schedule scrape (every 6h via GitHub Actions). */}
       <MemberCard />
 
-      {/* Sticky sub-navigation — TOC with section numbers */}
-      <nav className="sticky top-20 z-30 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10">
+      {/* Sticky sub-navigation — tab strip, true-tabs mode. Click switches
+          active section (not smooth-scroll); inactive sections kept di DOM
+          via display:none supaya Googlebot tetep crawl all content. */}
+      <nav
+        ref={navRef}
+        className="sticky top-20 z-30 bg-[color:var(--retro-bg-primary)]/90 backdrop-blur-md border-y border-[color:var(--retro-brown-dark)]/10"
+      >
         {/* Edge fades — hint at horizontal scroll on mobile where the
             pills overflow the viewport. Hidden at md+ where every pill
             fits without scrolling. */}
@@ -216,8 +245,13 @@ const ProfilePage = () => {
               const isActive = activeSection === section.id;
               return (
                 <li key={section.id}>
-                  <Link
-                    to={`#${section.id}`}
+                  <a
+                    id={`tab-${section.id}`}
+                    href={`#${section.id}`}
+                    onClick={(e) => handleTabClick(e, section.id)}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`section-${section.id}`}
                     className={`
                       inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.22em] transition-all
                       ${
@@ -236,7 +270,7 @@ const ProfilePage = () => {
                     </span>
                     <i className={`${section.icon} text-base`} />
                     <span>{section.label}</span>
-                  </Link>
+                  </a>
                 </li>
               );
             })}
@@ -246,20 +280,31 @@ const ProfilePage = () => {
 
       {ELI_PROFILE_SECTIONS.map((section) => {
         const useGradient = section.id === 'fight';
+        const isActive = section.id === activeSection;
         return (
-          <Section
+          // Wrap dgn div + display:none non-active. Render all = SEO friendly
+          // (Googlebot tetep liat semua section), tapi user cuma lihat satu.
+          // role/aria-* sesuai WAI-ARIA tabpanel pattern.
+          <div
             key={section.id}
-            id={section.id}
-            padding="lg"
-            // Transparent (vs `default`) so the MotifBackdrop shows through
-            // — main already paints the cream bg, so this is visually
-            // identical except motifs are now visible. Section is left
-            // non-positioned so the absolute MotifBackdrop (later sibling
-            // in main) paints on top per CSS stacking order.
-            background={useGradient ? 'gradient' : 'transparent'}
+            id={`section-${section.id}`}
+            role="tabpanel"
+            aria-labelledby={`tab-${section.id}`}
+            hidden={!isActive}
           >
-            <SectionRouter id={section.id} section={section} />
-          </Section>
+            <Section
+              id={section.id}
+              padding="lg"
+              // Transparent (vs `default`) so the MotifBackdrop shows through
+              // — main already paints the cream bg, so this is visually
+              // identical except motifs are now visible. Section is left
+              // non-positioned so the absolute MotifBackdrop (later sibling
+              // in main) paints on top per CSS stacking order.
+              background={useGradient ? 'gradient' : 'transparent'}
+            >
+              <SectionRouter id={section.id} section={section} />
+            </Section>
+          </div>
         );
       })}
     </main>
