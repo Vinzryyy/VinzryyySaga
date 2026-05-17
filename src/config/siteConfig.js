@@ -601,7 +601,7 @@ export const SITE_CONFIG = {
     ],
     quickStats: [
       { label: 'Generasi', value: '7' },
-      { label: 'Karier Aktif', value: '6+ Tahun' },
+      { label: 'Karier Aktif', value: '7+ Tahun' },
       { label: 'Team', value: 'Dream' },
       { label: 'Frame Arsip', value: '350+' },
     ],
@@ -699,7 +699,7 @@ export const SITE_CONFIG = {
   // Gallery Configuration
   gallery: {
     emptyMessage: 'No moments found',
-    emptyDescription: 'Try adjusting your filters to explore different eras of the Mermaid Archive.',
+    emptyDescription: 'Coba sesuaikan filter untuk menjelajahi era lain di arsip Armeniaca.',
     endMessage: 'End of Archive',
     endQuote: '"Her light continues to shine..."',
     loadingMessage: 'Loading more moments',
