@@ -65,6 +65,23 @@ const ProfilePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
+  const tabScrollRef = useRef(null);
+  // Right-edge chevron cue — auto-hide saat tab strip udah di-scroll ke end
+  // (chevron pointing right loses meaning kalau gak ada lagi tab kanan).
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  // First-visit swipe pill — sekali show per device, dismiss otomatis setelah
+  // 3 detik ATAU first scroll movement. LocalStorage flag persist.
+  const [showSwipeHint, setShowSwipeHint] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      if (localStorage.getItem('armeniaca.profile.swipe-hint-dismissed') === '1') {
+        return false;
+      }
+    } catch {
+      /* noop */
+    }
+    return window.matchMedia('(max-width: 767px)').matches;
+  });
 
   // Tab state driven by URL hash. Sebelumnya scroll-anchor + IntersectionObserver
   // (semua section render & scroll continous). Sekarang true tabs: cuma 1 section
@@ -91,6 +108,53 @@ const ProfilePage = () => {
       setActiveSection(next);
     }
   }, [location.hash, validIds, activeSection]);
+
+  // Track tab strip scroll position — hide right chevron saat user udah scroll
+  // ke ujung kanan (gak ada lagi tab di kanan). Update on scroll + resize.
+  useEffect(() => {
+    const scroller = tabScrollRef.current;
+    if (!scroller) return undefined;
+    const update = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = scroller;
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 4);
+    };
+    update();
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      scroller.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  // Dismiss swipe hint after 3s ATAU first scroll movement, persist flag.
+  useEffect(() => {
+    if (!showSwipeHint) return undefined;
+    const persistDismiss = () => {
+      try {
+        localStorage.setItem('armeniaca.profile.swipe-hint-dismissed', '1');
+      } catch {
+        /* noop */
+      }
+    };
+    const timer = setTimeout(() => {
+      setShowSwipeHint(false);
+      persistDismiss();
+    }, 3000);
+    const scroller = tabScrollRef.current;
+    const onScroll = () => {
+      setShowSwipeHint(false);
+      persistDismiss();
+      clearTimeout(timer);
+    };
+    if (scroller) {
+      scroller.addEventListener('scroll', onScroll, { once: true, passive: true });
+    }
+    return () => {
+      clearTimeout(timer);
+      if (scroller) scroller.removeEventListener('scroll', onScroll);
+    };
+  }, [showSwipeHint]);
 
   // Tab click: update hash via replace (gak nambah history entry per click),
   // scroll nav strip ke top supaya content section langsung visible di bawahnya.
@@ -236,7 +300,17 @@ const ProfilePage = () => {
             fits without scrolling. */}
         <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[color:var(--retro-bg-primary)] to-transparent md:hidden z-10" />
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[color:var(--retro-bg-primary)] to-transparent md:hidden z-10" />
-        <div className="max-w-7xl mx-auto px-4 md:px-12 lg:px-20 overflow-x-auto">
+        {/* Always-on chevron cue — mobile only, ke-hide auto saat tab strip
+            udah di-scroll ke ujung kanan (canScrollRight=false). Pulse subtle. */}
+        {canScrollRight && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 z-20 md:hidden"
+          >
+            <i className="ri-arrow-right-s-line text-xl text-[color:var(--retro-burgundy)] animate-pulse" />
+          </div>
+        )}
+        <div ref={tabScrollRef} className="max-w-7xl mx-auto px-4 md:px-12 lg:px-20 overflow-x-auto">
           <ul className="flex items-center gap-1 py-3 min-w-max">
             <li className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] pr-3 hidden md:block">
               Table of Contents
@@ -276,6 +350,19 @@ const ProfilePage = () => {
             })}
           </ul>
         </div>
+        {/* First-visit hint pill — mobile only, auto-dismiss 3s atau on first
+            scroll. Positioned absolute below nav (top-full + mt-2). Pointer
+            events none supaya gak block tab clicks. */}
+        {showSwipeHint && (
+          <div
+            aria-hidden="true"
+            className="md:hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 z-40 pointer-events-none"
+          >
+            <div className="px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/90 text-[color:var(--retro-cream)] text-[10px] font-medium tracking-wide shadow-lg backdrop-blur-sm animate-bounce whitespace-nowrap">
+              ← geser untuk lihat semua tab →
+            </div>
+          </div>
+        )}
       </nav>
 
       {ELI_PROFILE_SECTIONS.map((section) => {
