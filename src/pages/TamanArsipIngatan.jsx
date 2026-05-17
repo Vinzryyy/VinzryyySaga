@@ -53,6 +53,7 @@ import {
   DECORATIVE_BOOKS,
 } from '../data/arsipBooks';
 import BookOverlay from '../components/taman/r2/BookOverlay';
+import PerpustakaanMusic from '../components/taman/r2/PerpustakaanMusic';
 
 // =====================================================================
 // Layout konstanta
@@ -5112,6 +5113,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
 
         <ArsipIntroTitle />
         <AmbientAudio position="bottom-right" />
+        <PerpustakaanMusic />
         <RotateRecommendation />
       </div>
     </>

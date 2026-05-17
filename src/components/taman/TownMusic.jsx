@@ -6,10 +6,19 @@
  * Saat user keluar dari /armeniacaTown, fade out + pause; saat balik,
  * resume dari posisi terakhir (audio element retain currentTime).
  *
- * Pengecualian: /armeniacaTown/r4 (Menara Jam) — di-treat kayak keluar
- * town, fade out + pause. Halaman r4 mount MenaraJamMusic.jsx yg punya
- * track sendiri (EFFECT JAM 2.mp3). Saat user balik dari r4 ke peta /
- * petak lain, TownMusic resume dari posisi terakhir.
+ * Pengecualian:
+ * - /armeniacaTown/r4 (Menara Jam) → MenaraJamMusic.jsx (EFFECT JAM 2)
+ * - /armeniacaTown/r2 (Perpustakaan) → PerpustakaanMusic.jsx
+ * Saat user balik dari petak2 itu ke peta / petak lain, TownMusic resume.
+ *
+ * Source swap (kota pulih):
+ * - count < 7000  → scoring-music-1.mp3 (drought)
+ * - count ≥ 7000  → PERPUSTAKAAN ATAU KOTA YANG SUDAH PULIH.mp3 (track
+ *   yang sama dipakai PerpustakaanMusic — kontinuitas tonal antara
+ *   Perpustakaan dan kota yang udah purified)
+ * Threshold sync dgn R2_RESTORATION_THRESHOLD di App.jsx (r2 purify =
+ * milestone akhir kota). Cross-threshold swap pakai fade-out → src
+ * swap → fade-in.
  *
  * Autoplay policy:
  * - Default enabled = true (auto-ON) dibaca dari bus pas mount.
@@ -21,8 +30,8 @@
  *   User geser slider ke 0 ≠ disabled; disabled flag terpisah (mute btn).
  *
  * Routing detection: pathname startsWith '/armeniacaTown' AND bukan
- * /armeniacaTown/r4. Rute /taman/* lama udah di-redirect di App.jsx,
- * jadi pathname efektif canonical.
+ * /armeniacaTown/r4 / /armeniacaTown/r2. Rute /taman/* lama udah di-redirect
+ * di App.jsx, jadi pathname efektif canonical.
  */
 
 import { useEffect, useRef } from 'react';
@@ -33,27 +42,35 @@ import {
   readEnabled,
   readVolume,
 } from '../../lib/townAudioBus';
+import { subscribeToTreeSupports } from '../../lib/treeDb';
 
-const SRC = '/byUmusic/scoring-music-1.mp3';
+const SRC_DROUGHT = '/byUmusic/scoring-music-1.mp3';
+const SRC_PURIFIED = '/byUmusic/PERPUSTAKAAN%20%20ATAU%20KOTA%20YANG%20SUDAH%20PULIH.mp3';
+// Sync dgn R2_RESTORATION_THRESHOLD di App.jsx — milestone akhir kota.
+const PURIFIED_THRESHOLD = 7000;
 const FADE_IN_DUR = 1.8;
 const FADE_OUT_DUR = 0.6;
 
 const TownMusic = () => {
   const { pathname } = useLocation();
-  // r4 dikecualikan — petak Menara Jam punya music sendiri di
-  // MenaraJamMusic.jsx (mount di halaman r4). TownMusic fade-out saat
-  // user pindah ke r4.
+  // r4 & r2 dikecualikan — masing-masing punya music sendiri yg di-mount
+  // di halamannya (MenaraJamMusic, PerpustakaanMusic).
   const inTown =
     pathname.startsWith('/armeniacaTown') &&
-    !pathname.startsWith('/armeniacaTown/r4');
+    !pathname.startsWith('/armeniacaTown/r4') &&
+    !pathname.startsWith('/armeniacaTown/r2');
 
   const enabledRef = useRef(readEnabled());
   const volumeRef = useRef(readVolume());
   const inTownRef = useRef(inTown);
+  const purifiedRef = useRef(false);
+  const currentSrcRef = useRef(SRC_DROUGHT);
+  const swappingRef = useRef(false);
   const audioRef = useRef(null);
   const ctxRef = useRef(null);
   const gainRef = useRef(null);
   const pauseTimerRef = useRef(null);
+  const swapTimerRef = useRef(null);
   const gestureCleanupRef = useRef(null);
 
   const ensure = () => {
@@ -61,7 +78,8 @@ const TownMusic = () => {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return false;
     try {
-      const audio = new Audio(SRC);
+      const initialSrc = purifiedRef.current ? SRC_PURIFIED : SRC_DROUGHT;
+      const audio = new Audio(initialSrc);
       audio.loop = true;
       audio.preload = 'auto';
       const ctx = new Ctx();
@@ -73,6 +91,7 @@ const TownMusic = () => {
       audioRef.current = audio;
       ctxRef.current = ctx;
       gainRef.current = gain;
+      currentSrcRef.current = initialSrc;
       return true;
     } catch {
       return false;
@@ -84,6 +103,8 @@ const TownMusic = () => {
     const gain = gainRef.current;
     const audio = audioRef.current;
     if (!ctx || !gain || !audio) return;
+    // Lagi mid-swap → biarin swap routine yang handle, jangan ganggu fade.
+    if (swappingRef.current) return;
 
     const targetGain = enabledRef.current ? volumeRef.current : 0;
     const shouldPlay = inTownRef.current && enabledRef.current && targetGain > 0;
@@ -116,6 +137,37 @@ const TownMusic = () => {
         }
       }, Math.ceil(FADE_OUT_DUR * 1000) + 100);
     }
+  };
+
+  // Swap source mid-session saat purified state berubah. Fade-out cepat,
+  // swap src, load, fade-in via apply(). Threshold-crossing rare jadi
+  // hard swap (bukan dual-element cross-fade) cukup.
+  const swapSource = () => {
+    const ctx = ctxRef.current;
+    const gain = gainRef.current;
+    const audio = audioRef.current;
+    if (!ctx || !gain || !audio) return;
+    const wanted = purifiedRef.current ? SRC_PURIFIED : SRC_DROUGHT;
+    if (currentSrcRef.current === wanted) return;
+
+    swappingRef.current = true;
+    const now = ctx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(0, now + FADE_OUT_DUR);
+
+    if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
+    swapTimerRef.current = setTimeout(() => {
+      try {
+        audio.src = wanted;
+        audio.load();
+      } catch {
+        /* noop */
+      }
+      currentSrcRef.current = wanted;
+      swappingRef.current = false;
+      apply();
+    }, Math.ceil(FADE_OUT_DUR * 1000) + 80);
   };
 
   // Pasang gesture listener global — first click/keydown/touchstart di
@@ -165,10 +217,27 @@ const TownMusic = () => {
       // enabled, music tetep "running" tapi muted. Naik balik → fade in.
       apply();
     });
+    // Subscribe count untuk track purified state. Pas count cross
+    // threshold mid-session, swap source. First snapshot juga handle
+    // case dimana audio element udah dibuat dgn SRC_DROUGHT padahal
+    // user real-count udah ≥ 7000.
+    const unsubCount = subscribeToTreeSupports((count) => {
+      const nextPurified = count >= PURIFIED_THRESHOLD;
+      if (nextPurified === purifiedRef.current) return;
+      purifiedRef.current = nextPurified;
+      if (audioRef.current) {
+        swapSource();
+      }
+      // Kalau audio belum di-create, currentSrcRef belum dipakai —
+      // ensure() berikutnya akan pilih src yg benar berdasarkan
+      // purifiedRef.
+    });
     return () => {
       unsubEnabled();
       unsubVolume();
+      unsubCount();
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+      if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
       if (gestureCleanupRef.current) gestureCleanupRef.current();
       try {
         audioRef.current?.pause();
