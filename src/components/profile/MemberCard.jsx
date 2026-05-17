@@ -12,6 +12,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { SITE_CONFIG } from '../../config/siteConfig';
+
+// jkt48.com kirim Cross-Origin-Resource-Policy: same-site untuk member photo,
+// jadi cross-origin embed dari armeniaca.online ke-block. Fallback ke local
+// arsip portrait kalau remote load gagal (CORP block atau network error).
+const LOCAL_PHOTO_FALLBACK = SITE_CONFIG.eli.portrait;
 
 const TEAM_LABEL = {
   DREAM: 'Team Dream',
@@ -80,9 +86,12 @@ const MemberCard = () => {
     };
   }, []);
 
+  const [remotePhotoFailed, setRemotePhotoFailed] = useState(false);
+
   if (!data) return null;
   const m = data.member;
-  const photo = m.photoUrls?.[0];
+  const remotePhoto = m.photoUrls?.[0];
+  const photo = remotePhotoFailed ? LOCAL_PHOTO_FALLBACK : remotePhoto;
   const teamLabel = TEAM_LABEL[m.type] || m.type;
 
   return (
@@ -99,6 +108,9 @@ const MemberCard = () => {
                 src={photo}
                 alt={m.name}
                 loading="lazy"
+                onError={() => {
+                  if (!remotePhotoFailed) setRemotePhotoFailed(true);
+                }}
                 className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-[color:var(--retro-burgundy)]/20"
               />
             )}
