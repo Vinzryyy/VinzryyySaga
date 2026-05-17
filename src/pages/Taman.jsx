@@ -1682,8 +1682,9 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
         className="text-white/85 text-[13px] sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
       >
-        Sebuah dunia yang tumbuh dari kepedulian — kota mati yang hanya
-        bisa hidup kembali oleh ribuan tangan yang menyiram bersama.
+        Hadiah penggemar untuk Eli JKT48 menjelang ulang tahun ke-26 pada
+        15 Juni 2026. Dunia ini tumbuh dari kepedulian — kota mati yang
+        hanya bisa hidup kembali oleh ribuan tangan yang menyiram bersama.
       </p>
       <p className="text-white/65 text-[11px] sm:text-xs md:text-sm leading-relaxed mb-3 sm:mb-4">
         Setiap dukungan di Pohon Kebaikan (
