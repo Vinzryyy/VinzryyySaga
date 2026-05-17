@@ -413,9 +413,9 @@ export const SITE_CONFIG = {
       eyebrow: 'About Eli',
       title: 'Sang Mermaid dari Bandung',
       paragraphs: [
-        'Helisma Putri Kurnia, atau yang akrab dikenal sebagai Eli JKT48, kini menempati posisi strategis sebagai anggota Team Dream dalam format kompetisi JKT48 Fight yang berlangsung di tahun 2026 ini.',
-        'Sebagai salah satu member senior dari generasi ketujuh, mahasiswi Sastra Korea ini tidak hanya mengandalkan kemampuan vokal dan visualnya yang matang, tetapi juga membawa kepemimpinan yang kuat bagi rekan-rekan setimnya.',
-        'Kehadirannya di Team Dream memperkuat dinamika grup dalam menghadapi tantangan baru di era ini, sekaligus membuktikan dedikasinya yang tak goyah dalam menjaga standar performa tinggi di tengah persaingan antar tim yang semakin kompetitif.',
+        'Helisma Putri Kurnia — atau Ceu Eli — debut sebagai member Generasi 7 JKT48 pada 29 September 2018. Lahir di Bandung 15 Juni 2000, ia membagi waktu antara panggung dan kuliah Sastra Korea.',
+        'Sejak debut, namanya melekat dengan vokal matang, presence panggung yang hangat, dan kepemimpinan yang muncul natural di tiap unit yang ia tempati.',
+        'Tahun ini Eli tergabung di Team Dream untuk JKT48 Fight 2026 — babak baru dengan format kompetisi yang menempatkan setiap member di tim baru. Armeniaca merawat setiap momennya, mendekati ulang tahun ke-26.',
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
