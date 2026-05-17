@@ -329,11 +329,11 @@ export const SITE_CONFIG = {
   // Home Page (corsyava-style flow)
   home: {
     hero: {
-      eyebrow: 'Arsip Penggemar Resmi',
+      eyebrow: 'Arsip Visual Independen',
       title: 'Selamat Datang di Armeniaca',
       subtitle: 'Arsip Visual Helisma Putri — Eli JKT48',
       lead:
-        'Sebuah dedikasi visual untuk Ceu Eli, sang “lovely mermaid” dari Team Dream. Armeniaca merawat setiap senyum, setiap panggung, dan setiap momen yang membuat Eli bersinar.',
+        'Arsip visual independen untuk Helisma Putri (Eli JKT48) — member aktif Generasi 7 dari Bandung, kini di Team Dream untuk Fight 2026. Kami rawat panggung-panggungnya satu per satu, sambil menyiapkan ulang tahun ke-26 di 15 Juni 2026.',
       backgrounds: [
         '/archive/img-310.jpg',
         '/archive/img-305.jpg',
