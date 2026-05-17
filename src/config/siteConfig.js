@@ -355,7 +355,7 @@ export const SITE_CONFIG = {
       title: 'Harmoni Kebaikan',
       titleAccent: 'untuk Ceu Eli.',
       lead:
-        'Lima cara kecil yang dikumpulkan jadi perayaan besar — sirami pohon untuk Eli, hitung mundur bersama, tinggalkan ucapan, tunggu lagu, dan ikut menumbuhkan kota. Setiap tangan ikut tumbuh.',
+        'Menjelang ulang tahun ke-26 Ceu Eli pada 15 Juni 2026, lima ruang kecil dikumpulkan jadi satu perayaan — sirami pohonnya, hitung mundur bersama, tinggalkan ucapan, tunggu lagu, dan ikut menumbuhkan kota. Hadiah dari penggemar, untuk Eli.',
       cards: [
         {
           eyebrow: 'Project Inti',
