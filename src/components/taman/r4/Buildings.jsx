@@ -567,7 +567,6 @@ export const Honden = ({ restored }) => {
   const stoneDark = restored ? '#6a6258' : '#4a4238';
   const plasterColor = restored ? '#d8c8a8' : '#8a7868';
   const woodColor = restored ? '#6a4828' : '#3a2818';
-  const woodLight = restored ? '#8a6038' : '#4a3828';
 
   const halfW = HALL.width / 2;
   const halfD = HALL.depth / 2;
@@ -579,9 +578,9 @@ export const Honden = ({ restored }) => {
     -halfW + i * pillarStep,
   );
 
-  // Doorway centered, koshi panels between pillars (skip middle pair where door is)
+  // Doorway centered — skip the panel slot just left of center (door fills
+  // the gap between middlePillarIdxL and middlePillarIdxL+1).
   const middlePillarIdxL = Math.floor(HALL.pillarCount / 2) - 1;
-  const middlePillarIdxR = Math.floor(HALL.pillarCount / 2);
 
   return (
     <group>
@@ -743,9 +742,6 @@ export const Honden = ({ restored }) => {
     </group>
   );
 };
-
-// Backwards compat alias (page may still import TownHall name)
-export const TownHall = Honden;
 
 // ============================================================================
 // TwinTowerComplex — root composite: 2× ClockTower (yagura) + Honden

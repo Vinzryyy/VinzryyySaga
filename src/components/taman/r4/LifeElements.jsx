@@ -763,14 +763,14 @@ const SakuraTree = ({ restored, x, z }) => {
 // ============================================================================
 // WILDFLOWER BUSH — small cluster of flowers (restored only).
 // ============================================================================
+const WILDFLOWER_COLORS = ['#f0d088', '#e89098', '#d8a8c8', '#a8c890'];
 const WildflowerBush = ({ x, z }) => {
-  const flowerColors = ['#f0d088', '#e89098', '#d8a8c8', '#a8c890'];
   const flowers = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => ({
       x: (i % 3 - 1) * 0.12 + Math.sin(i * 1.3) * 0.06,
       z: (Math.floor(i / 3) - 1) * 0.1 + Math.cos(i * 1.7) * 0.06,
       y: 0.08 + (i % 3) * 0.06,
-      color: flowerColors[i % flowerColors.length],
+      color: WILDFLOWER_COLORS[i % WILDFLOWER_COLORS.length],
       scale: 0.08 + (i % 3) * 0.02,
     }));
   }, []);

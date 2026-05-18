@@ -17,7 +17,6 @@
  *   - ClockTower       — full yagura
  *   - AnniversaryGlow  — paper-lantern halo di belakang lower (calendar)
  *                        shoji dial saat anniversary match
- *   - ShowtimeIndicator — DEPRECATED no-op shim
  */
 
 import React, { useRef } from 'react';
@@ -151,7 +150,6 @@ const IrimoyaRoof = ({
 const CountdownDial = ({ restored }) => {
   const { yearFraction, daysUntil } = useSeitansaiCountdown();
   const shojiRef = useRef();
-  const handRef = useRef();
   const centerGlowRef = useRef();
 
   const handAngle = -yearFraction * Math.PI * 2;
@@ -716,8 +714,10 @@ const Sorin = ({ restored }) => {
 const Bonsho = ({ matRef }) => (
   <group position={[0, TOWER.clockTopY + 0.55, -0.55]}>
     {/* Horizontal suspension beam (small visible portion) */}
-    <mesh position={[0, 0.32, 0]}>
-      <cylinderGeometry args={[0.025, 0.025, 0.5, 6]} rotation={[0, 0, Math.PI / 2]} />
+    {/* Rotation belongs on the mesh — geometry tags don't accept it,
+        so cylinder rotates from default vertical to horizontal here. */}
+    <mesh position={[0, 0.32, 0]} rotation={[0, 0, Math.PI / 2]}>
+      <cylinderGeometry args={[0.025, 0.025, 0.5, 6]} />
       <meshStandardMaterial color="#3a2010" roughness={0.85} />
     </mesh>
     {/* Suspension cord (short) */}
@@ -1193,6 +1193,3 @@ export const AnniversaryGlow = ({ restored }) => {
   );
 };
 
-// ShowtimeIndicator — DEPRECATED (no-op shim). Real-time clock removed
-// from dial in dual-shoji redesign.
-export const ShowtimeIndicator = () => null;
