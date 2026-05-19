@@ -84,6 +84,105 @@ export const KEBAIKAN_ENTRIES = [
     executedAt: '2026-05-11',
     proposedAt: '2026-05-01',
   },
+  {
+    id: 'bos-konservasi-orangutan-2026',
+    title: 'Konservasi Orangutan — BOS Foundation',
+    category: 'satwa',
+    description:
+      'Donasi atas nama Ceu Eli untuk Borneo Orangutan Survival Foundation, ' +
+      'mendukung konservasi dan rehabilitasi orangutan di Kalimantan.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Borneo Orangutan Survival Foundation (BOS)',
+    proofUrl: '/Donasists26/Hewan/Certificate-DON-20260519350292122145952_page-0001.jpg',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
+  {
+    id: 'kukangku-konservasi-kukang-2026',
+    title: 'Penyelamatan Kukang — Kukangku',
+    category: 'satwa',
+    description:
+      'Donasi untuk Kukangku, organisasi yang fokus pada konservasi dan ' +
+      'penyelamatan kukang (slow loris) di Indonesia.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Kukangku — #PenyelamatKukang',
+    proofUrl: '/Donasists26/Hewan/kukangku.png',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
+  {
+    id: 'wildlife-uk-2026',
+    title: 'Konservasi Satwa Liar — Wildlife (UK)',
+    category: 'satwa',
+    description:
+      'Donasi untuk program konservasi satwa liar Inggris — membantu hewan-hewan ' +
+      'mendapatkan kesempatan kedua untuk kembali ke alam liar.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'British Wildlife Fund',
+    proofUrl: '/Donasists26/Hewan/wwif.png',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
+  {
+    id: 'konservasi-gajah-2026',
+    title: 'Konservasi Gajah — Perlindungan Satwa',
+    category: 'satwa',
+    description:
+      'Donasi untuk program konservasi dan perlindungan gajah — mendukung upaya ' +
+      'menjaga habitat dan kelangsungan hidup gajah di alam liar.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Program Konservasi Gajah',
+    proofUrl: '/Donasists26/Hewan/Gajah.png',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
+  {
+    id: 'dompet-dhuafa-kemanusiaan-2026',
+    title: 'Donasi Kemanusiaan — Dompet Dhuafa',
+    category: 'kemanusiaan',
+    description:
+      'Donasi via Dompet Dhuafa untuk program kemanusiaan dan bantuan dhuafa di Indonesia.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Dompet Dhuafa',
+    amount: 100000,
+    proofUrl: '/Donasists26/Kemanusian/dompetdhuafa.png',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
+  {
+    id: 'save-the-children-2026',
+    title: 'Masa Depan Anak — Save The Children',
+    category: 'kemanusiaan',
+    description:
+      'Donasi untuk Save The Children Indonesia — mendukung kesejahteraan, ' +
+      'pendidikan, dan masa depan anak-anak Indonesia.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Save The Children Indonesia',
+    proofUrl: '/Donasists26/Kemanusian/save the chilfdren.png',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
+  {
+    id: 'unicef-anak-indonesia-2026',
+    title: 'Hak Anak — UNICEF Indonesia',
+    category: 'kemanusiaan',
+    description:
+      'Donasi untuk UNICEF Indonesia — mendukung hak dan masa depan ' +
+      'anak-anak Indonesia mencapai potensi terbaik mereka.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'UNICEF Indonesia',
+    amount: 300000,
+    proofUrl: '/Donasists26/Kemanusian/TRX_20260519123447F1210864Q_page-0001.jpg',
+    status: 'executed',
+    executedAt: '2026-05-19',
+    proposedAt: '2026-05-15',
+  },
 ];
 
 export const formatRupiah = (n) => {
