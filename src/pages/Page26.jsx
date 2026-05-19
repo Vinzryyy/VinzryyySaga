@@ -86,7 +86,7 @@ const Page26 = () => {
     <EliTree />
 
     {/* Closing note — frames Pohon Kebaikan as Harmoni Kebaikan's first
-        module. Sub-page Galeri Kebaikan disabled until announce. */}
+        module. */}
     <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-20 md:pb-28">
       <div className="max-w-3xl mx-auto text-center">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">

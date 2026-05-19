@@ -44,10 +44,7 @@ const CountdownPage = lazy(() => import('./pages/Countdown'));
 const SchedulePage = lazy(() => import('./pages/Schedule'));
 const WishesPage = lazy(() => import('./pages/Wishes'));
 const Page26 = lazy(() => import('./pages/Page26'));
-// Galeri Kebaikan — disabled sampai siap diumumkan. Data entry +
-// page file tetap di src/ supaya reaktivasi cuma uncomment lazy import,
-// kembalikan Route, dan revert hide di siteConfig nav.
-// const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
+const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
 // Taman Kebaikan — fase 1 (Padang Tandus / R0 entrance) dan fase 2
 // (Peta Taman / hub denah). Lazy-loaded supaya bundle Three.js + R3F
@@ -407,9 +404,7 @@ function AppShell() {
               path="/byu"
               element={<Navigate to="/byu-music" replace />}
             />
-            {/* /galeri-kebaikan disabled — redirect ke /26 supaya link
-                lama tetap valid. */}
-            <Route path="/galeri-kebaikan" element={<Navigate to="/26" replace />} />
+            <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/armeniacaTown" element={<TamanPage />} />
