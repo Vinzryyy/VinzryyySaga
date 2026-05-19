@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-05-18T07:36:05.469517Z",
+  "fetchedAt": "2026-05-19T07:24:32.957728Z",
   "eventCount": 18,
   "events": [
     {
@@ -909,6 +909,9 @@
         },
         {
           "name": "Hagia Sopia"
+        },
+        {
+          "name": "Gendis Mayrannisa"
         }
       ],
       "eli_jalur": [
@@ -1076,6 +1079,9 @@
           "name": "Mutiara Azzahra"
         },
         {
+          "name": "Raisha Syifa"
+        },
+        {
           "name": "Desy Natalia"
         },
         {
@@ -1113,19 +1119,22 @@
         },
         {
           "name": "Mikaela Kusjanto"
+        },
+        {
+          "name": "Gendis Mayrannisa"
         }
       ],
       "eli_jalur": [
         "Jalur 8"
       ],
       "tickets_sold_eli": [
-        162
+        188
       ],
       "eli_remaining": [
-        88
+        62
       ],
       "sold_out": false,
-      "remaining_total": 88,
+      "remaining_total": 62,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exe588-23052026"
     },
@@ -1173,6 +1182,9 @@
         },
         {
           "name": "Bong Aprilli"
+        },
+        {
+          "name": "Gendis Mayrannisa"
         }
       ],
       "eli_jalur": [
