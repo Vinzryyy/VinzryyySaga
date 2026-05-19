@@ -8,6 +8,10 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
 import {
   KEBAIKAN_CATEGORIES,
   KEBAIKAN_ENTRIES,
@@ -124,25 +128,6 @@ const KebaikanLightbox = ({ images, index, entryTitle, onClose, onPrev, onNext }
   );
 };
 
-const STATUS_LABEL = {
-  proposed: { label: 'Diusulkan', tone: 'bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] border-[color:var(--retro-burgundy)]/30' },
-  approved: { label: 'Disetujui', tone: 'bg-[color:var(--retro-gold)]/15 text-[color:var(--retro-burgundy)] border-[color:var(--retro-gold)]/40' },
-  executed: { label: 'Terlaksana', tone: 'bg-emerald-50 text-emerald-700 border-emerald-300/60' },
-};
-
-const formatDate = (iso) => {
-  if (!iso) return null;
-  try {
-    return new Date(iso).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  } catch {
-    return iso;
-  }
-};
-
 const KebaikanArchive = () => {
   const [filter, setFilter] = useState('all');
   // Lightbox state — entry + image index. Null entry = closed.
@@ -180,6 +165,25 @@ const KebaikanArchive = () => {
       (b.executedAt || b.proposedAt || '').localeCompare(a.executedAt || a.proposedAt || ''),
     );
   }, [filter]);
+
+  // Showcase = flat list of every gallery item across filtered entries.
+  // 1 slide = 1 piece of bukti (foto penanaman / sertifikat / dst), so
+  // carousel feels populated even when only a handful of entries exist.
+  // Slide click opens existing lightbox at the right entry+index.
+  const showcaseSlides = useMemo(() => {
+    const slides = [];
+    filtered.forEach((entry) => {
+      const imgs = Array.isArray(entry.gallery) && entry.gallery.length > 0
+        ? entry.gallery
+        : entry.proofUrl
+          ? [entry.proofUrl]
+          : [];
+      imgs.forEach((url, idx) => {
+        slides.push({ url, entry, idx });
+      });
+    });
+    return slides;
+  }, [filtered]);
 
   return (
     <section
@@ -277,7 +281,7 @@ const KebaikanArchive = () => {
         </div>
 
         {/* Entries grid OR empty state */}
-        {filtered.length === 0 ? (
+        {showcaseSlides.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-burgundy)]/[0.02] p-10 md:p-14 text-center">
             <i className="ri-seedling-line text-5xl text-[color:var(--retro-burgundy)]/40 mb-3 inline-block" />
             <p className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] tracking-tight mb-2">
@@ -289,143 +293,74 @@ const KebaikanArchive = () => {
             </p>
           </div>
         ) : (
-          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {filtered.map((entry, entryIdx) => {
-              const cat = KEBAIKAN_CATEGORIES.find((c) => c.id === entry.category);
-              const status = STATUS_LABEL[entry.status] || STATUS_LABEL.proposed;
-              const amountLabel = formatRupiah(entry.amount);
-              const dateLabel = formatDate(entry.executedAt || entry.proposedAt);
-              const galleryImages = Array.isArray(entry.gallery) && entry.gallery.length > 0
-                ? entry.gallery
-                : entry.proofUrl
-                  ? [entry.proofUrl]
-                  : [];
-              const hasGallery = galleryImages.length > 1;
-              return (
-                <li
-                  key={entry.id}
-                  className="group rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 overflow-hidden flex flex-col shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                  style={{
-                    animation: `kbEntryIn 600ms ease-out ${entryIdx * 80}ms both`,
-                  }}
-                >
-                  {entry.proofUrl && (
-                    <button
-                      type="button"
-                      onClick={() => openLightbox(entry, 0)}
-                      className="relative aspect-[16/10] bg-[color:var(--retro-bg-primary)] overflow-hidden block w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-burgundy)]"
-                      aria-label={`Buka galeri ${entry.title}`}
-                    >
-                      <img
-                        src={entry.proofUrl}
-                        alt={`Dokumentasi ${entry.title}`}
-                        loading="lazy"
-                        decoding="async"
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {/* Zoom hint on hover — small magnify icon */}
-                      <span className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/85 text-[color:var(--retro-burgundy)] shadow-lg">
-                          <i className="ri-zoom-in-line text-lg" />
-                        </span>
-                      </span>
-                      {hasGallery && (
-                        <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/55 text-white text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-sm">
-                          <i className="ri-image-line" />
-                          {galleryImages.length}
-                        </span>
-                      )}
-                    </button>
-                  )}
-                  {hasGallery && (
-                    <div className="flex gap-1.5 px-5 pt-3">
-                      {galleryImages.slice(0, 4).map((url, gi) => (
-                        <button
-                          key={`${entry.id}-thumb-${gi}`}
-                          type="button"
-                          onClick={() => openLightbox(entry, gi)}
-                          className="block w-12 h-12 rounded-md overflow-hidden border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-burgundy)]"
-                          aria-label={`Buka foto ${gi + 1} dari ${entry.title}`}
-                        >
+          // Coverflow showcase — pola "darkroom" di hillaryours.id/Diskografi:
+          // square cover + bottom gradient + small caption + bold title.
+          // loop hanya aktif kalau slide cukup banyak (>= 3) supaya nggak
+          // duplikat slide tunggal terlihat aneh saat archive masih kecil.
+          <div className="relative rounded-[2rem] overflow-hidden bg-[color:var(--retro-burgundy)] shadow-xl">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.06),transparent_60%)] pointer-events-none" />
+            <div className="relative py-10 md:py-14">
+              <Swiper
+                effect="coverflow"
+                grabCursor
+                centeredSlides
+                loop={showcaseSlides.length >= 3}
+                slidesPerView={1.5}
+                modules={[EffectCoverflow]}
+                coverflowEffect={{
+                  rotate: 50,
+                  stretch: 0,
+                  depth: 100,
+                  modifier: 1,
+                  slideShadows: true,
+                }}
+                breakpoints={{
+                  640: { slidesPerView: 1.5 },
+                  768: { slidesPerView: 2.2 },
+                  1024: { slidesPerView: 3.5 },
+                }}
+                className="!py-5"
+              >
+                {showcaseSlides.map((s) => {
+                  const cat = KEBAIKAN_CATEGORIES.find((c) => c.id === s.entry.category);
+                  const subtitle = s.entry.recipient || cat?.label || '';
+                  return (
+                    <SwiperSlide key={`${s.entry.id}-${s.idx}`} className="!h-auto">
+                      <button
+                        type="button"
+                        onClick={() => openLightbox(s.entry, s.idx)}
+                        className="relative block w-full pb-[100%] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-gold)] rounded-lg overflow-hidden"
+                        aria-label={`Buka bukti ${s.idx + 1} — ${s.entry.title}`}
+                      >
+                        <div className="absolute inset-0">
                           <img
-                            src={url}
-                            alt=""
+                            src={s.url}
+                            alt={`${s.entry.title} — bukti ${s.idx + 1}`}
                             loading="lazy"
                             decoding="async"
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 h-full w-full object-cover"
                           />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  <div className="p-5 flex-1 flex flex-col">
-                    <div className="flex items-center gap-2 mb-3 flex-wrap">
-                      {cat && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[10px] font-black uppercase tracking-[0.2em]">
-                          <i className={cat.icon} />
-                          {cat.label}
-                        </span>
-                      )}
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-[0.25em] ${status.tone}`}
-                      >
-                        {status.label}
-                      </span>
-                    </div>
-                    <h3 className="font-header text-lg md:text-xl font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-2">
-                      {entry.title}
-                    </h3>
-                    {entry.description && (
-                      <p className="text-sm text-[color:var(--retro-text-secondary)] leading-relaxed mb-4 flex-1">
-                        {entry.description}
-                      </p>
-                    )}
-                    <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
-                      {entry.recipient && (
-                        <div className="col-span-2">
-                          <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5">
-                            Penerima
-                          </dt>
-                          <dd className="text-[color:var(--retro-text-primary)] font-bold">{entry.recipient}</dd>
+                          <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/15 to-transparent px-4 pb-4">
+                            {subtitle && (
+                              <p className="mb-1 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/90 line-clamp-1">
+                                {subtitle}
+                              </p>
+                            )}
+                            <p className="font-header text-lg md:text-xl font-black text-white leading-tight line-clamp-2">
+                              {s.entry.title}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                      {amountLabel && (
-                        <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5">
-                            Nominal
-                          </dt>
-                          <dd className="text-[color:var(--retro-burgundy)] font-black tabular-nums">{amountLabel}</dd>
-                        </div>
-                      )}
-                      {dateLabel && (
-                        <div>
-                          <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5">
-                            Tanggal
-                          </dt>
-                          <dd className="text-[color:var(--retro-text-primary)] tabular-nums">{dateLabel}</dd>
-                        </div>
-                      )}
-                    </dl>
-                    <div className="mt-4 pt-3 border-t border-[color:var(--retro-brown-dark)]/10 flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] truncate">
-                        {entry.contributorCredit || 'Helismiley Fans'}
-                      </span>
-                      {galleryImages.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => openLightbox(entry, 0)}
-                          className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy-light)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-burgundy)] rounded"
-                        >
-                          Bukti
-                          <i className="ri-image-line" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                      </button>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+            </div>
+            <p className="relative pb-6 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+              Geser untuk lihat semua bukti
+            </p>
+          </div>
         )}
 
         {/* Footer note — sets expectation that this list grows over time */}
@@ -451,12 +386,8 @@ const KebaikanArchive = () => {
       )}
 
       <style>{`
-        @keyframes kbEntryIn {
-          0%   { opacity: 0; transform: translateY(14px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
         @media (prefers-reduced-motion: reduce) {
-          [class*="kbEntryIn"], [class*="kbLightboxIn"], [class*="kbLightboxImgIn"] {
+          [class*="kbLightboxIn"], [class*="kbLightboxImgIn"] {
             animation: none !important;
           }
         }
