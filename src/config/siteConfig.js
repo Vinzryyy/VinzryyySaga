@@ -142,6 +142,18 @@ export const SITE_CONFIG = {
   // setInterval — no refresh needed). Form/timer cards hide and
   // celebration copy slots in place. Mirrors the Wishes takeover so
   // both pages stay editorially consistent.
+  // Aula petak (r6) — virtual companion event di FX Sudirman.
+  // `eventDateIso` placeholder pakai 15 Juni 2026 (ultah Eli) karena
+  // jadwal resmi dari office JKT48 belum confirmed. Update saat jadwal
+  // umum keluar — petak code baca dari sini, gak perlu code change.
+  // `permanent: true` artinya setelah eventDate lewat, petak stay open
+  // selamanya (companion archive). Set false kalau mau event window-only.
+  aulaGaleri: {
+    eventDateIso: '2026-06-15T10:00:00+07:00',
+    permanent: true,
+    venue: 'FX Sudirman',
+  },
+
   countdown: {
     targetIso: '2026-06-15T00:00:00+07:00',
     targetLabel: '15 Juni 2026 · 00:00 WIB',

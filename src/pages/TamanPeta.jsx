@@ -8251,6 +8251,86 @@ const LandmarkAura = ({ position, color, baseColor, progress, pulsePhase = 0 }) 
   );
 };
 
+// AulaLandmark — r6 marker di NE quadrant [5, 0, -5]. Visual focus
+// ada di interior pavilion (klik → /armeniacaTown/r6); peta landmark
+// sengaja simple "benda mencolok" tanpa elaborate 3D — 3 stacked cube
+// pastel rainbow (mirror sticky notes di dalam) dengan bob gentle.
+// Bypass modal flow (gak ada PETA_PETAK_INFO entry), navigate langsung.
+const AulaLandmark = () => {
+  const navigate = useNavigate();
+  const groupRef = useRef();
+  const [hovered, setHovered] = useState(false);
+  useFrame((state) => {
+    if (!groupRef.current) return;
+    const t = state.clock.elapsedTime;
+    groupRef.current.position.y = 0.5 + Math.sin(t * 1.2) * 0.06;
+    groupRef.current.rotation.y = t * 0.25;
+  });
+  const cubes = [
+    { color: '#f4c5d5', y: 0 },     // pink (bottom)
+    { color: '#f4dba5', y: 0.32 },  // yellow
+    { color: '#b8d6e8', y: 0.64 },  // blue (top)
+  ];
+  return (
+    <group
+      ref={groupRef}
+      position={[5, 0.5, -5]}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        setHovered(false);
+        document.body.style.cursor = 'auto';
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        navigate('/armeniacaTown/r6');
+      }}
+      scale={hovered ? 1.1 : 1}
+    >
+      {/* Mobile-friendly invisible hit zone — bigger than visible stack */}
+      <mesh visible={false}>
+        <boxGeometry args={[1.4, 1.4, 1.4]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+      {/* 3 stacked pastel cubes — mini representation sticky note tower */}
+      {cubes.map((c, i) => (
+        <mesh key={`cube-${i}`} position={[0, c.y, 0]} rotation={[0, i * 0.15, 0]}>
+          <boxGeometry args={[0.42, 0.28, 0.42]} />
+          <meshStandardMaterial
+            color={c.color}
+            emissive={c.color}
+            emissiveIntensity={hovered ? 0.5 : 0.22}
+            roughness={0.6}
+          />
+        </mesh>
+      ))}
+      {/* Label HTML floating */}
+      <Html position={[0, 1.1, 0]} center distanceFactor={11} occlude={false}>
+        <div
+          className="text-center pointer-events-none select-none"
+          style={{ minWidth: '100px' }}
+        >
+          <div
+            className={`leading-snug transition-colors text-[10px] tracking-wide italic ${
+              hovered ? 'text-white' : 'text-white/75'
+            }`}
+            style={{ fontFamily: '"Fraunces Variable", serif' }}
+          >
+            Aula
+          </div>
+          <div className="text-white/45 text-[8px] mt-0.5 uppercase tracking-[0.2em]">
+            FX Sudirman · Virtual
+          </div>
+        </div>
+      </Html>
+    </group>
+  );
+};
+
 // LandmarkAuras — render 4 landmark glow discs. Air Mancur excluded
 // karena udah punya 7-tier continuous system sendiri.
 const LandmarkAuras = ({ count, loaded }) => {
@@ -14847,6 +14927,7 @@ const TamanScene = ({
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
       <LandmarkAuras count={armeniacaCount} loaded={armeniacaLoaded} />
+      <AulaLandmark />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* === Reforestation system (A, B, C) === */}
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />

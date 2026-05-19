@@ -148,7 +148,8 @@
       "WebFetch(domain:zeeemotion.com)",
       "WebFetch(domain:fansite-lyn-private-server-six.vercel.app)",
       "Bash(python3 -c \"import sys,html,json; raw=sys.stdin.read\\(\\); raw=raw.replace\\('data-page=\\\\\"',''\\).rstrip\\('\\\\\"'\\); data=json.loads\\(html.unescape\\(raw\\)\\); print\\(json.dumps\\(data['props'], indent=2\\)[:6000]\\)\")",
-      "Bash(bash -c 'echo /tmp; cd /tmp && pwd')"
+      "Bash(bash -c 'echo /tmp; cd /tmp && pwd')",
+      "Bash(npx --no-install vite build)"
     ]
   }
 }

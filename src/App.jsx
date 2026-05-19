@@ -91,6 +91,14 @@ const TamanMenaraJamPage = lazy(() => import('./pages/TamanMenaraJam'));
 const TamanPanggungSorotanPage = lazy(() =>
   import('./pages/TamanPanggungSorotan')
 );
+// r6 (Aula — working name, naming TBD) — virtual replica venue offline
+// event seitansai di FX Sudirman. 3-wall pavilion + sticky notes grid
+// + side wall sertifikat + center table/bowl/mascot. Display-only
+// (sticky notes empty di virtual, content hidup di event fisik).
+// NE quadrant landmark [5,0,-5]. Date-gating via SITE_CONFIG.aulaGaleri
+// — currently no guard (direct access for preview); add chooser nanti
+// saat jadwal resmi confirmed dari JKT48 office.
+const TamanAulaPage = lazy(() => import('./pages/TamanAula'));
 // Denyut — heartbeat website (presence-driven pulse visual). Standalone
 // page, di-lazy supaya Firebase presence module gak ke-bundle ke halaman
 // lain.
@@ -414,6 +422,7 @@ function AppShell() {
             <Route path="/armeniacaTown/r3" element={<TamanR3RouteChooser />} />
             <Route path="/armeniacaTown/r4" element={<TamanR4RouteChooser />} />
             <Route path="/armeniacaTown/r5" element={<TamanR5RouteChooser />} />
+            <Route path="/armeniacaTown/r6" element={<TamanAulaPage />} />
             {/* Backward-compat: rute /taman/* dari era sebelum rebrand
                 ke /armeniacaTown. Link lama tetep valid. */}
             <Route
@@ -443,6 +452,10 @@ function AppShell() {
             <Route
               path="/taman/r5"
               element={<Navigate to="/armeniacaTown/r5" replace />}
+            />
+            <Route
+              path="/taman/r6"
+              element={<Navigate to="/armeniacaTown/r6" replace />}
             />
             {/* Backward-compat: rute /museum/* dari era sebelum rebrand
                 Museum → Taman → ArmeniacaTown */}
