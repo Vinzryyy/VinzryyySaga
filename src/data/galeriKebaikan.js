@@ -64,12 +64,13 @@ export const KEBAIKAN_ENTRIES = [
     title: 'Pohon Kebaikan — Penanaman Pohon',
     category: 'lingkungan',
     description:
-      'Penanaman pohon via program reforestasi LindungiHutan sebagai bentuk Harmoni Kebaikan ' +
-      'atas nama Ceu Eli. Empat pohon ditanam di empat kampanye pesisir — Tambakrejo (Semarang), ' +
+      'Penanaman 26 pohon via program reforestasi LindungiHutan sebagai bentuk Harmoni Kebaikan ' +
+      'atas nama Ceu Eli. Tersebar di empat kampanye pesisir — Tambakrejo (Semarang), ' +
       'PIK (Jakarta), Sukawati, dan Kartikajaya (Kendal) — sebagai simbol kebaikan yang tumbuh ' +
       'dari setiap dukungan komunitas.',
     contributorCredit: 'Armeniaca × Helismiley',
-    recipient: 'LindungiHutan — 4 kampanye reforestasi pesisir',
+    recipient: 'LindungiHutan — 4 kampanye reforestasi pesisir (26 pohon)',
+    amount: 2600000,
     proofUrl: '/Donasists26/Lingkungan/Pohon kebaikan 1.jpeg',
     gallery: [
       '/Donasists26/Lingkungan/Pohon kebaikan 1.jpeg',
