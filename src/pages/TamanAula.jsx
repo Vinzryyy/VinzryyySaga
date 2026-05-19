@@ -60,18 +60,25 @@ const LEFT_WALL_X = -PAVILION.width / 2;
 const RIGHT_WALL_X = PAVILION.width / 2;
 
 // Sticky note grid (7 cols × 5 rows = 35 notes)
+// Palette scattered random (sesuai design — bukan strict per-row)
 const STICKY = {
   cols: 7,
   rows: 5,
   size: 0.42,
   spacing: 0.55,
-  // Pastel rainbow per row (top → bottom)
-  rowColors: [
+  // Pastel pool — random pick per cell
+  palette: [
     '#f4c5d5', // pink
-    '#f4dba5', // yellow
+    '#f4a8b8', // coral
+    '#f4dba5', // yellow-cream
+    '#fae0a0', // soft yellow
+    '#f4c898', // peach
     '#c5e3c5', // mint
+    '#a8d8c8', // teal
     '#b8d6e8', // light blue
+    '#90c0e0', // sky blue
     '#d4c4e8', // lavender
+    '#c8a8d8', // soft purple
   ],
 };
 
@@ -137,26 +144,53 @@ const SideWall = ({ side }) => {
 
 // ============================================================
 // Heading text — "KEBAIKAN APA YANG SUDAH KAMU LAKUKAN?"
+// Multi-color per-word — match hand-drawn pop-art design.
 // ============================================================
 
 const HeadingText = () => {
-  // 3D text mounted di back wall, di atas sticky note grid.
-  // Position: z slightly in front of wall biar gak z-fight.
   const z = BACK_WALL_Z + PAVILION.wallThickness / 2 + 0.02;
+  // Per-word color array — sesuai design rainbow heading
+  const words = [
+    { text: 'KEBAIKAN', color: '#e85a78' }, // pink-red
+    { text: 'APA', color: '#f4b020' }, // yellow-orange
+    { text: 'YANG', color: '#4a90c8' }, // blue
+  ];
+  const wordsLine2 = [
+    { text: 'SUDAH', color: '#5ab058' }, // green
+    { text: 'KAMU', color: '#c060c0' }, // magenta
+    { text: 'LAKUKAN?', color: '#e85a78' }, // pink-red
+  ];
+  const fontSize = 0.36;
+  const spacing = 0.18; // gap between words
+  // Layout per-line — measure widths approximated by char count × fontSize×0.55
+  const charW = fontSize * 0.55;
+  const layoutLine = (lineWords, y) => {
+    const widths = lineWords.map((w) => w.text.length * charW);
+    const totalW = widths.reduce((s, w) => s + w, 0) + spacing * (lineWords.length - 1);
+    let cursorX = -totalW / 2;
+    return lineWords.map((w, i) => {
+      const x = cursorX + widths[i] / 2;
+      cursorX += widths[i] + spacing;
+      return (
+        <Text
+          key={`word-${y}-${i}`}
+          position={[x, y, 0]}
+          fontSize={fontSize}
+          color={w.color}
+          anchorX="center"
+          anchorY="middle"
+          letterSpacing={0.02}
+          fontWeight={700}
+        >
+          {w.text}
+        </Text>
+      );
+    });
+  };
   return (
-    <group position={[0, 5.0, z]}>
-      <Text
-        fontSize={0.32}
-        color="#3a2818"
-        anchorX="center"
-        anchorY="middle"
-        textAlign="center"
-        maxWidth={8}
-        lineHeight={1.15}
-        letterSpacing={0.02}
-      >
-        KEBAIKAN APA YANG{'\n'}SUDAH KAMU LAKUKAN?
-      </Text>
+    <group position={[0, 5.1, z]}>
+      {layoutLine(words, 0.25)}
+      {layoutLine(wordsLine2, -0.25)}
     </group>
   );
 };
@@ -185,22 +219,22 @@ const StickyNote = ({ position, color, rotation }) => (
 
 const StickyNoteGrid = () => {
   const z = BACK_WALL_Z + PAVILION.wallThickness / 2 + 0.015;
-  // Grid centered horizontally + vertically.
   const totalW = (STICKY.cols - 1) * STICKY.spacing;
   const totalH = (STICKY.rows - 1) * STICKY.spacing;
-  const baseY = 3.0; // center mid-height
+  const baseY = 3.0;
   const notes = useMemo(() => {
     const arr = [];
     for (let r = 0; r < STICKY.rows; r++) {
       for (let c = 0; c < STICKY.cols; c++) {
         const x = c * STICKY.spacing - totalW / 2;
         const y = baseY - (r * STICKY.spacing - totalH / 2);
-        // Deterministic tilt — small angle per note untuk vibe "stuck-on"
+        // Deterministic pseudo-random color pick per cell
+        const colorIdx = (r * 13 + c * 7 + r * c * 3) % STICKY.palette.length;
         const seed = (r * 7 + c * 3) % 10;
-        const tilt = ((seed - 5) / 5) * 0.07; // -0.07 to +0.07 rad
+        const tilt = ((seed - 5) / 5) * 0.07;
         arr.push({
           pos: [x, y, z],
-          color: STICKY.rowColors[r],
+          color: STICKY.palette[colorIdx],
           rotation: tilt,
           key: `note-${r}-${c}`,
         });
@@ -226,28 +260,37 @@ const StickyNoteGrid = () => {
 // Side wall certificates — 4 per side, pulled from KEBAIKAN_ENTRIES
 // ============================================================
 
+// Side wall paper — match design: simple shaded paper rectangle dengan
+// minimal text label "DONASIKAN KEKUATAN" / generic stamp vibe. Bukan
+// certificate panjang. Border darker untuk depth, paper warm white.
 const Certificate = ({ position, rotation, entry, index }) => {
-  const w = 1.4;
-  const h = 1.0;
+  const w = 1.2;
+  const h = 0.85;
   return (
     <group position={position} rotation={[0, rotation, 0]}>
-      {/* Border frame */}
+      {/* Outer dark shading (frame thickness illusion) */}
+      <mesh position={[0.02, -0.02, -0.002]}>
+        <planeGeometry args={[w + 0.05, h + 0.05]} />
+        <meshBasicMaterial color="#3a2818" transparent opacity={0.5} />
+      </mesh>
+      {/* Paper body — warm cream */}
       <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[w + 0.12, h + 0.12]} />
-        <meshStandardMaterial
-          color={PALETTE.certificateBorder}
-          roughness={0.6}
-        />
-      </mesh>
-      {/* Paper body */}
-      <mesh position={[0, 0, 0.002]}>
         <planeGeometry args={[w, h]} />
-        <meshStandardMaterial color={PALETTE.certificateBg} roughness={0.7} />
+        <meshStandardMaterial color="#f5ede0" roughness={0.85} />
       </mesh>
-      {/* Title label (truncated) */}
+      {/* Inner darker frame inset (top + bottom strips) */}
+      <mesh position={[0, h / 2 - 0.06, 0.001]}>
+        <planeGeometry args={[w - 0.16, 0.06]} />
+        <meshBasicMaterial color="#3a2818" />
+      </mesh>
+      <mesh position={[0, -(h / 2 - 0.06), 0.001]}>
+        <planeGeometry args={[w - 0.16, 0.06]} />
+        <meshBasicMaterial color="#3a2818" />
+      </mesh>
+      {/* Minimal center label */}
       <Text
-        position={[0, 0.25, 0.005]}
-        fontSize={0.09}
+        position={[0, 0, 0.002]}
+        fontSize={0.08}
         color="#3a2818"
         anchorX="center"
         anchorY="middle"
@@ -255,27 +298,7 @@ const Certificate = ({ position, rotation, entry, index }) => {
         textAlign="center"
         lineHeight={1.15}
       >
-        {entry ? entry.title.toUpperCase() : `SERTIFIKAT ${index + 1}`}
-      </Text>
-      {/* Decorative line separator */}
-      <mesh position={[0, 0.05, 0.005]}>
-        <planeGeometry args={[w - 0.4, 0.012]} />
-        <meshBasicMaterial color="#3a2818" />
-      </mesh>
-      {/* Body text (recipient + amount stub) */}
-      <Text
-        position={[0, -0.15, 0.005]}
-        fontSize={0.07}
-        color="#5a4828"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={w - 0.2}
-        textAlign="center"
-        lineHeight={1.2}
-      >
-        {entry
-          ? `${entry.contributorCredit || 'Armeniaca × Helismiley'}`
-          : 'Atas nama Ceu Eli'}
+        DONASIKAN{'\n'}KEKUATAN
       </Text>
     </group>
   );
@@ -363,40 +386,56 @@ const GlassBowl = () => {
 };
 
 const PlaceholderMascot = () => {
-  // Mascot placeholder — silhouette simple dengan topi+jas hitam approximation.
-  // Posisi kanan dari bowl, mirror design source.
+  // Mascot match design: black silhouette + top hat + bow tie +
+  // reddish-pink feet. Standing di samping bowl.
   const baseY = 1.1;
+  const pinkFoot = '#e85a78';
   return (
     <group position={[0.4, baseY, 1.0]}>
+      {/* Pink feet (visible kaki) — small wedges di base body */}
+      <mesh position={[-0.06, 0.02, 0.05]}>
+        <boxGeometry args={[0.08, 0.04, 0.12]} />
+        <meshStandardMaterial color={pinkFoot} roughness={0.5} />
+      </mesh>
+      <mesh position={[0.06, 0.02, 0.05]}>
+        <boxGeometry args={[0.08, 0.04, 0.12]} />
+        <meshStandardMaterial color={pinkFoot} roughness={0.5} />
+      </mesh>
       {/* Body (vertical capsule approximation) */}
       <mesh position={[0, 0.35, 0]}>
-        <cylinderGeometry args={[0.15, 0.18, 0.7, 12]} />
+        <cylinderGeometry args={[0.15, 0.18, 0.65, 12]} />
         <meshStandardMaterial color={PALETTE.mascotDark} roughness={0.6} />
+      </mesh>
+      {/* Bow tie — small horizontal red bow di base neck */}
+      <mesh position={[0, 0.7, 0.15]}>
+        <boxGeometry args={[0.18, 0.06, 0.04]} />
+        <meshStandardMaterial color={pinkFoot} roughness={0.5} />
+      </mesh>
+      {/* Bow tie center knot */}
+      <mesh position={[0, 0.7, 0.16]}>
+        <boxGeometry args={[0.04, 0.06, 0.02]} />
+        <meshStandardMaterial color="#a83040" roughness={0.5} />
       </mesh>
       {/* Head */}
       <mesh position={[0, 0.85, 0]}>
         <sphereGeometry args={[0.15, 16, 12]} />
         <meshStandardMaterial color={PALETTE.mascotDark} roughness={0.6} />
       </mesh>
-      {/* Top hat — cylinder + brim */}
-      <mesh position={[0, 1.08, 0]}>
-        <cylinderGeometry args={[0.11, 0.11, 0.16, 16]} />
-        <meshStandardMaterial color={PALETTE.mascotDark} roughness={0.5} />
-      </mesh>
+      {/* Top hat brim */}
       <mesh position={[0, 1.0, 0]}>
         <cylinderGeometry args={[0.18, 0.18, 0.02, 16]} />
         <meshStandardMaterial color={PALETTE.mascotDark} roughness={0.5} />
       </mesh>
-      {/* Floating "TBD" label di atas mascot biar inget ini placeholder */}
-      <Text
-        position={[0, 1.45, 0]}
-        fontSize={0.08}
-        color="#88828a"
-        anchorX="center"
-        anchorY="middle"
-      >
-        mascot · TBD
-      </Text>
+      {/* Top hat cylinder */}
+      <mesh position={[0, 1.08, 0]}>
+        <cylinderGeometry args={[0.11, 0.11, 0.16, 16]} />
+        <meshStandardMaterial color={PALETTE.mascotDark} roughness={0.5} />
+      </mesh>
+      {/* Top hat band (subtle pink stripe) */}
+      <mesh position={[0, 1.02, 0]}>
+        <cylinderGeometry args={[0.115, 0.115, 0.03, 16]} />
+        <meshStandardMaterial color={pinkFoot} roughness={0.5} />
+      </mesh>
     </group>
   );
 };
@@ -405,76 +444,199 @@ const PlaceholderMascot = () => {
 // Floral foreground — instanced bunga warna-warni di perimeter
 // ============================================================
 
-const FloralCluster = ({ position, color, scale = 1 }) => {
-  // Per-cluster: pusat bunga + 5 kelopak around. Simple stylized look.
-  return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 0.15, 0]}>
-        <sphereGeometry args={[0.08, 12, 8]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.18}
-          roughness={0.5}
-        />
-      </mesh>
-      {/* Kelopak — 5 sphere flat di sekitar center */}
-      {[0, 1, 2, 3, 4].map((i) => {
-        const angle = (i / 5) * Math.PI * 2;
-        const x = Math.cos(angle) * 0.13;
-        const z = Math.sin(angle) * 0.13;
-        return (
-          <mesh key={`petal-${i}`} position={[x, 0.15, z]}>
-            <sphereGeometry args={[0.07, 8, 6]} />
-            <meshStandardMaterial color={color} roughness={0.6} />
-          </mesh>
-        );
-      })}
-      {/* Stem */}
-      <mesh position={[0, 0.05, 0]}>
-        <cylinderGeometry args={[0.02, 0.03, 0.1, 6]} />
-        <meshStandardMaterial color="#5a8438" roughness={0.7} />
-      </mesh>
-    </group>
-  );
-};
+// Tulip — cup shape (cone-like) on green stem. Match design: pink/red tulips.
+const Tulip = ({ position, color, scale = 1 }) => (
+  <group position={position} scale={scale}>
+    {/* Stem */}
+    <mesh position={[0, 0.18, 0]}>
+      <cylinderGeometry args={[0.018, 0.025, 0.36, 6]} />
+      <meshStandardMaterial color="#4a7838" roughness={0.7} />
+    </mesh>
+    {/* Cup — 3 petals as box-like wedges */}
+    <mesh position={[0, 0.42, 0]} rotation={[0, 0, 0]}>
+      <coneGeometry args={[0.11, 0.22, 6]} />
+      <meshStandardMaterial color={color} roughness={0.55} />
+    </mesh>
+    {/* Leaf at base */}
+    <mesh position={[0.08, 0.16, 0]} rotation={[0, 0, 0.4]}>
+      <boxGeometry args={[0.04, 0.18, 0.02]} />
+      <meshStandardMaterial color="#4a7838" roughness={0.7} />
+    </mesh>
+  </group>
+);
 
+// Daffodil — flat round flower with darker center on stem.
+const Daffodil = ({ position, color = '#f4d870', centerColor = '#e89020', scale = 1 }) => (
+  <group position={position} scale={scale}>
+    {/* Stem */}
+    <mesh position={[0, 0.15, 0]}>
+      <cylinderGeometry args={[0.015, 0.022, 0.3, 6]} />
+      <meshStandardMaterial color="#4a7838" roughness={0.7} />
+    </mesh>
+    {/* Petals — 5 flat ovals around center */}
+    {[0, 1, 2, 3, 4].map((i) => {
+      const angle = (i / 5) * Math.PI * 2;
+      const x = Math.cos(angle) * 0.09;
+      const z = Math.sin(angle) * 0.09;
+      return (
+        <mesh
+          key={`pet-${i}`}
+          position={[x, 0.33, z]}
+          rotation={[Math.PI / 2, 0, angle]}
+        >
+          <sphereGeometry args={[0.07, 8, 6]} />
+          <meshStandardMaterial color={color} roughness={0.5} />
+        </mesh>
+      );
+    })}
+    {/* Darker center */}
+    <mesh position={[0, 0.35, 0]}>
+      <cylinderGeometry args={[0.05, 0.05, 0.04, 12]} />
+      <meshStandardMaterial color={centerColor} roughness={0.5} />
+    </mesh>
+  </group>
+);
+
+// Round flower — solid color sphere cluster on stem. Different from
+// daffodil — used for magenta/blue accent blooms.
+const RoundFlower = ({ position, color, scale = 1 }) => (
+  <group position={position} scale={scale}>
+    <mesh position={[0, 0.12, 0]}>
+      <cylinderGeometry args={[0.015, 0.02, 0.24, 6]} />
+      <meshStandardMaterial color="#4a7838" roughness={0.7} />
+    </mesh>
+    <mesh position={[0, 0.27, 0]}>
+      <sphereGeometry args={[0.1, 12, 8]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={0.15}
+        roughness={0.55}
+      />
+    </mesh>
+    {/* 4 smaller petal bumps around */}
+    {[0, 1, 2, 3].map((i) => {
+      const angle = (i / 4) * Math.PI * 2;
+      const x = Math.cos(angle) * 0.07;
+      const z = Math.sin(angle) * 0.07;
+      return (
+        <mesh key={`b-${i}`} position={[x, 0.27, z]}>
+          <sphereGeometry args={[0.05, 8, 6]} />
+          <meshStandardMaterial color={color} roughness={0.55} />
+        </mesh>
+      );
+    })}
+  </group>
+);
+
+// Leaf — large stylized leaf shape low on ground. Dark green.
+const Leaf = ({ position, color = '#3a6028', scale = 1, rotation = 0 }) => (
+  <group position={position} scale={scale} rotation={[0, rotation, 0]}>
+    <mesh position={[0, 0.08, 0]} rotation={[0.3, 0, 0]}>
+      <sphereGeometry args={[0.14, 10, 8]} />
+      <meshStandardMaterial color={color} roughness={0.7} />
+    </mesh>
+  </group>
+);
+
+// Dragonfly — small teal silhouette dengan wings. Hover slightly above ground.
+const Dragonfly = ({ position, scale = 1 }) => (
+  <group position={position} scale={scale}>
+    {/* Body */}
+    <mesh position={[0, 0.25, 0]}>
+      <cylinderGeometry args={[0.012, 0.012, 0.18, 6]} />
+      <meshStandardMaterial color="#2a5050" roughness={0.5} />
+    </mesh>
+    {/* Wings — 4 flat planes */}
+    <mesh position={[0.06, 0.27, 0.04]} rotation={[Math.PI / 2, 0, 0.3]}>
+      <planeGeometry args={[0.12, 0.05]} />
+      <meshStandardMaterial
+        color="#5ac8d8"
+        transparent
+        opacity={0.7}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    <mesh position={[-0.06, 0.27, 0.04]} rotation={[Math.PI / 2, 0, -0.3]}>
+      <planeGeometry args={[0.12, 0.05]} />
+      <meshStandardMaterial
+        color="#5ac8d8"
+        transparent
+        opacity={0.7}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    <mesh position={[0.05, 0.27, -0.05]} rotation={[Math.PI / 2, 0, -0.3]}>
+      <planeGeometry args={[0.1, 0.04]} />
+      <meshStandardMaterial
+        color="#5ac8d8"
+        transparent
+        opacity={0.7}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+    <mesh position={[-0.05, 0.27, -0.05]} rotation={[Math.PI / 2, 0, 0.3]}>
+      <planeGeometry args={[0.1, 0.04]} />
+      <meshStandardMaterial
+        color="#5ac8d8"
+        transparent
+        opacity={0.7}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  </group>
+);
+
+// FloralBorder — dense varied bunga + daun + dragonfly disepanjang
+// perimeter dalam pavilion. Match design pop-art Aikatsu vibe.
 const FloralBorder = ({ isMobile }) => {
-  // Cluster di sepanjang perimeter dalam pavilion (di depan wall, di lantai).
-  // Generate posisi deterministik biar konsisten. Mobile thin out count.
-  const flowers = useMemo(() => {
+  // Deterministic mix of variants di perimeter
+  const items = useMemo(() => {
     const arr = [];
-    const targetCount = isMobile ? 18 : 36;
-    // Sebar di sepanjang perimeter — back wall edge + side walls edges.
-    // Hindari area tengah (table) supaya gak overlap.
-    const padding = 0.5;
-    for (let i = 0; i < targetCount; i++) {
-      // Cycle through 3 zones: back, left, right.
-      const zone = i % 3;
-      const seed = ((i * 37) % 100) / 100;
+    const totalCount = isMobile ? 40 : 80;
+    const padding = 0.4;
+    for (let i = 0; i < totalCount; i++) {
+      const zone = i % 4; // 0=back, 1=left, 2=right, 3=front-corners
+      const seed = ((i * 41) % 100) / 100;
+      const seed2 = ((i * 23 + 7) % 100) / 100;
       let x, z;
       if (zone === 0) {
-        // Back wall area
+        // Back wall area — di sepanjang back wall front face
         x = (seed - 0.5) * (PAVILION.width - padding * 2);
-        z = BACK_WALL_Z + padding + seed * 0.6;
+        z = BACK_WALL_Z + padding + seed2 * 0.8;
       } else if (zone === 1) {
         // Left wall area
-        x = LEFT_WALL_X + padding + seed * 0.6;
-        z = (seed - 0.5) * (PAVILION.depth - 2.5) - 0.5;
-      } else {
+        x = LEFT_WALL_X + padding + seed2 * 0.8;
+        z = (seed - 0.5) * (PAVILION.depth - 2.5) - 0.3;
+      } else if (zone === 2) {
         // Right wall area
-        x = RIGHT_WALL_X - padding - seed * 0.6;
-        z = (seed - 0.5) * (PAVILION.depth - 2.5) - 0.5;
+        x = RIGHT_WALL_X - padding - seed2 * 0.8;
+        z = (seed - 0.5) * (PAVILION.depth - 2.5) - 0.3;
+      } else {
+        // Front corners + scatter at pavilion floor edges
+        const side = seed > 0.5 ? 1 : -1;
+        x = side * (3 + seed2 * 2.5);
+        z = 2 + seed2 * 2;
       }
-      // Avoid table footprint (within radius 2 from center [0,0,1])
+      // Avoid table footprint
       const distFromTable = Math.sqrt(x * x + (z - 1) * (z - 1));
       if (distFromTable < 2.0) continue;
-      const colorIdx = i % FLORAL_COLORS.length;
-      const scale = 0.7 + ((i * 13) % 50) / 100; // 0.7-1.2
+      // Variant pick — weighted distribution: more flowers, fewer dragonflies
+      const variantSeed = (i * 17 + 3) % 10;
+      let variant;
+      if (variantSeed < 3) variant = 'tulip';
+      else if (variantSeed < 5) variant = 'daffodil';
+      else if (variantSeed < 7) variant = 'round';
+      else if (variantSeed < 9) variant = 'leaf';
+      else variant = 'dragonfly';
+      const colorIdx = (i * 7) % FLORAL_COLORS.length;
+      const scale = 0.8 + ((i * 11) % 50) / 100; // 0.8-1.3
       arr.push({
         pos: [x, 0, z],
+        variant,
         color: FLORAL_COLORS[colorIdx],
         scale,
+        rotation: (i * 0.7) % (Math.PI * 2),
         key: `floral-${i}`,
       });
     }
@@ -482,14 +644,38 @@ const FloralBorder = ({ isMobile }) => {
   }, [isMobile]);
   return (
     <>
-      {flowers.map((f) => (
-        <FloralCluster
-          key={f.key}
-          position={f.pos}
-          color={f.color}
-          scale={f.scale}
-        />
-      ))}
+      {items.map((f) => {
+        switch (f.variant) {
+          case 'tulip':
+            return (
+              <Tulip key={f.key} position={f.pos} color={f.color} scale={f.scale} />
+            );
+          case 'daffodil':
+            return <Daffodil key={f.key} position={f.pos} scale={f.scale} />;
+          case 'round':
+            return (
+              <RoundFlower
+                key={f.key}
+                position={f.pos}
+                color={f.color}
+                scale={f.scale}
+              />
+            );
+          case 'leaf':
+            return (
+              <Leaf
+                key={f.key}
+                position={f.pos}
+                scale={f.scale}
+                rotation={f.rotation}
+              />
+            );
+          case 'dragonfly':
+            return <Dragonfly key={f.key} position={f.pos} scale={f.scale} />;
+          default:
+            return null;
+        }
+      })}
     </>
   );
 };
