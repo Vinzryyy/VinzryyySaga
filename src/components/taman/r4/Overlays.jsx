@@ -35,7 +35,7 @@ export const TimePill = ({ restored }) => {
     ? 'WIB kalibrasi penuh — yagura nunjuk waktu Eli'
     : 'WIB jalan, shumoku menara masih cari ritme';
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[92vw]">
+    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[min(92vw,400px)]">
       <div className="flex flex-col items-center gap-1.5 px-5 py-2.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">
         <div className="flex items-baseline gap-2 tabular-nums">
           <span className="text-white/95 text-base sm:text-lg font-medium tracking-wide">
@@ -74,7 +74,7 @@ export const AlmanakCard = () => {
       : null;
 
   return (
-    <div className="pointer-events-auto absolute bottom-28 sm:bottom-6 left-3 sm:left-6 z-10 w-[calc(100vw-1.5rem)] sm:w-[320px]">
+    <div className="pointer-events-auto absolute bottom-28 sm:bottom-6 left-3 sm:left-6 z-10 w-[calc(100vw-1.5rem)] max-w-[360px] sm:w-[320px] sm:max-w-none">
       <div
         className="rounded-2xl border border-white/12 bg-[#1c1612]/85 backdrop-blur-md shadow-2xl px-4 py-3.5 sm:px-5 sm:py-4"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
@@ -177,7 +177,7 @@ export const CountdownChip = () => {
   const dayLabel = c.daysUntil === 0 ? 'Hari ini' : `${c.daysUntil} hari lagi`;
   const copy = `${dayLabel} · ${c.title}`;
   return (
-    <div className="pointer-events-none absolute bottom-28 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[88vw]">
+    <div className="pointer-events-none absolute bottom-28 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[min(88vw,360px)]">
       <div className="px-4 py-1.5 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 shadow-lg">
         <p
           className="text-white/65 text-[10px] sm:text-[11px] italic text-center tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"

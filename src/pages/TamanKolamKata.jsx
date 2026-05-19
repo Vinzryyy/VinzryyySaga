@@ -216,6 +216,14 @@ const LilyWishPad = ({ pad, hovered, hideLabel, onPointerOver, onPointerOut, onC
         onClick(pad);
       }}
     >
+      {/* Invisible hit-zone — 1.4× pad radius supaya touch target di
+          mobile (iPhone SE portrait) lewat ambang 44px iOS. Visible pad
+          tetap 0.62 (regular) / 0.95 (center), hit area expanded tanpa
+          ubah visual. */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <circleGeometry args={[padRadius * 1.4, 16]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
       {/* Ripple ring di bawah pad — torus tipis di permukaan air,
           melebar & fade saat pad hovered. Render before pad supaya
           ring kelihatan keluar dari bawah pad, bukan nutup pad. */}
