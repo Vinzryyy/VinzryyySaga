@@ -166,23 +166,25 @@ const KebaikanArchive = () => {
     );
   }, [filter]);
 
-  // Showcase = 1 slide per entry (aksi). Cover = proofUrl or first gallery
-  // image; photoCount drives the "+N foto" badge for entries with multiple
-  // bukti. Carousel count now matches Total Aksi stat — entries dengan
-  // banyak bukti (mis. Pohon Kebaikan, 7 sertifikat) tidak lagi mengembang
-  // jumlah slide. Klik slide tetap buka lightbox dari index 0.
+  // Showcase = flat list of every gallery item across filtered entries.
+  // 1 slide = 1 piece of bukti. Slides dari entry multi-bukti (mis. Pohon
+  // Kebaikan, 7 sertifikat) tampil "X / Y" badge supaya jelas mereka bagian
+  // dari satu aksi. Single-bukti entries tetap tanpa badge. Slide click
+  // buka lightbox di index yg tepat.
   const showcaseSlides = useMemo(() => {
-    return filtered
-      .map((entry) => {
-        const imgs = Array.isArray(entry.gallery) && entry.gallery.length > 0
-          ? entry.gallery
-          : entry.proofUrl
-            ? [entry.proofUrl]
-            : [];
-        if (imgs.length === 0) return null;
-        return { url: imgs[0], entry, photoCount: imgs.length };
-      })
-      .filter(Boolean);
+    const slides = [];
+    filtered.forEach((entry) => {
+      const imgs = Array.isArray(entry.gallery) && entry.gallery.length > 0
+        ? entry.gallery
+        : entry.proofUrl
+          ? [entry.proofUrl]
+          : [];
+      const total = imgs.length;
+      imgs.forEach((url, idx) => {
+        slides.push({ url, entry, idx, total });
+      });
+    });
+    return slides;
   }, [filtered]);
 
   return (
@@ -324,29 +326,30 @@ const KebaikanArchive = () => {
                 {showcaseSlides.map((s) => {
                   const cat = KEBAIKAN_CATEGORIES.find((c) => c.id === s.entry.category);
                   const subtitle = s.entry.recipient || cat?.label || '';
+                  const showCount = s.total > 1;
                   return (
-                    <SwiperSlide key={s.entry.id} className="!h-auto">
+                    <SwiperSlide key={`${s.entry.id}-${s.idx}`} className="!h-auto">
                       <button
                         type="button"
-                        onClick={() => openLightbox(s.entry, 0)}
+                        onClick={() => openLightbox(s.entry, s.idx)}
                         className="relative block w-full pb-[100%] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--retro-gold)] rounded-lg overflow-hidden"
-                        aria-label={`Buka bukti — ${s.entry.title}${s.photoCount > 1 ? ` (${s.photoCount} foto)` : ''}`}
+                        aria-label={`Buka bukti ${s.idx + 1}${showCount ? ` dari ${s.total}` : ''} — ${s.entry.title}`}
                       >
                         <div className="absolute inset-0">
                           <img
                             src={s.url}
-                            alt={`${s.entry.title} — bukti`}
+                            alt={`${s.entry.title} — bukti ${s.idx + 1}`}
                             loading="lazy"
                             decoding="async"
                             className="absolute inset-0 h-full w-full object-cover"
                           />
-                          {s.photoCount > 1 && (
+                          {showCount && (
                             <span
-                              className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-sm text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--retro-cream)] pointer-events-none"
+                              className="absolute top-3 right-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur-sm text-[10px] font-black uppercase tracking-[0.18em] text-[color:var(--retro-cream)] pointer-events-none tabular-nums"
                               aria-hidden="true"
                             >
                               <i className="ri-stack-line text-xs" />
-                              <span className="tabular-nums">{s.photoCount}</span>
+                              {s.idx + 1} / {s.total}
                             </span>
                           )}
                           <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col justify-end bg-gradient-to-t from-black/75 via-black/15 to-transparent px-4 pb-4">
