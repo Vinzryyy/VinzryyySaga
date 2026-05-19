@@ -5049,7 +5049,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
         description="Perpustakaan kota yang setengah runtuh — rak yang masih berdiri menyimpan halaman-halaman tentang perjalanan Eli dan Armeniaca."
         path="/armeniacaTown/r2"
       />
-      <div className="relative w-full h-screen bg-[#1a0e08] overflow-hidden select-none">
+      <div className="relative w-full h-[100dvh] bg-[#1a0e08] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 50, position: [0, 1.2, -9] }}

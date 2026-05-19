@@ -948,7 +948,7 @@ const TamanLorongPohonGersangPage = () => {
         description="Perjalanan karier Eli dari Generasi 7 ke Team Dream — milestone-milestone yang dirajut menjadi konstelasi di langit taman senja."
         path="/armeniacaTown/r1"
       />
-      <div className="relative w-full h-screen bg-[#1c1f2a] overflow-hidden select-none">
+      <div className="relative w-full h-[100dvh] bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 55, position: [4, 4, -2] }}

@@ -104,7 +104,7 @@ const TamanMenaraJamPage = ({ restored = false }) => {
       />
       <RotateRecommendation />
       <MenaraJamMusic />
-      <div className="relative w-full h-screen bg-[#1a1018] overflow-hidden select-none">
+      <div className="relative w-full h-[100dvh] bg-[#1a1018] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 44, position: [7, 4.5, 13] }}

@@ -16398,7 +16398,7 @@ const TamanPetaPage = () => {
         description="Peta ArmeniacaTown — kota yang tumbuh dari siraman komunitas Helismiley."
         path="/armeniacaTown/peta"
       />
-      <div className="relative w-full h-screen bg-[#2a1f30] overflow-hidden select-none">
+      <div className="relative w-full h-[100dvh] bg-[#2a1f30] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 38, position: [9, 11, 9] }}

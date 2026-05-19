@@ -2016,7 +2016,7 @@ const MuseumPage = () => {
         path="/armeniacaTown"
       />
       <div
-        className={`relative w-full h-screen overflow-hidden select-none ${
+        className={`relative w-full h-[100dvh] overflow-hidden select-none ${
           unlocked ? 'cursor-pointer' : 'cursor-default'
         }`}
         onClick={handleClick}

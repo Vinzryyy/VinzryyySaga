@@ -6723,7 +6723,7 @@ const TamanKolamKataGersangPage = () => {
         description="Telaga di taman yang masih kering. Siram di /26 untuk merestorasi ekosistem dan memunculkan teratai-teratai harapan."
         path="/armeniacaTown/r3"
       />
-      <div className="relative w-full h-screen bg-[#0a1320] overflow-hidden select-none">
+      <div className="relative w-full h-[100dvh] bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas
             camera={{ fov: 50, position: [4, 20, 8] }}

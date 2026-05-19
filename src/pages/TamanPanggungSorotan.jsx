@@ -3341,7 +3341,7 @@ const TamanPanggungSorotan = ({ restored = false }) => {
       />
       <RotateRecommendation />
       <div
-        className="relative w-full h-screen overflow-hidden select-none"
+        className="relative w-full h-[100dvh] overflow-hidden select-none"
         style={{ background: restored ? '#1f1208' : '#150f0a' }}
       >
         <Suspense fallback={<SceneFallback />}>
