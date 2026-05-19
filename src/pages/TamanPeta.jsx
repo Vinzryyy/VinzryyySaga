@@ -42,6 +42,7 @@ import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
+import { useIsMobile } from '../hooks/useMediaQuery';
 import {
   HiddenInteractables,
   DiscoveryRevealCard,
@@ -121,22 +122,6 @@ const useArmeniacaProgress = () => {
     return unsubscribe;
   }, []);
   return state;
-};
-
-// Hook deteksi mobile via matchMedia (sama pola dengan Museum.jsx —
-// dijaga konsisten supaya keputusan downscale seragam antar halaman
-// museum). Threshold 768px = batas Tailwind md breakpoint.
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
 };
 
 // WIB hour decimal (e.g. 14.5 = 14:30) — anchor untuk time-of-day cycle.

@@ -1,21 +1,11 @@
-import { useEffect, useState } from 'react';
-
 /**
  * Utility helpers untuk scene Telaga Harapan.
  */
 
-export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
-};
+// Re-export centralized useIsMobile — kept here for backward compat
+// dengan files yang import dari `r3/utils`. Single source of truth di
+// `src/hooks/useMediaQuery.js`.
+export { useIsMobile } from '../../../hooks/useMediaQuery';
 
 export const lerp = (a, b, t) => a + (b - a) * t;
 

@@ -34,6 +34,7 @@ import * as THREE from 'three';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
+import { useIsMobile } from '../hooks/useMediaQuery';
 import {
   KEBAIKAN_CATEGORIES,
   KEBAIKAN_ENTRIES,
@@ -72,19 +73,6 @@ const WALL_POSITIONS = [
   { x: SIDE_WALL_X - 0.13,  y: 2.7, z: 0,    ry: -Math.PI / 2 },  // right-mid
   { x: SIDE_WALL_X - 0.13,  y: 2.7, z: 2.5,  ry: -Math.PI / 2 },  // right-front
 ];
-
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
-};
 
 const formatDate = (iso) => {
   if (!iso) return null;

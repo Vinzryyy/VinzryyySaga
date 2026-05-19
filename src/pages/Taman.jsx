@@ -54,6 +54,7 @@ import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
+import { useIsMobile } from '../hooks/useMediaQuery';
 
 // Threshold buka Gerbang = unlock peta /armeniacaTown/peta. Sinkron
 // dengan TamanPetaRouteGuard di App.jsx (jangan diubah cuma di satu
@@ -79,22 +80,6 @@ const useGateUnlock = () => {
     count: state.count,
     loaded: state.loaded,
   };
-};
-
-// Hook deteksi mobile via matchMedia. Re-evaluate saat resize. Pakai
-// untuk turunin DustParticles count dan dpr supaya R0 tetep smooth di
-// HP entry-level. Threshold 768px = batas Tailwind md breakpoint.
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
 };
 
 const TRANSITION_DURATION = 3.0; // detik

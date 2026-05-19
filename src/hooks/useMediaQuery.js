@@ -102,9 +102,21 @@ export const usePrefersReducedMotion = () => {
   return useMediaQuery("(prefers-reduced-motion: reduce)");
 };
 
+/**
+ * useIsMobile — phone+phablet detection untuk 3D perf tier decisions.
+ * Threshold 767px = Tailwind md breakpoint. Beda dari `useBreakpoint().isMobile`
+ * (640px / sm) yang dipake untuk UI layout — useIsMobile lebih lebar karena
+ * intent-nya "device class yang gak boleh dapet full quality 3D".
+ *
+ * Dipake di armeniacaTown pages untuk turunin dpr, antialias, entity count,
+ * EffectComposer, dll. Konsisten antar page biar keputusan downscale seragam.
+ */
+export const useIsMobile = () => useMediaQuery("(max-width: 767px)");
+
 export default {
   useMediaQuery,
   useBreakpoint,
   useDarkMode,
   usePrefersReducedMotion,
+  useIsMobile,
 };

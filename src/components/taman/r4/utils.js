@@ -27,18 +27,10 @@ import { useSearchParams } from 'react-router-dom';
 import { ELI_TIMELINE } from '../../../data/eliProfile';
 import { SITE_CONFIG } from '../../../config/siteConfig';
 
-export const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-  return isMobile;
-};
+// Re-export centralized useIsMobile — kept here for backward compat
+// dengan files yang import dari `r4/utils`. Single source of truth di
+// `src/hooks/useMediaQuery.js`.
+export { useIsMobile } from '../../../hooks/useMediaQuery';
 
 // WIB time via Intl.DateTimeFormat('Asia/Jakarta') — independen dari
 // user's local timezone. Update setiap 1s — cukup buat jarum jam/menit
