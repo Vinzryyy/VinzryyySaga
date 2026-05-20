@@ -56,6 +56,7 @@ import ArmeMascot from '../components/taman/peta/ArmeMascot';
 import ReturningResidents from '../components/taman/peta/ReturningResidents';
 import AtmosphericFireflies from '../components/taman/peta/AtmosphericFireflies';
 import FestivalDecorations from '../components/taman/peta/FestivalDecorations';
+import JapaneseFestivalDecor from '../components/taman/peta/JapaneseFestivalDecor';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -8016,15 +8017,19 @@ const ChimneySmoke = ({ count }) => {
 // FestivalLanterns (m8, count >= 8000) — string of small paper lanterns
 // hung between trees + houses. Festival celebration prep. Lit warm
 // emissive, flicker via useFrame.
+// Carnival canopy pattern — 6 string radial dari hub di atas Pohon
+// (Y=4.0, atas canopy) ke 6 outer edge points (Y=2.5, lower). Pakai
+// sagging curve di useFrame render bikin "kanopi tenda festival"
+// klasik matsuri. Sebelumnya 4 string scattered tanpa connection
+// — sekarang semua converge ke center, kerasa one cohesive system.
+const FESTIVAL_HUB = [0, 4.0, 0]; // above Pohon canopy
 const FESTIVAL_LANTERN_STRINGS = [
-  // String 1: between south houses (4,10.5)-(7.5,11)
-  { from: [4, 3, 10.5], to: [7.5, 3, 11], count: 5 },
-  // String 2: between east houses
-  { from: [9, 2.5, 0.8], to: [11, 2.5, -2.8], count: 5 },
-  // String 3: between west houses
-  { from: [-11, 2.5, 2.5], to: [-10.5, 2.5, 5], count: 4 },
-  // String 4: across market area (lorong entry south)
-  { from: [-3, 2.8, 8.5], to: [3.5, 2.8, 7], count: 7 },
+  { from: FESTIVAL_HUB, to: [9, 2.5, -2], count: 6 },     // E
+  { from: FESTIVAL_HUB, to: [-9, 2.5, -2], count: 6 },    // W
+  { from: FESTIVAL_HUB, to: [0, 2.6, 10], count: 7 },     // S (gerbang direction)
+  { from: FESTIVAL_HUB, to: [0, 2.6, -10], count: 7 },    // N (menara direction)
+  { from: FESTIVAL_HUB, to: [6, 2.5, 7], count: 6 },      // SE (panggung)
+  { from: FESTIVAL_HUB, to: [-6, 2.5, 7], count: 6 },     // SW
 ];
 const FestivalLanterns = ({ count }) => {
   const matRefs = useRef([]);
@@ -15094,14 +15099,19 @@ const TamanScene = ({
         isMobile={isMobile}
       />
       {/* Festival decorations — banners + gerbang wreath (8000+),
-          plaza dance rings + panggung spotlights + fireworks + confetti
-          + audience silhouettes (9000+). Lengkapin festival vibes
-          existing (FestivalLanterns + FestivalPetals). */}
+          plaza dance rings (9000+), fireworks + confetti + audience
+          silhouettes (9000+). Lengkapin festival vibes existing
+          (FestivalLanterns + FestivalPetals). */}
       <FestivalDecorations
         count={armeniacaCount}
         loaded={armeniacaLoaded}
         isMobile={isMobile}
       />
+      {/* Japanese matsuri-themed decor — Yatai food stalls + kohaku-maku
+          + tanzaku (8000+), TaikoDrum + festival masks + sky lanterns
+          (9000+). Tone: rural matsuri (kota kecil yang akhirnya rame
+          lagi), bukan Akihabara neon. */}
+      <JapaneseFestivalDecor count={armeniacaCount} loaded={armeniacaLoaded} />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* === Reforestation system (A, B, C) === */}
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
