@@ -52,6 +52,7 @@ import {
 } from '../components/taman/peta/HiddenDiscoveries';
 import WanderingCat from '../components/taman/peta/WanderingCat';
 import QuadrantFill from '../components/taman/peta/QuadrantFill';
+import ArmeMascot from '../components/taman/peta/ArmeMascot';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -15991,6 +15992,17 @@ const TamanPetaPage = () => {
   const recordPetakVisit = useCallback((petakId) => {
     setPetakVisits((prev) => {
       const next = { ...prev, [petakId]: new Date().toISOString() };
+      // Arme cue: pertama kali user pilih petak NON-pohon — kasih reaksi
+      // "pilihan menarik". Pohon-first jalur normal, gak di-trigger di sini
+      // (pohon-click punya cue sendiri).
+      if (petakId !== 'pohon') {
+        const hadOtherPetak = Object.keys(prev).some((id) => id !== 'pohon');
+        if (!hadOtherPetak) {
+          window.dispatchEvent(
+            new CustomEvent('arme:trigger', { detail: 'petak-first-pick' }),
+          );
+        }
+      }
       writePetakVisits(next);
       return next;
     });
@@ -16235,6 +16247,7 @@ const TamanPetaPage = () => {
     playSfx('chime');
     runTapOrOpen('pohon', () => {
       recordPetakVisit('pohon');
+      window.dispatchEvent(new CustomEvent('arme:trigger', { detail: 'pohon-click' }));
       setPetakPreview(PETA_PETAK_INFO.pohon);
     });
   };
@@ -16593,6 +16606,16 @@ const TamanPetaPage = () => {
         {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
             selesai, persisted via localStorage. */}
         {!petakPreview && <TamanPetaIntroTitle />}
+        {/* Arme — warga terakhir ArmeniacaTown. Mascot overlay
+            placeholder (Base.png), nyambut + ngenarrate milestone +
+            replay drawer. Auto-hide saat modal kebuka. */}
+        <ArmeMascot
+          armeniacaCount={armeniacaCount}
+          armeniacaLoaded={armeniacaLoaded}
+          flyInActive={flyInActive}
+          modalOpen={Boolean(selectedPetak) || Boolean(petakPreview) || Boolean(revealed)}
+          isMobile={isMobile}
+        />
         <AmbientAudio position="top-right" />
         <RotateRecommendation />
         {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
