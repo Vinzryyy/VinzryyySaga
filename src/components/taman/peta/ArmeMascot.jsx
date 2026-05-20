@@ -477,9 +477,43 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     : null;
   const activeLine = activeDialog?.lines[activeLineIdx];
   const hidden = modalOpen;
+  const isTalking = Boolean(activeDialog);
+  // Newcomer = user belum pernah heard dialog apapun. Pakai stronger
+  // attention cues (bounce + bigger pill) buat ngajak first interaction.
+  const isNewcomer = Object.keys(heardMap).length === 0;
+
+  // Talking highlight — warm apricot glow stack di drop-shadow (efek
+  // "rim light" hangat sekitar avatar) + brightness boost ringan. Idle
+  // tetep ada drop-shadow gelap + glow tipis biar gak ngeblend ke map.
+  const avatarFilter = isTalking
+    ? 'drop-shadow(0 0 22px rgba(244,200,150,0.75)) drop-shadow(0 0 44px rgba(244,200,150,0.4)) drop-shadow(0 8px 18px rgba(0,0,0,0.45)) brightness(1.08)'
+    : 'drop-shadow(0 0 14px rgba(244,200,150,0.2)) drop-shadow(0 8px 18px rgba(0,0,0,0.45))';
 
   return (
     <>
+      {/* Keyframe animations untuk Arme — halo breath + idle attention
+          wave. Inline supaya self-contained, gak nempel global CSS. */}
+      <style>{`
+        @keyframes armeHaloBreath {
+          0%, 100% { transform: scale(1); opacity: 0.85; }
+          50% { transform: scale(1.08); opacity: 1; }
+        }
+        @keyframes armeIdleBob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes armeNewcomerWave {
+          0%, 100% { transform: translateY(0) rotate(0); }
+          20% { transform: translateY(-6px) rotate(-1.5deg); }
+          40% { transform: translateY(0) rotate(1deg); }
+          60% { transform: translateY(-3px) rotate(-0.5deg); }
+        }
+        @keyframes armePillPulse {
+          0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+          50% { transform: translateX(2px) scale(1.04); opacity: 0.92; }
+        }
+      `}</style>
+
       <div
         className={`pointer-events-none fixed bottom-0 left-0 z-20 select-none transition-opacity duration-500 ${
           hidden ? 'opacity-0' : 'opacity-100'
@@ -487,6 +521,28 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         aria-hidden={hidden}
       >
         <div className="relative">
+          {/* Halo glow behind avatar — selalu ada tipis biar Arme gak
+              ngeblend ke map gelap, full brightness pas talking. Breath
+              animation pas talking; static low-opacity idle. */}
+          <div
+            className="pointer-events-none absolute inset-0 transition-opacity duration-700"
+            style={{ opacity: isTalking ? 1 : 0.55 }}
+            aria-hidden
+          >
+            <div
+              className={`absolute left-1/2 -translate-x-1/2 rounded-full ${
+                isMobile ? 'w-44 h-44 bottom-2' : 'w-64 h-64 bottom-4'
+              }`}
+              style={{
+                background: isTalking
+                  ? 'radial-gradient(circle, rgba(244,200,150,0.5) 0%, rgba(244,200,150,0.2) 35%, rgba(244,200,150,0) 70%)'
+                  : 'radial-gradient(circle, rgba(244,200,150,0.28) 0%, rgba(244,200,150,0.1) 40%, rgba(244,200,150,0) 70%)',
+                filter: 'blur(12px)',
+                animation: isTalking ? 'armeHaloBreath 3.4s ease-in-out infinite' : 'none',
+              }}
+            />
+          </div>
+
           <button
             type="button"
             onClick={handleAvatarClick}
@@ -497,23 +553,54 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               src={AVATAR_SRC}
               alt="Arme — warga terakhir ArmeniacaTown"
               draggable={false}
-              className={`block w-auto object-bottom transition-transform duration-300 hover:scale-[1.03] ${
+              className={`block w-auto object-bottom transition-all duration-500 hover:scale-[1.05] ${
                 isMobile ? 'h-40' : 'h-60'
-              }`}
-              style={{ filter: 'drop-shadow(0 8px 18px rgba(0,0,0,0.45))' }}
+              } ${isTalking ? 'scale-[1.04]' : 'scale-100'}`}
+              style={{
+                filter: avatarFilter,
+                animation: isTalking
+                  ? 'none'
+                  : isNewcomer
+                    ? 'armeNewcomerWave 2.6s ease-in-out infinite'
+                    : 'armeIdleBob 4.2s ease-in-out infinite',
+              }}
             />
-            {/* Name plate + hint */}
+            {/* Name plate + hint — accent berubah pas talking (apricot
+                warm) supaya nameplate ngasih sinyal "ini yg lagi ngomong" */}
             <span
               className={`absolute left-3 ${
                 isMobile ? 'bottom-2' : 'bottom-3'
               } flex flex-col items-start gap-1`}
             >
-              <span className="rounded-full bg-[#1c1f2a]/80 backdrop-blur-sm px-2.5 py-0.5 text-[10px] md:text-[11px] font-semibold tracking-wider text-white ring-1 ring-white/15">
-                Arme
+              <span
+                className={`rounded-full backdrop-blur-sm px-2.5 py-0.5 text-[10px] md:text-[11px] font-semibold tracking-wider text-white ring-1 transition-colors duration-300 ${
+                  isTalking
+                    ? 'bg-[#9a5b4a]/95 ring-[#f4c896]/40 shadow-[0_0_12px_rgba(244,200,150,0.55)]'
+                    : 'bg-[#1c1f2a]/85 ring-[#d4a574]/35'
+                }`}
+              >
+                Arme{isTalking ? ' · ngomong…' : ' · pemandu'}
               </span>
               {!activeDialog && (
-                <span className="rounded-full bg-[#9a5b4a]/85 backdrop-blur-sm px-2 py-0.5 text-[9px] md:text-[10px] text-white/95 ring-1 ring-white/15 animate-pulse">
-                  tap untuk ngobrol
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full backdrop-blur-sm px-2.5 py-1 text-[10px] md:text-[11px] font-medium text-white ring-1 shadow-[0_0_14px_rgba(244,200,150,0.4)] ${
+                    isNewcomer
+                      ? 'bg-[#c97a5e] ring-[#f4c896]/50'
+                      : 'bg-[#9a5b4a]/90 ring-white/15'
+                  }`}
+                  style={{
+                    animation: isNewcomer
+                      ? 'armePillPulse 1.4s ease-in-out infinite'
+                      : 'armePillPulse 2.2s ease-in-out infinite',
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    className="inline-block w-1.5 h-1.5 rounded-full bg-white/95"
+                  />
+                  <span>
+                    {isNewcomer ? 'tap aku — aku pandu kotanya' : 'tap untuk ngobrol'}
+                  </span>
                 </span>
               )}
             </span>
