@@ -79,9 +79,9 @@ const daysSince = (iso) => {
 // Two layout modes:
 //   - 'corner': bubble absolutely positioned di samping avatar pojok
 //     (default routine dialog). Tail menghadap kiri ke avatar.
-//   - 'cinematic': bubble di tengah-atas avatar, wider + bigger text,
-//     tail menghadap bawah. Dipakai utk 'momen besar' (welcome,
-//     purified, legacy, dll) supaya kerasa cutscene moment.
+//   - 'cinematic': VN-style. Mobile = bubble di atas Arme (kepepet
+//     width), tail bawah-tengah. Desktop = Arme di tengah viewport +
+//     bubble di kanannya, tail kiri-tengah ke avatar (visual novel).
 const SpeechBubble = ({
   text,
   currentIdx,
@@ -92,13 +92,22 @@ const SpeechBubble = ({
   onDismiss,
 }) => {
   if (mode === 'cinematic') {
+    // Tail menghadap avatar:
+    //   mobile (bubble di atas Arme)  → tail bawah, point ke bawah
+    //   desktop (bubble di samping)   → tail kiri, point ke kiri
+    const tailPositionClass = isMobile
+      ? 'absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 rotate-45'
+      : 'absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rotate-45';
+    const tailClipPath = isMobile
+      ? 'polygon(100% 0, 100% 100%, 0 100%)' // down-pointing wedge
+      : 'polygon(0 0, 0 100%, 100% 100%)'; // left-pointing wedge
+
     return (
       <div className="pointer-events-auto relative z-30 w-[min(86vw,440px)]">
         <div className="relative rounded-2xl bg-white/97 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-5 py-4 md:px-6 md:py-5">
-          {/* Tail bawah-tengah, point ke kepala Arme */}
           <span
-            className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 rotate-45 bg-white/97 ring-1 ring-black/10"
-            style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}
+            className={`${tailPositionClass} bg-white/97 ring-1 ring-black/10`}
+            style={{ clipPath: tailClipPath }}
             aria-hidden
           />
           {/* Dismiss */}
@@ -697,31 +706,16 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         </div>
       </div>
 
-      {/* Cinematic Arme — centered cutscene layout. Arme lebih gede,
-          glow lebih kuat, speech bubble di atas kepalanya (centered).
-          Hanya render saat dialog cinematic aktif. Click backdrop sudah
-          dismiss; klik avatar advance bubble. */}
+      {/* Cinematic Arme — VN-style. Mobile = column-reverse di bottom
+          (bubble di atas Arme, stack vertikal). Desktop = row centered
+          di tengah viewport (Arme kiri + bubble kanan, kerasa visual
+          novel). Backdrop dim map udah dirender di layer terpisah. */}
       <div
-        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col items-center justify-end pb-2 md:pb-6 select-none transition-opacity duration-700 ${
+        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col-reverse md:flex-row items-center justify-end md:justify-center gap-3 md:gap-8 px-4 pb-6 md:pb-0 select-none transition-opacity duration-700 ${
           isCinematic && !hidden ? 'opacity-100' : 'opacity-0'
         }`}
         aria-hidden={!isCinematic || hidden}
       >
-        {/* Bubble di atas Arme — render saat ada activeLine */}
-        {isCinematic && activeLine && (
-          <div className="mb-3 md:mb-4">
-            <SpeechBubble
-              text={activeLine}
-              currentIdx={activeLineIdx}
-              total={activeDialog.lines.length}
-              isMobile={isMobile}
-              mode="cinematic"
-              onAdvance={handleAdvance}
-              onDismiss={handleDismiss}
-            />
-          </div>
-        )}
-
         <div className="relative">
           {/* Halo cinematic — bigger, more dominant */}
           <div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -759,6 +753,18 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
             </span>
           </button>
         </div>
+
+        {isCinematic && activeLine && (
+          <SpeechBubble
+            text={activeLine}
+            currentIdx={activeLineIdx}
+            total={activeDialog.lines.length}
+            isMobile={isMobile}
+            mode="cinematic"
+            onAdvance={handleAdvance}
+            onDismiss={handleDismiss}
+          />
+        )}
       </div>
 
       {drawerOpen && (
