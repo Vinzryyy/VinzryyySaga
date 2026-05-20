@@ -24,14 +24,29 @@ const FESTIVAL_PREP = 8000;
 const FESTIVAL_PEAK = 9000;
 
 // ── Hanging Banners ──────────────────────────────────────────────────
+// 6 string banner anchored ke FestivalLanternPoles existing (hex points
+// di TamanPeta.jsx), Y=2.8 (di bawah lantern strings Y=4.5). Satu pole
+// support 2 tier string: lanterns atas, banners bawah. Sebelumnya banner
+// strings scattered tanpa anchor jelas — sekarang nyatu ke physical
+// poles, kerasa proper festival rigging.
+//
+// KOORDINAT X/Z HARUS MATCH dgn FESTIVAL_HEX_POINTS di TamanPeta.jsx
+// (E/SE/SW/W/NW/NE). Kalau hex points pindah, update di sini juga.
+const BANNER_HEX_LOWER = [
+  [9, 2.8, 0],       // E (pole)
+  [4.5, 2.8, 7.8],   // SE (pole)
+  [-4.5, 2.8, 7.8],  // SW (pole)
+  [-9, 2.8, 0],      // W (pole)
+  [-4.5, 2.8, -7.8], // NW (pole)
+  [4.5, 2.8, -7.8],  // NE (pole)
+];
 const BANNER_STRINGS = [
-  // 6 string banner di sekeliling outer map, area aman
-  { from: [-9, 3.0, -2], to: [-5.5, 3.0, -2], colorIdx: 0 }, // W
-  { from: [5.5, 3.0, -2], to: [9, 3.0, -2], colorIdx: 1 },   // E
-  { from: [-9, 2.8, 6], to: [-5, 2.8, 6], colorIdx: 2 },     // SW
-  { from: [5, 2.8, 6], to: [9, 2.8, 6], colorIdx: 0 },       // SE
-  { from: [-4, 3.2, -9], to: [4, 3.2, -9], colorIdx: 1 },    // N (across menara)
-  { from: [-4, 3.0, 9.5], to: [4, 3.0, 9.5], colorIdx: 2 },  // S (across gerbang)
+  { from: BANNER_HEX_LOWER[0], to: BANNER_HEX_LOWER[1], colorIdx: 0 }, // E → SE
+  { from: BANNER_HEX_LOWER[1], to: BANNER_HEX_LOWER[2], colorIdx: 1 }, // SE → SW
+  { from: BANNER_HEX_LOWER[2], to: BANNER_HEX_LOWER[3], colorIdx: 2 }, // SW → W
+  { from: BANNER_HEX_LOWER[3], to: BANNER_HEX_LOWER[4], colorIdx: 0 }, // W → NW
+  { from: BANNER_HEX_LOWER[4], to: BANNER_HEX_LOWER[5], colorIdx: 1 }, // NW → NE
+  { from: BANNER_HEX_LOWER[5], to: BANNER_HEX_LOWER[0], colorIdx: 2 }, // NE → E
 ];
 
 const BANNER_COLORS = ['#c84838', '#e88848', '#f8d068'];

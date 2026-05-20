@@ -8040,6 +8040,47 @@ const FESTIVAL_LANTERN_STRINGS = [
   { from: FESTIVAL_HEX_POINTS[4], to: FESTIVAL_HEX_POINTS[5], count: 8 }, // NW → NE
   { from: FESTIVAL_HEX_POINTS[5], to: FESTIVAL_HEX_POINTS[0], count: 7 }, // NE → E
 ];
+
+// FestivalLanternPoles — 6 wooden anchor post di setiap hex point,
+// vertical dari ground (Y=0) ke Y=4.5 (level string attach). Tanpa
+// pole, strings keliatan melayang gak ada support. Sekarang ada
+// physical anchor jelas. Material: wood post + dark rope wrap near
+// top + stone base footing + cone finial cap. Visible same threshold
+// dgn FestivalLanterns (festivalPrep 8000).
+const FestivalLanternPoles = ({ count }) => {
+  if (count < MAP_THRESHOLDS.festivalPrep) return null;
+  return (
+    <>
+      {FESTIVAL_HEX_POINTS.map((p, i) => (
+        <group key={`pole-${i}`} position={[p[0], 0, p[2]]}>
+          {/* Stone base footing — wider, kerasa anchored */}
+          <mesh position={[0, 0.06, 0]}>
+            <cylinderGeometry args={[0.18, 0.22, 0.12, 8]} />
+            <meshStandardMaterial color="#5a5e6a" roughness={1} />
+          </mesh>
+          {/* Main vertical post — taper ringan dari base ke top.
+              Total height 4.5 (matches hex Y); position center
+              Y = 4.5/2 = 2.25. */}
+          <mesh position={[0, 2.31, 0]}>
+            <cylinderGeometry args={[0.07, 0.1, 4.5, 6]} />
+            <meshStandardMaterial color="#5a3818" roughness={0.95} />
+          </mesh>
+          {/* Rope wrap near top — dark band kayak ikatan tali */}
+          <mesh position={[0, 4.36, 0]}>
+            <cylinderGeometry args={[0.085, 0.085, 0.08, 8]} />
+            <meshStandardMaterial color="#2a1810" roughness={0.95} />
+          </mesh>
+          {/* Finial cap — small cone di puncak post */}
+          <mesh position={[0, 4.58, 0]}>
+            <coneGeometry args={[0.1, 0.14, 5]} />
+            <meshStandardMaterial color="#3a2418" roughness={0.95} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+};
+
 const FestivalLanterns = ({ count }) => {
   const matRefs = useRef([]);
   useFrame((state) => {
@@ -15147,6 +15188,9 @@ const TamanScene = ({
       <TownBell count={armeniacaCount} />
       <TownSignpost count={armeniacaCount} />
       {/* === Bundle 7 — Post-restore legacy tiers (m8, m9, m10) === */}
+      {/* Pole anchor harus render SEBELUM FestivalLanterns (strings)
+          supaya pole di-paint di belakang lanterns di alpha sort. */}
+      <FestivalLanternPoles count={armeniacaCount} />
       <FestivalLanterns count={armeniacaCount} />
       <FestivalPetals count={armeniacaCount} isMobile={isMobile} />
       <LegacyMonument count={armeniacaCount} />
