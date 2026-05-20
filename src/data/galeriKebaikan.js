@@ -146,6 +146,22 @@ export const KEBAIKAN_ENTRIES = [
     proposedAt: '2026-05-15',
   },
   {
+    id: 'yayasan-penyu-konservasi-2026',
+    title: 'Perlindungan Penyu — Yayasan Penyu Indonesia',
+    category: 'satwa',
+    description:
+      'Donasi atas nama Ceu Eli untuk Yayasan Penyu Indonesia — mendukung program ' +
+      'perlindungan penyu laut dan pelestarian habitatnya. Penyu jadi indikator ' +
+      'kesehatan ekosistem laut yang sehat.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Yayasan Penyu Indonesia (yayasanpenyu.org) — Sea Turtle Protection #4868',
+    amount: 20000,
+    proofUrl: '/Donasists26/Hewan/thankyou-4868_page-0001.jpg',
+    status: 'executed',
+    executedAt: '2026-05-20',
+    proposedAt: '2026-05-20',
+  },
+  {
     id: 'dompet-dhuafa-kemanusiaan-2026',
     title: 'Donasi Kemanusiaan — Dompet Dhuafa',
     category: 'kemanusiaan',

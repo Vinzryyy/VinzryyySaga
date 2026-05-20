@@ -15073,7 +15073,9 @@ const TamanScene = ({
       <PetaFootprintTrails />
       <PathWaymarkers purified={purified} />
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
-      <LandmarkAuras count={armeniacaCount} loaded={armeniacaLoaded} />
+      {/* LandmarkAuras (4 glow discs di Telaga/Arsip/Menara/Panggung) di-
+          disable per user feedback — circle marker ngeganggu, cuma Pohon
+          (CenterTree) yg masih punya halo rings. */}
       <AulaLandmark />
       {/* Warga balik — post-purified populace ramp. Spawn dari 7500
           (sosok jauh di edge), peak di 10000 (ramai plaza). Bayar

@@ -32,9 +32,11 @@ const BUBBLE_AUTO_ADVANCE_MS = 3200;
 const FINAL_DISMISS_DELAY_MS = 4500;
 const WELCOME_DELAY_INTRO_MS = 11_500;
 const WELCOME_DELAY_RETURNING_MS = 1_500;
-const IDLE_TIMEOUT_MS = 60_000;
-const IDLE_COOLDOWN_MS = 5 * 60_000;
-const DISMISS_QUICK_THRESHOLD_MS = 2_400;
+// Catatan: konstanta IDLE_TIMEOUT_MS / IDLE_COOLDOWN_MS /
+// DISMISS_QUICK_THRESHOLD_MS udah di-remove. Arme sekarang strict
+// achievement-based — gak self-fire dari diam (idle) atau reaktif
+// ke dismiss gesture. Dialog 'bonus-idle' + 'bonus-dismiss-quick'
+// tetep ada di catalog buat manual replay dari drawer.
 const PETA_INTRO_KEY = 'taman-peta-intro-seen'; // sinkron sama TamanPetaIntroTitle
 
 // ── Storage helpers ────────────────────────────────────────────────
@@ -297,8 +299,6 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   const initialMountRef = useRef(true);
   const lastProcessedCountRef = useRef(null);
   const advanceTimerRef = useRef(null);
-  const dialogStartedAtRef = useRef(0);
-  const idleTimerRef = useRef(null);
 
   // ── Helpers ──────────────────────────────────────────────────────
   const enqueueDialog = useCallback((id) => {
@@ -318,7 +318,6 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     setQueue((prev) => prev.slice(1));
     setActiveDialogId(nextId);
     setActiveLineIdx(0);
-    dialogStartedAtRef.current = Date.now();
   }, [queue, activeDialogId, modalOpen]);
 
   // ── Effect: auto-advance through lines ───────────────────────────
@@ -378,8 +377,11 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         const lastSeenISO = saved.lastSeen;
         const days = daysSince(lastSeenISO);
         const growth = armeniacaCount > lastSeenCount;
+        const heardMapSaved = saved.heard || {};
 
-        // Returning variant
+        // Returning variant — fire saat user balik. Achievement-style:
+        // returning dialog itself = "user balik" achievement (eksplisit
+        // user action, bukan random self-fire), boleh fire.
         const returningDialog = ARME_DIALOGS.find((d) => {
           if (d.trigger.type !== 'returning') return false;
           const { daysGte, daysLte, requiresGrowth } = d.trigger;
@@ -391,12 +393,16 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         });
         if (returningDialog) enqueueDialog(returningDialog.id);
 
-        // Milestones crossed sejak last visit
+        // Milestones crossed sejak last visit — SKIP yang udah pernah
+        // heard (status='heard') supaya gak re-fire kalau localStorage
+        // lastSeenCount reset tapi heard map masih ada. User cuma denger
+        // sekali per achievement, bahkan kalau session state confused.
         ARME_DIALOGS.filter(
           (d) =>
             d.trigger.type === 'count-cross' &&
             d.trigger.at > lastSeenCount &&
-            d.trigger.at <= armeniacaCount,
+            d.trigger.at <= armeniacaCount &&
+            heardMapSaved[d.id]?.status !== 'heard',
         )
           .sort((a, b) => a.trigger.at - b.trigger.at)
           .forEach((d) => enqueueDialog(d.id));
@@ -419,17 +425,23 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   }, [flyInActive, armeniacaLoaded, armeniacaCount, enqueueDialog, refreshHeard]);
 
   // ── Effect: count change → new crossings ─────────────────────────
+  // Achievement-only: fire dialog cuma kalo user crossed milestone yang
+  // BELUM PERNAH didenger (status !== 'heard'). Sebelumnya bisa re-fire
+  // kalau lastSeenCount confused tapi heard map masih punya entry —
+  // sekarang guarded supaya gak "Arme berdialog sendiri" di re-mount.
   useEffect(() => {
     if (flyInActive || !armeniacaLoaded) return;
     if (initialMountRef.current) return;
     const prev = lastProcessedCountRef.current ?? armeniacaCount;
     if (armeniacaCount <= prev) return;
 
+    const heardMapSaved = loadState()?.heard || {};
     ARME_DIALOGS.filter(
       (d) =>
         d.trigger.type === 'count-cross' &&
         d.trigger.at > prev &&
-        d.trigger.at <= armeniacaCount,
+        d.trigger.at <= armeniacaCount &&
+        heardMapSaved[d.id]?.status !== 'heard',
     )
       .sort((a, b) => a.trigger.at - b.trigger.at)
       .forEach((d) => enqueueDialog(d.id));
@@ -439,9 +451,16 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   }, [armeniacaCount, armeniacaLoaded, flyInActive, enqueueDialog]);
 
   // ── Effect: external window events ───────────────────────────────
+  // Achievement-based events only — pohon-click, petak-first-pick.
+  // 'idle' & 'dismiss-quick' events di-NO-OP (handler ignore) supaya
+  // Arme gak self-fire dari diam atau dismiss reaktif.
   useEffect(() => {
     const handler = (e) => {
       const eventId = e.detail;
+      // Block non-achievement events (idle, dismiss-quick) — user didn't
+      // "achieve" anything, jangan ganggu.
+      if (eventId === 'idle' || eventId === 'dismiss-quick') return;
+
       const dialog = ARME_DIALOGS.find(
         (d) => d.trigger.type === 'event' && d.trigger.event === eventId,
       );
@@ -450,34 +469,14 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
       const saved = loadState();
       const heard = saved?.heard?.[dialog.id];
 
+      // Once-flag: kalo udah heard, skip. Berlaku ke semua event
+      // (pohon-click + petak-first-pick).
       if (dialog.trigger.once && heard?.status === 'heard') return;
-      // Idle event cooldown
-      if (eventId === 'idle' && heard) {
-        const lastAt = new Date(heard.at).getTime();
-        if (Date.now() - lastAt < IDLE_COOLDOWN_MS) return;
-      }
       enqueueDialog(dialog.id);
     };
     window.addEventListener('arme:trigger', handler);
     return () => window.removeEventListener('arme:trigger', handler);
   }, [enqueueDialog]);
-
-  // ── Effect: idle detection ───────────────────────────────────────
-  useEffect(() => {
-    const reset = () => {
-      clearTimeout(idleTimerRef.current);
-      idleTimerRef.current = setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('arme:trigger', { detail: 'idle' }));
-      }, IDLE_TIMEOUT_MS);
-    };
-    reset();
-    const events = ['mousemove', 'pointerdown', 'keydown', 'touchstart'];
-    events.forEach((ev) => window.addEventListener(ev, reset, { passive: true }));
-    return () => {
-      clearTimeout(idleTimerRef.current);
-      events.forEach((ev) => window.removeEventListener(ev, reset));
-    };
-  }, []);
 
   // ── Handlers ─────────────────────────────────────────────────────
   const handleAdvance = useCallback(() => {
@@ -496,27 +495,17 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
 
   const handleDismiss = useCallback(() => {
     clearTimeout(advanceTimerRef.current);
-    const elapsed = Date.now() - dialogStartedAtRef.current;
-    const dialog = ARME_DIALOGS.find((d) => d.id === activeDialogId);
-    const wasEarlyDismiss =
-      dialog &&
-      dialog.id === 'welcome' &&
-      elapsed < DISMISS_QUICK_THRESHOLD_MS &&
-      activeLineIdx < dialog.lines.length - 1;
-
     if (activeDialogId) {
       markHeard(activeDialogId, 'heard');
       refreshHeard();
       setActiveDialogId(null);
       setActiveLineIdx(0);
     }
-
-    if (wasEarlyDismiss) {
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('arme:trigger', { detail: 'dismiss-quick' }));
-      }, 600);
-    }
-  }, [activeDialogId, activeLineIdx, refreshHeard]);
+    // Note: dismiss-quick auto-fire (reaktif ke welcome dismiss cepet)
+    // udah di-disable supaya Arme strict achievement-based — gak
+    // berbicara sendiri reaksi ke user gesture. Dialog 'bonus-dismiss-
+    // quick' tetep di catalog buat manual replay dari drawer.
+  }, [activeDialogId, refreshHeard]);
 
   const handleAvatarClick = useCallback(() => {
     if (activeDialogId) {
