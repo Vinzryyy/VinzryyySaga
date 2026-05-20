@@ -580,6 +580,53 @@ const FRUIT_POSITIONS = [
 // Terakhir" — satu-satunya pohon yg masih hidup di sisa kota gurun
 // yang runtuh (city ruins di horizon). Secara modul tetep link ke
 // /26 (Pohon Kebaikan existing). Hover kasih emissive boost di semua
+// CanopyUpwardPetal — magic counter-gravity petal yang naik dari
+// area canopy Pohon ke langit, recycle. Visible cuma di legacy phase
+// (postPurifiedProgress >= 0.85). Counter-intuitive arah (naik, bukan
+// jatuh) bikin kerasa "kebaikan kembali ke langit" — Pohon ngelepas
+// hadiah ke atas. 8 petal sparse, deterministic seeded position.
+const CANOPY_UPWARD_PETAL_COUNT = 8;
+const CanopyUpwardPetal = ({ idx }) => {
+  const meshRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    const cycleLen = 8 + (idx % 3); // 8-10s per petal cycle
+    const cycle = ((t + idx * 1.3) / cycleLen) % 1;
+    // Y rises 2.4 → 5.0 over cycle, then respawns at bottom.
+    const y = 2.4 + cycle * 2.6;
+    // Base X/Z via deterministic seed per-idx — sebar di sekitar canopy
+    const sx = ((idx * 1234567) % 1009) / 1009 - 0.5;
+    const sz = ((idx * 7654321) % 1013) / 1013 - 0.5;
+    const baseX = sx * 1.2;
+    const baseZ = sz * 1.2;
+    meshRef.current.position.x = baseX + 0.18 * Math.sin(t * 0.6 + idx * 0.7);
+    meshRef.current.position.z = baseZ + 0.18 * Math.cos(t * 0.5 + idx * 0.5);
+    meshRef.current.position.y = y;
+    // Fade in/out — sine cycle peak di tengah, fade di ujung (bottom +
+    // top) supaya pop-out terjadi di canopy area + di langit, gak
+    // tiba-tiba muncul/menghilang.
+    const fade = Math.sin(cycle * Math.PI);
+    meshRef.current.material.opacity = fade * 0.7;
+    // Tumble — slow rotation supaya petal flat plane gak boring
+    meshRef.current.rotation.z = t * 0.4 + idx;
+    meshRef.current.rotation.x = Math.sin(t * 0.3 + idx) * 0.5;
+  });
+  return (
+    <mesh ref={meshRef}>
+      <planeGeometry args={[0.13, 0.16]} />
+      <meshBasicMaterial
+        color="#f4b8a8"
+        transparent
+        opacity={0.6}
+        side={THREE.DoubleSide}
+        toneMapped={false}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+
 // foliage cluster, click → navigate.
 const CenterTree = ({
   hovered,
@@ -627,10 +674,19 @@ const CenterTree = ({
       mat.emissiveIntensity = lerp(mat.emissiveIntensity, targetEm, factor);
     });
 
-    // Outer halo ring spin — ring4 CW, ring5 CCW. rotation.z spins di
-    // local frame setelah -PI/2 X rotation (= world Y spin visually).
-    if (ring4Ref.current) ring4Ref.current.rotation.z = t * 0.06;
-    if (ring5Ref.current) ring5Ref.current.rotation.z = -t * 0.045;
+    // Outer halo ring spin + scale breathing. Spin: ring4 CW
+    // (0.06 rad/s), ring5 CCW (-0.045 rad/s). Breathing: scale pulse
+    // 0.96-1.04 di ~14s cycle (slow inhale-exhale) — ring5 offset
+    // dengan factor 0.99 supaya gak kompak banget = lebih organic.
+    const ringPulse = 1 + Math.sin(t * 0.45) * 0.04;
+    if (ring4Ref.current) {
+      ring4Ref.current.rotation.z = t * 0.06;
+      ring4Ref.current.scale.setScalar(ringPulse);
+    }
+    if (ring5Ref.current) {
+      ring5Ref.current.rotation.z = -t * 0.045;
+      ring5Ref.current.scale.setScalar(ringPulse * 0.99);
+    }
 
     // Legacy beams — subtle opacity flicker per-beam (phase-offset)
     // supaya kerasa light bukan flat plastic.
@@ -693,10 +749,18 @@ const CenterTree = ({
         <cylinderGeometry args={[0.35, 0.45, 0.06, 12]} />
         <meshStandardMaterial color="#7a7e8a" roughness={0.9} />
       </mesh>
-      {/* Trunk — ramping, tinggi 1.4, taper sedikit */}
+      {/* Trunk — ramping, tinggi 1.4, taper sedikit. Subtle warm
+          emissive di post-purified phase: 0 di 7000, 0.15 di 10000.
+          Pohon "bersinar dari dalam" kayak ada cahaya keluar dari
+          kulit kayu — sinkron sama narasi "mercusuar Armeniaca". */}
       <mesh position={[0, 0.7, 0]}>
         <cylinderGeometry args={[0.1, 0.15, 1.4, 10]} />
-        <meshStandardMaterial color="#5a3e2b" roughness={0.95} />
+        <meshStandardMaterial
+          color="#5a3e2b"
+          emissive="#d4a574"
+          emissiveIntensity={purified ? postPurifiedProgress * 0.15 : 0}
+          roughness={0.95}
+        />
       </mesh>
       {/* Foliage clusters — count progressive: foliage radius + cluster
           count scale dgn purifyProgress. Cluster 0 (biggest, main)
@@ -820,6 +884,14 @@ const CenterTree = ({
               />
             </mesh>
           )}
+          {/* Canopy upward petals — magic counter-gravity, naik dari
+              area canopy ke langit, recycle. Legacy phase only.
+              Pasangan visual ke legacy beams; beams = light shooting
+              up, petals = gift Pohon ngelepas ke langit. */}
+          {legacyBeamsVisible &&
+            Array.from({ length: CANOPY_UPWARD_PETAL_COUNT }).map((_, i) => (
+              <CanopyUpwardPetal key={`uppetal-${i}`} idx={i} />
+            ))}
           {/* Legacy phase light beams — 6 thin tapered cones shooting
               up dari canopy area saat progress >= 0.85. Posisi cincin
               ring di canopy top (~Y=2.5), radial dengan radius 0.4.
