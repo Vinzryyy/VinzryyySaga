@@ -593,17 +593,27 @@ const CenterTree = ({
 }) => {
   const groupRef = useRef();
   const foliageMatRefs = useRef([]);
+  // Counter-rotating outer halo rings (post-purified) — kasih kerasa
+  // "aura hidup" bukan static. ring4 CW, ring5 CCW. Speeds slow (0.05-
+  // 0.06 rad/s) supaya gak distracting, cuma subtle motion.
+  const ring4Ref = useRef();
+  const ring5Ref = useRef();
+  // Legacy phase light beams — 6 beams shooting up dari canopy area
+  // saat postPurifiedProgress >= 0.85 (~9550). useRef array buat
+  // animate sway + opacity flicker per-beam.
+  const beamRefs = useRef([]);
 
   // Post-purified progression — purifyProgress udah 0.625 di 7000.
   // postPurifiedProgress remaps range 0.625→1.0 ke 0→1, dipakai utk
   // escalate visual drama dari 7000 (purified onset) ke 10000 (legacy
   // peak): emissive lebih bright, halo rings extra, fruit glow.
   const postPurifiedProgress = Math.max(0, Math.min(1, (purifyProgress - 0.625) / 0.375));
+  const legacyBeamsVisible = postPurifiedProgress >= 0.85;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
-    groupRef.current.rotation.y =
-      Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
+    const t = state.clock.elapsedTime;
+    groupRef.current.rotation.y = Math.sin(t * 0.3) * 0.05;
 
     // Emissive baseline + hover boost. Purified baseline lerp dari
     // 0.12 (di 7000) ke 0.35 (di 10000) — pohon "makin bersinar" sampe
@@ -613,12 +623,23 @@ const CenterTree = ({
     const factor = Math.min(delta * 6, 1);
     foliageMatRefs.current.forEach((mat) => {
       if (!mat) return;
-      mat.emissiveIntensity = lerp(
-        mat.emissiveIntensity,
-        targetEm,
-        factor
-      );
+      mat.emissiveIntensity = lerp(mat.emissiveIntensity, targetEm, factor);
     });
+
+    // Outer halo ring spin — ring4 CW, ring5 CCW. rotation.z spins di
+    // local frame setelah -PI/2 X rotation (= world Y spin visually).
+    if (ring4Ref.current) ring4Ref.current.rotation.z = t * 0.06;
+    if (ring5Ref.current) ring5Ref.current.rotation.z = -t * 0.045;
+
+    // Legacy beams — subtle opacity flicker per-beam (phase-offset)
+    // supaya kerasa light bukan flat plastic.
+    if (legacyBeamsVisible) {
+      beamRefs.current.forEach((m, i) => {
+        if (!m) return;
+        const flicker = 0.7 + Math.sin(t * 1.4 + i * 0.9) * 0.3;
+        m.material.opacity = Math.min(0.42, (postPurifiedProgress - 0.85) * 2.5) * flicker;
+      });
+    }
   });
 
   return (
@@ -768,9 +789,10 @@ const CenterTree = ({
             />
           </mesh>
           {/* Ring 4 — revealed @ postPurifiedProgress >= 0.4 (~8200).
-              Festival-prep era; pohon mulai "buka aura" lebih lebar. */}
+              Festival-prep era; pohon mulai "buka aura" lebih lebar.
+              Slowly rotates CW via ring4Ref useFrame. */}
           {postPurifiedProgress >= 0.4 && (
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
+            <mesh ref={ring4Ref} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
               <ringGeometry args={[1.8, 2.2, 48]} />
               <meshBasicMaterial
                 color="#dc9878"
@@ -783,9 +805,10 @@ const CenterTree = ({
           )}
           {/* Ring 5 — revealed @ postPurifiedProgress >= 0.85 (~9550).
               Legacy phase finalist; outer aura golden, sinyal monument
-              status. Wider radius + slight golden shift. */}
+              status. Wider radius + slight golden shift. Counter-rotates
+              CCW (ring5Ref) supaya berlawanan dgn ring4 — visual flow. */}
           {postPurifiedProgress >= 0.85 && (
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+            <mesh ref={ring5Ref} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
               <ringGeometry args={[2.25, 2.85, 56]} />
               <meshBasicMaterial
                 color="#f4d088"
@@ -796,6 +819,35 @@ const CenterTree = ({
               />
             </mesh>
           )}
+          {/* Legacy phase light beams — 6 thin tapered cones shooting
+              up dari canopy area saat progress >= 0.85. Posisi cincin
+              ring di canopy top (~Y=2.5), radial dengan radius 0.4.
+              Flicker opacity per-frame via beamRefs (lihat useFrame).
+              Memberi finale "pohon jadi monument bersinar". */}
+          {legacyBeamsVisible &&
+            [0, 1, 2, 3, 4, 5].map((i) => {
+              const angle = (i / 6) * Math.PI * 2;
+              const x = Math.cos(angle) * 0.4;
+              const z = Math.sin(angle) * 0.4;
+              return (
+                <mesh
+                  key={`beam-${i}`}
+                  ref={(m) => {
+                    beamRefs.current[i] = m;
+                  }}
+                  position={[x, 3.0, z]}
+                >
+                  <coneGeometry args={[0.06, 1.6, 8, 1, true]} />
+                  <meshBasicMaterial
+                    color="#f4d088"
+                    transparent
+                    opacity={0.2}
+                    depthWrite={false}
+                    toneMapped={false}
+                  />
+                </mesh>
+              );
+            })}
         </>
       )}
       {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
