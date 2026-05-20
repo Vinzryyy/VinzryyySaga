@@ -24,14 +24,16 @@ const FESTIVAL_PREP = 8000;
 const FESTIVAL_PEAK = 9000;
 
 // ── Hanging Banners ──────────────────────────────────────────────────
-// 6 string banner anchored ke FestivalLanternPoles existing (hex points
-// di TamanPeta.jsx), Y=2.8 (di bawah lantern strings Y=4.5). Satu pole
-// support 2 tier string: lanterns atas, banners bawah. Sebelumnya banner
-// strings scattered tanpa anchor jelas — sekarang nyatu ke physical
-// poles, kerasa proper festival rigging.
+// 6 banner string radial dari Pohon top anchor (Y=4.0 di center) ke 6
+// hex pole points di Y=2.8 — RADIAL TENT pattern. Pohon = center peak
+// of tent, hex poles = outer pegs. Beda dari lantern strings (hexagonal
+// perimeter di Y=4.5) — banners punya geometri unik (radial converging
+// ke Pohon) sehingga ada variasi visual, gak duplicate location sama.
 //
-// KOORDINAT X/Z HARUS MATCH dgn FESTIVAL_HEX_POINTS di TamanPeta.jsx
-// (E/SE/SW/W/NW/NE). Kalau hex points pindah, update di sini juga.
+// KOORDINAT hex X/Z HARUS MATCH dgn FESTIVAL_HEX_POINTS di TamanPeta.jsx.
+// Pohon anchor di tengah peta, sedikit ABOVE foliage canopy supaya
+// banner gak clipping ke leaves.
+const BANNER_POHON_ANCHOR = [0, 4.0, 0]; // di atas Pohon canopy (foliage max ~3.2)
 const BANNER_HEX_LOWER = [
   [9, 2.8, 0],       // E (pole)
   [4.5, 2.8, 7.8],   // SE (pole)
@@ -41,12 +43,12 @@ const BANNER_HEX_LOWER = [
   [4.5, 2.8, -7.8],  // NE (pole)
 ];
 const BANNER_STRINGS = [
-  { from: BANNER_HEX_LOWER[0], to: BANNER_HEX_LOWER[1], colorIdx: 0 }, // E → SE
-  { from: BANNER_HEX_LOWER[1], to: BANNER_HEX_LOWER[2], colorIdx: 1 }, // SE → SW
-  { from: BANNER_HEX_LOWER[2], to: BANNER_HEX_LOWER[3], colorIdx: 2 }, // SW → W
-  { from: BANNER_HEX_LOWER[3], to: BANNER_HEX_LOWER[4], colorIdx: 0 }, // W → NW
-  { from: BANNER_HEX_LOWER[4], to: BANNER_HEX_LOWER[5], colorIdx: 1 }, // NW → NE
-  { from: BANNER_HEX_LOWER[5], to: BANNER_HEX_LOWER[0], colorIdx: 2 }, // NE → E
+  { from: BANNER_POHON_ANCHOR, to: BANNER_HEX_LOWER[0], colorIdx: 0 }, // Pohon → E
+  { from: BANNER_POHON_ANCHOR, to: BANNER_HEX_LOWER[1], colorIdx: 1 }, // Pohon → SE
+  { from: BANNER_POHON_ANCHOR, to: BANNER_HEX_LOWER[2], colorIdx: 2 }, // Pohon → SW
+  { from: BANNER_POHON_ANCHOR, to: BANNER_HEX_LOWER[3], colorIdx: 0 }, // Pohon → W
+  { from: BANNER_POHON_ANCHOR, to: BANNER_HEX_LOWER[4], colorIdx: 1 }, // Pohon → NW
+  { from: BANNER_POHON_ANCHOR, to: BANNER_HEX_LOWER[5], colorIdx: 2 }, // Pohon → NE
 ];
 
 const BANNER_COLORS = ['#c84838', '#e88848', '#f8d068'];
