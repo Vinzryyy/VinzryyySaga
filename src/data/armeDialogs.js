@@ -234,7 +234,10 @@ export const ARME_DIALOGS = [
     category: 'besar',
     label: 'Aula Galeri di tengah kebuka',
     cinematic: true,
-    trigger: { type: 'count-cross', at: 7500 },
+    // H-1 sebelum seitansai Eli (2026-06-15) — sync sama Galeri
+    // Kebaikan offline CGV FX. Aula petak juga hidden di scene sampai
+    // tanggal ini (lihat AulaLandmark gating di TamanPeta.jsx).
+    trigger: { type: 'date-match', iso: '2026-06-14' },
     lines: [
       'Aula di tengah… pintunya gerak sendiri tadi.',
       'Dulu Helismiley sering pameran lukisan di sini — buat ngajak warga balik mampir.',
@@ -342,7 +345,9 @@ export const ARME_DIALOGS = [
     category: 'bonus',
     label: 'Hari seitansai Eli',
     cinematic: true,
-    trigger: { type: 'date-match', iso: '2026-06-14' },
+    // Seitansai Eli = 2026-06-15 (canonical project birthday ISO,
+    // sinkron dgn BirthdayMusic, ByuTitipan, siteConfig.eli.eventDateIso).
+    trigger: { type: 'date-match', iso: '2026-06-15' },
     lines: [
       'Hari ini istimewa, ya.',
       'Pohon di tengah keliatan beda dari kemaren — kayak lagi nungguin sesuatu.',

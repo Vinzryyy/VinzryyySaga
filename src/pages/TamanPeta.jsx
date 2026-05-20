@@ -8252,21 +8252,39 @@ const LandmarkAura = ({ position, color, baseColor, progress, pulsePhase = 0 }) 
   );
 };
 
+// Aula Galeri reveal date — H-1 sebelum seitansai Eli (2026-06-15).
+// Sync sama Galeri Kebaikan offline CGV FX launch. Sebelum tanggal
+// ini AulaLandmark hidden total dari scene, dialog 'aula-reveal' juga
+// gak fire (trigger date-match same date). Pakai WIB timezone biar
+// gak off-by-one di midnight UTC.
+const AULA_REVEAL_ISO = '2026-06-14T00:00:00+07:00';
+
 // AulaLandmark — r6 marker di NE quadrant [5, 0, -5]. Visual focus
 // ada di interior pavilion (klik → /armeniacaTown/r6); peta landmark
 // sengaja simple "benda mencolok" tanpa elaborate 3D — 3 stacked cube
 // pastel rainbow (mirror sticky notes di dalam) dengan bob gentle.
 // Bypass modal flow (gak ada PETA_PETAK_INFO entry), navigate langsung.
+// Hidden sampai AULA_REVEAL_ISO (lihat constant atas).
 const AulaLandmark = () => {
   const navigate = useNavigate();
   const groupRef = useRef();
   const [hovered, setHovered] = useState(false);
+  // Memoized check — Aula visible kalau sekarang udah >= reveal date.
+  // useMemo with empty deps = computed sekali at mount; gak update saat
+  // midnight crossing, tapi unlikely user keep peta open across midnight.
+  const aulaRevealed = useMemo(
+    () => Date.now() >= new Date(AULA_REVEAL_ISO).getTime(),
+    [],
+  );
+  // useFrame harus dipanggil DI ATAS early-return supaya hook order
+  // konsisten. Skip body kalau belum revealed (efek none).
   useFrame((state) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || !aulaRevealed) return;
     const t = state.clock.elapsedTime;
     groupRef.current.position.y = 0.5 + Math.sin(t * 1.2) * 0.06;
     groupRef.current.rotation.y = t * 0.25;
   });
+  if (!aulaRevealed) return null;
   const cubes = [
     { color: '#f4c5d5', y: 0 },     // pink (bottom)
     { color: '#f4dba5', y: 0.32 },  // yellow
