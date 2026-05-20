@@ -706,15 +706,19 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         </div>
       </div>
 
-      {/* Cinematic Arme — VN-style. Mobile = column-reverse centered
-          di tengah viewport (bubble di atas Arme, stack vertikal).
-          Desktop = row centered (Arme kiri + bubble kanan, kerasa
-          visual novel). Backdrop dim map udah dirender di layer
-          terpisah. items-center centers cross-axis, justify-center
-          centers main-axis — both H+V centering supaya Arme dead-
-          center di viewport sebagai sosok utama. */}
+      {/* Cinematic Arme — VN/film lower-third positioning.
+          Mobile (column-reverse stacked): pt-[10vh] pb-[5vh] = stack
+            centered di band 10-95vh, stack-center landing di ~52vh
+            tapi karena avatar di bagian bawah stack (col-reverse =
+            bubble top, arme bottom), avatar-center jatuh di ~66-70%
+            viewport = proper lower-third.
+          Desktop (row): pt-[25vh] pb-[5vh] = band 25-95vh, row vertical
+            center di ~60vh = lower-third. justify-center bikin row
+            (avatar + bubble side by side) centered, tapi karena bubble
+            lebih lebar dari avatar, avatar natural mendarat di sekitar
+            30-35% dari kiri (asymmetric VN feel). */}
       <div
-        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col-reverse md:flex-row items-center justify-center gap-3 md:gap-8 px-4 select-none transition-opacity duration-700 ${
+        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col-reverse md:flex-row items-center justify-center gap-3 md:gap-8 px-4 md:px-8 pt-[10vh] md:pt-[25vh] pb-[5vh] select-none transition-opacity duration-700 ${
           isCinematic && !hidden ? 'opacity-100' : 'opacity-0'
         }`}
         aria-hidden={!isCinematic || hidden}
