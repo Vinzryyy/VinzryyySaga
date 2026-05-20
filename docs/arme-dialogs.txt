@@ -1,0 +1,445 @@
+============================================================
+ARME — DIALOG MASTER SCRIPT
+ArmeniacaTown · warga terakhir
+============================================================
+
+KARAKTER:
+Arme adalah warga terakhir ArmeniacaTown. Warga lain udah pergi
+nyelametin diri pas kotanya kering. Dia nungguin di sini, kalau-
+kalau ada yang nyariin tempat ini lagi. Player = orang pertama
+yang dateng setelah lama.
+
+VOICE DIRECTION:
+- Bahasa Indonesia, kasual conversational ("kasual campur")
+- Sebut diri "aku" (hangat) — JANGAN "gua" (terlalu Jakarta-coded)
+- Tone undercurrent: sedikit melankolik (kesepian lama), tapi
+  TIDAK depresif. Selalu ada harapan kecil — dia happy ada yang
+  dateng. Hindari nada sedih putus asa.
+- Pace: unhurried, reflective. Jeda natural antar kalimat.
+- Setiap baris di bawah = satu "speech bubble" terpisah di UI →
+  rekam terpisah biar bisa di-stage per-bubble di app.
+- 6 dialog yang ditandai [CINEMATIC] = momen besar, lebih lambat
+  dan lebih deliberate. Sisanya routine narration, lebih ringan.
+
+PRONUNCIATION GUIDE:
+- ArmeniacaTown   → ar-me-NI-a-ka taun
+- Arme            → AR-me (dua suku kata)
+- Armeniaca       → ar-me-NI-a-ka
+- Helismiley      → heli-SMI-ley
+- Eli             → EH-lee
+- Seitansai       → say-TAN-sai (Jepang)
+- Menara Jam      → me-NA-ra jam
+- Telaga Harapan  → te-LA-ga ha-RAP-an
+- Perpustakaan    → per-pus-ta-KA-an
+
+============================================================
+KATEGORI 1 — SAMBUTAN
+============================================================
+
+------------------------------------------------------------
+1.1  WELCOME  [CINEMATIC]
+     Trigger: first-time visitor (pernah Pohon disiram cukup
+              untuk buka peta)
+     Mood:    surprised → warm → inviting
+------------------------------------------------------------
+Eh… ada yang dateng. Beneran?
+Halo. Namaku Arme — warga terakhir di ArmeniacaTown.
+Yang lain udah pergi nyelametin diri pas kota mulai kering. Aku nungguin di sini, kalau-kalau ada yang nyariin tempat ini lagi.
+Pohon di tengah itu yang paling kuat — masih hidup walau yang lain ninggalin.
+Kamu titip kebaikan ke situ, kota pelan-pelan inget cara tumbuh lagi. Mulai dari sana ya.
+
+
+============================================================
+KATEGORI 2 — PETAK MULAI BUKA (drought state)
+============================================================
+
+------------------------------------------------------------
+2.1  R4-UNLOCK — Lonceng Menara Jam terdengar
+     Trigger: armeniacaCount lewat 3000
+     Mood:    curious surprise
+------------------------------------------------------------
+Eh, denger lonceng tadi?
+Menara Jam di utara nyala lagi.
+Udah lama gak ada yang mukul jam itu — aku sampe lupa bunyinya.
+
+------------------------------------------------------------
+2.2  R3-UNLOCK — Tetes pertama di Telaga
+     Trigger: armeniacaCount lewat 4000
+     Mood:    quiet wonder
+------------------------------------------------------------
+Telaga di timur tetes air pertamanya.
+Dulu orang dateng ke situ buat nitip harapan — bukan minta, cuma nitip.
+Sekarang… siapa yang mau nitip duluan ya?
+
+------------------------------------------------------------
+2.3  R5-UNLOCK — Panggung Terbuka disapu
+     Trigger: armeniacaCount lewat 4500
+     Mood:    nostalgic, lingering
+------------------------------------------------------------
+Panggung di tenggara udah disapu.
+Kursinya rapi lagi, walau masih sepi.
+Dulu sini rame anak-anak nyanyi sampai sore. Sekarang anginnya doang yang lewat.
+
+------------------------------------------------------------
+2.4  R2-UNLOCK — Perpustakaan dibuka pintunya
+     Trigger: armeniacaCount lewat 5000
+     Mood:    quiet, contemplative
+------------------------------------------------------------
+Perpustakaan di barat pintunya kebuka.
+Rak masih banyak yang kosong — yang nyimpen buku udah pindah duluan, bawa buku-bukunya buat selamet.
+Tapi yang ketinggalan bisa kamu baca.
+
+
+============================================================
+KATEGORI 3 — PETAK PULIH (restored state)
+============================================================
+
+------------------------------------------------------------
+3.1  R1-RESTORE — Lorong masuk dirapiin
+     Trigger: armeniacaCount lewat 4000
+     Mood:    observational, content
+------------------------------------------------------------
+Lorong di jalan masuk udah disapu.
+Batu-batunya rapi lagi, walau geriginya masih keliatan.
+Yang lewat pertama kali bakal ngira kota emang gak pernah ditinggalin.
+
+------------------------------------------------------------
+3.2  R4-RESTORE — Menara Jam pas waktu lagi
+     Trigger: armeniacaCount lewat 5000
+     Mood:    bittersweet, reflective
+------------------------------------------------------------
+Menara Jam jalan lagi pas waktu.
+Dulu aku ngecek dari situ kapan kereta terakhir lewat.
+Kereta-nya gak pernah balik, tapi jamnya balik. Aneh ya.
+
+------------------------------------------------------------
+3.3  R3-RESTORE — Telaga penuh, harapan keluar
+     Trigger: armeniacaCount lewat 6000
+     Mood:    warm, knowing
+------------------------------------------------------------
+Air di Telaga udah penuh.
+Iseng aku baca harapan-harapan yang dititip orang dulu — banyak yang familiar.
+Mungkin sebagian dari kamu juga ngerasa gitu.
+
+------------------------------------------------------------
+3.4  R5-RESTORE — Orkes Armeniaca diputer lagi
+     Trigger: armeniacaCount lewat 6500
+     Mood:    gentle, inviting
+------------------------------------------------------------
+Kamu pernah denger orkes Armeniaca? Gak ya.
+Pas kota pulih, aku puter lagu yang dulu sering diputer di panggung ini.
+Mungkin kamu suka.
+
+------------------------------------------------------------
+3.5  R2-RESTORE — Perpustakaan keurus lagi
+     Trigger: armeniacaCount lewat 7000
+     Mood:    quietly meaningful
+------------------------------------------------------------
+Perpustakaan keurus lagi.
+Aku nemuin satu buku yang halaman terakhirnya bolong — kayak nungguin ditulisin.
+Mungkin kamu yang nulis.
+
+
+============================================================
+KATEGORI 4 — AIR MANCUR PLAZA (continuous tiers)
+============================================================
+
+------------------------------------------------------------
+4.1  AM-T1 — Reruntuhan air mancur ditemuin
+     Trigger: armeniacaCount lewat 2000
+     Mood:    discovery, soft
+------------------------------------------------------------
+Plaza tengah baru keliatan reruntuhan air mancurnya.
+Patungnya patah, tapi bentuknya masih ada.
+
+------------------------------------------------------------
+4.2  AM-T2 — Genangan tipis di basin
+     Trigger: armeniacaCount lewat 3000
+     Mood:    poetic, hopeful
+------------------------------------------------------------
+Lengan patung di air mancur balik nempel.
+Di dasar basin, genangan tipis pertama — refleksi langit pulang, walau sebentar.
+
+------------------------------------------------------------
+4.3  AM-T3 — Tetesan pertama dari patung
+     Trigger: armeniacaCount lewat 4750
+     Mood:    quiet relief
+------------------------------------------------------------
+Air mancur tetes-tetes tipis.
+Bukan mancur sih — tapi udah lebih dari kering.
+Air mulai inget jalan pulangnya.
+
+------------------------------------------------------------
+4.4  AM-T4 — Air mancur setengah pulih
+     Trigger: armeniacaCount lewat 6000
+     Mood:    warm observation
+------------------------------------------------------------
+Air mancur jalan setengah tinggi.
+Droplets jatuh teratur, riak ripple di permukaan.
+Plaza ini mulai kerasa kayak tempat orang berhenti sejenak — bukan cuma lewat.
+
+------------------------------------------------------------
+4.5  AM-T5 — Air mengalir penuh
+     Trigger: armeniacaCount lewat 7500
+     Mood:    gentle delight
+------------------------------------------------------------
+Air mancur jalan penuh.
+Suara percikannya… kayak ada yang ngobrol pelan.
+Kota emang gak betah diem lama.
+
+------------------------------------------------------------
+4.6  AM-T6 — Empat kuncup aprikot di rim
+     Trigger: armeniacaCount lewat 10000
+     Mood:    grateful, tender
+------------------------------------------------------------
+Di rim air mancur tumbuh empat kuncup aprikot.
+Akarnya sama kayak Pohon di tengah.
+Lo bantu hidupin keduanya.
+
+
+============================================================
+KATEGORI 5 — MOMEN BESAR
+============================================================
+
+------------------------------------------------------------
+5.1  FIRSTBLOOM — Sprout pertama di jalan
+     Trigger: armeniacaCount lewat 2500
+     Mood:    quiet excitement, tender
+------------------------------------------------------------
+Coba liat ke jalan dari gerbang.
+Ada sprout kecil tumbuh di sela batu — tanda kehidupan pertama yang balik.
+Cuma rumput muda. Tapi udah lama gak ada warna sehijo itu di sini.
+
+------------------------------------------------------------
+5.2  AULA-REVEAL  [CINEMATIC]  — Aula Galeri di tengah kebuka
+     Trigger: armeniacaCount lewat 7500
+     Mood:    slow reveal, reverent
+------------------------------------------------------------
+Aula di tengah… pintunya gerak sendiri tadi.
+Dulu Helismiley sering pameran lukisan di sini — buat ngajak warga balik mampir.
+Sekarang temboknya pelan-pelan keisi lagi. Lukisan kebaikan, katanya.
+
+------------------------------------------------------------
+5.3  PURIFIED  [CINEMATIC]  — Kota pulih sepenuhnya
+     Trigger: armeniacaCount lewat 7000
+     Mood:    weighty, hopeful, intimate
+------------------------------------------------------------
+Kota udah pulih sepenuhnya.
+Pohon di tengah berbunga lagi.
+Tapi aneh ya — aku masih warga terakhir.
+Mungkin yang lain butuh waktu balik. Atau mungkin yang balik bukan mereka lagi, tapi orang baru.
+Kayak kamu.
+
+------------------------------------------------------------
+5.4  FESTIVAL-PREP — Lampion dipasang sepanjang jalan
+     Trigger: armeniacaCount lewat 8000
+     Mood:    curious, gentle
+------------------------------------------------------------
+Ada yang masang string lampion sepanjang jalan.
+Aku gak liat siapa yang masang.
+Kota mulai siap-siap buat perayaan — pertama kali setelah bertahun-tahun.
+
+------------------------------------------------------------
+5.5  FESTIVAL-PEAK  [CINEMATIC]  — Perayaan puncak di alun-alun
+     Trigger: armeniacaCount lewat 9000
+     Mood:    awe, slight disbelief
+------------------------------------------------------------
+Petalnya turun terus dari mana-mana.
+Aku denger orang nari di alun-alun, walau aku gak liat siapa-siapanya.
+Festival udah di puncaknya. Mungkin yang balik lebih banyak dari yang keliatan.
+
+------------------------------------------------------------
+5.6  LEGACY  [CINEMATIC]  — Kota jadi monumen permanen
+     Trigger: armeniacaCount lewat 10000
+     Mood:    closing, grateful, full-circle
+------------------------------------------------------------
+Kota ini gak cuma pulih — dia tumbuh jadi sesuatu yang dulu belum ada.
+Pohon di tengah jadi monumen permanen.
+Makasih udah nemenin sampe sini. Aku gak nyangka bisa cerita panjang lagi sama orang.
+
+
+============================================================
+KATEGORI 6 — SAAT KAMU BALIK (returning visit)
+============================================================
+
+------------------------------------------------------------
+6.1  RETURN-SHORT — Pulang singkat (3-7 hari)
+     Trigger: lastSeen 3-13 hari lalu
+     Mood:    light, familiar
+------------------------------------------------------------
+Eh, balik.
+Pohon kemaren gerimis pas kamu pergi — kamu kelewatan.
+
+------------------------------------------------------------
+6.2  RETURN-LONG-GROWING — Pulang lama, kota tumbuh
+     Trigger: lastSeen >=14 hari, count nambah signifikan
+     Mood:    warm relief, slight tease
+------------------------------------------------------------
+Lama gak liat.
+Sejak kamu pergi, kota nambah banyak kebaikan. Petak baru udah kebuka juga.
+Aku sempet ngira kamu pindah kayak warga lain.
+
+------------------------------------------------------------
+6.3  RETURN-LONG-STAGNANT — Pulang lama, kota diem
+     Trigger: lastSeen >=14 hari, count gak naik
+     Mood:    gentle reassurance, no pressure
+------------------------------------------------------------
+Lama gak liat.
+Kota masih kayak yang kamu tinggalin — tapi gak apa, kadang dia juga butuh istirahat.
+Pohon di tengah tetep nungguin.
+
+
+============================================================
+KATEGORI 7 — CERITA LAIN (bonus / event-driven)
+============================================================
+
+------------------------------------------------------------
+7.1  BONUS-POHON-CLICK — Klik Pohon pertama kali
+     Trigger: pertama kali klik Pohon Aprikot pusat
+     Mood:    tender, quiet revelation
+------------------------------------------------------------
+Itu Pohon yang paling kuat di sini.
+Gak tau dia tahan kering sampe segini lama — mungkin karena tau ada yang bakal dateng nyiramin lagi.
+Sekarang udah ada.
+
+------------------------------------------------------------
+7.2  BONUS-SEITANSAI  [CINEMATIC]  — Hari seitansai Eli
+     Trigger: tanggal sistem == 14 Juni 2026
+     Mood:    intimate, anticipation
+------------------------------------------------------------
+Hari ini istimewa, ya.
+Pohon di tengah keliatan beda dari kemaren — kayak lagi nungguin sesuatu.
+Atau seseorang.
+
+------------------------------------------------------------
+7.3  BONUS-PETAK-FIRST-PICK — Pilih petak pertama (selain Pohon)
+     Trigger: user klik petak non-Pohon pertama kali
+     Mood:    curious, slightly playful
+------------------------------------------------------------
+Oh, kamu pilih petak itu duluan?
+Pilihan menarik.
+Yang lain biasanya ke Pohon dulu.
+
+------------------------------------------------------------
+7.4  BONUS-DISMISS-QUICK — Dismiss aku kecepetan
+     Trigger: user dismiss welcome bubble < 2.4 detik
+     Mood:    understanding, no offense taken
+------------------------------------------------------------
+Ya, lanjut aja.
+Aku di sini kalau butuh.
+
+------------------------------------------------------------
+7.5  BONUS-IDLE — Diam terlalu lama
+     Trigger: 60 detik tanpa interaksi
+     Mood:    soft, patient
+------------------------------------------------------------
+Pelan-pelan aja.
+Kota ini gak ke mana-mana.
+
+
+============================================================
+KATEGORI 5+ — POST-PURIFIED TAMBAHAN (gap-filler 7000→10000)
+============================================================
+
+Catatan: 7 dialog ini ditambah belakangan untuk ngisi gap antara
+existing milestones di stretch 7000→10000. Semua non-cinematic
+(corner mode = bubble di samping avatar pojok), gak interrupt
+eksplorasi peta. Tone shift dari dialog awal: lebih intim/whispery,
+karena fase ini kota udah pulih + hal-hal mulai bergerak cepat
+(warga lain balik, Pohon mulai bersinar, suara-suara). Arme yang
+biasanya tegar sendirian di sini lebih ekspresif dalam keheranan.
+Jeda lebih panjang antar bubble.
+
+PRONUNCIATION TAMBAHAN:
+- mercusuar       → mer-cu-SU-ar
+- Aprikot         → ap-RI-kot
+
+------------------------------------------------------------
+5+.1  POHON-BERBUNGA — Pohon mulai berbunga lagi
+      Trigger: armeniacaCount lewat 7250
+      Mood:    quiet wonder, observational
+------------------------------------------------------------
+Pohon yang tadi cuma bertahan…
+Sekarang bunganya tiba-tiba muncul. Satu, dua, tiga.
+Aku lupa nama-namanya.
+
+------------------------------------------------------------
+5+.2  SOSOK-PERTAMA — Sosok pertama di kejauhan
+      Trigger: armeniacaCount lewat 7500
+      Mood:    surprise → uncertainty, gentle disbelief
+------------------------------------------------------------
+Eh — ada sosok di ujung sana.
+Aku gak yakin siapa. Jauh banget.
+Tapi udah lama banget aku gak liat ada yang lewat di luar Pohon.
+
+------------------------------------------------------------
+5+.3  SOSOK-BALIK — Apakah dia balik?
+      Trigger: armeniacaCount lewat 7750
+      Mood:    contemplative, ambivalent
+------------------------------------------------------------
+Sosok yang tadi makin jelas pas matahari geser.
+Aku kayak inget jalannya — tapi gak pasti.
+Mungkin warga, mungkin angin yang main-main aja.
+
+------------------------------------------------------------
+5+.4  AURA-MELEBAR — Aura Pohon melebar
+      Trigger: armeniacaCount lewat 8200
+      Mood:    awe, soft realization
+------------------------------------------------------------
+Cincin baru muncul di kaki Pohon.
+Auranya keluar lebih lebar dari kemaren.
+Kayak Pohon-nya mulai panggil siapa-siapa.
+
+------------------------------------------------------------
+5+.5  LAMPU-PERTAMA — Lampu pertama nyala
+      Trigger: armeniacaCount lewat 8500
+      Mood:    bemused, soft humor
+------------------------------------------------------------
+Lampu pertama nyala malem ini.
+Bukan aku yang nyalain.
+Mungkin ada yang mau make.
+
+------------------------------------------------------------
+5+.6  NAMA-DIPANGGIL — Aku denger nama-ku  ⭐
+      Trigger: armeniacaCount lewat 9500
+      Mood:    intimate, hampir bisik
+------------------------------------------------------------
+Aku denger nama-ku dipanggil tadi.
+Pelan. Cuma sekali.
+Mungkin angin — tapi kayaknya bukan.
+
+------------------------------------------------------------
+5+.7  MERCUSUAR — Mercusuar Armeniaca  ⭐
+      Trigger: armeniacaCount lewat 9700
+      Mood:    reverent, full-circle understanding
+------------------------------------------------------------
+Pohon mulai keluarin cahaya dari atas.
+Dulu mereka panggil Pohon ini "mercusuar Armeniaca".
+Sekarang baru aku ngerti kenapa.
+
+
+============================================================
+END OF SCRIPT — 34 dialogs total (27 master + 7 post-purified)
+============================================================
+
+RECORDING NOTES:
+- Total ~109 baris (88 master + 21 post-purified). Satu file audio
+  per baris supaya bisa di-trigger per-bubble di app dengan timing
+  3.2s/bubble.
+- Naming convention saran: arme_<dialogId>_<lineIdx>.mp3
+  contoh: arme_welcome_1.mp3, arme_welcome_2.mp3, ...
+  arme_purified_1.mp3, arme_mercusuar_1.mp3, dst.
+- File berturutan dipakai sekuensial — gak perlu cross-fade,
+  app kasih ~200ms gap natural antar bubble.
+- Cinematic dialog (welcome, aula-reveal, purified, festival-
+  peak, legacy, seitansai) — boleh sedikit lebih pelan + jeda
+  napas lebih panjang. Routine dialog ringan dan natural.
+- Post-purified tambahan (kategori 5+) lebih intim/whispery dari
+  dialog awal, terutama #6 NAMA-DIPANGGIL & #7 MERCUSUAR — ⭐
+  cadangkan more take buat dua ini, emotionally load-bearing.
+
+NOTE FIX (2026-05-20): seitansai date di 7.2 BONUS-SEITANSAI
+seharusnya 15 Juni 2026 (bukan 14 Juni). Code udah di-fix di
+commit b71dbfa; 14 Juni adalah H-1 (Aula Galeri reveal day),
+15 Juni adalah seitansai actual Eli. Voice direction tetep
+sama untuk dialog itu.
