@@ -15091,11 +15091,15 @@ const TamanScene = ({
         loaded={armeniacaLoaded}
         isMobile={isMobile}
       />
-      {/* Festival decorations — banners (8000+), gerbang wreath
-          (8000+), plaza dance rings (9000+), panggung spotlights
-          (9000+). Lengkapin festival vibes existing (FestivalLanterns
-          + FestivalPetals). */}
-      <FestivalDecorations count={armeniacaCount} loaded={armeniacaLoaded} />
+      {/* Festival decorations — banners + gerbang wreath (8000+),
+          plaza dance rings + panggung spotlights + fireworks + confetti
+          + audience silhouettes (9000+). Lengkapin festival vibes
+          existing (FestivalLanterns + FestivalPetals). */}
+      <FestivalDecorations
+        count={armeniacaCount}
+        loaded={armeniacaLoaded}
+        isMobile={isMobile}
+      />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* === Reforestation system (A, B, C) === */}
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
