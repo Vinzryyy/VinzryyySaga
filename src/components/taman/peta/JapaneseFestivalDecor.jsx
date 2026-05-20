@@ -205,9 +205,12 @@ const KohakuPanel = ({ pos, rot, idx }) => {
   const stripeColors = ['#c83828', '#fef4e8', '#c83828', '#fef4e8', '#c83828'];
   return (
     <group ref={groupRef} position={pos} rotation={[0, rot, 0]}>
-      {/* Top rod (wooden support) */}
-      <mesh position={[0, 0.6, 0]}>
-        <cylinderGeometry args={[0.025, 0.025, 1.1, 6]} rotation={[0, 0, Math.PI / 2]} />
+      {/* Top rod (wooden support) — horizontal across panel width.
+          rotation harus di MESH (not on geometry; three.js silently
+          ignore rotation prop di geometry → rod jadi vertical floating
+          bug. Fixed: pindah rotation ke <mesh>. */}
+      <mesh position={[0, 0.6, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.025, 0.025, 1.1, 6]} />
         <meshStandardMaterial color="#3a2418" roughness={0.95} />
       </mesh>
       {/* 5 vertical stripes side-by-side */}

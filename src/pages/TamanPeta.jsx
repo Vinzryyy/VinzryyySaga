@@ -8017,19 +8017,28 @@ const ChimneySmoke = ({ count }) => {
 // FestivalLanterns (m8, count >= 8000) — string of small paper lanterns
 // hung between trees + houses. Festival celebration prep. Lit warm
 // emissive, flicker via useFrame.
-// Carnival canopy pattern — 6 string radial dari hub di atas Pohon
-// (Y=4.0, atas canopy) ke 6 outer edge points (Y=2.5, lower). Pakai
-// sagging curve di useFrame render bikin "kanopi tenda festival"
-// klasik matsuri. Sebelumnya 4 string scattered tanpa connection
-// — sekarang semua converge ke center, kerasa one cohesive system.
-const FESTIVAL_HUB = [0, 4.0, 0]; // above Pohon canopy
+// Hexagonal perimeter canopy — 6 string connecting 6 edge points di
+// sekitar plaza dalam loop tertutup, semua at Y=4.5 (atas Pohon
+// canopy ~3.2 max Y supaya clear gak clipping). Sebelumnya radial dari
+// single HUB jadi knotted mess di tengah; sekarang perimeter loop
+// kerasa kayak "kanopi cincin" overhead, lebih clean reading. Sagging
+// curve di tengah tiap segment via useFrame render udah handle natural
+// droop. Lantern count per segment proportional ke length.
+const FESTIVAL_HEX_POINTS = [
+  [9, 4.5, 0],       // E
+  [4.5, 4.5, 7.8],   // SE
+  [-4.5, 4.5, 7.8],  // SW
+  [-9, 4.5, 0],      // W
+  [-4.5, 4.5, -7.8], // NW
+  [4.5, 4.5, -7.8],  // NE
+];
 const FESTIVAL_LANTERN_STRINGS = [
-  { from: FESTIVAL_HUB, to: [9, 2.5, -2], count: 6 },     // E
-  { from: FESTIVAL_HUB, to: [-9, 2.5, -2], count: 6 },    // W
-  { from: FESTIVAL_HUB, to: [0, 2.6, 10], count: 7 },     // S (gerbang direction)
-  { from: FESTIVAL_HUB, to: [0, 2.6, -10], count: 7 },    // N (menara direction)
-  { from: FESTIVAL_HUB, to: [6, 2.5, 7], count: 6 },      // SE (panggung)
-  { from: FESTIVAL_HUB, to: [-6, 2.5, 7], count: 6 },     // SW
+  { from: FESTIVAL_HEX_POINTS[0], to: FESTIVAL_HEX_POINTS[1], count: 7 }, // E → SE
+  { from: FESTIVAL_HEX_POINTS[1], to: FESTIVAL_HEX_POINTS[2], count: 8 }, // SE → SW
+  { from: FESTIVAL_HEX_POINTS[2], to: FESTIVAL_HEX_POINTS[3], count: 7 }, // SW → W
+  { from: FESTIVAL_HEX_POINTS[3], to: FESTIVAL_HEX_POINTS[4], count: 7 }, // W → NW
+  { from: FESTIVAL_HEX_POINTS[4], to: FESTIVAL_HEX_POINTS[5], count: 8 }, // NW → NE
+  { from: FESTIVAL_HEX_POINTS[5], to: FESTIVAL_HEX_POINTS[0], count: 7 }, // NE → E
 ];
 const FestivalLanterns = ({ count }) => {
   const matRefs = useRef([]);
