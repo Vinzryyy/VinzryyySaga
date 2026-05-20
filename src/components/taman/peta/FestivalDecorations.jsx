@@ -483,7 +483,10 @@ const FestivalDecorations = ({ count = 0, loaded = false, isMobile = false }) =>
     <>
       <HangingBanners count={count} />
       <GerbangWreath count={count} />
-      <PlazaDanceRings count={count} />
+      {/* PlazaDanceRings (2 concentric glowing rings di plaza) di-disable
+          per user feedback — "circle berlapis lapis untuk landmark"
+          ngeganggu pas festival udah jalan. Component definition tetep
+          di file kalau-kalau mau re-enable. */}
       <FireworksBursts count={count} />
       <ConfettiDrift count={count} isMobile={isMobile} />
       <AudienceSilhouettes count={count} />

@@ -1229,10 +1229,15 @@ const PetaTelaga = ({
   isMobile = false,
   petakState = 'locked',
   modalOpen = false,
+  armeniacaCount = 0,
   onPointerOver,
   onPointerOut,
   onClick,
 }) => {
+  // Hide visited halo ring saat festival udah jalan — user feedback:
+  // circle marker ngeganggu di stage festival (decor sendiri udah cukup
+  // visual). Threshold: festivalPrep (8000).
+  const showVisitedHalo = armeniacaCount < 8000;
   const groupRef = useRef();
   const surfaceMatRef = useRef();
 
@@ -1291,8 +1296,10 @@ const PetaTelaga = ({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Visited halo — ring di base saat petak udah dikunjungi */}
-      {visited && petakState !== 'locked' && (
+      {/* Visited halo — ring di base saat petak udah dikunjungi.
+          Hide saat festivalPrep (count >= 8000) supaya gak ngeganggu
+          festival decor. */}
+      {visited && showVisitedHalo && petakState !== 'locked' && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
           <ringGeometry args={[1.8, 2.05, 32]} />
           <meshStandardMaterial
@@ -1420,6 +1427,7 @@ const PetaArsip = ({
   isMobile = false,
   petakState = 'locked',
   modalOpen = false,
+  armeniacaCount = 0,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -1490,8 +1498,9 @@ const PetaArsip = ({
           Telaga (radius rim ~1.6) di sisi timur. */}
       <group scale={1.6}>
         {/* Visited halo — sepia ring di base saat udah dikunjungi.
-            Skip kalau locked (consistent dgn Telaga locked behavior). */}
-        {visited && !isLocked && (
+            Skip kalau locked atau festivalPrep+ (festival decor ambil
+            alih, visited markers jadi noise). */}
+        {visited && !isLocked && armeniacaCount < 8000 && (
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
             <ringGeometry args={[1.15, 1.32, 32]} />
             <meshStandardMaterial
@@ -12752,6 +12761,7 @@ const PetaMenara = ({
   isMobile = false,
   petakState = 'locked',
   modalOpen = false,
+  armeniacaCount = 0,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -12846,8 +12856,8 @@ const PetaMenara = ({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Visited halo — bronze ring di base, mirror Perpustakaan tone */}
-      {visited && !isLocked && (
+      {/* Visited halo — bronze ring di base. Hide @ festivalPrep (>=8000) */}
+      {visited && !isLocked && armeniacaCount < 8000 && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.025, 0]}>
           <ringGeometry args={[0.9, 1.1, 32]} />
           <meshStandardMaterial
@@ -13375,6 +13385,7 @@ const PetaPanggung = ({
   isMobile = false,
   petakState = 'locked',
   modalOpen = false,
+  armeniacaCount = 0,
   onPointerOver,
   onPointerOut,
   onClick,
@@ -13464,8 +13475,8 @@ const PetaPanggung = ({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {/* Visited halo — ring di base saat petak udah dikunjungi */}
-      {visited && petakState !== 'locked' && (
+      {/* Visited halo — ring di base. Hide @ festivalPrep (>=8000) */}
+      {visited && petakState !== 'locked' && armeniacaCount < 8000 && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0.4]}>
           <ringGeometry args={[1.85, 2.05, 32]} />
           <meshStandardMaterial
@@ -15321,6 +15332,7 @@ const TamanScene = ({
         isMobile={isMobile}
         petakState={telagaState}
         modalOpen={modalOpen}
+        armeniacaCount={armeniacaCount}
         onPointerOver={onTelagaHover}
         onPointerOut={onTelagaOut}
         onClick={onTelagaClick}
@@ -15331,6 +15343,7 @@ const TamanScene = ({
         isMobile={isMobile}
         petakState={arsipState}
         modalOpen={modalOpen}
+        armeniacaCount={armeniacaCount}
         onPointerOver={onArsipHover}
         onPointerOut={onArsipOut}
         onClick={onArsipClick}
@@ -15341,6 +15354,7 @@ const TamanScene = ({
         isMobile={isMobile}
         petakState={menaraState}
         modalOpen={modalOpen}
+        armeniacaCount={armeniacaCount}
         onPointerOver={onMenaraHover}
         onPointerOut={onMenaraOut}
         onClick={onMenaraClick}
@@ -15351,6 +15365,7 @@ const TamanScene = ({
         isMobile={isMobile}
         petakState={panggungState}
         modalOpen={modalOpen}
+        armeniacaCount={armeniacaCount}
         onPointerOver={onPanggungHover}
         onPointerOut={onPanggungOut}
         onClick={onPanggungClick}
