@@ -57,6 +57,7 @@ import ReturningResidents from '../components/taman/peta/ReturningResidents';
 import AtmosphericFireflies from '../components/taman/peta/AtmosphericFireflies';
 import FestivalDecorations from '../components/taman/peta/FestivalDecorations';
 import JapaneseFestivalDecor from '../components/taman/peta/JapaneseFestivalDecor';
+import GroundDetails from '../components/taman/peta/GroundDetails';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -15073,6 +15074,14 @@ const TamanScene = ({
       />
       <TamanFloor purified={purified} purifyProgress={purifyProgress} />
       <DroughtRing purified={purified} purifyProgress={purifyProgress} />
+      {/* Ground details — break uniform green grid feel:
+          Tier A: 6 dirt paths radial dari Pohon → landmarks + trampled
+                  circle di base Pohon
+          Tier B: 36 grass variation patches (lush/dry mix) + 20 pebbles
+          Tier C: 8 leaf piles (apricot/yellow palette) near Pohon + paths
+          Render BAREN TamanFloor supaya overlay di atas grass tapi
+          di bawah landmark elements. */}
+      <GroundDetails loaded={armeniacaLoaded} isMobile={isMobile} />
       {/* MossOverlay sengaja gak di-render — DroughtRing purified udah
           ngasih lush meadow carpet yg lebih lebar, MossOverlay patches
           jadi keliatan banding spot di atasnya. */}
