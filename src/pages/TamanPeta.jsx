@@ -646,17 +646,15 @@ const CenterTree = ({
   // 0.06 rad/s) supaya gak distracting, cuma subtle motion.
   const ring4Ref = useRef();
   const ring5Ref = useRef();
-  // Legacy phase light beams — 6 beams shooting up dari canopy area
-  // saat postPurifiedProgress >= 0.85 (~9550). useRef array buat
-  // animate sway + opacity flicker per-beam.
-  const beamRefs = useRef([]);
 
   // Post-purified progression — purifyProgress udah 0.625 di 7000.
   // postPurifiedProgress remaps range 0.625→1.0 ke 0→1, dipakai utk
   // escalate visual drama dari 7000 (purified onset) ke 10000 (legacy
   // peak): emissive lebih bright, halo rings extra, fruit glow.
   const postPurifiedProgress = Math.max(0, Math.min(1, (purifyProgress - 0.625) / 0.375));
-  const legacyBeamsVisible = postPurifiedProgress >= 0.85;
+  // Gate untuk legacy-phase magic petals (canopy upward) — sekarang
+  // satu-satunya legacy-only visual di CenterTree.
+  const legacyMagicVisible = postPurifiedProgress >= 0.85;
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -686,16 +684,6 @@ const CenterTree = ({
     if (ring5Ref.current) {
       ring5Ref.current.rotation.z = -t * 0.045;
       ring5Ref.current.scale.setScalar(ringPulse * 0.99);
-    }
-
-    // Legacy beams — subtle opacity flicker per-beam (phase-offset)
-    // supaya kerasa light bukan flat plastic.
-    if (legacyBeamsVisible) {
-      beamRefs.current.forEach((m, i) => {
-        if (!m) return;
-        const flicker = 0.7 + Math.sin(t * 1.4 + i * 0.9) * 0.3;
-        m.material.opacity = Math.min(0.42, (postPurifiedProgress - 0.85) * 2.5) * flicker;
-      });
     }
   });
 
@@ -886,41 +874,11 @@ const CenterTree = ({
           )}
           {/* Canopy upward petals — magic counter-gravity, naik dari
               area canopy ke langit, recycle. Legacy phase only.
-              Pasangan visual ke legacy beams; beams = light shooting
-              up, petals = gift Pohon ngelepas ke langit. */}
-          {legacyBeamsVisible &&
+              "Pohon ngelepas hadiah ke langit" — finale visual. */}
+          {legacyMagicVisible &&
             Array.from({ length: CANOPY_UPWARD_PETAL_COUNT }).map((_, i) => (
               <CanopyUpwardPetal key={`uppetal-${i}`} idx={i} />
             ))}
-          {/* Legacy phase light beams — 6 thin tapered cones shooting
-              up dari canopy area saat progress >= 0.85. Posisi cincin
-              ring di canopy top (~Y=2.5), radial dengan radius 0.4.
-              Flicker opacity per-frame via beamRefs (lihat useFrame).
-              Memberi finale "pohon jadi monument bersinar". */}
-          {legacyBeamsVisible &&
-            [0, 1, 2, 3, 4, 5].map((i) => {
-              const angle = (i / 6) * Math.PI * 2;
-              const x = Math.cos(angle) * 0.4;
-              const z = Math.sin(angle) * 0.4;
-              return (
-                <mesh
-                  key={`beam-${i}`}
-                  ref={(m) => {
-                    beamRefs.current[i] = m;
-                  }}
-                  position={[x, 3.0, z]}
-                >
-                  <coneGeometry args={[0.06, 1.6, 8, 1, true]} />
-                  <meshBasicMaterial
-                    color="#f4d088"
-                    transparent
-                    opacity={0.2}
-                    depthWrite={false}
-                    toneMapped={false}
-                  />
-                </mesh>
-              );
-            })}
         </>
       )}
       {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
