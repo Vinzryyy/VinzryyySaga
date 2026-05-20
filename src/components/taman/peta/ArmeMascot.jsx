@@ -706,12 +706,15 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         </div>
       </div>
 
-      {/* Cinematic Arme — VN-style. Mobile = column-reverse di bottom
-          (bubble di atas Arme, stack vertikal). Desktop = row centered
-          di tengah viewport (Arme kiri + bubble kanan, kerasa visual
-          novel). Backdrop dim map udah dirender di layer terpisah. */}
+      {/* Cinematic Arme — VN-style. Mobile = column-reverse centered
+          di tengah viewport (bubble di atas Arme, stack vertikal).
+          Desktop = row centered (Arme kiri + bubble kanan, kerasa
+          visual novel). Backdrop dim map udah dirender di layer
+          terpisah. items-center centers cross-axis, justify-center
+          centers main-axis — both H+V centering supaya Arme dead-
+          center di viewport sebagai sosok utama. */}
       <div
-        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col-reverse md:flex-row items-center justify-end md:justify-center gap-3 md:gap-8 px-4 pb-6 md:pb-0 select-none transition-opacity duration-700 ${
+        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col-reverse md:flex-row items-center justify-center gap-3 md:gap-8 px-4 select-none transition-opacity duration-700 ${
           isCinematic && !hidden ? 'opacity-100' : 'opacity-0'
         }`}
         aria-hidden={!isCinematic || hidden}
