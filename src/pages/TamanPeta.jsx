@@ -55,6 +55,7 @@ import QuadrantFill from '../components/taman/peta/QuadrantFill';
 import ArmeMascot from '../components/taman/peta/ArmeMascot';
 import ReturningResidents from '../components/taman/peta/ReturningResidents';
 import AtmosphericFireflies from '../components/taman/peta/AtmosphericFireflies';
+import FestivalDecorations from '../components/taman/peta/FestivalDecorations';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -15090,6 +15091,11 @@ const TamanScene = ({
         loaded={armeniacaLoaded}
         isMobile={isMobile}
       />
+      {/* Festival decorations — banners (8000+), gerbang wreath
+          (8000+), plaza dance rings (9000+), panggung spotlights
+          (9000+). Lengkapin festival vibes existing (FestivalLanterns
+          + FestivalPetals). */}
+      <FestivalDecorations count={armeniacaCount} loaded={armeniacaLoaded} />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* === Reforestation system (A, B, C) === */}
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
