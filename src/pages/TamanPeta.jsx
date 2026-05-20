@@ -54,6 +54,7 @@ import WanderingCat from '../components/taman/peta/WanderingCat';
 import QuadrantFill from '../components/taman/peta/QuadrantFill';
 import ArmeMascot from '../components/taman/peta/ArmeMascot';
 import ReturningResidents from '../components/taman/peta/ReturningResidents';
+import AtmosphericFireflies from '../components/taman/peta/AtmosphericFireflies';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -15047,6 +15048,14 @@ const TamanScene = ({
           (sosok jauh di edge), peak di 10000 (ramai plaza). Bayar
           janji narasi Arme "yang lain butuh waktu balik". */}
       <ReturningResidents
+        count={armeniacaCount}
+        loaded={armeniacaLoaded}
+        isMobile={isMobile}
+      />
+      {/* Kunang-kunang ambient post-purified (count >= 7000) — fixed
+          density 14 (8 mobile), drift+blink di sekitar plaza area.
+          Kasih "kota hidup" feeling diluar warga + Pohon. */}
+      <AtmosphericFireflies
         count={armeniacaCount}
         loaded={armeniacaLoaded}
         isMobile={isMobile}
