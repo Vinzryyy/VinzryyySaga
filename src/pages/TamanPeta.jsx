@@ -53,6 +53,7 @@ import {
 import WanderingCat from '../components/taman/peta/WanderingCat';
 import QuadrantFill from '../components/taman/peta/QuadrantFill';
 import ArmeMascot from '../components/taman/peta/ArmeMascot';
+import ReturningResidents from '../components/taman/peta/ReturningResidents';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -593,15 +594,22 @@ const CenterTree = ({
   const groupRef = useRef();
   const foliageMatRefs = useRef([]);
 
+  // Post-purified progression — purifyProgress udah 0.625 di 7000.
+  // postPurifiedProgress remaps range 0.625→1.0 ke 0→1, dipakai utk
+  // escalate visual drama dari 7000 (purified onset) ke 10000 (legacy
+  // peak): emissive lebih bright, halo rings extra, fruit glow.
+  const postPurifiedProgress = Math.max(0, Math.min(1, (purifyProgress - 0.625) / 0.375));
+
   useFrame((state, delta) => {
     if (!groupRef.current) return;
     groupRef.current.rotation.y =
       Math.sin(state.clock.elapsedTime * 0.3) * 0.05;
 
-    // Emissive baseline + hover boost. Purified naikin baseline 0 → 0.12
-    // (pohon "bernafas" sendiri walau gak di-hover), hover state tetep
-    // top di 0.35.
-    const targetEm = hovered ? 0.35 : purified ? 0.12 : 0;
+    // Emissive baseline + hover boost. Purified baseline lerp dari
+    // 0.12 (di 7000) ke 0.35 (di 10000) — pohon "makin bersinar" sampe
+    // legacy phase. Hover state tetep top di 0.45.
+    const purifiedBaseline = purified ? 0.12 + postPurifiedProgress * 0.23 : 0;
+    const targetEm = hovered ? 0.45 : purifiedBaseline;
     const factor = Math.min(delta * 6, 1);
     foliageMatRefs.current.forEach((mat) => {
       if (!mat) return;
@@ -704,22 +712,29 @@ const CenterTree = ({
           ? 1
           : Math.min(1, (purifyProgress - fruitRevealAt) / 0.2);
         const fruitSize = 0.06 + fruitProgress * 0.05;
+        // Purified: emissive lerp dari 0.3 (di 7000) ke 0.55 (di 10000)
+        // — buah "ranum keemasan" pas legacy phase.
+        const fruitEmissive = purified
+          ? 0.3 + postPurifiedProgress * 0.25
+          : 0.15 + fruitProgress * 0.15;
         return (
           <mesh key={`fruit-${i}`} position={f.pos}>
             <sphereGeometry args={[fruitSize, 12, 10]} />
             <meshStandardMaterial
               color={f.color}
               emissive={f.color}
-              emissiveIntensity={purified ? 0.3 : 0.15 + fruitProgress * 0.15}
+              emissiveIntensity={fruitEmissive}
               roughness={0.55}
               metalness={0.05}
             />
           </mesh>
         );
       })}
-      {/* Purified bloom halo — 4 ring concentric translucent di base
-          pohon (radius 0.7→2.0), peach-amber gradient. Kerasa "aura
-          mekarnya pohon kebaikan", sinyal puncak restorasi. */}
+      {/* Purified bloom halo — concentric translucent rings di base
+          pohon, peach-amber gradient. 3 ring base (revealed di 7000),
+          2 ring extra (festivalPrep + legacy phase) bikin pohon makin
+          "aura besar" mendekati 10000. Opacity per-ring lerp dengan
+          postPurifiedProgress supaya 7000 brightness tipis, 10000 full. */}
       {purified && (
         <>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
@@ -727,7 +742,7 @@ const CenterTree = ({
             <meshBasicMaterial
               color="#f8c8a0"
               transparent
-              opacity={0.32}
+              opacity={0.32 + postPurifiedProgress * 0.18}
               depthWrite={false}
               toneMapped={false}
             />
@@ -737,7 +752,7 @@ const CenterTree = ({
             <meshBasicMaterial
               color="#f4b890"
               transparent
-              opacity={0.22}
+              opacity={0.22 + postPurifiedProgress * 0.16}
               depthWrite={false}
               toneMapped={false}
             />
@@ -747,11 +762,40 @@ const CenterTree = ({
             <meshBasicMaterial
               color="#e8a888"
               transparent
-              opacity={0.14}
+              opacity={0.14 + postPurifiedProgress * 0.16}
               depthWrite={false}
               toneMapped={false}
             />
           </mesh>
+          {/* Ring 4 — revealed @ postPurifiedProgress >= 0.4 (~8200).
+              Festival-prep era; pohon mulai "buka aura" lebih lebar. */}
+          {postPurifiedProgress >= 0.4 && (
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
+              <ringGeometry args={[1.8, 2.2, 48]} />
+              <meshBasicMaterial
+                color="#dc9878"
+                transparent
+                opacity={Math.min(0.18, (postPurifiedProgress - 0.4) * 0.3)}
+                depthWrite={false}
+                toneMapped={false}
+              />
+            </mesh>
+          )}
+          {/* Ring 5 — revealed @ postPurifiedProgress >= 0.85 (~9550).
+              Legacy phase finalist; outer aura golden, sinyal monument
+              status. Wider radius + slight golden shift. */}
+          {postPurifiedProgress >= 0.85 && (
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+              <ringGeometry args={[2.25, 2.85, 56]} />
+              <meshBasicMaterial
+                color="#f4d088"
+                transparent
+                opacity={Math.min(0.15, (postPurifiedProgress - 0.85) * 1.0)}
+                depthWrite={false}
+                toneMapped={false}
+              />
+            </mesh>
+          )}
         </>
       )}
       {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
@@ -14947,6 +14991,14 @@ const TamanScene = ({
       <HopeEcho count={armeniacaCount} loaded={armeniacaLoaded} />
       <LandmarkAuras count={armeniacaCount} loaded={armeniacaLoaded} />
       <AulaLandmark />
+      {/* Warga balik — post-purified populace ramp. Spawn dari 7500
+          (sosok jauh di edge), peak di 10000 (ramai plaza). Bayar
+          janji narasi Arme "yang lain butuh waktu balik". */}
+      <ReturningResidents
+        count={armeniacaCount}
+        loaded={armeniacaLoaded}
+        isMobile={isMobile}
+      />
       <MilestoneBurst count={armeniacaCount} loaded={armeniacaLoaded} />
       {/* === Reforestation system (A, B, C) === */}
       <ProgressiveTrees count={armeniacaCount} loaded={armeniacaLoaded} />
