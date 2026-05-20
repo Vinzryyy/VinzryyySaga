@@ -294,6 +294,88 @@ export const ARME_DIALOGS = [
     ],
   },
 
+  // ── Gap-filler post-purified (7250 → 9700) ────────────────────────
+  // Ngerespon ke visual baru: warga balik appear di 7500+, Pohon ring 4
+  // di ~8200, ring 5 + light beams di ~9550. Semua non-cinematic
+  // (corner mode), gak interrupt eksplorasi peta.
+  {
+    id: 'pohon-berbunga',
+    category: 'besar',
+    label: 'Pohon mulai berbunga lagi',
+    trigger: { type: 'count-cross', at: 7250 },
+    lines: [
+      'Pohon yang tadi cuma bertahan…',
+      'Sekarang bunganya tiba-tiba muncul. Satu, dua, tiga.',
+      'Aku lupa nama-namanya.',
+    ],
+  },
+  {
+    id: 'sosok-pertama',
+    category: 'besar',
+    label: 'Sosok pertama di kejauhan',
+    trigger: { type: 'count-cross', at: 7500 },
+    lines: [
+      'Eh — ada sosok di ujung sana.',
+      'Aku gak yakin siapa. Jauh banget.',
+      'Tapi udah lama banget aku gak liat ada yang lewat di luar Pohon.',
+    ],
+  },
+  {
+    id: 'sosok-balik',
+    category: 'besar',
+    label: 'Apakah dia balik?',
+    trigger: { type: 'count-cross', at: 7750 },
+    lines: [
+      'Sosok yang tadi makin jelas pas matahari geser.',
+      'Aku kayak inget jalannya — tapi gak pasti.',
+      'Mungkin warga, mungkin angin yang main-main aja.',
+    ],
+  },
+  {
+    id: 'aura-melebar',
+    category: 'besar',
+    label: 'Aura Pohon melebar',
+    trigger: { type: 'count-cross', at: 8200 },
+    lines: [
+      'Cincin baru muncul di kaki Pohon.',
+      'Auranya keluar lebih lebar dari kemaren.',
+      'Kayak Pohon-nya mulai panggil siapa-siapa.',
+    ],
+  },
+  {
+    id: 'lampu-pertama',
+    category: 'besar',
+    label: 'Lampu pertama nyala',
+    trigger: { type: 'count-cross', at: 8500 },
+    lines: [
+      'Lampu pertama nyala malem ini.',
+      'Bukan aku yang nyalain.',
+      'Mungkin ada yang mau make.',
+    ],
+  },
+  {
+    id: 'nama-dipanggil',
+    category: 'besar',
+    label: 'Aku denger nama-ku',
+    trigger: { type: 'count-cross', at: 9500 },
+    lines: [
+      'Aku denger nama-ku dipanggil tadi.',
+      'Pelan. Cuma sekali.',
+      'Mungkin angin — tapi kayaknya bukan.',
+    ],
+  },
+  {
+    id: 'mercusuar',
+    category: 'besar',
+    label: 'Mercusuar Armeniaca',
+    trigger: { type: 'count-cross', at: 9700 },
+    lines: [
+      'Pohon mulai keluarin cahaya dari atas.',
+      'Dulu mereka panggil Pohon ini "mercusuar Armeniaca".',
+      'Sekarang baru aku ngerti kenapa.',
+    ],
+  },
+
   // ── Saat Kamu Balik (returning visit) ─────────────────────────────
   {
     id: 'return-short',

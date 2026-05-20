@@ -101,7 +101,12 @@ const WARGA_DEFS = [
 // ground shadow. Idle: subtle vertical bob + horizontal sway (weight
 // shift) + slow wander (drift radius 0.3-0.5 dalam circle), semua
 // phase-offset per-individu via `phase`.
-const Warga = ({ pos, color, phase, idx, appearedAt }) => {
+//
+// Fade-in: opacity ramp dari 0 → 1 selama count delta 200 dari appearAt.
+// Sebelumnya tiba-tiba pop pas threshold crossed; sekarang muncul
+// halus seakan "sosok dari kabut" — kerasa ragu-ragu sebelum benar
+// sosok tegas. Linear ramp via Math.min(1, (count - appearAt) / 200).
+const Warga = ({ pos, color, phase, idx, appearedAt, count }) => {
   const groupRef = useRef();
   // Wander params per-idx — stable across renders, gak random tiap mount.
   const wander = useMemo(
@@ -134,22 +139,38 @@ const Warga = ({ pos, color, phase, idx, appearedAt }) => {
       Math.atan2(-dx, -dz) * 0.3 + 0.08 * Math.sin(t * 0.4 + phase);
   });
 
+  // Fade-in opacity — ramp 0→1 selama count delta 200 dari appearAt.
+  // Body+head+hair semua di-clamp; shadow disc lebih cepat full (0.6x
+  // delta) supaya ground presence muncul duluan sebelum sosok solid.
+  const fadeProgress = Math.min(1, Math.max(0, (count - appearedAt) / 200));
+  const shadowOpacity = 0.32 * Math.min(1, fadeProgress * 1.6);
+
   return (
     <group ref={groupRef} position={pos} scale={variant.scale}>
-      {/* Soft shadow blob */}
+      {/* Soft shadow blob — fades in dulu sebelum sosok solid */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
         <circleGeometry args={[variant.bodyBottom * 1.2, 16]} />
-        <meshBasicMaterial color="#1c1f2a" transparent opacity={0.32} />
+        <meshBasicMaterial color="#1c1f2a" transparent opacity={shadowOpacity} />
       </mesh>
       {/* Body cone — torso (variant-sized) */}
       <mesh position={[0, variant.bodyY, 0]}>
         <coneGeometry args={[variant.bodyBottom, variant.bodyHeight, 8]} />
-        <meshStandardMaterial color={color} roughness={0.95} />
+        <meshStandardMaterial
+          color={color}
+          roughness={0.95}
+          transparent
+          opacity={fadeProgress}
+        />
       </mesh>
       {/* Head sphere */}
       <mesh position={[0, variant.headY, 0]}>
         <sphereGeometry args={[variant.headSize, 12, 10]} />
-        <meshStandardMaterial color={skinColor} roughness={0.9} />
+        <meshStandardMaterial
+          color={skinColor}
+          roughness={0.9}
+          transparent
+          opacity={fadeProgress}
+        />
       </mesh>
       {/* Hair cap — variant: short cap atau longer (extend ke belakang) */}
       <mesh position={[0, variant.headY + 0.04, variant.hairLong ? -0.025 : -0.02]}>
@@ -164,7 +185,12 @@ const Warga = ({ pos, color, phase, idx, appearedAt }) => {
             variant.hairLong ? Math.PI * 0.78 : Math.PI * 0.6,
           ]}
         />
-        <meshStandardMaterial color={hairColor} roughness={0.95} />
+        <meshStandardMaterial
+          color={hairColor}
+          roughness={0.95}
+          transparent
+          opacity={fadeProgress}
+        />
       </mesh>
     </group>
   );
@@ -185,6 +211,7 @@ const ReturningResidents = ({ count = 0, loaded = false, isMobile = false }) => 
           phase={w.phase}
           idx={i}
           appearedAt={w.appearAt}
+          count={count}
         />
       ))}
     </>
