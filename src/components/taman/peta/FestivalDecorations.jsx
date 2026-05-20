@@ -79,54 +79,31 @@ const Pennant = ({ pos, color, phase }) => {
 const BannerString = ({ from, to, colorIdx, stringIdx }) => {
   const segments = 7;
   const items = [];
-  // BUG FIX: Y harus di-interpolate antara from[1] dan to[1] supaya
-  // banner radial (Pohon Y=4 → hex pole Y=2.8) slope DOWN naturally.
-  // Sebelumnya Y stuck di from[1] = pennant + rope semua floating di
-  // Pohon-height — itu yang user keluhin "plate kayu yang menganggu"
-  // (banner rope thin box 9 unit panjang nyala di Y=4 horizontal kayak
-  // plate floating). Sekarang interpolate Y + apply sag.
-  //
-  // 3D length harus pakai semua dimensi (X+Y+Z), bukan cuma horizontal.
+  // Rope di-remove: single straight box tilted dari Pohon ke hex pole
+  // bikin "stick stuck into post" visual artifact (user keluhin "ngebug").
+  // Real banner rope harusnya curve dengan sag (catenary), bukan straight
+  // line. Simpler solution: hapus rope, biarin pennants speak for themselves
+  // — mereka udah di-stage sepanjang banner path dengan proper Y
+  // interpolation + sag. Visually kerasa kayak pennants connected via
+  // implied rope (Gestalt principle), tanpa rendering artifact.
   const dx = to[0] - from[0];
   const dy = to[1] - from[1];
   const dz = to[2] - from[2];
-  const lenHorizontal = Math.hypot(dx, dz);
-  const length3D = Math.hypot(dx, dy, dz);
 
-  // Rope mid-point (3D) + tilt sesuai slope from→to
-  const midX = (from[0] + to[0]) / 2;
-  const midY = (from[1] + to[1]) / 2 - 0.03; // interpolated mid Y, slight sag
-  const midZ = (from[2] + to[2]) / 2;
-  const angleYaw = Math.atan2(dz, dx);
-  // Pitch — atan2(dy, horizontal). dy<0 → negative pitch → box tilts
-  // DOWN. dy=0 (hex perimeter case) → pitch=0, horizontal. dy>0 →
-  // positive pitch → box tilts UP. Three.js rotation.z convention:
-  // positive value rotates +X toward +Y (up).
-  const anglePitch = Math.atan2(dy, lenHorizontal);
-
-  items.push(
-    <mesh
-      key={`rope-${stringIdx}`}
-      position={[midX, midY, midZ]}
-      rotation={[0, -angleYaw, anglePitch]}
-    >
-      <boxGeometry args={[length3D, 0.008, 0.008]} />
-      <meshStandardMaterial color="#3a2418" roughness={0.95} />
-    </mesh>,
-  );
-
-  // Pennants — pendulum dari rope, droops slightly via sag. Interpolate
-  // X, Y, Z proper supaya pennants follow rope slope.
+  // Pennants — distributed sepanjang banner path. Interpolate X, Y, Z
+  // proper supaya pennants follow proper banner slope dari Pohon (Y=4)
+  // ke hex pole (Y=2.8). Sag tambahan supaya pennants di tengah droops
+  // naturally seperti gravity.
   for (let i = 0; i < segments; i++) {
     const t = (i + 0.5) / segments;
     const x = from[0] + dx * t;
     const yInterp = from[1] + dy * t;
-    const ySag = yInterp - Math.sin(t * Math.PI) * 0.12; // sag stronger
+    const ySag = yInterp - Math.sin(t * Math.PI) * 0.15; // catenary-ish sag
     const z = from[2] + dz * t;
     items.push(
       <Pennant
         key={`pen-${stringIdx}-${i}`}
-        pos={[x, ySag - 0.12, z]}
+        pos={[x, ySag - 0.08, z]}
         color={BANNER_COLORS[(colorIdx + i) % 3]}
         phase={stringIdx * 7 + i}
       />,
