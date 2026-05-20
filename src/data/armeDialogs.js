@@ -37,6 +37,7 @@ export const ARME_DIALOGS = [
     id: 'welcome',
     category: 'sambutan',
     label: 'Selamat datang ke ArmeniacaTown',
+    cinematic: true,
     trigger: { type: 'welcome' },
     lines: [
       'Eh… ada yang dateng. Beneran?',
@@ -232,6 +233,7 @@ export const ARME_DIALOGS = [
     id: 'aula-reveal',
     category: 'besar',
     label: 'Aula Galeri di tengah kebuka',
+    cinematic: true,
     trigger: { type: 'count-cross', at: 7500 },
     lines: [
       'Aula di tengah… pintunya gerak sendiri tadi.',
@@ -243,6 +245,7 @@ export const ARME_DIALOGS = [
     id: 'purified',
     category: 'besar',
     label: 'Kota pulih sepenuhnya',
+    cinematic: true,
     trigger: { type: 'count-cross', at: 7000 },
     lines: [
       'Kota udah pulih sepenuhnya.',
@@ -267,6 +270,7 @@ export const ARME_DIALOGS = [
     id: 'festival-peak',
     category: 'besar',
     label: 'Perayaan puncak di alun-alun',
+    cinematic: true,
     trigger: { type: 'count-cross', at: 9000 },
     lines: [
       'Petalnya turun terus dari mana-mana.',
@@ -278,6 +282,7 @@ export const ARME_DIALOGS = [
     id: 'legacy',
     category: 'besar',
     label: 'Kota jadi monumen permanen',
+    cinematic: true,
     trigger: { type: 'count-cross', at: 10000 },
     lines: [
       'Kota ini gak cuma pulih — dia tumbuh jadi sesuatu yang dulu belum ada.',
@@ -336,6 +341,7 @@ export const ARME_DIALOGS = [
     id: 'bonus-seitansai',
     category: 'bonus',
     label: 'Hari seitansai Eli',
+    cinematic: true,
     trigger: { type: 'date-match', iso: '2026-06-14' },
     lines: [
       'Hari ini istimewa, ya.',

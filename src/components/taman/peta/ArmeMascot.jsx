@@ -76,7 +76,68 @@ const daysSince = (iso) => {
 };
 
 // ── Speech Bubble ──────────────────────────────────────────────────
-const SpeechBubble = ({ text, currentIdx, total, isMobile, onAdvance, onDismiss }) => {
+// Two layout modes:
+//   - 'corner': bubble absolutely positioned di samping avatar pojok
+//     (default routine dialog). Tail menghadap kiri ke avatar.
+//   - 'cinematic': bubble di tengah-atas avatar, wider + bigger text,
+//     tail menghadap bawah. Dipakai utk 'momen besar' (welcome,
+//     purified, legacy, dll) supaya kerasa cutscene moment.
+const SpeechBubble = ({
+  text,
+  currentIdx,
+  total,
+  isMobile,
+  mode = 'corner',
+  onAdvance,
+  onDismiss,
+}) => {
+  if (mode === 'cinematic') {
+    return (
+      <div className="pointer-events-auto relative z-30 w-[min(86vw,440px)]">
+        <div className="relative rounded-2xl bg-white/97 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-5 py-4 md:px-6 md:py-5">
+          {/* Tail bawah-tengah, point ke kepala Arme */}
+          <span
+            className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 rotate-45 bg-white/97 ring-1 ring-black/10"
+            style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }}
+            aria-hidden
+          />
+          {/* Dismiss */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDismiss();
+            }}
+            className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#2a1f30] text-white/85 text-sm leading-none ring-1 ring-white/20 hover:bg-[#3a2f40] transition-colors flex items-center justify-center"
+            aria-label="Tutup"
+          >
+            ×
+          </button>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9a5b4a] mb-2">
+            Arme
+          </div>
+          <button
+            type="button"
+            onClick={onAdvance}
+            className="block w-full text-left text-sm md:text-[15px] leading-relaxed text-[#1c1f2a] focus:outline-none"
+          >
+            {text}
+          </button>
+          <div className="mt-3 flex items-center justify-center gap-1.5">
+            {Array.from({ length: total }).map((_, i) => (
+              <span
+                key={i}
+                className={`h-1 rounded-full transition-all ${
+                  i <= currentIdx ? 'w-4 bg-[#9a5b4a]' : 'w-2 bg-[#9a5b4a]/25'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={
@@ -86,13 +147,11 @@ const SpeechBubble = ({ text, currentIdx, total, isMobile, onAdvance, onDismiss 
       }
     >
       <div className="relative rounded-2xl bg-white/95 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-4 py-3">
-        {/* Tail pointer menghadap avatar (kiri-bawah) */}
         <span
           className="absolute -left-2 bottom-4 w-4 h-4 rotate-45 bg-white/95 ring-1 ring-black/10"
           style={{ clipPath: 'polygon(0 0, 100% 100%, 0 100%)' }}
           aria-hidden
         />
-        {/* Dismiss button */}
         <button
           type="button"
           onClick={(e) => {
@@ -104,11 +163,9 @@ const SpeechBubble = ({ text, currentIdx, total, isMobile, onAdvance, onDismiss 
         >
           ×
         </button>
-        {/* Speaker label */}
         <div className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#9a5b4a] mb-1">
           Arme
         </div>
-        {/* Bubble text — clickable to advance */}
         <button
           type="button"
           onClick={onAdvance}
@@ -116,7 +173,6 @@ const SpeechBubble = ({ text, currentIdx, total, isMobile, onAdvance, onDismiss 
         >
           {text}
         </button>
-        {/* Progress dots */}
         <div className="mt-2 flex items-center gap-1">
           {Array.from({ length: total }).map((_, i) => (
             <span
@@ -478,6 +534,10 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   const activeLine = activeDialog?.lines[activeLineIdx];
   const hidden = modalOpen;
   const isTalking = Boolean(activeDialog);
+  // Cinematic dialog (6 momen besar: welcome, aula, purified, festival
+  // peak, legacy, seitansai) — Arme pindah ke tengah + backdrop dim
+  // map, kerasa cutscene. Sisanya tetap di pojok kiri-bawah.
+  const isCinematic = isTalking && activeDialog?.cinematic === true;
   // Newcomer = user belum pernah heard dialog apapun. Pakai stronger
   // attention cues (bounce + bigger pill) buat ngajak first interaction.
   const isNewcomer = Object.keys(heardMap).length === 0;
@@ -488,6 +548,10 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   const avatarFilter = isTalking
     ? 'drop-shadow(0 0 22px rgba(244,200,150,0.75)) drop-shadow(0 0 44px rgba(244,200,150,0.4)) drop-shadow(0 8px 18px rgba(0,0,0,0.45)) brightness(1.08)'
     : 'drop-shadow(0 0 14px rgba(244,200,150,0.2)) drop-shadow(0 8px 18px rgba(0,0,0,0.45))';
+  // Cinematic avatar pakai stronger glow biar dominant di center vs
+  // backdrop blur, plus brightness boost lebih kuat.
+  const cinematicAvatarFilter =
+    'drop-shadow(0 0 32px rgba(244,200,150,0.85)) drop-shadow(0 0 64px rgba(244,200,150,0.5)) drop-shadow(0 12px 24px rgba(0,0,0,0.6)) brightness(1.12)';
 
   return (
     <>
@@ -514,11 +578,24 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         }
       `}</style>
 
+      {/* Cinematic backdrop — fixed full-viewport dim + blur saat
+          dialog 'momen besar' aktif. Klik backdrop = dismiss dialog.
+          z-[15] (di bawah Arme cinematic z-[25] tapi di atas Canvas). */}
+      <div
+        className={`fixed inset-0 z-[15] bg-black/45 backdrop-blur-[2px] transition-opacity duration-700 ${
+          isCinematic ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={isCinematic ? handleDismiss : undefined}
+        aria-hidden
+      />
+
+      {/* Corner Arme — hidden saat cinematic dialog aktif (cinematic
+          layer takes over) atau modal kebuka. */}
       <div
         className={`pointer-events-none fixed bottom-0 left-0 z-20 select-none transition-opacity duration-500 ${
-          hidden ? 'opacity-0' : 'opacity-100'
+          hidden || isCinematic ? 'opacity-0' : 'opacity-100'
         }`}
-        aria-hidden={hidden}
+        aria-hidden={hidden || isCinematic}
       >
         <div className="relative">
           {/* Halo glow behind avatar — selalu ada tipis biar Arme gak
@@ -606,16 +683,81 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
             </span>
           </button>
 
-          {activeDialog && activeLine && (
+          {activeDialog && activeLine && !isCinematic && (
             <SpeechBubble
               text={activeLine}
               currentIdx={activeLineIdx}
               total={activeDialog.lines.length}
               isMobile={isMobile}
+              mode="corner"
               onAdvance={handleAdvance}
               onDismiss={handleDismiss}
             />
           )}
+        </div>
+      </div>
+
+      {/* Cinematic Arme — centered cutscene layout. Arme lebih gede,
+          glow lebih kuat, speech bubble di atas kepalanya (centered).
+          Hanya render saat dialog cinematic aktif. Click backdrop sudah
+          dismiss; klik avatar advance bubble. */}
+      <div
+        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col items-center justify-end pb-2 md:pb-6 select-none transition-opacity duration-700 ${
+          isCinematic && !hidden ? 'opacity-100' : 'opacity-0'
+        }`}
+        aria-hidden={!isCinematic || hidden}
+      >
+        {/* Bubble di atas Arme — render saat ada activeLine */}
+        {isCinematic && activeLine && (
+          <div className="mb-3 md:mb-4">
+            <SpeechBubble
+              text={activeLine}
+              currentIdx={activeLineIdx}
+              total={activeDialog.lines.length}
+              isMobile={isMobile}
+              mode="cinematic"
+              onAdvance={handleAdvance}
+              onDismiss={handleDismiss}
+            />
+          </div>
+        )}
+
+        <div className="relative">
+          {/* Halo cinematic — bigger, more dominant */}
+          <div className="pointer-events-none absolute inset-0" aria-hidden>
+            <div
+              className={`absolute left-1/2 -translate-x-1/2 rounded-full ${
+                isMobile ? 'w-60 h-60 bottom-2' : 'w-80 h-80 bottom-4'
+              }`}
+              style={{
+                background:
+                  'radial-gradient(circle, rgba(244,200,150,0.55) 0%, rgba(244,200,150,0.25) 35%, rgba(244,200,150,0) 70%)',
+                filter: 'blur(16px)',
+                animation: isCinematic ? 'armeHaloBreath 3.4s ease-in-out infinite' : 'none',
+              }}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAdvance}
+            className="pointer-events-auto relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl"
+            aria-label="Lanjut dialog"
+          >
+            <img
+              src={AVATAR_SRC}
+              alt="Arme"
+              draggable={false}
+              className={`block w-auto object-bottom ${
+                isMobile ? 'h-56' : 'h-[22rem]'
+              }`}
+              style={{ filter: cinematicAvatarFilter }}
+            />
+            {/* Name plate cinematic — di bawah, centered */}
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-1 rounded-full bg-[#9a5b4a]/95 backdrop-blur-sm px-3 py-0.5 text-[11px] md:text-xs font-semibold tracking-wider text-white ring-1 ring-[#f4c896]/40 shadow-[0_0_14px_rgba(244,200,150,0.6)]">
+              Arme
+            </span>
+          </button>
         </div>
       </div>
 
