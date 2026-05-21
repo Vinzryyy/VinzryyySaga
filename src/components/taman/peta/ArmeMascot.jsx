@@ -6,8 +6,10 @@
  * tap Arme kapan aja buka drawer "Topik" — semua dialog yang pernah
  * fire bisa di-replay (plus yang pre-crossed pas first visit).
  *
- * Asset placeholder: /FashionTime/Base.png (paper-doll dress-up base).
- * Mascot apricot final tinggal swap AVATAR_SRC.
+ * Assets: /Arme/ELI_2_a.png (idle, hand-to-chin) + /Arme/ELI_1_a.png
+ * (talking, pointing). Swap berdasarkan `isTalking` — pose berubah saat
+ * dialog active biar avatar kerasa hidup. Paper-doll dress-up future
+ * feature beda track (lihat memory project_dressup_feature).
  *
  * State persist di localStorage 'armeniaca-arme':
  *   { lastSeen: ISO date, lastSeenCount: int,
@@ -26,7 +28,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ARME_DIALOGS, ARME_CATEGORIES } from '../../../data/armeDialogs';
 
 const STORAGE_KEY = 'armeniaca-arme';
-const AVATAR_SRC = '/FashionTime/Base.png';
+const AVATAR_IDLE = '/Arme/ELI_2_a.png';
+const AVATAR_TALK = '/Arme/ELI_1_a.png';
 
 const BUBBLE_AUTO_ADVANCE_MS = 3200;
 const FINAL_DISMISS_DELAY_MS = 4500;
@@ -675,7 +678,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
             aria-label={activeDialog ? 'Lanjut dialog' : 'Buka topik Arme'}
           >
             <img
-              src={AVATAR_SRC}
+              src={isTalking ? AVATAR_TALK : AVATAR_IDLE}
               alt="Arme — warga terakhir ArmeniacaTown"
               draggable={false}
               className={`block w-auto object-bottom transition-all duration-500 hover:scale-[1.05] ${
@@ -785,7 +788,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
             aria-label="Lanjut dialog"
           >
             <img
-              src={AVATAR_SRC}
+              src={AVATAR_TALK}
               alt="Arme"
               draggable={false}
               className={`block w-auto object-bottom ${

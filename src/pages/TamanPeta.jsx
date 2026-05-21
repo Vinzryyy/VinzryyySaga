@@ -16929,9 +16929,9 @@ const TamanPetaPage = () => {
         {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
             selesai, persisted via localStorage. */}
         {!petakPreview && <TamanPetaIntroTitle />}
-        {/* Arme — warga terakhir ArmeniacaTown. Mascot overlay
-            placeholder (Base.png), nyambut + ngenarrate milestone +
-            replay drawer. Auto-hide saat modal kebuka. */}
+        {/* Arme — warga terakhir ArmeniacaTown. Mascot 2-frame (idle
+            hand-to-chin + talking pointing), nyambut + ngenarrate
+            milestone + replay drawer. Auto-hide saat modal kebuka. */}
         <ArmeMascot
           armeniacaCount={armeniacaCount}
           armeniacaLoaded={armeniacaLoaded}
