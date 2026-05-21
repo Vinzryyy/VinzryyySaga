@@ -403,6 +403,10 @@ const SKY_LANTERN_COUNT = 4;
 const SkyLantern = ({ idx }) => {
   const groupRef = useRef();
   const matRef = useRef();
+  // Trail glow refs — 3 trail particles per lantern, position offset below
+  // with lag effect (each trail follows lantern with delay).
+  const trailRefs = useRef([]);
+  const trailMatRefs = useRef([]);
   // Deterministic base position (sebar di plaza area)
   const sx = (((idx * 2654435761) % 997) / 997 - 0.5) * 8;
   const sz = (((idx * 1597463) % 991) / 991 - 0.5) * 8;
@@ -414,10 +418,11 @@ const SkyLantern = ({ idx }) => {
     // Rise Y=1 → Y=8 linear
     const y = 1 + cycleT * 7;
     // Sway
-    groupRef.current.position.x = sx + 0.3 * Math.sin(t * 0.5 + idx);
-    groupRef.current.position.z = sz + 0.3 * Math.cos(t * 0.4 + idx);
+    const swayX = sx + 0.3 * Math.sin(t * 0.5 + idx);
+    const swayZ = sz + 0.3 * Math.cos(t * 0.4 + idx);
+    groupRef.current.position.x = swayX;
+    groupRef.current.position.z = swayZ;
     groupRef.current.position.y = y;
-    // Spin slow Y
     groupRef.current.rotation.y = t * 0.15 + idx;
     // Fade in/out — visible mid-cycle
     const fade = Math.sin(cycleT * Math.PI);
@@ -425,34 +430,74 @@ const SkyLantern = ({ idx }) => {
       matRef.current.opacity = fade * 0.85;
       matRef.current.emissiveIntensity = 0.4 + fade * 0.3;
     }
+    // Trail glow — 3 particles trailing below lantern dengan progressive
+    // lag (0.5, 1.0, 1.5 s delay) supaya kerasa stream of light. Each
+    // particle posisinya cuma offset Y down dari lantern current pos,
+    // dengan opacity decay per-particle.
+    for (let i = 0; i < 3; i++) {
+      const m = trailRefs.current[i];
+      const mat = trailMatRefs.current[i];
+      if (!m || !mat) continue;
+      const lag = (i + 1) * 0.18; // 0.18, 0.36, 0.54 unit di bawah
+      m.position.y = y - lag;
+      m.position.x = swayX + (Math.sin(t * 0.5 + idx) * 0.15 * (1 - i / 3));
+      m.position.z = swayZ + (Math.cos(t * 0.4 + idx) * 0.15 * (1 - i / 3));
+      // Opacity decays per-particle (closer = brighter)
+      mat.opacity = fade * 0.45 * (1 - i * 0.3);
+    }
   });
   return (
-    <group ref={groupRef}>
-      {/* Box body lantern */}
-      <mesh>
-        <boxGeometry args={[0.16, 0.18, 0.16]} />
-        <meshStandardMaterial
-          ref={matRef}
-          color="#f4d8a0"
-          emissive="#f4a868"
-          emissiveIntensity={0.5}
-          transparent
-          opacity={0.85}
-          roughness={0.7}
-          toneMapped={false}
-        />
-      </mesh>
-      {/* Top cap */}
-      <mesh position={[0, 0.1, 0]}>
-        <boxGeometry args={[0.08, 0.02, 0.08]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-      {/* Bottom cap */}
-      <mesh position={[0, -0.1, 0]}>
-        <boxGeometry args={[0.1, 0.02, 0.1]} />
-        <meshStandardMaterial color="#3a2418" roughness={0.95} />
-      </mesh>
-    </group>
+    <>
+      <group ref={groupRef}>
+        {/* Box body lantern */}
+        <mesh>
+          <boxGeometry args={[0.16, 0.18, 0.16]} />
+          <meshStandardMaterial
+            ref={matRef}
+            color="#f4d8a0"
+            emissive="#f4a868"
+            emissiveIntensity={0.5}
+            transparent
+            opacity={0.85}
+            roughness={0.7}
+            toneMapped={false}
+          />
+        </mesh>
+        {/* Top cap */}
+        <mesh position={[0, 0.1, 0]}>
+          <boxGeometry args={[0.08, 0.02, 0.08]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+        {/* Bottom cap */}
+        <mesh position={[0, -0.1, 0]}>
+          <boxGeometry args={[0.1, 0.02, 0.1]} />
+          <meshStandardMaterial color="#3a2418" roughness={0.95} />
+        </mesh>
+      </group>
+      {/* Trail glow — 3 small spheres trailing below lantern, sized
+          decreasing (0.06 → 0.04 → 0.025), warm glow. Posisi di-update
+          per-frame mengikuti lantern dengan lag offset. */}
+      {[0, 1, 2].map((i) => (
+        <mesh
+          key={`trail-${i}`}
+          ref={(m) => {
+            trailRefs.current[i] = m;
+          }}
+        >
+          <sphereGeometry args={[0.06 - i * 0.015, 6, 5]} />
+          <meshBasicMaterial
+            ref={(m) => {
+              trailMatRefs.current[i] = m;
+            }}
+            color="#f4c868"
+            transparent
+            opacity={0}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
   );
 };
 

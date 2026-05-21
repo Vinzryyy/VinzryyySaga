@@ -8097,17 +8097,23 @@ const FestivalLanterns = ({ count }) => {
   const groupRefs = useRef([]);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
+    // Wind gust pulse — periodic stronger sway every ~9s (1/9 = 0.111Hz).
+    // Smooth sine bell curve (max di t mod 9 = 4.5s). Gust multiplier
+    // 1.0 baseline → 2.2x amplitude di puncak gust = natural windy feel.
+    const gustPhase = (t / 9) * Math.PI * 2;
+    const gustBell = Math.max(0, Math.sin(gustPhase));
+    const gustMul = 1 + gustBell * 1.2; // 1.0 base, 2.2x peak
     for (let i = 0; i < matRefs.current.length; i += 1) {
       const m = matRefs.current[i];
       if (m) {
         m.emissiveIntensity = 0.65 + Math.sin(t * 0.7 + i * 0.4) * 0.15;
       }
-      // Lampion sway — gentle pendulum rotation around Z axis, phase
-      // offset per-lantern via idx. Amplitude 0.12 rad (~7 deg).
+      // Lampion sway — gentle pendulum, amplitude di-modulate dengan
+      // gustMul supaya occasional wind gust kasih wave stronger sway.
       const g = groupRefs.current[i];
       if (g) {
-        g.rotation.z = 0.12 * Math.sin(t * 1.1 + i * 0.45);
-        g.rotation.x = 0.08 * Math.sin(t * 0.9 + i * 0.7);
+        g.rotation.z = 0.12 * gustMul * Math.sin(t * 1.1 + i * 0.45);
+        g.rotation.x = 0.08 * gustMul * Math.sin(t * 0.9 + i * 0.7);
       }
     }
   });
@@ -9536,6 +9542,11 @@ const KoiShadows = () => {
         KOI_CENTER[0] + def.offset[0] + Math.cos(angle) * def.radius;
       ref.position.z =
         KOI_CENTER[2] + def.offset[1] + Math.sin(angle) * def.radius;
+      // Tail wag — body scale.z oscillates lateral (perpendicular ke
+      // swim direction), simulate fish tail+body wave. Frequency 3Hz
+      // (typical fish tail beat). Amplitude 15% body width.
+      const tailWag = 1 + Math.sin(t * 3 + def.phase * 2) * 0.15;
+      ref.scale.z = def.scale[2] * tailWag;
       ref.rotation.y = -angle + (def.speed > 0 ? Math.PI / 2 : -Math.PI / 2);
     });
   });
