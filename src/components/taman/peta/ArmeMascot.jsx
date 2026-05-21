@@ -157,7 +157,7 @@ const SpeechBubble = ({
     <div
       className={
         isMobile
-          ? 'pointer-events-auto absolute left-[130px] bottom-[140px] w-[min(64vw,220px)] z-30'
+          ? 'pointer-events-auto absolute left-[148px] bottom-[152px] w-[min(60vw,200px)] z-30'
           : 'pointer-events-auto absolute left-[210px] bottom-[170px] w-[320px] z-30'
       }
     >
@@ -350,6 +350,23 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     }
     return undefined;
   }, [activeDialogId]);
+
+  // ── Effect: auto-dismiss dialog saat modal/landmark kebuka ───────
+  // Mencegah overlap: audio Arme keep playing di background sementara
+  // user lagi di petak preview, dan cinematic backdrop tetep nyala
+  // di belakang modal landmark. Dialog yang lagi jalan di-mark heard
+  // (bisa di-replay dari drawer), queue tetep persist supaya kalau
+  // user tutup modal lagi, milestone berikutnya tetep fire.
+  useEffect(() => {
+    if (modalOpen && activeDialogId) {
+      markHeard(activeDialogId, 'heard');
+      refreshHeard();
+      setActiveDialogId(null);
+      setActiveLineIdx(0);
+      // Audio stop + un-duck auto via cleanup di two effects sebelumnya
+      // (auto-advance + duck) saat activeDialogId nge-null.
+    }
+  }, [modalOpen, activeDialogId, refreshHeard]);
 
   // ── Effect: auto-advance through lines ───────────────────────────
   // Two paths:
@@ -659,12 +676,16 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
 
       {/* Cinematic backdrop — fixed full-viewport dim + blur saat
           dialog 'momen besar' aktif. Klik backdrop = dismiss dialog.
-          z-[15] (di bawah Arme cinematic z-[25] tapi di atas Canvas). */}
+          z-[15] (di bawah Arme cinematic z-[25] tapi di atas Canvas).
+          Hide pas hidden (modal kebuka) supaya gak nge-dim belakang
+          landmark modal yang sedang aktif. */}
       <div
         className={`fixed inset-0 z-[15] bg-black/45 backdrop-blur-[2px] transition-opacity duration-700 ${
-          isCinematic ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          isCinematic && !hidden
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 pointer-events-none'
         }`}
-        onClick={isCinematic ? handleDismiss : undefined}
+        onClick={isCinematic && !hidden ? handleDismiss : undefined}
         aria-hidden
       />
 
@@ -700,7 +721,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           >
             <div
               className={`absolute left-1/2 -translate-x-1/2 rounded-full ${
-                isMobile ? 'w-44 h-44 bottom-2' : 'w-64 h-64 bottom-4'
+                isMobile ? 'w-48 h-48 bottom-2' : 'w-64 h-64 bottom-4'
               }`}
               style={{
                 background: isTalking
@@ -723,7 +744,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               alt="Arme — warga terakhir ArmeniacaTown"
               draggable={false}
               className={`block w-auto object-bottom transition-all duration-500 hover:scale-[1.05] ${
-                isMobile ? 'h-40' : 'h-60'
+                isMobile ? 'h-44' : 'h-60'
               } ${isTalking ? 'scale-[1.04]' : 'scale-100'}`}
               style={{
                 filter: avatarFilter,
