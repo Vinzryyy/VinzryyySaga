@@ -623,11 +623,11 @@ export const DiscoveryProgressBadge = ({ discovered, armeniacaCount = 0, modalOp
 
   const isComplete = count >= TOTAL;
 
+  // Pindah dari bottom-left ke top-left (below TamanHeader) — sebelumnya
+  // overlap dgn ArmeMascot avatar h-40/h-60 di pojok bottom-left.
+  // Sekarang clean separation: bottom-left dedicated ke Arme, top-left
+  // ke navigation+info column.
   return (
-    {/* Pindah dari bottom-left ke top-left (below TamanHeader) — sebelumnya
-        overlap dgn ArmeMascot avatar h-40/h-60 di pojok bottom-left. Sekarang
-        clean separation: bottom-left dedicated ke Arme, top-left ke
-        navigation+info column. */}
     <div className="pointer-events-none absolute top-[120px] left-4 md:top-[140px] md:left-6 z-10">
       <div className="relative">
         <div
