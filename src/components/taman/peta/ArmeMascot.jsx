@@ -112,7 +112,11 @@ const SpeechBubble = ({
       : 'polygon(0 0, 0 100%, 100% 100%)'; // left-pointing wedge
 
     return (
-      <div className="pointer-events-auto relative z-30 w-[min(86vw,440px)]">
+      <div
+        key={currentIdx}
+        className="pointer-events-auto relative z-30 w-[min(86vw,440px)]"
+        style={{ animation: 'armeBubbleIn 360ms cubic-bezier(0.2, 0.7, 0.3, 1) both' }}
+      >
         <div className="relative rounded-2xl bg-white/97 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-5 py-4 md:px-6 md:py-5">
           <span
             className={`${tailPositionClass} bg-white/97 ring-1 ring-black/10`}
@@ -158,11 +162,13 @@ const SpeechBubble = ({
 
   return (
     <div
+      key={currentIdx}
       className={
         isMobile
           ? 'pointer-events-auto absolute left-[148px] bottom-[152px] w-[min(60vw,200px)] z-30'
           : 'pointer-events-auto absolute left-[210px] bottom-[170px] w-[320px] z-30'
       }
+      style={{ animation: 'armeBubbleIn 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both' }}
     >
       <div className="relative rounded-2xl bg-white/95 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-4 py-3">
         <span
@@ -678,6 +684,14 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
           50% { transform: translateX(2px) scale(1.04); opacity: 0.92; }
         }
+        @keyframes armeBubbleIn {
+          0%   { opacity: 0; transform: translateY(6px) scale(0.96); }
+          100% { opacity: 1; transform: translateY(0)   scale(1);    }
+        }
+        @keyframes armeCinematicIn {
+          0%   { opacity: 0; transform: translateY(14px) scale(0.95); }
+          100% { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
       `}</style>
 
       {/* Cinematic backdrop — fixed full-viewport dim + blur saat
@@ -761,6 +775,12 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
                   : isNewcomer
                     ? 'armeNewcomerWave 2.6s ease-in-out infinite'
                     : 'armeIdleMirror 9s ease-in-out infinite',
+                // Talking corner: mirror horizontal supaya pointing arm
+                // Arme ngarah ke bubble (di kanan), bukan off-screen.
+                // Combine sama scale(1.04) (talking-time enlargement);
+                // inline overrides className transform jadi harus
+                // di-merge eksplisit di sini.
+                transform: isTalking ? 'scaleX(-1) scale(1.04)' : undefined,
               }}
             />
             {/* Name plate + hint — cuma show saat idle, hidden pas
@@ -834,7 +854,15 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         }`}
         aria-hidden={!isCinematic || hidden}
       >
-        <div className="relative">
+        <div
+          key={isCinematic ? activeDialogId || 'cinematic' : 'idle'}
+          className="relative"
+          style={
+            isCinematic && !hidden
+              ? { animation: 'armeCinematicIn 620ms cubic-bezier(0.2, 0.7, 0.3, 1) both' }
+              : undefined
+          }
+        >
           {/* Halo cinematic — bigger, more dominant */}
           <div className="pointer-events-none absolute inset-0" aria-hidden>
             <div
@@ -863,7 +891,14 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               className={`block w-auto object-bottom ${
                 isMobile ? 'h-56' : 'h-[22rem]'
               }`}
-              style={{ filter: cinematicAvatarFilter }}
+              // Mirror cinematic juga — desktop (row layout: avatar
+              // kiri, bubble kanan) → pointing arm Arme ngarah ke
+              // bubble. Di mobile (col-reverse: bubble atas) direction
+              // tetep netral.
+              style={{
+                filter: cinematicAvatarFilter,
+                transform: 'scaleX(-1)',
+              }}
             />
             {/* Name plate cinematic — di bawah, centered */}
             <span className="absolute left-1/2 -translate-x-1/2 bottom-1 rounded-full bg-[#9a5b4a]/95 backdrop-blur-sm px-3 py-0.5 text-[11px] md:text-xs font-semibold tracking-wider text-white ring-1 ring-[#f4c896]/40 shadow-[0_0_14px_rgba(244,200,150,0.6)]">
