@@ -74,79 +74,130 @@ const bezierPoint = (start, ctrl, end, t) => {
   ];
 };
 
-const DirtPath = ({ to, curveSign, idx }) => {
-  const startR = 2.2;
-  const angle = Math.atan2(to[2], to[0]);
-  const start = [Math.cos(angle) * startR, 0, Math.sin(angle) * startR];
-  const dx = to[0] - start[0];
-  const dz = to[2] - start[2];
-  const lenH = Math.hypot(dx, dz);
-  const perpX = -dz / lenH;
-  const perpZ = dx / lenH;
-  const curveOffset = curveSign * 0.6;
-  const ctrl = [
-    (start[0] + to[0]) / 2 + perpX * curveOffset,
-    0,
-    (start[2] + to[2]) / 2 + perpZ * curveOffset,
-  ];
-  const pieces = computeBezierPath(start, ctrl, to, 12);
+// Stepping stones polish — variation 4 lapis:
+//   1. Color variation: 4 stone shades (gray + tan mix)
+//   2. Shape variation: 70% cylinder pavers (rounded), 30% box slabs
+//      (rectangular). Random distribution per-idx.
+//   3. Slight tilt: small rotation.x and rotation.z (~0.05 rad) supaya
+//      stones look "settled into ground", bukan perfectly upright.
+//   4. Sink + dirt halo: stones slightly sunk (Y=0.018) dengan small
+//      dark dirt disc di bawahnya = kerasa set-in-ground.
+//   5. Moss accent: 30% stones dapet small green moss patch di top.
+//   6. Count up: 6 stones per path (sebelumnya 4) = 36 total across 6 paths.
+const STONE_COLORS = ['#8a7868', '#9a8878', '#7a6a5a', '#6a5848'];
+const STONE_TS = [0.12, 0.28, 0.44, 0.60, 0.76, 0.90];
 
-  // Stepping stones — 4 stones distributed sepanjang path (t=0.15, 0.40,
-  // 0.65, 0.85). Posisi via bezier, slight offset perpendicular alternating
-  // supaya stones tampak natural meandering bukan center-line.
-  const stoneTs = [0.15, 0.40, 0.65, 0.85];
-  const stones = stoneTs.map((t, sIdx) => {
-    const [sx, , sz] = bezierPoint(start, ctrl, to, t);
-    const perpOffset = (sIdx % 2 === 0 ? 0.08 : -0.08);
-    return {
-      x: sx + perpX * perpOffset,
-      z: sz + perpZ * perpOffset,
-      r: 0.16 + ((sIdx * 7) % 5) * 0.012, // 0.16-0.21 jitter
-      rot: sIdx * 0.7,
-    };
+const SteppingStone = ({ x, z, r, rot, tilt, colorIdx, isSlab, hasMoss, idx }) => {
+  return (
+    <group position={[x, 0.018, z]} rotation={[tilt.x, rot, tilt.z]}>
+      {/* Subtle dirt halo below — disc dark di sekeliling stone */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.012, 0]}>
+        <circleGeometry args={[r * 1.5, 12]} />
+        <meshStandardMaterial
+          color="#3a2818"
+          roughness={1}
+          transparent
+          opacity={0.4}
+          depthWrite={false}
+        />
+      </mesh>
+      {/* Stone body — cylinder pavers atau box slabs */}
+      {isSlab ? (
+        <mesh position={[0, 0.025, 0]}>
+          <boxGeometry args={[r * 1.7, 0.05, r * 1.3]} />
+          <meshStandardMaterial color={STONE_COLORS[colorIdx]} roughness={1} />
+        </mesh>
+      ) : (
+        <mesh position={[0, 0.025, 0]}>
+          <cylinderGeometry args={[r, r * 1.05, 0.05, 7]} />
+          <meshStandardMaterial color={STONE_COLORS[colorIdx]} roughness={1} />
+        </mesh>
+      )}
+      {/* Moss accent (30% stones) — small green patch di atas */}
+      {hasMoss && (
+        <mesh
+          rotation={[-Math.PI / 2, 0, idx * 0.5]}
+          position={[r * 0.25, 0.052, -r * 0.15]}
+        >
+          <circleGeometry args={[r * 0.5, 8]} />
+          <meshStandardMaterial
+            color="#5a8a5a"
+            roughness={0.95}
+            transparent
+            opacity={0.7}
+          />
+        </mesh>
+      )}
+    </group>
+  );
+};
+
+const PathSteppingStones = () => {
+  const allStones = [];
+  PATH_TARGETS.forEach((target, pIdx) => {
+    const { to, curveSign } = target;
+    const startR = 2.2;
+    const angle = Math.atan2(to[2], to[0]);
+    const start = [Math.cos(angle) * startR, 0, Math.sin(angle) * startR];
+    const dx = to[0] - start[0];
+    const dz = to[2] - start[2];
+    const lenH = Math.hypot(dx, dz);
+    const perpX = -dz / lenH;
+    const perpZ = dx / lenH;
+    const curveOffset = curveSign * 0.6;
+    const ctrl = [
+      (start[0] + to[0]) / 2 + perpX * curveOffset,
+      0,
+      (start[2] + to[2]) / 2 + perpZ * curveOffset,
+    ];
+    STONE_TS.forEach((t, sIdx) => {
+      const [sx, , sz] = bezierPoint(start, ctrl, to, t);
+      const globalIdx = pIdx * STONE_TS.length + sIdx;
+      // Deterministic seeded jitter
+      const s1 = ((globalIdx * 2654435761) % 1009) / 1009;
+      const s2 = ((globalIdx * 1597463) % 991) / 991;
+      const s3 = ((globalIdx * 8675309) % 1013) / 1013;
+      const perpOffset = (sIdx % 2 === 0 ? 0.08 : -0.08) * (0.5 + s1 * 0.5);
+      const r = 0.15 + s2 * 0.07; // 0.15-0.22
+      const rot = s1 * Math.PI;
+      const tilt = {
+        x: (s2 - 0.5) * 0.1,  // -0.05 to 0.05 rad
+        z: (s3 - 0.5) * 0.1,
+      };
+      const colorIdx = Math.floor(s1 * 4);
+      const isSlab = s2 < 0.3; // 30% slabs
+      const hasMoss = s3 < 0.3; // 30% mossy
+      allStones.push({
+        x: sx + perpX * perpOffset,
+        z: sz + perpZ * perpOffset,
+        r,
+        rot,
+        tilt,
+        colorIdx,
+        isSlab,
+        hasMoss,
+        idx: globalIdx,
+      });
+    });
   });
-
   return (
     <>
-      {pieces.map((p, i) => {
-        // Width tapers di ujung path — lebih lebar di tengah, kurusan
-        // di start/end. Bikin kerasa natural, gak straight band.
-        const t = (i + 0.5) / pieces.length;
-        const widthMul = 0.7 + Math.sin(t * Math.PI) * 0.35;
-        return (
-          <mesh
-            key={`path-${idx}-${i}`}
-            position={[p.x, 0.012, p.z]}
-            rotation={[-Math.PI / 2, -p.angle, 0]}
-          >
-            <planeGeometry args={[p.len * 1.15, 0.42 * widthMul]} />
-            <meshStandardMaterial
-              color={i % 3 === 0 ? '#7a5840' : '#6a5240'}
-              roughness={0.95}
-              transparent
-              opacity={0.92}
-              depthWrite={false}
-            />
-          </mesh>
-        );
-      })}
-      {/* Stepping stones — 4 small flat pavers sepanjang path. Kerasa
-          "path beneran di-design", bukan dirt band kosong. */}
-      {stones.map((s, i) => (
-        <mesh
-          key={`stone-${idx}-${i}`}
-          position={[s.x, 0.022, s.z]}
-          rotation={[0, s.rot, 0]}
-        >
-          <cylinderGeometry args={[s.r, s.r * 1.05, 0.05, 6]} />
-          <meshStandardMaterial color="#8a7868" roughness={1} />
-        </mesh>
+      {allStones.map((s, i) => (
+        <SteppingStone key={`pss-${i}`} {...s} />
       ))}
-      {/* Path-end warm glow — soft additive disc di endpoint, kerasa
-          "invitation" landmark. Subtle warm amber tint. */}
+    </>
+  );
+};
+
+// Path-end warm glow — 6 soft additive discs di endpoint setiap landmark.
+// "Invitation" beacon. Subtle warm amber tint.
+const PathEndGlows = () => (
+  <>
+    {PATH_TARGETS.map((p, i) => (
       <mesh
+        key={`peg-${i}`}
         rotation={[-Math.PI / 2, 0, 0]}
-        position={[to[0], 0.018, to[2]]}
+        position={[p.to[0], 0.018, p.to[2]]}
       >
         <circleGeometry args={[0.9, 24]} />
         <meshBasicMaterial
@@ -157,14 +208,6 @@ const DirtPath = ({ to, curveSign, idx }) => {
           depthWrite={false}
         />
       </mesh>
-    </>
-  );
-};
-
-const DirtPaths = () => (
-  <>
-    {PATH_TARGETS.map((p, i) => (
-      <DirtPath key={`dp-${i}`} {...p} idx={i} />
     ))}
   </>
 );
@@ -441,7 +484,11 @@ const GroundDetails = ({ loaded = false, isMobile = false }) => {
   if (!loaded) return null;
   return (
     <>
-      <DirtPaths />
+      {/* DirtPaths dihapus per user — zen garden style stepping stones
+          tanpa dirt band underneath. Stones jadi standalone navigasi
+          visual across grass. */}
+      <PathSteppingStones />
+      <PathEndGlows />
       <TrampledCircle />
       <GrassVariationPatches isMobile={isMobile} />
       <PebbleScatter isMobile={isMobile} />
