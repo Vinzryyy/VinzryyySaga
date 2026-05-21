@@ -431,6 +431,46 @@ export const ARME_DIALOGS = [
     ],
   },
 
+  // ── Beyond Legacy (post-10k, soft progression) ────────────────────
+  // Reflektif tone — kota udah pulih, sekarang Arme refleksi tentang
+  // perjalanan + kota yang terus tumbuh di luar legacy hard-cap.
+  {
+    id: 'beyond-tumbuh-terus',
+    category: 'besar',
+    label: 'Kota masih tumbuh',
+    cinematic: true,
+    trigger: { type: 'count-cross', at: 15000 },
+    lines: [
+      'Aku gak nyangka kota ini bisa tumbuh sebesar ini.',
+      'Dulu cuma satu Pohon yang bertahan.',
+      'Sekarang ada bunga di mana-mana, kunang-kunang malem hari, orang lewat bahkan saat sepi.',
+    ],
+  },
+  {
+    id: 'beyond-rumah',
+    category: 'besar',
+    label: 'Kota udah jadi rumah',
+    cinematic: true,
+    trigger: { type: 'count-cross', at: 20000 },
+    lines: [
+      'Udah lama banget sejak hari kering itu.',
+      'Kadang aku lupa kalo kota ini pernah sepi.',
+      'Kamu yang ngajarin kota ini cara mengingat lagi.',
+    ],
+  },
+  {
+    id: 'beyond-dongeng',
+    category: 'besar',
+    label: 'Kota jadi dongeng',
+    cinematic: true,
+    trigger: { type: 'count-cross', at: 50000 },
+    lines: [
+      'Orang sekarang ngomongin kota ini kayak dongeng.',
+      'Mereka gak tau dulu di sini cuma ada satu warga yang nungguin.',
+      'Tapi mungkin emang gak perlu tau — yang penting mereka dateng.',
+    ],
+  },
+
   // ── Saat Kamu Balik (returning visit) ─────────────────────────────
   {
     id: 'return-short',

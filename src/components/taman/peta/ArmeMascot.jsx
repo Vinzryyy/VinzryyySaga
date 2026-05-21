@@ -317,6 +317,60 @@ const ReplayDrawer = ({ heardMap, onClose, onReplay }) => {
                 </ul>
               </div>
             ))}
+            {/* Tanda tangan visitor — engraved di Legacy Monument
+                (visible saat count >= 10000). Default "Pengunjung";
+                set via prompt. localStorage key
+                'armeniaca-visitor-name'. */}
+            <div className="pt-3 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => {
+                  let current = 'Pengunjung';
+                  try {
+                    current = localStorage.getItem('armeniaca-visitor-name') || 'Pengunjung';
+                  } catch {
+                    /* noop */
+                  }
+                  const next = window.prompt(
+                    'Tanda tanganmu di Monument Legacy (terlihat saat kota mencapai 10.000 kebaikan). Max 20 huruf:',
+                    current,
+                  );
+                  if (next === null) return; // user cancel
+                  const trimmed = next.trim().slice(0, 20);
+                  try {
+                    if (trimmed) {
+                      localStorage.setItem('armeniaca-visitor-name', trimmed);
+                    } else {
+                      localStorage.removeItem('armeniaca-visitor-name');
+                    }
+                  } catch {
+                    /* storage blocked */
+                  }
+                  // Notify LegacyMonument (same-tab) — storage event
+                  // gak fire di tab yang sama, jadi pakai custom event.
+                  try {
+                    window.dispatchEvent(
+                      new CustomEvent('armeniaca-visitor-name-changed'),
+                    );
+                  } catch {
+                    /* SSR / window absent */
+                  }
+                }}
+                className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors group"
+              >
+                <span className="mt-0.5 text-white/40 group-hover:text-[#d4a574] transition-colors text-sm">
+                  ✎
+                </span>
+                <span className="flex-1">
+                  <span className="block text-white/80 text-[13px] leading-snug">
+                    Atur tanda tangan
+                  </span>
+                  <span className="block text-white/40 text-[10px] mt-0.5">
+                    Diukir di Monument Legacy pas kota sampai 10.000.
+                  </span>
+                </span>
+              </button>
+            </div>
           </div>
         )}
       </div>

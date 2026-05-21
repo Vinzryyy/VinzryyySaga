@@ -8210,10 +8210,20 @@ const FestivalLanterns = ({ count }) => {
 // FestivalPetals (m9, count >= 9000) — dense apricot petals falling
 // dari sky, festive peak. Mirror ApricotPetals existing tapi denser
 // + slightly different fall pattern (lebih banyak swirl).
+// Post-legacy (count > 10000): density terus naik proportional ke
+// postLegacyProgress — kota beyond legacy bloom-nya makin pekat.
 const FestivalPetals = ({ count, isMobile = false }) => {
   if (count < MAP_THRESHOLDS.festivalPeak) return null;
-  // Extra petals layer di top of regular ApricotPetals
-  return <ApricotPetals count={isMobile ? 30 : 60} />;
+  const postLegacy = Math.max(
+    0,
+    Math.min(1, (count - MAP_THRESHOLDS.legacy) / 10000),
+  );
+  const baseMobile = 30;
+  const baseDesktop = 60;
+  const total = isMobile
+    ? baseMobile + Math.floor(postLegacy * baseMobile)
+    : baseDesktop + Math.floor(postLegacy * baseDesktop);
+  return <ApricotPetals count={total} />;
 };
 
 // LegacyMonument (m10, count >= 10000) — stone monument di safe spot,
@@ -8221,6 +8231,40 @@ const FestivalPetals = ({ count, isMobile = false }) => {
 // finial + plaque. Visible saat user push ke 10k.
 const LegacyMonument = ({ count }) => {
   const auraRef = useRef();
+  // Visitor name dari localStorage — read once at mount (impure-call
+  // safe via useState initializer). Re-render natural saat component
+  // remount; live sync ke storage event di-skip untuk simplisitas.
+  const [visitorName, setVisitorName] = useState(() => {
+    try {
+      return localStorage.getItem('armeniaca-visitor-name') || 'Pengunjung';
+    } catch {
+      return 'Pengunjung';
+    }
+  });
+  // Listen storage event — kalau user set tanda tangan dari Arme
+  // drawer (di tab yang sama), refresh nama plaque.
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'armeniaca-visitor-name') {
+        setVisitorName(e.newValue || 'Pengunjung');
+      }
+    };
+    window.addEventListener('storage', handler);
+    // Same-tab updates gak fire storage event — pasang custom listener
+    // juga via custom event yang di-dispatch dari Arme drawer.
+    const customHandler = () => {
+      try {
+        setVisitorName(localStorage.getItem('armeniaca-visitor-name') || 'Pengunjung');
+      } catch {
+        /* noop */
+      }
+    };
+    window.addEventListener('armeniaca-visitor-name-changed', customHandler);
+    return () => {
+      window.removeEventListener('storage', handler);
+      window.removeEventListener('armeniaca-visitor-name-changed', customHandler);
+    };
+  }, []);
   useFrame((state) => {
     if (!auraRef.current) return;
     const t = state.clock.elapsedTime;
@@ -8265,7 +8309,7 @@ const LegacyMonument = ({ count }) => {
           roughness={0.75}
         />
       </mesh>
-      {/* Plaque — front of obelisk */}
+      {/* Plaque — front of obelisk, dark metal back */}
       <mesh position={[0, 1, 0.23]}>
         <planeGeometry args={[0.32, 0.5]} />
         <meshStandardMaterial
@@ -8275,19 +8319,48 @@ const LegacyMonument = ({ count }) => {
           roughness={0.85}
         />
       </mesh>
-      {/* Plaque inscription line */}
-      <mesh position={[0, 1.05, 0.235]}>
-        <planeGeometry args={[0.22, 0.02]} />
-        <meshStandardMaterial color="#d4a848" roughness={0.5} metalness={0.4} />
-      </mesh>
-      <mesh position={[0, 1, 0.235]}>
-        <planeGeometry args={[0.2, 0.02]} />
-        <meshStandardMaterial color="#d4a848" roughness={0.5} metalness={0.4} />
-      </mesh>
-      <mesh position={[0, 0.95, 0.235]}>
-        <planeGeometry args={[0.18, 0.02]} />
-        <meshStandardMaterial color="#d4a848" roughness={0.5} metalness={0.4} />
-      </mesh>
+      {/* Personal plaque text — render via drei Html. Visitor name dari
+          localStorage `armeniaca-visitor-name` (default "Pengunjung");
+          count formatted comma-separated. Soft glow via text-shadow
+          biar match emissive feel monument. */}
+      <Html
+        position={[0, 1, 0.24]}
+        center
+        distanceFactor={6}
+        occlude={false}
+        transform
+      >
+        <div
+          style={{
+            width: 110,
+            height: 170,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 4,
+            color: '#d4a848',
+            fontFamily: '"Fraunces Variable", serif',
+            textShadow: '0 0 6px rgba(212, 168, 72, 0.5)',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        >
+          <div style={{ fontSize: 8, letterSpacing: '0.25em', opacity: 0.7 }}>
+            TANDA
+          </div>
+          <div style={{ fontSize: 11, fontStyle: 'italic', textAlign: 'center', lineHeight: 1.2 }}>
+            {visitorName}
+          </div>
+          <div style={{ width: 30, height: 1, background: '#d4a848', opacity: 0.6, margin: '2px 0' }} />
+          <div style={{ fontSize: 10, fontWeight: 600 }}>
+            {count.toLocaleString('id-ID')}
+          </div>
+          <div style={{ fontSize: 7, letterSpacing: '0.2em', opacity: 0.6 }}>
+            KEBAIKAN
+          </div>
+        </div>
+      </Html>
       {/* Golden finial sphere di puncak obelisk */}
       <mesh position={[0, 2.5, 0]}>
         <sphereGeometry args={[0.12, 12, 10]} />
@@ -14870,6 +14943,7 @@ const TamanScene = ({
   armeniacaLoaded = false,
   purified = false,
   purifyProgress = 0,
+  postLegacyProgress = 0,
   compassRotateRef,
   onFlyInComplete,
   onPetakHover,
@@ -15064,7 +15138,7 @@ const TamanScene = ({
     const lerp01 = (av, bv) => av + (bv - av) * segT;
     const lerpColor = (ac, bc) =>
       new THREE.Color(ac).lerp(new THREE.Color(bc), segT).getStyle();
-    return {
+    const base = {
       fogColor: lerpColor(a.fogColor, b.fogColor),
       fogNear: lerp01(a.fogNear, b.fogNear),
       fogFar: lerp01(a.fogFar, b.fogFar),
@@ -15076,7 +15150,55 @@ const TamanScene = ({
       fillColor: lerpColor(a.fillColor, b.fillColor),
       fillIntensity: lerp01(a.fillIntensity, b.fillIntensity),
     };
-  }, [purifyProgress]);
+    const blendColor = (ac, bc, amt) =>
+      new THREE.Color(ac).lerp(new THREE.Color(bc), amt).getStyle();
+    // Post-legacy drift (count 10000→20000) — applied di atas base
+    // atmosphere. Sky/fog lebih dalam warm, light intensity ramping
+    // halus. Saturasi makin pekat tapi gak sampai "burn" — eternal
+    // golden-hour feel.
+    if (postLegacyProgress > 0) {
+      const p = postLegacyProgress;
+      base.ambientIntensity += p * 0.08;
+      base.keyIntensity += p * 0.1;
+      base.fillIntensity += p * 0.06;
+      base.bgColor = blendColor(base.bgColor, '#4a3520', p * 0.4);
+      base.fogColor = blendColor(base.fogColor, '#b09070', p * 0.3);
+      base.fogFar += p * 8; // sky lebih lega di legacy phase
+    }
+    // Seasonal tint — overlay subtle berdasarkan bulan kalender. Fade
+    // in proporsional ke purifyProgress (drought belum kerasa musim).
+    // 4 fase: mekar (Mar-Mei), terang (Jun-Agu), senja (Sep-Nov),
+    // sunyi (Des-Feb). Strength max 18% blend ke fog/ambient — subtle
+    // mood shift, bukan dominant.
+    const seasonStrength = purifyProgress * 0.6; // soft, scales w/ kota maturity
+    if (seasonStrength > 0) {
+      const month = new Date().getMonth();
+      let tintColor;
+      let tintAmt;
+      if (month >= 2 && month <= 4) {
+        // Mekar — peach pink overlay
+        tintColor = '#f4b8a8';
+        tintAmt = 0.15;
+      } else if (month >= 5 && month <= 7) {
+        // Terang — golden yellow vibrant
+        tintColor = '#fcd890';
+        tintAmt = 0.18;
+      } else if (month >= 8 && month <= 10) {
+        // Senja — amber rust deeper
+        tintColor = '#d89870';
+        tintAmt = 0.16;
+      } else {
+        // Sunyi — cool gold-blue
+        tintColor = '#b0c0c8';
+        tintAmt = 0.12;
+      }
+      const s = seasonStrength;
+      base.fogColor = blendColor(base.fogColor, tintColor, tintAmt * s);
+      base.bgColor = blendColor(base.bgColor, tintColor, tintAmt * 0.5 * s);
+      base.ambientColor = blendColor(base.ambientColor, tintColor, tintAmt * 0.4 * s);
+    }
+    return base;
+  }, [purifyProgress, postLegacyProgress]);
 
   // Time-of-day overlay — nightness (0=noon, 1=midnight) via cosine
   // (smooth, no phase boundaries). Applied as multiplier di atas
@@ -16366,6 +16488,26 @@ const TamanPetaPage = () => {
     if (armeniacaCount <= min) return 0;
     return Math.max(0, Math.min(1, (armeniacaCount - min) / (max - min)));
   }, [armeniacaCount, armeniacaLoaded, searchParams]);
+  // Post-legacy progression (count 10000→20000 lerp ke 0→1, clamp 1
+  // di luar range). Beyond legacy hard-cap di 10000, kota tetep
+  // "tumbuh" via continuous bloom, kunang density, atmosphere lebih
+  // saturated. Soft progression — gak ada hard ceiling number, cuma
+  // diminishing visual returns.
+  // Dev override `?postLegacyProgress=N` (0-1) buat testing.
+  const postLegacyProgress = useMemo(() => {
+    if (import.meta.env.DEV) {
+      const override = searchParams.get('postLegacyProgress');
+      if (override !== null) {
+        const n = parseFloat(override);
+        if (!Number.isNaN(n)) return Math.max(0, Math.min(1, n));
+      }
+    }
+    if (!armeniacaLoaded) return 0;
+    const min = MAP_THRESHOLDS.legacy; // 10000
+    const max = min + 10000; // 20000
+    if (armeniacaCount <= min) return 0;
+    return Math.max(0, Math.min(1, (armeniacaCount - min) / (max - min)));
+  }, [armeniacaCount, armeniacaLoaded, searchParams]);
   // Compute telaga visual state dari live count:
   //   <4000 = locked, 4000-5999 = drought, >=6000 = restored
   // Purified override: paksa 'restored' supaya petak konsisten sama
@@ -16849,6 +16991,7 @@ const TamanPetaPage = () => {
               armeniacaLoaded={armeniacaLoaded}
               purified={purified}
               purifyProgress={purifyProgress}
+              postLegacyProgress={postLegacyProgress}
               compassRotateRef={compassRotateRef}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}

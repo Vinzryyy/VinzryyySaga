@@ -23,7 +23,9 @@ import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 // Build firefly defs sekali at module load via deterministic PRNG.
-const FIREFLY_COUNT = 14;
+// Max pool 24 — base 14 desktop / 8 mobile, extra slots di-unlock
+// progressively dari count 10000→20000 (post-legacy ramping).
+const FIREFLY_COUNT = 24;
 const FIREFLY_DEFS = (() => {
   const defs = [];
   for (let i = 0; i < FIREFLY_COUNT; i++) {
@@ -87,10 +89,18 @@ const AtmosphericFireflies = ({ count = 0, loaded = false, isMobile = false }) =
   // useMemo dipanggil sebelum conditional return supaya hook order
   // konsisten — kalau `loaded` toggles false→true atau isMobile berubah,
   // gak break Rules of Hooks.
-  const defs = useMemo(
-    () => (isMobile ? FIREFLY_DEFS.slice(0, 8) : FIREFLY_DEFS),
-    [isMobile],
-  );
+  //
+  // Density ramping:
+  //   count 7000-9999  → base 14 desktop / 8 mobile
+  //   count 10000-19999 → ramp ke 24 desktop / 16 mobile (post-legacy)
+  //   count >=20000    → max pool full
+  const defs = useMemo(() => {
+    const postLegacy = Math.max(0, Math.min(1, (count - 10000) / 10000));
+    const base = isMobile ? 8 : 14;
+    const maxExtra = isMobile ? 8 : 10;
+    const totalCount = base + Math.floor(postLegacy * maxExtra);
+    return FIREFLY_DEFS.slice(0, totalCount);
+  }, [isMobile, count]);
   if (!loaded || count < 7000) return null;
   return (
     <>
