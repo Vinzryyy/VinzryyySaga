@@ -766,6 +766,14 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           0%   { opacity: 0; transform: translateY(14px) scale(0.95); }
           100% { opacity: 1; transform: translateY(0)    scale(1);    }
         }
+        /* armeTalkingBob: gentle breath+bob saat dialog active. Mirror
+           dipertahanin (scaleX -1) + slight scale 1.04 + translateY
+           sinusoidal. 2.8s cycle — slow enough biar gak distracting,
+           cukup buat kerasa "hidup" instead of patung. */
+        @keyframes armeTalkingBob {
+          0%, 100% { transform: scaleX(-1.04) scaleY(1.04) translateY(0); }
+          50%      { transform: scaleX(-1.04) scaleY(1.04) translateY(-3px); }
+        }
       `}</style>
 
       {/* Cinematic backdrop — fixed full-viewport dim + blur saat
@@ -799,10 +807,10 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
         style={{
           bottom: isMobile
             ? 'max(12px, env(safe-area-inset-bottom, 0px))'
-            : 'max(20px, env(safe-area-inset-bottom, 0px))',
-          left: isMobile
-            ? 'max(8px, env(safe-area-inset-left, 0px))'
-            : 'max(16px, env(safe-area-inset-left, 0px))',
+            : 'max(16px, env(safe-area-inset-bottom, 0px))',
+          // Desktop left tighter — flush ke left edge (8px sama kayak
+          // mobile, was 16px). Bottom tetep ada breathing room sedikit.
+          left: 'max(8px, env(safe-area-inset-left, 0px))',
         }}
         aria-hidden={hidden || isCinematic}
       >
@@ -832,7 +840,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           <button
             type="button"
             onClick={handleAvatarClick}
-            className={`relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl ${
+            className={`relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl transition-transform duration-150 active:scale-95 ${
               hidden ? 'pointer-events-none' : 'pointer-events-auto'
             }`}
             aria-label={activeDialog ? 'Lanjut dialog' : 'Buka topik Arme'}
@@ -846,17 +854,14 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               } ${isTalking ? 'scale-[1.04]' : 'scale-100'}`}
               style={{
                 filter: avatarFilter,
+                // Talking: armeTalkingBob animation drives transform
+                // (mirror + scale + bob) — gak perlu inline transform
+                // karena animation overrides during run.
                 animation: isTalking
-                  ? 'none'
+                  ? 'armeTalkingBob 2.8s ease-in-out infinite'
                   : isNewcomer
                     ? 'armeNewcomerWave 2.6s ease-in-out infinite'
                     : 'armeIdleMirror 9s ease-in-out infinite',
-                // Talking corner: mirror horizontal supaya pointing arm
-                // Arme ngarah ke bubble (di kanan), bukan off-screen.
-                // Combine sama scale(1.04) (talking-time enlargement);
-                // inline overrides className transform jadi harus
-                // di-merge eksplisit di sini.
-                transform: isTalking ? 'scaleX(-1) scale(1.04)' : undefined,
               }}
             />
             {/* Name plate + hint — cuma show saat idle, hidden pas
