@@ -15750,7 +15750,10 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
   const statusOnly = Boolean(petak.statusOnly);
   return (
     <div
-      className="absolute inset-0 z-40 flex items-center justify-center px-4 pb-4"
+      // z-index extreme: drei <Html> labels + Arme cinematic container
+      // (z-[2147483637]) di atas modal kalau pake z-40. Bump ke max-int
+      // range supaya tombol Batal/Masuki bisa di-click.
+      className="absolute inset-0 z-[2147483639] flex items-center justify-center px-4 pb-4"
       style={{ paddingTop: '6rem' }}
       onClick={onClose}
       role="dialog"

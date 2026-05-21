@@ -832,7 +832,9 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           <button
             type="button"
             onClick={handleAvatarClick}
-            className="pointer-events-auto relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl"
+            className={`relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl ${
+              hidden ? 'pointer-events-none' : 'pointer-events-auto'
+            }`}
             aria-label={activeDialog ? 'Lanjut dialog' : 'Buka topik Arme'}
           >
             <img
@@ -955,7 +957,9 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           <button
             type="button"
             onClick={handleAdvance}
-            className="pointer-events-auto relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl"
+            className={`relative block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4a574]/70 rounded-tr-2xl ${
+              isCinematic && !hidden ? 'pointer-events-auto' : 'pointer-events-none'
+            }`}
             aria-label="Lanjut dialog"
           >
             <img
