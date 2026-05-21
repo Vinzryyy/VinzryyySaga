@@ -679,11 +679,13 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
 
       {/* Cinematic backdrop — fixed full-viewport dim + blur saat
           dialog 'momen besar' aktif. Klik backdrop = dismiss dialog.
-          z-[15] (di bawah Arme cinematic z-[25] tapi di atas Canvas).
-          Hide pas hidden (modal kebuka) supaya gak nge-dim belakang
-          landmark modal yang sedang aktif. */}
+          z-index extreme: drei <Html> labels (landmark text di scene
+          3D) pakai default zIndexRange max ~16.7M. Backdrop harus di
+          atas itu supaya labels gak nongol nembus dim layer. Hide pas
+          hidden (modal kebuka) supaya gak nge-dim belakang landmark
+          modal yang sedang aktif. */}
       <div
-        className={`fixed inset-0 z-[15] bg-black/45 backdrop-blur-[2px] transition-opacity duration-700 ${
+        className={`fixed inset-0 z-[2147483630] bg-black/45 backdrop-blur-[2px] transition-opacity duration-700 ${
           isCinematic && !hidden
             ? 'opacity-100 pointer-events-auto'
             : 'opacity-0 pointer-events-none'
@@ -700,7 +702,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
           bottom)) supaya iOS home indicator gak nutupin feet Arme.
           `left` pake env(safe-area-inset-left) buat iPad/landscape. */}
       <div
-        className={`pointer-events-none fixed z-20 select-none transition-opacity duration-500 ${
+        className={`pointer-events-none fixed z-[2147483635] select-none transition-opacity duration-500 ${
           hidden || isCinematic ? 'opacity-0' : 'opacity-100'
         }`}
         style={{
@@ -824,7 +826,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
             lebih lebar dari avatar, avatar natural mendarat di sekitar
             30-35% dari kiri (asymmetric VN feel). */}
       <div
-        className={`pointer-events-none fixed inset-0 z-[25] flex flex-col-reverse md:flex-row items-center justify-center gap-3 md:gap-8 px-4 md:px-8 pt-[10vh] md:pt-[25vh] pb-[5vh] select-none transition-opacity duration-700 ${
+        className={`pointer-events-none fixed inset-0 z-[2147483637] flex flex-col-reverse md:flex-row items-center justify-center gap-3 md:gap-8 px-4 md:px-8 pt-[10vh] md:pt-[25vh] pb-[5vh] select-none transition-opacity duration-700 ${
           isCinematic && !hidden ? 'opacity-100' : 'opacity-0'
         }`}
         aria-hidden={!isCinematic || hidden}
