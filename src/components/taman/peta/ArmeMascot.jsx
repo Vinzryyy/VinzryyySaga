@@ -299,6 +299,21 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   const initialMountRef = useRef(true);
   const lastProcessedCountRef = useRef(null);
   const advanceTimerRef = useRef(null);
+  // Active HTMLAudioElement untuk voice line yang lagi diputer. Distop
+  // pas user advance/dismiss atau line berubah. Voice file di /public/AI/
+  // didefinisikan per-line di dialog.audio[i] (parallel ke lines[i]).
+  const audioRef = useRef(null);
+
+  const stopAudio = useCallback(() => {
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+      } catch {
+        /* noop */
+      }
+      audioRef.current = null;
+    }
+  }, []);
 
   // ── Helpers ──────────────────────────────────────────────────────
   const enqueueDialog = useCallback((id) => {
@@ -321,6 +336,12 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   }, [queue, activeDialogId, modalOpen]);
 
   // ── Effect: auto-advance through lines ───────────────────────────
+  // Two paths:
+  //   - Line punya audio (dialog.audio[i]): play wav, advance pas
+  //     `ended`/`error` + breath delay 600ms (last line dapet delay
+  //     lebih panjang biar user sempet baca + lihat avatar).
+  //   - Line ga punya audio (legacy + dialog yg belum di-record):
+  //     fixed timer 3200ms (last line FINAL_DISMISS_DELAY_MS).
   useEffect(() => {
     if (!activeDialogId) return undefined;
     const dialog = ARME_DIALOGS.find((d) => d.id === activeDialogId);
@@ -329,9 +350,8 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
       return undefined;
     }
     const isLast = activeLineIdx >= dialog.lines.length - 1;
-    const ms = isLast ? FINAL_DISMISS_DELAY_MS : BUBBLE_AUTO_ADVANCE_MS;
 
-    advanceTimerRef.current = setTimeout(() => {
+    const advance = () => {
       if (isLast) {
         markHeard(activeDialogId, 'heard');
         refreshHeard();
@@ -340,8 +360,36 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
       } else {
         setActiveLineIdx((idx) => idx + 1);
       }
-    }, ms);
+    };
 
+    const audioSrc = dialog.audio?.[activeLineIdx];
+    if (audioSrc) {
+      const audio = new Audio(audioSrc);
+      audioRef.current = audio;
+
+      const breathMs = isLast ? FINAL_DISMISS_DELAY_MS - BUBBLE_AUTO_ADVANCE_MS : 600;
+      let scheduled = false;
+      const onEnd = () => {
+        if (scheduled) return;
+        scheduled = true;
+        advanceTimerRef.current = setTimeout(advance, Math.max(breathMs, 400));
+      };
+      audio.addEventListener('ended', onEnd, { once: true });
+      audio.addEventListener('error', onEnd, { once: true });
+      // Autoplay block / decode fail → fallback ke timer via onEnd.
+      audio.play().catch(onEnd);
+
+      return () => {
+        audio.pause();
+        audio.removeEventListener('ended', onEnd);
+        audio.removeEventListener('error', onEnd);
+        clearTimeout(advanceTimerRef.current);
+        if (audioRef.current === audio) audioRef.current = null;
+      };
+    }
+
+    const ms = isLast ? FINAL_DISMISS_DELAY_MS : BUBBLE_AUTO_ADVANCE_MS;
+    advanceTimerRef.current = setTimeout(advance, ms);
     return () => clearTimeout(advanceTimerRef.current);
   }, [activeDialogId, activeLineIdx, refreshHeard]);
 
@@ -481,6 +529,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   // ── Handlers ─────────────────────────────────────────────────────
   const handleAdvance = useCallback(() => {
     clearTimeout(advanceTimerRef.current);
+    stopAudio();
     const dialog = ARME_DIALOGS.find((d) => d.id === activeDialogId);
     if (!dialog) return;
     if (activeLineIdx >= dialog.lines.length - 1) {
@@ -491,10 +540,11 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     } else {
       setActiveLineIdx((idx) => idx + 1);
     }
-  }, [activeDialogId, activeLineIdx, refreshHeard]);
+  }, [activeDialogId, activeLineIdx, refreshHeard, stopAudio]);
 
   const handleDismiss = useCallback(() => {
     clearTimeout(advanceTimerRef.current);
+    stopAudio();
     if (activeDialogId) {
       markHeard(activeDialogId, 'heard');
       refreshHeard();
@@ -505,7 +555,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     // udah di-disable supaya Arme strict achievement-based — gak
     // berbicara sendiri reaksi ke user gesture. Dialog 'bonus-dismiss-
     // quick' tetep di catalog buat manual replay dari drawer.
-  }, [activeDialogId, refreshHeard]);
+  }, [activeDialogId, refreshHeard, stopAudio]);
 
   const handleAvatarClick = useCallback(() => {
     if (activeDialogId) {
