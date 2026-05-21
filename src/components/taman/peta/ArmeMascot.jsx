@@ -34,7 +34,10 @@ const AVATAR_TALK = '/Arme/ELI_1_a.png';
 
 const BUBBLE_AUTO_ADVANCE_MS = 3200;
 const FINAL_DISMISS_DELAY_MS = 4500;
-const WELCOME_DELAY_INTRO_MS = 11_500;
+// 2s first-visit (kasih FlyIn camera ~2.5s settle), 1.5s returning.
+// Sebelumnya 11.5s buat tunggu TamanPetaIntroTitle selesai, tapi
+// IntroTitle udah di-skip (Arme jadi welcomer langsung).
+const WELCOME_DELAY_INTRO_MS = 2_000;
 const WELCOME_DELAY_RETURNING_MS = 1_500;
 // Catatan: konstanta IDLE_TIMEOUT_MS / IDLE_COOLDOWN_MS /
 // DISMISS_QUICK_THRESHOLD_MS udah di-remove. Arme sekarang strict

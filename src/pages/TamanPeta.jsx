@@ -16929,9 +16929,11 @@ const TamanPetaPage = () => {
           open={showCompletion}
           onClose={dismissCompletion}
         />
-        {/* Intro narasi first-visit — auto-fade in setelah FlyInCamera
-            selesai, persisted via localStorage. */}
-        {!petakPreview && <TamanPetaIntroTitle />}
+        {/* Intro narasi first-visit dulu di sini (TamanPetaIntroTitle)
+            — sekarang Arme yang jadi welcomer langsung (ArmeMascot
+            welcome dialog cover narrative "warga terakhir + kota
+            kering + nungguin"). IntroTitle definition tetep di file
+            buat reference / future revival kalau perlu. */}
         {/* Arme — warga terakhir ArmeniacaTown. Mascot 2-frame (idle
             hand-to-chin + talking pointing), nyambut + ngenarrate
             milestone + replay drawer. Auto-hide saat modal kebuka. */}
