@@ -33,13 +33,14 @@ import * as THREE from 'three';
 // 6 curved paths radial dari trampled-circle Pohon edge (R=2.2) ke
 // setiap landmark. Quadratic Bezier with alternating perpendicular
 // curve offset bikin natural winding (gak straight ke titik).
+// glowColor = warna spesifik per-landmark identity (bukan all amber).
 const PATH_TARGETS = [
-  { to: [0, 0, 8.2], curveSign: 1 },     // Gerbang (south)
-  { to: [-7, 0, -1], curveSign: -1 },    // Telaga (west)
-  { to: [7, 0, -1], curveSign: 1 },      // Arsip (east)
-  { to: [0, 0, -8], curveSign: -1 },     // Menara (north)
-  { to: [5, 0, 5], curveSign: 1 },       // Panggung (SE)
-  { to: [5, 0, -5], curveSign: -1 },     // Aula (NE)
+  { to: [0, 0, 8.2], curveSign: 1, glowColor: '#f4c898' },   // Gerbang — warm cream (entrance)
+  { to: [-7, 0, -1], curveSign: -1, glowColor: '#88c8e8' },  // Telaga — water blue
+  { to: [7, 0, -1], curveSign: 1, glowColor: '#e8b878' },    // Arsip — amber paper
+  { to: [0, 0, -8], curveSign: -1, glowColor: '#f4d088' },   // Menara — gold bell
+  { to: [5, 0, 5], curveSign: 1, glowColor: '#e88848' },     // Panggung — vermillion stage
+  { to: [5, 0, -5], curveSign: -1, glowColor: '#a8c8f4' },   // Aula — sky cool (gallery)
 ];
 
 const computeBezierPath = (start, ctrl, end, segments = 12) => {
@@ -87,10 +88,12 @@ const bezierPoint = (start, ctrl, end, t) => {
 const STONE_COLORS = ['#8a7868', '#9a8878', '#7a6a5a', '#6a5848'];
 const STONE_TS = [0.12, 0.28, 0.44, 0.60, 0.76, 0.90];
 
-const SteppingStone = ({ x, z, r, rot, tilt, colorIdx, isSlab, hasMoss, idx }) => {
+// MOSS_TIER: 0 = bare (no moss), 1 = light moss (single small patch),
+// 2 = heavy moss (large + small secondary patch). Distribusi 50% bare,
+// 30% light, 20% heavy — natural decay variation.
+const SteppingStone = ({ x, z, r, rot, tilt, colorIdx, isSlab, mossTier, idx }) => {
   return (
     <group position={[x, 0.018, z]} rotation={[tilt.x, rot, tilt.z]}>
-      {/* Subtle dirt halo below — disc dark di sekeliling stone */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.012, 0]}>
         <circleGeometry args={[r * 1.5, 12]} />
         <meshStandardMaterial
@@ -101,7 +104,6 @@ const SteppingStone = ({ x, z, r, rot, tilt, colorIdx, isSlab, hasMoss, idx }) =
           depthWrite={false}
         />
       </mesh>
-      {/* Stone body — cylinder pavers atau box slabs */}
       {isSlab ? (
         <mesh position={[0, 0.025, 0]}>
           <boxGeometry args={[r * 1.7, 0.05, r * 1.3]} />
@@ -113,8 +115,8 @@ const SteppingStone = ({ x, z, r, rot, tilt, colorIdx, isSlab, hasMoss, idx }) =
           <meshStandardMaterial color={STONE_COLORS[colorIdx]} roughness={1} />
         </mesh>
       )}
-      {/* Moss accent (30% stones) — small green patch di atas */}
-      {hasMoss && (
+      {/* Light moss patch — small green disc di atas (mossTier >= 1) */}
+      {mossTier >= 1 && (
         <mesh
           rotation={[-Math.PI / 2, 0, idx * 0.5]}
           position={[r * 0.25, 0.052, -r * 0.15]}
@@ -127,6 +129,37 @@ const SteppingStone = ({ x, z, r, rot, tilt, colorIdx, isSlab, hasMoss, idx }) =
             opacity={0.7}
           />
         </mesh>
+      )}
+      {/* Heavy moss — large patch covering most of stone + darker green
+          edge accent (mossTier === 2). Aged/forgotten stones feel. */}
+      {mossTier === 2 && (
+        <>
+          <mesh
+            rotation={[-Math.PI / 2, 0, idx * 0.3]}
+            position={[-r * 0.15, 0.053, r * 0.1]}
+          >
+            <circleGeometry args={[r * 0.75, 10]} />
+            <meshStandardMaterial
+              color="#4a7a4a"
+              roughness={0.95}
+              transparent
+              opacity={0.85}
+            />
+          </mesh>
+          {/* Edge moss spillover — small darker patch di rim */}
+          <mesh
+            rotation={[-Math.PI / 2, 0, idx * 0.8]}
+            position={[r * 0.5, 0.054, r * 0.35]}
+          >
+            <circleGeometry args={[r * 0.3, 6]} />
+            <meshStandardMaterial
+              color="#3a5a3a"
+              roughness={0.95}
+              transparent
+              opacity={0.7}
+            />
+          </mesh>
+        </>
       )}
     </group>
   );
@@ -166,7 +199,8 @@ const PathSteppingStones = () => {
       };
       const colorIdx = Math.floor(s1 * 4);
       const isSlab = s2 < 0.3; // 30% slabs
-      const hasMoss = s3 < 0.3; // 30% mossy
+      // Moss tier — 50% bare (0), 30% light (1), 20% heavy (2)
+      const mossTier = s3 < 0.5 ? 0 : s3 < 0.8 ? 1 : 2;
       allStones.push({
         x: sx + perpX * perpOffset,
         z: sz + perpZ * perpOffset,
@@ -175,7 +209,7 @@ const PathSteppingStones = () => {
         tilt,
         colorIdx,
         isSlab,
-        hasMoss,
+        mossTier,
         idx: globalIdx,
       });
     });
@@ -189,18 +223,17 @@ const PathSteppingStones = () => {
   );
 };
 
-// PathEndGlow — single breathing glow di landmark approach. Opacity +
-// scale pulse via useFrame, slow ~3.5s breath cycle, phase offset per
-// landmark. Subtle "invitation pulse" — bukan flat static glow.
-const PathEndGlow = ({ to, idx }) => {
+// PathEndGlow — single breathing glow di landmark approach dengan
+// color spesifik per-landmark identity. Visual cue: tiap landmark
+// punya warna sendiri (Telaga blue, Arsip amber, Menara gold, dll).
+const PathEndGlow = ({ to, color, idx }) => {
   const meshRef = useRef();
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
-    // Breath cycle ~3.5s, slow inhale-exhale per landmark
     const breath = 0.5 + Math.sin(t * 1.8 + idx * 0.6) * 0.5;
-    meshRef.current.material.opacity = 0.12 + breath * 0.14; // 0.12-0.26
-    const scale = 0.95 + breath * 0.1; // 0.95-1.05
+    meshRef.current.material.opacity = 0.12 + breath * 0.14;
+    const scale = 0.95 + breath * 0.1;
     meshRef.current.scale.setScalar(scale);
   });
   return (
@@ -211,7 +244,7 @@ const PathEndGlow = ({ to, idx }) => {
     >
       <circleGeometry args={[0.9, 24]} />
       <meshBasicMaterial
-        color="#f4c898"
+        color={color}
         transparent
         opacity={0.18}
         toneMapped={false}
@@ -224,7 +257,7 @@ const PathEndGlow = ({ to, idx }) => {
 const PathEndGlows = () => (
   <>
     {PATH_TARGETS.map((p, i) => (
-      <PathEndGlow key={`peg-${i}`} to={p.to} idx={i} />
+      <PathEndGlow key={`peg-${i}`} to={p.to} color={p.glowColor} idx={i} />
     ))}
   </>
 );
@@ -391,8 +424,27 @@ const PEBBLE_DEFS = (() => {
 })();
 const PEBBLE_COLORS = ['#6a6258', '#7a7268', '#5a5248'];
 
+// Cluster bonus pebbles — 8 small secondary pebbles paired ke existing
+// PEBBLE_DEFS at offset 0.15-0.25 unit. Natural arrangement feel (pebbles
+// gak murni random scatter, beberapa pair/triplet). Pair index hardcode
+// supaya stable across reloads.
+const PEBBLE_CLUSTER_PAIRS = [
+  { mainIdx: 1, offsetX: 0.18, offsetZ: 0.12 },
+  { mainIdx: 4, offsetX: -0.16, offsetZ: 0.2 },
+  { mainIdx: 7, offsetX: 0.22, offsetZ: -0.1 },
+  { mainIdx: 9, offsetX: -0.14, offsetZ: -0.18 },
+  { mainIdx: 12, offsetX: 0.2, offsetZ: 0.15 },
+  { mainIdx: 15, offsetX: -0.2, offsetZ: 0.08 },
+  { mainIdx: 17, offsetX: 0.13, offsetZ: -0.22 },
+  { mainIdx: 18, offsetX: -0.17, offsetZ: 0.16 },
+];
+
 const PebbleScatter = ({ isMobile = false }) => {
   const items = isMobile ? PEBBLE_DEFS.slice(0, 12) : PEBBLE_DEFS;
+  // Mobile cap — fewer cluster pebbles
+  const clusters = isMobile
+    ? PEBBLE_CLUSTER_PAIRS.filter((c) => c.mainIdx < 12).slice(0, 4)
+    : PEBBLE_CLUSTER_PAIRS;
   return (
     <>
       {items.map((p, i) => (
@@ -405,6 +457,23 @@ const PebbleScatter = ({ isMobile = false }) => {
           <meshStandardMaterial color={PEBBLE_COLORS[p.colorIdx]} roughness={0.92} />
         </mesh>
       ))}
+      {/* Cluster bonus pebbles — paired ke main pebbles, slightly smaller */}
+      {clusters.map((c, i) => {
+        const main = PEBBLE_DEFS[c.mainIdx];
+        if (!main) return null;
+        const size = main.size * 0.7; // bonus pebble lebih kecil
+        const colorIdx = (main.colorIdx + 1) % PEBBLE_COLORS.length;
+        return (
+          <mesh
+            key={`peb-cl-${i}`}
+            position={[main.x + c.offsetX, size * 0.4, main.z + c.offsetZ]}
+            rotation={[0, i * 0.7, 0]}
+          >
+            <sphereGeometry args={[size, 6, 5]} />
+            <meshStandardMaterial color={PEBBLE_COLORS[colorIdx]} roughness={0.92} />
+          </mesh>
+        );
+      })}
     </>
   );
 };
