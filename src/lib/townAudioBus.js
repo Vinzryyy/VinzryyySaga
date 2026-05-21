@@ -2,11 +2,16 @@
  * townAudioBus — single source of truth untuk on/off + volume state
  * audio ArmeniacaTown.
  *
- * Dua state independen:
- * - enabled (bool): user mau music play atau gak. Default true (auto-ON).
- *   User cuma matiin manual kalau geser slider ke 0 atau klik mute.
- * - volume (0..1): gain target saat enabled. Default 0.25 (gentle —
- *   ambient layer, bukan dominant). Slider UI di AmbientAudio.
+ * Tiga state:
+ * - enabled (bool, persisted): user mau music play atau gak. Default
+ *   true (auto-ON). User cuma matiin manual kalau geser slider ke 0
+ *   atau klik mute.
+ * - volume (0..1, persisted): gain target saat enabled. Default 0.25
+ *   (gentle — ambient layer, bukan dominant). Slider UI di AmbientAudio.
+ * - duckFactor (0..1, in-memory only): multiplier sementara buat ducking
+ *   pas dialog/voice playing (Arme ngomong) — bukan user preference,
+ *   jangan di-persist. Default 1.0 (no duck). Music components multiply
+ *   final gain = volume * duckFactor.
  *
  * Kenapa butuh bus:
  * - AmbientAudio (per-halaman UI) dan TownMusic (global mount sekali di
@@ -125,4 +130,39 @@ export const subscribeVolume = (cb) => {
     window.removeEventListener(EVENT, onCustom);
     window.removeEventListener('storage', onStorage);
   };
+};
+
+// ── Duck channel (in-memory, non-persisted) ────────────────────────
+// Dipakai buat ramping music turun pas Arme/dialog voice playing.
+// Music components: final gain = volume * duckFactor.
+let _duckFactor = 1.0;
+
+export const readDuckFactor = () => _duckFactor;
+
+export const writeDuckFactor = (v) => {
+  const clamped = Math.max(0, Math.min(1, v));
+  if (clamped === _duckFactor) return;
+  _duckFactor = clamped;
+  try {
+    window.dispatchEvent(
+      new CustomEvent(EVENT, {
+        detail: {
+          enabled: readEnabled(),
+          volume: readVolume(),
+          duckFactor: clamped,
+        },
+      }),
+    );
+  } catch {
+    /* SSR / window absent — no-op */
+  }
+};
+
+export const subscribeDuckFactor = (cb) => {
+  const onCustom = (e) => {
+    const v = e.detail?.duckFactor;
+    if (typeof v === 'number') cb(v);
+  };
+  window.addEventListener(EVENT, onCustom);
+  return () => window.removeEventListener(EVENT, onCustom);
 };

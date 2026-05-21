@@ -39,8 +39,10 @@ import { useLocation } from 'react-router-dom';
 import {
   subscribeEnabled,
   subscribeVolume,
+  subscribeDuckFactor,
   readEnabled,
   readVolume,
+  readDuckFactor,
 } from '../../lib/townAudioBus';
 import { subscribeToTreeSupports } from '../../lib/treeDb';
 
@@ -62,6 +64,10 @@ const TownMusic = () => {
 
   const enabledRef = useRef(readEnabled());
   const volumeRef = useRef(readVolume());
+  // Duck factor (0..1) — ramping multiplier saat Arme/dialog voice
+  // playing. Default 1 (no duck); ArmeMascot turunin ke 0 selagi
+  // dialog aktif. Non-persisted, in-memory di bus.
+  const duckRef = useRef(readDuckFactor());
   const inTownRef = useRef(inTown);
   const purifiedRef = useRef(false);
   const currentSrcRef = useRef(SRC_DROUGHT);
@@ -106,8 +112,11 @@ const TownMusic = () => {
     // Lagi mid-swap → biarin swap routine yang handle, jangan ganggu fade.
     if (swappingRef.current) return;
 
-    const targetGain = enabledRef.current ? volumeRef.current : 0;
-    const shouldPlay = inTownRef.current && enabledRef.current && targetGain > 0;
+    const targetGain = enabledRef.current ? volumeRef.current * duckRef.current : 0;
+    // shouldPlay decoupled dari duck — duck=0 ramping ke silent tapi
+    // audio element tetap "playing" supaya un-duck instant (gak perlu
+    // re-play() yang bisa kena autoplay block lagi).
+    const shouldPlay = inTownRef.current && enabledRef.current && volumeRef.current > 0;
     const now = ctx.currentTime;
 
     if (pauseTimerRef.current) {
@@ -217,6 +226,12 @@ const TownMusic = () => {
       // enabled, music tetep "running" tapi muted. Naik balik → fade in.
       apply();
     });
+    const unsubDuck = subscribeDuckFactor((d) => {
+      duckRef.current = d;
+      // Smooth ramp ke targetGain baru — un-duck pas dialog selesai
+      // naik balik via existing FADE_IN_DUR, gak perlu replay/restart.
+      apply();
+    });
     // Subscribe count untuk track purified state. Pas count cross
     // threshold mid-session, swap source. First snapshot juga handle
     // case dimana audio element udah dibuat dgn SRC_DROUGHT padahal
@@ -235,6 +250,7 @@ const TownMusic = () => {
     return () => {
       unsubEnabled();
       unsubVolume();
+      unsubDuck();
       unsubCount();
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (swapTimerRef.current) clearTimeout(swapTimerRef.current);

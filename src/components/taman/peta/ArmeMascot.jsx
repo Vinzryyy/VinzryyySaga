@@ -26,6 +26,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ARME_DIALOGS, ARME_CATEGORIES } from '../../../data/armeDialogs';
+import { writeDuckFactor } from '../../../lib/townAudioBus';
 
 const STORAGE_KEY = 'armeniaca-arme';
 const AVATAR_IDLE = '/Arme/ELI_2_a.png';
@@ -156,8 +157,8 @@ const SpeechBubble = ({
     <div
       className={
         isMobile
-          ? 'pointer-events-auto absolute left-[88px] bottom-[140px] w-[min(72vw,260px)] z-30'
-          : 'pointer-events-auto absolute left-[180px] bottom-[170px] w-[320px] z-30'
+          ? 'pointer-events-auto absolute left-[130px] bottom-[140px] w-[min(64vw,220px)] z-30'
+          : 'pointer-events-auto absolute left-[210px] bottom-[170px] w-[320px] z-30'
       }
     >
       <div className="relative rounded-2xl bg-white/95 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-4 py-3">
@@ -337,6 +338,18 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     setActiveDialogId(nextId);
     setActiveLineIdx(0);
   }, [queue, activeDialogId, modalOpen]);
+
+  // ── Effect: duck background music while Arme talks ───────────────
+  // Dispatch ke townAudioBus pas activeDialogId transition. TownMusic
+  // ramp via existing FADE_IN/OUT_DUR — smooth, gak abrupt cut. Restore
+  // ke 1 on cleanup juga (component unmount mid-dialog).
+  useEffect(() => {
+    if (activeDialogId) {
+      writeDuckFactor(0);
+      return () => writeDuckFactor(1);
+    }
+    return undefined;
+  }, [activeDialogId]);
 
   // ── Effect: auto-advance through lines ───────────────────────────
   // Two paths:
@@ -721,21 +734,19 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
                     : 'armeIdleMirror 9s ease-in-out infinite',
               }}
             />
-            {/* Name plate + hint — accent berubah pas talking (apricot
-                warm) supaya nameplate ngasih sinyal "ini yg lagi ngomong" */}
+            {/* Name plate + hint — cuma show saat idle, hidden pas
+                talking biar gak overlap visual Arme (bubble udah punya
+                label "Arme" sendiri di top kiri). */}
+            {!isTalking && (
             <span
               className={`absolute left-3 ${
                 isMobile ? 'bottom-2' : 'bottom-3'
               } flex flex-col items-start gap-1`}
             >
               <span
-                className={`rounded-full backdrop-blur-sm px-2.5 py-0.5 text-[10px] md:text-[11px] font-semibold tracking-wider text-white ring-1 transition-colors duration-300 ${
-                  isTalking
-                    ? 'bg-[#9a5b4a]/95 ring-[#f4c896]/40 shadow-[0_0_12px_rgba(244,200,150,0.55)]'
-                    : 'bg-[#1c1f2a]/85 ring-[#d4a574]/35'
-                }`}
+                className="rounded-full backdrop-blur-sm px-2.5 py-0.5 text-[10px] md:text-[11px] font-semibold tracking-wider text-white ring-1 bg-[#1c1f2a]/85 ring-[#d4a574]/35"
               >
-                Arme{isTalking ? ' · ngomong…' : ' · pemandu'}
+                Arme · pemandu
               </span>
               {!activeDialog && (
                 <span
@@ -760,6 +771,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
                 </span>
               )}
             </span>
+            )}
           </button>
 
           {activeDialog && activeLine && !isCinematic && (
