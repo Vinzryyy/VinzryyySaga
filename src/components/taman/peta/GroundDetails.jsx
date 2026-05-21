@@ -339,46 +339,64 @@ const TrampledCircle = () => (
 // yellow-green. Pecah uniform green tanpa add vertical clutter.
 // Deterministic seeded positions — stable across reload.
 const GRASS_PATCH_COUNT = 36;
+// Grass color tiers — 4 variations untuk natural texture variety.
+// User feedback: 3-4 grass colors push score from uniform green.
+// Distribution: 40% lush (vibrant), 25% medium (default-ish), 20% dry
+// yellow, 15% amber (parched). Lush most common (recovery feel), amber
+// least (sparse withered patches).
+const GRASS_VARIANTS = [
+  { color: '#5a8a4a', opacity: 0.4 },   // 0: Lush green
+  { color: '#7aa45a', opacity: 0.38 },  // 1: Medium green
+  { color: '#a8a878', opacity: 0.32 },  // 2: Dry yellow-green
+  { color: '#c4b88a', opacity: 0.3 },   // 3: Amber/parched tan
+];
+
 const GRASS_PATCHES = (() => {
   const patches = [];
   for (let i = 0; i < GRASS_PATCH_COUNT; i++) {
-    // Seeded pseudo-random
     const s1 = ((i * 2654435761) % 1009) / 1009;
     const s2 = ((i * 1597463) % 991) / 991;
     const s3 = ((i * 8675309) % 1013) / 1013;
-    // Polar distribution dengan jitter — sebar 1.5-9.5 radius dari center
     const angle = (i / GRASS_PATCH_COUNT) * Math.PI * 2 + s1 * 0.8;
     const radius = 1.5 + s2 * 8;
     const x = Math.cos(angle) * radius;
     const z = Math.sin(angle) * radius;
-    const size = 0.5 + s3 * 0.7; // patch size 0.5-1.2
-    const isLush = i % 3 !== 0; // 2/3 lush, 1/3 dry — bias lush
-    patches.push({ x, z, size, isLush });
+    const size = 0.5 + s3 * 0.7;
+    // Variant distribution via s3 threshold:
+    //   0.0-0.40 → 0 lush (40%)
+    //   0.40-0.65 → 1 medium (25%)
+    //   0.65-0.85 → 2 dry yellow (20%)
+    //   0.85-1.0 → 3 amber (15%)
+    const variantIdx =
+      s3 < 0.4 ? 0 : s3 < 0.65 ? 1 : s3 < 0.85 ? 2 : 3;
+    patches.push({ x, z, size, variantIdx });
   }
   return patches;
 })();
 
 const GrassVariationPatches = ({ isMobile = false }) => {
-  // Mobile cap — render 60% buat hemat draw calls
   const items = isMobile ? GRASS_PATCHES.slice(0, 22) : GRASS_PATCHES;
   return (
     <>
-      {items.map((p, i) => (
-        <mesh
-          key={`grass-p-${i}`}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[p.x, 0.009, p.z]}
-        >
-          <circleGeometry args={[p.size, 12]} />
-          <meshStandardMaterial
-            color={p.isLush ? '#5a8a4a' : '#a8a878'}
-            roughness={0.95}
-            transparent
-            opacity={p.isLush ? 0.4 : 0.32}
-            depthWrite={false}
-          />
-        </mesh>
-      ))}
+      {items.map((p, i) => {
+        const variant = GRASS_VARIANTS[p.variantIdx];
+        return (
+          <mesh
+            key={`grass-p-${i}`}
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[p.x, 0.009, p.z]}
+          >
+            <circleGeometry args={[p.size, 12]} />
+            <meshStandardMaterial
+              color={variant.color}
+              roughness={0.95}
+              transparent
+              opacity={variant.opacity}
+              depthWrite={false}
+            />
+          </mesh>
+        );
+      })}
     </>
   );
 };
@@ -418,6 +436,9 @@ const PEBBLE_DEFS = (() => {
       size: 0.05 + s3 * 0.08, // 0.05-0.13
       rot: s3 * Math.PI,
       colorIdx: i % 3,
+      // Shape variant — 40% flat oval (skipping stone style), 60% round
+      // sphere. Flat ones scaled Y=0.4 jadi pancake-like.
+      isFlat: i % 5 < 2,
     });
   }
   return defs;
@@ -450,8 +471,9 @@ const PebbleScatter = ({ isMobile = false }) => {
       {items.map((p, i) => (
         <mesh
           key={`peb-${i}`}
-          position={[p.x, p.size * 0.4, p.z]}
+          position={[p.x, p.isFlat ? p.size * 0.2 : p.size * 0.4, p.z]}
           rotation={[0, p.rot, 0]}
+          scale={p.isFlat ? [1.3, 0.4, 1] : [1, 1, 1]}
         >
           <sphereGeometry args={[p.size, 6, 5]} />
           <meshStandardMaterial color={PEBBLE_COLORS[p.colorIdx]} roughness={0.92} />

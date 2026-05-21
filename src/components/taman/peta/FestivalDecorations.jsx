@@ -523,6 +523,18 @@ const AudienceFigure = ({ pos, idx }) => {
           emissiveIntensity={0.08}
         />
       </mesh>
+      {/* Kimono obi (waist band) — small color accent strip horizontal
+          around body. Festival vibe — audience pakai kimono dengan obi
+          colorful. Color rotate per-individu via idx. */}
+      <mesh position={[0, 0.32, 0]}>
+        <cylinderGeometry args={[0.16, 0.18, 0.06, 8]} />
+        <meshStandardMaterial
+          color={['#c84838', '#a85838', '#88486a', '#c89838'][idx % 4]}
+          roughness={0.85}
+          emissive={['#c84838', '#a85838', '#88486a', '#c89838'][idx % 4]}
+          emissiveIntensity={0.15}
+        />
+      </mesh>
       {/* Head */}
       <mesh position={[0, 0.72, 0]}>
         <sphereGeometry args={[0.11, 10, 8]} />
