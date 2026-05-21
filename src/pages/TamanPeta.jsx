@@ -8516,6 +8516,227 @@ const MarketStalls = ({ count }) => {
   );
 };
 
+// WoodenBench — bangku kayu sederhana, low-poly. Seat plank + 2 leg
+// blocks + backrest. Posisi & rotasi via props. Threshold via parent
+// (WoodenBenches) — appearance bertahap mengikuti restorasi kota.
+const WoodenBench = ({ pos, rot = 0, tone = 'natural' }) => {
+  // Tone variants — 'natural' warna kayu jati muda, 'aged' lebih
+  // gelap (bangku tua), 'painted' apricot cream (festival).
+  const palette = useMemo(() => {
+    if (tone === 'aged') {
+      return { seat: '#5a3a24', leg: '#4a2e1c', back: '#5a3a24' };
+    }
+    if (tone === 'painted') {
+      return { seat: '#d4a878', leg: '#a87850', back: '#d4a878' };
+    }
+    return { seat: '#8a5a3a', leg: '#6a4028', back: '#8a5a3a' };
+  }, [tone]);
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Seat plank — horizontal box, length 1.2 */}
+      <mesh position={[0, 0.27, 0]}>
+        <boxGeometry args={[1.2, 0.06, 0.32]} />
+        <meshStandardMaterial color={palette.seat} roughness={0.9} />
+      </mesh>
+      {/* Left leg block */}
+      <mesh position={[-0.5, 0.13, 0]}>
+        <boxGeometry args={[0.08, 0.27, 0.3]} />
+        <meshStandardMaterial color={palette.leg} roughness={0.95} />
+      </mesh>
+      {/* Right leg block */}
+      <mesh position={[0.5, 0.13, 0]}>
+        <boxGeometry args={[0.08, 0.27, 0.3]} />
+        <meshStandardMaterial color={palette.leg} roughness={0.95} />
+      </mesh>
+      {/* Backrest plank — vertical box at back edge */}
+      <mesh position={[0, 0.48, -0.14]}>
+        <boxGeometry args={[1.2, 0.32, 0.04]} />
+        <meshStandardMaterial color={palette.back} roughness={0.9} />
+      </mesh>
+      {/* Backrest support posts (left + right) */}
+      <mesh position={[-0.5, 0.4, -0.14]}>
+        <boxGeometry args={[0.06, 0.32, 0.05]} />
+        <meshStandardMaterial color={palette.leg} roughness={0.95} />
+      </mesh>
+      <mesh position={[0.5, 0.4, -0.14]}>
+        <boxGeometry args={[0.06, 0.32, 0.05]} />
+        <meshStandardMaterial color={palette.leg} roughness={0.95} />
+      </mesh>
+    </group>
+  );
+};
+
+// WOODEN_BENCH_DEFS — posisi distrategikan: depan Panggung (audience),
+// jalan ke Aula (rest stop), pinggir Plaza (gathering), sebelum Gerbang
+// (welcome). Rotasi `rot` arah menghadap (Y axis radian); 0 = back ke
+// -Z, +PI/2 = back ke -X, dst. Bench `appearAt` tier:
+//   4500 (r5 panggung): 2 audience benches depan Panggung
+//   5500 (mid restore): 2 plaza benches
+//   6500 (post r3 telaga): bangku telaga + 1 gerbang bench
+const WOODEN_BENCH_DEFS = [
+  // Tier A (4500) — audience seating depan Panggung (panggung di SE ~[5, 0, 5])
+  { pos: [3.2, 0, 4.5], rot: Math.PI * 0.65, appearAt: 4500, tone: 'aged' },
+  { pos: [4.5, 0, 3.2], rot: Math.PI * 0.55, appearAt: 4500, tone: 'aged' },
+  // Tier B (5500) — plaza benches dekat air mancur (plaza center)
+  { pos: [2.2, 0, -2.2], rot: Math.PI * 0.25, appearAt: 5500, tone: 'natural' },
+  { pos: [-2.2, 0, -2.2], rot: -Math.PI * 0.25, appearAt: 5500, tone: 'natural' },
+  // Tier C (6500) — sebelah Telaga (W) + welcome bench dekat Gerbang
+  { pos: [-6, 0, -1.5], rot: Math.PI * 0.5, appearAt: 6500, tone: 'natural' },
+  { pos: [-1.8, 0, 8.5], rot: Math.PI, appearAt: 6500, tone: 'painted' },
+  { pos: [1.8, 0, 8.5], rot: Math.PI, appearAt: 6500, tone: 'painted' },
+];
+
+const WoodenBenches = ({ count }) => {
+  if (count < 4500) return null;
+  return (
+    <>
+      {WOODEN_BENCH_DEFS.filter((b) => count >= b.appearAt).map((b, i) => (
+        <WoodenBench key={`bench-${i}`} pos={b.pos} rot={b.rot} tone={b.tone} />
+      ))}
+    </>
+  );
+};
+
+// FoldingChair — kursi lipat X-frame, lebih ringan dari bangku.
+// Seat thin + 2 angled leg pairs (criss-cross X). Common di event
+// pasar / panggung outdoor.
+const FoldingChair = ({ pos, rot = 0, tone = 'natural' }) => {
+  const palette = useMemo(() => {
+    if (tone === 'aged') return { seat: '#5a3a24', frame: '#3a2618' };
+    if (tone === 'painted') return { seat: '#d4a878', frame: '#a87850' };
+    return { seat: '#8a5a3a', frame: '#4a3020' };
+  }, [tone]);
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Seat — small flat plank */}
+      <mesh position={[0, 0.28, 0]}>
+        <boxGeometry args={[0.5, 0.04, 0.42]} />
+        <meshStandardMaterial color={palette.seat} roughness={0.85} />
+      </mesh>
+      {/* X-frame left side — 2 angled bars crossing */}
+      <mesh position={[-0.22, 0.14, 0]} rotation={[0, 0, Math.PI * 0.13]}>
+        <boxGeometry args={[0.04, 0.32, 0.04]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.95} />
+      </mesh>
+      <mesh position={[-0.22, 0.14, 0]} rotation={[0, 0, -Math.PI * 0.13]}>
+        <boxGeometry args={[0.04, 0.32, 0.04]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.95} />
+      </mesh>
+      {/* X-frame right side */}
+      <mesh position={[0.22, 0.14, 0]} rotation={[0, 0, Math.PI * 0.13]}>
+        <boxGeometry args={[0.04, 0.32, 0.04]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.95} />
+      </mesh>
+      <mesh position={[0.22, 0.14, 0]} rotation={[0, 0, -Math.PI * 0.13]}>
+        <boxGeometry args={[0.04, 0.32, 0.04]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.95} />
+      </mesh>
+      {/* Lower cross-brace antara left & right X-frame */}
+      <mesh position={[0, 0.06, 0]}>
+        <boxGeometry args={[0.5, 0.03, 0.03]} />
+        <meshStandardMaterial color={palette.frame} roughness={0.95} />
+      </mesh>
+      {/* Backrest — small angled plank */}
+      <mesh position={[0, 0.46, -0.18]} rotation={[Math.PI * 0.08, 0, 0]}>
+        <boxGeometry args={[0.5, 0.22, 0.03]} />
+        <meshStandardMaterial color={palette.seat} roughness={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// WoodenCrate — kotak kayu sederhana, 6-side box dgn corner accent
+// (slat bands di sisi vertical). Common di pasar / depan toko.
+const WoodenCrate = ({ pos, rot = 0, size = 0.4, tone = 'natural' }) => {
+  const palette = useMemo(() => {
+    if (tone === 'aged') return { wood: '#5a3a24', band: '#3a2418' };
+    return { wood: '#8a5a3a', band: '#5a3a20' };
+  }, [tone]);
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Main box */}
+      <mesh position={[0, size / 2, 0]}>
+        <boxGeometry args={[size, size, size]} />
+        <meshStandardMaterial color={palette.wood} roughness={0.95} />
+      </mesh>
+      {/* Vertical accent slats — 2 per side (front + back simplified) */}
+      <mesh position={[-size * 0.3, size / 2, size / 2 + 0.005]}>
+        <boxGeometry args={[size * 0.08, size * 0.95, 0.01]} />
+        <meshStandardMaterial color={palette.band} roughness={0.9} />
+      </mesh>
+      <mesh position={[size * 0.3, size / 2, size / 2 + 0.005]}>
+        <boxGeometry args={[size * 0.08, size * 0.95, 0.01]} />
+        <meshStandardMaterial color={palette.band} roughness={0.9} />
+      </mesh>
+      <mesh position={[-size * 0.3, size / 2, -size / 2 - 0.005]}>
+        <boxGeometry args={[size * 0.08, size * 0.95, 0.01]} />
+        <meshStandardMaterial color={palette.band} roughness={0.9} />
+      </mesh>
+      <mesh position={[size * 0.3, size / 2, -size / 2 - 0.005]}>
+        <boxGeometry args={[size * 0.08, size * 0.95, 0.01]} />
+        <meshStandardMaterial color={palette.band} roughness={0.9} />
+      </mesh>
+    </group>
+  );
+};
+
+// CrateStack — tumpukan 3 crates (2 di bawah + 1 di atas, pyramid).
+// Slight rotation per crate biar kerasa "ditumpuk natural" bukan
+// perfect aligned.
+const CrateStack = ({ pos, rot = 0, tone = 'natural' }) => {
+  const size = 0.4;
+  return (
+    <group position={pos} rotation={[0, rot, 0]}>
+      {/* Bottom left crate */}
+      <WoodenCrate pos={[-size * 0.55, 0, 0]} rot={0.08} size={size} tone={tone} />
+      {/* Bottom right crate */}
+      <WoodenCrate pos={[size * 0.55, 0, 0]} rot={-0.05} size={size} tone={tone} />
+      {/* Top crate — slightly smaller, centered */}
+      <WoodenCrate pos={[0, size, 0]} rot={0.12} size={size * 0.85} tone={tone === 'aged' ? 'natural' : 'aged'} />
+    </group>
+  );
+};
+
+// AMBIENT_PROP_DEFS — kursi lipat, kotak, tumpukan crate scattered
+// around plaza/market/landmark. Tipe via `kind`. Threshold via
+// `appearAt`. Posisi >=1.5 unit dari landmark mayor supaya gak
+// ngeganggu click target.
+const AMBIENT_PROP_DEFS = [
+  // Folding chairs — extra audience seating depan Panggung (extra
+  // overflow setelah benches), pasar area
+  { kind: 'chair', pos: [3.5, 0, 5.5], rot: Math.PI * 0.6, appearAt: 5000, tone: 'painted' },
+  { kind: 'chair', pos: [5.0, 0, 4.0], rot: Math.PI * 0.5, appearAt: 5000, tone: 'painted' },
+  { kind: 'chair', pos: [-3.5, 0, 3.5], rot: Math.PI * 1.3, appearAt: 5500, tone: 'natural' },
+  // Single crates scattered — depan pasar (delivery), pinggir gerbang
+  { kind: 'crate', pos: [-4.2, 0, -3.5], rot: 0.3, appearAt: 5000, tone: 'natural' },
+  { kind: 'crate', pos: [4.5, 0, -3.8], rot: -0.4, appearAt: 5000, tone: 'aged' },
+  { kind: 'crate', pos: [-2.5, 0, 8.2], rot: 0.6, appearAt: 6000, tone: 'natural' },
+  // Crate stacks — clusters di pasar area, gerbang area
+  { kind: 'stack', pos: [-5.0, 0, -4.5], rot: 0.2, appearAt: 5500, tone: 'natural' },
+  { kind: 'stack', pos: [5.5, 0, -2.5], rot: -0.3, appearAt: 5500, tone: 'aged' },
+  { kind: 'stack', pos: [2.8, 0, 9.2], rot: Math.PI * 0.1, appearAt: 7000, tone: 'natural' },
+];
+
+const AmbientProps = ({ count }) => {
+  if (count < 5000) return null;
+  return (
+    <>
+      {AMBIENT_PROP_DEFS.filter((p) => count >= p.appearAt).map((p, i) => {
+        if (p.kind === 'chair') {
+          return <FoldingChair key={`prop-${i}`} pos={p.pos} rot={p.rot} tone={p.tone} />;
+        }
+        if (p.kind === 'crate') {
+          return <WoodenCrate key={`prop-${i}`} pos={p.pos} rot={p.rot} tone={p.tone} />;
+        }
+        if (p.kind === 'stack') {
+          return <CrateStack key={`prop-${i}`} pos={p.pos} rot={p.rot} tone={p.tone} />;
+        }
+        return null;
+      })}
+    </>
+  );
+};
+
 // LandmarkAura — soft glow disc di base landmark yg ramp intensity
 // dgn purifyProgress. Kasih "anticipation" feel — landmark kerasa
 // hidup bertahap, bukan stuck di state diskrit sampai threshold hit.
@@ -15385,6 +15606,11 @@ const TamanScene = ({
       />
       {/* === Bundle 4 — town populated: market stalls === */}
       <MarketStalls count={armeniacaCount} />
+      {/* Bangku kayu + ambient props (kursi lipat, kotak, tumpukan
+          crate) — scattered around plaza/market/gerbang. Threshold
+          4500-7000 sesuai tier. */}
+      <WoodenBenches count={armeniacaCount} />
+      <AmbientProps count={armeniacaCount} />
       {/* === Bundle 5 — village life signs: NPCs + chimney smoke === */}
       <NpcVillagers count={armeniacaCount} />
       <ChimneySmoke count={armeniacaCount} />
