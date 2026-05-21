@@ -238,7 +238,9 @@ const KohakuPanel = ({ pos, rot, idx }) => {
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
-    groupRef.current.rotation.z = 0.04 * Math.sin(t * 0.6 + idx);
+    // Wind gust sync — same formula sebagai lanterns/tanzaku
+    const gustMul = 1 + Math.max(0, Math.sin((t / 9) * Math.PI * 2)) * 1.2;
+    groupRef.current.rotation.z = 0.04 * gustMul * Math.sin(t * 0.6 + idx);
   });
   const stripeColors = ['#c83828', '#fef4e8', '#c83828', '#fef4e8', '#c83828'];
   return (
@@ -305,9 +307,11 @@ const TanzakuStrip = ({ idx }) => {
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
-    // Subtle sway (kayak kena angin)
-    meshRef.current.rotation.z = 0.12 * Math.sin(t * 1.0 + idx * 0.7);
-    meshRef.current.rotation.x = 0.08 * Math.sin(t * 0.8 + idx * 0.5);
+    // Wind gust sync — same formula sebagai FestivalLanterns (period 9s,
+    // peak 2.2x). Sync atmospheric feel — semua kena angin barengan.
+    const gustMul = 1 + Math.max(0, Math.sin((t / 9) * Math.PI * 2)) * 1.2;
+    meshRef.current.rotation.z = 0.12 * gustMul * Math.sin(t * 1.0 + idx * 0.7);
+    meshRef.current.rotation.x = 0.08 * gustMul * Math.sin(t * 0.8 + idx * 0.5);
   });
   return (
     <group position={[x, y, z]}>

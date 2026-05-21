@@ -189,25 +189,42 @@ const PathSteppingStones = () => {
   );
 };
 
-// Path-end warm glow — 6 soft additive discs di endpoint setiap landmark.
-// "Invitation" beacon. Subtle warm amber tint.
+// PathEndGlow — single breathing glow di landmark approach. Opacity +
+// scale pulse via useFrame, slow ~3.5s breath cycle, phase offset per
+// landmark. Subtle "invitation pulse" — bukan flat static glow.
+const PathEndGlow = ({ to, idx }) => {
+  const meshRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Breath cycle ~3.5s, slow inhale-exhale per landmark
+    const breath = 0.5 + Math.sin(t * 1.8 + idx * 0.6) * 0.5;
+    meshRef.current.material.opacity = 0.12 + breath * 0.14; // 0.12-0.26
+    const scale = 0.95 + breath * 0.1; // 0.95-1.05
+    meshRef.current.scale.setScalar(scale);
+  });
+  return (
+    <mesh
+      ref={meshRef}
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[to[0], 0.018, to[2]]}
+    >
+      <circleGeometry args={[0.9, 24]} />
+      <meshBasicMaterial
+        color="#f4c898"
+        transparent
+        opacity={0.18}
+        toneMapped={false}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+
 const PathEndGlows = () => (
   <>
     {PATH_TARGETS.map((p, i) => (
-      <mesh
-        key={`peg-${i}`}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[p.to[0], 0.018, p.to[2]]}
-      >
-        <circleGeometry args={[0.9, 24]} />
-        <meshBasicMaterial
-          color="#f4c898"
-          transparent
-          opacity={0.18}
-          toneMapped={false}
-          depthWrite={false}
-        />
-      </mesh>
+      <PathEndGlow key={`peg-${i}`} to={p.to} idx={i} />
     ))}
   </>
 );
@@ -223,7 +240,9 @@ const TrampledGrassTuft = ({ pos, idx }) => {
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
-    meshRef.current.rotation.z = 0.18 * Math.sin(t * 1.4 + idx * 0.9);
+    // Wind gust sync (same formula as festival sway elements)
+    const gustMul = 1 + Math.max(0, Math.sin((t / 9) * Math.PI * 2)) * 1.2;
+    meshRef.current.rotation.z = 0.18 * gustMul * Math.sin(t * 1.4 + idx * 0.9);
   });
   return (
     <mesh ref={meshRef} position={pos}>
@@ -416,8 +435,10 @@ const Leaf = ({ pos, rot, size, color, idx }) => {
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
-    // Rotate around plane normal (Y after X rotation) — slow oscillation
-    meshRef.current.rotation.z = rot + 0.25 * Math.sin(t * 0.7 + idx * 1.3);
+    // Wind gust sync — daun jatuh juga kena angin. Amplitude scales
+    // dengan gust (calm = subtle, windy = stronger sway)
+    const gustMul = 1 + Math.max(0, Math.sin((t / 9) * Math.PI * 2)) * 1.2;
+    meshRef.current.rotation.z = rot + 0.25 * gustMul * Math.sin(t * 0.7 + idx * 1.3);
   });
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, rot]} position={pos}>

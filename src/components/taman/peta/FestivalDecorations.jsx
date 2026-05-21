@@ -58,9 +58,10 @@ const Pennant = ({ pos, color, phase }) => {
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.elapsedTime;
-    // Flutter — rotate sedikit di Y & Z axis (fabric bergerak angin)
-    meshRef.current.rotation.z = 0.18 * Math.sin(t * 1.4 + phase);
-    meshRef.current.rotation.y = 0.12 * Math.sin(t * 0.9 + phase * 1.3);
+    // Wind gust sync — sama formula sebagai lanterns/tanzaku/kohaku
+    const gustMul = 1 + Math.max(0, Math.sin((t / 9) * Math.PI * 2)) * 1.2;
+    meshRef.current.rotation.z = 0.18 * gustMul * Math.sin(t * 1.4 + phase);
+    meshRef.current.rotation.y = 0.12 * gustMul * Math.sin(t * 0.9 + phase * 1.3);
   });
   return (
     <mesh ref={meshRef} position={pos}>
@@ -123,10 +124,58 @@ const HangingBanners = ({ count }) => {
   );
 };
 
+// Wreath petal drop — small petals occasionally fall dari wreath
+// (flower drop natural feel). 6 petals total cycling, fall dari
+// wreath center [0, 2.4, 8.4] ke ground.
+const WREATH_PETAL_COLORS = ['#f4a8c0', '#f4d088', '#f8c8a0'];
+const WREATH_PETAL_COUNT = 6;
+const WreathPetal = ({ idx }) => {
+  const meshRef = useRef();
+  const matRef = useRef();
+  const color = WREATH_PETAL_COLORS[idx % WREATH_PETAL_COLORS.length];
+  const cycleLen = 5 + (idx % 4); // 5-8s per petal
+  // Deterministic start offset around wreath rim (radius 0.55 around
+  // center 0, 2.4, 8.4)
+  const startAngle = (idx / WREATH_PETAL_COUNT) * Math.PI * 2;
+  const startX = Math.cos(startAngle) * 0.5;
+  const startY = 2.4 + Math.sin(startAngle) * 0.4;
+  useFrame((state) => {
+    if (!meshRef.current || !matRef.current) return;
+    const t = state.clock.elapsedTime;
+    const cycle = ((t + idx * 1.3) / cycleLen) % 1;
+    // Y falls from startY → 0.2 over cycle
+    const y = startY - cycle * (startY - 0.2);
+    // Drift X+Z gentle (petal floats down)
+    meshRef.current.position.x = startX + 0.3 * Math.sin(t * 0.7 + idx);
+    meshRef.current.position.y = y;
+    meshRef.current.position.z = 8.4 + 0.2 * Math.cos(t * 0.5 + idx);
+    // Tumble
+    meshRef.current.rotation.z = t * 1.2 + idx;
+    meshRef.current.rotation.x = Math.sin(t * 0.9 + idx) * 0.4;
+    // Fade in/out — peak mid-cycle
+    matRef.current.opacity = Math.sin(cycle * Math.PI) * 0.75;
+  });
+  return (
+    <mesh ref={meshRef}>
+      <planeGeometry args={[0.08, 0.1]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color={color}
+        side={THREE.DoubleSide}
+        transparent
+        opacity={0}
+        roughness={0.85}
+        emissive={color}
+        emissiveIntensity={0.15}
+      />
+    </mesh>
+  );
+};
+
 // ── Gerbang Wreath ───────────────────────────────────────────────────
 // Circular floral wreath di Gerbang [0, 0, 8] entrance, vertikal facing
 // south (welcome arch decoration). 12 small flower spheres + 12 leaf
-// spheres rotate-able subtle.
+// spheres rotate-able subtle. Plus 6 petals drifting down dari wreath.
 const GerbangWreath = ({ count }) => {
   const groupRef = useRef();
   useFrame((state) => {
@@ -196,6 +245,13 @@ const GerbangWreath = ({ count }) => {
             roughness={0.8}
           />
         </mesh>
+      ))}
+      {/* Petal drop — 6 petals drifting down dari wreath rim. Lifecycle
+          5-8s per petal, staggered phase. Petal animation di luar
+          groupRef (gak ikut wreath rotation) supaya fall straight ke
+          ground bukan ikut tilted. */}
+      {Array.from({ length: WREATH_PETAL_COUNT }).map((_, i) => (
+        <WreathPetal key={`wpetal-${i}`} idx={i} />
       ))}
     </group>
   );
