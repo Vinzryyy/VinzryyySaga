@@ -606,16 +606,31 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
 
   return (
     <>
-      {/* Keyframe animations untuk Arme — halo breath + idle attention
-          wave. Inline supaya self-contained, gak nempel global CSS. */}
+      {/* Keyframe animations untuk Arme — halo breath + idle bob +
+          mirror-flip (Arme balik badan, kerasa hidup). Inline supaya
+          self-contained, gak nempel global CSS.
+
+          armeIdleMirror: 9s cycle. ~side-A bob (0-30%) → squish flip
+          via scaleX(0) (37-50%) → side-B bob (60-80%) → squish back
+          (87-100%). scaleX going through 0 bikin "turn around" reads
+          smooth instead of sudden mirror snap. */}
       <style>{`
         @keyframes armeHaloBreath {
           0%, 100% { transform: scale(1); opacity: 0.85; }
           50% { transform: scale(1.08); opacity: 1; }
         }
-        @keyframes armeIdleBob {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+        @keyframes armeIdleMirror {
+          0%   { transform: translateY(0)    scaleX(1);    }
+          15%  { transform: translateY(-4px) scaleX(1);    }
+          30%  { transform: translateY(0)    scaleX(1);    }
+          37%  { transform: translateY(0)    scaleX(0.1);  }
+          43%  { transform: translateY(0)    scaleX(-0.1); }
+          50%  { transform: translateY(0)    scaleX(-1);   }
+          65%  { transform: translateY(-4px) scaleX(-1);   }
+          80%  { transform: translateY(0)    scaleX(-1);   }
+          87%  { transform: translateY(0)    scaleX(-0.1); }
+          93%  { transform: translateY(0)    scaleX(0.1);  }
+          100% { transform: translateY(0)    scaleX(1);    }
         }
         @keyframes armeNewcomerWave {
           0%, 100% { transform: translateY(0) rotate(0); }
@@ -690,7 +705,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
                   ? 'none'
                   : isNewcomer
                     ? 'armeNewcomerWave 2.6s ease-in-out infinite'
-                    : 'armeIdleBob 4.2s ease-in-out infinite',
+                    : 'armeIdleMirror 9s ease-in-out infinite',
               }}
             />
             {/* Name plate + hint — accent berubah pas talking (apricot
