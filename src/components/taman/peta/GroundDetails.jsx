@@ -25,7 +25,8 @@
  * cap: kurangi count buat hemat draw calls.
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // ── Tier A — Dirt Paths ─────────────────────────────────────────────
@@ -63,6 +64,16 @@ const computeBezierPath = (start, ctrl, end, segments = 12) => {
   return pieces;
 };
 
+// Compute single point along bezier — t in [0, 1]
+const bezierPoint = (start, ctrl, end, t) => {
+  const u = 1 - t;
+  return [
+    u * u * start[0] + 2 * u * t * ctrl[0] + t * t * end[0],
+    0,
+    u * u * start[2] + 2 * u * t * ctrl[2] + t * t * end[2],
+  ];
+};
+
 const DirtPath = ({ to, curveSign, idx }) => {
   const startR = 2.2;
   const angle = Math.atan2(to[2], to[0]);
@@ -79,6 +90,21 @@ const DirtPath = ({ to, curveSign, idx }) => {
     (start[2] + to[2]) / 2 + perpZ * curveOffset,
   ];
   const pieces = computeBezierPath(start, ctrl, to, 12);
+
+  // Stepping stones — 4 stones distributed sepanjang path (t=0.15, 0.40,
+  // 0.65, 0.85). Posisi via bezier, slight offset perpendicular alternating
+  // supaya stones tampak natural meandering bukan center-line.
+  const stoneTs = [0.15, 0.40, 0.65, 0.85];
+  const stones = stoneTs.map((t, sIdx) => {
+    const [sx, , sz] = bezierPoint(start, ctrl, to, t);
+    const perpOffset = (sIdx % 2 === 0 ? 0.08 : -0.08);
+    return {
+      x: sx + perpX * perpOffset,
+      z: sz + perpZ * perpOffset,
+      r: 0.16 + ((sIdx * 7) % 5) * 0.012, // 0.16-0.21 jitter
+      rot: sIdx * 0.7,
+    };
+  });
 
   return (
     <>
@@ -104,6 +130,33 @@ const DirtPath = ({ to, curveSign, idx }) => {
           </mesh>
         );
       })}
+      {/* Stepping stones — 4 small flat pavers sepanjang path. Kerasa
+          "path beneran di-design", bukan dirt band kosong. */}
+      {stones.map((s, i) => (
+        <mesh
+          key={`stone-${idx}-${i}`}
+          position={[s.x, 0.022, s.z]}
+          rotation={[0, s.rot, 0]}
+        >
+          <cylinderGeometry args={[s.r, s.r * 1.05, 0.05, 6]} />
+          <meshStandardMaterial color="#8a7868" roughness={1} />
+        </mesh>
+      ))}
+      {/* Path-end warm glow — soft additive disc di endpoint, kerasa
+          "invitation" landmark. Subtle warm amber tint. */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[to[0], 0.018, to[2]]}
+      >
+        <circleGeometry args={[0.9, 24]} />
+        <meshBasicMaterial
+          color="#f4c898"
+          transparent
+          opacity={0.18}
+          toneMapped={false}
+          depthWrite={false}
+        />
+      </mesh>
     </>
   );
 };
@@ -120,6 +173,23 @@ const DirtPaths = () => (
 // Trampled dirt disc di base Pohon, kerasa "tempat orang ngumpul lama".
 // Sedikit darker dari path color. Slight noise via 8 footprint smudges
 // di rim circle (small ellipse-ish boxes).
+// Trampled grass tuft — single blade poking through trampled dirt.
+// Cone geometry tipis, sway gentle via useFrame. Phase offset per-idx.
+const TrampledGrassTuft = ({ pos, idx }) => {
+  const meshRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    meshRef.current.rotation.z = 0.18 * Math.sin(t * 1.4 + idx * 0.9);
+  });
+  return (
+    <mesh ref={meshRef} position={pos}>
+      <coneGeometry args={[0.025, 0.16, 4]} />
+      <meshStandardMaterial color="#6a8a4a" roughness={0.9} />
+    </mesh>
+  );
+};
+
 const TrampledCircle = () => (
   <group>
     {/* Main disc */}
@@ -155,6 +225,16 @@ const TrampledCircle = () => (
           />
         </mesh>
       );
+    })}
+    {/* Trampled grass tufts — 6 blades sparse di rim, kerasa "life
+        returning" (sedikit hijau muncul dari dirt). Phase-offset sway
+        animation via useFrame. */}
+    {Array.from({ length: 6 }).map((_, i) => {
+      const angle = (i / 6) * Math.PI * 2 + 0.7;
+      const r = 1.6 + (i % 3) * 0.35;
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+      return <TrampledGrassTuft key={`tuft-${i}`} pos={[x, 0.08, z]} idx={i} />;
     })}
   </group>
 );
@@ -285,6 +365,31 @@ const LEAF_PILE_CENTERS = [
 ];
 const LEAF_COLORS = ['#d4a878', '#c89868', '#b07848', '#e0b888', '#a86838'];
 
+// Single leaf — flat plane with gentle sway animation. Lying flat on
+// ground (rotation.x = -PI/2), gentle rotation around Y axis (own
+// normal) — kerasa kayak angin gerakin leaf di tanah.
+const Leaf = ({ pos, rot, size, color, idx }) => {
+  const meshRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    // Rotate around plane normal (Y after X rotation) — slow oscillation
+    meshRef.current.rotation.z = rot + 0.25 * Math.sin(t * 0.7 + idx * 1.3);
+  });
+  return (
+    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, rot]} position={pos}>
+      <planeGeometry args={[size * 1.6, size]} />
+      <meshStandardMaterial
+        color={color}
+        side={THREE.DoubleSide}
+        roughness={0.9}
+        transparent
+        opacity={0.85}
+      />
+    </mesh>
+  );
+};
+
 const LeafPile = ({ center, idx }) => {
   // 5 leaves per pile, sebar deterministic
   const leaves = [];
@@ -307,20 +412,14 @@ const LeafPile = ({ center, idx }) => {
   return (
     <>
       {leaves.map((l, i) => (
-        <mesh
+        <Leaf
           key={`leaf-${idx}-${i}`}
-          rotation={[-Math.PI / 2, 0, l.rot]}
-          position={[l.x, 0.013, l.z]}
-        >
-          <planeGeometry args={[l.size * 1.6, l.size]} />
-          <meshStandardMaterial
-            color={l.color}
-            side={THREE.DoubleSide}
-            roughness={0.9}
-            transparent
-            opacity={0.85}
-          />
-        </mesh>
+          pos={[l.x, 0.013, l.z]}
+          rot={l.rot}
+          size={l.size}
+          color={l.color}
+          idx={idx * 5 + i}
+        />
       ))}
     </>
   );
