@@ -32,8 +32,28 @@ const STORAGE_KEY = 'armeniaca-arme';
 const AVATAR_IDLE = '/Arme/ELI_2_a.png';
 const AVATAR_TALK = '/Arme/ELI_1_a.png';
 
-const BUBBLE_AUTO_ADVANCE_MS = 3200;
+// Fallback timer untuk text-only line (no audio). Sekarang dynamic
+// berdasarkan char count via computeTextDuration(); konstanta ini
+// dipakai jadi clamp boundaries.
+const TEXT_DURATION_MIN_MS = 2500;
+const TEXT_DURATION_MAX_MS = 7000;
+const TEXT_DURATION_LAST_MIN_MS = 3500;
+const TEXT_DURATION_LAST_MAX_MS = 9000;
+const TEXT_DURATION_BASE_MS = 1500;
+const TEXT_DURATION_PER_CHAR_MS = 55; // ~18 char/sec reading speed
+
+const computeTextDuration = (text, isLast) => {
+  const calc = TEXT_DURATION_BASE_MS + (text?.length ?? 0) * TEXT_DURATION_PER_CHAR_MS;
+  const min = isLast ? TEXT_DURATION_LAST_MIN_MS : TEXT_DURATION_MIN_MS;
+  const max = isLast ? TEXT_DURATION_LAST_MAX_MS : TEXT_DURATION_MAX_MS;
+  return Math.max(min, Math.min(max, calc));
+};
+
+// Final-dismiss delay (last line) — dipake juga di audio path buat
+// breath delay. Sebelumnya BUBBLE_AUTO_ADVANCE_MS jadi reference,
+// sekarang pake konstanta langsung.
 const FINAL_DISMISS_DELAY_MS = 4500;
+const AUDIO_INTER_LINE_BREATH_MS = 600;
 // 2s first-visit (kasih FlyIn camera ~2.5s settle), 1.5s returning.
 // Sebelumnya 11.5s buat tunggu TamanPetaIntroTitle selesai, tapi
 // IntroTitle udah di-skip (Arme jadi welcomer langsung).
@@ -383,10 +403,14 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   // ── Effect: auto-advance through lines ───────────────────────────
   // Two paths:
   //   - Line punya audio (dialog.audio[i]): play wav, advance pas
-  //     `ended`/`error` + breath delay 600ms (last line dapet delay
-  //     lebih panjang biar user sempet baca + lihat avatar).
-  //   - Line ga punya audio (legacy + dialog yg belum di-record):
-  //     fixed timer 3200ms (last line FINAL_DISMISS_DELAY_MS).
+  //     `ended`/`error` + breath delay (AUDIO_INTER_LINE_BREATH_MS,
+  //     last line dapet delay lebih panjang biar user sempet baca +
+  //     lihat avatar). Plus PRELOAD next audio file via stub Audio
+  //     instance — browser cache resource → instant playback line
+  //     berikutnya tanpa loading gap.
+  //   - Line ga punya audio: timer DURATION DYNAMIC dari char count
+  //     (computeTextDuration). Line pendek cepet, line panjang dikasih
+  //     waktu baca proporsional. Clamp 2.5-7s (last line 3.5-9s).
   useEffect(() => {
     if (!activeDialogId) return undefined;
     const dialog = ARME_DIALOGS.find((d) => d.id === activeDialogId);
@@ -407,12 +431,30 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
       }
     };
 
+    // Preload next line's audio (kalau ada) — fire-and-forget, browser
+    // cache resource buat instant playback berikutnya.
+    const nextAudioSrc = dialog.audio?.[activeLineIdx + 1];
+    if (nextAudioSrc) {
+      try {
+        const preload = new Audio();
+        preload.preload = 'auto';
+        preload.src = nextAudioSrc;
+        // Gak retain reference — browser keeps HTTP cache, audio
+        // element bisa di-GC. load() trigger fetch eksplisit.
+        preload.load();
+      } catch {
+        /* preload best-effort, ignore */
+      }
+    }
+
     const audioSrc = dialog.audio?.[activeLineIdx];
     if (audioSrc) {
       const audio = new Audio(audioSrc);
       audioRef.current = audio;
 
-      const breathMs = isLast ? FINAL_DISMISS_DELAY_MS - BUBBLE_AUTO_ADVANCE_MS : 600;
+      const breathMs = isLast
+        ? FINAL_DISMISS_DELAY_MS - AUDIO_INTER_LINE_BREATH_MS
+        : AUDIO_INTER_LINE_BREATH_MS;
       let scheduled = false;
       const onEnd = () => {
         if (scheduled) return;
@@ -433,7 +475,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
       };
     }
 
-    const ms = isLast ? FINAL_DISMISS_DELAY_MS : BUBBLE_AUTO_ADVANCE_MS;
+    const ms = computeTextDuration(dialog.lines[activeLineIdx], isLast);
     advanceTimerRef.current = setTimeout(advance, ms);
     return () => clearTimeout(advanceTimerRef.current);
   }, [activeDialogId, activeLineIdx, refreshHeard]);
@@ -617,6 +659,38 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
     },
     [enqueueDialog],
   );
+
+  // ── Effect: keyboard shortcuts ───────────────────────────────────
+  // Space / Enter → advance line. Esc → dismiss dialog atau close
+  // drawer. Skip kalau user lagi type di input/textarea/contenteditable
+  // (defensive — /peta gak punya text input tapi guard ini cheap).
+  useEffect(() => {
+    if (!activeDialogId && !drawerOpen) return undefined;
+    const handler = (e) => {
+      const t = e.target;
+      if (
+        t &&
+        (t.tagName === 'INPUT' ||
+          t.tagName === 'TEXTAREA' ||
+          t.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (drawerOpen) {
+          setDrawerOpen(false);
+        } else if (activeDialogId) {
+          handleDismiss();
+        }
+      } else if (activeDialogId && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        handleAdvance();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [activeDialogId, drawerOpen, handleAdvance, handleDismiss]);
 
   // ── Render ───────────────────────────────────────────────────────
   if (flyInActive) return null;
