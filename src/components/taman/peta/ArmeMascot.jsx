@@ -656,11 +656,24 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
       />
 
       {/* Corner Arme — hidden saat cinematic dialog aktif (cinematic
-          layer takes over) atau modal kebuka. */}
+          layer takes over) atau modal kebuka.
+
+          Positioning: breathing room dari edge (mobile 12px/8px,
+          desktop 20px/16px). `bottom` pake max(N, env(safe-area-inset-
+          bottom)) supaya iOS home indicator gak nutupin feet Arme.
+          `left` pake env(safe-area-inset-left) buat iPad/landscape. */}
       <div
-        className={`pointer-events-none fixed bottom-0 left-0 z-20 select-none transition-opacity duration-500 ${
+        className={`pointer-events-none fixed z-20 select-none transition-opacity duration-500 ${
           hidden || isCinematic ? 'opacity-0' : 'opacity-100'
         }`}
+        style={{
+          bottom: isMobile
+            ? 'max(12px, env(safe-area-inset-bottom, 0px))'
+            : 'max(20px, env(safe-area-inset-bottom, 0px))',
+          left: isMobile
+            ? 'max(8px, env(safe-area-inset-left, 0px))'
+            : 'max(16px, env(safe-area-inset-left, 0px))',
+        }}
         aria-hidden={hidden || isCinematic}
       >
         <div className="relative">
