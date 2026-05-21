@@ -477,14 +477,30 @@ const AUDIENCE_TARGET = [5, 0.8, 5];
 
 const AudienceFigure = ({ pos, idx }) => {
   const groupRef = useRef();
+  const handLeftRef = useRef();
+  const handRightRef = useRef();
+  // Vary bounce frequency per-individu: 1.4-1.9Hz (sebelumnya uniform 1.6)
+  const bounceFreq = 1.4 + ((idx * 7) % 5) * 0.1;
+  // Clap frequency — slightly different dari bounce supaya gak sinkron
+  const clapFreq = 2.4 + ((idx * 11) % 4) * 0.15;
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
-    // Bouncing — abs sin supaya gerak naik turun cuma ke atas (gak ke
-    // bawah ground)
-    groupRef.current.position.y = pos[1] + 0.04 * Math.abs(Math.sin(t * 1.6 + idx * 0.7));
-    // Subtle sway
+    // Bouncing dengan varied phase per-individu
+    groupRef.current.position.y = pos[1] + 0.04 * Math.abs(Math.sin(t * bounceFreq + idx * 0.7));
     groupRef.current.rotation.z = 0.05 * Math.sin(t * 1.2 + idx * 0.5);
+    // Hand clap — 2 spheres pulse in/out kayak clap. Position oscillates
+    // dari shoulder out (0.18) → mid (0.12 — meeting in middle saat clap).
+    if (handLeftRef.current && handRightRef.current) {
+      const clapPhase = Math.sin(t * clapFreq + idx * 1.1);
+      const clapX = 0.18 - Math.abs(clapPhase) * 0.06; // 0.12-0.18
+      handLeftRef.current.position.x = -clapX;
+      handRightRef.current.position.x = clapX;
+      // Scale pulse — slight squish saat clap meet
+      const clapScale = 1 + Math.abs(clapPhase) * 0.15;
+      handLeftRef.current.scale.setScalar(clapScale);
+      handRightRef.current.scale.setScalar(clapScale);
+    }
   });
   // Face toward panggung — static rotation Y
   const dx = AUDIENCE_TARGET[0] - pos[0];
@@ -515,6 +531,26 @@ const AudienceFigure = ({ pos, idx }) => {
           roughness={0.95}
           emissive="#3a3540"
           emissiveIntensity={0.05}
+        />
+      </mesh>
+      {/* Hands — 2 small spheres di shoulder area, pulse in/out kayak clap.
+          Position X di-update per-frame via useFrame. */}
+      <mesh ref={handLeftRef} position={[-0.18, 0.42, 0.05]}>
+        <sphereGeometry args={[0.05, 8, 6]} />
+        <meshStandardMaterial
+          color="#2a2530"
+          roughness={0.95}
+          emissive="#3a3540"
+          emissiveIntensity={0.06}
+        />
+      </mesh>
+      <mesh ref={handRightRef} position={[0.18, 0.42, 0.05]}>
+        <sphereGeometry args={[0.05, 8, 6]} />
+        <meshStandardMaterial
+          color="#2a2530"
+          roughness={0.95}
+          emissive="#3a3540"
+          emissiveIntensity={0.06}
         />
       </mesh>
     </group>

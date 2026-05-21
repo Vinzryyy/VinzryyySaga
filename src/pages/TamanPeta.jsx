@@ -8167,6 +8167,22 @@ const FestivalLanterns = ({ count }) => {
                 <cylinderGeometry args={[0.025, 0.035, 0.025, 6]} />
                 <meshStandardMaterial color="#3a2418" roughness={0.9} />
               </mesh>
+              {/* Under-glow disc — soft warm light cast below lantern,
+                  feel kayak ada cahaya spill ke arah ground. Radius
+                  matches lantern body emissive falloff. */}
+              <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[0, -0.12, 0]}
+              >
+                <circleGeometry args={[0.22, 12]} />
+                <meshBasicMaterial
+                  color={color}
+                  transparent
+                  opacity={0.18}
+                  toneMapped={false}
+                  depthWrite={false}
+                />
+              </mesh>
             </group>,
           );
         }

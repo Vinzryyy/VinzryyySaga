@@ -36,6 +36,39 @@ const YATAI_DEFS = [
   { pos: [2.2, 0, 6.4], rot: -0.4, lanternColor: '#e88848', stallText: 'だんご' },
 ];
 
+// FoodSteamWisp — small steam wisp di atas tiap food item box. Faster
+// cycle than main yatai smoke (2s vs 3.5s), smaller scale, lighter
+// color. Suggests "freshly cooked" detail.
+const FoodSteamWisp = ({ pos, idx }) => {
+  const meshRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    const cycleLen = 1.8 + (idx % 3) * 0.3; // 1.8-2.4s
+    const cycle = ((t + idx * 0.5) / cycleLen) % 1;
+    // Y rises pos[1] → pos[1]+0.5 (steam naik)
+    meshRef.current.position.x = pos[0] + 0.04 * Math.sin(t * 1.2 + idx);
+    meshRef.current.position.y = pos[1] + cycle * 0.45;
+    meshRef.current.position.z = pos[2] + 0.04 * Math.cos(t * 1.0 + idx);
+    // Scale grow + fade
+    const scale = 0.5 + cycle * 0.6;
+    meshRef.current.scale.setScalar(scale);
+    meshRef.current.material.opacity = (1 - cycle) * 0.4;
+  });
+  return (
+    <mesh ref={meshRef} position={pos}>
+      <sphereGeometry args={[0.03, 6, 5]} />
+      <meshBasicMaterial
+        color="#f4f0e8"
+        transparent
+        opacity={0.4}
+        toneMapped={false}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
+
 const Yatai = ({ pos, rot, lanternColor, showMask, maskType, idx }) => {
   const lanternRef = useRef();
   // Smoke wisp refs — 3 wisps per yatai, naik dari counter top dengan
@@ -124,15 +157,18 @@ const Yatai = ({ pos, rot, lanternColor, showMask, maskType, idx }) => {
           roughness={0.9}
         />
       </mesh>
-      {/* Food items on counter — 3 small boxes */}
+      {/* Food items on counter — 3 small boxes + steam wisp per item */}
       {[-0.3, 0, 0.3].map((x, i) => (
-        <mesh key={`food-${i}`} position={[x, 0.78, 0.1]}>
-          <boxGeometry args={[0.16, 0.08, 0.18]} />
-          <meshStandardMaterial
-            color={i === 0 ? '#d8a878' : i === 1 ? '#a86838' : '#e8c898'}
-            roughness={0.85}
-          />
-        </mesh>
+        <React.Fragment key={`food-${i}`}>
+          <mesh position={[x, 0.78, 0.1]}>
+            <boxGeometry args={[0.16, 0.08, 0.18]} />
+            <meshStandardMaterial
+              color={i === 0 ? '#d8a878' : i === 1 ? '#a86838' : '#e8c898'}
+              roughness={0.85}
+            />
+          </mesh>
+          <FoodSteamWisp pos={[x, 0.86, 0.1]} idx={idx * 3 + i} />
+        </React.Fragment>
       ))}
       {/* Hanging mask di roof side (Tier 2 only) */}
       {showMask && <YataiMask type={maskType} />}
