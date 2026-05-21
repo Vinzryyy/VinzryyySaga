@@ -38,12 +38,30 @@ const YATAI_DEFS = [
 
 const Yatai = ({ pos, rot, lanternColor, showMask, maskType, idx }) => {
   const lanternRef = useRef();
+  // Smoke wisp refs — 3 wisps per yatai, naik dari counter top dengan
+  // fade + sway. Cycle 3-4s per wisp, staggered phase.
+  const smokeRefs = useRef([]);
   useFrame((state) => {
-    if (!lanternRef.current) return;
     const t = state.clock.elapsedTime;
-    // Subtle lantern sway + glow flicker
-    lanternRef.current.rotation.z = 0.05 * Math.sin(t * 0.8 + idx);
-    lanternRef.current.material.emissiveIntensity = 0.55 + Math.sin(t * 1.2 + idx) * 0.1;
+    if (lanternRef.current) {
+      lanternRef.current.rotation.z = 0.05 * Math.sin(t * 0.8 + idx);
+      lanternRef.current.material.emissiveIntensity = 0.55 + Math.sin(t * 1.2 + idx) * 0.1;
+    }
+    // Smoke wisps — naik dari counter top, fade out di atas
+    smokeRefs.current.forEach((m, sIdx) => {
+      if (!m) return;
+      const cycleLen = 3.5 + sIdx * 0.4;
+      const cycle = ((t + idx * 1.2 + sIdx * 1.1) / cycleLen) % 1;
+      // Y rises 0.85 → 2.0 per cycle (above counter top Y=0.72)
+      m.position.y = 0.85 + cycle * 1.15;
+      // Sway X+Z slight (smoke drifts)
+      m.position.x = 0.15 * Math.sin(t * 0.6 + sIdx);
+      m.position.z = 0.15 * Math.cos(t * 0.5 + sIdx) - 0.05;
+      // Scale grow + fade
+      const scale = 0.4 + cycle * 0.8;
+      m.scale.setScalar(scale);
+      m.material.opacity = (1 - cycle) * 0.32;
+    });
   });
   return (
     <group position={pos} rotation={[0, rot, 0]}>
@@ -118,6 +136,26 @@ const Yatai = ({ pos, rot, lanternColor, showMask, maskType, idx }) => {
       ))}
       {/* Hanging mask di roof side (Tier 2 only) */}
       {showMask && <YataiMask type={maskType} />}
+      {/* Smoke wisps — 3 small spheres rising dari counter top, fade
+          out. "Cooking aroma" feel. */}
+      {[0, 1, 2].map((sIdx) => (
+        <mesh
+          key={`smoke-${sIdx}`}
+          ref={(m) => {
+            smokeRefs.current[sIdx] = m;
+          }}
+          position={[0, 0.85, -0.05]}
+        >
+          <sphereGeometry args={[0.07, 6, 5]} />
+          <meshBasicMaterial
+            color="#c8c0b8"
+            transparent
+            opacity={0.32}
+            toneMapped={false}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
     </group>
   );
 };

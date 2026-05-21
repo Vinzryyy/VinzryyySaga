@@ -58,6 +58,7 @@ import AtmosphericFireflies from '../components/taman/peta/AtmosphericFireflies'
 import FestivalDecorations from '../components/taman/peta/FestivalDecorations';
 import JapaneseFestivalDecor from '../components/taman/peta/JapaneseFestivalDecor';
 import GroundDetails from '../components/taman/peta/GroundDetails';
+import FallingLeaves from '../components/taman/peta/FallingLeaves';
 import { playSfx } from '../lib/townSfx';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
@@ -8093,12 +8094,21 @@ const FestivalLanternPoles = ({ count }) => {
 
 const FestivalLanterns = ({ count }) => {
   const matRefs = useRef([]);
+  const groupRefs = useRef([]);
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     for (let i = 0; i < matRefs.current.length; i += 1) {
       const m = matRefs.current[i];
-      if (!m) continue;
-      m.emissiveIntensity = 0.65 + Math.sin(t * 0.7 + i * 0.4) * 0.15;
+      if (m) {
+        m.emissiveIntensity = 0.65 + Math.sin(t * 0.7 + i * 0.4) * 0.15;
+      }
+      // Lampion sway — gentle pendulum rotation around Z axis, phase
+      // offset per-lantern via idx. Amplitude 0.12 rad (~7 deg).
+      const g = groupRefs.current[i];
+      if (g) {
+        g.rotation.z = 0.12 * Math.sin(t * 1.1 + i * 0.45);
+        g.rotation.x = 0.08 * Math.sin(t * 0.9 + i * 0.7);
+      }
     }
   });
   if (count < MAP_THRESHOLDS.festivalPrep) return null;
@@ -8123,7 +8133,13 @@ const FestivalLanterns = ({ count }) => {
           const color =
             colorIdx === 0 ? '#f4d8a0' : colorIdx === 1 ? '#f4a868' : '#e88848';
           lanterns.push(
-            <group key={`fest-l-${strIdx}-${i}`} position={[x, sagY, z]}>
+            <group
+              key={`fest-l-${strIdx}-${i}`}
+              position={[x, sagY, z]}
+              ref={(g) => {
+                groupRefs.current[refIdx] = g;
+              }}
+            >
               {/* Small paper lantern body */}
               <mesh>
                 <sphereGeometry args={[0.08, 8, 6]} />
@@ -9489,6 +9505,23 @@ const KOI_DEFS = [
     phase: 3.0,
     color: '#c84020',
     scale: [0.2, 0.04, 0.085],
+  },
+  // Boost +2 koi — additional fish supaya kolam kerasa lebih hidup
+  {
+    offset: [-0.5, -0.4],
+    radius: 0.85,
+    speed: 0.26,
+    phase: 0.7,
+    color: '#e8d048',  // golden yellow koi
+    scale: [0.14, 0.035, 0.065],
+  },
+  {
+    offset: [0.6, 0.1],
+    radius: 1.05,
+    speed: -0.16,
+    phase: 2.3,
+    color: '#3a4858',  // dark gray koi (smaller)
+    scale: [0.13, 0.035, 0.06],
   },
 ];
 const KoiShadows = () => {
@@ -15082,6 +15115,9 @@ const TamanScene = ({
           Render BAREN TamanFloor supaya overlay di atas grass tapi
           di bawah landmark elements. */}
       <GroundDetails loaded={armeniacaLoaded} isMobile={isMobile} />
+      {/* Falling leaves — atmospheric daun jatuh always-on, 18 leaves
+          desktop / 10 mobile, autumn colors, tumble rotation + sway. */}
+      <FallingLeaves loaded={armeniacaLoaded} isMobile={isMobile} />
       {/* MossOverlay sengaja gak di-render — DroughtRing purified udah
           ngasih lush meadow carpet yg lebih lebar, MossOverlay patches
           jadi keliatan banding spot di atasnya. */}
