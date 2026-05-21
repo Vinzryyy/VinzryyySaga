@@ -223,7 +223,10 @@ const ReplayDrawer = ({ heardMap, onClose, onReplay }) => {
 
   return (
     <div
-      className="fixed inset-0 z-40 bg-black/55 backdrop-blur-sm flex items-end md:items-center justify-center px-3 md:px-6 py-6"
+      // z-index extreme: drei <Html> labels (landmark text di scene
+      // 3D) pakai default zIndexRange max ~16.7M. Modal harus di atas
+      // itu supaya labels gak nongol nembus backdrop.
+      className="fixed inset-0 z-[2147483640] bg-black/55 backdrop-blur-sm flex items-end md:items-center justify-center px-3 md:px-6 py-6"
       onClick={onClose}
     >
       <div

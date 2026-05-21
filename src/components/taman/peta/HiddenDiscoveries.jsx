@@ -516,7 +516,9 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
 
   return (
     <div
-      className={`absolute inset-0 z-50 flex items-center justify-center px-4 pb-4 bg-black/60 backdrop-blur-sm ${
+      // z-index extreme: drei <Html> labels pakai default zIndexRange
+      // max ~16.7M. Modal harus di atas itu supaya labels gak nongol.
+      className={`absolute inset-0 z-[2147483641] flex items-center justify-center px-4 pb-4 bg-black/60 backdrop-blur-sm ${
         isExiting ? 'animate-discoveryBackdropOut' : 'animate-discoveryBackdropIn'
       }`}
       style={{ paddingTop: '6rem' }}
@@ -731,7 +733,9 @@ export const DiscoveryCompletionCard = ({ open, onClose }) => {
 
   return (
     <div
-      className={`absolute inset-0 z-[60] flex items-center justify-center px-4 pb-4 bg-black/70 backdrop-blur-sm ${
+      // z-index extreme: drei <Html> labels pakai default zIndexRange
+      // max ~16.7M. Modal harus di atas itu supaya labels gak nongol.
+      className={`absolute inset-0 z-[2147483642] flex items-center justify-center px-4 pb-4 bg-black/70 backdrop-blur-sm ${
         isExiting ? 'animate-discoveryBackdropOut' : 'animate-discoveryBackdropIn'
       }`}
       style={{ paddingTop: '5rem' }}

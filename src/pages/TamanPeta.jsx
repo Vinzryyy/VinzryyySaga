@@ -16193,7 +16193,10 @@ const PetakDetailOverlay = ({ petak, onClose, onJumpToPetak }) => {
     : null;
   return (
     <div
-      className="absolute inset-0 z-30 flex items-center justify-center bg-black/50 backdrop-blur-md"
+      // z-index extreme: drei <Html> labels (landmark text di scene
+      // 3D) pakai default zIndexRange max ~16.7M. Modal harus di atas
+      // itu supaya labels gak nongol nembus backdrop.
+      className="absolute inset-0 z-[2147483639] flex items-center justify-center bg-black/50 backdrop-blur-md"
       onClick={onClose}
       style={{ animation: 'fadeIn 300ms ease-out' }}
     >
