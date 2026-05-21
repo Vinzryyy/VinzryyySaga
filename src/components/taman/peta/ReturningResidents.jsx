@@ -202,6 +202,7 @@ const STORY_AUTO_DISMISS_MS = 4500;
 // sosok tegas. Linear ramp via Math.min(1, (count - appearAt) / 200).
 const Warga = ({ pos, color, phase, idx, appearedAt, count, story, isActive, onSelect }) => {
   const groupRef = useRef();
+  const [hovered, setHovered] = useState(false);
   // Wander params per-idx — stable across renders, gak random tiap mount.
   const wander = useMemo(
     () => ({
@@ -243,9 +244,37 @@ const Warga = ({ pos, color, phase, idx, appearedAt, count, story, isActive, onS
     e.stopPropagation();
     onSelect(idx);
   };
+  const handlePointerOver = (e) => {
+    e.stopPropagation();
+    setHovered(true);
+    document.body.style.cursor = 'pointer';
+  };
+  const handlePointerOut = () => {
+    setHovered(false);
+    document.body.style.cursor = '';
+  };
+
+  // Hover glow — slight emissive boost di body biar warga keliatan
+  // clickable. Subtle banget (0.15) supaya gak distracting.
+  const hoverEmissive = hovered ? 0.15 : 0;
 
   return (
-    <group ref={groupRef} position={pos} scale={variant.scale} onClick={handleClick}>
+    <group
+      ref={groupRef}
+      position={pos}
+      scale={variant.scale}
+      onClick={handleClick}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+    >
+      {/* Hitbox — invisible sphere wrapping warga, bikin tap target
+          gede di mobile (warga primitives kecil ~0.4 unit). Opacity 0
+          tapi raycaster tetep capture. depthWrite false biar gak
+          occlude visuals di belakang. */}
+      <mesh position={[0, 0.45, 0]}>
+        <sphereGeometry args={[0.5, 8, 6]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
       {/* Soft shadow blob — fades in dulu sebelum sosok solid */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
         <circleGeometry args={[variant.bodyBottom * 1.2, 16]} />
@@ -259,6 +288,8 @@ const Warga = ({ pos, color, phase, idx, appearedAt, count, story, isActive, onS
           roughness={0.95}
           transparent
           opacity={fadeProgress}
+          emissive={color}
+          emissiveIntensity={hoverEmissive}
         />
       </mesh>
       {/* Head sphere */}
@@ -269,6 +300,8 @@ const Warga = ({ pos, color, phase, idx, appearedAt, count, story, isActive, onS
           roughness={0.9}
           transparent
           opacity={fadeProgress}
+          emissive={skinColor}
+          emissiveIntensity={hoverEmissive * 0.5}
         />
       </mesh>
       {/* Hair cap — variant: short cap atau longer (extend ke belakang) */}
