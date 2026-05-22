@@ -173,13 +173,15 @@ export const ARME_DIALOGS = [
     trigger: { type: 'count-cross', at: 6000 },
     lines: [
       'Air di Telaga ini udah penuh.',
-      'Aku iseng membaca harapan-harapan yang dititip orang dulu. Banyak pesan yang familiar.',
+      'Aku iseng membaca pesan-pesan yang dibaca orang dulu.',
+      'Banyak pesan yang familiar.',
       'Mungkin sebagian dari kamu juga merasakan hal itu.',
     ],
     audio: [
       AI('26. AIR DI TELAGA INI UDAH PENUH.wav'),
-      null,
-      null,
+      AI('27. AKU ISENG MEMBACA PESAN-PESAN YANG DI BACA ORANG DULU.wav'),
+      AI('28. BANYAK PESAN YANG FAMILIAR.wav'),
+      AI('29. MUNGKIN SEBAGIAN DARI KAMU JUGA MERASAKAN HAL ITU.wav'),
     ],
   },
   {
@@ -193,6 +195,12 @@ export const ARME_DIALOGS = [
       'Pas kota pulih nanti, akan aku putar lagu yang dulu sering diputar di panggung ini.',
       'Mungkin kamu akan suka.',
     ],
+    audio: [
+      AI('30. KAMU PERNAH MENDENGAR ORKES ARMENIACA..wav'),
+      AI('31. HMMM GAK PERNAH YAAA.wav'),
+      AI('32. Pas kota pulih nanti, akan aku putar lagu yang dulu sering diputar di panggung ini..wav'),
+      AI('33. MUNGKIN KAMU AKAN SUKA.wav'),
+    ],
   },
   {
     id: 'r2-restore',
@@ -201,8 +209,17 @@ export const ARME_DIALOGS = [
     trigger: { type: 'count-cross', at: 7000 },
     lines: [
       'Perpustakaan mulai direnovasi lagi.',
-      'Aku nemuin satu buku yang halaman terakhirnya kosong — kayak menunggu seseorang untuk menulis halaman itu.',
+      'Dan aku nemuin satu buku.',
+      'Yang halaman terakhirnya kosong.',
+      'Kayak menunggu seseorang untuk menulis halaman tersebut.',
       'Mungkin kamu yang akan menulis.',
+    ],
+    audio: [
+      AI('34. Perpustakaan mulai di renovasi lagi.wav'),
+      AI('35. Dan aku nemuin satu buku.wav'),
+      AI('36. yang halaman terakhirnya kosong.wav'),
+      AI('37. kayak menunggu seseorang untuk menulis halaman tersebut.wav'),
+      AI('38. Mungkin kamu yang akan menulis..wav'),
     ],
   },
 
@@ -215,6 +232,10 @@ export const ARME_DIALOGS = [
     lines: [
       'Plaza tengah terlihat banyak reruntuhan bangunan.',
       'Patung-patung banyak yang runtuh, tetapi masih bisa dibangun kembali.',
+    ],
+    audio: [
+      AI('39. Plaza tengah terlihat banyak reruntuhan bangungan..wav'),
+      AI('40.  Patung-patung banyak yang runtuh, tetapi masi bisa di bangun kembali..wav'),
     ],
   },
   {
@@ -237,6 +258,11 @@ export const ARME_DIALOGS = [
       'Bukan mancur sih — tapi udah lebih dari kering.',
       'Air mulai inget jalan pulangnya.',
     ],
+    audio: [
+      AI('41. Air mancur menetes sedikit demi sedikit..wav'),
+      null,
+      null,
+    ],
   },
   {
     id: 'am-t4',
@@ -247,6 +273,10 @@ export const ARME_DIALOGS = [
       'Setiap tetesan air menciptakan riak di permukaan air.',
       'Plaza ini mulai terasa seperti tempat orang singgah dan menikmati keindahan kota.',
     ],
+    audio: [
+      AI('42. setiap tetesan air menciptakan riak ripple di permukaan air..wav'),
+      AI('43. Plaza ini mulai sekarang terasa seperti tempat orang singgah dan menikmati keindahan kota.wav'),
+    ],
   },
   {
     id: 'am-t5',
@@ -256,6 +286,10 @@ export const ARME_DIALOGS = [
     lines: [
       'Suara percikannya terdengar seperti suara orang berinteraksi satu dengan yang lain.',
       'Kota ini seperti ingin mengatakan sesuatu.',
+    ],
+    audio: [
+      AI('44. Suara percikannya terdengar seperti suara orang berinteraksi 1 dengan yang lain..wav'),
+      AI('45. Kota ini seperti ingin mengatakan sesuatu..wav'),
     ],
   },
   {
@@ -268,6 +302,11 @@ export const ARME_DIALOGS = [
       'Akarnya berambat ke seluruh penjuru kota sama seperti Pohon lainnya.',
       'Kita harus menumbuhkan pohon tersebut.',
     ],
+    audio: [
+      AI('46. Di pinggiran kolam air mancur tumbuh empat kuncup bungan aprikot..wav'),
+      AI('47. Akarnya berambat ke seluruh penjuru kota sama seperti Pohon lainnya..wav'),
+      AI('48. kita harus menumbuhkan pohon tersebut..wav'),
+    ],
   },
 
   // ── Momen Besar (milestone non-petak) ─────────────────────────────
@@ -278,8 +317,15 @@ export const ARME_DIALOGS = [
     trigger: { type: 'count-cross', at: 2500 },
     lines: [
       'Lihatlah ke jalan arah gerbang itu.',
-      'Ada tanaman-tanaman kecil yang mulai tumbuh di sela batu — tanda kehidupan pertama yang mulai pulih.',
+      'Ada tanaman-tanaman kecil yang mulai tumbuh di sela batu.',
+      'Tanda kehidupan pertama yang mulai pulih.',
       'Walaupun hanya rumput kecil, tapi udah lama sejak tanaman hijau tumbuh terakhir di sini.',
+    ],
+    audio: [
+      AI('49. lihat lah ke jalan arah gerbang itu..wav'),
+      AI('50. Ada tanaman-tanaman kecil yang mulai tumbuh di sela batu..wav'),
+      AI('51. tanda kehidupan pertama yang mulai pulih..wav'),
+      AI('52. walaupun hanya rumput kecil, Tapi udah lama Sejak tanaman hijau tumbuh terakhir disini..wav'),
     ],
   },
   {
@@ -296,6 +342,11 @@ export const ARME_DIALOGS = [
       'Dulu sekelompok komunitas bernama "Helismiley" sering mengadakan pameran lukisan di sini.',
       'Perlahan tapi pasti, temboknya mulai terpajang lagi dengan lukisan-lukisan kebaikan.',
     ],
+    audio: [
+      AI('53. pintunya bergerak sendiri tadi, apakah kamu melihatnya.wav'),
+      AI('54. Dulu Sekelompok komunita Bernama Helismiley sering mengadakan pameran lukisan di sini..wav'),
+      AI('55. Perlahan tapi pasti, temboknya mulai terpajang lagi dengan Lukisan-Lukisan kebaikan.wav'),
+    ],
   },
   {
     id: 'purified',
@@ -307,8 +358,15 @@ export const ARME_DIALOGS = [
       'Kota terlihat sudah mulai pulih sepenuhnya.',
       'Pohon-pohon di tengah kota sudah mulai berbunga kembali.',
       'Tapi aneh ya, aku masih satu-satunya di sini.',
-      'Mungkin yang lain masih butuh waktu balik. Atau mungkin mereka tidak akan kembali, tapi orang baru.',
-      'Kayak kamu.',
+      'Mungkin yang lain masih butuh waktu balik.',
+      'Atau mungkin mereka tidak akan kembali, tapi orang baru — kayak kamu.',
+    ],
+    audio: [
+      AI('56. Kota terlihat sudah mulai pulih sepenuhnya..wav'),
+      AI('57. Pohon-pohon di tengah kota sudah mulai berbunga Kembali..wav'),
+      AI('58. Tapi aneh ya, aku masih satu-satunya disini..wav'),
+      AI('59. Mungkin yang lain masih butuh waktu balik..wav'),
+      AI('60. Atau mungkin mereka tidak akan kembali, tapi orang baru Kayak kamu..wav'),
     ],
   },
   {
@@ -332,7 +390,17 @@ export const ARME_DIALOGS = [
       'Mahkota bunga mulai berjatuhan dari pohon.',
       'Aku mendengar seperti ada orang yang menari di alun-alun, suasana kota mulai dipenuhi orang-orang.',
       'Festival udah di puncaknya.',
-      'Semua orang berkumpul di alun-alun kota — ada warga kota yang kembali lagi, ada juga warga baru yang baru saja datang ke kota ini.',
+      'Semua orang berkumpul di alun-alun kota.',
+      'Ada warga kota yang kembali lagi.',
+      'Ada juga warga kota yang baru saja datang ke kota ini.',
+    ],
+    audio: [
+      AI('61. mahkota bunga mulai berjatuhan dari pohon..wav'),
+      AI('62. Aku mendenger seperti ada orang yang menari di alun-alun, suasana kota mulai dipenuhi orang-orang..wav'),
+      AI('63. Festival udah di puncaknya..wav'),
+      AI('64. semua orang berkumpul di alun-alun kota.wav'),
+      AI('65. ada yang warga kota yang Kembali lagi.wav'),
+      AI('66. ada juga warga kota yang baru saja dating ke kota ini..wav'),
     ],
   },
   {
@@ -342,10 +410,18 @@ export const ARME_DIALOGS = [
     cinematic: true,
     trigger: { type: 'count-cross', at: 10000 },
     lines: [
-      'Kota ini tidak cuma pulih — dia tumbuh jadi sesuatu yang dulu belum pernah ada.',
+      'Kota ini tidak cuma pulih.',
+      'Dia tumbuh jadi sesuatu yang dulu belum pernah ada.',
       'Pohon di tengah jadi monumen permanen.',
       'Sudah lama kita tidak bercerita satu sama lain.',
       'Aku tidak menyangka bisa bercerita sepanjang ini.',
+    ],
+    audio: [
+      AI('67. Kota ini tidak cuma pulih..wav'),
+      AI('68. dia tumbuh jadi sesuatu yang dulu belum pernah ada..wav'),
+      AI('69. Pohon di tengah jadi monumen permanen..wav'),
+      AI('70. sudah lama kita tidak bercerita satu sama lain..wav'),
+      AI('71. Aku tidak menyangka bisa bercerita sepanjang ini..wav'),
     ],
   },
 
@@ -359,9 +435,12 @@ export const ARME_DIALOGS = [
     label: 'Pohon mulai berbunga lagi',
     trigger: { type: 'count-cross', at: 7250 },
     lines: [
-      'Pohon yang tadinya kering dan layu…',
-      'Sekarang bunganya perlahan-lahan muncul.',
+      'Pohon yang tadinya kering dan layu, sekarang bunganya perlahan-lahan muncul.',
       'Satu, dua, tiga, empat — ada banyak pokoknya.',
+    ],
+    audio: [
+      AI('89. Pohon yang tadinya kering dan layu, Sekarang bunganya perlahan-lahan muncul..wav'),
+      AI('90. Satu, dua, tiga, empat ada banyak pokok nya..wav'),
     ],
   },
   {
@@ -374,6 +453,11 @@ export const ARME_DIALOGS = [
       'Aku tidak tahu itu siapa, aku baru pertama kali melihat silhouette itu.',
       'Tapi udah lama juga tidak melihat ada orang yang lewat di luar area pohon tersebut.',
     ],
+    audio: [
+      AI('91. Eh apakah kamu melihat ada seseorang disana..wav'),
+      AI('92. Aku tidak tau itu siapa, aku baru pertama kali melihat dia silhouette itu..wav'),
+      AI('93. Tapi udah lama juga tidak melihat ada orang yang lewat di luar area pohon tersebut..wav'),
+    ],
   },
   {
     id: 'sosok-balik',
@@ -384,6 +468,11 @@ export const ARME_DIALOGS = [
       'Sosok misterius di balik bayang-bayang kini terlihat jelas ketika matahari mulai memindahkan sinarnya.',
       'Aku seperti déjà vu karena sosok itu, tapi tidak bisa memastikannya.',
       'Mungkin warga baru, mungkin angin yang berhembus aja.',
+    ],
+    audio: [
+      AI('94. sosok misterius di balik bayang-bayang kini terlihat jelas ketika matahari mulai memindahkan sinar nya..wav'),
+      AI('95. Aku seperti dejavu karna sosok itu tapi tidak bisa memastikannya..wav'),
+      AI('96. Mungkin warga baru, mungkin angin yang berhembus aja..wav'),
     ],
   },
   {
@@ -396,6 +485,11 @@ export const ARME_DIALOGS = [
       'Terpancar auranya yang lebih terang dari yang kemarin.',
       'Sepertinya Pohon itu ingin mengatakan sesuatu.',
     ],
+    audio: [
+      AI('97. Sebuah Cincin baru muncul di kaki Pohon..wav'),
+      AI('98. Terpancar Auranya yang lebih terang dari yang kemaren..wav'),
+      AI('99. Sepertinya Pohon itu ingin mengatakan sesuatu..wav'),
+    ],
   },
   {
     id: 'lampu-pertama',
@@ -406,6 +500,11 @@ export const ARME_DIALOGS = [
       'Lampu pertama itu mulai menyala malam ini.',
       'Aku? Oh tidak, bukan aku yang menyalakan lampu itu.',
       'Mungkin ada yang menggunakan lampu tersebut.',
+    ],
+    audio: [
+      AI('100. Lampu pertama itu mulai menyala malem ini..wav'),
+      AI('101. aku , ohh tidak, bukan aku yang menyalakan lampu itu.wav'),
+      AI('102. Mungkin ada yang menggunakan lamput tersebut..wav'),
     ],
   },
   {
@@ -418,6 +517,11 @@ export const ARME_DIALOGS = [
       'Terdengar pelan, dan cuma terdengar sekali.',
       'Mungkin angin — tapi untuk kali ini sepertinya ada orang yang benar-benar memanggil namaku.',
     ],
+    audio: [
+      AI('103. Aku mendengar namaku dipanggil dibalik bayang-banyak dan dingin nya malam..wav'),
+      AI('104. terdengar pelan, dan cuma terdengar sekali.wav'),
+      AI('105. Mungkin angin tapi untuk kali ini sepertinya ada orang yang benar-benar memanggil namaku..wav'),
+    ],
   },
   {
     id: 'mercusuar',
@@ -428,6 +532,11 @@ export const ARME_DIALOGS = [
       'Pohon mulai memancarkan cahayanya.',
       'Dulu mereka menyebut Pohon ini "Mercusuar Armeniaca".',
       'Sekarang aku baru mengerti kenapa.',
+    ],
+    audio: [
+      AI('106. Pohon mulai memancarkan cahayanya..wav'),
+      AI('107. Dulu mereka menyebut Pohon ini Mercusuar Armeniaca..wav'),
+      AI('108. Sekarang aku baru mengerti kenapa.wav'),
     ],
   },
 
@@ -482,6 +591,11 @@ export const ARME_DIALOGS = [
       'Dirimu kembali lagi ke kota ini.',
       'Saat kamu pergi, Pohon ini tumbuh subur dan menghidupi kota ini.',
     ],
+    audio: [
+      AI('72. Eh Haiii.wav'),
+      AI('73. dirimu Kembali lagi ke kota ini.wav'),
+      AI('74. saat kamu pergi, Pohon ini tumbuh subur dan menghidupi kota ini..wav'),
+    ],
   },
   {
     id: 'return-long-growing',
@@ -493,6 +607,12 @@ export const ARME_DIALOGS = [
       'Sejak kamu pergi, kota ini melahirkan banyak kebaikan.',
       'Petak baru dan bangunan-bangunan baru juga sudah dibangun.',
       'Aku sempat mengira kamu keluar dari kota ini dan tidak akan kembali lagi.',
+    ],
+    audio: [
+      AI('75. sudah lama tidak melihat mu, dan akhir nya kamu Kembali..wav'),
+      AI('76. Sejak kamu pergi, kota ini melahirkan banyak kebaikan..wav'),
+      AI('77. Petak baru dan bangunan-bangunan baru juga sudah dibangun..wav'),
+      AI('78. Aku sempat mengira kamu keluar dari kota ini dan tidak akan Kembali lagi..wav'),
     ],
   },
   {
@@ -520,6 +640,13 @@ export const ARME_DIALOGS = [
       'Mungkin karena dia tahu, bakal ada yang menyiram dan merawatnya.',
       'Dan sekarang sudah ada yang merawat pohon itu, yaitu warga kota ini.',
     ],
+    audio: [
+      AI('79. Pohon yang berada di tengah kota itu adalah pohon paling kuat di sini..wav'),
+      AI('80. dia tahan terhadap cuaca apa pun..wav'),
+      AI('81. cuaca panas terik dan kering dia lewati sampai sejauh ini..wav'),
+      AI('82. mungkin karena dia tau,bakal ada yang menyiram dan merawat nya..wav'),
+      AI('83. dan sekarang sudah ada yang merawat pohon itu, yaitu warga kota ini..wav'),
+    ],
   },
   {
     id: 'bonus-seitansai',
@@ -545,6 +672,11 @@ export const ARME_DIALOGS = [
       'Pilihan menarik.',
       'Para pendatang baru perhatiannya biasa tertuju ke pohon besar itu.',
     ],
+    audio: [
+      AI('84. Oh, kamu penasaran petak atau bangunan itu.wav'),
+      AI('85. Pilihan menarik..wav'),
+      AI('86. para pendatang baru perhatian nya biasa tertuju ke pohon besar itu..wav'),
+    ],
   },
   {
     id: 'bonus-dismiss-quick',
@@ -554,6 +686,10 @@ export const ARME_DIALOGS = [
     lines: [
       'Ya, silahkan explore sesukamu.',
       'Aku akan menunggu di sini jika kamu membutuhkanku.',
+    ],
+    audio: [
+      AI('87. Ya, silahkan explore sesukamu..wav'),
+      AI('88. Aku akan menunggu disini jika kamu membutuhkan ku..wav'),
     ],
   },
   {
