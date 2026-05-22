@@ -56,6 +56,7 @@ import ArmeMascot from '../components/taman/peta/ArmeMascot';
 import ReturningResidents from '../components/taman/peta/ReturningResidents';
 import AtmosphericFireflies from '../components/taman/peta/AtmosphericFireflies';
 import FestivalDecorations from '../components/taman/peta/FestivalDecorations';
+import MiracleStreetLamps from '../components/taman/peta/MiracleStreetLamps';
 import JapaneseFestivalDecor from '../components/taman/peta/JapaneseFestivalDecor';
 import GroundDetails from '../components/taman/peta/GroundDetails';
 import FallingLeaves from '../components/taman/peta/FallingLeaves';
@@ -97,7 +98,15 @@ const MAP_THRESHOLDS = {
   // dari 7000 (kota pulih) → 10000 (legacy phase, kota jadi
   // ikonik permanen).
   festivalPrep: 8000, // string lanterns, banners decorate kota
+  // Lampu-pertama (8500) — "miracle moment" intim: satu lampu jalan
+  // pertama nyala. Per dialog Arme: bukan dia yang nyalain, ada yang
+  // pake. Cascade tipis ke 2 lampu lagi pas count naik (8700 + 8900).
+  lampuPertama: 8500,
   festivalPeak: 9000, // dense petals, additional dancing NPCs
+  // Mercusuar (9700) — light beams keluar dari canopy Pohon ke langit.
+  // Full-circle dgn dialog #7 mercusuar: "Pohon mulai memancarkan
+  // cahayanya... dulu mereka panggil Pohon ini Mercusuar Armeniaca."
+  mercusuar: 9700,
   legacy: 10000, // mega pohon + golden permanent glow + monument
   airMancurT1: 2000,
   airMancurT2: 3000,
@@ -883,6 +892,60 @@ const CenterTree = ({
             Array.from({ length: CANOPY_UPWARD_PETAL_COUNT }).map((_, i) => (
               <CanopyUpwardPetal key={`uppetal-${i}`} idx={i} />
             ))}
+          {/* Mercusuar beams (postPurifiedProgress >= 0.9 ≈ count 9700) —
+              full-circle dgn dialog Arme `mercusuar`: "Pohon mulai
+              memancarkan cahayanya... dulu mereka panggil Pohon ini
+              'Mercusuar Armeniaca'." 4 light shafts dari atas canopy
+              keluar ke langit, additive blending biar kerasa cahaya
+              bukan solid geometry. Cone tipis tilted radial supaya
+              cone tip di canopy top, base lebar di atas. */}
+          {postPurifiedProgress >= 0.9 && (
+            <group position={[0, 2.6, 0]}>
+              {[0, 1, 2, 3].map((i) => {
+                const angle = (i / 4) * Math.PI * 2;
+                const tilt = 0.18; // radians outward
+                const beamOpacity = Math.min(
+                  0.28,
+                  (postPurifiedProgress - 0.9) * 2.8,
+                );
+                return (
+                  <mesh
+                    key={`beam-${i}`}
+                    rotation={[tilt, angle, 0]}
+                    position={[Math.sin(angle) * 0.05, 1.0, Math.cos(angle) * 0.05]}
+                  >
+                    {/* Tip at bottom (0.05), base wider at top (0.45),
+                        height 2.4 = beam dari canopy top (Y≈2.6+0)
+                        ke sky Y≈5.0. */}
+                    <coneGeometry args={[0.45, 2.4, 14, 1, true]} />
+                    <meshBasicMaterial
+                      color="#f8d488"
+                      transparent
+                      opacity={beamOpacity}
+                      blending={THREE.AdditiveBlending}
+                      depthWrite={false}
+                      side={THREE.DoubleSide}
+                      toneMapped={false}
+                    />
+                  </mesh>
+                );
+              })}
+              {/* Central vertical glow column — softer wider beam di
+                  tengah, kesan "tower light" mercusuar. */}
+              <mesh position={[0, 1.0, 0]}>
+                <cylinderGeometry args={[0.18, 0.35, 2.4, 14, 1, true]} />
+                <meshBasicMaterial
+                  color="#fff0c0"
+                  transparent
+                  opacity={Math.min(0.22, (postPurifiedProgress - 0.9) * 2.2)}
+                  blending={THREE.AdditiveBlending}
+                  depthWrite={false}
+                  side={THREE.DoubleSide}
+                  toneMapped={false}
+                />
+              </mesh>
+            </group>
+          )}
         </>
       )}
       {/* Floating label saat hover — "Pohon Terakhir" + hint klik.
@@ -15583,6 +15646,10 @@ const TamanScene = ({
         loaded={armeniacaLoaded}
         isMobile={isMobile}
       />
+      {/* Lampu jalan miracle — 3 lamp cascade dari 8500-8900, sinkron
+          dgn dialog Arme `lampu-pertama` (8500). Bukti silent presence
+          warga lain di kota mendekati legacy phase. */}
+      <MiracleStreetLamps count={armeniacaCount} />
       {/* Japanese matsuri-themed decor — Yatai food stalls + kohaku-maku
           + tanzaku (8000+), TaikoDrum + festival masks + sky lanterns
           (9000+). Tone: rural matsuri (kota kecil yang akhirnya rame

@@ -117,9 +117,15 @@ const SpeechBubble = ({
   total,
   isMobile,
   mode = 'corner',
+  tone = null,
   onAdvance,
   onDismiss,
 }) => {
+  // Miracle tone (7 post-purified dialog) — warm cream bg, italic
+  // text, softer ring + slightly slower fade-in. Distinct dari default
+  // white bubble supaya "miracle moments" kerasa beda dari routine
+  // narration. Lihat docs/arme-dialogs-new7.txt l.110-112.
+  const isMiracle = tone === 'miracle';
   if (mode === 'cinematic') {
     // Tail menghadap avatar:
     //   mobile (bubble di atas Arme)  → tail bawah, point ke bawah
@@ -131,15 +137,29 @@ const SpeechBubble = ({
       ? 'polygon(100% 0, 100% 100%, 0 100%)' // down-pointing wedge
       : 'polygon(0 0, 0 100%, 100% 100%)'; // left-pointing wedge
 
+    const bubbleBg = isMiracle ? 'bg-[#fff7e8]/97' : 'bg-white/97';
+    const bubbleRing = isMiracle ? 'ring-[#e5b890]/40' : 'ring-black/10';
+    const textClass = isMiracle ? 'italic text-[#3a2818]' : 'text-[#1c1f2a]';
     return (
       <div
         key={currentIdx}
         className="pointer-events-auto relative z-30 w-[min(86vw,440px)]"
-        style={{ animation: 'armeBubbleIn 360ms cubic-bezier(0.2, 0.7, 0.3, 1) both' }}
+        style={{
+          animation: isMiracle
+            ? 'armeBubbleIn 560ms cubic-bezier(0.2, 0.7, 0.3, 1) both'
+            : 'armeBubbleIn 360ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+        }}
       >
-        <div className="relative rounded-2xl bg-white/97 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-5 py-4 md:px-6 md:py-5">
+        <div
+          className={`relative rounded-2xl ${bubbleBg} backdrop-blur-sm shadow-2xl ring-1 ${bubbleRing} px-5 py-4 md:px-6 md:py-5`}
+          style={
+            isMiracle
+              ? { boxShadow: '0 10px 30px rgba(0,0,0,0.25), 0 0 32px rgba(244,200,150,0.35)' }
+              : undefined
+          }
+        >
           <span
-            className={`${tailPositionClass} bg-white/97 ring-1 ring-black/10`}
+            className={`${tailPositionClass} ${bubbleBg} ring-1 ${bubbleRing}`}
             style={{ clipPath: tailClipPath }}
             aria-hidden
           />
@@ -161,7 +181,7 @@ const SpeechBubble = ({
           <button
             type="button"
             onClick={onAdvance}
-            className="block w-full text-left text-sm md:text-[15px] leading-relaxed text-[#1c1f2a] focus:outline-none"
+            className={`block w-full text-left text-sm md:text-[15px] leading-relaxed focus:outline-none ${textClass}`}
           >
             {text}
           </button>
@@ -180,6 +200,9 @@ const SpeechBubble = ({
     );
   }
 
+  const cornerBg = isMiracle ? 'bg-[#fff7e8]/95' : 'bg-white/95';
+  const cornerRing = isMiracle ? 'ring-[#e5b890]/40' : 'ring-black/10';
+  const cornerText = isMiracle ? 'italic text-[#3a2818]' : 'text-[#1c1f2a]';
   return (
     <div
       key={currentIdx}
@@ -188,11 +211,22 @@ const SpeechBubble = ({
           ? 'pointer-events-auto absolute left-[148px] bottom-[152px] w-[min(60vw,200px)] z-30'
           : 'pointer-events-auto absolute left-[210px] bottom-[170px] w-[320px] z-30'
       }
-      style={{ animation: 'armeBubbleIn 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both' }}
+      style={{
+        animation: isMiracle
+          ? 'armeBubbleIn 540ms cubic-bezier(0.2, 0.7, 0.3, 1) both'
+          : 'armeBubbleIn 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+      }}
     >
-      <div className="relative rounded-2xl bg-white/95 backdrop-blur-sm shadow-2xl ring-1 ring-black/10 px-4 py-3">
+      <div
+        className={`relative rounded-2xl ${cornerBg} backdrop-blur-sm shadow-2xl ring-1 ${cornerRing} px-4 py-3`}
+        style={
+          isMiracle
+            ? { boxShadow: '0 8px 24px rgba(0,0,0,0.25), 0 0 24px rgba(244,200,150,0.32)' }
+            : undefined
+        }
+      >
         <span
-          className="absolute -left-2 bottom-4 w-4 h-4 rotate-45 bg-white/95 ring-1 ring-black/10"
+          className={`absolute -left-2 bottom-4 w-4 h-4 rotate-45 ${cornerBg} ring-1 ${cornerRing}`}
           style={{ clipPath: 'polygon(0 0, 100% 100%, 0 100%)' }}
           aria-hidden
         />
@@ -213,7 +247,7 @@ const SpeechBubble = ({
         <button
           type="button"
           onClick={onAdvance}
-          className="block w-full text-left text-[13px] md:text-sm leading-snug text-[#1c1f2a] focus:outline-none"
+          className={`block w-full text-left text-[13px] md:text-sm leading-snug focus:outline-none ${cornerText}`}
         >
           {text}
         </button>
@@ -759,6 +793,10 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   // peak, legacy, seitansai) — Arme pindah ke tengah + backdrop dim
   // map, kerasa cutscene. Sisanya tetap di pojok kiri-bawah.
   const isCinematic = isTalking && activeDialog?.cinematic === true;
+  // Miracle tone = 7 post-purified dialogs (count 7250-9700). Tone
+  // whispery/awe — Arme heran karena hal-hal mulai berubah cepat.
+  // Avatar dapet warm glow boost extra biar selaras dgn bubble cream.
+  const isMiracle = isTalking && activeDialog?.tone === 'miracle';
   // Newcomer = user belum pernah heard dialog apapun. Pakai stronger
   // attention cues (bounce + bigger pill) buat ngajak first interaction.
   const isNewcomer = Object.keys(heardMap).length === 0;
@@ -766,7 +804,11 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
   // Talking highlight — warm apricot glow stack di drop-shadow (efek
   // "rim light" hangat sekitar avatar) + brightness boost ringan. Idle
   // tetep ada drop-shadow gelap + glow tipis biar gak ngeblend ke map.
-  const avatarFilter = isTalking
+  // Miracle mode: warm glow lebih lebar (28+56 vs 22+44) buat efek
+  // "lighting up from wonder".
+  const avatarFilter = isMiracle
+    ? 'drop-shadow(0 0 28px rgba(248,212,160,0.85)) drop-shadow(0 0 56px rgba(248,212,160,0.5)) drop-shadow(0 8px 18px rgba(0,0,0,0.45)) brightness(1.1)'
+    : isTalking
     ? 'drop-shadow(0 0 22px rgba(244,200,150,0.75)) drop-shadow(0 0 44px rgba(244,200,150,0.4)) drop-shadow(0 8px 18px rgba(0,0,0,0.45)) brightness(1.08)'
     : 'drop-shadow(0 0 14px rgba(244,200,150,0.2)) drop-shadow(0 8px 18px rgba(0,0,0,0.45))';
   // Cinematic avatar pakai stronger glow biar dominant di center vs
@@ -965,6 +1007,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               total={activeDialog.lines.length}
               isMobile={isMobile}
               mode="corner"
+              tone={activeDialog.tone}
               onAdvance={handleAdvance}
               onDismiss={handleDismiss}
             />
@@ -1051,6 +1094,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
             total={activeDialog.lines.length}
             isMobile={isMobile}
             mode="cinematic"
+            tone={activeDialog.tone}
             onAdvance={handleAdvance}
             onDismiss={handleDismiss}
           />

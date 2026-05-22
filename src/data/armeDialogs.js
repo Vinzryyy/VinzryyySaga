@@ -25,6 +25,13 @@
  *   - 'heard'      — pernah di-play sampe selesai
  *   - 'pre-crossed' — count udah lewat saat first-visit (skipped, tapi
  *                     bisa di-replay dari drawer)
+ *
+ * Optional fields:
+ *   - cinematic: true   → VN-style center stage + backdrop dim
+ *   - tone: 'miracle'   → 7 post-purified dialog (count 7250-9700).
+ *                         Warm cream bubble + italic + softer fade,
+ *                         avatar dapet warm glow boost. Tone whispery/awe
+ *                         per arme-dialogs-new7.txt notes line 110-112.
  */
 
 const AI = (filename) => `/AI/${encodeURI(filename)}`;
@@ -433,6 +440,7 @@ export const ARME_DIALOGS = [
     id: 'pohon-berbunga',
     category: 'besar',
     label: 'Pohon mulai berbunga lagi',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 7250 },
     lines: [
       'Pohon yang tadinya kering dan layu, sekarang bunganya perlahan-lahan muncul.',
@@ -447,6 +455,7 @@ export const ARME_DIALOGS = [
     id: 'sosok-pertama',
     category: 'besar',
     label: 'Sosok pertama di kejauhan',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 7500 },
     lines: [
       'Eh, apakah kamu melihat ada seseorang di sana?',
@@ -463,6 +472,7 @@ export const ARME_DIALOGS = [
     id: 'sosok-balik',
     category: 'besar',
     label: 'Apakah dia balik?',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 7750 },
     lines: [
       'Sosok misterius di balik bayang-bayang kini terlihat jelas ketika matahari mulai memindahkan sinarnya.',
@@ -479,6 +489,7 @@ export const ARME_DIALOGS = [
     id: 'aura-melebar',
     category: 'besar',
     label: 'Aura Pohon melebar',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 8200 },
     lines: [
       'Sebuah cincin baru muncul di kaki Pohon.',
@@ -495,6 +506,7 @@ export const ARME_DIALOGS = [
     id: 'lampu-pertama',
     category: 'besar',
     label: 'Lampu pertama nyala',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 8500 },
     lines: [
       'Lampu pertama itu mulai menyala malam ini.',
@@ -511,6 +523,7 @@ export const ARME_DIALOGS = [
     id: 'nama-dipanggil',
     category: 'besar',
     label: 'Aku denger nama-ku',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 9500 },
     lines: [
       'Aku mendengar namaku dipanggil di balik bayang-bayang dan dinginnya malam.',
@@ -527,6 +540,7 @@ export const ARME_DIALOGS = [
     id: 'mercusuar',
     category: 'besar',
     label: 'Mercusuar Armeniaca',
+    tone: 'miracle',
     trigger: { type: 'count-cross', at: 9700 },
     lines: [
       'Pohon mulai memancarkan cahayanya.',
