@@ -1,7 +1,7 @@
 {
   "source": "Manual show log",
-  "totalShows": 385,
-  "asOfDate": "2026-04-24",
+  "totalShows": 391,
+  "asOfDate": "2026-07-08",
   "totals": {
     "centers": 49,
     "solos": 9,
@@ -153,25 +153,25 @@
       ]
     },
     {
-      "setlist": "Theater no Megami",
-      "count": 7,
-      "centerCount": 0,
-      "firstDate": "2018-12-16",
-      "lastDate": "2019-01-27",
-      "units": []
-    },
-    {
       "setlist": "Dream Bakudan",
-      "count": 2,
+      "count": 8,
       "centerCount": 0,
       "firstDate": "2026-04-18",
-      "lastDate": "2026-04-24",
+      "lastDate": "2026-07-08",
       "units": [
         {
           "name": "Kinjirareta Futari",
           "count": 1
         }
       ]
+    },
+    {
+      "setlist": "Theater no Megami",
+      "count": 7,
+      "centerCount": 0,
+      "firstDate": "2018-12-16",
+      "lastDate": "2019-01-27",
+      "units": []
     },
     {
       "setlist": "Romansa Sang Gadis",
@@ -4421,6 +4421,72 @@
       "position": null,
       "partner": null,
       "lineup": null,
+      "note": null
+    },
+    {
+      "no": 386,
+      "day": "Senin",
+      "date": "2026-06-29",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": "Teater Sementara SBY",
+      "note": null
+    },
+    {
+      "no": 387,
+      "day": "Selasa",
+      "date": "2026-06-30",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": "Teater Sementara SBY",
+      "note": null
+    },
+    {
+      "no": 388,
+      "day": "Rabu",
+      "date": "2026-07-01",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": "Teater Sementara SBY",
+      "note": null
+    },
+    {
+      "no": 389,
+      "day": "Senin",
+      "date": "2026-07-06",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": "Teater Sementara DIY",
+      "note": null
+    },
+    {
+      "no": 390,
+      "day": "Selasa",
+      "date": "2026-07-07",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": "Teater Sementara DIY",
+      "note": null
+    },
+    {
+      "no": 391,
+      "day": "Rabu",
+      "date": "2026-07-08",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": "Teater Sementara DIY",
       "note": null
     }
   ]
