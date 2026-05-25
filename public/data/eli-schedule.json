@@ -1,8 +1,8 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-05-24T12:32:52.348921Z",
-  "eventCount": 18,
+  "fetchedAt": "2026-05-25T13:19:34.798958Z",
+  "eventCount": 19,
   "events": [
     {
       "kind": "SHOW",
@@ -1263,6 +1263,83 @@
       "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3159,
+      "code": "SHBC0D",
+      "title": "DREAM BAKUDAN",
+      "date": "2026-05-29T17:00:00.000Z",
+      "start_time": "15:00",
+      "end_time": "17:00",
+      "set_list": "SL_26",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [
+        {
+          "name": "Adeline Wijaya",
+          "member_id": 2,
+          "type": "DREAM"
+        },
+        {
+          "name": "Chelsea Davina",
+          "member_id": 48,
+          "type": "DREAM"
+        },
+        {
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
+        },
+        {
+          "name": "Freya Jayawardana",
+          "member_id": 94,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gabriela Abigail",
+          "member_id": 97,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
+        },
+        {
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
+        },
+        {
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
+        },
+        {
+          "name": "Jesslyn Elly",
+          "member_id": 131,
+          "type": "DREAM"
+        },
+        {
+          "name": "Marsha Lenathea",
+          "member_id": 152,
+          "type": "DREAM"
+        },
+        {
+          "name": "Oline Manuel",
+          "member_id": 185,
+          "type": "DREAM"
+        },
+        {
+          "name": "Shabilqis Naila",
+          "member_id": 221,
+          "type": "DREAM"
+        }
+      ],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/schedule/shbc0d-dream-bakudan"
     }
   ]
 }
