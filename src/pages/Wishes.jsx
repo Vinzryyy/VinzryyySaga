@@ -9,7 +9,7 @@
  * displays seed wishes from config (curated list).
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
@@ -229,6 +229,78 @@ const WishesPage = () => {
   // RTDB submissions. Increments in real time as fans submit.
   const totalWishCount = seeds.length;
 
+  // Animated display count — GSAP-tweens 0 → totalWishCount once on first
+  // non-zero load so the pill feels alive on entry. Subsequent updates
+  // snap (live RTDB increments don't need ticker drama).
+  const [displayCount, setDisplayCount] = useState(0);
+  const hasAnimatedCountRef = useRef(false);
+  useEffect(() => {
+    if (totalWishCount === 0) return undefined;
+    if (hasAnimatedCountRef.current) {
+      setDisplayCount(totalWishCount);
+      return undefined;
+    }
+    hasAnimatedCountRef.current = true;
+    let cancelled = false;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayCount(totalWishCount);
+      return undefined;
+    }
+    (async () => {
+      const { default: gsap } = await import('gsap');
+      if (cancelled) return;
+      const obj = { v: 0 };
+      gsap.to(obj, {
+        v: totalWishCount,
+        duration: 1.6,
+        ease: 'power2.out',
+        onUpdate: () => setDisplayCount(Math.round(obj.v)),
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [totalWishCount]);
+
+  // Sticky write-CTA — appears once the form section scrolls out of view,
+  // so visitors browsing the wall can jump straight back to write without
+  // a long scroll-up trip.
+  const formAnchorRef = useRef(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+  useEffect(() => {
+    const el = formAnchorRef.current;
+    if (!el) return undefined;
+    const obs = new IntersectionObserver(
+      ([entry]) => setShowStickyCta(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-120px 0px 0px 0px' },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  const scrollToForm = () => {
+    formAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Stable preview-date so formatWishTimeRelative doesn't churn each
+  // keystroke. Used by the burgundy-plate live preview.
+  const previewDateRef = useRef(new Date().toISOString());
+  const sampleWish = useMemo(
+    () => ({
+      name: name || 'Armeniaca',
+      handle: handle || '@armeniaca15',
+      message:
+        message ||
+        'Selamat ulang tahun, Ceu Eli! Tetap mekar seperti aprikot di musim semi.',
+      date: previewDateRef.current,
+    }),
+    [name, handle, message],
+  );
+  const selectedTemplate = useMemo(
+    () => WISH_TEMPLATES.find((t) => t.id === templateId) || WISH_TEMPLATES[0],
+    [templateId],
+  );
+  const SelectedPreview = selectedTemplate.Component;
+
   const { elementRef: wallRef, isVisible: wallVisible } = useScrollReveal({
     threshold: 0.05,
     rootMargin: '-40px',
@@ -280,7 +352,9 @@ const WishesPage = () => {
       <FloatingPetals />
 
       {/* Per-card bob keyframe — translates Y so it composes with each
-          card's inline `transform: rotate(...)` (the sticky-note tilt) */}
+          card's inline `transform: rotate(...)` (the sticky-note tilt).
+          wish-fade-swap = used by the live-preview card so swapping
+          templates feels intentional, not jumpy. */}
       <style>{`
         @keyframes wish-bob {
           0%, 100% { translate: 0 0; }
@@ -289,8 +363,21 @@ const WishesPage = () => {
         .wish-bob {
           animation: wish-bob var(--bob-duration, 5s) ease-in-out var(--bob-delay, 0s) infinite;
         }
+        @keyframes wish-fade-swap {
+          0%   { opacity: 0; transform: translateY(6px) scale(0.985); }
+          100% { opacity: 1; transform: translateY(0)   scale(1);     }
+        }
+        @keyframes wish-cta-pop {
+          0%   { opacity: 0; transform: translateY(20px) scale(0.92); }
+          60%  { opacity: 1; transform: translateY(-4px) scale(1.04); }
+          100% { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+        .wish-cta-pop {
+          animation: wish-cta-pop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
         @media (prefers-reduced-motion: reduce) {
           .wish-bob { animation: none !important; }
+          .wish-cta-pop { animation: none !important; }
         }
       `}</style>
       {/* Editorial header — full-bleed photo + brown-dark gradient
@@ -345,11 +432,11 @@ const WishesPage = () => {
               {countdownLinkLabel}
             </Link>
             {/* Live counter pill — total wish count from RTDB +
-                curated seeds. Updates in real time as fans submit. */}
+                curated seeds. Animates 0 → N on mount via GSAP. */}
             {totalWishCount > 0 && (
               <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy-light)]/15 text-[color:var(--retro-burgundy-light)] border border-[color:var(--retro-burgundy-light)]/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {totalWishCount} ucapan terkumpul
+                <span className="tabular-nums">{displayCount}</span> ucapan terkumpul
               </span>
             )}
           </div>
@@ -365,17 +452,19 @@ const WishesPage = () => {
         </div>
       </header>
 
-      {/* Submission form — burgundy editorial plate (og-card style),
-          form on the left + Eli portrait on the right. No template
-          picker on this version (template selection happens elsewhere
-          if at all — wall just cycles through templates by index). */}
-      <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
+      {/* Submission form — burgundy editorial plate (og-card style).
+          Left = form, Right = live preview of the chosen template card
+          rendered with the user's current input + a compact template
+          picker below it. Picker used to live in a standalone section
+          below — folded in here so users see their wish styled while
+          they write it. */}
+      <section ref={formAnchorRef} className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
         <div className="max-w-5xl mx-auto">
           <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
             <div className="absolute -top-24 -right-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none z-[1]" />
             <div className="absolute -bottom-32 -left-32 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none z-[1]" />
 
-            <div className="relative grid md:grid-cols-[1.4fr_1fr] gap-0 z-[2]">
+            <div className="relative grid md:grid-cols-[1.2fr_1fr] gap-0 z-[2]">
               {/* LEFT — text + form */}
               <div className="p-6 sm:p-8 md:p-10 lg:p-12 order-2 md:order-1">
                 <div className="flex items-center gap-3 mb-4">
@@ -396,13 +485,32 @@ const WishesPage = () => {
                 </p>
 
                 {status === 'success' ? (
-                  <div className="rounded-2xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 p-6 text-center">
-                    <i className="ri-checkbox-circle-line text-4xl text-[color:var(--retro-gold-light)] mb-3 inline-block" />
-                    <p className="font-bold mb-2">{wishes.successMessage}</p>
+                  <div
+                    className="relative rounded-2xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 p-6 text-center overflow-hidden"
+                    style={{ animation: 'wish-cta-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
+                  >
+                    {/* Confetti-ish radial bloom behind the checkmark —
+                        same gold accent palette, no extra deps. */}
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background:
+                          'radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--retro-gold-light) 30%, transparent) 0%, transparent 60%)',
+                      }}
+                    />
+                    <i
+                      className="relative ri-checkbox-circle-fill text-5xl text-[color:var(--retro-gold-light)] mb-3 inline-block"
+                      style={{ filter: 'drop-shadow(0 4px 14px color-mix(in srgb, var(--retro-gold-light) 50%, transparent))' }}
+                    />
+                    <p className="relative font-bold mb-2">{wishes.successMessage}</p>
+                    <p className="relative text-xs text-[color:var(--retro-cream)]/60 mb-1">
+                      Pesanmu sedang dalam antrian moderasi Armeniaca.
+                    </p>
                     <button
                       type="button"
                       onClick={() => setStatus('idle')}
-                      className="mt-4 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] hover:text-[color:var(--retro-cream)] transition-colors"
+                      className="relative mt-4 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] hover:text-[color:var(--retro-cream)] transition-colors"
                     >
                       <i className="ri-add-line" /> Tulis lagi
                     </button>
@@ -518,113 +626,90 @@ const WishesPage = () => {
                 </div>
               </div>
 
-              {/* RIGHT — portrait peeking from the side */}
-              <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden">
-                <img
-                  src="/archive/img-024.jpg"
-                  alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
-                  loading="eager"
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover object-[50%_30%]"
+              {/* RIGHT — live preview of the chosen template + compact
+                  picker. Card scales down so it fits the column on
+                  desktop while still reading as the real wall card. */}
+              <div className="relative order-1 md:order-2 p-6 sm:p-8 md:p-8 lg:p-10 bg-[color:var(--retro-cream)]/[0.04] border-t md:border-t-0 md:border-l border-[color:var(--retro-cream)]/10 flex flex-col gap-5">
+                {/* Ambient portrait wash so the column ga gersang —
+                    same img-024 but blurred + low opacity behind preview. */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 pointer-events-none opacity-[0.07]"
+                  style={{
+                    backgroundImage: 'url(/archive/img-024.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: '50% 30%',
+                    filter: 'blur(8px) saturate(0.8)',
+                  }}
                 />
-                {/* Mobile fades — top + bottom edges fade into burgundy */}
-                <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[color:var(--retro-burgundy)] to-transparent md:hidden" />
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[color:var(--retro-burgundy)] to-transparent md:hidden" />
-                {/* Tablet+ fade — left edge fades into burgundy so form text doesn't crash into the photo */}
-                <div className="hidden md:block absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[color:var(--retro-burgundy)] to-transparent" />
-                <span className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-[color:var(--retro-cream)]/15 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.3em] border border-[color:var(--retro-cream)]/20">
-                  Eli · 15.06
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div className="relative flex items-baseline justify-between gap-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] inline-flex items-center gap-2">
+                    <i className="ri-eye-line text-base" />
+                    Live Preview
+                  </p>
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/55 truncate">
+                    {selectedTemplate.label}
+                  </span>
+                </div>
 
-      {/* Template picker — separate section below the form so the burgundy
-          plate stays clean. Submitter taps a chip; the chosen template id
-          is sent with the wish so the wall renders it in that style. */}
-      <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-baseline justify-between gap-3 mb-4">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
-                Pilih Tampilan Kartu
-              </p>
-              <p className="text-xs text-[color:var(--color-text-muted)]">
-                Preview live — pesanmu akan tampil di wall dengan tampilan ini.
-              </p>
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5 flex-shrink-0">
-              <i className="ri-arrow-left-line" />
-              Geser
-              <i className="ri-arrow-right-line" />
-            </span>
-          </div>
-          <div
-            className="-mx-1 px-1 flex gap-3 overflow-x-auto pb-3 scrollbar-hide no-scrollbar snap-x snap-proximity overscroll-x-contain"
-            style={{
-              WebkitOverflowScrolling: 'touch',
-              touchAction: 'pan-x',
-            }}
-          >
-            {WISH_TEMPLATES.map((tpl, tplIdx) => {
-              const selected = tpl.id === templateId;
-              const PreviewCard = tpl.Component;
-              const sampleWish = {
-                name: name || 'Armeniaca',
-                handle: handle || '@armeniaca15',
-                message:
-                  message ||
-                  'Selamat ulang tahun, Ceu Eli! Tetap mekar seperti aprikot di musim semi.',
-                date: new Date().toISOString(),
-              };
-              return (
-                <button
-                  key={tpl.id}
-                  type="button"
-                  onClick={() => setTemplateId(tpl.id)}
-                  aria-pressed={selected}
-                  title={tpl.label}
-                  className={`flex-shrink-0 w-[75vw] max-w-[260px] sm:w-[220px] sm:max-w-[240px] snap-center sm:snap-start touch-pan-x flex flex-col items-stretch gap-2 p-2 rounded-xl transition-all ${
-                    selected
-                      ? 'bg-[color:var(--retro-burgundy)] ring-2 ring-[color:var(--retro-burgundy)] -translate-y-0.5 shadow-lg shadow-[color:var(--retro-burgundy)]/30'
-                      : 'bg-white ring-1 ring-[color:var(--retro-burgundy)]/15 hover:ring-[color:var(--retro-burgundy)]/40 hover:-translate-y-0.5'
-                  }`}
-                >
+                {/* Preview card — wraps the chosen template at its
+                    natural width via a scaled inner box, so it composes
+                    cleanly inside the burgundy plate column regardless
+                    of breakpoint. */}
+                <div className="relative">
                   <div
                     aria-hidden="true"
-                    className="relative w-full h-[220px] sm:w-[204px] sm:h-[160px] overflow-hidden rounded-lg pointer-events-none bg-[color:var(--retro-bg-primary)]"
+                    className="absolute -inset-3 rounded-2xl bg-[color:var(--retro-burgundy)]/30 blur-2xl pointer-events-none"
+                  />
+                  <div className="relative" key={selectedTemplate.id} style={{ animation: 'wish-fade-swap 360ms ease-out' }}>
+                    <SelectedPreview wish={sampleWish} />
+                  </div>
+                </div>
+
+                {/* Compact picker chips — numbered, horizontal scroll
+                    on overflow. Tap to swap the preview above. */}
+                <div className="relative">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55 mb-2 inline-flex items-center gap-1.5">
+                    <i className="ri-stack-line" />
+                    Ganti tampilan kartu
+                  </p>
+                  <div
+                    className="-mx-1 px-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar snap-x snap-proximity"
+                    style={{ WebkitOverflowScrolling: 'touch' }}
                   >
-                    <div
-                      className="absolute top-0 left-0 origin-top-left scale-[0.85] sm:scale-[0.64]"
-                      style={{ width: '320px', height: '260px' }}
-                    >
-                      <PreviewCard wish={sampleWish} />
-                    </div>
+                    {WISH_TEMPLATES.map((tpl, tplIdx) => {
+                      const selected = tpl.id === templateId;
+                      return (
+                        <button
+                          key={tpl.id}
+                          type="button"
+                          onClick={() => setTemplateId(tpl.id)}
+                          aria-pressed={selected}
+                          title={tpl.label}
+                          className={`flex-shrink-0 snap-start inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.18em] transition-all border ${
+                            selected
+                              ? 'bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] border-[color:var(--retro-cream)] shadow-md'
+                              : 'bg-[color:var(--retro-cream)]/[0.08] text-[color:var(--retro-cream)]/80 border-[color:var(--retro-cream)]/20 hover:bg-[color:var(--retro-cream)]/15 hover:border-[color:var(--retro-cream)]/40'
+                          }`}
+                        >
+                          <span
+                            className={`tabular-nums text-[9px] ${
+                              selected
+                                ? 'text-[color:var(--retro-burgundy)]/70'
+                                : 'text-[color:var(--retro-gold-light)]'
+                            }`}
+                          >
+                            {String(tplIdx + 1).padStart(2, '0')}
+                          </span>
+                          {tpl.label}
+                          {selected && <i className="ri-check-line text-sm" />}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className="flex items-center gap-1.5 px-1">
-                    <span
-                      className={`text-[9px] font-black uppercase tracking-[0.25em] tabular-nums ${
-                        selected ? 'text-[color:var(--retro-gold-light)]' : 'text-[color:var(--retro-burgundy)]/60'
-                      }`}
-                    >
-                      {String(tplIdx + 1).padStart(2, '0')}
-                    </span>
-                    <span
-                      className={`text-[10px] font-black uppercase tracking-[0.18em] truncate ${
-                        selected ? 'text-[color:var(--retro-cream)]' : 'text-[color:var(--retro-text-primary)]'
-                      }`}
-                    >
-                      {tpl.label}
-                    </span>
-                    {selected && (
-                      <i className="ri-check-line ml-auto text-base text-[color:var(--retro-gold-light)]" />
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -649,6 +734,21 @@ const WishesPage = () => {
             )}
           </div>
         </section>
+      )}
+
+      {/* Sticky write-CTA — fixed bottom-right, appears when the form
+          section scrolls out of view. Pops in with a slight overshoot
+          to read as friendly, not jarring. */}
+      {showStickyCta && (
+        <button
+          type="button"
+          onClick={scrollToForm}
+          aria-label="Tulis ucapan untuk Eli"
+          className="wish-cta-pop fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-xs font-black uppercase tracking-[0.18em] shadow-xl shadow-[color:var(--retro-burgundy)]/40 hover:-translate-y-1 hover:bg-[color:var(--retro-burgundy-dark,#5a1422)] transition-transform"
+        >
+          <i className="ri-edit-2-line text-base" />
+          Tulis Ucapan
+        </button>
       )}
 
       {/* Wall */}
