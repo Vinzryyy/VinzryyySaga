@@ -572,7 +572,7 @@ export const SITE_CONFIG = {
       'Daftar merchandise resmi yang sedang dijual. Update manual oleh tim Armeniaca tiap ada drop baru.',
     products: [
       {
-        name: '( Pre-order ) JKT48 Birthday T-Shirt Helisma Putri 2026',
+        name: 'JKT48 Birthday T-Shirt Helisma Putri 2026',
         price: 'Rp225.000',
         priceNote: '3XL & 4XL: Rp240.000',
         sizes: ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'],
@@ -580,10 +580,14 @@ export const SITE_CONFIG = {
         bonus: 'Bonus 1 pcs random birthday card',
         image: '/bdts/bdts.jpg',
         imageAlt:
-          'Pre-order JKT48 Birthday T-Shirt Helisma Putri 2026 — desain hijau dengan ilustrasi tarot mermaid',
+          'JKT48 Birthday T-Shirt Helisma Putri 2026 — desain hijau dengan ilustrasi tarot mermaid',
         store: 'JKT48 Official Store · Tokopedia',
-        link: 'https://tk.tokopedia.com/ZS99hy8og/',
-        linkPendingLabel: 'Link Menyusul',
+        // PO ditutup 16 Mei 2026. Link sengaja di-null-kan supaya
+        // MerchCard render "PO Sudah Tutup" pill (gaya non-interactive
+        // sama dengan state Link Menyusul) — informasi merch tetap
+        // terlihat tanpa nge-link ke listing yang sudah expired.
+        link: null,
+        linkPendingLabel: 'PO Sudah Tutup',
       },
     ],
   },
