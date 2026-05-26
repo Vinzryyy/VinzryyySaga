@@ -16,7 +16,11 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { POHON_APRIKOT_POOL, TIER_CONFIG } from '../../data/pohonAprikot';
+import {
+  POHON_APRIKOT_POOL,
+  TIER_CONFIG,
+  SEITANSAI_WINDOW,
+} from '../../data/pohonAprikot';
 import KartuIngatan from './KartuIngatan';
 
 const TIER_FILTERS = [
@@ -108,6 +112,115 @@ const BukuPetikanItem = ({ card, isPulled, onClick }) => {
   );
 };
 
+// Rates modal — disclose tier weights, no-dup rule, seitansai window
+// gating. TCG-standard transparency: tell players what their odds are.
+// Triggered via 'Tingkat keluar' link di header BukuPetikan.
+const RatesModal = ({ onClose }) => {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [onClose]);
+
+  const tiers = ['legenda', 'langka', 'matang', 'muda'];
+  return (
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center px-4 py-8 bg-[color:var(--retro-brown-dark)]/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tingkat keluar kartu Petikan"
+    >
+      <div
+        className="relative w-full max-w-md bg-[color:var(--retro-cream,#faf6ed)] rounded-2xl shadow-2xl overflow-hidden"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(45deg, rgba(140,100,60,0.025) 0 1px, transparent 1px 8px)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 py-5 border-b border-[color:var(--retro-brown-dark)]/10">
+          <p className="text-[9px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
+            Pohon Aprikot
+          </p>
+          <h3
+            className="text-xl text-[color:var(--retro-brown-dark)] leading-tight"
+            style={{ fontFamily: '"Fraunces Variable", serif', fontWeight: 600 }}
+          >
+            Tingkat Keluar
+          </h3>
+        </div>
+
+        <div className="px-6 py-5 space-y-3">
+          <p className="text-xs text-[color:var(--retro-brown-dark)]/70 italic leading-relaxed">
+            Setiap hari satu kartu jatuh dari pohon. Peluang per tier:
+          </p>
+          <ul className="space-y-2">
+            {tiers.map((tierKey) => {
+              const cfg = TIER_CONFIG[tierKey];
+              return (
+                <li
+                  key={tierKey}
+                  className="flex items-center gap-3 py-1.5"
+                >
+                  <span
+                    className="block w-1 h-6 rounded-full shrink-0"
+                    style={{ background: cfg.spineColor, opacity: 0.9 }}
+                  />
+                  <span className="flex-1 text-sm text-[color:var(--retro-brown-dark)]">
+                    {cfg.label}
+                  </span>
+                  <span
+                    className="text-sm font-bold tabular-nums text-[color:var(--retro-burgundy)]"
+                    style={{ fontFamily: '"Fraunces Variable", serif' }}
+                  >
+                    {cfg.weight}%
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="pt-3 mt-2 border-t border-[color:var(--retro-brown-dark)]/10 space-y-2">
+            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+              <span className="font-semibold text-[color:var(--retro-burgundy)]">
+                ·
+              </span>{' '}
+              Kartu Legenda tidak duplikat — sekali dapat, tidak diulang.
+              Kalau pohon goyang ke Legenda tapi sudah lengkap, jatuh ke
+              tier di bawah.
+            </p>
+            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+              <span className="font-semibold text-[color:var(--retro-burgundy)]">
+                ·
+              </span>{' '}
+              Aprikot Mei hanya jatuh dari {SEITANSAI_WINDOW.start.slice(5)}
+              {' — '}
+              {SEITANSAI_WINDOW.end.slice(5)} (musim seitansai Eli).
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-[color:var(--retro-brown-dark)] hover:bg-[color:var(--retro-burgundy)] hover:text-white transition"
+          aria-label="Tutup tingkat keluar"
+        >
+          <i className="ri-close-line text-xl" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Detail modal — render KartuIngatan full untuk pulled card yang di-click.
 // Static (no flip), focus-trapped via Escape + click backdrop.
 const DetailModal = ({ card, onClose }) => {
@@ -155,6 +268,7 @@ const DetailModal = ({ card, onClose }) => {
 const BukuPetikan = ({ state }) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState(null);
+  const [ratesOpen, setRatesOpen] = useState(false);
 
   const isPulled = (id) => state?.buku && state.buku[id] != null;
 
@@ -197,17 +311,71 @@ const BukuPetikan = ({ state }) => {
           Buku Petikan
         </p>
         <h2
-          className="text-2xl sm:text-3xl text-[color:var(--retro-text-primary)] mb-2"
+          className="text-2xl sm:text-3xl text-[color:var(--retro-text-primary)] mb-2 inline-flex items-center gap-2"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontWeight: 600,
           }}
         >
           Koleksi {pulledTotal}/{poolTotal}
+          {/* Master-set complete seal — only shown saat 100% owned.
+              Gold wax-stamp feel: filled disc + checkmark, matches
+              legenda gold accent. */}
+          {pulledTotal === poolTotal && poolTotal > 0 && (
+            <span
+              className="inline-flex items-center justify-center w-7 h-7 rounded-full text-white shadow-[0_2px_6px_rgba(218,175,92,0.5)]"
+              style={{ background: 'linear-gradient(135deg, #daaf5c 0%, #b8893f 100%)' }}
+              title="Master set lengkap"
+              aria-label="Master set lengkap"
+            >
+              <i className="ri-check-line text-base" />
+            </span>
+          )}
         </h2>
+
+        {/* Completion bar — ink-stroke style. Thin burgundy fill on
+            cream track. Percentage label right-aligned. */}
+        <div className="mx-auto max-w-[280px] mb-3">
+          <div
+            className="h-1.5 rounded-full overflow-hidden"
+            style={{ background: 'rgba(140,100,60,0.12)' }}
+            role="progressbar"
+            aria-valuenow={poolTotal > 0 ? Math.round((pulledTotal / poolTotal) * 100) : 0}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Progres koleksi"
+          >
+            <div
+              className="h-full rounded-full transition-[width] duration-500 ease-out"
+              style={{
+                width: poolTotal > 0 ? `${(pulledTotal / poolTotal) * 100}%` : '0%',
+                background:
+                  pulledTotal === poolTotal && poolTotal > 0
+                    ? 'linear-gradient(90deg, #daaf5c 0%, #b8893f 100%)'
+                    : 'var(--retro-burgundy)',
+              }}
+            />
+          </div>
+          <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 text-right">
+            {poolTotal > 0 ? Math.round((pulledTotal / poolTotal) * 100) : 0}% lengkap
+          </p>
+        </div>
+
         <p className="text-xs text-[color:var(--retro-brown-dark)]/60 italic">
           Setiap hari pohon menggugurkan satu — kembalilah pelan-pelan.
         </p>
+
+        {/* Rates link — TCG-standard pull-rate transparency. Subtle
+            text-link, opens modal dengan tier weights + no-dup rule. */}
+        <button
+          type="button"
+          onClick={() => setRatesOpen(true)}
+          className="mt-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 hover:text-[color:var(--retro-burgundy)] underline decoration-dotted underline-offset-4 transition-colors"
+          aria-label="Lihat tingkat keluar kartu"
+        >
+          <i className="ri-percent-line text-[12px]" />
+          Tingkat keluar
+        </button>
       </header>
 
       {/* Filter tabs */}
@@ -220,21 +388,33 @@ const BukuPetikan = ({ state }) => {
               : tierCounts.counts[filter.id] || 0;
           const total =
             filter.id === 'all' ? poolTotal : tierCounts.totals[filter.id] || 0;
+          // Tier mastery — small gold dot on filter tab kalau tier ini
+          // udah 100% (excluding 'all' tab + tiers yang belum punya card).
+          const isMastered =
+            filter.id !== 'all' && total > 0 && count === total;
           return (
             <button
               key={filter.id}
               type="button"
               onClick={() => setActiveFilter(filter.id)}
-              className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition ${
                 isActive
                   ? 'bg-[color:var(--retro-burgundy)] text-white shadow-sm'
                   : 'bg-white/70 text-[color:var(--retro-brown-dark)]/70 hover:bg-[color:var(--retro-burgundy)]/10 border border-[color:var(--retro-brown-dark)]/10'
               }`}
             >
-              {filter.label}
-              <span className="ml-1.5 opacity-75">
+              <span>{filter.label}</span>
+              <span className="opacity-75">
                 {count}/{total}
               </span>
+              {isMastered && (
+                <span
+                  className="inline-block w-1.5 h-1.5 rounded-full"
+                  style={{ background: '#daaf5c', boxShadow: '0 0 4px rgba(218,175,92,0.6)' }}
+                  aria-label="Tier lengkap"
+                  title="Tier lengkap"
+                />
+              )}
             </button>
           );
         })}
@@ -266,6 +446,9 @@ const BukuPetikan = ({ state }) => {
           onClose={() => setSelectedCardId(null)}
         />
       )}
+
+      {/* Rates modal — pull-rate disclosure */}
+      {ratesOpen && <RatesModal onClose={() => setRatesOpen(false)} />}
     </section>
   );
 };
