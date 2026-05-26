@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 400 533" xmlns="http://www.w3.org/2000/svg" aria-label="Aprikot Mei — seitansai 2026">
+  <defs>
+    <radialGradient id="warm-halo" cx="50%" cy="44%" r="55%">
+      <stop offset="0%" stop-color="#ffd97a" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#ffb84d" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ffb84d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="aprikot-body" cx="38%" cy="32%" r="78%">
+      <stop offset="0%" stop-color="#ffe9d0"/>
+      <stop offset="35%" stop-color="#f5b385"/>
+      <stop offset="75%" stop-color="#e8a06e"/>
+      <stop offset="100%" stop-color="#b56a3c"/>
+    </radialGradient>
+    <radialGradient id="aprikot-shine" cx="35%" cy="28%" r="20%">
+      <stop offset="0%" stop-color="#fff8e8" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#fff8e8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Paper background — match retro-cream -->
+  <rect width="400" height="533" fill="#faf6ed"/>
+
+  <!-- Subtle paper texture (diagonal hatching) -->
+  <g opacity="0.08">
+    <pattern id="paper-tex" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="8" y2="8" stroke="#8c643c" stroke-width="0.5"/>
+    </pattern>
+    <rect width="400" height="533" fill="url(#paper-tex)"/>
+  </g>
+
+  <!-- Top ornament — eyebrow + rule -->
+  <text x="200" y="74" font-family="serif" font-size="11" fill="#daaf5c" text-anchor="middle" letter-spacing="6" font-weight="600">SEITANSAI</text>
+  <line x1="130" y1="94" x2="180" y2="94" stroke="#daaf5c" stroke-width="0.6"/>
+  <line x1="220" y1="94" x2="270" y2="94" stroke="#daaf5c" stroke-width="0.6"/>
+  <circle cx="200" cy="94" r="2.5" fill="#daaf5c"/>
+
+  <!-- Warm halo behind fruit -->
+  <ellipse cx="200" cy="260" rx="170" ry="170" fill="url(#warm-halo)"/>
+
+  <!-- Sparkles around fruit — 4-point stars -->
+  <g fill="#daaf5c" opacity="0.7">
+    <path d="M 80 160 L 84 170 L 94 174 L 84 178 L 80 188 L 76 178 L 66 174 L 76 170 Z"/>
+    <path d="M 320 180 L 323 187 L 330 190 L 323 193 L 320 200 L 317 193 L 310 190 L 317 187 Z"/>
+    <path d="M 100 340 L 103 347 L 110 350 L 103 353 L 100 360 L 97 353 L 90 350 L 97 347 Z"/>
+    <path d="M 310 340 L 314 350 L 324 354 L 314 358 L 310 368 L 306 358 L 296 354 L 306 350 Z"/>
+    <path d="M 200 130 L 202 136 L 208 138 L 202 140 L 200 146 L 198 140 L 192 138 L 198 136 Z"/>
+  </g>
+
+  <!-- Aprikot leaf — top right -->
+  <path d="M 220 175 Q 250 165 260 195 Q 240 205 220 200 Q 210 190 220 175 Z" fill="#6b7a47" opacity="0.92"/>
+  <path d="M 222 178 Q 245 178 257 195" stroke="#5a3e2b" stroke-width="0.6" fill="none" opacity="0.5"/>
+
+  <!-- Stem -->
+  <path d="M 198 188 L 202 175 L 206 188 Z" fill="#5a3e2b"/>
+
+  <!-- Main aprikot body -->
+  <ellipse cx="200" cy="270" rx="86" ry="94" fill="url(#aprikot-body)" stroke="#9a5530" stroke-width="0.8" stroke-opacity="0.4"/>
+
+  <!-- Crease line — signature apricot cleft -->
+  <path d="M 200 184 Q 192 270 200 360" fill="none" stroke="#7a3f1c" stroke-width="1.1" stroke-opacity="0.42"/>
+
+  <!-- Shine highlight (top-left) -->
+  <ellipse cx="172" cy="232" rx="26" ry="20" fill="url(#aprikot-shine)"/>
+
+  <!-- Blush spot (top-center, ripeness) -->
+  <ellipse cx="218" cy="220" rx="14" ry="10" fill="#ffd9b8" opacity="0.55"/>
+
+  <!-- Bottom date emphasis -->
+  <text x="200" y="450" font-family="serif" font-size="32" fill="#5a3e2b" text-anchor="middle" font-weight="600" letter-spacing="1">15 · 06 · 2026</text>
+
+  <!-- Title wordmark -->
+  <text x="200" y="478" font-family="serif" font-size="11" fill="#7a5040" text-anchor="middle" letter-spacing="6" font-weight="600">APRIKOT MEI</text>
+
+  <!-- Bottom seal dots -->
+  <g fill="#daaf5c" opacity="0.7">
+    <circle cx="185" cy="502" r="1.5"/>
+    <circle cx="200" cy="502" r="2.5"/>
+    <circle cx="215" cy="502" r="1.5"/>
+  </g>
+</svg>

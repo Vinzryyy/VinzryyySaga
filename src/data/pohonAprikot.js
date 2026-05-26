@@ -72,8 +72,7 @@ export const TIER_CONFIG = {
 // even-spaced dari /public/archive/). Langka/Matang/Legenda hand-curated.
 
 const LEGENDA_CARDS = [
-  // Sole legenda saat ini (Arme). Aprikot Mei akan ditambah di commit
-  // selanjutnya — seitansaiOnly gated.
+  // Arme — year-round legenda, always eligible
   {
     id: 'arme-warga-terakhir',
     tier: 'legenda',
@@ -81,6 +80,20 @@ const LEGENDA_CARDS = [
     caption: 'Arme menunggu di bawah pohon aprikot, memetik satu buah untuk setiap pengunjung.',
     image: '/AI/ELI_1_a.png',
     era: 'armeniaca-town',
+  },
+  // Aprikot Mei — seitansaiOnly, hanya muncul 2026-06-14 → 06-30 WIB.
+  // Pure illustration (no Eli photo) — symbolic seitansai fruit. Art di
+  // /public/petikan/aprikot-mei.svg (hand-craft v1, designer Helismiley
+  // bisa swap di P6 polish kalau ada timeline).
+  {
+    id: 'aprikot-mei-seitansai',
+    tier: 'legenda',
+    title: 'Aprikot Mei',
+    caption: 'Buah yang hanya jatuh di musim seitansai — penanda waktu yang dijaga pohon untuk satu hari di tahun.',
+    image: '/petikan/aprikot-mei.svg',
+    date: '2026-06-15',
+    era: 'seitansai',
+    seitansaiOnly: true,
   },
 ];
 

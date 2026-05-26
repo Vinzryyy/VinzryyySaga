@@ -164,9 +164,32 @@ describe('POHON_APRIKOT_POOL placeholder pool', () => {
     expect(arme.tier).toBe('legenda');
   });
 
+  it('has Aprikot Mei as seitansaiOnly legenda', () => {
+    const aprikotMei = POHON_APRIKOT_POOL.find(
+      (c) => c.id === 'aprikot-mei-seitansai'
+    );
+    expect(aprikotMei).toBeTruthy();
+    expect(aprikotMei.tier).toBe('legenda');
+    expect(aprikotMei.seitansaiOnly).toBe(true);
+  });
+
+  it('Aprikot Mei NOT eligible outside seitansai window', () => {
+    const eligible = eligibleCards(POHON_APRIKOT_POOL, 'legenda', '2026-05-01');
+    expect(eligible.map((c) => c.id)).not.toContain('aprikot-mei-seitansai');
+  });
+
+  it('Aprikot Mei eligible inside seitansai window', () => {
+    const eligible = eligibleCards(POHON_APRIKOT_POOL, 'legenda', '2026-06-15');
+    expect(eligible.map((c) => c.id)).toContain('aprikot-mei-seitansai');
+  });
+
   it('has at least 40 muda cards (auto-generated pool)', () => {
     const muda = POHON_APRIKOT_POOL.filter((c) => c.tier === 'muda');
     expect(muda.length).toBeGreaterThanOrEqual(40);
+  });
+
+  it('has pool size around batch #1 target (~60 cards)', () => {
+    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(55);
   });
 
   it('all cards have unique ids', () => {
