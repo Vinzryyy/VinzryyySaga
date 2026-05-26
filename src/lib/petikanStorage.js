@@ -20,7 +20,12 @@ const KEYS = {
   legenda: 'aprikot_legenda',
   buah: 'aprikot_buah',
   pity: 'aprikot_pity',
+  recent: 'aprikot_recent',
 };
+
+// Recent pulls log cap — referensi history array di Tierlist-JKT48
+// (MrcellSbst). Kept compact biar storage gak balloon.
+export const RECENT_CAP = 10;
 
 // Pity thresholds — referensi mekanik UR_PITY_LIMIT dari Tierlist-JKT48
 // (MrcellSbst). Counter naik tiap pluck di bawah tier, reset saat tier
@@ -118,11 +123,25 @@ export const loadState = () => {
           legenda: Math.max(0, parseInt(pityRaw.legenda, 10) || 0),
         }
       : { langka: 0, legenda: 0 };
+  const recentRaw = safeParse(safeRead(KEYS.recent), []);
+  // Filter ke entries yang punya cardId + tier + at, drop garbage.
+  const recent = Array.isArray(recentRaw)
+    ? recentRaw
+        .filter(
+          (e) =>
+            e &&
+            typeof e.cardId === 'string' &&
+            typeof e.tier === 'string' &&
+            typeof e.at === 'string'
+        )
+        .slice(0, RECENT_CAP)
+    : [];
   return {
     lastPluck: typeof lastPluck === 'string' ? lastPluck : null,
     buku: typeof buku === 'object' && buku !== null ? buku : {},
     legenda: new Set(Array.isArray(legendaArr) ? legendaArr : []),
     pity,
+    recent,
   };
 };
 
@@ -138,6 +157,9 @@ export const saveState = (state) => {
   );
   if (state.pity) {
     safeWrite(KEYS.pity, JSON.stringify(state.pity));
+  }
+  if (Array.isArray(state.recent)) {
+    safeWrite(KEYS.recent, JSON.stringify(state.recent.slice(0, RECENT_CAP)));
   }
 };
 
@@ -177,11 +199,16 @@ export const applyPluck = (state, card, now = new Date()) => {
     langka: isLangkaPlus ? 0 : prevPity.langka + 1,
     legenda: isLegenda ? 0 : prevPity.legenda + 1,
   };
+  // Recent pulls log — prepend new entry, cap at RECENT_CAP. ISO timestamp
+  // bukan WIB date string supaya UI bisa render "X menit lalu" akurat.
+  const newEntry = { cardId: card.id, tier: card.tier, at: now.toISOString() };
+  const nextRecent = [newEntry, ...(state.recent || [])].slice(0, RECENT_CAP);
   return {
     lastPluck: today,
     buku: nextBuku,
     legenda: nextLegenda,
     pity: nextPity,
+    recent: nextRecent,
   };
 };
 
@@ -234,6 +261,7 @@ export const resetState = () => {
     localStorage.removeItem(KEYS.legenda);
     localStorage.removeItem(KEYS.buah);
     localStorage.removeItem(KEYS.pity);
+    localStorage.removeItem(KEYS.recent);
   } catch {
     // ignored
   }

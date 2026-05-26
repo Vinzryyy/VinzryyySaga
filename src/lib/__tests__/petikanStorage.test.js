@@ -323,3 +323,89 @@ describe('pity counters (applyPluck + loadState roundtrip)', () => {
     expect(loaded.pity).toEqual({ langka: 0, legenda: 0 });
   });
 });
+
+describe('recent pulls log', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('loadState initializes recent to [] when missing', () => {
+    const state = loadState();
+    expect(state.recent).toEqual([]);
+  });
+
+  it('applyPluck prepends new entry to recent', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), recent: [] };
+    const card = { id: 'card-1', tier: 'muda' };
+    const next = applyPluck(state, card, new Date('2026-05-26T10:00:00Z'));
+    expect(next.recent.length).toBe(1);
+    expect(next.recent[0].cardId).toBe('card-1');
+    expect(next.recent[0].tier).toBe('muda');
+    expect(next.recent[0].at).toBe('2026-05-26T10:00:00.000Z');
+  });
+
+  it('applyPluck caps recent at 10 entries', () => {
+    let state = { lastPluck: null, buku: {}, legenda: new Set(), recent: [] };
+    for (let i = 0; i < 15; i++) {
+      state = applyPluck(
+        state,
+        { id: `card-${i}`, tier: 'muda' },
+        new Date(`2026-05-${10 + i}T10:00:00Z`),
+      );
+    }
+    expect(state.recent.length).toBe(10);
+    // Newest (card-14) should be first
+    expect(state.recent[0].cardId).toBe('card-14');
+    // Oldest in cap (card-5) should be last
+    expect(state.recent[9].cardId).toBe('card-5');
+  });
+
+  it('saveState → loadState preserves recent', () => {
+    const state = {
+      lastPluck: '2026-05-26',
+      buku: {},
+      legenda: new Set(),
+      recent: [
+        { cardId: 'a', tier: 'muda', at: '2026-05-26T10:00:00Z' },
+        { cardId: 'b', tier: 'langka', at: '2026-05-25T10:00:00Z' },
+      ],
+    };
+    saveState(state);
+    const loaded = loadState();
+    expect(loaded.recent).toHaveLength(2);
+    expect(loaded.recent[0].cardId).toBe('a');
+    expect(loaded.recent[1].tier).toBe('langka');
+  });
+
+  it('filters out garbage entries from corrupted recent', () => {
+    localStorage.setItem(
+      _KEYS.recent,
+      JSON.stringify([
+        { cardId: 'valid', tier: 'muda', at: '2026-05-26T10:00:00Z' },
+        null,
+        { cardId: 123 }, // wrong type
+        { cardId: 'no-tier', at: 'now' },
+        'string-entry',
+      ]),
+    );
+    const loaded = loadState();
+    expect(loaded.recent).toHaveLength(1);
+    expect(loaded.recent[0].cardId).toBe('valid');
+  });
+
+  it('resetState clears recent', () => {
+    saveState({
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      recent: [{ cardId: 'x', tier: 'muda', at: '2026-05-26T10:00:00Z' }],
+    });
+    resetState();
+    const loaded = loadState();
+    expect(loaded.recent).toEqual([]);
+  });
+});

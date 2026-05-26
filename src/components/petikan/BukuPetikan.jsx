@@ -113,6 +113,77 @@ const BukuPetikanItem = ({ card, isPulled, onClick }) => {
   );
 };
 
+// Relative time formatter (Indonesian) — keep ringan, gak butuh date-fns
+// dep. Cover umur petikan dari detik sampai > 1 minggu.
+const formatRelative = (isoStr) => {
+  if (!isoStr) return '';
+  const at = new Date(isoStr);
+  if (Number.isNaN(at.getTime())) return '';
+  const diffSec = Math.max(0, Math.floor((Date.now() - at.getTime()) / 1000));
+  if (diffSec < 60) return 'baru saja';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin} menit lalu`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr} jam lalu`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay} hari lalu`;
+  return at.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+};
+
+// Recent Pulls row — last 10 petikan yang user dapet, chronological
+// terbaru-pertama. Reference history mekanik dari MrcellSbst's
+// Tierlist-JKT48. Tap thumbnail → open DetailModal.
+const RecentPullsRow = ({ recent, onSelectCard }) => {
+  if (!recent || recent.length === 0) return null;
+  return (
+    <div className="mb-6">
+      <p className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--retro-burgundy)]/70 mb-2 text-center">
+        <i className="ri-history-line mr-1 text-[11px]" />
+        Petikan Terakhir
+      </p>
+      <div className="flex justify-center gap-1.5 sm:gap-2 overflow-x-auto px-2 pb-1 -mx-2">
+        {recent.map((entry, idx) => {
+          const card = POHON_APRIKOT_POOL.find((c) => c.id === entry.cardId);
+          if (!card) return null;
+          const cfg = TIER_CONFIG[card.tier] || TIER_CONFIG.muda;
+          return (
+            <button
+              key={`${entry.cardId}-${entry.at}-${idx}`}
+              type="button"
+              onClick={() => onSelectCard(card.id)}
+              className="relative shrink-0 w-12 h-16 sm:w-14 sm:h-[72px] rounded-md overflow-hidden border-2 hover:scale-110 hover:shadow-md transition-transform focus:outline-none focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/40"
+              style={{
+                borderColor: cfg.spineColor || 'var(--retro-burgundy)',
+                backgroundColor: 'var(--retro-cream, #faf6ed)',
+              }}
+              aria-label={`${card.title} — ${formatRelative(entry.at)}`}
+              title={`${card.title} · ${cfg.label} · ${formatRelative(entry.at)}`}
+            >
+              {card.image && (
+                <img
+                  src={card.image}
+                  alt=""
+                  loading="lazy"
+                  className={`w-full h-full ${card.artStyle === 'chibi' ? 'object-contain' : 'object-cover'}`}
+                  style={{ filter: 'sepia(0.18) saturate(0.92)' }}
+                />
+              )}
+              {/* Tiny tier dot — pojok kanan atas */}
+              <span
+                className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full"
+                style={{
+                  background: cfg.spineColor || 'var(--retro-burgundy)',
+                  boxShadow: '0 0 0 1px rgba(250,246,237,0.9)',
+                }}
+              />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // Rates modal — disclose tier weights, no-dup rule, seitansai window
 // gating. TCG-standard transparency: tell players what their odds are.
 // Triggered via 'Tingkat keluar' link di header BukuPetikan.
@@ -414,6 +485,12 @@ const BukuPetikan = ({ state }) => {
           Tingkat keluar
         </button>
       </header>
+
+      {/* Recent pulls — last 10 petikan, opens detail on tap */}
+      <RecentPullsRow
+        recent={state?.recent}
+        onSelectCard={(id) => setSelectedCardId(id)}
+      />
 
       {/* Filter tabs */}
       <div className="flex flex-wrap justify-center gap-2 mb-6">
