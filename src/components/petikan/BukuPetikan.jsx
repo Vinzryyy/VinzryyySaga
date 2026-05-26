@@ -23,6 +23,7 @@ import {
 } from '../../data/pohonAprikot';
 import { PITY_THRESHOLD } from '../../lib/petikanStorage';
 import KartuIngatan from './KartuIngatan';
+import BackupRestoreModal from './BackupRestoreModal';
 
 const TIER_FILTERS = [
   { id: 'all', label: 'Semua' },
@@ -350,6 +351,7 @@ const BukuPetikan = ({ state }) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [ratesOpen, setRatesOpen] = useState(false);
+  const [backupOpen, setBackupOpen] = useState(false);
 
   const isPulled = (id) => state?.buku && state.buku[id] != null;
 
@@ -473,17 +475,28 @@ const BukuPetikan = ({ state }) => {
           );
         })()}
 
-        {/* Rates link — TCG-standard pull-rate transparency. Subtle
-            text-link, opens modal dengan tier weights + no-dup rule. */}
-        <button
-          type="button"
-          onClick={() => setRatesOpen(true)}
-          className="mt-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 hover:text-[color:var(--retro-burgundy)] underline decoration-dotted underline-offset-4 transition-colors"
-          aria-label="Lihat tingkat keluar kartu"
-        >
-          <i className="ri-percent-line text-[12px]" />
-          Tingkat keluar
-        </button>
+        {/* Footer link row — rates + backup. Inline biar konsisten
+            seperti TCG game disclosure footer. */}
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+          <button
+            type="button"
+            onClick={() => setRatesOpen(true)}
+            className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 hover:text-[color:var(--retro-burgundy)] underline decoration-dotted underline-offset-4 transition-colors"
+            aria-label="Lihat tingkat keluar kartu"
+          >
+            <i className="ri-percent-line text-[12px]" />
+            Tingkat keluar
+          </button>
+          <button
+            type="button"
+            onClick={() => setBackupOpen(true)}
+            className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 hover:text-[color:var(--retro-burgundy)] underline decoration-dotted underline-offset-4 transition-colors"
+            aria-label="Cadangkan atau pulihkan koleksi"
+          >
+            <i className="ri-shield-keyhole-line text-[12px]" />
+            Cadangkan / Pulihkan
+          </button>
+        </div>
       </header>
 
       {/* Recent pulls — last 10 petikan, opens detail on tap */}
@@ -563,6 +576,9 @@ const BukuPetikan = ({ state }) => {
 
       {/* Rates modal — pull-rate disclosure */}
       {ratesOpen && <RatesModal onClose={() => setRatesOpen(false)} />}
+
+      {/* Backup/Restore modal — encrypted export/import */}
+      {backupOpen && <BackupRestoreModal onClose={() => setBackupOpen(false)} />}
     </section>
   );
 };
