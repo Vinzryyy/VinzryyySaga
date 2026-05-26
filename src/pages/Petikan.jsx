@@ -20,9 +20,11 @@ import {
   applyPluck,
   canPluckToday,
   getJakartaDate,
+  getBuah,
   loadState,
   msUntilNextJakartaMidnight,
   saveState,
+  spendBuah,
 } from '../lib/petikanStorage';
 import { BATCH_ID, pickCard } from '../data/pohonAprikot';
 
@@ -43,6 +45,10 @@ const Petikan = () => {
   // Full koleksi historis di-render di Buku Petikan (P7).
   const [pluckedCard, setPluckedCard] = useState(null);
   const [emptyPool, setEmptyPool] = useState(false);
+  // Buah counter — earned via siraman di /26, dipakai untuk extra
+  // pluck setelah free daily habis. Refresh on focus biar pickup
+  // perubahan dari /26 visit.
+  const [buah, setBuah] = useState(() => getBuah());
   const [searchParams] = useSearchParams();
 
   // Dev-only bypass: ?dev=1 → daily-lock di-disable, pluck unlimited
@@ -57,10 +63,26 @@ const Petikan = () => {
     return () => clearInterval(id);
   }, []);
 
-  const canPluck = useMemo(
-    () => devBypass || canPluckToday(state, now),
-    [state, now, devBypass]
+  // Refresh buah saat user balik ke tab (mis. baru tap support di /26
+  // lalu navigasi balik ke /petikan).
+  useEffect(() => {
+    const refresh = () => setBuah(getBuah());
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, []);
+
+  // Free daily check — pure mechanic, gak include dev bypass atau buah.
+  // Dipakai handlePluck untuk tau pakai free dulu atau spend buah.
+  const hasFreeDaily = useMemo(
+    () => canPluckToday(state, now),
+    [state, now]
   );
+  // canPluck = ada free daily, atau punya buah, atau dev bypass.
+  const canPluck = devBypass || hasFreeDaily || buah > 0;
   const countdownMs = useMemo(() => msUntilNextJakartaMidnight(now), [now]);
 
   // Reload state ketika jendela midnight WIB lewat (countdown jadi 0).
@@ -68,6 +90,7 @@ const Petikan = () => {
   useEffect(() => {
     if (countdownMs <= 1000 && !canPluck) {
       setState(loadState());
+      setBuah(getBuah());
       setPluckedCard(null);
       setEmptyPool(false);
     }
@@ -84,15 +107,26 @@ const Petikan = () => {
       return;
     }
     const nextState = applyPluck(state, card, now);
-    // Dev bypass: jangan persist lastPluck biar canPluck tetep true
-    // next iteration. Koleksi tetep grow (state.buku saved).
-    const saveable = devBypass
-      ? { ...nextState, lastPluck: state.lastPluck }
-      : nextState;
-    saveState(saveable);
-    setState(devBypass ? { ...nextState, lastPluck: state.lastPluck } : nextState);
+    // Free daily first (set lastPluck via applyPluck), else spend buah.
+    // Dev bypass: skip both — preserve lastPluck & buah for testing.
+    if (devBypass) {
+      saveState({ ...nextState, lastPluck: state.lastPluck });
+      setState({ ...nextState, lastPluck: state.lastPluck });
+    } else if (hasFreeDaily) {
+      saveState(nextState);
+      setState(nextState);
+    } else {
+      // Free habis, pakai buah. spendBuah is atomic — guaranteed by
+      // canPluck guard (buah > 0).
+      spendBuah(1);
+      // Preserve lastPluck (jangan reset daily lock — buah pluck adalah
+      // EKSTRA, bukan reset).
+      saveState({ ...nextState, lastPluck: state.lastPluck });
+      setState({ ...nextState, lastPluck: state.lastPluck });
+      setBuah(getBuah());
+    }
     setPluckedCard(card);
-  }, [canPluck, state, now, devBypass]);
+  }, [canPluck, state, now, devBypass, hasFreeDaily]);
 
   // Re-arm pluck after each reveal in dev mode so user bisa pluck lagi
   // tanpa reload. Clear pluckedCard setelah 6s biar bisa tap KartuBack
@@ -173,22 +207,40 @@ const Petikan = () => {
             />
           </div>
 
+          {/* Buah badge — visible kalau ada buah tersedia, link ke /26
+              kalau 0 (call to action) */}
+          {buah > 0 && (
+            <div className="mb-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/8 border border-[color:var(--retro-burgundy)]/20">
+              <span className="text-base">🍑</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                Buah Pohon Kebaikan · {buah} pack
+              </span>
+            </div>
+          )}
+
           {/* Status card — pure info, instruksi sesuai state */}
           <div className="bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(61,52,43,0.08)]">
             {canPluck ? (
               <>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
-                  Hari ini
+                  {hasFreeDaily ? 'Hari ini' : 'Buah tersedia'}
                 </p>
                 <p
                   className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)] leading-relaxed"
                   style={{ fontFamily: '"Fraunces Variable", serif' }}
                 >
-                  Sebuah kartu menanti.
+                  {hasFreeDaily
+                    ? 'Sebuah kartu menanti.'
+                    : `Petik habis hari ini, tapi ${buah} buah dari Pohon Kebaikan siap dipakai.`}
                 </p>
                 <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-3">
                   Tap kartu untuk membukanya.
                 </p>
+                {!hasFreeDaily && buah > 0 && (
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mt-3">
+                    Pakai 1 buah → tetap dapat pluck baru
+                  </p>
+                )}
                 {emptyPool && (
                   <p className="text-xs text-[color:var(--retro-burgundy)]/80 mt-3">
                     Pohon belum berbuah untuk pool ini. Coba lagi nanti.
@@ -214,6 +266,16 @@ const Petikan = () => {
                   style={{ fontFamily: '"Fraunces Variable", serif', fontWeight: 600 }}
                 >
                   {formatCountdown(countdownMs)}
+                </p>
+                <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-4">
+                  Atau tap dukungan di{' '}
+                  <a
+                    href="/26"
+                    className="underline text-[color:var(--retro-burgundy)] hover:opacity-80"
+                  >
+                    Pohon Kebaikan
+                  </a>{' '}
+                  → dapat 🍑 buah untuk extra petik.
                 </p>
               </>
             )}
