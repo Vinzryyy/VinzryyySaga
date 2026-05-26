@@ -125,7 +125,9 @@ describe('pickCardFromTier no-dup legenda', () => {
 
 describe('pickCard fallback chain', () => {
   it('falls back from legenda → langka when legenda exhausted', () => {
-    const state = { legenda: new Set(['arme-warga-terakhir']) };
+    // GIF-only experiment: legenda = arme-vtuber-lightstick (Lightstick
+    // promoted dari langka). Owning it exhausts legenda → fallback.
+    const state = { legenda: new Set(['arme-vtuber-lightstick']) };
     // Force tier roll to legenda (rng = 99.5 → 99.5/100 → falls in legenda 99-100 band)
     const forcedRng = () => 0.995;
     const card = pickCard(state, '2026-05-26', forcedRng);
@@ -149,7 +151,12 @@ describe('pickCard fallback chain', () => {
   });
 });
 
-describe('POHON_APRIKOT_POOL placeholder pool', () => {
+// GIF-only experimental pool (2026-05-26): semua kartu = CoffeeBean
+// (Arme VTuber form). Test assertions di-relax buat reflect pool yang
+// jauh lebih kecil + tanpa archive photos. Kalau revert ke comprehensive
+// pool, re-enable LEGENDA/LANGKA/MATANG/MUDA assertions di bawah (lihat
+// git history file ini).
+describe('POHON_APRIKOT_POOL (GIF-only experimental)', () => {
   it('contains at least one card per tier', () => {
     const tiers = new Set(POHON_APRIKOT_POOL.map((c) => c.tier));
     expect(tiers.has('legenda')).toBe(true);
@@ -158,38 +165,23 @@ describe('POHON_APRIKOT_POOL placeholder pool', () => {
     expect(tiers.has('muda')).toBe(true);
   });
 
-  it('has Arme as a legenda card', () => {
-    const arme = POHON_APRIKOT_POOL.find((c) => c.id === 'arme-warga-terakhir');
-    expect(arme).toBeTruthy();
-    expect(arme.tier).toBe('legenda');
+  it('Lightstick is the legenda card (Arme wotagei)', () => {
+    const legenda = POHON_APRIKOT_POOL.filter((c) => c.tier === 'legenda');
+    expect(legenda.length).toBeGreaterThanOrEqual(1);
+    const lightstick = legenda.find((c) => c.id === 'arme-vtuber-lightstick');
+    expect(lightstick).toBeTruthy();
   });
 
-  it('has Aprikot Mei as seitansaiOnly legenda', () => {
-    const aprikotMei = POHON_APRIKOT_POOL.find(
-      (c) => c.id === 'aprikot-mei-seitansai'
-    );
-    expect(aprikotMei).toBeTruthy();
-    expect(aprikotMei.tier).toBe('legenda');
-    expect(aprikotMei.seitansaiOnly).toBe(true);
+  it('all cards are chibi (CoffeeBean VTuber form)', () => {
+    POHON_APRIKOT_POOL.forEach((card) => {
+      expect(card.artStyle).toBe('chibi');
+      expect(card.image).toMatch(/^\/EmoteLabs\//);
+    });
   });
 
-  it('Aprikot Mei NOT eligible outside seitansai window', () => {
-    const eligible = eligibleCards(POHON_APRIKOT_POOL, 'legenda', '2026-05-01');
-    expect(eligible.map((c) => c.id)).not.toContain('aprikot-mei-seitansai');
-  });
-
-  it('Aprikot Mei eligible inside seitansai window', () => {
-    const eligible = eligibleCards(POHON_APRIKOT_POOL, 'legenda', '2026-06-15');
-    expect(eligible.map((c) => c.id)).toContain('aprikot-mei-seitansai');
-  });
-
-  it('has at least 40 muda cards (auto-generated pool)', () => {
-    const muda = POHON_APRIKOT_POOL.filter((c) => c.tier === 'muda');
-    expect(muda.length).toBeGreaterThanOrEqual(40);
-  });
-
-  it('has pool size around batch #1 target (~60 cards)', () => {
-    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(55);
+  it('has pool size matching the EmoteLabs GIF set (~11)', () => {
+    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(10);
+    expect(POHON_APRIKOT_POOL.length).toBeLessThanOrEqual(20);
   });
 
   it('all cards have unique ids', () => {
@@ -203,6 +195,15 @@ describe('POHON_APRIKOT_POOL placeholder pool', () => {
       expect(card.tier).toBeTruthy();
       expect(card.title).toBeTruthy();
       expect(card.caption).toBeTruthy();
+    });
+  });
+
+  it('all cards have TCG metadata (cardNumber + setSize + setCode + illustrator)', () => {
+    POHON_APRIKOT_POOL.forEach((card, idx) => {
+      expect(card.cardNumber).toBe(idx + 1);
+      expect(card.setSize).toBe(POHON_APRIKOT_POOL.length);
+      expect(card.setCode).toBe('PAA');
+      expect(card.illustrator).toBe('Emote Labs');
     });
   });
 });

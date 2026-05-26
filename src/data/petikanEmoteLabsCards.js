@@ -13,8 +13,9 @@
  * Tier defaults — louder/more performative = rarer:
  *   muda    — everyday vibes (idle, chatter, eat, arrive, loading)
  *   matang  — depth (cry, nervous)
- *   langka  — peak fan-culture (lightstick wotagei, dance, jail)
- *   legenda — DELIBERATELY EMPTY. Arme legenda stays town-form (ELI_1_a).
+ *   langka  — peak fan-culture (dance variants, jail)
+ *   legenda — Lightstick (peak wotagei = thematic apex Arme moment).
+ *             Promoted dari langka saat GIF-only experiment 2026-05-26.
  *
  * Captions di sini placeholder — user akan iterate quotes later.
  */
@@ -93,7 +94,7 @@ export const PETIKAN_EMOTELABS_CARDS = [
   // ── langka ───────────────────────────────────────────────────────
   {
     id: 'arme-vtuber-lightstick',
-    tier: 'langka',
+    tier: 'legenda',
     title: 'Wotagei Penuh',
     caption: 'Penlight di tangan kanan — call yang dihafal sejak generasi pertama.',
     image: EM('CoffeeBean_V1_4_Lightstick 2_2026-05-26-21-05-21.gif'),

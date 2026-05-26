@@ -295,14 +295,18 @@ const inferIllustrator = (image) => {
 };
 
 // Composed pool — cards di-tag dgn cardNumber (1-based) + setSize +
-// illustrator at module-eval. setSize jadi single source untuk "X/64"
-// footer di kartu (no manual count maintenance). Order = legenda → langka
-// → matang → muda → emote, so card numbers feel like a TCG checklist.
+// illustrator at module-eval. setSize jadi single source untuk "X/Y"
+// footer di kartu (no manual count maintenance).
+//
+// ⚠️ EXPERIMENTAL (2026-05-26): GIF-only mode — semua tier diisi dari
+// PETIKAN_EMOTELABS_CARDS aja. Old arrays di-comment-out (gak deleted)
+// supaya gampang revert. Lihat petikanEmoteLabsCards.js untuk tier
+// mapping (Lightstick di-promote ke legenda saat experiment ini).
 const RAW_POOL = [
-  ...LEGENDA_CARDS,
-  ...LANGKA_CARDS,
-  ...MATANG_CARDS,
-  ...PETIKAN_MUDA_POOL,
+  // ...LEGENDA_CARDS,
+  // ...LANGKA_CARDS,
+  // ...MATANG_CARDS,
+  // ...PETIKAN_MUDA_POOL,
   ...PETIKAN_EMOTELABS_CARDS,
 ];
 
