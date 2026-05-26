@@ -25,6 +25,7 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import KartuBack from './KartuBack';
 import KartuIngatan from './KartuIngatan';
+import HoloShimmer from './HoloShimmer';
 import { playPageTurnSfx } from './PluckTimeline';
 import { readEnabled, readVolume } from '../../lib/townAudioBus';
 
@@ -207,13 +208,19 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
         >
           <KartuBack tier="matang" />
         </div>
-        {/* Card front — di belakang pack, opacity 0 initial */}
+        {/* Card front — di belakang pack, opacity 0 initial.
+            HoloShimmer wrap kasih TCG Pocket-style mouse-tilt + foil
+            untuk langka+ tiers. Muda/matang render plain. */}
         <div
           ref={cardFrontRef}
           className="row-start-1 col-start-1"
           style={{ opacity: 0 }}
         >
-          {pluckedCard && <KartuIngatan card={pluckedCard} />}
+          {pluckedCard && (
+            <HoloShimmer tier={pluckedCard.tier}>
+              <KartuIngatan card={pluckedCard} />
+            </HoloShimmer>
+          )}
         </div>
       </div>
 
