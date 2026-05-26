@@ -23,6 +23,7 @@ import {
 import { subscribeToWishes } from '../../lib/wishesDb';
 import { isFirebaseConfigured } from '../../lib/firebase';
 import { SITE_CONFIG } from '../../config/siteConfig';
+import { addBuah as addPetikanBuah } from '../../lib/petikanStorage';
 
 // Same hash function used in /wishes so curated seeds get a stable
 // id we can show alongside live RTDB submissions.
@@ -2069,9 +2070,13 @@ const EliTree = () => {
     if (result.ok) {
       setSupportedToday(true);
       markSupportedToday();
+      // Cross-feature link ke Petikan — tiap siraman = 1 buah personal
+      // yang bisa di-spend untuk extra Petikan pluck di /petikan.
+      // Capped at BUAH_CAP (30) di storage layer.
+      const buahAfter = addPetikanBuah(1);
       setFeedback({
         kind: 'success',
-        message: 'Terima kasih! Dukunganmu sudah dikirim. Kembali besok untuk menyiram lagi 🌱',
+        message: `Terima kasih! Dukunganmu sudah dikirim. Kamu dapat 🍑 1 buah untuk Petikan (total: ${buahAfter}). Kembali besok untuk menyiram lagi 🌱`,
       });
       // Trigger wobble (re-mount via key bump supaya animation restart).
       setWobbleKey((k) => k + 1);

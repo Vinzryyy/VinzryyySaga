@@ -3,7 +3,7 @@
  * applyPluck immutability + legenda dedup, localStorage corruption.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   getJakartaDate,
   msUntilNextJakartaMidnight,
@@ -12,6 +12,10 @@ import {
   canPluckToday,
   applyPluck,
   resetState,
+  getBuah,
+  addBuah,
+  spendBuah,
+  BUAH_CAP,
   _KEYS,
 } from '../petikanStorage';
 
@@ -179,10 +183,70 @@ describe('localStorage corruption recovery', () => {
       buku: { x: { count: 1 } },
       legenda: new Set(['y']),
     });
+    addBuah(5);
     resetState();
     const loaded = loadState();
     expect(loaded.lastPluck).toBeNull();
     expect(loaded.buku).toEqual({});
     expect(loaded.legenda.size).toBe(0);
+    expect(getBuah()).toBe(0);
+  });
+});
+
+describe('buah currency (Pohon Kebaikan reward)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('returns 0 when nothing stored', () => {
+    expect(getBuah()).toBe(0);
+  });
+
+  it('addBuah increments and persists', () => {
+    expect(addBuah(1)).toBe(1);
+    expect(addBuah(2)).toBe(3);
+    expect(getBuah()).toBe(3);
+  });
+
+  it('addBuah caps at BUAH_CAP (30)', () => {
+    addBuah(25);
+    expect(addBuah(10)).toBe(BUAH_CAP);
+    expect(getBuah()).toBe(BUAH_CAP);
+  });
+
+  it('addBuah ignores negative amounts (no-op)', () => {
+    addBuah(5);
+    expect(addBuah(-3)).toBe(5);
+  });
+
+  it('spendBuah succeeds when sufficient', () => {
+    addBuah(5);
+    expect(spendBuah(2)).toBe(true);
+    expect(getBuah()).toBe(3);
+  });
+
+  it('spendBuah rejects when insufficient (no partial spend)', () => {
+    addBuah(2);
+    expect(spendBuah(5)).toBe(false);
+    expect(getBuah()).toBe(2); // unchanged
+  });
+
+  it('spendBuah down to exactly 0', () => {
+    addBuah(3);
+    expect(spendBuah(3)).toBe(true);
+    expect(getBuah()).toBe(0);
+  });
+
+  it('getBuah clamps invalid stored values', () => {
+    localStorage.setItem(_KEYS.buah, 'not-a-number');
+    expect(getBuah()).toBe(0);
+    localStorage.setItem(_KEYS.buah, '-5');
+    expect(getBuah()).toBe(0);
+    localStorage.setItem(_KEYS.buah, '999');
+    expect(getBuah()).toBe(BUAH_CAP);
   });
 });

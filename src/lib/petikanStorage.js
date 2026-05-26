@@ -18,7 +18,14 @@ const KEYS = {
   lastPluck: 'aprikot_last_pluck',
   buku: 'aprikot_buku',
   legenda: 'aprikot_legenda',
+  buah: 'aprikot_buah',
 };
+
+// Buah Pohon Kebaikan — currency yang user dapat dari tap dukungan
+// di /26 (1 tap = 1 buah, 1× per device per day rate-limited oleh
+// EliTree's markSupportedToday). Tiap buah = 1 extra Petikan pluck
+// (di luar free daily). Capped untuk encourage spending, bukan hoard.
+export const BUAH_CAP = 30;
 
 /**
  * Returns YYYY-MM-DD string in Asia/Jakarta timezone for a given Date.
@@ -145,6 +152,45 @@ export const applyPluck = (state, card, now = new Date()) => {
 };
 
 /**
+ * Read current buah count (0..BUAH_CAP). Graceful fallback ke 0
+ * kalau storage blocked atau value invalid.
+ */
+export const getBuah = () => {
+  try {
+    const raw = localStorage.getItem(KEYS.buah);
+    if (!raw) return 0;
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n)) return 0;
+    return Math.max(0, Math.min(BUAH_CAP, n));
+  } catch {
+    return 0;
+  }
+};
+
+/**
+ * Add `amount` buah (default 1). Capped at BUAH_CAP — surplus dropped
+ * (no overflow). Returns new total.
+ */
+export const addBuah = (amount = 1) => {
+  const next = Math.min(BUAH_CAP, getBuah() + Math.max(0, amount));
+  safeWrite(KEYS.buah, String(next));
+  return next;
+};
+
+/**
+ * Spend `amount` buah (default 1). Returns true kalau berhasil
+ * (cukup buah), false kalau insufficient. Caller harus cek dulu
+ * via getBuah() kalau perlu reject di UI.
+ */
+export const spendBuah = (amount = 1) => {
+  const current = getBuah();
+  if (current < amount) return false;
+  const next = current - amount;
+  safeWrite(KEYS.buah, String(next));
+  return true;
+};
+
+/**
  * Clear storage (testing utility — surfaced for dev console + tests).
  */
 export const resetState = () => {
@@ -152,6 +198,7 @@ export const resetState = () => {
     localStorage.removeItem(KEYS.lastPluck);
     localStorage.removeItem(KEYS.buku);
     localStorage.removeItem(KEYS.legenda);
+    localStorage.removeItem(KEYS.buah);
   } catch {
     // ignored
   }
