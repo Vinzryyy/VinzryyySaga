@@ -16,7 +16,8 @@
     "optimize-images": "node scripts/optimize-images.js",
     "build-thumbnails": "node scripts/build-thumbnails.js",
     "generate-og": "node scripts/generate-og.js",
-    "scrape-schedule": "python scripts/scrape-eli-schedule.py"
+    "scrape-schedule": "python scripts/scrape-eli-schedule.py",
+    "generate-petikan-pool": "node scripts/generate-petikan-pool.js"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.9",

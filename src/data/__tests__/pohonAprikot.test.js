@@ -158,10 +158,15 @@ describe('POHON_APRIKOT_POOL placeholder pool', () => {
     expect(tiers.has('muda')).toBe(true);
   });
 
-  it('has exactly one legenda card (sole entry)', () => {
-    const legenda = POHON_APRIKOT_POOL.filter((c) => c.tier === 'legenda');
-    expect(legenda).toHaveLength(1);
-    expect(legenda[0].id).toBe('arme-warga-terakhir');
+  it('has Arme as a legenda card', () => {
+    const arme = POHON_APRIKOT_POOL.find((c) => c.id === 'arme-warga-terakhir');
+    expect(arme).toBeTruthy();
+    expect(arme.tier).toBe('legenda');
+  });
+
+  it('has at least 40 muda cards (auto-generated pool)', () => {
+    const muda = POHON_APRIKOT_POOL.filter((c) => c.tier === 'muda');
+    expect(muda.length).toBeGreaterThanOrEqual(40);
   });
 
   it('all cards have unique ids', () => {

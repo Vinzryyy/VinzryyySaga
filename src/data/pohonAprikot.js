@@ -15,6 +15,8 @@
  * ±2% per tier biar variance acceptable.
  */
 
+import { PETIKAN_MUDA_POOL } from './petikanMudaPool';
+
 export const BATCH_ID = 'seitansai-2026';
 
 export const TIER_CONFIG = {
@@ -60,12 +62,13 @@ export const TIER_CONFIG = {
 //     seitansaiOnly: true,          // gated to 06-14 → 06-30 WIB
 //   }
 //
-// P2 ships 12 placeholder cards untuk mechanic testing — assets dummy,
-// metadata real. P5 swap dengan curated pool ~60 cards (40 muda auto-
-// generated dari archive 350+, 15 matang hand-curated, 3-5 langka, 1
-// legenda).
-export const POHON_APRIKOT_POOL = [
-  // Legenda — sole entry, no-dup enforced
+// Card pool — di-compose dari tier-specific arrays untuk maintainability.
+// Buah Muda auto-generated via `npm run generate-petikan-pool` (40 cards
+// even-spaced dari /public/archive/). Langka/Matang/Legenda hand-curated.
+
+const LEGENDA_CARDS = [
+  // Sole legenda saat ini (Arme). Aprikot Mei akan ditambah di commit
+  // selanjutnya — seitansaiOnly gated.
   {
     id: 'arme-warga-terakhir',
     tier: 'legenda',
@@ -74,7 +77,9 @@ export const POHON_APRIKOT_POOL = [
     image: '/AI/ELI_1_a.png',
     era: 'armeniaca-town',
   },
-  // Langka — milestone-tier placeholders
+];
+
+const LANGKA_CARDS = [
   {
     id: 'eli-gen7-debut',
     tier: 'langka',
@@ -93,7 +98,9 @@ export const POHON_APRIKOT_POOL = [
     date: '2026-01-01',
     era: 'dream-fight-2026',
   },
-  // Matang — iconic moments
+];
+
+const MATANG_CARDS = [
   {
     id: 'era-2018-gen7-awal',
     tier: 'matang',
@@ -121,55 +128,13 @@ export const POHON_APRIKOT_POOL = [
     date: '2022-06-01',
     era: 'team-j',
   },
-  // Muda — daily snapshots, abundance tier
-  {
-    id: 'muda-pajama-drive-2019',
-    tier: 'muda',
-    title: 'Pajama Drive · 2019',
-    caption: 'Setlist Pajama Drive — salah satu show favorit fans era awal.',
-    image: '/archive/img-379.jpg',
-    date: '2019-07-14',
-  },
-  {
-    id: 'muda-renai-kinshi-2020',
-    tier: 'muda',
-    title: 'Renai Kinshi Jourei · 2020',
-    caption: 'Salah satu setlist iconic JKT48 — era pandemi tetap dijaga ritmenya.',
-    image: '/archive/img-379.jpg',
-    date: '2020-11-22',
-  },
-  {
-    id: 'muda-theater-snapshot-2021',
-    tier: 'muda',
-    title: 'Snapshot Theater · 2021',
-    caption: 'Momen kecil dari panggung yang sering terlewat.',
-    image: '/archive/img-379.jpg',
-    date: '2021-03-10',
-  },
-  {
-    id: 'muda-handshake-2022',
-    tier: 'muda',
-    title: 'Handshake · 2022',
-    caption: 'Sapaan singkat di meja, kenangan yang panjang.',
-    image: '/archive/img-379.jpg',
-    date: '2022-08-21',
-  },
-  {
-    id: 'muda-livestream-2023',
-    tier: 'muda',
-    title: 'Live IDN · 2023',
-    caption: 'Malam tenang di kamar, cerita ngalir di depan kamera.',
-    image: '/archive/img-379.jpg',
-    date: '2023-05-15',
-  },
-  {
-    id: 'muda-stage-light-2024',
-    tier: 'muda',
-    title: 'Cahaya Panggung · 2024',
-    caption: 'Sorot lampu yang akrab — rumah yang sudah jadi tempat pulang.',
-    image: '/archive/img-379.jpg',
-    date: '2024-09-08',
-  },
+];
+
+export const POHON_APRIKOT_POOL = [
+  ...LEGENDA_CARDS,
+  ...LANGKA_CARDS,
+  ...MATANG_CARDS,
+  ...PETIKAN_MUDA_POOL,
 ];
 
 // Tier fallback order — kalau tier yang di-roll gak punya eligible
