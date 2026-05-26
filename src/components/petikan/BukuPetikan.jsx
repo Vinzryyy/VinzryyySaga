@@ -574,6 +574,22 @@ const BukuPetikan = ({ state }) => {
         />
       )}
 
+      {/* Credit reference — mekanik gacha (pity, history, encrypted
+          backup) di-inspirasi dari Tierlist-JKT48 oleh MrcellSbst,
+          dengan izin owner. Kredit subtle, paper-archive feel. */}
+      <p className="mt-10 text-center text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/40">
+        Mekanik gacha terinspirasi dari{' '}
+        <a
+          href="https://github.com/MrcellSbst/Tierlist-JKT48"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-dotted underline-offset-2 hover:text-[color:var(--retro-burgundy)] transition-colors"
+        >
+          Tierlist-JKT48
+        </a>{' '}
+        oleh @MrcellSbst
+      </p>
+
       {/* Rates modal — pull-rate disclosure */}
       {ratesOpen && <RatesModal onClose={() => setRatesOpen(false)} />}
 
