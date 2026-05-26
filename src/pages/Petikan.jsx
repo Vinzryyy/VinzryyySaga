@@ -171,40 +171,62 @@ const Petikan = () => {
 
           {/* Reveal card — ephemeral, shows the card just plucked this
               session. P4 swaps this with full GSAP flip animation +
-              book-page card art. Here we just render title + tier +
-              caption sebagai bukti mechanic jalan. */}
+              proper card-back/front split. Here we render a book-page
+              styled card with image + tier eyebrow + title + caption. */}
           {pluckedCard && (
-            <div className="mt-8 text-left bg-[color:var(--retro-cream,#faf6ed)] border border-[color:var(--retro-brown-dark)]/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(61,52,43,0.1)] relative overflow-hidden">
+            <div className="mt-8 text-left bg-[color:var(--retro-cream,#faf6ed)] border border-[color:var(--retro-brown-dark)]/10 rounded-2xl shadow-[0_8px_32px_rgba(61,52,43,0.1)] relative overflow-hidden">
+              {/* Spine accent — full height, color per tier */}
               <span
-                className="absolute left-0 top-0 bottom-0"
+                className="absolute left-0 top-0 bottom-0 z-10"
                 style={{
                   width: TIER_CONFIG[pluckedCard.tier]?.spineWidth || '4px',
                   background: TIER_CONFIG[pluckedCard.tier]?.spineColor || 'var(--retro-burgundy)',
                 }}
               />
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3 pl-3">
-                {TIER_CONFIG[pluckedCard.tier]?.label || pluckedCard.tier}
-                {pluckedCard.date && (
-                  <span className="text-[color:var(--retro-brown-dark)]/50 ml-2">
-                    · {pluckedCard.date}
-                  </span>
-                )}
-              </p>
-              <h2
-                className="text-2xl sm:text-3xl text-[color:var(--retro-brown-dark)] mb-3 pl-3"
-                style={{
-                  fontFamily: '"Fraunces Variable", serif',
-                  fontWeight: 600,
-                }}
-              >
-                {pluckedCard.title}
-              </h2>
-              <p
-                className="text-[color:var(--retro-brown-dark)]/80 leading-relaxed pl-3"
-                style={{ fontFamily: '"Fraunces Variable", serif' }}
-              >
-                {pluckedCard.caption}
-              </p>
+
+              {/* Image hero — portrait crop with subtle sepia tint to
+                  match retro paper palette. Cream mat margin di sekeliling
+                  biar gambar terasa "ditempel" di halaman buku. */}
+              {pluckedCard.image && (
+                <div className="px-6 pt-6 pb-2">
+                  <div className="relative aspect-[3/4] sm:aspect-[4/5] w-full max-w-xs mx-auto overflow-hidden rounded-lg border border-[color:var(--retro-brown-dark)]/15 shadow-md">
+                    <img
+                      src={pluckedCard.image}
+                      alt={pluckedCard.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      style={{ filter: 'sepia(0.18) saturate(0.92)' }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Content block */}
+              <div className="px-6 pb-6 pt-3">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3 pl-3">
+                  {TIER_CONFIG[pluckedCard.tier]?.label || pluckedCard.tier}
+                  {pluckedCard.date && (
+                    <span className="text-[color:var(--retro-brown-dark)]/50 ml-2">
+                      · {pluckedCard.date}
+                    </span>
+                  )}
+                </p>
+                <h2
+                  className="text-2xl sm:text-3xl text-[color:var(--retro-brown-dark)] mb-3 pl-3"
+                  style={{
+                    fontFamily: '"Fraunces Variable", serif',
+                    fontWeight: 600,
+                  }}
+                >
+                  {pluckedCard.title}
+                </h2>
+                <p
+                  className="text-[color:var(--retro-brown-dark)]/80 leading-relaxed pl-3"
+                  style={{ fontFamily: '"Fraunces Variable", serif' }}
+                >
+                  {pluckedCard.caption}
+                </p>
+              </div>
             </div>
           )}
 
