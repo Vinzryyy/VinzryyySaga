@@ -21,21 +21,33 @@
  * buildup window.
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import KartuBack from './KartuBack';
 import KartuIngatan from './KartuIngatan';
 import HoloShimmer from './HoloShimmer';
+import ParticleBurst from './ParticleBurst';
 import { playPageTurnSfx } from './PluckTimeline';
 import { readEnabled, readVolume } from '../../lib/townAudioBus';
+
+// Per-tier halo glow palette — radiating dari belakang card saat emerge
+const TIER_HALO = {
+  muda: { color: 'rgba(232, 200, 156, 0.0)', intensity: 0 },
+  matang: { color: 'rgba(218, 175, 92, 0.45)', intensity: 0.4 },
+  langka: { color: 'rgba(255, 184, 77, 0.65)', intensity: 0.65 },
+  legenda: { color: 'rgba(255, 217, 122, 0.85)', intensity: 0.85 },
+};
 
 const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
   const containerRef = useRef(null);
   const topHalfRef = useRef(null);
   const bottomHalfRef = useRef(null);
   const cardFrontRef = useRef(null);
+  const haloRef = useRef(null);
   const breatheRef = useRef(null);
   const playedRef = useRef(false);
+  // Bumped to trigger ParticleBurst re-animation
+  const [particleTrigger, setParticleTrigger] = useState(0);
 
   // Breathing animation — invitation cue saat pack siap dibuka
   useEffect(() => {
@@ -145,6 +157,25 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
       0.4
     );
 
+    // Phase 4b — Halo glow fades in (sync with card emerge)
+    const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
+    if (haloRef.current && haloConfig.intensity > 0) {
+      tl.to(
+        haloRef.current,
+        {
+          opacity: haloConfig.intensity,
+          duration: 0.8,
+          ease: 'sine.out',
+        },
+        0.35
+      );
+    }
+
+    // Phase 4c — Particle burst at emerge moment
+    tl.add(() => {
+      setParticleTrigger((p) => p + 1);
+    }, 0.42);
+
     return () => tl.kill();
   }, [pluckedCard]);
 
@@ -160,6 +191,9 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
     }
     if (cardFrontRef.current) {
       gsap.set(cardFrontRef.current, { opacity: 0, scale: 0.85 });
+    }
+    if (haloRef.current) {
+      gsap.set(haloRef.current, { opacity: 0 });
     }
   }, [pluckedCard]);
 
@@ -181,6 +215,24 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
       className="relative w-full max-w-xs mx-auto"
       style={{ minHeight: '480px' }}
     >
+      {/* Halo glow — fixed inset, behind everything via render order.
+          Radial bloom color per-tier (muda=none, matang→legenda
+          escalating warm-gold intensity). Fades in pas card emerge
+          phase via GSAP, persist while card visible. */}
+      {pluckedCard && (
+        <div
+          ref={haloRef}
+          aria-hidden="true"
+          className="absolute pointer-events-none"
+          style={{
+            inset: '-60px',
+            opacity: 0,
+            background: `radial-gradient(circle, ${(TIER_HALO[pluckedCard.tier] || TIER_HALO.muda).color} 0%, transparent 65%)`,
+            filter: 'blur(35px)',
+          }}
+        />
+      )}
+
       <div className="relative grid" style={{ minHeight: '480px' }}>
         {/* Pack top half — visible region 0-50%, pivot at split line */}
         <div
@@ -223,6 +275,16 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
           )}
         </div>
       </div>
+
+      {/* Particle burst — sparkles fly outward saat card emerge.
+          Per-tier count + palette. Triggered via particleTrigger bump
+          di timeline phase 4c. */}
+      {pluckedCard && (
+        <ParticleBurst
+          tier={pluckedCard.tier}
+          trigger={particleTrigger}
+        />
+      )}
 
       {/* Click overlay — covers whole pack area pre-pluck untuk generous
           touch target (mobile-friendly, >44px) */}
