@@ -28,7 +28,7 @@ import KartuIngatan from './KartuIngatan';
 import { createPluckTimeline, playPageTurnSfx } from './PluckTimeline';
 import { readEnabled, readVolume } from '../../lib/townAudioBus';
 
-const KartuFlip = ({ card, onComplete }) => {
+const KartuFlip = ({ card, onComplete, delay = 0 }) => {
   const containerRef = useRef(null);
   const innerRef = useRef(null);
   const glowRef = useRef(null);
@@ -41,6 +41,7 @@ const KartuFlip = ({ card, onComplete }) => {
 
   // Card identity drives re-run — new pluck = fresh animation.
   const cardId = card?.id || null;
+  const isLegenda = card?.tier === 'legenda';
 
   useEffect(() => {
     if (!cardId) return undefined;
@@ -48,8 +49,11 @@ const KartuFlip = ({ card, onComplete }) => {
       containerRef,
       innerRef,
       glowRef,
+      delay,
       onFlipStart: () => {
-        // Honor townAudioBus enabled/volume preferences.
+        // Legenda tier dapat chime cinematic via LegendaReveal — skip
+        // page-turn biar gak overlap audio.
+        if (isLegenda) return;
         if (!readEnabled()) return;
         const vol = readVolume();
         // Scale sfx ke volume bus, dgn floor untuk biar tetep audible
@@ -64,7 +68,7 @@ const KartuFlip = ({ card, onComplete }) => {
       },
     });
     return () => tl.kill();
-  }, [cardId]);
+  }, [cardId, delay, isLegenda]);
 
   if (!card) return null;
 

@@ -34,6 +34,7 @@ export const createPluckTimeline = ({
   glowRef = null,
   onComplete = null,
   onFlipStart = null,
+  delay = 0,
 }) => {
   if (!containerRef.current || !innerRef.current) {
     return gsap.timeline(); // empty timeline — caller can still .kill() safely
@@ -53,6 +54,7 @@ export const createPluckTimeline = ({
   }
 
   const tl = gsap.timeline({
+    delay,
     onComplete: () => {
       if (typeof onComplete === 'function') onComplete();
     },
@@ -129,6 +131,48 @@ export const createPluckTimeline = ({
   }
 
   return tl;
+};
+
+/**
+ * Synthesized legenda chime — warm bell-like tone untuk reveal Arme atau
+ * Aprikot Mei. Multi-osc additive synthesis (C5 + E5 + G5 chord) dengan
+ * exponential decay envelope ~2s. Lebih kontemplatif vs page-turn yang
+ * mechanical.
+ */
+export const playLegendaChime = (volumeMultiplier = 1) => {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const now = ctx.currentTime;
+    // C5, E5, G5 — warm major triad. Detuned slightly biar shimmer.
+    const fundamentals = [523.25, 659.25, 783.99];
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 0.22 * volumeMultiplier;
+    masterGain.connect(ctx.destination);
+    fundamentals.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq * (1 + (idx - 1) * 0.001); // micro-detune
+      const env = ctx.createGain();
+      env.gain.setValueAtTime(0, now);
+      env.gain.linearRampToValueAtTime(0.55, now + 0.04 + idx * 0.06);
+      env.gain.exponentialRampToValueAtTime(0.0005, now + 1.8 + idx * 0.25);
+      osc.connect(env);
+      env.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 2.3 + idx * 0.25);
+    });
+    setTimeout(() => {
+      try {
+        ctx.close();
+      } catch {
+        /* already closed */
+      }
+    }, 3000);
+  } catch {
+    // Audio unsupported — silent fail
+  }
 };
 
 /**
