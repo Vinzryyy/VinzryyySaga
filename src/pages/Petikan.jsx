@@ -14,6 +14,7 @@ import Seo from '../components/Seo';
 import PohonAprikot from '../components/petikan/PohonAprikot';
 import KartuFlip from '../components/petikan/KartuFlip';
 import LegendaReveal from '../components/petikan/LegendaReveal';
+import BukuPetikan from '../components/petikan/BukuPetikan';
 import {
   applyPluck,
   canPluckToday,
@@ -189,8 +190,12 @@ const Petikan = () => {
             </div>
           )}
 
+          {/* Buku Petikan — koleksi historis lintas hari. Render setelah
+              tree + reveal supaya focus utama tetep di pohon hari ini. */}
+          <BukuPetikan state={state} />
+
           {/* Footer credit */}
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/50 mt-12">
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/50 mt-16">
             Armeniaca · arsip independen
           </p>
         </div>
