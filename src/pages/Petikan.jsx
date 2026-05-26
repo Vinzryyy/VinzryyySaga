@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Seo from '../components/Seo';
 import PohonAprikot from '../components/petikan/PohonAprikot';
 import KartuFlip from '../components/petikan/KartuFlip';
+import LegendaReveal from '../components/petikan/LegendaReveal';
 import {
   applyPluck,
   canPluckToday,
@@ -173,10 +174,18 @@ const Petikan = () => {
           {/* Reveal — KartuFlip orchestrator: drops in from above, flips
               from spine-cover (KartuBack) ke book-page front (KartuIngatan)
               dengan page-turn sfx. Ephemeral per session — full koleksi
-              historis di Buku Petikan (P7). */}
+              historis di Buku Petikan (P7).
+
+              Legenda tier dapat extra cinematic: aurora overlay + floating
+              petals + chime audio (LegendaReveal). Card entry di-delay
+              1.5s biar aurora buildup finish dulu sebelum drop. */}
+          {pluckedCard && pluckedCard.tier === 'legenda' && <LegendaReveal />}
           {pluckedCard && (
-            <div className="mt-10">
-              <KartuFlip card={pluckedCard} />
+            <div className="mt-10 relative z-10">
+              <KartuFlip
+                card={pluckedCard}
+                delay={pluckedCard.tier === 'legenda' ? 1.5 : 0}
+              />
             </div>
           )}
 

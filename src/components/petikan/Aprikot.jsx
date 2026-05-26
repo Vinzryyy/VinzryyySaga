@@ -62,6 +62,19 @@ const Aprikot = forwardRef(function Aprikot(
         />
       )}
 
+      {/* Touch target — invisible 44px+ hit area for mobile a11y. WCAG
+          recommends 44x44px minimum touch target. Fruit visual stays small
+          for botanical proportion, hit area accommodates fat fingers. */}
+      {active && (
+        <circle
+          cx={0}
+          cy={0}
+          r={Math.max(r * 2, 22)}
+          fill="transparent"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Stem (small brown nub) */}
       <path
         d={`M ${-0.5} ${-r + 1} L 0 ${-r - 2} L 0.5 ${-r + 1} Z`}
