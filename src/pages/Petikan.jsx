@@ -11,6 +11,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Seo from '../components/Seo';
+import PohonAprikot from '../components/petikan/PohonAprikot';
 import {
   applyPluck,
   canPluckToday,
@@ -110,35 +111,36 @@ const Petikan = () => {
           </p>
 
           {/* Spine divider */}
-          <div className="flex items-center justify-center gap-3 mb-10">
+          <div className="flex items-center justify-center gap-3 mb-8">
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
             <i className="ri-leaf-line text-[color:var(--retro-burgundy)] text-lg" />
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
           </div>
 
-          {/* Status card */}
-          <div className="bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 rounded-2xl p-8 shadow-[0_8px_32px_rgba(61,52,43,0.08)]">
+          {/* Pohon Aprikot — primary affordance. Fruit yang berkilau =
+              today's pluck candidate. Click langsung trigger handlePluck. */}
+          <div className="mb-8">
+            <PohonAprikot canPluck={canPluck} onPluck={handlePluck} />
+          </div>
+
+          {/* Status card — pure info, button removed (fruit IS the button) */}
+          <div className="bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(61,52,43,0.08)]">
             {canPluck ? (
               <>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
                   Hari ini
                 </p>
                 <p
-                  className="text-xl sm:text-2xl text-[color:var(--retro-brown-dark)] mb-6 leading-relaxed"
+                  className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)] leading-relaxed"
                   style={{ fontFamily: '"Fraunces Variable", serif' }}
                 >
                   Pohon punya satu buah untukmu.
                 </p>
-                <button
-                  type="button"
-                  onClick={handlePluck}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-[11px] font-black uppercase tracking-[0.18em] bg-[color:var(--retro-burgundy)] text-white shadow-md hover:bg-[color:var(--retro-burgundy)]/90 active:scale-[0.98] transition"
-                >
-                  <i className="ri-leaf-line text-base" />
-                  <span>Petik Aprikot</span>
-                </button>
+                <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-3">
+                  Klik aprikot yang berkilau untuk memetiknya.
+                </p>
                 {emptyPool && (
-                  <p className="text-xs text-[color:var(--retro-burgundy)]/80 mt-4">
+                  <p className="text-xs text-[color:var(--retro-burgundy)]/80 mt-3">
                     Pohon belum berbuah untuk pool ini. Coba lagi nanti.
                   </p>
                 )}
@@ -149,12 +151,12 @@ const Petikan = () => {
                   Pohon istirahat
                 </p>
                 <p
-                  className="text-xl sm:text-2xl text-[color:var(--retro-brown-dark)] mb-6 leading-relaxed"
+                  className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)] mb-4 leading-relaxed"
                   style={{ fontFamily: '"Fraunces Variable", serif' }}
                 >
                   Kamu sudah memetik hari ini. Kembali besok pagi.
                 </p>
-                <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mb-2 uppercase tracking-[0.3em]">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/60 mb-1">
                   Pohon kembali dalam
                 </p>
                 <p
