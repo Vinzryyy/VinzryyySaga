@@ -21,7 +21,12 @@ import {
   TIER_CONFIG,
   SEITANSAI_WINDOW,
 } from '../../data/pohonAprikot';
-import { PITY_THRESHOLD } from '../../lib/petikanStorage';
+import {
+  PITY_THRESHOLD,
+  WISHLIST_CAP,
+  toggleWishlist,
+  saveState,
+} from '../../lib/petikanStorage';
 import KartuIngatan from './KartuIngatan';
 import BackupRestoreModal from './BackupRestoreModal';
 
@@ -33,9 +38,15 @@ const TIER_FILTERS = [
   { id: 'muda', label: 'Muda' },
 ];
 
-const BukuPetikanItem = ({ card, isPulled, onClick }) => {
+const BukuPetikanItem = ({ card, isPulled, isWished, wishlistFull, onClick, onToggleWish }) => {
   const cfg = TIER_CONFIG[card.tier] || TIER_CONFIG.muda;
+  // Heart toggle hanya tampil untuk kartu unowned (sudah pernah dapet
+  // tidak perlu wishlist lagi). Disabled untuk tier muda — soft pity
+  // gak berlaku ke muda anyway.
+  const canWish = !isPulled && card.tier !== 'muda';
+  const heartDisabled = canWish && !isWished && wishlistFull;
   return (
+    <div className="relative">
     <button
       type="button"
       onClick={onClick}
@@ -111,6 +122,51 @@ const BukuPetikanItem = ({ card, isPulled, onClick }) => {
         </>
       )}
     </button>
+    {/* Wishlist heart toggle — overlayed pojok kanan atas. Hanya tampil
+        untuk locked kartu non-muda. Stop propagation supaya tap heart
+        gak buka detail modal. */}
+    {canWish && (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!heartDisabled) onToggleWish(card.id);
+        }}
+        disabled={heartDisabled}
+        className={`absolute top-1 right-1 z-20 w-7 h-7 rounded-full flex items-center justify-center transition-transform ${
+          heartDisabled ? 'cursor-not-allowed opacity-40' : 'hover:scale-110 active:scale-95'
+        }`}
+        style={{
+          background: isWished
+            ? 'rgba(140, 40, 60, 0.92)'
+            : 'rgba(250, 246, 237, 0.85)',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.18)',
+          border: isWished
+            ? '1px solid rgba(218,175,92,0.5)'
+            : '1px solid rgba(140,100,60,0.25)',
+        }}
+        aria-label={
+          isWished
+            ? `Hapus ${card.title} dari Wishbook`
+            : heartDisabled
+              ? `Wishbook penuh (${WISHLIST_CAP}/${WISHLIST_CAP})`
+              : `Tambah ${card.title} ke Wishbook`
+        }
+        title={
+          isWished
+            ? 'Hapus dari Wishbook'
+            : heartDisabled
+              ? `Wishbook penuh (${WISHLIST_CAP}/${WISHLIST_CAP})`
+              : 'Tambah ke Wishbook'
+        }
+      >
+        <i
+          className={`${isWished ? 'ri-heart-fill text-white' : 'ri-heart-line'} text-sm`}
+          style={!isWished ? { color: 'var(--retro-burgundy)' } : undefined}
+        />
+      </button>
+    )}
+    </div>
   );
 };
 
@@ -129,6 +185,140 @@ const formatRelative = (isoStr) => {
   const diffDay = Math.floor(diffHr / 24);
   if (diffDay < 7) return `${diffDay} hari lalu`;
   return at.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+};
+
+// Long-form date format Indonesian (mis. "Senin, 26 Mei 2026").
+const formatLongDate = (isoStr) => {
+  if (!isoStr) return '';
+  const at = new Date(isoStr);
+  if (Number.isNaN(at.getTime())) return '';
+  return at.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Asia/Jakarta',
+  });
+};
+
+// Memori Hari Ini — full journal scroll. Setiap entri = date + card
+// thumbnail + tier eyebrow + title + italic prose line (frozen at
+// pluck time). Defaults collapsed showing first 7; expand reveals full
+// 100-entry history. Tap entry → open DetailModal.
+// Unique-vs-reference angle: MrcellSbst gak punya — Petikan bukan cuma
+// koleksi, juga jurnal hari-ke-hari.
+const DEFAULT_VISIBLE = 7;
+const MemoriHariIni = ({ recent, onSelectCard, expanded, onToggleExpand }) => {
+  if (!recent || recent.length === 0) return null;
+  const visible = expanded ? recent : recent.slice(0, DEFAULT_VISIBLE);
+  const hasMore = recent.length > DEFAULT_VISIBLE;
+  return (
+    <section className="mt-12">
+      <div className="flex items-center justify-center gap-3 mb-5">
+        <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
+        <i className="ri-quill-pen-line text-[color:var(--retro-burgundy)] text-lg" />
+        <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
+      </div>
+      <header className="text-center mb-6">
+        <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2">
+          Memori Hari Ini
+        </p>
+        <h3
+          className="text-xl sm:text-2xl text-[color:var(--retro-text-primary)] mb-1"
+          style={{ fontFamily: '"Fraunces Variable", serif', fontWeight: 600 }}
+        >
+          Jurnal {recent.length} Petikan
+        </h3>
+        <p className="text-xs text-[color:var(--retro-brown-dark)]/60 italic">
+          Setiap hari ditulis pelan oleh pohon — buka kembali kapan saja.
+        </p>
+      </header>
+
+      <ol className="relative max-w-xl mx-auto pl-6 sm:pl-8 border-l border-dashed border-[color:var(--retro-burgundy)]/25">
+        {visible.map((entry, idx) => {
+          const card = POHON_APRIKOT_POOL.find((c) => c.id === entry.cardId);
+          if (!card) return null;
+          const cfg = TIER_CONFIG[card.tier] || TIER_CONFIG.muda;
+          return (
+            <li key={`${entry.cardId}-${entry.at}-${idx}`} className="relative pb-5">
+              {/* Marker dot di garis tepi kiri */}
+              <span
+                className="absolute -left-[29px] sm:-left-[33px] top-1.5 w-2.5 h-2.5 rounded-full"
+                style={{
+                  background: cfg.spineColor || 'var(--retro-burgundy)',
+                  boxShadow: '0 0 0 2px var(--retro-cream, #faf6ed)',
+                }}
+                aria-hidden="true"
+              />
+              <button
+                type="button"
+                onClick={() => onSelectCard(entry.cardId)}
+                className="block w-full text-left group"
+                aria-label={`Buka detail ${card.title}`}
+              >
+                <p className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mb-1">
+                  {formatLongDate(entry.at)}
+                </p>
+                <div className="flex items-start gap-3">
+                  {card.image && (
+                    <span
+                      className="block shrink-0 w-12 h-16 sm:w-14 sm:h-[72px] rounded-md overflow-hidden border"
+                      style={{
+                        borderColor: cfg.spineColor,
+                        backgroundColor: 'var(--retro-cream, #faf6ed)',
+                      }}
+                    >
+                      <img
+                        src={card.image}
+                        alt=""
+                        loading="lazy"
+                        className={`w-full h-full ${card.artStyle === 'chibi' ? 'object-contain' : 'object-cover'}`}
+                        style={{ filter: 'sepia(0.18) saturate(0.92)' }}
+                      />
+                    </span>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/80 mb-0.5">
+                      {cfg.label}
+                    </p>
+                    <p
+                      className="text-sm text-[color:var(--retro-brown-dark)] leading-snug group-hover:underline decoration-dotted underline-offset-4"
+                      style={{ fontFamily: '"Fraunces Variable", serif', fontWeight: 600 }}
+                    >
+                      {card.title}
+                    </p>
+                    {entry.prose && (
+                      <p
+                        className="mt-1 text-xs text-[color:var(--retro-brown-dark)]/70 italic leading-relaxed"
+                        style={{ fontFamily: '"Fraunces Variable", serif' }}
+                      >
+                        {entry.prose}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      {hasMore && (
+        <div className="mt-2 text-center">
+          <button
+            type="button"
+            onClick={onToggleExpand}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/80 hover:text-[color:var(--retro-burgundy)] border border-[color:var(--retro-burgundy)]/25 hover:border-[color:var(--retro-burgundy)]/50 bg-white/40 hover:bg-white/70 transition-colors"
+          >
+            <i className={expanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} />
+            {expanded
+              ? `Tutup ${recent.length - DEFAULT_VISIBLE} entri`
+              : `Lihat ${recent.length - DEFAULT_VISIBLE} lainnya`}
+          </button>
+        </div>
+      )}
+    </section>
+  );
 };
 
 // Recent Pulls row — last 10 petikan yang user dapet, chronological
@@ -283,6 +473,14 @@ const RatesModal = ({ onClose }) => {
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
+              <strong>Wishbook:</strong> pin sampai {WISHLIST_CAP} kartu yang
+              kamu cari. Saat jaminan Langka/Legenda aktif, pohon condong
+              50/50 ke wishlist-mu yang belum dimiliki.
+            </p>
+            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+              <span className="font-semibold text-[color:var(--retro-burgundy)]">
+                ·
+              </span>{' '}
               Aprikot Mei hanya jatuh dari {SEITANSAI_WINDOW.start.slice(5)}
               {' — '}
               {SEITANSAI_WINDOW.end.slice(5)} (musim seitansai Eli).
@@ -347,11 +545,28 @@ const DetailModal = ({ card, onClose }) => {
   );
 };
 
-const BukuPetikan = ({ state }) => {
+const BukuPetikan = ({ state, onStateChange }) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [ratesOpen, setRatesOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
+  const [journalExpanded, setJournalExpanded] = useState(false);
+
+  // Wishlist toggle handler — calls toggleWishlist helper, persists to
+  // storage, lifts new state up via onStateChange (Petikan parent passes
+  // setState). Defensive: kalau parent gak pass callback, mutation
+  // tetep saved tapi UI gak re-render (degrade gracefully).
+  const handleToggleWish = (cardId) => {
+    const nextWishlist = toggleWishlist(state?.wishlist || new Set(), cardId);
+    const nextState = { ...state, wishlist: nextWishlist };
+    saveState(nextState);
+    if (typeof onStateChange === 'function') {
+      onStateChange(nextState);
+    }
+  };
+
+  const wishlistSize = state?.wishlist ? state.wishlist.size : 0;
+  const wishlistFull = wishlistSize >= WISHLIST_CAP;
 
   const isPulled = (id) => state?.buku && state.buku[id] != null;
 
@@ -441,6 +656,12 @@ const BukuPetikan = ({ state }) => {
           </div>
           <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 text-right">
             {poolTotal > 0 ? Math.round((pulledTotal / poolTotal) * 100) : 0}% lengkap
+            {wishlistSize > 0 && (
+              <span className="ml-3 inline-flex items-center gap-1 text-[color:var(--retro-burgundy)]/75">
+                <i className="ri-heart-fill text-[10px]" />
+                Wishbook {wishlistSize}/{WISHLIST_CAP}
+              </span>
+            )}
           </p>
         </div>
 
@@ -554,7 +775,10 @@ const BukuPetikan = ({ state }) => {
             key={card.id}
             card={card}
             isPulled={isPulled(card.id)}
+            isWished={state?.wishlist?.has(card.id) || false}
+            wishlistFull={wishlistFull}
             onClick={() => isPulled(card.id) && setSelectedCardId(card.id)}
+            onToggleWish={handleToggleWish}
           />
         ))}
       </div>
@@ -573,6 +797,14 @@ const BukuPetikan = ({ state }) => {
           onClose={() => setSelectedCardId(null)}
         />
       )}
+
+      {/* Memori Hari Ini — full journal scroll, expandable. */}
+      <MemoriHariIni
+        recent={state?.recent}
+        onSelectCard={(id) => setSelectedCardId(id)}
+        expanded={journalExpanded}
+        onToggleExpand={() => setJournalExpanded((v) => !v)}
+      />
 
       {/* Credit reference — mekanik gacha (pity, history, encrypted
           backup) di-inspirasi dari Tierlist-JKT48 oleh MrcellSbst,

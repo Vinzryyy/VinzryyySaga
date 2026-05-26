@@ -15,8 +15,11 @@ import {
   getBuah,
   addBuah,
   spendBuah,
+  toggleWishlist,
   BUAH_CAP,
   PITY_THRESHOLD,
+  WISHLIST_CAP,
+  JOURNAL_CAP,
   _KEYS,
 } from '../petikanStorage';
 
@@ -348,20 +351,21 @@ describe('recent pulls log', () => {
     expect(next.recent[0].at).toBe('2026-05-26T10:00:00.000Z');
   });
 
-  it('applyPluck caps recent at 10 entries', () => {
+  it('applyPluck caps recent at JOURNAL_CAP (100) entries', () => {
     let state = { lastPluck: null, buku: {}, legenda: new Set(), recent: [] };
-    for (let i = 0; i < 15; i++) {
+    // Push 105 entries — cap should drop oldest 5
+    for (let i = 0; i < 105; i++) {
       state = applyPluck(
         state,
         { id: `card-${i}`, tier: 'muda' },
-        new Date(`2026-05-${10 + i}T10:00:00Z`),
+        new Date(2026, 0, 1, 0, 0, i), // unique timestamps
       );
     }
-    expect(state.recent.length).toBe(10);
-    // Newest (card-14) should be first
-    expect(state.recent[0].cardId).toBe('card-14');
-    // Oldest in cap (card-5) should be last
-    expect(state.recent[9].cardId).toBe('card-5');
+    expect(state.recent.length).toBe(100);
+    // Newest (card-104) should be first
+    expect(state.recent[0].cardId).toBe('card-104');
+    // After cap, oldest kept is card-5 (104-99 = 5)
+    expect(state.recent[99].cardId).toBe('card-5');
   });
 
   it('saveState → loadState preserves recent', () => {
@@ -407,5 +411,111 @@ describe('recent pulls log', () => {
     resetState();
     const loaded = loadState();
     expect(loaded.recent).toEqual([]);
+  });
+
+  it('applyPluck preserves card.prose into journal entry', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), recent: [] };
+    const card = { id: 'card-1', tier: 'matang', prose: 'Hari ini langit lembut.' };
+    const next = applyPluck(state, card, new Date('2026-05-26T10:00:00Z'));
+    expect(next.recent[0].prose).toBe('Hari ini langit lembut.');
+  });
+
+  it('applyPluck defaults prose to null when card has none', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), recent: [] };
+    const card = { id: 'card-1', tier: 'muda' };
+    const next = applyPluck(state, card, new Date('2026-05-26T10:00:00Z'));
+    expect(next.recent[0].prose).toBeNull();
+  });
+
+  it('JOURNAL_CAP exported as 100', () => {
+    expect(JOURNAL_CAP).toBe(100);
+  });
+});
+
+describe('wishlist toggle', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('loadState initializes wishlist to empty Set when missing', () => {
+    const state = loadState();
+    expect(state.wishlist).toBeInstanceOf(Set);
+    expect(state.wishlist.size).toBe(0);
+  });
+
+  it('toggleWishlist adds when not present', () => {
+    const next = toggleWishlist(new Set(), 'card-a');
+    expect(next.has('card-a')).toBe(true);
+    expect(next.size).toBe(1);
+  });
+
+  it('toggleWishlist removes when already present', () => {
+    const next = toggleWishlist(new Set(['card-a']), 'card-a');
+    expect(next.has('card-a')).toBe(false);
+    expect(next.size).toBe(0);
+  });
+
+  it('toggleWishlist refuses to add when at cap', () => {
+    const full = new Set(['a', 'b', 'c']);
+    const next = toggleWishlist(full, 'd');
+    expect(next.size).toBe(WISHLIST_CAP);
+    expect(next.has('d')).toBe(false);
+  });
+
+  it('toggleWishlist still removes when at cap (existing entry)', () => {
+    const full = new Set(['a', 'b', 'c']);
+    const next = toggleWishlist(full, 'b');
+    expect(next.size).toBe(2);
+    expect(next.has('b')).toBe(false);
+  });
+
+  it('toggleWishlist returns NEW Set (immutable)', () => {
+    const original = new Set(['x']);
+    const next = toggleWishlist(original, 'y');
+    expect(next).not.toBe(original);
+    expect(original.size).toBe(1); // unchanged
+  });
+
+  it('saveState → loadState roundtrip preserves wishlist', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      wishlist: new Set(['arme-vtuber-lightstick', 'arme-vtuber-dance-helltaker']),
+    };
+    saveState(state);
+    const loaded = loadState();
+    expect(loaded.wishlist.size).toBe(2);
+    expect(loaded.wishlist.has('arme-vtuber-lightstick')).toBe(true);
+  });
+
+  it('loadState caps wishlist at WISHLIST_CAP from corrupted storage', () => {
+    // Inject 5 entries — should clip to 3
+    localStorage.setItem(
+      _KEYS.wishlist,
+      JSON.stringify(['a', 'b', 'c', 'd', 'e']),
+    );
+    const loaded = loadState();
+    expect(loaded.wishlist.size).toBe(WISHLIST_CAP);
+  });
+
+  it('resetState clears wishlist', () => {
+    saveState({
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      wishlist: new Set(['x']),
+    });
+    resetState();
+    const loaded = loadState();
+    expect(loaded.wishlist.size).toBe(0);
+  });
+
+  it('WISHLIST_CAP exported as 3', () => {
+    expect(WISHLIST_CAP).toBe(3);
   });
 });

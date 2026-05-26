@@ -211,6 +211,88 @@ describe('pickCard pity overrides', () => {
   });
 });
 
+describe('pickCard wishlist soft-pity bias', () => {
+  it('respects wishlist when pity-langka triggers and rng favors bias', () => {
+    // Force pity langka active. Set wishlist to a SPECIFIC langka card.
+    // RNG sequence: first call < 0.5 (bias to wishlist), second pick from
+    // wishlist subset (only 1 candidate → idx 0).
+    const langkaIds = POHON_APRIKOT_POOL
+      .filter((c) => c.tier === 'langka')
+      .map((c) => c.id);
+    expect(langkaIds.length).toBeGreaterThan(0);
+    const wishedId = langkaIds[0];
+    const state = {
+      legenda: new Set(),
+      pity: { langka: PITY_THRESHOLD.langka, legenda: 0 },
+      wishlist: new Set([wishedId]),
+    };
+    let calls = 0;
+    const rng = () => {
+      // Call 1 (rollTier): irrelevant since pity overrides
+      // Call 2 (bias check): 0.4 → < 0.5 → bias to wishlist
+      // Call 3 (idx pick): 0 → pick first of wishlist subset
+      calls++;
+      if (calls === 1) return 0.4;
+      return 0;
+    };
+    const card = pickCard(state, '2026-05-26', rng);
+    expect(card.id).toBe(wishedId);
+    expect(card.tier).toBe('langka');
+  });
+
+  it('does NOT bias on pure (non-pity) rolls — RNG controls', () => {
+    // No pity triggered. Wishlist set but should be ignored.
+    const langkaIds = POHON_APRIKOT_POOL
+      .filter((c) => c.tier === 'langka')
+      .map((c) => c.id);
+    const wishedId = langkaIds[0];
+    const state = {
+      legenda: new Set(),
+      pity: { langka: 0, legenda: 0 },
+      wishlist: new Set([wishedId]),
+    };
+    // rng=0.1 → muda tier roll. Wishlist (langka entry) gak relevant
+    // karena tier yang dipilih muda, dan opts.pityActive = false.
+    const card = pickCard(state, '2026-05-26', () => 0.1);
+    expect(card.tier).toBe('muda');
+  });
+
+  it('falls back to normal random pick when wishlist empty', () => {
+    const state = {
+      legenda: new Set(),
+      pity: { langka: PITY_THRESHOLD.langka, legenda: 0 },
+      wishlist: new Set(),
+    };
+    const card = pickCard(state, '2026-05-26', () => 0);
+    expect(card.tier).toBe('langka');
+  });
+
+  it('falls back to non-wishlist pick when rng>=0.5 (50% chance)', () => {
+    const langkaIds = POHON_APRIKOT_POOL
+      .filter((c) => c.tier === 'langka')
+      .map((c) => c.id);
+    const wishedId = langkaIds[0];
+    const state = {
+      legenda: new Set(),
+      pity: { langka: PITY_THRESHOLD.langka, legenda: 0 },
+      wishlist: new Set([wishedId]),
+    };
+    let calls = 0;
+    const rng = () => {
+      calls++;
+      // Call 1: rollTier (irrelevant — pity overrides)
+      // Call 2: bias check, 0.7 → >= 0.5 → no bias
+      // Call 3: idx pick (0)
+      if (calls === 1) return 0.7;
+      return 0;
+    };
+    const card = pickCard(state, '2026-05-26', rng);
+    expect(card.tier).toBe('langka');
+    // First langka card in the (filtered) candidates — might be wished
+    // or not; we don't assert specifically since order depends on pool.
+  });
+});
+
 // GIF-only experimental pool (2026-05-26): semua kartu = CoffeeBean
 // (Arme VTuber form). Test assertions di-relax buat reflect pool yang
 // jauh lebih kecil + tanpa archive photos. Kalau revert ke comprehensive

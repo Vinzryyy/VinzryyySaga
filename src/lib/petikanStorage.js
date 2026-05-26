@@ -21,11 +21,22 @@ const KEYS = {
   buah: 'aprikot_buah',
   pity: 'aprikot_pity',
   recent: 'aprikot_recent',
+  wishlist: 'aprikot_wishlist',
 };
 
-// Recent pulls log cap — referensi history array di Tierlist-JKT48
-// (MrcellSbst). Kept compact biar storage gak balloon.
-export const RECENT_CAP = 10;
+// Journal cap — full pluck history disimpan ke state.recent. UI bisa
+// render slice(0, RECENT_DISPLAY) untuk quick-glance strip atau full
+// array untuk Memori Hari Ini section. Was 10 (referensi history dari
+// Tierlist-JKT48), bumped to 100 supaya bisa nampung ~3 bulan plucks
+// + jadi journal yang meaningful.
+export const JOURNAL_CAP = 100;
+export const RECENT_DISPLAY = 10;
+// Backward-compat alias — tests + old callers masih reference RECENT_CAP.
+export const RECENT_CAP = JOURNAL_CAP;
+
+// Wishlist cap — user pin up to N kartu yang mereka pengen. Soft pity
+// bias akan weight ke wishlist saat pity-langka/legenda trigger.
+export const WISHLIST_CAP = 3;
 
 // Pity thresholds — referensi mekanik UR_PITY_LIMIT dari Tierlist-JKT48
 // (MrcellSbst). Counter naik tiap pluck di bawah tier, reset saat tier
@@ -125,6 +136,7 @@ export const loadState = () => {
       : { langka: 0, legenda: 0 };
   const recentRaw = safeParse(safeRead(KEYS.recent), []);
   // Filter ke entries yang punya cardId + tier + at, drop garbage.
+  // prose field optional (added 2026-05-27); legacy entries dapet null.
   const recent = Array.isArray(recentRaw)
     ? recentRaw
         .filter(
@@ -134,14 +146,31 @@ export const loadState = () => {
             typeof e.tier === 'string' &&
             typeof e.at === 'string'
         )
-        .slice(0, RECENT_CAP)
+        .map((e) => ({
+          cardId: e.cardId,
+          tier: e.tier,
+          at: e.at,
+          prose: typeof e.prose === 'string' ? e.prose : null,
+        }))
+        .slice(0, JOURNAL_CAP)
     : [];
+  // Wishlist — array of cardIds, capped at WISHLIST_CAP. Serialized as
+  // array (not Set) untuk JSON-friendly storage.
+  const wishlistRaw = safeParse(safeRead(KEYS.wishlist), []);
+  const wishlist = new Set(
+    Array.isArray(wishlistRaw)
+      ? wishlistRaw
+          .filter((id) => typeof id === 'string')
+          .slice(0, WISHLIST_CAP)
+      : []
+  );
   return {
     lastPluck: typeof lastPluck === 'string' ? lastPluck : null,
     buku: typeof buku === 'object' && buku !== null ? buku : {},
     legenda: new Set(Array.isArray(legendaArr) ? legendaArr : []),
     pity,
     recent,
+    wishlist,
   };
 };
 
@@ -159,7 +188,11 @@ export const saveState = (state) => {
     safeWrite(KEYS.pity, JSON.stringify(state.pity));
   }
   if (Array.isArray(state.recent)) {
-    safeWrite(KEYS.recent, JSON.stringify(state.recent.slice(0, RECENT_CAP)));
+    safeWrite(KEYS.recent, JSON.stringify(state.recent.slice(0, JOURNAL_CAP)));
+  }
+  if (state.wishlist) {
+    const arr = Array.from(state.wishlist).slice(0, WISHLIST_CAP);
+    safeWrite(KEYS.wishlist, JSON.stringify(arr));
   }
 };
 
@@ -199,10 +232,16 @@ export const applyPluck = (state, card, now = new Date()) => {
     langka: isLangkaPlus ? 0 : prevPity.langka + 1,
     legenda: isLegenda ? 0 : prevPity.legenda + 1,
   };
-  // Recent pulls log — prepend new entry, cap at RECENT_CAP. ISO timestamp
-  // bukan WIB date string supaya UI bisa render "X menit lalu" akurat.
-  const newEntry = { cardId: card.id, tier: card.tier, at: now.toISOString() };
-  const nextRecent = [newEntry, ...(state.recent || [])].slice(0, RECENT_CAP);
+  // Journal entry — prepend new pluck, cap at JOURNAL_CAP (100 entries
+  // ≈ 3 bulan daily). prose field di-set di handlePluck (atau di sini
+  // kalau caller pass it via card.prose; backward-compat: null).
+  const newEntry = {
+    cardId: card.id,
+    tier: card.tier,
+    at: now.toISOString(),
+    prose: card.prose || null,
+  };
+  const nextRecent = [newEntry, ...(state.recent || [])].slice(0, JOURNAL_CAP);
   return {
     lastPluck: today,
     buku: nextBuku,
@@ -262,9 +301,25 @@ export const resetState = () => {
     localStorage.removeItem(KEYS.buah);
     localStorage.removeItem(KEYS.pity);
     localStorage.removeItem(KEYS.recent);
+    localStorage.removeItem(KEYS.wishlist);
   } catch {
     // ignored
   }
+};
+
+/**
+ * Toggle a cardId in the wishlist. Returns the next Set (immutable —
+ * caller writes back via saveState). If already in wishlist, removes it.
+ * If at WISHLIST_CAP, refuses to add (returns same Set).
+ */
+export const toggleWishlist = (wishlist, cardId) => {
+  const next = new Set(wishlist || []);
+  if (next.has(cardId)) {
+    next.delete(cardId);
+  } else if (next.size < WISHLIST_CAP) {
+    next.add(cardId);
+  }
+  return next;
 };
 
 // Surfaced for tests / debugging.

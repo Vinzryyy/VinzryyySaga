@@ -368,13 +368,38 @@ export const eligibleCards = (pool, tier, todayJakarta) => {
  * Pick a card given an RNG, tier, and ownedLegendaIds set (for no-dup
  * enforcement). Returns null kalau pool kosong untuk tier itu (caller
  * harus fallback ke tier lower).
+ *
+ * Soft pity bias: opts.wishlist (Set<cardId>) + opts.pityActive (bool).
+ * Saat pityActive=true dan ada eligible candidate yang juga di
+ * wishlist user, 50/50 chance pick dari wishlist subset vs full pool.
+ * Player agency without breaking randomness (referensi: Genshin/HSR
+ * banner systems). Pure rolls (non-pity) UN-touched — wishlist gak
+ * influence muda/matang biar gak gampang banget.
  */
-export const pickCardFromTier = (pool, tier, todayJakarta, ownedLegendaIds, rng = Math.random) => {
+export const pickCardFromTier = (
+  pool,
+  tier,
+  todayJakarta,
+  ownedLegendaIds,
+  rng = Math.random,
+  opts = {}
+) => {
   let candidates = eligibleCards(pool, tier, todayJakarta);
   if (tier === 'legenda' && TIER_CONFIG.legenda.noDup) {
     candidates = candidates.filter((c) => !ownedLegendaIds.has(c.id));
   }
   if (candidates.length === 0) return null;
+  // Soft pity wishlist bias — only saat pityActive + ada candidate yang
+  // matching wishlist + user belum own card itu (for non-legenda, owned
+  // gak diblokir tapi user mungkin mau langka baru, jadi bias ke yang
+  // belum dipunya kalau mungkin).
+  if (opts.pityActive && opts.wishlist && opts.wishlist.size > 0) {
+    const wishMatches = candidates.filter((c) => opts.wishlist.has(c.id));
+    if (wishMatches.length > 0 && rng() < 0.5) {
+      const idx = Math.floor(rng() * wishMatches.length);
+      return wishMatches[idx];
+    }
+  }
   const idx = Math.floor(rng() * candidates.length);
   return candidates[idx];
 };
@@ -412,21 +437,26 @@ export const pickCard = (state, todayJakarta, rng = Math.random, pool = POHON_AP
   // Check legenda pity first — kalau hit, force legenda tier (fallback
   // chain will handle if all legenda owned).
   let rolledTier;
+  let pityActive = false;
   const legendaInPool = pool.filter((c) => c.tier === 'legenda');
   const allLegendaOwned =
     legendaInPool.length > 0 &&
     legendaInPool.every((c) => state.legenda?.has(c.id));
   if (pity.legenda >= PITY_THRESHOLD.legenda && !allLegendaOwned) {
     rolledTier = 'legenda';
+    pityActive = true;
   } else if (pity.langka >= PITY_THRESHOLD.langka) {
     rolledTier = 'langka';
+    pityActive = true;
   } else {
     rolledTier = rollTier(rng);
   }
+  // Wishlist bias hanya kalau pityActive — pure rolls un-touched.
+  const opts = { pityActive, wishlist: state.wishlist };
   const startIdx = TIER_FALLBACK_ORDER.indexOf(rolledTier);
   for (let i = startIdx; i < TIER_FALLBACK_ORDER.length; i++) {
     const tier = TIER_FALLBACK_ORDER[i];
-    const card = pickCardFromTier(pool, tier, todayJakarta, state.legenda, rng);
+    const card = pickCardFromTier(pool, tier, todayJakarta, state.legenda, rng, opts);
     if (card) return card;
   }
   return null;

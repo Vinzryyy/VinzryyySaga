@@ -27,6 +27,7 @@ import {
   spendBuah,
 } from '../lib/petikanStorage';
 import { BATCH_ID, pickCard } from '../data/pohonAprikot';
+import { pickProse } from '../data/petikanProse';
 
 const formatCountdown = (ms) => {
   if (ms <= 0) return '00:00:00';
@@ -106,7 +107,11 @@ const Petikan = () => {
       setEmptyPool(true);
       return;
     }
-    const nextState = applyPluck(state, card, now);
+    // Pick prose line for today's journal entry — frozen at pluck time
+    // (random pick now, not deferred render) supaya entry stays stable
+    // even kalau prose library di-update di future deploy.
+    const prose = pickProse(card.tier);
+    const nextState = applyPluck(state, { ...card, prose }, now);
     // Free daily first (set lastPluck via applyPluck), else spend buah.
     // Dev bypass: skip both — preserve lastPluck & buah for testing.
     if (devBypass) {
@@ -292,7 +297,7 @@ const Petikan = () => {
 
           {/* Buku Petikan — koleksi historis lintas hari. Render setelah
               tree + reveal supaya focus utama tetep di pohon hari ini. */}
-          <BukuPetikan state={state} />
+          <BukuPetikan state={state} onStateChange={setState} />
 
           {/* Footer credit */}
           <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/50 mt-16">
