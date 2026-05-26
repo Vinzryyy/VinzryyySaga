@@ -11,6 +11,7 @@ import {
   POHON_APRIKOT_POOL,
   TIER_CONFIG,
   SEITANSAI_WINDOW,
+  PITY_THRESHOLD,
   rollTier,
   pickCardFromTier,
   pickCard,
@@ -148,6 +149,65 @@ describe('pickCard fallback chain', () => {
     const state = { legenda: new Set() };
     const card = pickCard(state, '2026-05-26', Math.random, []);
     expect(card).toBeNull();
+  });
+});
+
+describe('pickCard pity overrides', () => {
+  it('forces langka tier when pity.langka >= threshold', () => {
+    const state = {
+      legenda: new Set(),
+      pity: { langka: PITY_THRESHOLD.langka, legenda: 0 },
+    };
+    // rng = 0.1 (would normally roll muda) — pity should override
+    const card = pickCard(state, '2026-05-26', () => 0.1);
+    expect(card).not.toBeNull();
+    expect(card.tier).toBe('langka');
+  });
+
+  it('forces legenda tier when pity.legenda >= threshold', () => {
+    const state = {
+      legenda: new Set(),
+      pity: { langka: 0, legenda: PITY_THRESHOLD.legenda },
+    };
+    // rng = 0.1 (would normally roll muda) — legenda pity wins
+    const card = pickCard(state, '2026-05-26', () => 0.1);
+    expect(card).not.toBeNull();
+    expect(card.tier).toBe('legenda');
+  });
+
+  it('legenda pity takes precedence over langka pity', () => {
+    const state = {
+      legenda: new Set(),
+      pity: { langka: PITY_THRESHOLD.langka, legenda: PITY_THRESHOLD.legenda },
+    };
+    const card = pickCard(state, '2026-05-26', () => 0.1);
+    expect(card.tier).toBe('legenda');
+  });
+
+  it('legenda pity skipped if all legenda already owned (falls to normal roll)', () => {
+    const allLegendaIds = POHON_APRIKOT_POOL
+      .filter((c) => c.tier === 'legenda')
+      .map((c) => c.id);
+    const state = {
+      legenda: new Set(allLegendaIds),
+      pity: { langka: 0, legenda: PITY_THRESHOLD.legenda + 10 },
+    };
+    // rng = 0.1 → muda. Pity legenda would override → legenda → no
+    // eligible legenda → fallback chain. Should NOT trigger pity at
+    // all since user owns everything. Result: normal muda roll.
+    const card = pickCard(state, '2026-05-26', () => 0.1);
+    expect(card).not.toBeNull();
+    expect(card.tier).toBe('muda');
+  });
+
+  it('does NOT override when pity below threshold', () => {
+    const state = {
+      legenda: new Set(),
+      pity: { langka: PITY_THRESHOLD.langka - 1, legenda: 0 },
+    };
+    // rng = 0.1 → muda. No override since langka pity = threshold - 1.
+    const card = pickCard(state, '2026-05-26', () => 0.1);
+    expect(card.tier).toBe('muda');
   });
 });
 

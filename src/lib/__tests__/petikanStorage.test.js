@@ -16,6 +16,7 @@ import {
   addBuah,
   spendBuah,
   BUAH_CAP,
+  PITY_THRESHOLD,
   _KEYS,
 } from '../petikanStorage';
 
@@ -248,5 +249,77 @@ describe('buah currency (Pohon Kebaikan reward)', () => {
     expect(getBuah()).toBe(0);
     localStorage.setItem(_KEYS.buah, '999');
     expect(getBuah()).toBe(BUAH_CAP);
+  });
+});
+
+describe('pity counters (applyPluck + loadState roundtrip)', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('loadState initializes pity to {langka:0, legenda:0} when missing', () => {
+    const state = loadState();
+    expect(state.pity).toEqual({ langka: 0, legenda: 0 });
+  });
+
+  it('applyPluck increments both counters on muda drop', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), pity: { langka: 3, legenda: 12 } };
+    const next = applyPluck(state, { id: 'x', tier: 'muda' }, new Date('2026-05-26T10:00:00+07:00'));
+    expect(next.pity.langka).toBe(4);
+    expect(next.pity.legenda).toBe(13);
+  });
+
+  it('applyPluck increments both counters on matang drop', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), pity: { langka: 5, legenda: 20 } };
+    const next = applyPluck(state, { id: 'x', tier: 'matang' }, new Date('2026-05-26T10:00:00+07:00'));
+    expect(next.pity.langka).toBe(6);
+    expect(next.pity.legenda).toBe(21);
+  });
+
+  it('langka drop resets langka counter, increments legenda', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), pity: { langka: 8, legenda: 25 } };
+    const next = applyPluck(state, { id: 'x', tier: 'langka' }, new Date('2026-05-26T10:00:00+07:00'));
+    expect(next.pity.langka).toBe(0);
+    expect(next.pity.legenda).toBe(26);
+  });
+
+  it('legenda drop resets BOTH counters', () => {
+    const state = { lastPluck: null, buku: {}, legenda: new Set(), pity: { langka: 5, legenda: 49 } };
+    const next = applyPluck(state, { id: 'arme', tier: 'legenda' }, new Date('2026-05-26T10:00:00+07:00'));
+    expect(next.pity.langka).toBe(0);
+    expect(next.pity.legenda).toBe(0);
+  });
+
+  it('saveState → loadState roundtrip preserves pity', () => {
+    const state = {
+      lastPluck: '2026-05-26',
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 7, legenda: 33 },
+    };
+    saveState(state);
+    const loaded = loadState();
+    expect(loaded.pity).toEqual({ langka: 7, legenda: 33 });
+  });
+
+  it('PITY_THRESHOLD constants exported correctly', () => {
+    expect(PITY_THRESHOLD.langka).toBe(10);
+    expect(PITY_THRESHOLD.legenda).toBe(50);
+  });
+
+  it('resetState clears pity key', () => {
+    saveState({
+      lastPluck: '2026-05-26',
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 9, legenda: 49 },
+    });
+    resetState();
+    const loaded = loadState();
+    expect(loaded.pity).toEqual({ langka: 0, legenda: 0 });
   });
 });

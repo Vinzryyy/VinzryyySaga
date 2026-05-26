@@ -21,6 +21,7 @@ import {
   TIER_CONFIG,
   SEITANSAI_WINDOW,
 } from '../../data/pohonAprikot';
+import { PITY_THRESHOLD } from '../../lib/petikanStorage';
 import KartuIngatan from './KartuIngatan';
 
 const TIER_FILTERS = [
@@ -201,6 +202,15 @@ const RatesModal = ({ onClose }) => {
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
+              <strong>Jaminan:</strong> setiap {PITY_THRESHOLD.langka} petik
+              tanpa Langka+, pohon menjamin Langka di petik berikutnya.
+              Setiap {PITY_THRESHOLD.legenda} petik tanpa Legenda, pohon
+              menjamin Legenda.
+            </p>
+            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+              <span className="font-semibold text-[color:var(--retro-burgundy)]">
+                ·
+              </span>{' '}
               Aprikot Mei hanya jatuh dari {SEITANSAI_WINDOW.start.slice(5)}
               {' — '}
               {SEITANSAI_WINDOW.end.slice(5)} (musim seitansai Eli).
@@ -364,6 +374,33 @@ const BukuPetikan = ({ state }) => {
         <p className="text-xs text-[color:var(--retro-brown-dark)]/60 italic">
           Setiap hari pohon menggugurkan satu — kembalilah pelan-pelan.
         </p>
+
+        {/* Pity progress — gacha-jaminan dari MrcellSbst's Tierlist-JKT48
+            UR pity mekanik. Tampilkan hitungan ke jaminan langka +
+            legenda. Counter di state.pity, threshold di PITY_THRESHOLD.
+            Hide kalau user fully exhausted legenda pool (gak meaningful). */}
+        {state?.pity && (() => {
+          const langkaLeft = Math.max(0, PITY_THRESHOLD.langka - state.pity.langka);
+          const legendaLeft = Math.max(0, PITY_THRESHOLD.legenda - state.pity.legenda);
+          const legendaTotal = POHON_APRIKOT_POOL.filter((c) => c.tier === 'legenda').length;
+          const legendaOwned = state.legenda ? state.legenda.size : 0;
+          const showLegendaPity = legendaTotal > 0 && legendaOwned < legendaTotal;
+          if (!showLegendaPity && langkaLeft === PITY_THRESHOLD.langka) {
+            // No progress to show
+            return null;
+          }
+          return (
+            <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55">
+              <i className="ri-shield-star-line mr-1 text-[11px]" />
+              Jaminan: langka {state.pity.langka}/{PITY_THRESHOLD.langka}
+              {showLegendaPity && (
+                <>
+                  {' · '}legenda {state.pity.legenda}/{PITY_THRESHOLD.legenda}
+                </>
+              )}
+            </p>
+          );
+        })()}
 
         {/* Rates link — TCG-standard pull-rate transparency. Subtle
             text-link, opens modal dengan tier weights + no-dup rule. */}

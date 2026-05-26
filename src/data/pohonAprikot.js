@@ -380,14 +380,49 @@ export const pickCardFromTier = (pool, tier, todayJakarta, ownedLegendaIds, rng 
 };
 
 /**
+ * Pity thresholds — counter di state.pity {langka, legenda} naik tiap
+ * pluck. Saat hitung MENCAPAI threshold, tier di-override ke pity tier.
+ *   langka  → 10 plucks tanpa langka+ guarantees langka
+ *   legenda → 50 plucks tanpa legenda guarantees legenda
+ * Single source di petikanStorage.js (PITY_THRESHOLD), di-mirror di
+ * sini supaya data layer self-contained untuk testing tanpa import
+ * storage.
+ *
+ * Referensi: UR_PITY_LIMIT dari Tierlist-JKT48 (MrcellSbst).
+ */
+export const PITY_THRESHOLD = {
+  langka: 10,
+  legenda: 50,
+};
+
+/**
  * Top-level orchestrator: roll tier, pick card, fallback ke tier lower
  * kalau pool tier yang di-roll kosong/exhausted. Returns the card or
  * null kalau seluruh pool kosong (pohon belum berbuah).
  *
- * State shape minimal: `{ legenda: Set<string> }` — ownedLegendaIds.
+ * State shape: `{ legenda: Set<string>, pity?: {langka, legenda} }`.
+ * Pity overrides:
+ *   - state.pity.legenda >= 50 → force tier = 'legenda'
+ *   - state.pity.langka  >= 10 → force tier = 'langka' (if not already legenda override)
+ * Override skipped saat user udah own semua legenda (pool exhausted
+ * for that tier) — pity gak meaningful kalau gak ada card baru.
  */
 export const pickCard = (state, todayJakarta, rng = Math.random, pool = POHON_APRIKOT_POOL) => {
-  const rolledTier = rollTier(rng);
+  const pity = state.pity || { langka: 0, legenda: 0 };
+  // Check legenda pity first — kalau hit, force legenda tier (fallback
+  // chain will handle if all legenda owned).
+  let rolledTier;
+  const legendaInPool = pool.filter((c) => c.tier === 'legenda');
+  const allLegendaOwned =
+    legendaInPool.length > 0 &&
+    legendaInPool.every((c) => state.legenda?.has(c.id));
+  if (pity.legenda >= PITY_THRESHOLD.legenda && !allLegendaOwned) {
+    rolledTier = 'legenda';
+  } else if (pity.langka >= PITY_THRESHOLD.langka) {
+    rolledTier = 'langka';
+  } else {
+    rolledTier = rollTier(rng);
+  }
   const startIdx = TIER_FALLBACK_ORDER.indexOf(rolledTier);
   for (let i = startIdx; i < TIER_FALLBACK_ORDER.length; i++) {
     const tier = TIER_FALLBACK_ORDER[i];

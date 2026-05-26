@@ -19,6 +19,17 @@ const KEYS = {
   buku: 'aprikot_buku',
   legenda: 'aprikot_legenda',
   buah: 'aprikot_buah',
+  pity: 'aprikot_pity',
+};
+
+// Pity thresholds — referensi mekanik UR_PITY_LIMIT dari Tierlist-JKT48
+// (MrcellSbst). Counter naik tiap pluck di bawah tier, reset saat tier
+// (atau lebih tinggi) didapat.
+//   langka  → guaranteed in 10 plucks
+//   legenda → guaranteed in 50 plucks
+export const PITY_THRESHOLD = {
+  langka: 10,
+  legenda: 50,
 };
 
 // Buah Pohon Kebaikan — currency yang user dapat dari tap dukungan
@@ -99,10 +110,19 @@ export const loadState = () => {
   const lastPluck = safeRead(KEYS.lastPluck);
   const buku = safeParse(safeRead(KEYS.buku), {});
   const legendaArr = safeParse(safeRead(KEYS.legenda), []);
+  const pityRaw = safeParse(safeRead(KEYS.pity), null);
+  const pity =
+    pityRaw && typeof pityRaw === 'object'
+      ? {
+          langka: Math.max(0, parseInt(pityRaw.langka, 10) || 0),
+          legenda: Math.max(0, parseInt(pityRaw.legenda, 10) || 0),
+        }
+      : { langka: 0, legenda: 0 };
   return {
     lastPluck: typeof lastPluck === 'string' ? lastPluck : null,
     buku: typeof buku === 'object' && buku !== null ? buku : {},
     legenda: new Set(Array.isArray(legendaArr) ? legendaArr : []),
+    pity,
   };
 };
 
@@ -116,6 +136,9 @@ export const saveState = (state) => {
     KEYS.legenda,
     JSON.stringify(Array.from(state.legenda || []))
   );
+  if (state.pity) {
+    safeWrite(KEYS.pity, JSON.stringify(state.pity));
+  }
 };
 
 /**
@@ -144,10 +167,21 @@ export const applyPluck = (state, card, now = new Date()) => {
   };
   const nextLegenda = new Set(state.legenda);
   if (card.tier === 'legenda') nextLegenda.add(card.id);
+  // Pity counters — reset saat threshold tier (atau di atasnya) drop,
+  // increment otherwise. langka counter reset on langka+ (langka or
+  // legenda), legenda counter reset on legenda only.
+  const prevPity = state.pity || { langka: 0, legenda: 0 };
+  const isLegenda = card.tier === 'legenda';
+  const isLangkaPlus = card.tier === 'langka' || isLegenda;
+  const nextPity = {
+    langka: isLangkaPlus ? 0 : prevPity.langka + 1,
+    legenda: isLegenda ? 0 : prevPity.legenda + 1,
+  };
   return {
     lastPluck: today,
     buku: nextBuku,
     legenda: nextLegenda,
+    pity: nextPity,
   };
 };
 
@@ -199,6 +233,7 @@ export const resetState = () => {
     localStorage.removeItem(KEYS.buku);
     localStorage.removeItem(KEYS.legenda);
     localStorage.removeItem(KEYS.buah);
+    localStorage.removeItem(KEYS.pity);
   } catch {
     // ignored
   }
