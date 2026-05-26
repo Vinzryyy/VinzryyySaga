@@ -16,6 +16,7 @@
  */
 
 import { PETIKAN_MUDA_POOL } from './petikanMudaPool';
+import { PETIKAN_EMOTELABS_CARDS } from './petikanEmoteLabsCards';
 
 // Helper untuk audio path /AI/*.wav — encodeURI handle spaces + special
 // chars di legacy "N. CAPS.wav" naming dari sesi recording. Pattern
@@ -287,6 +288,7 @@ export const POHON_APRIKOT_POOL = [
   ...LANGKA_CARDS,
   ...MATANG_CARDS,
   ...PETIKAN_MUDA_POOL,
+  ...PETIKAN_EMOTELABS_CARDS,
 ];
 
 // Tier fallback order — kalau tier yang di-roll gak punya eligible

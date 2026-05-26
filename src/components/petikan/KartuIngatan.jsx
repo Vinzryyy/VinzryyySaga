@@ -150,14 +150,19 @@ const KartuIngatan = ({ card }) => {
 
       {/* Content area — scrollable kalau caption panjang (uncommon) */}
       <div className="relative h-full flex flex-col px-5 pt-5 pb-5 pl-7 overflow-y-auto">
-        {/* Image hero */}
+        {/* Image hero. Chibi (CoffeeBean PNGTuber) GIFs: object-contain
+            against cream background biar full character ke-lihat, gak
+            ke-crop. Photo cards tetap object-cover. */}
         {card.image && (
-          <div className="relative w-full max-w-[200px] mx-auto aspect-[3/4] mb-4 overflow-hidden rounded-md border border-[color:var(--retro-brown-dark)]/15 shadow-sm shrink-0">
+          <div
+            className="relative w-full max-w-[200px] mx-auto aspect-[3/4] mb-4 overflow-hidden rounded-md border border-[color:var(--retro-brown-dark)]/15 shadow-sm shrink-0"
+            style={card.artStyle === 'chibi' ? { background: 'var(--retro-cream, #faf6ed)' } : undefined}
+          >
             <img
               src={card.image}
               alt={card.title}
               loading="lazy"
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${card.artStyle === 'chibi' ? 'object-contain' : 'object-cover'}`}
               style={{ filter: 'sepia(0.18) saturate(0.92)' }}
             />
           </div>
