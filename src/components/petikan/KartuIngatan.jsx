@@ -199,10 +199,10 @@ const KartuIngatan = ({ card }) => {
           </div>
         )}
 
-        {/* Bottom meta */}
+        {/* Bottom meta — URL doubles as watermark untuk share-as-PNG */}
         <div className="mt-auto pt-3 text-center">
           <p className="text-[8px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/50">
-            Petikan · Pohon Aprikot
+            Petikan · armeniaca.online
           </p>
         </div>
       </div>

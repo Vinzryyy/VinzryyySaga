@@ -15,6 +15,7 @@ import PohonAprikot from '../components/petikan/PohonAprikot';
 import KartuFlip from '../components/petikan/KartuFlip';
 import LegendaReveal from '../components/petikan/LegendaReveal';
 import BukuPetikan from '../components/petikan/BukuPetikan';
+import ShareCardImage from '../components/petikan/ShareCardImage';
 import {
   applyPluck,
   canPluckToday,
@@ -187,6 +188,11 @@ const Petikan = () => {
                 card={pluckedCard}
                 delay={pluckedCard.tier === 'legenda' ? 1.5 : 0}
               />
+              {/* Share button — capture off-screen clone via html-to-image
+                  → Web Share API mobile, download fallback desktop. */}
+              <div className="mt-6 flex justify-center">
+                <ShareCardImage card={pluckedCard} />
+              </div>
             </div>
           )}
 
