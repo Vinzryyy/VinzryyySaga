@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { TIER_CONFIG } from '../../data/pohonAprikot';
+import { TIER_CONFIG, SET_SIZE, SET_CODE } from '../../data/pohonAprikot';
 
 const KartuBack = ({ tier = 'muda' }) => {
   const cfg = TIER_CONFIG[tier] || TIER_CONFIG.muda;
@@ -63,17 +63,85 @@ const KartuBack = ({ tier = 'muda' }) => {
           Petikan
         </p>
 
-        {/* Leaf motif */}
+        {/* Pohon Aprikot crest — apricot fruit + leaf inside dotted
+            roundel. TCG set-symbol convention scaled up untuk card back
+            centerpiece. Color matches tier (legenda = gold, others =
+            burgundy) sebagai subtle pre-flip hint. */}
         <svg
-          width="48"
-          height="48"
-          viewBox="0 0 48 48"
+          width="72"
+          height="72"
+          viewBox="0 0 72 72"
           className="mb-6"
           aria-hidden="true"
         >
-          <ellipse cx="24" cy="24" rx="14" ry="22" fill="#6b7a47" opacity="0.75" transform="rotate(35 24 24)" />
-          <ellipse cx="24" cy="24" rx="13" ry="20" fill="#8a9659" opacity="0.5" transform="rotate(35 24 24)" />
-          <path d="M 24 4 Q 24 24 24 44" stroke="#5a3e2b" strokeWidth="1" fill="none" transform="rotate(35 24 24)" />
+          {/* Dotted roundel — 16 dots around perimeter */}
+          {Array.from({ length: 16 }).map((_, i) => {
+            const angle = (i / 16) * Math.PI * 2 - Math.PI / 2;
+            const cx = 36 + Math.cos(angle) * 32;
+            const cy = 36 + Math.sin(angle) * 32;
+            return (
+              <circle
+                key={i}
+                cx={cx}
+                cy={cy}
+                r="1.1"
+                fill={isLegenda ? '#daaf5c' : 'var(--retro-burgundy)'}
+                opacity="0.55"
+              />
+            );
+          })}
+          {/* Inner circle outline */}
+          <circle
+            cx="36"
+            cy="36"
+            r="25"
+            stroke={isLegenda ? '#daaf5c' : 'var(--retro-burgundy)'}
+            strokeWidth="0.8"
+            fill="none"
+            opacity="0.4"
+          />
+          {/* Apricot fruit */}
+          <circle
+            cx="36"
+            cy="42"
+            r="14"
+            fill={isLegenda ? '#daaf5c' : 'var(--retro-burgundy)'}
+            opacity="0.85"
+          />
+          {/* Apricot cleft */}
+          <path
+            d="M 36 30 Q 36 42 36 56"
+            stroke={isLegenda ? '#b8893f' : '#5a2e2e'}
+            strokeWidth="0.8"
+            fill="none"
+            opacity="0.5"
+          />
+          {/* Stem */}
+          <path
+            d="M 36 28 Q 39 22 44 19"
+            stroke={isLegenda ? '#b8893f' : '#5a3e2b'}
+            strokeWidth="1.4"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Leaf */}
+          <ellipse
+            cx="46"
+            cy="20"
+            rx="6"
+            ry="3"
+            fill="#6b7a47"
+            opacity="0.85"
+            transform="rotate(-25 46 20)"
+          />
+          <path
+            d="M 42 21 Q 46 19 50 18"
+            stroke="#5a3e2b"
+            strokeWidth="0.6"
+            fill="none"
+            opacity="0.6"
+            transform="rotate(-25 46 20)"
+          />
         </svg>
 
         {/* Wordmark — large */}
@@ -95,11 +163,14 @@ const KartuBack = ({ tier = 'muda' }) => {
           Seitansai · 2026
         </p>
 
-        {/* Bottom seal — small ornamental dot */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
-          <span className="w-1 h-1 rounded-full bg-[color:var(--retro-burgundy)]/40" />
-          <span className="w-2 h-2 rounded-full bg-[color:var(--retro-burgundy)]/55" />
-          <span className="w-1 h-1 rounded-full bg-[color:var(--retro-burgundy)]/40" />
+        {/* Bottom: set code + total card count — TCG batch identifier.
+            Replaces decorative dots dengan informasi yang berguna buat
+            collector context ("Batch I, set PAA, 64 kartu total"). */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-burgundy)]/55" />
+          <p className="text-[8px] uppercase tracking-[0.35em] text-[color:var(--retro-brown-dark)]/55">
+            Batch I · {SET_CODE} · {SET_SIZE} kartu
+          </p>
         </div>
       </div>
     </div>

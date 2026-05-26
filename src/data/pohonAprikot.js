@@ -283,13 +283,39 @@ const MATANG_CARDS = [
   },
 ];
 
-export const POHON_APRIKOT_POOL = [
+// Illustrator credit derived dari image path prefix — no per-card data
+// edit needed. Override possible via explicit `card.illustrator` field.
+const inferIllustrator = (image) => {
+  if (!image) return null;
+  if (image.startsWith('/EmoteLabs/')) return 'Emote Labs';
+  if (image.startsWith('/archive/')) return 'JKT48 · Arsip';
+  // /AI/ (mascot poses) + /petikan/ (hand-crafted SVGs) — both Armeniaca
+  // origin (in-house AI + designer). Default fallback juga Armeniaca.
+  return 'Armeniaca';
+};
+
+// Composed pool — cards di-tag dgn cardNumber (1-based) + setSize +
+// illustrator at module-eval. setSize jadi single source untuk "X/64"
+// footer di kartu (no manual count maintenance). Order = legenda → langka
+// → matang → muda → emote, so card numbers feel like a TCG checklist.
+const RAW_POOL = [
   ...LEGENDA_CARDS,
   ...LANGKA_CARDS,
   ...MATANG_CARDS,
   ...PETIKAN_MUDA_POOL,
   ...PETIKAN_EMOTELABS_CARDS,
 ];
+
+export const SET_SIZE = RAW_POOL.length;
+export const SET_CODE = 'PAA'; // Pohon Aprikot — batch I (Aprikot)
+
+export const POHON_APRIKOT_POOL = RAW_POOL.map((card, idx) => ({
+  ...card,
+  cardNumber: idx + 1,
+  setSize: SET_SIZE,
+  setCode: SET_CODE,
+  illustrator: card.illustrator || inferIllustrator(card.image),
+}));
 
 // Tier fallback order — kalau tier yang di-roll gak punya eligible
 // card (e.g., legenda udah ke-claim semua), turun ke tier di bawahnya.

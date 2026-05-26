@@ -204,11 +204,57 @@ const KartuIngatan = ({ card }) => {
           </div>
         )}
 
-        {/* Bottom meta — URL doubles as watermark untuk share-as-PNG */}
-        <div className="mt-auto pt-3 text-center">
+        {/* Illustrator credit — subtle italic, TCG "art by" convention.
+            Centered below caption, above bottom meta. */}
+        {card.illustrator && (
+          <p
+            className="mt-3 text-center text-[9px] italic text-[color:var(--retro-brown-dark)]/45"
+            style={{ fontFamily: '"Fraunces Variable", serif' }}
+          >
+            seni · {card.illustrator}
+          </p>
+        )}
+
+        {/* Bottom meta — TCG-style collector footer. Left = watermark
+            URL, right = set code · card number with mini apricot crest.
+            Subtle row layout below the spine line. */}
+        <div className="mt-auto pt-3 flex items-end justify-between gap-2">
           <p className="text-[8px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/50">
             Petikan · armeniaca.online
           </p>
+          {card.cardNumber && card.setSize && (
+            <span className="inline-flex items-center gap-1 text-[8px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 12 12"
+                aria-hidden="true"
+              >
+                {/* Mini apricot — circle fruit + leaf stem. Matches batch
+                    name "Pohon Aprikot" as the set symbol. */}
+                <circle cx="6" cy="7.5" r="3.4" fill={isLegenda ? '#daaf5c' : 'var(--retro-burgundy)'} opacity="0.85" />
+                <path
+                  d="M 6 4 Q 7.5 2 9 1.5"
+                  stroke={isLegenda ? '#daaf5c' : 'var(--retro-burgundy)'}
+                  strokeWidth="0.9"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                <ellipse
+                  cx="8.2"
+                  cy="2.2"
+                  rx="1.4"
+                  ry="0.8"
+                  fill={isLegenda ? '#daaf5c' : 'var(--retro-burgundy)'}
+                  opacity="0.6"
+                  transform="rotate(-25 8.2 2.2)"
+                />
+              </svg>
+              <span>
+                {card.setCode || 'PAA'} · {String(card.cardNumber).padStart(2, '0')}/{card.setSize}
+              </span>
+            </span>
+          )}
         </div>
       </div>
     </div>
