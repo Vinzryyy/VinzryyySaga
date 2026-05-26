@@ -10,8 +10,59 @@
  *   legenda  — full gold-foil border + ornamental seal + wax-style label
  */
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { TIER_CONFIG } from '../../data/pohonAprikot';
+import { readEnabled, readVolume } from '../../lib/townAudioBus';
+
+// Audio button — render saat card.audio set. Inline play/pause toggle
+// dengan volume tied ke townAudioBus. Cleanup audio + listener on unmount.
+const AudioPlayButton = ({ src }) => {
+  const audioRef = useRef(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const audio = new Audio(src);
+    audio.preload = 'auto';
+    audio.volume = readEnabled() ? Math.max(0.4, readVolume() * 1.5) : 0.7;
+    audioRef.current = audio;
+    const onEnded = () => setPlaying(false);
+    audio.addEventListener('ended', onEnded);
+    return () => {
+      audio.removeEventListener('ended', onEnded);
+      audio.pause();
+      audioRef.current = null;
+    };
+  }, [src]);
+
+  const toggle = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+    } else {
+      audio
+        .play()
+        .then(() => setPlaying(true))
+        .catch(() => {
+          // Autoplay blocked or other audio error — silently fail
+          setPlaying(false);
+        });
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-[color:var(--retro-burgundy)]/30 text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/10 transition"
+      aria-label={playing ? 'Jeda suara' : 'Putar suara'}
+    >
+      <i className={playing ? 'ri-pause-fill text-sm' : 'ri-volume-up-line text-sm'} />
+      <span>{playing ? 'Jeda' : 'Dengar'}</span>
+    </button>
+  );
+};
 
 const CornerFlourish = ({ position, size = 18, color = 'var(--retro-burgundy)' }) => {
   const isTop = position.includes('top');
@@ -140,6 +191,13 @@ const KartuIngatan = ({ card }) => {
         >
           {card.caption}
         </p>
+
+        {/* Audio play button — voice cards */}
+        {card.audio && (
+          <div className="mt-4 flex justify-center">
+            <AudioPlayButton src={card.audio} />
+          </div>
+        )}
 
         {/* Bottom meta */}
         <div className="mt-auto pt-3 text-center">

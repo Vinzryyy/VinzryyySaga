@@ -17,6 +17,11 @@
 
 import { PETIKAN_MUDA_POOL } from './petikanMudaPool';
 
+// Helper untuk audio path /AI/*.wav — encodeURI handle spaces + special
+// chars di legacy "N. CAPS.wav" naming dari sesi recording. Pattern
+// sama dengan armeDialogs.js — single source of truth biar konsisten.
+const AI = (filename) => `/AI/${encodeURI(filename)}`;
+
 export const BATCH_ID = 'seitansai-2026';
 
 export const TIER_CONFIG = {
@@ -101,6 +106,7 @@ const LANGKA_CARDS = [
 ];
 
 const MATANG_CARDS = [
+  // Era markers — 4 cards spanning 2018-2026 perjalanan Eli
   {
     id: 'era-2018-gen7-awal',
     tier: 'matang',
@@ -127,6 +133,114 @@ const MATANG_CARDS = [
     image: '/archive/img-379.jpg',
     date: '2022-06-01',
     era: 'team-j',
+  },
+  {
+    id: 'era-2026-team-dream',
+    tier: 'matang',
+    title: 'Era 2026 — Team Dream',
+    caption: 'Memimpin Team Dream menuju JKT48 Fight 2026.',
+    image: '/archive/img-379.jpg',
+    date: '2026-01-01',
+    era: 'team-dream-2026',
+  },
+  // Setlist signature — 4 cards untuk lagu yang membentuk identitas panggung
+  {
+    id: 'setlist-pajama-drive',
+    tier: 'matang',
+    title: 'Pajama Drive',
+    caption: 'Setlist yang membentuk identitas panggung Eli di era awal.',
+    image: '/archive/img-379.jpg',
+    era: 'setlist',
+  },
+  {
+    id: 'setlist-renai-kinshi',
+    tier: 'matang',
+    title: 'Renai Kinshi Jourei',
+    caption: 'Cinta yang dilarang — tema yang berulang dirayakan di panggung JKT48.',
+    image: '/archive/img-379.jpg',
+    era: 'setlist',
+  },
+  {
+    id: 'setlist-theater-no-megami',
+    tier: 'matang',
+    title: 'Theater no Megami',
+    caption: 'Title track theater — pernyataan identitas group yang dikenang.',
+    image: '/archive/img-379.jpg',
+    era: 'setlist',
+  },
+  {
+    id: 'setlist-bokutachi-no-eureka',
+    tier: 'matang',
+    title: 'Bokutachi no Eureka',
+    caption: 'Lagu anniversary — refleksi tentang perjalanan bareng.',
+    image: '/archive/img-379.jpg',
+    era: 'setlist',
+  },
+  // Voice ingatan — 7 cards dengan audio Arme dari /public/AI/.
+  // Narration dari Arme = "voice of memory" yang mengaitkan ingatan Eli
+  // ke lore ArmeniacaTown. Audio plays via ▶ button di card front.
+  {
+    id: 'voice-warga-terakhir',
+    tier: 'matang',
+    title: 'Warga Terakhir',
+    caption: 'Arme adalah warga terakhir di Armeniaca Town.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('1. ARME ADALAH WARGA TERAKHIR DI ARMENIACA TOWN.wav'),
+    era: 'narration',
+  },
+  {
+    id: 'voice-orang-pertama-harapan',
+    tier: 'matang',
+    title: 'Yang Pertama Menitipkan',
+    caption: 'Siapa orang pertama yang menitipkan harapan di telaga itu lagi ya.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('11. SIAPA ORANG PERTAMA YANG MENITIPKAN HARAPAN DI TELAGA ITU LAGI YA.wav'),
+    era: 'narration',
+  },
+  {
+    id: 'voice-kursi-rapi-sepi',
+    tier: 'matang',
+    title: 'Kursi Berjejer',
+    caption: 'Kursi berjejer rapi, tapi suasana masih sepi.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('13. KURSI BERJEJER RAPI, TAPI SUASANA MASIH SEPI.wav'),
+    era: 'narration',
+  },
+  {
+    id: 'voice-dulu-rame-anak',
+    tier: 'matang',
+    title: 'Dulu Rame, Sekarang Sunyi',
+    caption: 'Disini dulu rame anak-anak bernyanyi riang gembira, sekarang hanya angin sunyi berhembus.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('14. DISINI DULU RAME ANAK-ANAK BERNYANYI RIANG GEMBIRA, SEKARANG HANYA ANGIN SUNYI BERHEMBUS.wav'),
+    era: 'narration',
+  },
+  {
+    id: 'voice-rak-buku-terisi',
+    tier: 'matang',
+    title: 'Rak Buku Terisi Lagi',
+    caption: 'Tapi rak buku 1 per 1 sudah mulai terisi dengan yang baru.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('17. TAPI RAK BUKU 1 PER 1 SUDAH MULAI TERISI DENGAN YANG BARU.wav'),
+    era: 'narration',
+  },
+  {
+    id: 'voice-pohon-cahaya',
+    tier: 'matang',
+    title: 'Pohon Memancarkan Cahaya',
+    caption: 'Pohon mulai memancarkan cahayanya.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('106. Pohon mulai memancarkan cahayanya..wav'),
+    era: 'narration',
+  },
+  {
+    id: 'voice-mercusuar-armeniaca',
+    tier: 'matang',
+    title: 'Mercusuar Armeniaca',
+    caption: 'Dulu mereka menyebut Pohon ini Mercusuar Armeniaca.',
+    image: '/AI/ELI_2_a.png',
+    audio: AI('107. Dulu mereka menyebut Pohon ini Mercusuar Armeniaca..wav'),
+    era: 'narration',
   },
 ];
 
