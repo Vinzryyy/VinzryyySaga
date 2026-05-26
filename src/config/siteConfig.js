@@ -130,6 +130,12 @@ export const SITE_CONFIG = {
           // Era pills are appended dynamically from the gallery data
         ],
       },
+      {
+        label: 'Petikan',
+        hash: 'petikan',
+        icon: 'ri-leaf-line',
+        description: 'Satu kenangan dari Pohon Aprikot, tiap hari.',
+      },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],

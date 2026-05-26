@@ -107,6 +107,10 @@ const DenyutPage = lazy(() => import('./pages/Denyut'));
 // support phase → auto-reveal player 15 Juni 2026. Standalone page,
 // linked dari dropdown navbar Harmoni Kebaikan.
 const ByuMusicPage = lazy(() => import('./pages/ByuMusic'));
+// Petikan — top-level daily-pluck memory feature. Batch container, hosts
+// Pohon Aprikot (batch #1 untuk Seitansai 2026). Lazy supaya GSAP timeline
+// + html-to-image chunks (P4/P7) gak masuk first paint pages lain.
+const PetikanPage = lazy(() => import('./pages/Petikan'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -413,6 +417,7 @@ function AppShell() {
               element={<Navigate to="/byu-music" replace />}
             />
             <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
+            <Route path="/petikan" element={<PetikanPage />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/armeniacaTown" element={<TamanPage />} />
