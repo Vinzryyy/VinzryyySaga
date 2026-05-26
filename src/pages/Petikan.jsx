@@ -85,6 +85,7 @@ const Petikan = () => {
         path="/petikan"
         title="Petikan — Pohon Aprikot"
         description="Satu kenangan dari Pohon Aprikot, tiap pagi. Arsip harian Eli JKT48 dari Armeniaca — batch Seitansai 2026."
+        image="https://armeniaca.online/og-petikan.png"
       />
 
       <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6">
