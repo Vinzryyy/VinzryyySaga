@@ -11,8 +11,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Seo from '../components/Seo';
-import PohonAprikot from '../components/petikan/PohonAprikot';
-import KartuFlip from '../components/petikan/KartuFlip';
+import KartuBrewek from '../components/petikan/KartuBrewek';
 import LegendaReveal from '../components/petikan/LegendaReveal';
 import BukuPetikan from '../components/petikan/BukuPetikan';
 import ShareCardImage from '../components/petikan/ShareCardImage';
@@ -122,13 +121,24 @@ const Petikan = () => {
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
           </div>
 
-          {/* Pohon Aprikot — primary affordance. Fruit yang berkilau =
-              today's pluck candidate. Click langsung trigger handlePluck. */}
-          <div className="mb-8">
-            <PohonAprikot canPluck={canPluck} onPluck={handlePluck} />
+          {/* KartuBrewek — primary affordance + reveal orchestrator.
+              Pre-pluck: KartuBack sealed pack dengan breathing animation,
+              tap untuk buka. Post-pluck: in-place flip rotateY 0→180 ke
+              KartuIngatan (book-page front). No tree, langsung pack.
+
+              Legenda tier dapat extra cinematic: LegendaReveal aurora
+              overlay + floating petals + chime audio. Flip di-delay 1.5s
+              biar aurora buildup finish dulu. */}
+          {pluckedCard && pluckedCard.tier === 'legenda' && <LegendaReveal />}
+          <div className="mb-8 relative z-10">
+            <KartuBrewek
+              canPluck={canPluck}
+              pluckedCard={pluckedCard}
+              onPluck={handlePluck}
+            />
           </div>
 
-          {/* Status card — pure info, button removed (fruit IS the button) */}
+          {/* Status card — pure info, instruksi sesuai state */}
           <div className="bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(61,52,43,0.08)]">
             {canPluck ? (
               <>
@@ -139,10 +149,10 @@ const Petikan = () => {
                   className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)] leading-relaxed"
                   style={{ fontFamily: '"Fraunces Variable", serif' }}
                 >
-                  Pohon punya satu buah untukmu.
+                  Sebuah kartu menanti.
                 </p>
                 <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-3">
-                  Klik aprikot yang berkilau untuk memetiknya.
+                  Tap kartu untuk membukanya.
                 </p>
                 {emptyPool && (
                   <p className="text-xs text-[color:var(--retro-burgundy)]/80 mt-3">
@@ -174,26 +184,12 @@ const Petikan = () => {
             )}
           </div>
 
-          {/* Reveal — KartuFlip orchestrator: drops in from above, flips
-              from spine-cover (KartuBack) ke book-page front (KartuIngatan)
-              dengan page-turn sfx. Ephemeral per session — full koleksi
-              historis di Buku Petikan (P7).
-
-              Legenda tier dapat extra cinematic: aurora overlay + floating
-              petals + chime audio (LegendaReveal). Card entry di-delay
-              1.5s biar aurora buildup finish dulu sebelum drop. */}
-          {pluckedCard && pluckedCard.tier === 'legenda' && <LegendaReveal />}
+          {/* Share button — capture off-screen clone via html-to-image
+              → Web Share API mobile, download fallback desktop. Render
+              hanya saat ada kartu yang udah ke-reveal. */}
           {pluckedCard && (
-            <div className="mt-10 relative z-10">
-              <KartuFlip
-                card={pluckedCard}
-                delay={pluckedCard.tier === 'legenda' ? 1.5 : 0}
-              />
-              {/* Share button — capture off-screen clone via html-to-image
-                  → Web Share API mobile, download fallback desktop. */}
-              <div className="mt-6 flex justify-center">
-                <ShareCardImage card={pluckedCard} />
-              </div>
+            <div className="mt-6 flex justify-center">
+              <ShareCardImage card={pluckedCard} />
             </div>
           )}
 
