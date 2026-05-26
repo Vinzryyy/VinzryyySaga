@@ -10,6 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import KartuBrewek from '../components/petikan/KartuBrewek';
 import LegendaReveal from '../components/petikan/LegendaReveal';
@@ -42,6 +43,13 @@ const Petikan = () => {
   // Full koleksi historis di-render di Buku Petikan (P7).
   const [pluckedCard, setPluckedCard] = useState(null);
   const [emptyPool, setEmptyPool] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Dev-only bypass: ?dev=1 → daily-lock di-disable, pluck unlimited
+  // untuk testing. Gated import.meta.env.DEV — di production param ini
+  // diabaikan total.
+  const devBypass =
+    import.meta.env.DEV && searchParams.get('dev') === '1';
 
   // Tick every second untuk countdown ke midnight WIB.
   useEffect(() => {
@@ -49,7 +57,10 @@ const Petikan = () => {
     return () => clearInterval(id);
   }, []);
 
-  const canPluck = useMemo(() => canPluckToday(state, now), [state, now]);
+  const canPluck = useMemo(
+    () => devBypass || canPluckToday(state, now),
+    [state, now, devBypass]
+  );
   const countdownMs = useMemo(() => msUntilNextJakartaMidnight(now), [now]);
 
   // Reload state ketika jendela midnight WIB lewat (countdown jadi 0).
@@ -73,10 +84,24 @@ const Petikan = () => {
       return;
     }
     const nextState = applyPluck(state, card, now);
-    saveState(nextState);
-    setState(nextState);
+    // Dev bypass: jangan persist lastPluck biar canPluck tetep true
+    // next iteration. Koleksi tetep grow (state.buku saved).
+    const saveable = devBypass
+      ? { ...nextState, lastPluck: state.lastPluck }
+      : nextState;
+    saveState(saveable);
+    setState(devBypass ? { ...nextState, lastPluck: state.lastPluck } : nextState);
     setPluckedCard(card);
-  }, [canPluck, state, now]);
+  }, [canPluck, state, now, devBypass]);
+
+  // Re-arm pluck after each reveal in dev mode so user bisa pluck lagi
+  // tanpa reload. Clear pluckedCard setelah 6s biar bisa tap KartuBack
+  // baru.
+  useEffect(() => {
+    if (!devBypass || !pluckedCard) return undefined;
+    const t = setTimeout(() => setPluckedCard(null), 6000);
+    return () => clearTimeout(t);
+  }, [devBypass, pluckedCard]);
 
   return (
     <>
@@ -89,6 +114,16 @@ const Petikan = () => {
 
       <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6">
         <div className="max-w-2xl mx-auto text-center">
+          {/* Dev mode banner — visible saat ?dev=1, gated DEV build */}
+          {devBypass && (
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/30">
+              <i className="ri-flask-line text-[color:var(--retro-burgundy)] text-sm" />
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                Dev mode — pluck unlimited
+              </span>
+            </div>
+          )}
+
           {/* Eyebrow — batch identifier */}
           <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-6">
             Seitansai 2026 · Batch #1 · {BATCH_ID}
