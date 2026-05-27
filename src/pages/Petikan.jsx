@@ -9,7 +9,7 @@
  * NOT trading-card glossy. Differentiation dari FouReality eksplisit.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import KartuBrewek from '../components/petikan/KartuBrewek';
@@ -67,6 +67,14 @@ const Petikan = () => {
   // jalan, TANPA mengubah revealIndex (yang akan re-trigger auto-advance
   // useEffect dan cancel t2). Reset balik ke false saat advance complete.
   const [isExiting, setIsExiting] = useState(false);
+  // Pack udah robek di batch ini? True setelah kartu 1 emerge complete
+  // (revealIndex maju ke 1+). Dipakai supaya kalau user swipe-balik
+  // ke kartu 1, pack rip animation TIDAK replay (pack udah pergi).
+  const [hasRippedThisBatch, setHasRippedThisBatch] = useState(false);
+  // Refs untuk cancel pending auto-advance timer saat manual gesture.
+  const transitionTimersRef = useRef({ t1: null, t2: null });
+  // Pointer/touch start untuk swipe vs tap detection.
+  const pointerStartRef = useRef(null);
   const [emptyPool, setEmptyPool] = useState(false);
   // Buah counter — earned via siraman di /26, dipakai untuk extra
   // pluck setelah free daily habis. Refresh on focus biar pickup
@@ -117,31 +125,70 @@ const Petikan = () => {
       setPluckedCards([]);
       setRevealIndex(-1);
       setIsExiting(false);
+      setHasRippedThisBatch(false);
       setEmptyPool(false);
     }
   }, [countdownMs, canPluck]);
+
+  // Mark "pack robek" begitu revealIndex maju ke kartu 2+. Setelah ini
+  // skipPack tetap true untuk semua sisa reveal di batch ini — termasuk
+  // kalau user swipe balik ke kartu 1 (pack udah gak ada, jangan replay).
+  useEffect(() => {
+    if (revealIndex >= 1 && !hasRippedThisBatch) {
+      setHasRippedThisBatch(true);
+    }
+  }, [revealIndex, hasRippedThisBatch]);
 
   // Auto-advance reveal cursor. Setelah hold window selesai, isExiting
   // di-set true (KartuBrewek receive null → exit animation jalan), lalu
   // bump revealIndex + reset isExiting. Pakai isExiting (bukan ubah
   // revealIndex ke -1) supaya useEffect deps gak ke-trigger di tengah
   // transisi — kalau ke-trigger, cleanup cancel t2 dan reveal stuck.
+  // Timer IDs di-save ke ref supaya manual gesture (tap/swipe) bisa
+  // cancel auto-advance.
   useEffect(() => {
     if (revealIndex < 0 || pluckedCards.length === 0) return undefined;
     if (revealIndex >= pluckedCards.length - 1) return undefined;
     const current = pluckedCards[revealIndex];
     const holdMs = TIER_HOLD_MS[current?.tier] || TIER_HOLD_MS.muda;
-    const exitGapMs = 500; // sync dgn KartuBrewek exit animation duration
+    const exitGapMs = 500;
     const t1 = setTimeout(() => setIsExiting(true), holdMs);
     const t2 = setTimeout(() => {
       setIsExiting(false);
-      setRevealIndex(revealIndex + 1);
+      setRevealIndex((idx) => idx + 1);
     }, holdMs + exitGapMs);
+    transitionTimersRef.current = { t1, t2 };
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      transitionTimersRef.current = { t1: null, t2: null };
     };
   }, [revealIndex, pluckedCards]);
+
+  // Manual jump (tap, swipe, atau thumbnail click) — cancel pending
+  // auto-advance, trigger exit anim, advance/back ke target index.
+  // Guarded: skip kalau lagi exiting (let current transisi selesai) atau
+  // target invalid.
+  const jumpTo = useCallback(
+    (targetIndex) => {
+      if (pluckedCards.length === 0) return;
+      if (isExiting) return;
+      if (targetIndex === revealIndex) return;
+      if (targetIndex < 0 || targetIndex >= pluckedCards.length) return;
+      // Cancel pending auto-advance dari current revealIndex's effect.
+      const timers = transitionTimersRef.current;
+      if (timers.t1) clearTimeout(timers.t1);
+      if (timers.t2) clearTimeout(timers.t2);
+      transitionTimersRef.current = { t1: null, t2: null };
+      // Manual exit → bump
+      setIsExiting(true);
+      setTimeout(() => {
+        setIsExiting(false);
+        setRevealIndex(targetIndex);
+      }, 500);
+    },
+    [pluckedCards.length, isExiting, revealIndex]
+  );
 
   const handlePluck = useCallback(() => {
     if (!canPluck) return;
@@ -181,7 +228,51 @@ const Petikan = () => {
     setPluckedCards(cardsWithProse);
     setRevealIndex(0);
     setIsExiting(false);
+    setHasRippedThisBatch(false);
   }, [canPluck, state, now, devBypass, hasFreeDaily]);
+
+  // Pointer/touch gesture detection — tap = next, swipe-left = next,
+  // swipe-right = previous. Vertical move di-ignore (kemungkinan scroll).
+  const handlePointerDown = useCallback((e) => {
+    pointerStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      t: Date.now(),
+    };
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (e) => {
+      if (!pointerStartRef.current) return;
+      if (pluckedCards.length === 0 || revealIndex < 0) {
+        pointerStartRef.current = null;
+        return;
+      }
+      const start = pointerStartRef.current;
+      pointerStartRef.current = null;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      const dt = Date.now() - start.t;
+      const SWIPE_PX = 40;
+      const TAP_MAX_PX = 12;
+      const TAP_MAX_MS = 350;
+      // Vertical dominant → likely scroll, jangan handle
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 30) return;
+      // Tap (kecil + cepat) atau swipe-left = next
+      if (Math.abs(dx) < TAP_MAX_PX && dt < TAP_MAX_MS) {
+        jumpTo(revealIndex + 1);
+      } else if (dx < -SWIPE_PX) {
+        jumpTo(revealIndex + 1);
+      } else if (dx > SWIPE_PX) {
+        jumpTo(revealIndex - 1);
+      }
+    },
+    [pluckedCards.length, revealIndex, jumpTo]
+  );
+
+  const handlePointerCancel = useCallback(() => {
+    pointerStartRef.current = null;
+  }, []);
 
   // Re-arm pluck after each reveal in dev mode so user bisa pluck lagi
   // tanpa reload. Clear setelah window cukup buat sequential reveal +
@@ -196,6 +287,7 @@ const Petikan = () => {
       setPluckedCards([]);
       setRevealIndex(-1);
       setIsExiting(false);
+      setHasRippedThisBatch(false);
     }, totalHoldMs + 2000);
     return () => clearTimeout(t);
   }, [devBypass, pluckedCards]);
@@ -268,7 +360,19 @@ const Petikan = () => {
           {revealIndex >= 0 &&
             !isExiting &&
             pluckedCards[revealIndex]?.tier === 'legenda' && <LegendaReveal />}
-          <div className="mb-8 relative z-10">
+          <div
+            className="mb-8 relative z-10"
+            onPointerDown={
+              pluckedCards.length > 0 ? handlePointerDown : undefined
+            }
+            onPointerUp={
+              pluckedCards.length > 0 ? handlePointerUp : undefined
+            }
+            onPointerCancel={
+              pluckedCards.length > 0 ? handlePointerCancel : undefined
+            }
+            style={{ touchAction: 'pan-y' /* allow vertical scroll, capture horizontal */ }}
+          >
             <KartuBrewek
               canPluck={canPluck && pluckedCards.length === 0}
               pluckedCard={
@@ -277,7 +381,7 @@ const Petikan = () => {
                   : null
               }
               onPluck={handlePluck}
-              skipPack={revealIndex > 0}
+              skipPack={hasRippedThisBatch}
             />
           </div>
 
@@ -302,40 +406,42 @@ const Petikan = () => {
             </div>
           )}
 
-          {/* Triad recap — 3 thumbnail kartu setelah semua revealed.
-              Display-only (gak interactive) — Buku Petikan handle full
-              detail review. Tujuan: kasih "lihat semua 3" snapshot.
-              Highlight thumbnail kartu yang lagi displayed (current
-              revealIndex). */}
+          {/* Triad recap — 3 thumbnail kartu, tap untuk browse. Visible
+              setelah sequential reveal nyentuh kartu terakhir (jangan
+              spoil image kartu yang belum revealed di slot utama).
+              Highlight thumbnail kartu yang lagi displayed di slot atas. */}
           {pluckedCards.length > 0 &&
             revealIndex === pluckedCards.length - 1 && (
-              <div className="mb-8 flex justify-center gap-2 flex-wrap">
-                {pluckedCards.map((c, i) => (
-                  <div
-                    key={c.id + '-' + i}
-                    className={`relative overflow-hidden rounded-md border transition-all ${
-                      i === revealIndex
-                        ? 'border-[color:var(--retro-burgundy)] shadow-md'
-                        : 'border-[color:var(--retro-brown-dark)]/20'
-                    }`}
-                    style={{ width: '64px', height: '90px' }}
-                    aria-label={`Kartu ${i + 1}: ${c.title} — tier ${c.tier}`}
-                  >
-                    {c.image && (
-                      <img
-                        src={c.image}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span className="absolute bottom-0 left-0 right-0 bg-black/55 text-white text-[9px] uppercase tracking-wider py-0.5 text-center">
-                      {c.tier}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="mb-8 flex justify-center gap-2 flex-wrap">
+              {pluckedCards.map((c, i) => (
+                <button
+                  key={c.id + '-' + i}
+                  type="button"
+                  onClick={() => jumpTo(i)}
+                  disabled={isExiting || i === revealIndex}
+                  className={`relative overflow-hidden rounded-md border transition-all cursor-pointer disabled:cursor-default ${
+                    i === revealIndex
+                      ? 'border-[color:var(--retro-burgundy)] shadow-md scale-105'
+                      : 'border-[color:var(--retro-brown-dark)]/20 hover:border-[color:var(--retro-burgundy)]/60 hover:shadow-sm'
+                  }`}
+                  style={{ width: '64px', height: '90px' }}
+                  aria-label={`Lihat kartu ${i + 1}: ${c.title} (tier ${c.tier})`}
+                >
+                  {c.image && (
+                    <img
+                      src={c.image}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span className="absolute bottom-0 left-0 right-0 bg-black/55 text-white text-[9px] uppercase tracking-wider py-0.5 text-center">
+                    {c.tier}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Buah badge — visible kalau ada buah tersedia, link ke /26
               kalau 0 (call to action) */}
