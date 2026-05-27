@@ -321,39 +321,8 @@ const Petikan = () => {
           townAudioBus enabled + volume. */}
       <BrewekMusic />
 
-      {/* Background gradient echoes master pack art — lavender/purple
-          sky top → soft cream middle → warm yellow bottom. Tying page
-          visual ke pack design. Radial accent di tengah (peach glow)
-          jadi "stage spotlight" — pack visual fokus utama. Overlay
-          retro-paper texture preserves Armeniaca tone walaupun bolder. */}
-      <main
-        className="min-h-screen text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6 relative overflow-hidden"
-        style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 50% 35%, rgba(255, 220, 170, 0.35) 0%, transparent 60%),
-            linear-gradient(to bottom,
-              #c4a3dd 0%,
-              #d8b8df 12%,
-              #efd6d1 28%,
-              #faf0d8 50%,
-              #fce8a0 75%,
-              #f9d870 100%
-            )
-          `,
-        }}
-      >
-        {/* Subtle paper grain overlay — preserves retro paper feel
-            on top of bold gradient. Repeating noise pattern, low opacity. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(45deg, rgba(124,45,18,0.025) 0 1px, transparent 1px 7px)',
-            mixBlendMode: 'multiply',
-          }}
-        />
-        <div className="max-w-2xl mx-auto text-center relative z-10">
+      <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6">
+        <div className="max-w-2xl mx-auto text-center">
           {/* Dev mode banner — visible saat ?dev=1, gated DEV build */}
           {devBypass && (
             <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/30">
