@@ -1,25 +1,19 @@
 /**
- * KartuBrewek — envelope + pull-string + polaroid mechanic.
+ * KartuBrewek — Fruit Ninja-style cut + polaroid develop mechanic.
  *
- * Unique pack-opening: pack di-style sebagai amplop dengan flap atas
- * yang ada pull-string (red ribbon) di sisi kanan. User DRAG string
- * ke bawah → flap rotateX terbuka mengikuti drag progress. Lewat
- * threshold 50% → snap open + invoke onPluck.
+ * User tap pack → diagonal white slash trail draws across (Fruit Ninja
+ * blade swipe vibe) → splash particles burst at impact → pack split
+ * apart (flap fly up-left, body fall down-right, gravity-like) → polaroid
+ * emerges with develop animation (blur → sharp).
  *
- * Kartu emerge sebagai POLAROID — white border frame + develop animation
- * (high blur → sharp blur 0, opacity 0 → 1, slight tilt rotate).
+ * Visual layers:
+ *   - Envelope body (bottom 65% master art)
+ *   - Polaroid card (KartuIngatan + frame)
+ *   - Envelope flap (top 35% master art)
+ *   - Slash trail SVG overlay (drawn on cut)
  *
- * Layer stacking di grid cell yang sama:
- *   - Envelope body (bottom half of master image, static) — bawah
- *   - Polaroid card (KartuIngatan + frame) — middle, hidden initially
- *   - Envelope flap (top half of master image, pulls open) — top
- *   - Pull-string ribbon — overlay right side
- *
- * skipPack=true (kartu 2/3 di triad atau swipe-back): envelope flap
- * hidden, polaroid langsung visible static — no drag interaction.
- *
- * prefers-reduced-motion: skip drag interaction, render tap-to-open
- * fallback. Polaroid emerge tanpa develop blur animation.
+ * skipPack=true (kartu 2/3 di triad): no slash anim, polaroid instant visible.
+ * prefers-reduced-motion: tap = instant open, no slash anim, polaroid static.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -40,19 +34,13 @@ const TIER_HALO = {
   legenda: { color: 'rgba(255, 217, 122, 0.85)', intensity: 0.85 },
 };
 
-// Polaroid develop timing per tier — legenda paling lambat develop
-// untuk "feel-it-coming" reward. preDelay diturunin karena flap-open
-// udah jadi buildup; cuma legenda yang butuh window panjang (aurora).
+// Polaroid develop timing per tier
 const TIER_DEVELOP = {
   muda: { preDelay: 0.05, slideOut: 0.45, develop: 0.7 },
   matang: { preDelay: 0.15, slideOut: 0.55, develop: 0.9 },
   langka: { preDelay: 0.35, slideOut: 0.7, develop: 1.2 },
   legenda: { preDelay: 1.4, slideOut: 0.85, develop: 1.6 },
 };
-
-// Drag config — threshold progress untuk auto-complete vs snap-back.
-const DRAG_THRESHOLD = 0.5; // 50% pulled → open
-const DRAG_FULL_PX = 100; // px drag distance untuk 100% progress
 
 const KartuBrewek = ({
   canPluck = false,
@@ -64,158 +52,174 @@ const KartuBrewek = ({
   const containerRef = useRef(null);
   const flapRef = useRef(null);
   const bodyRef = useRef(null);
-  const stringRef = useRef(null);
   const polaroidRef = useRef(null);
   const haloRef = useRef(null);
+  const slashRef = useRef(null);
+  const splashRef = useRef(null);
   const playedRef = useRef(false);
   const prevCardIdRef = useRef(null);
   const haloPulseRef = useRef(null);
-  // Drag state — track start position + active pointer id.
-  // dragProgressRef = always-fresh value (synchronous), dragProgress
-  // state = render-trigger. Read REF di handler untuk avoid stale closure.
-  const dragStartRef = useRef(null);
-  const dragProgressRef = useRef(0);
-  const [dragProgress, setDragProgress] = useState(0);
-  const [openingFlap, setOpeningFlap] = useState(false);
+  const breatheRef = useRef(null);
+
+  const [cutting, setCutting] = useState(false);
   const [particleTrigger, setParticleTrigger] = useState(0);
-  // Slight polaroid rotation untuk doodle feel — random per card mount.
   const polaroidTiltRef = useRef((Math.random() - 0.5) * 5);
 
   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
-  // Re-randomize polaroid tilt saat new card
+  // Re-randomize polaroid tilt saat new card mount
   useEffect(() => {
     if (pluckedCard) {
       polaroidTiltRef.current = (Math.random() - 0.5) * 5;
     }
   }, [pluckedCard?.id]);
 
-  // Drag handlers — hanya aktif saat pre-pluck (canPluck + no card + no anim)
-  const interactive =
-    canPluck && !pluckedCard && typeof onPluck === 'function' && !openingFlap;
-
-  const handlePointerDown = (e) => {
-    if (!interactive || prefersReducedMotion) return;
-    e.preventDefault();
-    dragStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      pointerId: e.pointerId,
+  // Pre-pluck breathing — invite tap cue via subtle scale yoyo
+  useEffect(() => {
+    if (!containerRef.current) return undefined;
+    if (
+      pluckedCard ||
+      !canPluck ||
+      typeof onPluck !== 'function' ||
+      cutting ||
+      prefersReducedMotion
+    ) {
+      if (breatheRef.current) {
+        breatheRef.current.kill();
+        breatheRef.current = null;
+      }
+      return undefined;
+    }
+    breatheRef.current = gsap.to(containerRef.current, {
+      scale: 1.025,
+      duration: 1.6,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+    });
+    return () => {
+      if (breatheRef.current) {
+        breatheRef.current.kill();
+        breatheRef.current = null;
+      }
     };
-    try {
-      e.target.setPointerCapture(e.pointerId);
-    } catch {
-      /* noop */
-    }
-  };
+  }, [canPluck, pluckedCard, onPluck, cutting, prefersReducedMotion]);
 
-  const handlePointerMove = (e) => {
-    if (!dragStartRef.current) return;
-    if (e.pointerId !== dragStartRef.current.pointerId) return;
-    const dy = e.clientY - dragStartRef.current.y;
-    const progress = Math.max(0, Math.min(1, dy / DRAG_FULL_PX));
-    dragProgressRef.current = progress;
-    setDragProgress(progress);
-    if (flapRef.current) {
-      gsap.set(flapRef.current, {
-        rotateX: -progress * 160,
-        y: -progress * 4,
+  const interactive =
+    canPluck && !pluckedCard && typeof onPluck === 'function' && !cutting;
+
+  // Cut animation — slash trail + split apart + onPluck
+  const handleTapCut = (e) => {
+    if (!interactive) return;
+    e?.preventDefault?.();
+    setCutting(true);
+
+    if (prefersReducedMotion) {
+      // Reduced motion: skip slash, langsung fade pack out + onPluck
+      if (flapRef.current)
+        gsap.to(flapRef.current, { opacity: 0, duration: 0.25 });
+      if (bodyRef.current)
+        gsap.to(bodyRef.current, { opacity: 0, duration: 0.25 });
+      setTimeout(() => {
+        if (typeof onPluck === 'function') onPluck();
+      }, 260);
+      return;
+    }
+
+    // Phase 1: Slash trail SVG draws diagonal — top-left → bottom-right
+    if (slashRef.current) {
+      const line = slashRef.current.querySelector('line');
+      if (line) {
+        const len = 360; // approximate diagonal length
+        gsap.set(line, {
+          strokeDasharray: len,
+          strokeDashoffset: len,
+          opacity: 1,
+        });
+        gsap.to(line, {
+          strokeDashoffset: 0,
+          duration: 0.18,
+          ease: 'power4.out',
+        });
+        gsap.to(line, {
+          opacity: 0,
+          duration: 0.32,
+          delay: 0.22,
+          ease: 'power2.in',
+        });
+      }
+    }
+
+    // Phase 2: Splash particle burst at slash midpoint
+    if (splashRef.current) {
+      const splashEls = splashRef.current.querySelectorAll('.splash-piece');
+      splashEls.forEach((el, i) => {
+        const angle = (i / splashEls.length) * Math.PI * 2 + Math.PI * 0.25;
+        const dist = 50 + Math.random() * 60;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist;
+        gsap.set(el, { x: 0, y: 0, opacity: 0, scale: 0 });
+        gsap.to(el, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.12,
+          delay: 0.16,
+          ease: 'sine.out',
+        });
+        gsap.to(el, {
+          x: tx,
+          y: ty,
+          rotation: Math.random() * 360,
+          duration: 0.7 + Math.random() * 0.3,
+          delay: 0.16,
+          ease: 'power2.out',
+        });
+        gsap.to(el, {
+          opacity: 0,
+          scale: 0.4,
+          duration: 0.4,
+          delay: 0.45,
+          ease: 'sine.in',
+        });
       });
     }
-    if (stringRef.current) {
-      gsap.set(stringRef.current, {
-        y: progress * 22,
-      });
-    }
-  };
 
-  const finishOpen = () => {
-    setOpeningFlap(true);
+    // Phase 3: Pack splits apart — flap fly up-left, body drop down-right.
+    // Mimic diagonal cut: pieces gravitate to opposite sides of slash line.
     if (flapRef.current) {
       gsap.to(flapRef.current, {
-        rotateX: -180,
-        y: -8,
+        rotateZ: -22,
+        x: -55,
+        y: -45,
         opacity: 0,
-        duration: 0.45,
-        ease: 'power2.out',
+        duration: 0.6,
+        delay: 0.16,
+        ease: 'power3.in',
       });
     }
-    // Body juga fade out — pack cover semuanya pergi, polaroid clean
-    // against page background. Slight scale-down + y offset = "pack
-    // jatuh ke bawah" implicit.
     if (bodyRef.current) {
       gsap.to(bodyRef.current, {
-        opacity: 0,
-        scale: 0.96,
-        y: 12,
-        duration: 0.5,
-        ease: 'power2.out',
-      });
-    }
-    if (stringRef.current) {
-      gsap.to(stringRef.current, {
-        opacity: 0,
+        rotateZ: 18,
+        x: 48,
         y: 40,
-        duration: 0.25,
-        ease: 'power1.in',
+        opacity: 0,
+        duration: 0.6,
+        delay: 0.16,
+        ease: 'power3.in',
       });
     }
-    // Audio cue + onPluck callback setelah flap selesai open
+
+    // Phase 4: Audio cue + onPluck callback
     setTimeout(() => {
       if (readEnabled()) {
         const vol = readVolume();
-        playPageTurnSfx(Math.max(0.4, vol * 1.8));
+        playPageTurnSfx(Math.max(0.5, vol * 2));
       }
       if (typeof onPluck === 'function') onPluck();
     }, 320);
   };
 
-  const snapBack = () => {
-    dragProgressRef.current = 0;
-    setDragProgress(0);
-    if (flapRef.current) {
-      gsap.to(flapRef.current, {
-        rotateX: 0,
-        y: 0,
-        duration: 0.35,
-        ease: 'back.out(1.5)',
-      });
-    }
-    if (stringRef.current) {
-      gsap.to(stringRef.current, {
-        y: 0,
-        duration: 0.35,
-        ease: 'back.out(1.5)',
-      });
-    }
-  };
-
-  const handlePointerUp = (e) => {
-    if (!dragStartRef.current) return;
-    if (e.pointerId !== dragStartRef.current.pointerId) return;
-    // Read REF (fresh) bukan state (stale closure).
-    const currentProgress = dragProgressRef.current;
-    dragStartRef.current = null;
-    try {
-      e.target.releasePointerCapture(e.pointerId);
-    } catch {
-      /* noop */
-    }
-    if (currentProgress >= DRAG_THRESHOLD) {
-      finishOpen();
-    } else {
-      snapBack();
-    }
-  };
-
-  // Fallback: reduced-motion atau no-drag accidental — tap-to-open
-  const handleTapFallback = (e) => {
-    if (!interactive) return;
-    e.preventDefault();
-    finishOpen();
-  };
-
-  // Polaroid develop reveal — triggered when pluckedCard set
+  // Polaroid develop reveal
   useEffect(() => {
     if (!pluckedCard) return undefined;
     if (prevCardIdRef.current !== pluckedCard.id) {
@@ -226,13 +230,10 @@ const KartuBrewek = ({
     playedRef.current = true;
     prevCardIdRef.current = pluckedCard.id;
 
-    const isLegenda = pluckedCard.tier === 'legenda';
     const reveal = TIER_DEVELOP[pluckedCard.tier] || TIER_DEVELOP.muda;
     const tilt = polaroidTiltRef.current;
 
-    // Reduced-motion atau skipPack: instant polaroid visible, no animation.
-    // Body + flap hidden permanent (pack udah dibuka di card 1 atau user
-    // explicitly skip animations).
+    // Reduced-motion atau skipPack: instant polaroid visible
     if (prefersReducedMotion || skipPack) {
       if (bodyRef.current) gsap.set(bodyRef.current, { opacity: 0 });
       if (flapRef.current) gsap.set(flapRef.current, { opacity: 0 });
@@ -243,7 +244,6 @@ const KartuBrewek = ({
         rotate: tilt,
         filter: 'blur(0px)',
       });
-      // Kick halo (tier coloring)
       const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
       if (haloRef.current) {
         if (haloPulseRef.current) {
@@ -270,14 +270,13 @@ const KartuBrewek = ({
     gsap.set(polaroidRef.current, {
       opacity: 0,
       scale: 0.78,
-      y: -60, // start inside envelope (above slot)
+      y: -60,
       rotate: tilt - 4,
       filter: 'blur(22px)',
     });
 
     const tl = gsap.timeline({ delay: reveal.preDelay + revealDelay });
 
-    // Phase 1: slide out from envelope position
     tl.to(polaroidRef.current, {
       y: 0,
       scale: 1,
@@ -287,7 +286,6 @@ const KartuBrewek = ({
       ease: 'power2.out',
     });
 
-    // Phase 2: develop blur (the "polaroid developing" moment)
     tl.to(
       polaroidRef.current,
       {
@@ -298,12 +296,10 @@ const KartuBrewek = ({
       reveal.slideOut * 0.4,
     );
 
-    // Particle burst saat polaroid sharp
     tl.add(() => {
       setParticleTrigger((p) => p + 1);
     }, reveal.slideOut + reveal.develop * 0.6);
 
-    // Halo glow fade in + pulse loop
     const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
     if (haloRef.current && haloConfig.intensity > 0) {
       tl.to(
@@ -347,10 +343,9 @@ const KartuBrewek = ({
     }
     playedRef.current = false;
     prevCardIdRef.current = null;
-    setOpeningFlap(false);
-    setDragProgress(0);
+    setCutting(false);
     if (flapRef.current) gsap.set(flapRef.current, { clearProps: 'all' });
-    if (stringRef.current) gsap.set(stringRef.current, { clearProps: 'all' });
+    if (bodyRef.current) gsap.set(bodyRef.current, { clearProps: 'all' });
     if (polaroidRef.current) {
       gsap.set(polaroidRef.current, {
         opacity: 0,
@@ -362,32 +357,15 @@ const KartuBrewek = ({
     if (haloRef.current) gsap.set(haloRef.current, { opacity: 0 });
   }, [pluckedCard]);
 
-  // Subtle wiggle animation on string saat idle pre-pluck — invite gesture.
-  useEffect(() => {
-    if (!interactive || prefersReducedMotion) return undefined;
-    if (!stringRef.current) return undefined;
-    const tween = gsap.to(stringRef.current, {
-      rotate: 3,
-      duration: 1.4,
-      ease: 'sine.inOut',
-      yoyo: true,
-      repeat: -1,
-    });
-    return () => tween.kill();
-  }, [interactive, prefersReducedMotion]);
-
   if (!canPluck && !pluckedCard) return null;
 
   return (
     <div
       ref={containerRef}
       className="relative w-full max-w-xs mx-auto"
-      style={{
-        minHeight: '480px',
-        perspective: '1200px',
-      }}
+      style={{ minHeight: '480px', perspective: '1200px' }}
     >
-      {/* Halo glow — behind everything */}
+      {/* Halo glow */}
       {pluckedCard && (
         <div
           ref={haloRef}
@@ -403,7 +381,7 @@ const KartuBrewek = ({
       )}
 
       <div className="relative grid" style={{ minHeight: '480px' }}>
-        {/* Envelope body — bottom half of master pack art, static */}
+        {/* Envelope body — bottom 65% */}
         <div
           ref={bodyRef}
           className="row-start-1 col-start-1 pointer-events-none"
@@ -416,9 +394,7 @@ const KartuBrewek = ({
           <KartuBack tier="matang" />
         </div>
 
-        {/* Polaroid card — emerges from envelope. position:relative
-            wajib supaya caption absolute child anchor ke polaroid (bukan
-            ancestor grid container). */}
+        {/* Polaroid card */}
         <div
           ref={polaroidRef}
           className="row-start-1 col-start-1 mx-auto self-center"
@@ -426,8 +402,7 @@ const KartuBrewek = ({
             opacity: 0,
             width: '92%',
             padding: '12px 12px 36px 12px',
-            background:
-              'linear-gradient(180deg, #fefefe 0%, #fbf8f0 100%)',
+            background: 'linear-gradient(180deg, #fefefe 0%, #fbf8f0 100%)',
             borderRadius: '6px',
             boxShadow:
               '0 12px 28px rgba(61,52,43,0.22), 0 2px 6px rgba(61,52,43,0.15)',
@@ -440,7 +415,6 @@ const KartuBrewek = ({
               <HoloShimmer tier={pluckedCard.tier}>
                 <KartuIngatan card={pluckedCard} />
               </HoloShimmer>
-              {/* Polaroid caption bawah — era label + tier badge. */}
               <div className="absolute bottom-2 left-0 right-0 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.18em] text-[color:var(--retro-brown-dark)]/55">
                 <span className="truncate max-w-[55%]">
                   {pluckedCard.era?.replace(/-/g, ' ') || 'arme'}
@@ -462,44 +436,18 @@ const KartuBrewek = ({
           )}
         </div>
 
-        {/* Envelope flap — top half of master image, opens via rotateX */}
+        {/* Envelope flap — top 35% */}
         <div
           ref={flapRef}
           className="row-start-1 col-start-1 pointer-events-none"
           style={{
             clipPath: 'inset(0 0 65% 0)',
             WebkitClipPath: 'inset(0 0 65% 0)',
-            transformOrigin: 'center top',
-            transformStyle: 'preserve-3d',
-            backfaceVisibility: 'hidden',
+            transformOrigin: 'center center',
           }}
-          aria-hidden={!interactive}
+          aria-hidden="true"
         >
           <KartuBack tier="matang" />
-          {/* Wax seal indicator — center of flap, only visible pre-pluck */}
-          {!pluckedCard && !openingFlap && (
-            <div
-              aria-hidden="true"
-              className="absolute left-1/2 -translate-x-1/2"
-              style={{
-                top: '60px',
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle at 35% 30%, #c43838 0%, #8b1818 60%, #5a0e0e 100%)',
-                boxShadow:
-                  'inset -3px -3px 6px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25)',
-              }}
-            >
-              <span
-                className="absolute inset-0 flex items-center justify-center text-[color:#fce8a0] text-xs font-bold"
-                style={{ fontFamily: '"Fraunces Variable", serif' }}
-              >
-                H
-              </span>
-            </div>
-          )}
         </div>
       </div>
 
@@ -508,105 +456,89 @@ const KartuBrewek = ({
         <ParticleBurst tier={pluckedCard.tier} trigger={particleTrigger} />
       )}
 
-      {/* Pull-string — draggable red ribbon di sisi kanan flap.
-          Visible only pre-pluck. Drag down untuk membuka.
-          Past 50% threshold: warna brighten + glow (visual "ready" cue).
-          touch-action: none supaya gesture gak ke-hijack browser scroll. */}
-      {!pluckedCard && canPluck && !openingFlap && (() => {
-        const pastThreshold = dragProgress >= DRAG_THRESHOLD;
-        return (
-          <div
-            ref={stringRef}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            className="absolute z-30 cursor-grab active:cursor-grabbing select-none"
+      {/* Slash trail — SVG line draws diagonal saat tap.
+          Preserve aspect via percentage coords. line ada glow via filter. */}
+      {(!pluckedCard || cutting) && !prefersReducedMotion && (
+        <svg
+          ref={slashRef}
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none z-30"
+          viewBox="0 0 100 150"
+          preserveAspectRatio="none"
+          style={{ overflow: 'visible' }}
+        >
+          <defs>
+            <linearGradient id="slashGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="white" stopOpacity="0" />
+              <stop offset="50%" stopColor="white" stopOpacity="1" />
+              <stop offset="100%" stopColor="white" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <line
+            x1="-5"
+            y1="15"
+            x2="105"
+            y2="135"
+            stroke="url(#slashGrad)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            opacity="0"
             style={{
-              top: '40px',
-              right: '20px',
-              width: '36px',
-              height: '120px',
-              touchAction: 'none',
-              transformOrigin: 'top center',
-              padding: '0 8px',
+              filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.9))',
             }}
-            role="button"
-            tabIndex={0}
-            aria-label="Tarik pita merah ke bawah untuk membuka amplop"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                finishOpen();
-              }
-            }}
-          >
-            {/* Ribbon visual — thin red strip + tassel ball */}
-            <div
-              className="mx-auto transition-all duration-200"
-              style={{
-                width: pastThreshold ? '5px' : '4px',
-                height: '94px',
-                background: pastThreshold
-                  ? 'linear-gradient(180deg, #e85050 0%, #c43838 50%, #e85050 100%)'
-                  : 'linear-gradient(180deg, #c43838 0%, #a02828 50%, #c43838 100%)',
-                borderRadius: '2.5px',
-                boxShadow: pastThreshold
-                  ? '0 0 8px rgba(196, 56, 56, 0.5), 1px 0 2px rgba(0,0,0,0.2)'
-                  : '1px 0 2px rgba(0,0,0,0.2)',
-              }}
-            />
-            <div
-              className="mx-auto -mt-1 transition-all duration-200"
-              style={{
-                width: pastThreshold ? '18px' : '15px',
-                height: pastThreshold ? '18px' : '15px',
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle at 35% 30%, #e85050 0%, #8b1818 85%)',
-                boxShadow: pastThreshold
-                  ? '0 0 12px rgba(232, 80, 80, 0.6), inset -2px -2px 4px rgba(0,0,0,0.3)'
-                  : 'inset -2px -2px 4px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)',
-              }}
-            />
-          </div>
-        );
-      })()}
+          />
+        </svg>
+      )}
 
-      {/* Reduced-motion fallback OR keyboard tap target — large invisible
-          tap area covering pack saat pre-pluck. Prefers-reduced-motion
-          users tap to skip drag mechanic. */}
-      {interactive && prefersReducedMotion && (
+      {/* Splash particles — small white slivers burst at slash midpoint.
+          12 pieces radial spread, opacity + scale fade. */}
+      {(!pluckedCard || cutting) && !prefersReducedMotion && (
+        <div
+          ref={splashRef}
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none flex items-center justify-center z-30"
+        >
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span
+              key={i}
+              className="splash-piece absolute block"
+              style={{
+                width: '4px',
+                height: '4px',
+                borderRadius: '2px',
+                background: i % 2 === 0 ? '#ffffff' : '#fce8a0',
+                boxShadow: '0 0 4px rgba(255,255,255,0.7)',
+                opacity: 0,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Tap-to-cut button — full pack area, large touch target */}
+      {interactive && (
         <button
           type="button"
-          onClick={handleTapFallback}
+          onClick={handleTapCut}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleTapCut(e);
+            }
+          }}
           className="absolute inset-0 z-20 cursor-pointer rounded-2xl focus:outline-none focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/40"
-          aria-label="Buka amplop hari ini"
+          aria-label="Tap untuk membelah amplop"
         />
       )}
 
-      {/* Hint text — kasih tau user untuk tarik string. Hilang saat drag
-          mulai supaya gak kelihatan stale. Past threshold: ganti jadi
-          "Lepaskan!" supaya user tau tinggal release. */}
+      {/* Hint text — kasih tau user untuk tap */}
       {interactive && !prefersReducedMotion && (
         <p
           aria-hidden="true"
-          className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-[10px] uppercase tracking-[0.3em] pointer-events-none transition-colors duration-200"
-          style={{
-            fontFamily: '"Fraunces Variable", serif',
-            color:
-              dragProgress >= DRAG_THRESHOLD
-                ? 'var(--retro-burgundy)'
-                : dragProgress > 0
-                  ? 'rgba(124, 45, 18, 0.55)'
-                  : 'rgba(124, 45, 18, 0.45)',
-          }}
+          className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 pointer-events-none"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
-          {dragProgress >= DRAG_THRESHOLD
-            ? '✓ Lepaskan!'
-            : dragProgress > 0
-              ? `Tarik terus · ${Math.round(dragProgress * 100)}%`
-              : '↓ Tarik pita merah'}
+          ✦ Tap untuk membelah
         </p>
       )}
     </div>
