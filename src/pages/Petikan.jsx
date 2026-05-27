@@ -321,8 +321,74 @@ const Petikan = () => {
           townAudioBus enabled + volume. */}
       <BrewekMusic />
 
-      <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6">
-        <div className="max-w-2xl mx-auto text-center">
+      <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6 relative">
+        {/* Background wallpaper — 5 chibi Arme PNGs scattered fixed
+            position, opacity 50%. Decorative aja, pointer-events none,
+            aria-hidden. Layer paling bawah (z-0), content z-10+. */}
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 pointer-events-none overflow-hidden"
+          style={{ zIndex: 0 }}
+        >
+          <img
+            src="/EmoteLabs/Background/Arme_2026-05-27-14-38-57.png"
+            alt=""
+            className="absolute select-none"
+            style={{
+              top: '8%',
+              left: '4%',
+              width: '120px',
+              opacity: 0.5,
+            }}
+          />
+          <img
+            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-06.png"
+            alt=""
+            className="absolute select-none"
+            style={{
+              top: '12%',
+              right: '5%',
+              width: '140px',
+              opacity: 0.5,
+            }}
+          />
+          <img
+            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-09.png"
+            alt=""
+            className="absolute select-none"
+            style={{
+              top: '46%',
+              left: '6%',
+              width: '110px',
+              opacity: 0.5,
+            }}
+          />
+          <img
+            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-27.png"
+            alt=""
+            className="absolute select-none"
+            style={{
+              top: '52%',
+              right: '4%',
+              width: '125px',
+              opacity: 0.5,
+            }}
+          />
+          <img
+            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-30.png"
+            alt=""
+            className="absolute select-none"
+            style={{
+              bottom: '10%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '130px',
+              opacity: 0.5,
+            }}
+          />
+        </div>
+
+        <div className="max-w-2xl mx-auto text-center relative" style={{ zIndex: 10 }}>
           {/* Dev mode banner — visible saat ?dev=1, gated DEV build */}
           {devBypass && (
             <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/30">
