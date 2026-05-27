@@ -38,6 +38,48 @@ const TIER_HALO = {
   legenda: { color: 'rgba(255, 217, 122, 0.85)', intensity: 0.85 },
 };
 
+// Per-tier reveal timing — HONEST scaling. Durasi naik monotonik dari
+// muda → legenda; gak ada fake "almost-legenda" tease yang downgrade.
+// Player belajar: "kalau reveal lama, pasti tier tinggi" — feel-it-coming
+// reward, bukan ilusi.
+//   preDelay         — jeda dari tap sampai pack mulai gerak
+//   anticipation     — durasi pack scale-up sebelum rip
+//   rip              — durasi top/bottom half melayang keluar
+//   emerge           — durasi card front fade-in + scale
+//   emergeStart      — kapan card mulai muncul (offset di timeline)
+// Note: legenda.preDelay = 1.5s match dengan LegendaReveal aurora buildup
+// window (1.5s) di LegendaReveal.jsx — jangan ubah salah satu doang.
+const TIER_REVEAL = {
+  muda: {
+    preDelay: 0.15,
+    anticipation: 0.12,
+    rip: 0.5,
+    emerge: 0.6,
+    emergeStart: 0.36,
+  },
+  matang: {
+    preDelay: 0.3,
+    anticipation: 0.18,
+    rip: 0.6,
+    emerge: 0.7,
+    emergeStart: 0.42,
+  },
+  langka: {
+    preDelay: 0.55,
+    anticipation: 0.22,
+    rip: 0.75,
+    emerge: 0.85,
+    emergeStart: 0.55,
+  },
+  legenda: {
+    preDelay: 1.5,
+    anticipation: 0.3,
+    rip: 0.9,
+    emerge: 1.1,
+    emergeStart: 0.7,
+  },
+};
+
 const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
   const containerRef = useRef(null);
   const topHalfRef = useRef(null);
@@ -85,7 +127,7 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
     playedRef.current = true;
 
     const isLegenda = pluckedCard.tier === 'legenda';
-    const delay = isLegenda ? 1.5 : 0.2;
+    const reveal = TIER_REVEAL[pluckedCard.tier] || TIER_REVEAL.muda;
 
     // Pre-set initial states
     gsap.set(cardFrontRef.current, { opacity: 0, scale: 0.85 });
@@ -96,14 +138,14 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
       opacity: 1,
     });
 
-    const tl = gsap.timeline({ delay });
+    const tl = gsap.timeline({ delay: reveal.preDelay });
 
     // Phase 1 — Anticipation (both halves slight scale up)
     tl.to(
       [topHalfRef.current, bottomHalfRef.current],
       {
         scale: 1.05,
-        duration: 0.12,
+        duration: reveal.anticipation,
         ease: 'sine.out',
       },
       0
@@ -115,7 +157,7 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
       if (!readEnabled()) return;
       const vol = readVolume();
       playPageTurnSfx(Math.max(0.3, vol * 1.6));
-    }, 0.12);
+    }, reveal.anticipation);
 
     // Phase 2 — Top half flies up & fades
     tl.to(
@@ -125,10 +167,10 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
         rotate: -10,
         opacity: 0,
         scale: 0.92,
-        duration: 0.55,
+        duration: reveal.rip,
         ease: 'power2.in',
       },
-      0.12
+      reveal.anticipation
     );
 
     // Phase 3 — Bottom half drops down & fades (small offset for organic feel)
@@ -139,10 +181,10 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
         rotate: 10,
         opacity: 0,
         scale: 0.92,
-        duration: 0.55,
+        duration: reveal.rip,
         ease: 'power2.in',
       },
-      0.17
+      reveal.anticipation + 0.05
     );
 
     // Phase 4 — Card front emerges from behind (starts during halves' exit)
@@ -151,10 +193,10 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
       {
         opacity: 1,
         scale: 1.0,
-        duration: 0.7,
+        duration: reveal.emerge,
         ease: 'power2.out',
       },
-      0.4
+      reveal.emergeStart
     );
 
     // Phase 4b — Halo glow fades in (sync with card emerge)
@@ -164,17 +206,17 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
         haloRef.current,
         {
           opacity: haloConfig.intensity,
-          duration: 0.8,
+          duration: reveal.emerge * 1.15,
           ease: 'sine.out',
         },
-        0.35
+        Math.max(0, reveal.emergeStart - 0.05)
       );
     }
 
     // Phase 4c — Particle burst at emerge moment
     tl.add(() => {
       setParticleTrigger((p) => p + 1);
-    }, 0.42);
+    }, reveal.emergeStart + 0.02);
 
     return () => tl.kill();
   }, [pluckedCard]);
