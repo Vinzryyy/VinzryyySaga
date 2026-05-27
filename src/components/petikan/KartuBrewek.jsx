@@ -41,12 +41,13 @@ const TIER_HALO = {
 };
 
 // Polaroid develop timing per tier — legenda paling lambat develop
-// untuk "feel-it-coming" reward (lihat tier lebih awal = tier rendah).
+// untuk "feel-it-coming" reward. preDelay diturunin karena flap-open
+// udah jadi buildup; cuma legenda yang butuh window panjang (aurora).
 const TIER_DEVELOP = {
-  muda: { preDelay: 0.15, slideOut: 0.45, develop: 0.7 },
-  matang: { preDelay: 0.3, slideOut: 0.55, develop: 0.9 },
-  langka: { preDelay: 0.55, slideOut: 0.7, develop: 1.2 },
-  legenda: { preDelay: 1.5, slideOut: 0.85, develop: 1.6 },
+  muda: { preDelay: 0.05, slideOut: 0.45, develop: 0.7 },
+  matang: { preDelay: 0.15, slideOut: 0.55, develop: 0.9 },
+  langka: { preDelay: 0.35, slideOut: 0.7, develop: 1.2 },
+  legenda: { preDelay: 1.4, slideOut: 0.85, develop: 1.6 },
 };
 
 // Drag config — threshold progress untuk auto-complete vs snap-back.
@@ -69,8 +70,11 @@ const KartuBrewek = ({
   const playedRef = useRef(false);
   const prevCardIdRef = useRef(null);
   const haloPulseRef = useRef(null);
-  // Drag state — track start position + active pointer id
+  // Drag state — track start position + active pointer id.
+  // dragProgressRef = always-fresh value (synchronous), dragProgress
+  // state = render-trigger. Read REF di handler untuk avoid stale closure.
   const dragStartRef = useRef(null);
+  const dragProgressRef = useRef(0);
   const [dragProgress, setDragProgress] = useState(0);
   const [openingFlap, setOpeningFlap] = useState(false);
   const [particleTrigger, setParticleTrigger] = useState(0);
@@ -110,17 +114,17 @@ const KartuBrewek = ({
     if (e.pointerId !== dragStartRef.current.pointerId) return;
     const dy = e.clientY - dragStartRef.current.y;
     const progress = Math.max(0, Math.min(1, dy / DRAG_FULL_PX));
+    dragProgressRef.current = progress;
     setDragProgress(progress);
     if (flapRef.current) {
       gsap.set(flapRef.current, {
         rotateX: -progress * 160,
-        // sedikit lift saat drag biar feel "ngangkat"
         y: -progress * 4,
       });
     }
     if (stringRef.current) {
       gsap.set(stringRef.current, {
-        y: progress * 18,
+        y: progress * 22,
       });
     }
   };
@@ -155,20 +159,21 @@ const KartuBrewek = ({
   };
 
   const snapBack = () => {
+    dragProgressRef.current = 0;
     setDragProgress(0);
     if (flapRef.current) {
       gsap.to(flapRef.current, {
         rotateX: 0,
         y: 0,
-        duration: 0.32,
-        ease: 'back.out(1.6)',
+        duration: 0.35,
+        ease: 'back.out(1.5)',
       });
     }
     if (stringRef.current) {
       gsap.to(stringRef.current, {
         y: 0,
-        duration: 0.3,
-        ease: 'back.out(1.6)',
+        duration: 0.35,
+        ease: 'back.out(1.5)',
       });
     }
   };
@@ -176,7 +181,8 @@ const KartuBrewek = ({
   const handlePointerUp = (e) => {
     if (!dragStartRef.current) return;
     if (e.pointerId !== dragStartRef.current.pointerId) return;
-    const currentProgress = dragProgress;
+    // Read REF (fresh) bukan state (stale closure).
+    const currentProgress = dragProgressRef.current;
     dragStartRef.current = null;
     try {
       e.target.releasePointerCapture(e.pointerId);
@@ -394,10 +400,12 @@ const KartuBrewek = ({
           <KartuBack tier="matang" />
         </div>
 
-        {/* Polaroid card — emerges from envelope */}
+        {/* Polaroid card — emerges from envelope. position:relative
+            wajib supaya caption absolute child anchor ke polaroid (bukan
+            ancestor grid container). */}
         <div
           ref={polaroidRef}
-          className="row-start-1 col-start-1 mx-auto"
+          className="row-start-1 col-start-1 mx-auto self-center"
           style={{
             opacity: 0,
             width: '92%',
@@ -408,10 +416,7 @@ const KartuBrewek = ({
             boxShadow:
               '0 12px 28px rgba(61,52,43,0.22), 0 2px 6px rgba(61,52,43,0.15)',
             border: '1px solid rgba(140,100,60,0.08)',
-            alignSelf: 'center',
-            justifySelf: 'center',
-            // Backface hidden — saat di belakang flap (rotateX -180), gak ke-see
-            backfaceVisibility: 'hidden',
+            position: 'relative',
           }}
         >
           {pluckedCard && (
@@ -419,10 +424,23 @@ const KartuBrewek = ({
               <HoloShimmer tier={pluckedCard.tier}>
                 <KartuIngatan card={pluckedCard} />
               </HoloShimmer>
-              {/* Polaroid caption bawah — date + tier badge */}
-              <div className="absolute bottom-2 left-0 right-0 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.2em] text-[color:var(--retro-brown-dark)]/55">
-                <span>{pluckedCard.era || 'arme'}</span>
-                <span className="font-bold">{pluckedCard.tier === 'legenda' ? 'S' : pluckedCard.tier === 'langka' ? 'A' : pluckedCard.tier === 'matang' ? 'B' : 'C'}</span>
+              {/* Polaroid caption bawah — era label + tier badge. */}
+              <div className="absolute bottom-2 left-0 right-0 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.18em] text-[color:var(--retro-brown-dark)]/55">
+                <span className="truncate max-w-[55%]">
+                  {pluckedCard.era?.replace(/-/g, ' ') || 'arme'}
+                </span>
+                <span
+                  className="font-bold text-[color:var(--retro-burgundy)] tabular-nums"
+                  style={{ letterSpacing: '0.1em' }}
+                >
+                  {pluckedCard.tier === 'legenda'
+                    ? 'S'
+                    : pluckedCard.tier === 'langka'
+                      ? 'A'
+                      : pluckedCard.tier === 'matang'
+                        ? 'B'
+                        : 'C'}
+                </span>
               </div>
             </>
           )}
@@ -476,59 +494,68 @@ const KartuBrewek = ({
 
       {/* Pull-string — draggable red ribbon di sisi kanan flap.
           Visible only pre-pluck. Drag down untuk membuka.
-          Touch-action: none supaya gesture gak ke-hijack browser scroll. */}
-      {!pluckedCard && canPluck && !openingFlap && (
-        <div
-          ref={stringRef}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          className="absolute z-30 cursor-grab active:cursor-grabbing select-none"
-          style={{
-            top: '40px',
-            right: '20px',
-            width: '32px',
-            height: '110px',
-            touchAction: 'none',
-            transformOrigin: 'top center',
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Tarik pita untuk membuka amplop"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              finishOpen();
-            }
-          }}
-        >
-          {/* Ribbon visual — thin red strip + dot tassel at bottom */}
+          Past 50% threshold: warna brighten + glow (visual "ready" cue).
+          touch-action: none supaya gesture gak ke-hijack browser scroll. */}
+      {!pluckedCard && canPluck && !openingFlap && (() => {
+        const pastThreshold = dragProgress >= DRAG_THRESHOLD;
+        return (
           <div
-            className="mx-auto"
+            ref={stringRef}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            className="absolute z-30 cursor-grab active:cursor-grabbing select-none"
             style={{
-              width: '4px',
-              height: '90px',
-              background:
-                'linear-gradient(180deg, #c43838 0%, #a02828 50%, #c43838 100%)',
-              borderRadius: '2px',
-              boxShadow: '1px 0 2px rgba(0,0,0,0.2)',
+              top: '40px',
+              right: '20px',
+              width: '36px',
+              height: '120px',
+              touchAction: 'none',
+              transformOrigin: 'top center',
+              padding: '0 8px',
             }}
-          />
-          <div
-            className="mx-auto -mt-1"
-            style={{
-              width: '14px',
-              height: '14px',
-              borderRadius: '50%',
-              background:
-                'radial-gradient(circle at 35% 30%, #d44a4a 0%, #8b1818 80%)',
-              boxShadow:
-                'inset -2px -2px 4px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)',
+            role="button"
+            tabIndex={0}
+            aria-label="Tarik pita merah ke bawah untuk membuka amplop"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                finishOpen();
+              }
             }}
-          />
-        </div>
-      )}
+          >
+            {/* Ribbon visual — thin red strip + tassel ball */}
+            <div
+              className="mx-auto transition-all duration-200"
+              style={{
+                width: pastThreshold ? '5px' : '4px',
+                height: '94px',
+                background: pastThreshold
+                  ? 'linear-gradient(180deg, #e85050 0%, #c43838 50%, #e85050 100%)'
+                  : 'linear-gradient(180deg, #c43838 0%, #a02828 50%, #c43838 100%)',
+                borderRadius: '2.5px',
+                boxShadow: pastThreshold
+                  ? '0 0 8px rgba(196, 56, 56, 0.5), 1px 0 2px rgba(0,0,0,0.2)'
+                  : '1px 0 2px rgba(0,0,0,0.2)',
+              }}
+            />
+            <div
+              className="mx-auto -mt-1 transition-all duration-200"
+              style={{
+                width: pastThreshold ? '18px' : '15px',
+                height: pastThreshold ? '18px' : '15px',
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle at 35% 30%, #e85050 0%, #8b1818 85%)',
+                boxShadow: pastThreshold
+                  ? '0 0 12px rgba(232, 80, 80, 0.6), inset -2px -2px 4px rgba(0,0,0,0.3)'
+                  : 'inset -2px -2px 4px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)',
+              }}
+            />
+          </div>
+        );
+      })()}
 
       {/* Reduced-motion fallback OR keyboard tap target — large invisible
           tap area covering pack saat pre-pluck. Prefers-reduced-motion
@@ -542,14 +569,28 @@ const KartuBrewek = ({
         />
       )}
 
-      {/* Hint text — kasih tau user untuk tarik string */}
-      {interactive && !prefersReducedMotion && dragProgress === 0 && (
+      {/* Hint text — kasih tau user untuk tarik string. Hilang saat drag
+          mulai supaya gak kelihatan stale. Past threshold: ganti jadi
+          "Lepaskan!" supaya user tau tinggal release. */}
+      {interactive && !prefersReducedMotion && (
         <p
           aria-hidden="true"
-          className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 pointer-events-none"
-          style={{ fontFamily: '"Fraunces Variable", serif' }}
+          className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-[10px] uppercase tracking-[0.3em] pointer-events-none transition-colors duration-200"
+          style={{
+            fontFamily: '"Fraunces Variable", serif',
+            color:
+              dragProgress >= DRAG_THRESHOLD
+                ? 'var(--retro-burgundy)'
+                : dragProgress > 0
+                  ? 'rgba(124, 45, 18, 0.55)'
+                  : 'rgba(124, 45, 18, 0.45)',
+          }}
         >
-          ↓ Tarik pita merah
+          {dragProgress >= DRAG_THRESHOLD
+            ? '✓ Lepaskan!'
+            : dragProgress > 0
+              ? `Tarik terus · ${Math.round(dragProgress * 100)}%`
+              : '↓ Tarik pita merah'}
         </p>
       )}
     </div>
