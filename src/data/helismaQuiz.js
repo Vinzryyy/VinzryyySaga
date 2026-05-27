@@ -468,10 +468,20 @@ export const HELISMA_QUIZ_POOL = [
 ];
 
 /**
- * Deterministic pick — date string (YYYY-MM-DD) → 1 quiz dari pool.
- * Same date = same quiz untuk semua user (community angle: "soal hari
- * ini soal mana, sudah jawab belum"). Hash-based pick via simple djb2
- * algorithm yang stable across runs.
+ * Reward config:
+ *   - 5 soal per hari (random dari pool 50, deterministic per date)
+ *   - 3 buah per correct answer
+ *   - Max 15 buah/hari dari kuis (5 × 3)
+ *   - Wrong: 0 buah, no retry sampai midnight WIB next day
+ */
+export const QUIZ_REWARD_BUAH = 3;
+export const QUIZ_QUESTIONS_PER_DAY = 5;
+export const QUIZ_MAX_BUAH_PER_DAY =
+  QUIZ_REWARD_BUAH * QUIZ_QUESTIONS_PER_DAY; // 15
+
+/**
+ * Hash-based seed dari date string (YYYY-MM-DD). djb2 algorithm,
+ * stable across runs.
  */
 const djb2 = (str) => {
   let hash = 5381;
@@ -481,14 +491,37 @@ const djb2 = (str) => {
   return Math.abs(hash);
 };
 
-export const pickDailyQuiz = (dateStr) => {
-  if (!dateStr) return HELISMA_QUIZ_POOL[0];
-  const idx = djb2(dateStr) % HELISMA_QUIZ_POOL.length;
-  return HELISMA_QUIZ_POOL[idx];
+// Seeded PRNG — mulberry32. Dipakai untuk shuffle quiz pool secara
+// deterministic per date (semua user same shuffle order untuk hari sama).
+const mulberry32 = (seed) => {
+  let s = seed >>> 0;
+  return () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 };
 
 /**
- * Reward config — correct jawaban dapat 2 buah Pohon Kebaikan.
- * Wrong: 0 buah (no retry sampai besok). Soft penalty, gentle UX.
+ * Pick N quiz dari pool untuk hari tertentu — deterministic dari
+ * date string. Same date = same set untuk semua user (community
+ * angle). Set per hari beda total (Fisher-Yates shuffle seeded).
  */
-export const QUIZ_REWARD_BUAH = 2;
+export const pickDailyQuizSet = (
+  dateStr,
+  count = QUIZ_QUESTIONS_PER_DAY,
+) => {
+  const seed = djb2(dateStr || 'default');
+  const rng = mulberry32(seed);
+  const indices = Array.from(
+    { length: HELISMA_QUIZ_POOL.length },
+    (_, i) => i,
+  );
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return indices.slice(0, count).map((idx) => HELISMA_QUIZ_POOL[idx]);
+};

@@ -22,6 +22,8 @@ const KEYS = {
   pity: 'aprikot_pity',
   recent: 'aprikot_recent',
   wishlist: 'aprikot_wishlist',
+  quiz: 'aprikot_quiz_state',
+  firstVisitBonus: 'aprikot_first_visit_bonus_v1',
 };
 
 // Journal cap — full pluck history disimpan ke state.recent. UI bisa
@@ -348,6 +350,67 @@ export const spendBuah = (amount = 1) => {
   return true;
 };
 
+// ── Quiz state (Kuis Helisma daily) ─────────────────────────────────
+// Track 5 soal/hari yang udah dijawab. Schema:
+//   { date: 'YYYY-MM-DD', answered: { quizId: 'correct'|'wrong' } }
+// Date mismatch (new day WIB) → reset ke fresh state.
+
+export const loadQuizState = (todayJakartaDate) => {
+  try {
+    const raw = localStorage.getItem(KEYS.quiz);
+    if (!raw) return { date: todayJakartaDate, answered: {} };
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.date !== todayJakartaDate) {
+      return { date: todayJakartaDate, answered: {} };
+    }
+    return {
+      date: parsed.date,
+      answered:
+        typeof parsed.answered === 'object' && parsed.answered !== null
+          ? parsed.answered
+          : {},
+    };
+  } catch {
+    return { date: todayJakartaDate, answered: {} };
+  }
+};
+
+export const saveQuizState = (state) => {
+  try {
+    localStorage.setItem(
+      KEYS.quiz,
+      JSON.stringify({
+        date: state.date,
+        answered: state.answered || {},
+      }),
+    );
+  } catch {
+    /* storage blocked — no-op */
+  }
+};
+
+// ── First-visit bonus ───────────────────────────────────────────────
+// Grant 10 buah sekali aja per device, saat user first time buka
+// /petikan. Returns amount granted (10) atau 0 kalau udah ke-grant
+// sebelumnya. Caller display notice ke user.
+
+export const FIRST_VISIT_BONUS = 10;
+
+export const grantFirstVisitBonusIfNew = () => {
+  try {
+    if (localStorage.getItem(KEYS.firstVisitBonus) === '1') return 0;
+    // Add buah dulu, baru set flag — kalau addBuah fail (cap reached),
+    // flag tetep set supaya gak loop grant. addBuah sendiri capped
+    // at BUAH_CAP, jadi grant aman idempotent.
+    const next = Math.min(BUAH_CAP, getBuah() + FIRST_VISIT_BONUS);
+    safeWrite(KEYS.buah, String(next));
+    safeWrite(KEYS.firstVisitBonus, '1');
+    return FIRST_VISIT_BONUS;
+  } catch {
+    return 0;
+  }
+};
+
 /**
  * Clear storage (testing utility — surfaced for dev console + tests).
  */
@@ -360,6 +423,8 @@ export const resetState = () => {
     localStorage.removeItem(KEYS.pity);
     localStorage.removeItem(KEYS.recent);
     localStorage.removeItem(KEYS.wishlist);
+    localStorage.removeItem(KEYS.quiz);
+    localStorage.removeItem(KEYS.firstVisitBonus);
   } catch {
     // ignored
   }

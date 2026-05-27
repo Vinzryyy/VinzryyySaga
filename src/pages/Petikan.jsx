@@ -17,6 +17,7 @@ import LegendaReveal from '../components/petikan/LegendaReveal';
 import BukuPetikan from '../components/petikan/BukuPetikan';
 import ShareCardImage from '../components/petikan/ShareCardImage';
 import BrewekMusic from '../components/petikan/BrewekMusic';
+import KuisHelisma from '../components/petikan/KuisHelisma';
 import { playSelectSfx } from '../components/petikan/PluckTimeline';
 import { readEnabled, readVolume } from '../lib/townAudioBus';
 import {
@@ -24,6 +25,7 @@ import {
   canPluckToday,
   getJakartaDate,
   getBuah,
+  grantFirstVisitBonusIfNew,
   loadState,
   msUntilNextJakartaMidnight,
   saveState,
@@ -139,6 +141,10 @@ const Petikan = () => {
   // di session ini. Ephemeral — reset di reload (intentional, biar moment
   // "petik" terasa langsung). Full koleksi historis di-render di Buku
   // Petikan (P7). Empty array sebelum first pluck di session ini.
+  // First-visit bonus state — kalau granted, show banner sekali biar
+  // user tau dapat 10 buah free. Reset di session (refresh page = no
+  // banner kalau localStorage flag udah set).
+  const [firstVisitGrant, setFirstVisitGrant] = useState(0);
   const [pluckedCards, setPluckedCards] = useState([]);
   // revealIndex = posisi kartu mana yang lagi di-display di slot center.
   // -1 = belum ada pluck. 0..2 = kartu 1, 2, 3. Auto-advance via timer
@@ -175,6 +181,16 @@ const Petikan = () => {
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
+  }, []);
+
+  // First-visit bonus — grant 10 buah sekali per device saat user
+  // pertama kali buka /petikan. Refresh buah state + show banner.
+  useEffect(() => {
+    const granted = grantFirstVisitBonusIfNew();
+    if (granted > 0) {
+      setBuah(getBuah());
+      setFirstVisitGrant(granted);
+    }
   }, []);
 
   // Refresh buah saat user balik ke tab (mis. baru tap support di /26
@@ -408,6 +424,29 @@ const Petikan = () => {
         <BackgroundWallpaper />
 
         <div className="max-w-2xl mx-auto text-center relative" style={{ zIndex: 10 }}>
+          {/* First-visit bonus banner — sekali show per device, kasih
+              tau user dapat 10 buah selamat datang. User bisa dismiss
+              via tombol close. */}
+          {firstVisitGrant > 0 && (
+            <div className="mb-6 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-[color:var(--retro-gold,#daaf5c)]/15 border border-[color:var(--retro-gold,#daaf5c)]/40 shadow-sm">
+              <span className="text-lg">🍑</span>
+              <span
+                className="text-sm text-[color:var(--retro-brown-dark)]"
+                style={{ fontFamily: '"Fraunces Variable", serif' }}
+              >
+                Selamat datang! +{firstVisitGrant} buah masuk dompet.
+              </span>
+              <button
+                type="button"
+                onClick={() => setFirstVisitGrant(0)}
+                className="text-[color:var(--retro-brown-dark)]/55 hover:text-[color:var(--retro-burgundy)] text-base leading-none"
+                aria-label="Tutup banner selamat datang"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* Dev mode banner — visible saat ?dev=1, gated DEV build */}
           {devBypass && (
             <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/30">
@@ -671,6 +710,13 @@ const Petikan = () => {
                 </div>
               );
             })()}
+
+          {/* Kuis Helisma — 5 soal/hari, 3 buah/correct. Render setelah
+              pack area supaya gak ganggu primary affordance (buka pack)
+              tapi cukup visible untuk earn extra buah. */}
+          <div className="mt-10 text-left">
+            <KuisHelisma onBuahChange={() => setBuah(getBuah())} />
+          </div>
 
           {/* Buku Petikan — koleksi historis lintas hari. Render setelah
               tree + reveal supaya focus utama tetep di pohon hari ini. */}
