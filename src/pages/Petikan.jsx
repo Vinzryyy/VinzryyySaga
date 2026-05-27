@@ -57,18 +57,20 @@ const BG_SRCS = [
 ];
 
 const BackgroundWallpaper = React.memo(() => {
-  // Stable random distribution per page-mount. count + positions di-pick
-  // sekali; refresh page = new layout.
+  // Stable random distribution per page-mount. 500 PNGs scattered,
+  // di-pick sekali; refresh page = new layout. Only 5 unique sources
+  // (browser cache 5x render 500x), tapi 500 DOM nodes — monitor perf
+  // di mobile low-end. loading="lazy" + decoding="async" mitigate.
   const items = useMemo(() => {
-    const count = 18 + Math.floor(Math.random() * 9); // 18-26
+    const count = 500;
     return Array.from({ length: count }, (_, i) => ({
       key: i,
       src: BG_SRCS[Math.floor(Math.random() * BG_SRCS.length)],
-      top: Math.random() * 480, // 0-480vh spread (covers long content)
+      top: Math.random() * 1200, // 0-1200vh spread untuk 500 items
       left: Math.random() * 88, // 0-88% (avoid right edge cut)
-      width: 70 + Math.random() * 80, // 70-150px
-      rotate: (Math.random() - 0.5) * 30, // -15 to 15 deg
-      opacity: 0.4 + Math.random() * 0.2, // 0.4-0.6 (jitter around 50%)
+      width: 60 + Math.random() * 90, // 60-150px
+      rotate: (Math.random() - 0.5) * 40, // -20 to 20 deg
+      opacity: 0.3 + Math.random() * 0.3, // 0.3-0.6 (varied jitter)
     }));
   }, []);
 
@@ -84,6 +86,7 @@ const BackgroundWallpaper = React.memo(() => {
           src={p.src}
           alt=""
           loading="lazy"
+          decoding="async"
           className="absolute select-none"
           style={{
             top: `${p.top}vh`,
