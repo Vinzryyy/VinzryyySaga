@@ -40,6 +40,16 @@ const TIER_FILTERS = [
   { id: 'muda', label: 'C' },
 ];
 
+// Era filter — group kartu berdasarkan konteks story (field `era` di
+// petikanEmoteLabsCards.js). User bisa browse "all my Helisma show
+// moments" vs "fan daily life" vs "livestream konteks".
+const ERA_FILTERS = [
+  { id: 'all', label: 'Semua era' },
+  { id: 'helisma-show', label: 'Show' },
+  { id: 'helisma-livestream', label: 'Livestream' },
+  { id: 'fan-life', label: 'Daily' },
+];
+
 const BukuPetikanItem = ({ card, isPulled, isWished, wishlistFull, onClick, onToggleWish }) => {
   const cfg = TIER_CONFIG[card.tier] || TIER_CONFIG.muda;
   // Heart toggle hanya tampil untuk kartu unowned (sudah pernah dapet
@@ -547,6 +557,7 @@ const DetailModal = ({ card, onClose }) => {
 
 const BukuPetikan = ({ state, onStateChange }) => {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [activeEra, setActiveEra] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [ratesOpen, setRatesOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
@@ -585,9 +596,12 @@ const BukuPetikan = ({ state, onStateChange }) => {
   }, [state]);
 
   const filteredCards = useMemo(() => {
-    if (activeFilter === 'all') return POHON_APRIKOT_POOL;
-    return POHON_APRIKOT_POOL.filter((c) => c.tier === activeFilter);
-  }, [activeFilter]);
+    return POHON_APRIKOT_POOL.filter((c) => {
+      if (activeFilter !== 'all' && c.tier !== activeFilter) return false;
+      if (activeEra !== 'all' && c.era !== activeEra) return false;
+      return true;
+    });
+  }, [activeFilter, activeEra]);
 
   // Hanya hitung kartu yang ada di POOL CURRENT — kalau user punya
   // entries dari batch lama (rename id, batch retired), gak boleh
@@ -734,6 +748,33 @@ const BukuPetikan = ({ state, onStateChange }) => {
         recent={state?.recent}
         onSelectCard={(id) => setSelectedCardId(id)}
       />
+
+      {/* Era filter — group by story konteks (show / livestream / daily). */}
+      <div className="flex flex-wrap justify-center gap-2 mb-3">
+        {ERA_FILTERS.map((era) => {
+          const isActive = activeEra === era.id;
+          // Count berapa kartu di era ini (untuk all tier filter)
+          const eraTotal =
+            era.id === 'all'
+              ? poolTotal
+              : POHON_APRIKOT_POOL.filter((c) => c.era === era.id).length;
+          return (
+            <button
+              key={era.id}
+              type="button"
+              onClick={() => setActiveEra(era.id)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.2em] transition ${
+                isActive
+                  ? 'bg-[color:var(--retro-brown-dark)]/85 text-white'
+                  : 'bg-white/60 text-[color:var(--retro-brown-dark)]/65 hover:bg-[color:var(--retro-brown-dark)]/10 border border-[color:var(--retro-brown-dark)]/10'
+              }`}
+            >
+              <span>{era.label}</span>
+              <span className="opacity-70">{eraTotal}</span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Filter tabs */}
       <div className="flex flex-wrap justify-center gap-2 mb-6">

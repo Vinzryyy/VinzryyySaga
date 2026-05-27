@@ -14,6 +14,13 @@
  * memory tanpa crash.
  */
 
+import { POHON_APRIKOT_POOL } from '../data/pohonAprikot';
+
+// Pool ids set untuk orphan filter — entries lama dari batch retired
+// (mis. arme-vtuber-* sebelum rename) di-skip saat loadState supaya
+// gak inflate completion count atau leak ke legenda set / wishlist.
+const POOL_IDS = new Set(POHON_APRIKOT_POOL.map((c) => c.id));
+
 const KEYS = {
   lastPluck: 'aprikot_last_pluck',
   buku: 'aprikot_buku',
@@ -122,7 +129,10 @@ const safeWrite = (key, value) => {
 /**
  * Read full state from localStorage. Defensive — returns fresh state
  * (no pluck, empty book/legenda) kalau ada parse error atau storage
- * blocked.
+ * blocked. Orphan cleanup: filter buku/legenda/recent/wishlist entries
+ * yang id-nya gak ada di pool current (sisa dari batch lama yang
+ * di-retire). Storage gak di-write balik — self-heal saat applyPlucks
+ * next save.
  */
 export const loadState = () => {
   const lastPluck = safeRead(KEYS.lastPluck);
@@ -139,6 +149,8 @@ export const loadState = () => {
   const recentRaw = safeParse(safeRead(KEYS.recent), []);
   // Filter ke entries yang punya cardId + tier + at, drop garbage.
   // prose field optional (added 2026-05-27); legacy entries dapet null.
+  // Plus orphan filter: cardId yang gak ada di POOL_IDS dibuang
+  // (sisa batch lama).
   const recent = Array.isArray(recentRaw)
     ? recentRaw
         .filter(
@@ -146,7 +158,8 @@ export const loadState = () => {
             e &&
             typeof e.cardId === 'string' &&
             typeof e.tier === 'string' &&
-            typeof e.at === 'string'
+            typeof e.at === 'string' &&
+            POOL_IDS.has(e.cardId)
         )
         .map((e) => ({
           cardId: e.cardId,
@@ -157,19 +170,32 @@ export const loadState = () => {
         .slice(0, JOURNAL_CAP)
     : [];
   // Wishlist — array of cardIds, capped at WISHLIST_CAP. Serialized as
-  // array (not Set) untuk JSON-friendly storage.
+  // array (not Set) untuk JSON-friendly storage. Orphan filter applied.
   const wishlistRaw = safeParse(safeRead(KEYS.wishlist), []);
   const wishlist = new Set(
     Array.isArray(wishlistRaw)
       ? wishlistRaw
-          .filter((id) => typeof id === 'string')
+          .filter((id) => typeof id === 'string' && POOL_IDS.has(id))
           .slice(0, WISHLIST_CAP)
       : []
   );
+  // Buku — filter keys yang masih ada di pool current. Orphan ids
+  // (batch retired) di-drop dari koleksi count + UI display.
+  const bukuRaw = typeof buku === 'object' && buku !== null ? buku : {};
+  const bukuClean = {};
+  for (const [id, entry] of Object.entries(bukuRaw)) {
+    if (POOL_IDS.has(id)) bukuClean[id] = entry;
+  }
+  // Legenda set — sama, drop ids yang gak ada di pool current.
+  const legendaSet = new Set(
+    (Array.isArray(legendaArr) ? legendaArr : []).filter((id) =>
+      POOL_IDS.has(id),
+    ),
+  );
   return {
     lastPluck: typeof lastPluck === 'string' ? lastPluck : null,
-    buku: typeof buku === 'object' && buku !== null ? buku : {},
-    legenda: new Set(Array.isArray(legendaArr) ? legendaArr : []),
+    buku: bukuClean,
+    legenda: legendaSet,
     pity,
     recent,
     wishlist,

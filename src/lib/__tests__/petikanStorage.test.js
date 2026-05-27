@@ -302,16 +302,18 @@ describe('localStorage corruption recovery', () => {
   });
 
   it('roundtrips: saveState → loadState preserves data', () => {
+    // loadState filter buku/legenda by POOL_IDS — gunakan id real dari
+    // pool current supaya gak ke-strip sebagai orphan.
     const state = {
       lastPluck: '2026-05-26',
-      buku: { 'card-1': { count: 3, firstPluckedAt: '2026-05-20' } },
-      legenda: new Set(['arme']),
+      buku: { 'arme-alert-bits': { count: 3, firstPluckedAt: '2026-05-20' } },
+      legenda: new Set(['arme-wotagei-helisma']),
     };
     saveState(state);
     const loaded = loadState();
     expect(loaded.lastPluck).toBe('2026-05-26');
-    expect(loaded.buku['card-1'].count).toBe(3);
-    expect(loaded.legenda.has('arme')).toBe(true);
+    expect(loaded.buku['arme-alert-bits'].count).toBe(3);
+    expect(loaded.legenda.has('arme-wotagei-helisma')).toBe(true);
   });
 
   it('resetState clears all keys', () => {
@@ -502,19 +504,20 @@ describe('recent pulls log', () => {
   });
 
   it('saveState → loadState preserves recent', () => {
+    // recent juga di-filter by POOL_IDS — pakai real ids.
     const state = {
       lastPluck: '2026-05-26',
       buku: {},
       legenda: new Set(),
       recent: [
-        { cardId: 'a', tier: 'muda', at: '2026-05-26T10:00:00Z' },
-        { cardId: 'b', tier: 'langka', at: '2026-05-25T10:00:00Z' },
+        { cardId: 'arme-alert-bits', tier: 'muda', at: '2026-05-26T10:00:00Z' },
+        { cardId: 'arme-cry-aftershow', tier: 'langka', at: '2026-05-25T10:00:00Z' },
       ],
     };
     saveState(state);
     const loaded = loadState();
     expect(loaded.recent).toHaveLength(2);
-    expect(loaded.recent[0].cardId).toBe('a');
+    expect(loaded.recent[0].cardId).toBe('arme-alert-bits');
     expect(loaded.recent[1].tier).toBe('langka');
   });
 
@@ -522,7 +525,7 @@ describe('recent pulls log', () => {
     localStorage.setItem(
       _KEYS.recent,
       JSON.stringify([
-        { cardId: 'valid', tier: 'muda', at: '2026-05-26T10:00:00Z' },
+        { cardId: 'arme-alert-bits', tier: 'muda', at: '2026-05-26T10:00:00Z' },
         null,
         { cardId: 123 }, // wrong type
         { cardId: 'no-tier', at: 'now' },
@@ -531,7 +534,7 @@ describe('recent pulls log', () => {
     );
     const loaded = loadState();
     expect(loaded.recent).toHaveLength(1);
-    expect(loaded.recent[0].cardId).toBe('valid');
+    expect(loaded.recent[0].cardId).toBe('arme-alert-bits');
   });
 
   it('resetState clears recent', () => {
@@ -614,23 +617,30 @@ describe('wishlist toggle', () => {
   });
 
   it('saveState → loadState roundtrip preserves wishlist', () => {
+    // wishlist filter by POOL_IDS — pakai real ids dari current pool.
     const state = {
       lastPluck: null,
       buku: {},
       legenda: new Set(),
-      wishlist: new Set(['arme-vtuber-lightstick', 'arme-vtuber-dance-helltaker']),
+      wishlist: new Set(['arme-wotagei-helisma', 'arme-cry-aftershow']),
     };
     saveState(state);
     const loaded = loadState();
     expect(loaded.wishlist.size).toBe(2);
-    expect(loaded.wishlist.has('arme-vtuber-lightstick')).toBe(true);
+    expect(loaded.wishlist.has('arme-wotagei-helisma')).toBe(true);
   });
 
   it('loadState caps wishlist at WISHLIST_CAP from corrupted storage', () => {
-    // Inject 5 entries — should clip to 3
+    // Inject 5 entries (real pool ids) — should clip to 3 (WISHLIST_CAP).
     localStorage.setItem(
       _KEYS.wishlist,
-      JSON.stringify(['a', 'b', 'c', 'd', 'e']),
+      JSON.stringify([
+        'arme-wotagei-helisma',
+        'arme-cry-aftershow',
+        'arme-rose-tribute',
+        'arme-noting-setlist',
+        'arme-handshake-pat',
+      ]),
     );
     const loaded = loadState();
     expect(loaded.wishlist.size).toBe(WISHLIST_CAP);

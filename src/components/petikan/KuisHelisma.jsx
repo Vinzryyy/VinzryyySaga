@@ -16,6 +16,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import {
   pickDailyQuizSet,
   QUIZ_QUESTIONS_PER_DAY,
@@ -29,6 +30,16 @@ import {
   getJakartaDate,
 } from '../../lib/petikanStorage';
 
+// Category labels — display Indonesian-friendly + remi-color accent.
+const CATEGORY_META = {
+  personal: { label: 'Personal', color: 'text-pink-700 bg-pink-50' },
+  career: { label: 'Karier', color: 'text-amber-800 bg-amber-50' },
+  theater: { label: 'Theater', color: 'text-burgundy-800 bg-rose-50' },
+  discography: { label: 'Diskografi', color: 'text-indigo-700 bg-indigo-50' },
+  social: { label: 'Sosial', color: 'text-sky-700 bg-sky-50' },
+  trivia: { label: 'Trivia', color: 'text-emerald-700 bg-emerald-50' },
+};
+
 const KuisHelisma = ({ onBuahChange }) => {
   const today = getJakartaDate();
   const dailyQuizSet = useMemo(() => pickDailyQuizSet(today), [today]);
@@ -39,6 +50,9 @@ const KuisHelisma = ({ onBuahChange }) => {
   // then commit to quizState (advance to next question).
   const [selected, setSelected] = useState(null);
   const [revealing, setRevealing] = useState(false);
+  // Floating +3 buah popup — bumped saat correct, animate via CSS class.
+  const [buahPopupKey, setBuahPopupKey] = useState(0);
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   // Cari soal yang belum dijawab di set hari ini.
   const currentQuiz = dailyQuizSet.find((q) => !quizState.answered[q.id]);
@@ -56,6 +70,8 @@ const KuisHelisma = ({ onBuahChange }) => {
     if (isCorrect) {
       addBuah(QUIZ_REWARD_BUAH);
       if (typeof onBuahChange === 'function') onBuahChange();
+      // Bump key to retrigger CSS animation kalau correct beruntun.
+      if (!prefersReducedMotion) setBuahPopupKey((k) => k + 1);
     }
     // Setelah jeda reveal, commit ke state + advance.
     setTimeout(() => {
@@ -136,16 +152,43 @@ const KuisHelisma = ({ onBuahChange }) => {
               </p>
             </div>
           ) : currentQuiz ? (
-            <div className="py-3">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
-                Soal {totalAnswered + 1} dari {QUIZ_QUESTIONS_PER_DAY}
-              </p>
+            <div className="py-3 relative">
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                  Soal {totalAnswered + 1} dari {QUIZ_QUESTIONS_PER_DAY}
+                </p>
+                {currentQuiz.category && CATEGORY_META[currentQuiz.category] && (
+                  <span
+                    className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${CATEGORY_META[currentQuiz.category].color}`}
+                  >
+                    {CATEGORY_META[currentQuiz.category].label}
+                  </span>
+                )}
+              </div>
               <p
                 className="text-base sm:text-lg text-[color:var(--retro-brown-dark)] mb-4 leading-relaxed text-left"
                 style={{ fontFamily: '"Fraunces Variable", serif' }}
               >
                 {currentQuiz.question}
               </p>
+              {/* Floating +3 buah popup — animate up + fade out saat
+                  correct. key bump retrigger CSS animation. */}
+              {revealing &&
+                selected === currentQuiz.correctIndex &&
+                !prefersReducedMotion && (
+                  <span
+                    key={buahPopupKey}
+                    aria-hidden="true"
+                    className="absolute right-1 top-0 text-[color:var(--retro-burgundy)] font-bold pointer-events-none"
+                    style={{
+                      fontFamily: '"Fraunces Variable", serif',
+                      fontSize: '20px',
+                      animation: 'kuisBuahPop 1.3s ease-out forwards',
+                    }}
+                  >
+                    +{QUIZ_REWARD_BUAH} 🍑
+                  </span>
+                )}
               <div className="space-y-2">
                 {currentQuiz.options.map((opt, idx) => {
                   const isSelected = selected === idx;
@@ -183,14 +226,21 @@ const KuisHelisma = ({ onBuahChange }) => {
                 })}
               </div>
               {revealing && (
-                <p
-                  className="text-xs text-[color:var(--retro-brown-dark)]/65 mt-3 text-center"
-                  style={{ fontFamily: '"Fraunces Variable", serif' }}
-                >
-                  {selected === currentQuiz.correctIndex
-                    ? `Benar! +${QUIZ_REWARD_BUAH} 🍑 buah`
-                    : 'Salah · 0 buah untuk soal ini'}
-                </p>
+                <div className="mt-3 text-center">
+                  <p
+                    className="text-xs text-[color:var(--retro-brown-dark)]/65"
+                    style={{ fontFamily: '"Fraunces Variable", serif' }}
+                  >
+                    {selected === currentQuiz.correctIndex
+                      ? `Benar! +${QUIZ_REWARD_BUAH} 🍑 buah`
+                      : 'Salah · 0 buah untuk soal ini'}
+                  </p>
+                  {currentQuiz.explanation && (
+                    <p className="text-[11px] text-[color:var(--retro-brown-dark)]/55 italic mt-1 leading-relaxed">
+                      {currentQuiz.explanation}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           ) : null}
