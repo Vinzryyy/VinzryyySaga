@@ -16,25 +16,18 @@
  */
 
 import { useEffect, useRef } from 'react';
-import {
-  subscribeEnabled,
-  subscribeVolume,
-  readEnabled,
-  readVolume,
-} from '../../lib/townAudioBus';
 
 const SRC = '/byUmusic/BREWEK.mp3';
 const FADE_IN_DUR = 1.4;
 const FADE_OUT_DUR = 0.6;
-// BREWEK.mp3 source kerasa terlalu loud relatif ke ambient track lain.
-// Cap output gain ke 40% dari bus volume — slider tetep berfungsi proporsional
-// (slider 50% = 0.2 gain, slider 100% = 0.4 gain) tapi peak music dibatasi
-// supaya gak overshadow SFX dan dialog.
-const MUSIC_VOLUME_MULTIPLIER = 0.4;
+// BREWEK.mp3 ALWAYS-ON selama user di /petikan. Independen dari
+// townAudioBus enabled/volume (mute icon + slider gak ngaruh). Gain
+// fixed 0.2 — design choice: music background atmosfir buka pack,
+// gak boleh di-mute karena bagian dari experience. Slider/mute global
+// tetep berfungsi untuk track lain di kota.
+const FIXED_GAIN = 0.2;
 
 const BrewekMusic = () => {
-  const enabledRef = useRef(readEnabled());
-  const volumeRef = useRef(readVolume());
   const audioRef = useRef(null);
   const ctxRef = useRef(null);
   const gainRef = useRef(null);
@@ -97,10 +90,7 @@ const BrewekMusic = () => {
     const audio = audioRef.current;
     if (!ctx || !gain || !audio) return;
 
-    const targetGain = enabledRef.current
-      ? volumeRef.current * MUSIC_VOLUME_MULTIPLIER
-      : 0;
-    const shouldPlay = mountedRef.current && enabledRef.current && targetGain > 0;
+    const shouldPlay = mountedRef.current;
     const now = ctx.currentTime;
 
     if (pauseTimerRef.current) {
@@ -115,7 +105,7 @@ const BrewekMusic = () => {
       });
       gain.gain.cancelScheduledValues(now);
       gain.gain.setValueAtTime(gain.gain.value, now);
-      gain.gain.linearRampToValueAtTime(targetGain, now + FADE_IN_DUR);
+      gain.gain.linearRampToValueAtTime(FIXED_GAIN, now + FADE_IN_DUR);
     } else {
       gain.gain.cancelScheduledValues(now);
       gain.gain.setValueAtTime(gain.gain.value, now);
@@ -132,25 +122,12 @@ const BrewekMusic = () => {
 
   useEffect(() => {
     mountedRef.current = true;
-    if (enabledRef.current) {
-      if (ensure()) {
-        apply();
-      }
+    if (ensure()) {
+      apply();
     }
-    const unsubEnabled = subscribeEnabled((v) => {
-      enabledRef.current = v;
-      ensure();
-      apply();
-    });
-    const unsubVolume = subscribeVolume((v) => {
-      volumeRef.current = v;
-      apply();
-    });
 
     return () => {
       mountedRef.current = false;
-      unsubEnabled();
-      unsubVolume();
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (gestureCleanupRef.current) gestureCleanupRef.current();
       const ctx = ctxRef.current;
