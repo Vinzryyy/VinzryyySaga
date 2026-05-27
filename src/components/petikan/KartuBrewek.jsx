@@ -135,8 +135,20 @@ const KartuBrewek = ({
       gsap.to(flapRef.current, {
         rotateX: -180,
         y: -8,
-        opacity: 0.92,
+        opacity: 0,
         duration: 0.45,
+        ease: 'power2.out',
+      });
+    }
+    // Body juga fade out — pack cover semuanya pergi, polaroid clean
+    // against page background. Slight scale-down + y offset = "pack
+    // jatuh ke bawah" implicit.
+    if (bodyRef.current) {
+      gsap.to(bodyRef.current, {
+        opacity: 0,
+        scale: 0.96,
+        y: 12,
+        duration: 0.5,
         ease: 'power2.out',
       });
     }
@@ -218,8 +230,12 @@ const KartuBrewek = ({
     const reveal = TIER_DEVELOP[pluckedCard.tier] || TIER_DEVELOP.muda;
     const tilt = polaroidTiltRef.current;
 
-    // Reduced-motion atau skipPack: instant polaroid visible, no animation
+    // Reduced-motion atau skipPack: instant polaroid visible, no animation.
+    // Body + flap hidden permanent (pack udah dibuka di card 1 atau user
+    // explicitly skip animations).
     if (prefersReducedMotion || skipPack) {
+      if (bodyRef.current) gsap.set(bodyRef.current, { opacity: 0 });
+      if (flapRef.current) gsap.set(flapRef.current, { opacity: 0 });
       gsap.set(polaroidRef.current, {
         opacity: 1,
         scale: 1,
