@@ -67,6 +67,11 @@ const Petikan = () => {
   // kartu 1) instant swap — pack rip animation cuma jalan SEKALI di
   // first reveal.
   const [hasRippedThisBatch, setHasRippedThisBatch] = useState(false);
+  // Semua kartu di batch ini udah pernah ditampilkan? Track max
+  // revealIndex yang pernah ke-reach. Setelah hit length-1 (kartu
+  // terakhir), thumbnail recap + share button stay visible meskipun
+  // user swipe-back ke kartu sebelumnya — preview semua tetap accessible.
+  const [allCardsRevealed, setAllCardsRevealed] = useState(false);
   // Ref untuk cancel pending auto-advance timer saat manual gesture.
   const transitionTimerRef = useRef(null);
   // Pointer/touch start untuk swipe vs tap detection.
@@ -121,9 +126,22 @@ const Petikan = () => {
       setPluckedCards([]);
       setRevealIndex(-1);
       setHasRippedThisBatch(false);
+      setAllCardsRevealed(false);
       setEmptyPool(false);
     }
   }, [countdownMs, canPluck]);
+
+  // Track milestone: semua kartu di batch udah pernah ditampilkan.
+  // Sticky — sekali true, stay true sampai handlePluck batch baru.
+  useEffect(() => {
+    if (
+      pluckedCards.length > 0 &&
+      revealIndex === pluckedCards.length - 1 &&
+      !allCardsRevealed
+    ) {
+      setAllCardsRevealed(true);
+    }
+  }, [revealIndex, pluckedCards.length, allCardsRevealed]);
 
   // Auto-advance reveal cursor. Setelah hold window selesai, langsung
   // bump revealIndex + tandai hasRippedThisBatch=true (batched, same
@@ -201,6 +219,7 @@ const Petikan = () => {
     setPluckedCards(cardsWithProse);
     setRevealIndex(0);
     setHasRippedThisBatch(false);
+    setAllCardsRevealed(false);
   }, [canPluck, state, now, devBypass, hasFreeDaily]);
 
   // Pointer/touch gesture detection — tap = next, swipe-left = next,
@@ -259,6 +278,7 @@ const Petikan = () => {
       setPluckedCards([]);
       setRevealIndex(-1);
       setHasRippedThisBatch(false);
+      setAllCardsRevealed(false);
     }, totalHoldMs + 2000);
     return () => clearTimeout(t);
   }, [devBypass, pluckedCards]);
@@ -380,11 +400,11 @@ const Petikan = () => {
           )}
 
           {/* Triad recap — 3 thumbnail kartu, tap untuk browse. Visible
-              setelah sequential reveal nyentuh kartu terakhir (jangan
-              spoil image kartu yang belum revealed di slot utama).
+              sekali semua kartu di batch udah pernah ditampilkan
+              (allCardsRevealed). Stay visible walaupun user swipe-back
+              ke kartu sebelumnya — preview semua tetap accessible.
               Highlight thumbnail kartu yang lagi displayed di slot atas. */}
-          {pluckedCards.length > 0 &&
-            revealIndex === pluckedCards.length - 1 && (
+          {pluckedCards.length > 0 && allCardsRevealed && (
             <div className="mb-8 flex justify-center gap-2 flex-wrap">
               {pluckedCards.map((c, i) => (
                 <button
@@ -492,12 +512,11 @@ const Petikan = () => {
 
           {/* Share button — capture off-screen clone via html-to-image
               → Web Share API mobile, download fallback desktop. Render
-              hanya saat sequential reveal udah selesai (kartu terakhir
-              ditampilkan). Default share the rarest card di batch
-              (legenda > langka > matang > muda) — highlight paling
-              spesial dari 3 kartu. */}
+              sekali semua kartu udah pernah ditampilkan (allCardsRevealed).
+              Default share the rarest card di batch (legenda > langka >
+              matang > muda) — highlight paling spesial dari 3 kartu. */}
           {pluckedCards.length > 0 &&
-            revealIndex === pluckedCards.length - 1 &&
+            allCardsRevealed &&
             (() => {
               const TIER_RANK = { legenda: 4, langka: 3, matang: 2, muda: 1 };
               const shareCard = [...pluckedCards].sort(
