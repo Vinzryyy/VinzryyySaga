@@ -57,21 +57,36 @@ const BG_SRCS = [
 ];
 
 const BackgroundWallpaper = React.memo(() => {
-  // Stable random distribution per page-mount. 500 PNGs scattered,
-  // di-pick sekali; refresh page = new layout. Only 5 unique sources
-  // (browser cache 5x render 500x), tapi 500 DOM nodes — monitor perf
-  // di mobile low-end. loading="lazy" + decoding="async" mitigate.
+  // Doodle-style tile grid — 500 PNGs di-place dalam grid cells supaya
+  // gak overlap. Tiap cell isi 1 PNG dengan random source + jitter
+  // posisi ±15% dalam cell + rotate ±15° + size 65-95% cell width.
+  // Stable per-mount via useMemo.
   const items = useMemo(() => {
     const count = 500;
-    return Array.from({ length: count }, (_, i) => ({
-      key: i,
-      src: BG_SRCS[Math.floor(Math.random() * BG_SRCS.length)],
-      top: Math.random() * 1200, // 0-1200vh spread untuk 500 items
-      left: Math.random() * 88, // 0-88% (avoid right edge cut)
-      width: 60 + Math.random() * 90, // 60-150px
-      rotate: (Math.random() - 0.5) * 40, // -20 to 20 deg
-      opacity: 0.3 + Math.random() * 0.3, // 0.3-0.6 (varied jitter)
-    }));
+    const cols = 7;
+    const rows = Math.ceil(count / cols);
+    const cellWidthPct = 100 / cols; // ~14.3%
+    const cellHeightPx = 140;
+    return Array.from({ length: count }, (_, i) => {
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+      const cellTop = row * cellHeightPx;
+      const cellLeft = col * cellWidthPct;
+      // Jitter dalam cell — ±15% horizontal, ±20px vertical.
+      const jitterX = (Math.random() - 0.5) * cellWidthPct * 0.3;
+      const jitterY = (Math.random() - 0.5) * 40;
+      // Image size 65-90% cell width supaya pasti gak nyentuh neighbor.
+      const sizePx = 75 + Math.random() * 35; // 75-110px
+      return {
+        key: i,
+        src: BG_SRCS[Math.floor(Math.random() * BG_SRCS.length)],
+        top: cellTop + jitterY,
+        left: cellLeft + jitterX,
+        width: sizePx,
+        rotate: (Math.random() - 0.5) * 30, // ±15°
+        opacity: 0.3 + Math.random() * 0.25, // 0.3-0.55
+      };
+    });
   }, []);
 
   return (
@@ -89,7 +104,7 @@ const BackgroundWallpaper = React.memo(() => {
           decoding="async"
           className="absolute select-none"
           style={{
-            top: `${p.top}vh`,
+            top: `${p.top}px`,
             left: `${p.left}%`,
             width: `${p.width}px`,
             opacity: p.opacity,
