@@ -85,6 +85,7 @@ const KartuBrewek = ({
   pluckedCard = null,
   onPluck,
   revealDelay = 0,
+  skipPack = false,
 }) => {
   const containerRef = useRef(null);
   const topHalfRef = useRef(null);
@@ -93,6 +94,9 @@ const KartuBrewek = ({
   const haloRef = useRef(null);
   const breatheRef = useRef(null);
   const playedRef = useRef(false);
+  // Track previous card id supaya bisa detect kartu baru (sequential
+  // reveal di triad) dan re-trigger animation tanpa unmount/remount.
+  const prevCardIdRef = useRef(null);
   // Bumped to trigger ParticleBurst re-animation
   const [particleTrigger, setParticleTrigger] = useState(0);
 
@@ -124,80 +128,96 @@ const KartuBrewek = ({
     };
   }, [canPluck, pluckedCard, onPluck]);
 
-  // Unpack timeline — kicks off saat pluckedCard set
+  // Unpack timeline — kicks off saat pluckedCard set. Re-runs saat
+  // card.id berubah (sequential reveal di triad: card 1 → card 2 → card 3).
+  // playedRef di-reset di reset effect (pluckedCard null) ATAU di awal
+  // sini kalau card id berubah dari prev.
   useEffect(() => {
     if (!pluckedCard) return undefined;
+    // Card baru? Reset gating + visuals supaya animation re-trigger.
+    if (prevCardIdRef.current !== pluckedCard.id) {
+      playedRef.current = false;
+    }
     if (playedRef.current) return undefined;
     if (!topHalfRef.current || !bottomHalfRef.current || !cardFrontRef.current) {
       return undefined;
     }
     playedRef.current = true;
+    prevCardIdRef.current = pluckedCard.id;
 
     const isLegenda = pluckedCard.tier === 'legenda';
     const reveal = TIER_REVEAL[pluckedCard.tier] || TIER_REVEAL.muda;
 
-    // Pre-set initial states
+    // Pre-set initial states. skipPack mode: pack halves di-hide dari
+    // awal (kartu 2 & 3 di sequential triad — pack udah robek di kartu 1).
     gsap.set(cardFrontRef.current, { opacity: 0, scale: 0.85 });
-    gsap.set([topHalfRef.current, bottomHalfRef.current], {
-      y: 0,
-      rotate: 0,
-      scale: 1,
-      opacity: 1,
-    });
+    if (skipPack) {
+      gsap.set([topHalfRef.current, bottomHalfRef.current], { opacity: 0 });
+    } else {
+      gsap.set([topHalfRef.current, bottomHalfRef.current], {
+        y: 0,
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+      });
+    }
 
-    // revealDelay = stagger offset di 3-pack triad (kartu 2 dan 3 nunggu
-    // giliran). Ditambah ke tier-based preDelay, jadi legenda di slot 2
-    // dapet aurora window penuh + stagger nya.
+    // revealDelay = manual offset (mis. stagger). Ditambah ke tier-based
+    // preDelay, jadi legenda dapet aurora window penuh + stagger nya.
     const tl = gsap.timeline({ delay: reveal.preDelay + revealDelay });
 
-    // Phase 1 — Anticipation (both halves slight scale up)
-    tl.to(
-      [topHalfRef.current, bottomHalfRef.current],
-      {
-        scale: 1.05,
-        duration: reveal.anticipation,
-        ease: 'sine.out',
-      },
-      0
-    );
+    if (!skipPack) {
+      // Phase 1 — Anticipation (both halves slight scale up)
+      tl.to(
+        [topHalfRef.current, bottomHalfRef.current],
+        {
+          scale: 1.05,
+          duration: reveal.anticipation,
+          ease: 'sine.out',
+        },
+        0
+      );
 
-    // SFX trigger at unpack start (post-anticipation)
-    tl.add(() => {
-      if (isLegenda) return; // LegendaReveal owns chime
-      if (!readEnabled()) return;
-      const vol = readVolume();
-      playPageTurnSfx(Math.max(0.3, vol * 1.6));
-    }, reveal.anticipation);
+      // SFX trigger at unpack start (post-anticipation)
+      tl.add(() => {
+        if (isLegenda) return; // LegendaReveal owns chime
+        if (!readEnabled()) return;
+        const vol = readVolume();
+        playPageTurnSfx(Math.max(0.3, vol * 1.6));
+      }, reveal.anticipation);
 
-    // Phase 2 — Top half flies up & fades
-    tl.to(
-      topHalfRef.current,
-      {
-        y: -220,
-        rotate: -10,
-        opacity: 0,
-        scale: 0.92,
-        duration: reveal.rip,
-        ease: 'power2.in',
-      },
-      reveal.anticipation
-    );
+      // Phase 2 — Top half flies up & fades
+      tl.to(
+        topHalfRef.current,
+        {
+          y: -220,
+          rotate: -10,
+          opacity: 0,
+          scale: 0.92,
+          duration: reveal.rip,
+          ease: 'power2.in',
+        },
+        reveal.anticipation
+      );
 
-    // Phase 3 — Bottom half drops down & fades (small offset for organic feel)
-    tl.to(
-      bottomHalfRef.current,
-      {
-        y: 220,
-        rotate: 10,
-        opacity: 0,
-        scale: 0.92,
-        duration: reveal.rip,
-        ease: 'power2.in',
-      },
-      reveal.anticipation + 0.05
-    );
+      // Phase 3 — Bottom half drops down & fades (small offset for organic feel)
+      tl.to(
+        bottomHalfRef.current,
+        {
+          y: 220,
+          rotate: 10,
+          opacity: 0,
+          scale: 0.92,
+          duration: reveal.rip,
+          ease: 'power2.in',
+        },
+        reveal.anticipation + 0.05
+      );
+    }
 
-    // Phase 4 — Card front emerges from behind (starts during halves' exit)
+    // Phase 4 — Card front emerges. skipPack: start immediately (no rip
+    // window to overlap with). Normal: start saat halves keluar.
+    const cardEmergeAt = skipPack ? 0 : reveal.emergeStart;
     tl.to(
       cardFrontRef.current,
       {
@@ -206,7 +226,7 @@ const KartuBrewek = ({
         duration: reveal.emerge,
         ease: 'power2.out',
       },
-      reveal.emergeStart
+      cardEmergeAt
     );
 
     // Phase 4b — Halo glow fades in (sync with card emerge)
@@ -219,22 +239,23 @@ const KartuBrewek = ({
           duration: reveal.emerge * 1.15,
           ease: 'sine.out',
         },
-        Math.max(0, reveal.emergeStart - 0.05)
+        Math.max(0, cardEmergeAt - 0.05)
       );
     }
 
     // Phase 4c — Particle burst at emerge moment
     tl.add(() => {
       setParticleTrigger((p) => p + 1);
-    }, reveal.emergeStart + 0.02);
+    }, cardEmergeAt + 0.02);
 
     return () => tl.kill();
-  }, [pluckedCard, revealDelay]);
+  }, [pluckedCard, revealDelay, skipPack]);
 
   // Reset state saat pluckedCard cleared (dev re-arm, midnight transition)
   useEffect(() => {
     if (pluckedCard) return;
     playedRef.current = false;
+    prevCardIdRef.current = null;
     if (topHalfRef.current) {
       gsap.set(topHalfRef.current, { clearProps: 'all' });
     }

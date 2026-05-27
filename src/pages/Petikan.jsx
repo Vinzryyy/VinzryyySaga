@@ -29,12 +29,17 @@ import {
 import { BATCH_ID, CARDS_PER_PLUCK, pickCards } from '../data/pohonAprikot';
 import { pickProse } from '../data/petikanProse';
 
-// Stagger antar pack di 3-pack triad — pack 2 mulai animate setelah
-// pack 1 selesai (rip 0.5s + emerge 0.6s ≈ 1.1s untuk muda; legenda
-// total ~2.3s). 2.5s buffer kasih breathing room across tiers + biar
-// user proses tiap kartu sebelum next muncul. preDelay tier-specific
-// di KartuBrewek tetap berlaku per-pack.
-const STAGGER_PER_PACK_SEC = 2.5;
+// Hold duration per tier — berapa lama kartu di-display sebelum
+// auto-advance ke kartu berikutnya dalam triad. Naik dgn tier biar
+// kartu langka/legenda dapat dwell time lebih panjang untuk dinikmati.
+// Pakai milliseconds. Active hanya selama kartu BUKAN terakhir (kartu
+// terakhir tetap visible permanent sampai navigation).
+const TIER_HOLD_MS = {
+  muda: 3500,
+  matang: 4000,
+  langka: 5000,
+  legenda: 6500,
+};
 
 const formatCountdown = (ms) => {
   if (ms <= 0) return '00:00:00';
@@ -53,6 +58,10 @@ const Petikan = () => {
   // "petik" terasa langsung). Full koleksi historis di-render di Buku
   // Petikan (P7). Empty array sebelum first pluck di session ini.
   const [pluckedCards, setPluckedCards] = useState([]);
+  // revealIndex = posisi kartu mana yang lagi di-display di slot center.
+  // -1 = belum ada pluck. 0..2 = kartu 1, 2, 3. Auto-advance via timer
+  // setelah TIER_HOLD_MS, kecuali kartu terakhir (stay visible).
+  const [revealIndex, setRevealIndex] = useState(-1);
   const [emptyPool, setEmptyPool] = useState(false);
   // Buah counter — earned via siraman di /26, dipakai untuk extra
   // pluck setelah free daily habis. Refresh on focus biar pickup
@@ -101,9 +110,22 @@ const Petikan = () => {
       setState(loadState());
       setBuah(getBuah());
       setPluckedCards([]);
+      setRevealIndex(-1);
       setEmptyPool(false);
     }
   }, [countdownMs, canPluck]);
+
+  // Auto-advance reveal cursor. Setelah hold window selesai, naikin
+  // revealIndex ke kartu berikutnya — kecuali ini kartu terakhir
+  // (revealIndex === pluckedCards.length - 1) yang stay visible.
+  useEffect(() => {
+    if (revealIndex < 0 || pluckedCards.length === 0) return undefined;
+    if (revealIndex >= pluckedCards.length - 1) return undefined;
+    const current = pluckedCards[revealIndex];
+    const holdMs = TIER_HOLD_MS[current?.tier] || TIER_HOLD_MS.muda;
+    const t = setTimeout(() => setRevealIndex(revealIndex + 1), holdMs);
+    return () => clearTimeout(t);
+  }, [revealIndex, pluckedCards]);
 
   const handlePluck = useCallback(() => {
     if (!canPluck) return;
@@ -141,16 +163,22 @@ const Petikan = () => {
       setBuah(getBuah());
     }
     setPluckedCards(cardsWithProse);
+    setRevealIndex(0);
   }, [canPluck, state, now, devBypass, hasFreeDaily]);
 
   // Re-arm pluck after each reveal in dev mode so user bisa pluck lagi
-  // tanpa reload. Clear pluckedCards setelah window cukup buat 3-pack
-  // reveal selesai + reading time.
+  // tanpa reload. Clear setelah window cukup buat sequential reveal +
+  // reading time (sum hold per kartu di triad).
   useEffect(() => {
     if (!devBypass || pluckedCards.length === 0) return undefined;
-    const revealWindowMs =
-      6000 + STAGGER_PER_PACK_SEC * 1000 * (pluckedCards.length - 1);
-    const t = setTimeout(() => setPluckedCards([]), revealWindowMs);
+    const totalHoldMs = pluckedCards.reduce(
+      (acc, c) => acc + (TIER_HOLD_MS[c.tier] || TIER_HOLD_MS.muda),
+      0
+    );
+    const t = setTimeout(() => {
+      setPluckedCards([]);
+      setRevealIndex(-1);
+    }, totalHoldMs + 2000);
     return () => clearTimeout(t);
   }, [devBypass, pluckedCards]);
 
@@ -207,62 +235,86 @@ const Petikan = () => {
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
           </div>
 
-          {/* 3-pack triad — primary affordance + reveal orchestrator.
-              Pre-pluck: 3 KartuBack sealed packs berdampingan. Hanya
-              pack pertama yang tappable (breathing animation cue). Tap
-              kicks off reveal di semua 3 secara berurutan via stagger.
+          {/* KartuBrewek — single pack, sequential reveal triad.
+              Pre-pluck: 1 KartuBack sealed pack dengan breathing animation,
+              tap untuk buka. Pack rip terjadi sekali (kartu 1). Kartu 2 & 3
+              emerge di slot yang sama tanpa pack rip ulang (skipPack=true).
+
+              Auto-advance via TIER_HOLD_MS — kartu langka/legenda dapat
+              hold lebih lama. Kartu terakhir stay visible permanent.
 
               Legenda tier dapat extra cinematic: LegendaReveal aurora
-              overlay + floating petals + chime audio. Trigger kalau
-              ada legenda di slot manapun. */}
-          {pluckedCards.some((c) => c && c.tier === 'legenda') && (
-            <LegendaReveal />
-          )}
+              overlay + chime audio. Trigger saat current displayed card
+              tier === legenda (bukan saat batch ada legenda — supaya
+              aurora muncul di moment yang tepat). */}
+          {revealIndex >= 0 &&
+            pluckedCards[revealIndex]?.tier === 'legenda' && <LegendaReveal />}
           <div className="mb-8 relative z-10">
-            {(canPluck || pluckedCards.length > 0) && (
-              <div className="flex justify-center gap-3 sm:gap-5 items-start">
-                {Array.from({ length: CARDS_PER_PLUCK }).map((_, i) => {
-                  // Scale wrapper — KartuBrewek native size 320×480.
-                  // Scale 0.35 mobile / 0.4 tablet+ supaya 3 pack muat
-                  // side-by-side. Outer reserves space sesuai scaled
-                  // dimensions; inner box di-transform tanpa ngubah
-                  // layout flow.
-                  const NATIVE_W = 320;
-                  const NATIVE_H = 480;
-                  const SCALE = 0.36;
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        width: `${NATIVE_W * SCALE}px`,
-                        height: `${NATIVE_H * SCALE}px`,
-                        position: 'relative',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: `${NATIVE_W}px`,
-                          height: `${NATIVE_H}px`,
-                          transform: `scale(${SCALE})`,
-                          transformOrigin: 'top left',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                        }}
-                      >
-                        <KartuBrewek
-                          canPluck={canPluck}
-                          pluckedCard={pluckedCards[i] || null}
-                          onPluck={i === 0 ? handlePluck : undefined}
-                          revealDelay={i * STAGGER_PER_PACK_SEC}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+            <KartuBrewek
+              canPluck={canPluck && pluckedCards.length === 0}
+              pluckedCard={
+                revealIndex >= 0 ? pluckedCards[revealIndex] : null
+              }
+              onPluck={handlePluck}
+              skipPack={revealIndex > 0}
+            />
+          </div>
+
+          {/* Triad progress dots — "● ○ ○" → "● ● ○" → "● ● ●".
+              Hanya visible saat sequential reveal lagi jalan. Jadi
+              cue visual: ada berapa kartu lagi yang menanti. */}
+          {pluckedCards.length > 1 && revealIndex >= 0 && (
+            <div className="flex justify-center gap-2 mb-6">
+              {pluckedCards.map((_, i) => (
+                <span
+                  key={i}
+                  className="block w-2 h-2 rounded-full transition-colors duration-300"
+                  style={{
+                    backgroundColor:
+                      i <= revealIndex
+                        ? 'var(--retro-burgundy)'
+                        : 'rgba(124, 45, 18, 0.2)',
+                  }}
+                  aria-label={`Kartu ${i + 1} dari ${pluckedCards.length}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Triad recap — 3 thumbnail kartu setelah semua revealed.
+              Display-only (gak interactive) — Buku Petikan handle full
+              detail review. Tujuan: kasih "lihat semua 3" snapshot.
+              Highlight thumbnail kartu yang lagi displayed (current
+              revealIndex). */}
+          {pluckedCards.length > 0 &&
+            revealIndex === pluckedCards.length - 1 && (
+              <div className="mb-8 flex justify-center gap-2 flex-wrap">
+                {pluckedCards.map((c, i) => (
+                  <div
+                    key={c.id + '-' + i}
+                    className={`relative overflow-hidden rounded-md border transition-all ${
+                      i === revealIndex
+                        ? 'border-[color:var(--retro-burgundy)] shadow-md'
+                        : 'border-[color:var(--retro-brown-dark)]/20'
+                    }`}
+                    style={{ width: '64px', height: '90px' }}
+                    aria-label={`Kartu ${i + 1}: ${c.title} — tier ${c.tier}`}
+                  >
+                    {c.image && (
+                      <img
+                        src={c.image}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="absolute bottom-0 left-0 right-0 bg-black/55 text-white text-[9px] uppercase tracking-wider py-0.5 text-center">
+                      {c.tier}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
-          </div>
 
           {/* Buah badge — visible kalau ada buah tersedia, link ke /26
               kalau 0 (call to action) */}
@@ -291,7 +343,7 @@ const Petikan = () => {
                     : `Petik habis hari ini, tapi ${buah} buah dari Pohon Kebaikan siap dipakai.`}
                 </p>
                 <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-3">
-                  Tap salah satu pack — semua akan terbuka berurutan.
+                  Tap pack — buka satu kali, dapat {CARDS_PER_PLUCK} kartu.
                 </p>
                 {!hasFreeDaily && buah > 0 && (
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mt-3">
@@ -340,20 +392,23 @@ const Petikan = () => {
 
           {/* Share button — capture off-screen clone via html-to-image
               → Web Share API mobile, download fallback desktop. Render
-              hanya saat ada kartu yang udah ke-reveal. Default share
-              the rarest card di batch (urutan tier: legenda > langka
-              > matang > muda) — highlight moment paling spesial. */}
-          {pluckedCards.length > 0 && (() => {
-            const TIER_RANK = { legenda: 4, langka: 3, matang: 2, muda: 1 };
-            const shareCard = [...pluckedCards].sort(
-              (a, b) => (TIER_RANK[b.tier] || 0) - (TIER_RANK[a.tier] || 0)
-            )[0];
-            return (
-              <div className="mt-6 flex justify-center">
-                <ShareCardImage card={shareCard} />
-              </div>
-            );
-          })()}
+              hanya saat sequential reveal udah selesai (kartu terakhir
+              ditampilkan). Default share the rarest card di batch
+              (legenda > langka > matang > muda) — highlight paling
+              spesial dari 3 kartu. */}
+          {pluckedCards.length > 0 &&
+            revealIndex === pluckedCards.length - 1 &&
+            (() => {
+              const TIER_RANK = { legenda: 4, langka: 3, matang: 2, muda: 1 };
+              const shareCard = [...pluckedCards].sort(
+                (a, b) => (TIER_RANK[b.tier] || 0) - (TIER_RANK[a.tier] || 0)
+              )[0];
+              return (
+                <div className="mt-6 flex justify-center">
+                  <ShareCardImage card={shareCard} />
+                </div>
+              );
+            })()}
 
           {/* Buku Petikan — koleksi historis lintas hari. Render setelah
               tree + reveal supaya focus utama tetep di pohon hari ini. */}
