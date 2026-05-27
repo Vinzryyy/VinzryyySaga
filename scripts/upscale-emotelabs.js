@@ -1,17 +1,30 @@
 /**
- * Upscale EmoteLabs source GIFs ke animated WebP (4x, ~448x448).
+ * Convert EmoteLabs source GIFs ke animated WebP, dengan target-width
+ * scaling biar reusable untuk source size beda-beda.
  *
- * Source GIFs di public/EmoteLabs/ adalah 112x112 — too low-res buat
- * Petikan card display (~200px container). GIF palette quantization
- * (256 color) bikin scale-up looks blocky, jadi convert ke WebP yang
- * support 24-bit color + better compression.
+ * Awalnya script ini hardcoded 4x karena semua source 112x112. Sekarang
+ * pakai TARGET_WIDTH cap supaya source yang udah HD (mis. 500x500)
+ * gak di-upscale berlebihan jadi 2000x2000 — waste bandwidth tanpa
+ * benefit visible di Petikan card ~200px display.
+ *
+ * Scaling rule:
+ *   scaleFactor = min(MAX_UPSCALE_FACTOR, TARGET_WIDTH / source.width)
+ *   targetW    = max(source.width, round(source.width * scaleFactor))
+ *
+ * Contoh:
+ *   - 112x112 source → 4x → 448x448 (sama kayak behavior lama)
+ *   - 500x500 source → 1.6x → 800x800 (modest upscale + format gain)
+ *   - 1200x1200 source → 1x → 1200x1200 (no upscale, format convert only)
+ *
+ * GIF palette quantization (256 color) bikin scale-up looks blocky,
+ * jadi convert ke WebP yang support 24-bit color + better compression
+ * tetep wajib bahkan kalau source udah HD.
  *
  * Settings:
  *   - kernel: lanczos3 (sharp default for cel-shaded chibi)
  *   - quality: 90 (visual ~indistinguishable dari lossless, much smaller)
  *   - effort: 6 (max libwebp compression effort — sekali run, file
  *     dipakai forever; CPU time saat build OK)
- *   - 4x upscale → ~448x448 final size
  *
  * Usage:
  *   node scripts/upscale-emotelabs.js
@@ -28,7 +41,12 @@ import sharp from 'sharp';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DIR = path.join(__dirname, '..', 'public', 'EmoteLabs');
-const UPSCALE_FACTOR = 4;
+// Ceiling cap: bahkan source super-mini (mis. 64px) gak boleh upscale
+// > 4x karena lanczos kelimit di sini — beyond itu fake detail.
+const MAX_UPSCALE_FACTOR = 4;
+// Target retina-grade density untuk display ~200-300px di Petikan card
+// + lightbox. 800px = 3x density at 266px display, comfy.
+const TARGET_WIDTH = 800;
 const KERNEL = 'lanczos3';
 const QUALITY = 90;
 const EFFORT = 6;
@@ -67,7 +85,11 @@ const main = async () => {
     }
 
     const meta = await sharp(srcPath, { animated: true }).metadata();
-    const targetW = (meta.width || 0) * UPSCALE_FACTOR;
+    const srcW = meta.width || 0;
+    // Target = scale enough to hit TARGET_WIDTH, but capped at
+    // MAX_UPSCALE_FACTOR; never downscale below source.
+    const scaleFactor = Math.min(MAX_UPSCALE_FACTOR, TARGET_WIDTH / srcW);
+    const targetW = Math.max(srcW, Math.round(srcW * scaleFactor));
 
     const info = await sharp(srcPath, { animated: true })
       .resize({ width: targetW, kernel: KERNEL })
