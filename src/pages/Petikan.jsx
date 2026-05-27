@@ -336,6 +336,58 @@ const Petikan = () => {
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
           </div>
 
+          {/* Token counter — prominent indicator of pack availability.
+              Total = (free daily ? 1 : 0) + buah. Breakdown di bawah
+              kasih konteks: mana yang free, mana yang dari Pohon
+              Kebaikan. Visible always (termasuk saat 0) supaya user
+              langsung tau status sebelum nyentuh pack. */}
+          {(() => {
+            const freeAvailable = hasFreeDaily ? 1 : 0;
+            const totalTokens = freeAvailable + buah;
+            return (
+              <div className="mb-8 inline-flex flex-col items-center gap-1">
+                <div className="flex items-baseline gap-3">
+                  <span
+                    className="text-5xl tabular-nums text-[color:var(--retro-burgundy)]"
+                    style={{
+                      fontFamily: '"Fraunces Variable", serif',
+                      fontWeight: 600,
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    {totalTokens}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--retro-brown-dark)]/70">
+                    {totalTokens === 1 ? 'pack' : 'pack'}
+                    <br />
+                    tersedia
+                  </span>
+                </div>
+                {totalTokens > 0 ? (
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55 mt-1">
+                    {freeAvailable > 0 && '1 free hari ini'}
+                    {freeAvailable > 0 && buah > 0 && ' · '}
+                    {buah > 0 && (
+                      <>
+                        <span className="text-[11px]">🍑</span> {buah} buah
+                      </>
+                    )}
+                  </p>
+                ) : (
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55 mt-1">
+                    Tunggu midnight WIB · atau{' '}
+                    <a
+                      href="/26"
+                      className="underline text-[color:var(--retro-burgundy)] hover:opacity-80"
+                    >
+                      petik buah
+                    </a>
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+
           {/* KartuBrewek — single pack, sequential reveal triad.
               Pre-pluck: 1 KartuBack sealed pack dengan breathing animation,
               tap untuk buka. Pack rip terjadi sekali (kartu 1). Kartu 2 & 3
@@ -436,40 +488,21 @@ const Petikan = () => {
             </div>
           )}
 
-          {/* Buah badge — visible kalau ada buah tersedia, link ke /26
-              kalau 0 (call to action) */}
-          {buah > 0 && (
-            <div className="mb-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/8 border border-[color:var(--retro-burgundy)]/20">
-              <span className="text-base">🍑</span>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                Buah Pohon Kebaikan · {buah} pack
-              </span>
-            </div>
-          )}
-
-          {/* Status card — pure info, instruksi sesuai state */}
+          {/* Status card — countdown + CTA, simplified karena token
+              counter di atas udah handle "berapa pack available". Card
+              sini fokus: tunggu midnight WIB atau cara dapet buah. */}
           <div className="bg-white/70 backdrop-blur-sm border border-[color:var(--retro-brown-dark)]/10 rounded-2xl p-6 shadow-[0_8px_32px_rgba(61,52,43,0.08)]">
             {canPluck ? (
               <>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
-                  {hasFreeDaily ? 'Hari ini' : 'Buah tersedia'}
+                  Siap buka
                 </p>
                 <p
                   className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)] leading-relaxed"
                   style={{ fontFamily: '"Fraunces Variable", serif' }}
                 >
-                  {hasFreeDaily
-                    ? `${CARDS_PER_PLUCK} kartu menanti.`
-                    : `Petik habis hari ini, tapi ${buah} buah dari Pohon Kebaikan siap dipakai.`}
-                </p>
-                <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-3">
                   Tap pack — buka satu kali, dapat {CARDS_PER_PLUCK} kartu.
                 </p>
-                {!hasFreeDaily && buah > 0 && (
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mt-3">
-                    Pakai 1 buah → tetap dapat pluck baru
-                  </p>
-                )}
                 {emptyPool && (
                   <p className="text-xs text-[color:var(--retro-burgundy)]/80 mt-3">
                     Pohon belum berbuah untuk pool ini. Coba lagi nanti.
@@ -480,12 +513,6 @@ const Petikan = () => {
               <>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
                   Pohon istirahat
-                </p>
-                <p
-                  className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)] mb-4 leading-relaxed"
-                  style={{ fontFamily: '"Fraunces Variable", serif' }}
-                >
-                  Kamu sudah memetik hari ini. Kembali besok pagi.
                 </p>
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/60 mb-1">
                   Pohon kembali dalam
