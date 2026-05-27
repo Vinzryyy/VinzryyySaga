@@ -115,16 +115,25 @@ const Petikan = () => {
     }
   }, [countdownMs, canPluck]);
 
-  // Auto-advance reveal cursor. Setelah hold window selesai, naikin
-  // revealIndex ke kartu berikutnya — kecuali ini kartu terakhir
-  // (revealIndex === pluckedCards.length - 1) yang stay visible.
+  // Auto-advance reveal cursor. Setelah hold window selesai, kartu
+  // current di-exit (KartuBrewek receive null briefly → exit animation
+  // jalan), terus bump ke kartu berikutnya. Gap 500ms = exit anim
+  // duration + buffer biar transisi terasa intentional, gak cut hard.
   useEffect(() => {
     if (revealIndex < 0 || pluckedCards.length === 0) return undefined;
     if (revealIndex >= pluckedCards.length - 1) return undefined;
     const current = pluckedCards[revealIndex];
     const holdMs = TIER_HOLD_MS[current?.tier] || TIER_HOLD_MS.muda;
-    const t = setTimeout(() => setRevealIndex(revealIndex + 1), holdMs);
-    return () => clearTimeout(t);
+    const exitGapMs = 500; // sync dgn KartuBrewek exit animation duration
+    const t1 = setTimeout(() => setRevealIndex(-1), holdMs);
+    const t2 = setTimeout(
+      () => setRevealIndex(revealIndex + 1),
+      holdMs + exitGapMs
+    );
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [revealIndex, pluckedCards]);
 
   const handlePluck = useCallback(() => {
