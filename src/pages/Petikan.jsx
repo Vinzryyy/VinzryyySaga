@@ -130,15 +130,6 @@ const Petikan = () => {
     }
   }, [countdownMs, canPluck]);
 
-  // Mark "pack robek" begitu revealIndex maju ke kartu 2+. Setelah ini
-  // skipPack tetap true untuk semua sisa reveal di batch ini — termasuk
-  // kalau user swipe balik ke kartu 1 (pack udah gak ada, jangan replay).
-  useEffect(() => {
-    if (revealIndex >= 1 && !hasRippedThisBatch) {
-      setHasRippedThisBatch(true);
-    }
-  }, [revealIndex, hasRippedThisBatch]);
-
   // Auto-advance reveal cursor. Setelah hold window selesai, isExiting
   // di-set true (KartuBrewek receive null → exit animation jalan), lalu
   // bump revealIndex + reset isExiting. Pakai isExiting (bukan ubah
@@ -154,8 +145,13 @@ const Petikan = () => {
     const exitGapMs = 500;
     const t1 = setTimeout(() => setIsExiting(true), holdMs);
     const t2 = setTimeout(() => {
+      // Batched state updates — React 18+ groups setStates dalam 1 render.
+      // hasRippedThisBatch di-set true HERE supaya KartuBrewek receive
+      // skipPack=true SAME render dengan revealIndex maju — gak ada
+      // intermediate frame di mana pack rip animation kebanting muncul.
       setIsExiting(false);
       setRevealIndex((idx) => idx + 1);
+      setHasRippedThisBatch(true);
     }, holdMs + exitGapMs);
     transitionTimersRef.current = { t1, t2 };
     return () => {
@@ -183,8 +179,12 @@ const Petikan = () => {
       // Manual exit → bump
       setIsExiting(true);
       setTimeout(() => {
+        // Batched dengan revealIndex update — hasRippedThisBatch=true
+        // SAME render supaya pack rip animation gak kebanting di kartu
+        // berikutnya (atau saat swipe-back ke kartu 1).
         setIsExiting(false);
         setRevealIndex(targetIndex);
+        setHasRippedThisBatch(true);
       }, 500);
     },
     [pluckedCards.length, isExiting, revealIndex]
