@@ -44,6 +44,62 @@ const TIER_HOLD_MS = {
   legenda: 6500,
 };
 
+// Background wallpaper — chibi Arme PNGs random scattered, B&W (grayscale),
+// opacity 50%. Random count (18-26) + positions di-compute via useMemo
+// (stable selama session, reshuffle pas refresh). Absolute positioning
+// scroll dengan page — bukan fixed wallpaper.
+const BG_SRCS = [
+  '/EmoteLabs/Background/Arme_2026-05-27-14-38-57.png',
+  '/EmoteLabs/Background/Arme_2026-05-27-14-39-06.png',
+  '/EmoteLabs/Background/Arme_2026-05-27-14-39-09.png',
+  '/EmoteLabs/Background/Arme_2026-05-27-14-39-27.png',
+  '/EmoteLabs/Background/Arme_2026-05-27-14-39-30.png',
+];
+
+const BackgroundWallpaper = React.memo(() => {
+  // Stable random distribution per page-mount. count + positions di-pick
+  // sekali; refresh page = new layout.
+  const items = useMemo(() => {
+    const count = 18 + Math.floor(Math.random() * 9); // 18-26
+    return Array.from({ length: count }, (_, i) => ({
+      key: i,
+      src: BG_SRCS[Math.floor(Math.random() * BG_SRCS.length)],
+      top: Math.random() * 480, // 0-480vh spread (covers long content)
+      left: Math.random() * 88, // 0-88% (avoid right edge cut)
+      width: 70 + Math.random() * 80, // 70-150px
+      rotate: (Math.random() - 0.5) * 30, // -15 to 15 deg
+      opacity: 0.4 + Math.random() * 0.2, // 0.4-0.6 (jitter around 50%)
+    }));
+  }, []);
+
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
+    >
+      {items.map((p) => (
+        <img
+          key={p.key}
+          src={p.src}
+          alt=""
+          loading="lazy"
+          className="absolute select-none"
+          style={{
+            top: `${p.top}vh`,
+            left: `${p.left}%`,
+            width: `${p.width}px`,
+            opacity: p.opacity,
+            transform: `rotate(${p.rotate}deg)`,
+            filter: 'grayscale(100%)',
+          }}
+        />
+      ))}
+    </div>
+  );
+});
+BackgroundWallpaper.displayName = 'BackgroundWallpaper';
+
 const formatCountdown = (ms) => {
   if (ms <= 0) return '00:00:00';
   const totalSec = Math.floor(ms / 1000);
@@ -321,72 +377,12 @@ const Petikan = () => {
           townAudioBus enabled + volume. */}
       <BrewekMusic />
 
-      <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6 relative">
-        {/* Background wallpaper — 5 chibi Arme PNGs scattered fixed
-            position, opacity 50%. Decorative aja, pointer-events none,
-            aria-hidden. Layer paling bawah (z-0), content z-10+. */}
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 pointer-events-none overflow-hidden"
-          style={{ zIndex: 0 }}
-        >
-          <img
-            src="/EmoteLabs/Background/Arme_2026-05-27-14-38-57.png"
-            alt=""
-            className="absolute select-none"
-            style={{
-              top: '8%',
-              left: '4%',
-              width: '120px',
-              opacity: 0.5,
-            }}
-          />
-          <img
-            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-06.png"
-            alt=""
-            className="absolute select-none"
-            style={{
-              top: '12%',
-              right: '5%',
-              width: '140px',
-              opacity: 0.5,
-            }}
-          />
-          <img
-            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-09.png"
-            alt=""
-            className="absolute select-none"
-            style={{
-              top: '46%',
-              left: '6%',
-              width: '110px',
-              opacity: 0.5,
-            }}
-          />
-          <img
-            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-27.png"
-            alt=""
-            className="absolute select-none"
-            style={{
-              top: '52%',
-              right: '4%',
-              width: '125px',
-              opacity: 0.5,
-            }}
-          />
-          <img
-            src="/EmoteLabs/Background/Arme_2026-05-27-14-39-30.png"
-            alt=""
-            className="absolute select-none"
-            style={{
-              bottom: '10%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '130px',
-              opacity: 0.5,
-            }}
-          />
-        </div>
+      <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6 relative overflow-hidden">
+        {/* Background wallpaper — chibi Arme PNGs scattered random,
+            grayscale (black & white), opacity 50%. Absolute positioned
+            (scroll dengan page, gak fixed). Random count + positions
+            di-compute once per mount via useMemo. */}
+        <BackgroundWallpaper />
 
         <div className="max-w-2xl mx-auto text-center relative" style={{ zIndex: 10 }}>
           {/* Dev mode banner — visible saat ?dev=1, gated DEV build */}
