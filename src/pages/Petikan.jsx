@@ -255,6 +255,22 @@ const Petikan = () => {
     playSelectSfx(multiplier * baseVol * SFX_VOLUME_MULTIPLIER);
   }, []);
 
+  // Reset reveal state ke pre-pluck — pack jadi sealed lagi, user tap
+  // sendiri buat buka. Dipakai saat user click "Pack Baru" setelah
+  // selesai reveal triad. Beda dari handlePluck: gak langsung pluck,
+  // cuma reset visual state ke idle.
+  const resetToSealedPack = useCallback(() => {
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
+    }
+    fireSelectSfx(0.7);
+    setPluckedCards([]);
+    setRevealIndex(-1);
+    setHasRippedThisBatch(false);
+    setAllCardsRevealed(false);
+  }, [fireSelectSfx]);
+
   // Manual jump (tap, swipe, atau thumbnail click) — cancel pending
   // auto-advance, instant swap ke target index. No exit anim, no
   // entrance anim (KartuBrewek static mode saat skipPack=true).
@@ -464,96 +480,87 @@ const Petikan = () => {
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
           </div>
 
-          {/* Token counter — prominent indicator of pack availability.
-              Total = (free daily ? 1 : 0) + buah. Breakdown di bawah
-              kasih konteks: mana yang free, mana yang dari Pohon
-              Kebaikan. Visible always (termasuk saat 0) supaya user
-              langsung tau status sebelum nyentuh pack. */}
+          {/* Token counter + quick-action button side-by-side.
+              Counter: total pack tersedia + breakdown source.
+              Button context-aware:
+                - reveal mid-triad: "Kartu Berikutnya" → jumpTo
+                - all revealed + canPluck: "Pack Baru" → resetToSealedPack
+                  (BUKAN handlePluck — pack jadi sealed, user tap sendiri)
+                - pre-pluck: no button (pack sendiri obvious tap target) */}
           {(() => {
             const freeAvailable = hasFreeDaily ? 1 : 0;
             const totalTokens = freeAvailable + buah;
+            const hasActivePluck = pluckedCards.length > 0;
+            const atLastCard =
+              hasActivePluck && revealIndex >= pluckedCards.length - 1;
+            const showNextBtn = hasActivePluck && !atLastCard;
+            const showNewPackBtn = canPluck && atLastCard;
             return (
-              <div className="mb-8 inline-flex flex-col items-center gap-1">
-                <div className="flex items-baseline gap-3">
-                  <span
-                    className="text-5xl tabular-nums text-[color:var(--retro-burgundy)]"
-                    style={{
-                      fontFamily: '"Fraunces Variable", serif',
-                      fontWeight: 600,
-                      letterSpacing: '-0.02em',
-                    }}
-                  >
-                    {totalTokens}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--retro-brown-dark)]/70">
-                    {totalTokens === 1 ? 'pack' : 'pack'}
-                    <br />
-                    tersedia
-                  </span>
-                </div>
-                {totalTokens > 0 ? (
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55 mt-1">
-                    {freeAvailable > 0 && '1 free hari ini'}
-                    {freeAvailable > 0 && buah > 0 && ' · '}
-                    {buah > 0 && (
-                      <>
-                        <span className="text-[11px]">🍑</span> {buah} buah
-                      </>
-                    )}
-                  </p>
-                ) : (
-                  <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55 mt-1">
-                    Tunggu midnight WIB · atau{' '}
-                    <a
-                      href="/26"
-                      className="underline text-[color:var(--retro-burgundy)] hover:opacity-80"
+              <div className="mb-8 inline-flex items-center gap-5 flex-wrap justify-center">
+                {/* Counter column */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-baseline gap-3">
+                    <span
+                      className="text-5xl tabular-nums text-[color:var(--retro-burgundy)]"
+                      style={{
+                        fontFamily: '"Fraunces Variable", serif',
+                        fontWeight: 600,
+                        letterSpacing: '-0.02em',
+                      }}
                     >
-                      petik buah
-                    </a>
-                  </p>
-                )}
+                      {totalTokens}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--retro-brown-dark)]/70 text-left">
+                      pack
+                      <br />
+                      tersedia
+                    </span>
+                  </div>
+                  {totalTokens > 0 ? (
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55 mt-1">
+                      {freeAvailable > 0 && '1 free hari ini'}
+                      {freeAvailable > 0 && buah > 0 && ' · '}
+                      {buah > 0 && (
+                        <>
+                          <span className="text-[11px]">🍑</span> {buah} buah
+                        </>
+                      )}
+                    </p>
+                  ) : (
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55 mt-1">
+                      Tunggu midnight WIB · atau{' '}
+                      <a
+                        href="/26"
+                        className="underline text-[color:var(--retro-burgundy)] hover:opacity-80"
+                      >
+                        petik buah
+                      </a>
+                    </p>
+                  )}
+                </div>
 
-                {/* Quick-action button — context-aware:
-                    - pre-pluck + canPluck: "Buka Pack" → handlePluck
-                    - reveal in progress (bukan last): "Kartu Berikutnya" → jumpTo next
-                    - last card / all done + canPluck (extra buah): "Buka Pack Lagi" → handlePluck
-                    - last card / no more tokens: hidden */}
-                {(() => {
-                  const hasActivePluck = pluckedCards.length > 0;
-                  const atLastCard =
-                    hasActivePluck &&
-                    revealIndex >= pluckedCards.length - 1;
-                  // Show "Next Card" saat reveal jalan + bukan last
-                  if (hasActivePluck && !atLastCard) {
-                    return (
-                      <button
-                        type="button"
-                        onClick={() => jumpTo(revealIndex + 1)}
-                        className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[11px] uppercase tracking-[0.25em] font-semibold shadow-md hover:opacity-90 active:scale-95 transition-all"
-                      >
-                        <span>Kartu Berikutnya</span>
-                        <i className="ri-arrow-right-line text-base" />
-                      </button>
-                    );
-                  }
-                  // Show "Buka Pack" saat bisa pluck (pre-pluck atau
-                  // udah revealed semua + masih ada token)
-                  if (canPluck && (!hasActivePluck || atLastCard)) {
-                    return (
-                      <button
-                        type="button"
-                        onClick={handlePluck}
-                        className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[11px] uppercase tracking-[0.25em] font-semibold shadow-md hover:opacity-90 active:scale-95 transition-all"
-                      >
-                        <i className="ri-magic-line text-base" />
-                        <span>
-                          {atLastCard ? 'Buka Pack Lagi' : 'Buka Pack'}
-                        </span>
-                      </button>
-                    );
-                  }
-                  return null;
-                })()}
+                {/* Action button — beside counter (flex-row gap-5).
+                    Click = reset/next nav, gak langsung pluck. */}
+                {showNextBtn && (
+                  <button
+                    type="button"
+                    onClick={() => jumpTo(revealIndex + 1)}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[11px] uppercase tracking-[0.25em] font-semibold shadow-md hover:opacity-90 active:scale-95 transition-all"
+                  >
+                    <span>Kartu Berikutnya</span>
+                    <i className="ri-arrow-right-line text-base" />
+                  </button>
+                )}
+                {showNewPackBtn && (
+                  <button
+                    type="button"
+                    onClick={resetToSealedPack}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 border-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] text-[11px] uppercase tracking-[0.25em] font-semibold hover:bg-[color:var(--retro-burgundy)]/8 active:scale-95 transition-all"
+                  >
+                    <i className="ri-refresh-line text-base" />
+                    <span>Pack Baru</span>
+                  </button>
+                )}
               </div>
             );
           })()}
