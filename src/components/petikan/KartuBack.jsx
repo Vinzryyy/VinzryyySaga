@@ -1,32 +1,14 @@
 /**
  * KartuBack — card-back / sealed pack cover.
  *
- * Foil pouch hybrid:
- * - Master pack art ("The Life of Armeniaca") full-bleed sebagai body.
- *   Tampil utuh tanpa crop berat — design illustration hero.
- * - Heat-seal crimp overlay TOP (purple tint, match master image langit)
- *   dan BOTTOM (yellow tint, match master image tanah). Stripes pattern
- *   transparan di atas image — design tetep keliatan, crimps cuma kasih
- *   texture sealed-pouch feel.
- *
- * Tier-aware accent overlays (S gold foil, A copper dashed) untuk
- * pre-flip hint.
+ * Master pack art "The Life of Armeniaca" sebagai full-bleed image,
+ * no overlays. Tier-aware accent (S gold foil, A copper dashed)
+ * untuk pre-flip hint tipis.
  */
 
 import React from 'react';
 
 const PACK_IMAGE = '/EmoteLabs/Master.PackArmeniacaPhase1.jpeg';
-
-// Heat-seal crimp pattern — horizontal stripes density tinggi, machine-
-// pressed foil edges. Stripes pakai blend 'multiply' supaya gelap-an
-// area tanpa nutupin warna dasar di bawahnya.
-const CRIMP_STRIPES = `repeating-linear-gradient(
-  to bottom,
-  rgba(0, 0, 0, 0.35) 0,
-  rgba(0, 0, 0, 0.35) 1px,
-  transparent 1px,
-  transparent 3px
-)`;
 
 const KartuBack = ({ tier = 'C' }) => {
   const isS = tier === 'S';
@@ -44,41 +26,6 @@ const KartuBack = ({ tier = 'C' }) => {
         className="absolute inset-0 w-full h-full object-cover select-none"
         draggable={false}
         loading="eager"
-      />
-
-      {/* TOP CRIMP — heat-seal stripes overlay dengan purple tint untuk
-          match langit di master image. Tint subtle supaya design tetep
-          terbaca — stripes kasih texture, bukan blanket cover. */}
-      <div
-        aria-hidden="true"
-        className="absolute top-0 inset-x-0 pointer-events-none"
-        style={{
-          height: '10%',
-          background: `${CRIMP_STRIPES},
-            linear-gradient(to bottom,
-              rgba(124, 92, 178, 0.25) 0%,
-              rgba(154, 118, 198, 0.18) 60%,
-              transparent 100%
-            )`,
-          mixBlendMode: 'multiply',
-        }}
-      />
-
-      {/* BOTTOM CRIMP — heat-seal stripes overlay dengan yellow tint untuk
-          match tanah di master image. */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-0 inset-x-0 pointer-events-none"
-        style={{
-          height: '10%',
-          background: `${CRIMP_STRIPES},
-            linear-gradient(to top,
-              rgba(232, 198, 88, 0.3) 0%,
-              rgba(244, 218, 110, 0.2) 60%,
-              transparent 100%
-            )`,
-          mixBlendMode: 'multiply',
-        }}
       />
 
       {/* S tier — gold foil inner border (pre-flip hint paling jelas) */}
