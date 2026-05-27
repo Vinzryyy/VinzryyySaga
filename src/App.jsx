@@ -417,7 +417,13 @@ function AppShell() {
               element={<Navigate to="/byu-music" replace />}
             />
             <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
-            <Route path="/petikan" element={<PetikanPage />} />
+            <Route path="/armepack" element={<PetikanPage />} />
+            {/* Backward-compat redirect — old /petikan URLs (shared
+                links, bookmarks) redirect ke /armepack baru. */}
+            <Route
+              path="/petikan"
+              element={<Navigate to="/armepack" replace />}
+            />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/armeniacaTown" element={<TamanPage />} />

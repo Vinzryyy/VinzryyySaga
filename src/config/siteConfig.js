@@ -132,9 +132,9 @@ export const SITE_CONFIG = {
       },
       {
         label: 'ArmePack',
-        hash: 'petikan',
+        hash: 'armepack',
         icon: 'ri-leaf-line',
-        description: 'Satu kenangan dari Pohon Aprikot, tiap hari.',
+        description: 'Tiga kartu tiap hari — The Life of Armeniaca.',
       },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },

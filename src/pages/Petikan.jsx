@@ -399,7 +399,7 @@ const Petikan = () => {
   return (
     <>
       <Seo
-        path="/petikan"
+        path="/armepack"
         title="ArmePack — The Life of Armeniaca"
         description="ArmePack: The Life of Armeniaca — kepingan harian Arme sebagai fan Helisma Putri Kurnia. Buka pack, dapat 3 kartu tiap hari. Batch I, Seitansai 2026."
         image="https://armeniaca.online/og-petikan.png"
