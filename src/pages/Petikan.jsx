@@ -62,6 +62,11 @@ const Petikan = () => {
   // -1 = belum ada pluck. 0..2 = kartu 1, 2, 3. Auto-advance via timer
   // setelah TIER_HOLD_MS, kecuali kartu terakhir (stay visible).
   const [revealIndex, setRevealIndex] = useState(-1);
+  // isExiting = true selama jeda transisi antar kartu di triad. Bikin
+  // pluckedCard prop ke KartuBrewek jadi null sehingga exit animation
+  // jalan, TANPA mengubah revealIndex (yang akan re-trigger auto-advance
+  // useEffect dan cancel t2). Reset balik ke false saat advance complete.
+  const [isExiting, setIsExiting] = useState(false);
   const [emptyPool, setEmptyPool] = useState(false);
   // Buah counter — earned via siraman di /26, dipakai untuk extra
   // pluck setelah free daily habis. Refresh on focus biar pickup
@@ -111,25 +116,27 @@ const Petikan = () => {
       setBuah(getBuah());
       setPluckedCards([]);
       setRevealIndex(-1);
+      setIsExiting(false);
       setEmptyPool(false);
     }
   }, [countdownMs, canPluck]);
 
-  // Auto-advance reveal cursor. Setelah hold window selesai, kartu
-  // current di-exit (KartuBrewek receive null briefly → exit animation
-  // jalan), terus bump ke kartu berikutnya. Gap 500ms = exit anim
-  // duration + buffer biar transisi terasa intentional, gak cut hard.
+  // Auto-advance reveal cursor. Setelah hold window selesai, isExiting
+  // di-set true (KartuBrewek receive null → exit animation jalan), lalu
+  // bump revealIndex + reset isExiting. Pakai isExiting (bukan ubah
+  // revealIndex ke -1) supaya useEffect deps gak ke-trigger di tengah
+  // transisi — kalau ke-trigger, cleanup cancel t2 dan reveal stuck.
   useEffect(() => {
     if (revealIndex < 0 || pluckedCards.length === 0) return undefined;
     if (revealIndex >= pluckedCards.length - 1) return undefined;
     const current = pluckedCards[revealIndex];
     const holdMs = TIER_HOLD_MS[current?.tier] || TIER_HOLD_MS.muda;
     const exitGapMs = 500; // sync dgn KartuBrewek exit animation duration
-    const t1 = setTimeout(() => setRevealIndex(-1), holdMs);
-    const t2 = setTimeout(
-      () => setRevealIndex(revealIndex + 1),
-      holdMs + exitGapMs
-    );
+    const t1 = setTimeout(() => setIsExiting(true), holdMs);
+    const t2 = setTimeout(() => {
+      setIsExiting(false);
+      setRevealIndex(revealIndex + 1);
+    }, holdMs + exitGapMs);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -173,6 +180,7 @@ const Petikan = () => {
     }
     setPluckedCards(cardsWithProse);
     setRevealIndex(0);
+    setIsExiting(false);
   }, [canPluck, state, now, devBypass, hasFreeDaily]);
 
   // Re-arm pluck after each reveal in dev mode so user bisa pluck lagi
@@ -187,6 +195,7 @@ const Petikan = () => {
     const t = setTimeout(() => {
       setPluckedCards([]);
       setRevealIndex(-1);
+      setIsExiting(false);
     }, totalHoldMs + 2000);
     return () => clearTimeout(t);
   }, [devBypass, pluckedCards]);
@@ -257,12 +266,15 @@ const Petikan = () => {
               tier === legenda (bukan saat batch ada legenda — supaya
               aurora muncul di moment yang tepat). */}
           {revealIndex >= 0 &&
+            !isExiting &&
             pluckedCards[revealIndex]?.tier === 'legenda' && <LegendaReveal />}
           <div className="mb-8 relative z-10">
             <KartuBrewek
               canPluck={canPluck && pluckedCards.length === 0}
               pluckedCard={
-                revealIndex >= 0 ? pluckedCards[revealIndex] : null
+                revealIndex >= 0 && !isExiting
+                  ? pluckedCards[revealIndex]
+                  : null
               }
               onPluck={handlePluck}
               skipPack={revealIndex > 0}
