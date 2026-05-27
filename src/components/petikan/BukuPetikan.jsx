@@ -239,7 +239,7 @@ const MemoriHariIni = ({ recent, onSelectCard, expanded, onToggleExpand }) => {
           className="text-xl sm:text-2xl text-[color:var(--retro-text-primary)] mb-1"
           style={{ fontFamily: '"Fraunces Variable", serif', fontWeight: 600 }}
         >
-          Jurnal {recent.length} Petikan
+          Jurnal {recent.length} ArmePack
         </h3>
         <p className="text-xs text-[color:var(--retro-brown-dark)]/60 italic">
           Setiap hari ditulis pelan oleh pohon — buka kembali kapan saja.
@@ -342,7 +342,7 @@ const RecentPullsRow = ({ recent, onSelectCard }) => {
     <div className="mb-6">
       <p className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--retro-burgundy)]/70 mb-2 text-center">
         <i className="ri-history-line mr-1 text-[11px]" />
-        Petikan Terakhir
+        Pack Terakhir
       </p>
       <div className="flex justify-center gap-1.5 sm:gap-2 overflow-x-auto px-2 pb-1 -mx-2">
         {recent.map((entry, idx) => {
@@ -411,7 +411,7 @@ const RatesModal = ({ onClose }) => {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Tingkat keluar kartu Petikan"
+      aria-label="Tingkat keluar kartu ArmePack"
     >
       <div
         className="relative w-full max-w-md bg-[color:var(--retro-cream,#faf6ed)] rounded-2xl shadow-2xl overflow-hidden"
@@ -629,7 +629,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
 
       <header className="text-center mb-6">
         <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2">
-          Buku Petikan
+          Buku ArmePack
         </p>
         <h2
           className="text-2xl sm:text-3xl text-[color:var(--retro-text-primary)] mb-2 inline-flex items-center gap-2"

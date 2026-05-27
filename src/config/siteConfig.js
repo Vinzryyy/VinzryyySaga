@@ -131,7 +131,7 @@ export const SITE_CONFIG = {
         ],
       },
       {
-        label: 'Petikan',
+        label: 'ArmePack',
         hash: 'petikan',
         icon: 'ri-leaf-line',
         description: 'Satu kenangan dari Pohon Aprikot, tiap hari.',
