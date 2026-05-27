@@ -23,31 +23,39 @@ import { PETIKAN_EMOTELABS_CARDS } from './petikanEmoteLabsCards';
 // sama dengan armeDialogs.js — single source of truth biar konsisten.
 const AI = (filename) => `/AI/${encodeURI(filename)}`;
 
-export const BATCH_ID = 'seitansai-2026';
+export const BATCH_ID = 'life-of-armeniaca-2026';
 
+// Tier labels updated 2026-05-27 — refactor theme ke "The Life of Armeniaca"
+// (fan story idolizing Helisma). Internal keys tetap muda/matang/langka/
+// legenda untuk backward compat dgn storage layer + tests. Display label
+// di UI pakai S/A/B/C (gacha-style hierarchy).
 export const TIER_CONFIG = {
   muda: {
     weight: 60,
-    label: 'Buah Muda',
+    label: 'C',
+    fullLabel: 'Tier C · Vibes Harian',
     spineColor: 'var(--retro-brown-dark)',
     spineWidth: '2px',
   },
   matang: {
     weight: 30,
-    label: 'Buah Matang',
+    label: 'B',
+    fullLabel: 'Tier B · Beat Emosional',
     spineColor: 'var(--retro-burgundy)',
     spineWidth: '4px',
   },
   langka: {
     weight: 9,
-    label: 'Buah Langka',
+    label: 'A',
+    fullLabel: 'Tier A · Momen Penting',
     spineColor: 'var(--retro-burgundy)',
     spineWidth: '6px',
     accent: 'gold-inner-line',
   },
   legenda: {
     weight: 1,
-    label: 'Buah Legenda',
+    label: 'S',
+    fullLabel: 'Tier S · Peak Fan Life',
     spineColor: 'var(--retro-gold)',
     spineWidth: '8px',
     accent: 'gold-foil-watermark',
@@ -311,7 +319,7 @@ const RAW_POOL = [
 ];
 
 export const SET_SIZE = RAW_POOL.length;
-export const SET_CODE = 'PAA'; // Pohon Aprikot — batch I (Aprikot)
+export const SET_CODE = 'TLA'; // The Life of Armeniaca — batch I
 
 export const POHON_APRIKOT_POOL = RAW_POOL.map((card, idx) => ({
   ...card,

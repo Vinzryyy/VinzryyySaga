@@ -128,13 +128,16 @@ describe('pickCardFromTier no-dup legenda', () => {
 
 describe('pickCard fallback chain', () => {
   it('falls back from legenda → langka when legenda exhausted', () => {
-    // GIF-only experiment: legenda = arme-vtuber-lightstick (Lightstick
-    // promoted dari langka). Owning it exhausts legenda → fallback.
-    const state = { legenda: new Set(['arme-vtuber-lightstick']) };
+    // Life of Armeniaca batch I: 5 S-tier (legenda) cards. Owning all
+    // exhausts S → fallback chain ke A (langka).
+    const allLegendaIds = POHON_APRIKOT_POOL
+      .filter((c) => c.tier === 'legenda')
+      .map((c) => c.id);
+    const state = { legenda: new Set(allLegendaIds) };
     // Force tier roll to legenda (rng = 99.5 → 99.5/100 → falls in legenda 99-100 band)
     const forcedRng = () => 0.995;
     const card = pickCard(state, '2026-05-26', forcedRng);
-    // Legenda owned → fallback to langka (next in TIER_FALLBACK_ORDER)
+    // Legenda exhausted → fallback to langka (next in TIER_FALLBACK_ORDER)
     expect(card).not.toBeNull();
     expect(card.tier).toBe('langka');
   });
@@ -308,17 +311,21 @@ describe('pickCards batch (3 cards per pluck event)', () => {
   });
 
   it('no-dup legenda within a single batch', () => {
-    // Force pity legenda → semua 3 roll forced ke legenda. Pool legenda
-    // cuma 1 (Lightstick), jadi card 1 = Lightstick, card 2 & 3 fallback
-    // ke langka (legenda exhausted dalam batch).
+    // Force pity legenda → roll forced ke legenda. Pool legenda 5 cards
+    // (Life of Armeniaca), no-dup batch logic harus pastikan gak ada
+    // 2 kartu legenda dengan id sama dalam 1 batch.
     const state = {
       legenda: new Set(),
       pity: { langka: 0, legenda: PITY_THRESHOLD.legenda },
     };
     const cards = pickCards(state, '2026-05-26', 3, seededRng(42));
     expect(cards).toHaveLength(3);
-    const legendaCount = cards.filter((c) => c.tier === 'legenda').length;
-    expect(legendaCount).toBeLessThanOrEqual(1);
+    // Boleh ada multiple legenda di batch (kalau pool > 1), tapi semua
+    // id-nya harus unique.
+    const legendaIds = cards
+      .filter((c) => c.tier === 'legenda')
+      .map((c) => c.id);
+    expect(new Set(legendaIds).size).toBe(legendaIds.length);
   });
 
   it('returns smaller array kalau count > available pool size', () => {
@@ -362,11 +369,11 @@ describe('POHON_APRIKOT_POOL (GIF-only experimental)', () => {
     expect(tiers.has('muda')).toBe(true);
   });
 
-  it('Lightstick is the legenda card (Arme wotagei)', () => {
+  it('Wotagei Helisma is a tier S (legenda) card', () => {
     const legenda = POHON_APRIKOT_POOL.filter((c) => c.tier === 'legenda');
     expect(legenda.length).toBeGreaterThanOrEqual(1);
-    const lightstick = legenda.find((c) => c.id === 'arme-vtuber-lightstick');
-    expect(lightstick).toBeTruthy();
+    const wotagei = legenda.find((c) => c.id === 'arme-wotagei-helisma');
+    expect(wotagei).toBeTruthy();
   });
 
   it('all cards are chibi (CoffeeBean VTuber form)', () => {
@@ -376,12 +383,22 @@ describe('POHON_APRIKOT_POOL (GIF-only experimental)', () => {
     });
   });
 
-  it('has pool size matching the EmoteLabs full set (~58)', () => {
-    // Full curation dari batch 2026-05-27 — 58 unique emotes (post-dupe
-    // filter), 4 tier. Range 50-80 supaya muat current set plus minor
-    // additions (kalau user tambah emote variant di future).
-    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(50);
-    expect(POHON_APRIKOT_POOL.length).toBeLessThanOrEqual(80);
+  it('has pool size 51 (The Life of Armeniaca batch I)', () => {
+    // Batch I: 5 S + 10 A + 15 B + 21 C = 51 cards (Helisma fan story).
+    // Tight range untuk catch accidental drift saat edit pool.
+    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(45);
+    expect(POHON_APRIKOT_POOL.length).toBeLessThanOrEqual(55);
+  });
+
+  it('matches S/A/B/C tier distribution (5/10/15/21)', () => {
+    const counts = { legenda: 0, langka: 0, matang: 0, muda: 0 };
+    POHON_APRIKOT_POOL.forEach((c) => {
+      counts[c.tier] = (counts[c.tier] || 0) + 1;
+    });
+    expect(counts.legenda).toBe(5); // S
+    expect(counts.langka).toBe(10); // A
+    expect(counts.matang).toBe(15); // B
+    expect(counts.muda).toBe(21); // C
   });
 
   it('all cards have unique ids', () => {
@@ -402,7 +419,7 @@ describe('POHON_APRIKOT_POOL (GIF-only experimental)', () => {
     POHON_APRIKOT_POOL.forEach((card, idx) => {
       expect(card.cardNumber).toBe(idx + 1);
       expect(card.setSize).toBe(POHON_APRIKOT_POOL.length);
-      expect(card.setCode).toBe('PAA');
+      expect(card.setCode).toBe('TLA');
       expect(card.illustrator).toBe('Emote Labs');
     });
   });

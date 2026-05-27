@@ -311,8 +311,8 @@ const Petikan = () => {
     <>
       <Seo
         path="/petikan"
-        title="Petikan — Pohon Aprikot"
-        description="Satu kenangan dari Pohon Aprikot, tiap pagi. Arsip harian Eli JKT48 dari Armeniaca — batch Seitansai 2026."
+        title="Petikan — The Life of Armeniaca"
+        description="The Life of Armeniaca — kepingan harian Arme sebagai fan Helisma Putri Kurnia. Buka pack, dapat 3 kartu tiap hari. Batch I, Seitansai 2026."
         image="https://armeniaca.online/og-petikan.png"
       />
 
@@ -335,7 +335,7 @@ const Petikan = () => {
 
           {/* Eyebrow — batch identifier */}
           <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-6">
-            Seitansai 2026 · Batch #1 · {BATCH_ID}
+            Batch I · {BATCH_ID}
           </p>
 
           {/* Title */}
@@ -347,7 +347,9 @@ const Petikan = () => {
               letterSpacing: '-0.01em',
             }}
           >
-            Pohon Aprikot
+            The Life of
+            <br />
+            Armeniaca
           </h1>
 
           {/* Tagline italic */}
@@ -355,7 +357,7 @@ const Petikan = () => {
             className="text-lg sm:text-xl text-[color:var(--retro-brown-dark)]/80 italic mb-12"
             style={{ fontFamily: '"Fraunces Variable", serif' }}
           >
-            Satu kenangan dari pohon, tiap pagi.
+            Sehari-hari Arme mengidolakan Helisma. Tiga keping per pack.
           </p>
 
           {/* Spine divider */}

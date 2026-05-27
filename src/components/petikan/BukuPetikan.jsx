@@ -30,12 +30,14 @@ import {
 import KartuIngatan from './KartuIngatan';
 import BackupRestoreModal from './BackupRestoreModal';
 
+// Tier display labels match TIER_CONFIG.label (S/A/B/C). Filter values
+// tetep internal key (legenda/langka/matang/muda) untuk data query.
 const TIER_FILTERS = [
   { id: 'all', label: 'Semua' },
-  { id: 'legenda', label: 'Legenda' },
-  { id: 'langka', label: 'Langka' },
-  { id: 'matang', label: 'Matang' },
-  { id: 'muda', label: 'Muda' },
+  { id: 'legenda', label: 'S' },
+  { id: 'langka', label: 'A' },
+  { id: 'matang', label: 'B' },
+  { id: 'muda', label: 'C' },
 ];
 
 const BukuPetikanItem = ({ card, isPulled, isWished, wishlistFull, onClick, onToggleWish }) => {
