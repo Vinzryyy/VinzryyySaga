@@ -413,7 +413,7 @@ const RatesModal = ({ onClose }) => {
       >
         <div className="px-6 py-5 border-b border-[color:var(--retro-brown-dark)]/10">
           <p className="text-[9px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
-            Pohon Aprikot
+            The Life of Armeniaca
           </p>
           <h3
             className="text-xl text-[color:var(--retro-brown-dark)] leading-tight"
@@ -425,7 +425,7 @@ const RatesModal = ({ onClose }) => {
 
         <div className="px-6 py-5 space-y-3">
           <p className="text-xs text-[color:var(--retro-brown-dark)]/70 italic leading-relaxed">
-            Setiap hari satu kartu jatuh dari pohon. Peluang per tier:
+            Tiap buka pack dapat 3 kartu. Peluang per tier:
           </p>
           <ul className="space-y-2">
             {tiers.map((tierKey) => {
@@ -458,26 +458,24 @@ const RatesModal = ({ onClose }) => {
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
-              Kartu Legenda tidak duplikat — sekali dapat, tidak diulang.
-              Kalau pohon goyang ke Legenda tapi sudah lengkap, jatuh ke
-              tier di bawah.
+              Kartu tier S tidak duplikat — sekali dapat, tidak diulang.
+              Kalau roll ke S tapi sudah lengkap, jatuh ke tier di bawah.
             </p>
             <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
-              <strong>Jaminan:</strong> setiap {PITY_THRESHOLD.langka} petik
-              tanpa Langka+, pohon menjamin Langka di petik berikutnya.
-              Setiap {PITY_THRESHOLD.legenda} petik tanpa Legenda, pohon
-              menjamin Legenda.
+              <strong>Jaminan:</strong> setiap {PITY_THRESHOLD.langka} buka
+              tanpa A+, dijamin dapat A di buka berikutnya.
+              Setiap {PITY_THRESHOLD.legenda} buka tanpa S, dijamin dapat S.
             </p>
             <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
               <strong>Wishbook:</strong> pin sampai {WISHLIST_CAP} kartu yang
-              kamu cari. Saat jaminan Langka/Legenda aktif, pohon condong
-              50/50 ke wishlist-mu yang belum dimiliki.
+              kamu cari. Saat jaminan A/S aktif, drop condong 50/50 ke
+              wishlist-mu yang belum dimiliki.
             </p>
             <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
@@ -591,7 +589,16 @@ const BukuPetikan = ({ state, onStateChange }) => {
     return POHON_APRIKOT_POOL.filter((c) => c.tier === activeFilter);
   }, [activeFilter]);
 
-  const pulledTotal = Object.keys(state?.buku || {}).length;
+  // Hanya hitung kartu yang ada di POOL CURRENT — kalau user punya
+  // entries dari batch lama (rename id, batch retired), gak boleh
+  // di-count ke completion. Cap 100% naturally.
+  const poolIds = useMemo(
+    () => new Set(POHON_APRIKOT_POOL.map((c) => c.id)),
+    [],
+  );
+  const pulledTotal = Object.keys(state?.buku || {}).filter((id) =>
+    poolIds.has(id),
+  ).length;
   const poolTotal = POHON_APRIKOT_POOL.length;
   const selectedCard = selectedCardId
     ? POHON_APRIKOT_POOL.find((c) => c.id === selectedCardId)
@@ -668,7 +675,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
         </div>
 
         <p className="text-xs text-[color:var(--retro-brown-dark)]/60 italic">
-          Setiap hari pohon menggugurkan satu — kembalilah pelan-pelan.
+          Sehari-hari Arme mengidolakan Helisma — kepingnya dikumpulkan pelan-pelan.
         </p>
 
         {/* Pity progress — gacha-jaminan dari MrcellSbst's Tierlist-JKT48
@@ -688,10 +695,10 @@ const BukuPetikan = ({ state, onStateChange }) => {
           return (
             <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55">
               <i className="ri-shield-star-line mr-1 text-[11px]" />
-              Jaminan: langka {state.pity.langka}/{PITY_THRESHOLD.langka}
+              Jaminan: A {state.pity.langka}/{PITY_THRESHOLD.langka}
               {showLegendaPity && (
                 <>
-                  {' · '}legenda {state.pity.legenda}/{PITY_THRESHOLD.legenda}
+                  {' · '}S {state.pity.legenda}/{PITY_THRESHOLD.legenda}
                 </>
               )}
             </p>
