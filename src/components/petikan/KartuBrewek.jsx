@@ -1,24 +1,25 @@
 /**
- * KartuBrewek — pack-opening orchestrator. KartuBack rendered sebagai
- * "sealed pack" → user tap → pack robek horizontal (separuh atas
- * terbang ke atas + miring, separuh bawah turun + miring), kartu front
- * muncul dari belakang scale/fade. TCG Pocket-style unpack, bukan
- * sekedar flip.
+ * KartuBrewek — envelope + pull-string + polaroid mechanic.
  *
- * Layer stacking (grid row 1 col 1 — semua di cell yang sama):
- *   - Pack top half (clipPath inset top 50%) — pivot di split line
- *   - Pack bottom half (clipPath inset bottom 50%) — pivot di split line
- *   - KartuIngatan front (opacity 0 initial) — di belakang pack
+ * Unique pack-opening: pack di-style sebagai amplop dengan flap atas
+ * yang ada pull-string (red ribbon) di sisi kanan. User DRAG string
+ * ke bawah → flap rotateX terbuka mengikuti drag progress. Lewat
+ * threshold 50% → snap open + invoke onPluck.
  *
- * Phases:
- *   1. Anticipation (0-0.12s): both halves scale 1.0→1.05
- *   2. SFX trigger: page-turn sfx (legenda skip — chime di LegendaReveal)
- *   3. Top half flies up (-220y, rotate -10, fade) — 0.55s
- *   4. Bottom half drops down (+220y, rotate 10, fade) — 0.55s, +0.05s offset
- *   5. Card front emerges (opacity 0→1, scale 0.85→1.0) — 0.7s starts at 0.4s
+ * Kartu emerge sebagai POLAROID — white border frame + develop animation
+ * (high blur → sharp blur 0, opacity 0 → 1, slight tilt rotate).
  *
- * Legenda: delay 1.5s sebelum kick-off untuk LegendaReveal aurora
- * buildup window.
+ * Layer stacking di grid cell yang sama:
+ *   - Envelope body (bottom half of master image, static) — bawah
+ *   - Polaroid card (KartuIngatan + frame) — middle, hidden initially
+ *   - Envelope flap (top half of master image, pulls open) — top
+ *   - Pull-string ribbon — overlay right side
+ *
+ * skipPack=true (kartu 2/3 di triad atau swipe-back): envelope flap
+ * hidden, polaroid langsung visible static — no drag interaction.
+ *
+ * prefers-reduced-motion: skip drag interaction, render tap-to-open
+ * fallback. Polaroid emerge tanpa develop blur animation.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -31,7 +32,7 @@ import { playPageTurnSfx } from './PluckTimeline';
 import { readEnabled, readVolume } from '../../lib/townAudioBus';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 
-// Per-tier halo glow palette — radiating dari belakang card saat emerge
+// Per-tier halo glow palette
 const TIER_HALO = {
   muda: { color: 'rgba(232, 200, 156, 0.0)', intensity: 0 },
   matang: { color: 'rgba(218, 175, 92, 0.45)', intensity: 0.4 },
@@ -39,47 +40,18 @@ const TIER_HALO = {
   legenda: { color: 'rgba(255, 217, 122, 0.85)', intensity: 0.85 },
 };
 
-// Per-tier reveal timing — HONEST scaling. Durasi naik monotonik dari
-// muda → legenda; gak ada fake "almost-legenda" tease yang downgrade.
-// Player belajar: "kalau reveal lama, pasti tier tinggi" — feel-it-coming
-// reward, bukan ilusi.
-//   preDelay         — jeda dari tap sampai pack mulai gerak
-//   anticipation     — durasi pack scale-up sebelum rip
-//   rip              — durasi top/bottom half melayang keluar
-//   emerge           — durasi card front fade-in + scale
-//   emergeStart      — kapan card mulai muncul (offset di timeline)
-// Note: legenda.preDelay = 1.5s match dengan LegendaReveal aurora buildup
-// window (1.5s) di LegendaReveal.jsx — jangan ubah salah satu doang.
-const TIER_REVEAL = {
-  muda: {
-    preDelay: 0.15,
-    anticipation: 0.12,
-    rip: 0.5,
-    emerge: 0.6,
-    emergeStart: 0.36,
-  },
-  matang: {
-    preDelay: 0.3,
-    anticipation: 0.18,
-    rip: 0.6,
-    emerge: 0.7,
-    emergeStart: 0.42,
-  },
-  langka: {
-    preDelay: 0.55,
-    anticipation: 0.22,
-    rip: 0.75,
-    emerge: 0.85,
-    emergeStart: 0.55,
-  },
-  legenda: {
-    preDelay: 1.5,
-    anticipation: 0.3,
-    rip: 0.9,
-    emerge: 1.1,
-    emergeStart: 0.7,
-  },
+// Polaroid develop timing per tier — legenda paling lambat develop
+// untuk "feel-it-coming" reward (lihat tier lebih awal = tier rendah).
+const TIER_DEVELOP = {
+  muda: { preDelay: 0.15, slideOut: 0.45, develop: 0.7 },
+  matang: { preDelay: 0.3, slideOut: 0.55, develop: 0.9 },
+  langka: { preDelay: 0.55, slideOut: 0.7, develop: 1.2 },
+  legenda: { preDelay: 1.5, slideOut: 0.85, develop: 1.6 },
 };
+
+// Drag config — threshold progress untuk auto-complete vs snap-back.
+const DRAG_THRESHOLD = 0.5; // 50% pulled → open
+const DRAG_FULL_PX = 100; // px drag distance untuk 100% progress
 
 const KartuBrewek = ({
   canPluck = false,
@@ -89,105 +61,167 @@ const KartuBrewek = ({
   skipPack = false,
 }) => {
   const containerRef = useRef(null);
-  const topHalfRef = useRef(null);
-  const bottomHalfRef = useRef(null);
-  const cardFrontRef = useRef(null);
+  const flapRef = useRef(null);
+  const bodyRef = useRef(null);
+  const stringRef = useRef(null);
+  const polaroidRef = useRef(null);
   const haloRef = useRef(null);
-  const breatheRef = useRef(null);
   const playedRef = useRef(false);
-  // Track previous card id supaya bisa detect kartu baru (sequential
-  // reveal di triad) dan re-trigger animation tanpa unmount/remount.
   const prevCardIdRef = useRef(null);
-  // Tear-seam flash — gold gradient strip yang muncul di garis split saat
-  // pack mau robek. Cue visual "ada cahaya keluar dari pack".
-  const tearFlashRef = useRef(null);
-  // Light sweep — diagonal gradient yang nyapu kartu sekali setelah emerge.
-  // Bikin kesan spotlight pass-over, TCG holographic finish vibe.
-  const lightSweepRef = useRef(null);
-  // Halo pulse loop ref — buat kill saat unmount / card swap.
   const haloPulseRef = useRef(null);
-  // Accessibility — respect OS-level reduced-motion. Saat aktif:
-  // skip pack rip elaborate animation, no settle bounce, no light
-  // sweep, no halo pulse loop, no particle burst. Card just appears.
-  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-  // Bumped to trigger ParticleBurst re-animation
+  // Drag state — track start position + active pointer id
+  const dragStartRef = useRef(null);
+  const [dragProgress, setDragProgress] = useState(0);
+  const [openingFlap, setOpeningFlap] = useState(false);
   const [particleTrigger, setParticleTrigger] = useState(0);
+  // Slight polaroid rotation untuk doodle feel — random per card mount.
+  const polaroidTiltRef = useRef((Math.random() - 0.5) * 5);
 
-  // Breathing animation — invitation cue saat pack siap dibuka. Hanya
-  // di pack yang tappable (punya onPluck handler). 2nd/3rd pack di
-  // 3-pack triad gak breathing — cuma static pre-reveal. Skip kalau
-  // prefers-reduced-motion.
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+  // Re-randomize polaroid tilt saat new card
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return undefined;
-    if (
-      pluckedCard ||
-      !canPluck ||
-      typeof onPluck !== 'function' ||
-      prefersReducedMotion
-    ) {
-      if (breatheRef.current) {
-        breatheRef.current.kill();
-        breatheRef.current = null;
-      }
-      return undefined;
+    if (pluckedCard) {
+      polaroidTiltRef.current = (Math.random() - 0.5) * 5;
     }
-    breatheRef.current = gsap.to(el, {
-      scale: 1.03,
-      duration: 1.8,
-      ease: 'sine.inOut',
-      yoyo: true,
-      repeat: -1,
-    });
-    return () => {
-      if (breatheRef.current) {
-        breatheRef.current.kill();
-        breatheRef.current = null;
-      }
-    };
-  }, [canPluck, pluckedCard, onPluck, prefersReducedMotion]);
+  }, [pluckedCard?.id]);
 
-  // Unpack timeline — kicks off saat pluckedCard set. Re-runs saat
-  // card.id berubah (sequential reveal di triad: card 1 → card 2 → card 3).
-  // playedRef di-reset di reset effect (pluckedCard null) ATAU di awal
-  // sini kalau card id berubah dari prev.
+  // Drag handlers — hanya aktif saat pre-pluck (canPluck + no card + no anim)
+  const interactive =
+    canPluck && !pluckedCard && typeof onPluck === 'function' && !openingFlap;
+
+  const handlePointerDown = (e) => {
+    if (!interactive || prefersReducedMotion) return;
+    e.preventDefault();
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      pointerId: e.pointerId,
+    };
+    try {
+      e.target.setPointerCapture(e.pointerId);
+    } catch {
+      /* noop */
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (!dragStartRef.current) return;
+    if (e.pointerId !== dragStartRef.current.pointerId) return;
+    const dy = e.clientY - dragStartRef.current.y;
+    const progress = Math.max(0, Math.min(1, dy / DRAG_FULL_PX));
+    setDragProgress(progress);
+    if (flapRef.current) {
+      gsap.set(flapRef.current, {
+        rotateX: -progress * 160,
+        // sedikit lift saat drag biar feel "ngangkat"
+        y: -progress * 4,
+      });
+    }
+    if (stringRef.current) {
+      gsap.set(stringRef.current, {
+        y: progress * 18,
+      });
+    }
+  };
+
+  const finishOpen = () => {
+    setOpeningFlap(true);
+    if (flapRef.current) {
+      gsap.to(flapRef.current, {
+        rotateX: -180,
+        y: -8,
+        opacity: 0.92,
+        duration: 0.45,
+        ease: 'power2.out',
+      });
+    }
+    if (stringRef.current) {
+      gsap.to(stringRef.current, {
+        opacity: 0,
+        y: 40,
+        duration: 0.25,
+        ease: 'power1.in',
+      });
+    }
+    // Audio cue + onPluck callback setelah flap selesai open
+    setTimeout(() => {
+      if (readEnabled()) {
+        const vol = readVolume();
+        playPageTurnSfx(Math.max(0.4, vol * 1.8));
+      }
+      if (typeof onPluck === 'function') onPluck();
+    }, 320);
+  };
+
+  const snapBack = () => {
+    setDragProgress(0);
+    if (flapRef.current) {
+      gsap.to(flapRef.current, {
+        rotateX: 0,
+        y: 0,
+        duration: 0.32,
+        ease: 'back.out(1.6)',
+      });
+    }
+    if (stringRef.current) {
+      gsap.to(stringRef.current, {
+        y: 0,
+        duration: 0.3,
+        ease: 'back.out(1.6)',
+      });
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    if (!dragStartRef.current) return;
+    if (e.pointerId !== dragStartRef.current.pointerId) return;
+    const currentProgress = dragProgress;
+    dragStartRef.current = null;
+    try {
+      e.target.releasePointerCapture(e.pointerId);
+    } catch {
+      /* noop */
+    }
+    if (currentProgress >= DRAG_THRESHOLD) {
+      finishOpen();
+    } else {
+      snapBack();
+    }
+  };
+
+  // Fallback: reduced-motion atau no-drag accidental — tap-to-open
+  const handleTapFallback = (e) => {
+    if (!interactive) return;
+    e.preventDefault();
+    finishOpen();
+  };
+
+  // Polaroid develop reveal — triggered when pluckedCard set
   useEffect(() => {
     if (!pluckedCard) return undefined;
-    // Card baru? Reset gating + visuals supaya animation re-trigger.
     if (prevCardIdRef.current !== pluckedCard.id) {
       playedRef.current = false;
     }
     if (playedRef.current) return undefined;
-    if (!topHalfRef.current || !bottomHalfRef.current || !cardFrontRef.current) {
-      return undefined;
-    }
+    if (!polaroidRef.current) return undefined;
     playedRef.current = true;
     prevCardIdRef.current = pluckedCard.id;
 
     const isLegenda = pluckedCard.tier === 'legenda';
-    const reveal = TIER_REVEAL[pluckedCard.tier] || TIER_REVEAL.muda;
+    const reveal = TIER_DEVELOP[pluckedCard.tier] || TIER_DEVELOP.muda;
+    const tilt = polaroidTiltRef.current;
 
-    // Static mode (skipPack=true OR reduced-motion): pack udah robek
-    // di first reveal, atau user mau motion minimal. Instant swap —
-    // no entrance anim, no settle, no light sweep. Cuma set kartu
-    // visible langsung + kick halo pulse (untuk tier coloring).
-    if (skipPack || prefersReducedMotion) {
-      gsap.set([topHalfRef.current, bottomHalfRef.current], { opacity: 0 });
-      gsap.set(cardFrontRef.current, {
+    // Reduced-motion atau skipPack: instant polaroid visible, no animation
+    if (prefersReducedMotion || skipPack) {
+      gsap.set(polaroidRef.current, {
         opacity: 1,
         scale: 1,
         y: 0,
-        rotate: 0,
-        rotateX: 0,
+        rotate: tilt,
         filter: 'blur(0px)',
-        transformPerspective: 1000,
       });
-      if (lightSweepRef.current) {
-        gsap.set(lightSweepRef.current, { opacity: 0, x: '-110%', skewX: -18 });
-      }
-      if (tearFlashRef.current) {
-        gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
-      }
+      // Kick halo (tier coloring)
       const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
       if (haloRef.current) {
         if (haloPulseRef.current) {
@@ -195,7 +229,6 @@ const KartuBrewek = ({
           haloPulseRef.current = null;
         }
         gsap.set(haloRef.current, { opacity: haloConfig.intensity });
-        // Pulse loop skip kalau reduced-motion (halo static intensity).
         if (haloConfig.intensity > 0 && !prefersReducedMotion) {
           const peak = haloConfig.intensity;
           const valley = peak * 0.7;
@@ -211,213 +244,56 @@ const KartuBrewek = ({
       return undefined;
     }
 
-    // Pre-set initial states. Kartu emerge dari sedikit bawah + tilt
-    // mundur untuk kesan "diangkat dari dalam pack" — bukan cuma fade.
-    gsap.set(cardFrontRef.current, {
+    // Full polaroid develop animation
+    gsap.set(polaroidRef.current, {
       opacity: 0,
-      scale: 0.88,
-      y: 26,
-      rotateX: -8,
-      filter: 'blur(6px)',
-      transformPerspective: 1000,
+      scale: 0.78,
+      y: -60, // start inside envelope (above slot)
+      rotate: tilt - 4,
+      filter: 'blur(22px)',
     });
-    gsap.set([topHalfRef.current, bottomHalfRef.current], {
-      y: 0,
-      rotate: 0,
-      scale: 1,
-      opacity: 1,
-    });
-    // Reset tear-flash + light-sweep ke initial hidden state.
-    if (tearFlashRef.current) {
-      gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
-    }
-    if (lightSweepRef.current) {
-      gsap.set(lightSweepRef.current, { opacity: 0, x: '-110%', skewX: -18 });
-    }
-    // Kill any previous halo pulse loop (card swap edge case).
-    if (haloPulseRef.current) {
-      haloPulseRef.current.kill();
-      haloPulseRef.current = null;
-    }
 
-    // revealDelay = manual offset (mis. stagger). Ditambah ke tier-based
-    // preDelay, jadi legenda dapet aurora window penuh + stagger nya.
     const tl = gsap.timeline({ delay: reveal.preDelay + revealDelay });
 
-    if (!skipPack) {
-      // Phase 1 — Anticipation (pack "winds back" — scale + slight
-      // tilt + lift). Pakai back.out untuk overshoot natural.
-      tl.to(
-        [topHalfRef.current, bottomHalfRef.current],
-        {
-          scale: 1.06,
-          y: -3,
-          rotate: -0.5,
-          duration: reveal.anticipation,
-          ease: 'back.out(1.6)',
-        },
-        0
-      );
+    // Phase 1: slide out from envelope position
+    tl.to(polaroidRef.current, {
+      y: 0,
+      scale: 1,
+      opacity: 1,
+      rotate: tilt,
+      duration: reveal.slideOut,
+      ease: 'power2.out',
+    });
 
-      // Phase 1b — Tear-seam flash builds saat pack mau robek. Stretch
-      // horizontal dari 0.3 → 1.0, opacity 0 → 0.85, then fade out saat
-      // halves mulai exit (overlap dengan rip start).
-      if (tearFlashRef.current) {
-        tl.to(
-          tearFlashRef.current,
-          {
-            opacity: 0.85,
-            scaleX: 1,
-            duration: reveal.anticipation * 0.9,
-            ease: 'power2.out',
-          },
-          reveal.anticipation * 0.1
-        );
-        tl.to(
-          tearFlashRef.current,
-          {
-            opacity: 0,
-            scaleX: 1.4,
-            duration: reveal.rip * 0.5,
-            ease: 'power3.out',
-          },
-          reveal.anticipation + reveal.rip * 0.1
-        );
-      }
-
-      // SFX trigger at unpack start (post-anticipation)
-      tl.add(() => {
-        if (isLegenda) return; // LegendaReveal owns chime
-        if (!readEnabled()) return;
-        const vol = readVolume();
-        playPageTurnSfx(Math.max(0.3, vol * 1.6));
-      }, reveal.anticipation);
-
-      // Phase 2 — Top half flies up & fades. Power3 lebih punchy dari
-      // power2, gerakan terasa "dilempar" bukan "dilepas perlahan".
-      tl.to(
-        topHalfRef.current,
-        {
-          y: -260,
-          rotate: -14,
-          opacity: 0,
-          scale: 0.88,
-          filter: 'blur(3px)',
-          duration: reveal.rip,
-          ease: 'power3.in',
-        },
-        reveal.anticipation
-      );
-
-      // Phase 3 — Bottom half drops down & fades (small offset for organic feel)
-      tl.to(
-        bottomHalfRef.current,
-        {
-          y: 260,
-          rotate: 14,
-          opacity: 0,
-          scale: 0.88,
-          filter: 'blur(3px)',
-          duration: reveal.rip,
-          ease: 'power3.in',
-        },
-        reveal.anticipation + 0.06
-      );
-    }
-
-    // Phase 4 — Card front emerges. skipPack: start immediately (no rip
-    // window to overlap with). Normal: start saat halves keluar.
-    // Multi-prop animate: lift up (y), zoom in (scale), un-tilt (rotateX),
-    // un-blur (filter). expo.out kasih kurva luxurious — initial cepat,
-    // settle smooth ke posisi final.
-    const cardEmergeAt = skipPack ? 0 : reveal.emergeStart;
+    // Phase 2: develop blur (the "polaroid developing" moment)
     tl.to(
-      cardFrontRef.current,
+      polaroidRef.current,
       {
-        opacity: 1,
-        scale: 1.0,
-        y: 0,
-        rotateX: 0,
         filter: 'blur(0px)',
-        duration: reveal.emerge,
-        ease: 'expo.out',
+        duration: reveal.develop,
+        ease: 'power2.out',
       },
-      cardEmergeAt
+      reveal.slideOut * 0.4,
     );
 
-    // Phase 4d — Settle micro-bounce: tiny rotation back-and-forth
-    // setelah main emerge selesai. Elastic.out (1, 0.4) bikin organic
-    // life — kartu "settling into place" instead of statis langsung.
-    tl.to(
-      cardFrontRef.current,
-      {
-        rotate: 0.6,
-        duration: 0.18,
-        ease: 'sine.out',
-      },
-      cardEmergeAt + reveal.emerge * 0.85
-    );
-    tl.to(
-      cardFrontRef.current,
-      {
-        rotate: 0,
-        duration: 0.55,
-        ease: 'elastic.out(1, 0.4)',
-      },
-      cardEmergeAt + reveal.emerge * 0.85 + 0.18
-    );
+    // Particle burst saat polaroid sharp
+    tl.add(() => {
+      setParticleTrigger((p) => p + 1);
+    }, reveal.slideOut + reveal.develop * 0.6);
 
-    // Phase 4e — Light sweep — diagonal gradient nyapu dari kiri ke kanan
-    // setelah emerge. Sekali jalan, ~0.85s. Bikin kesan "spotlight pass"
-    // di card surface. Per-tier opacity (langka+ lebih intense).
-    if (lightSweepRef.current) {
-      const sweepOpacity = isLegenda ? 0.7 : pluckedCard.tier === 'langka' ? 0.55 : pluckedCard.tier === 'matang' ? 0.35 : 0.22;
-      tl.to(
-        lightSweepRef.current,
-        {
-          opacity: sweepOpacity,
-          duration: 0.12,
-          ease: 'sine.out',
-        },
-        cardEmergeAt + reveal.emerge * 0.7
-      );
-      tl.to(
-        lightSweepRef.current,
-        {
-          x: '110%',
-          duration: 0.85,
-          ease: 'power2.inOut',
-        },
-        cardEmergeAt + reveal.emerge * 0.75
-      );
-      tl.to(
-        lightSweepRef.current,
-        {
-          opacity: 0,
-          duration: 0.25,
-          ease: 'sine.in',
-        },
-        cardEmergeAt + reveal.emerge * 0.75 + 0.6
-      );
-    }
-
-    // Phase 4b — Halo glow fades in (sync with card emerge). Setelah
-    // mencapai full intensity, mulai loop pulse breathing supaya halo
-    // gak stagnan — kesan "card alive, glowing softly".
+    // Halo glow fade in + pulse loop
     const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
     if (haloRef.current && haloConfig.intensity > 0) {
       tl.to(
         haloRef.current,
         {
           opacity: haloConfig.intensity,
-          duration: reveal.emerge * 1.15,
+          duration: reveal.develop,
           ease: 'sine.out',
         },
-        Math.max(0, cardEmergeAt - 0.05)
+        reveal.slideOut * 0.5,
       );
-      // Schedule pulse loop kick-off setelah initial fade-in selesai.
       tl.add(() => {
-        if (!haloRef.current) return;
         if (haloPulseRef.current) haloPulseRef.current.kill();
         const peak = haloConfig.intensity;
         const valley = peak * 0.7;
@@ -428,13 +304,8 @@ const KartuBrewek = ({
           yoyo: true,
           repeat: -1,
         });
-      }, cardEmergeAt + reveal.emerge * 1.15);
+      }, reveal.slideOut + reveal.develop);
     }
-
-    // Phase 4c — Particle burst at emerge moment
-    tl.add(() => {
-      setParticleTrigger((p) => p + 1);
-    }, cardEmergeAt + 0.02);
 
     return () => {
       tl.kill();
@@ -445,10 +316,7 @@ const KartuBrewek = ({
     };
   }, [pluckedCard, revealDelay, skipPack, prefersReducedMotion]);
 
-  // Reset state saat pluckedCard cleared (midnight transition, dev
-  // re-arm). Static — clear instantly tanpa exit animation. Triad
-  // navigation (kartu 2/3, swipe-back) gak lewat null lagi, jadi reset
-  // effect cuma fire untuk full state resets.
+  // Reset state saat pluckedCard cleared
   useEffect(() => {
     if (pluckedCard) return;
     if (haloPulseRef.current) {
@@ -457,47 +325,47 @@ const KartuBrewek = ({
     }
     playedRef.current = false;
     prevCardIdRef.current = null;
-    if (topHalfRef.current) gsap.set(topHalfRef.current, { clearProps: 'all' });
-    if (bottomHalfRef.current) gsap.set(bottomHalfRef.current, { clearProps: 'all' });
-    if (cardFrontRef.current) {
-      gsap.set(cardFrontRef.current, {
+    setOpeningFlap(false);
+    setDragProgress(0);
+    if (flapRef.current) gsap.set(flapRef.current, { clearProps: 'all' });
+    if (stringRef.current) gsap.set(stringRef.current, { clearProps: 'all' });
+    if (polaroidRef.current) {
+      gsap.set(polaroidRef.current, {
         opacity: 0,
-        scale: 0.88,
-        y: 26,
-        rotateX: -8,
-        filter: 'blur(6px)',
-        rotate: 0,
+        scale: 0.78,
+        y: -60,
+        filter: 'blur(22px)',
       });
     }
     if (haloRef.current) gsap.set(haloRef.current, { opacity: 0 });
-    if (lightSweepRef.current) gsap.set(lightSweepRef.current, { opacity: 0, x: '-110%', skewX: -18 });
-    if (tearFlashRef.current) gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
   }, [pluckedCard]);
 
-  if (!canPluck && !pluckedCard) return null;
+  // Subtle wiggle animation on string saat idle pre-pluck — invite gesture.
+  useEffect(() => {
+    if (!interactive || prefersReducedMotion) return undefined;
+    if (!stringRef.current) return undefined;
+    const tween = gsap.to(stringRef.current, {
+      rotate: 3,
+      duration: 1.4,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+    });
+    return () => tween.kill();
+  }, [interactive, prefersReducedMotion]);
 
-  // Tappable hanya kalau caller pass onPluck handler. Di 3-pack triad,
-  // pack 2 dan 3 receive onPluck=undefined → visible tapi gak interactive.
-  const tappable = canPluck && !pluckedCard && typeof onPluck === 'function';
-  const handleClick = tappable && typeof onPluck === 'function' ? onPluck : undefined;
-  const handleKey = (e) => {
-    if (!tappable || typeof onPluck !== 'function') return;
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onPluck();
-    }
-  };
+  if (!canPluck && !pluckedCard) return null;
 
   return (
     <div
       ref={containerRef}
       className="relative w-full max-w-xs mx-auto"
-      style={{ minHeight: '480px' }}
+      style={{
+        minHeight: '480px',
+        perspective: '1200px',
+      }}
     >
-      {/* Halo glow — fixed inset, behind everything via render order.
-          Radial bloom color per-tier (muda=none, matang→legenda
-          escalating warm-gold intensity). Fades in pas card emerge
-          phase via GSAP, persist while card visible. */}
+      {/* Halo glow — behind everything */}
       {pluckedCard && (
         <div
           ref={haloRef}
@@ -513,111 +381,176 @@ const KartuBrewek = ({
       )}
 
       <div className="relative grid" style={{ minHeight: '480px' }}>
-        {/* Pack top half — visible region 0-50%, pivot at split line */}
+        {/* Envelope body — bottom half of master pack art, static */}
         <div
-          ref={topHalfRef}
+          ref={bodyRef}
           className="row-start-1 col-start-1 pointer-events-none"
           style={{
-            clipPath: 'inset(0 0 50% 0)',
-            WebkitClipPath: 'inset(0 0 50% 0)',
-            transformOrigin: 'center 50%',
+            clipPath: 'inset(35% 0 0 0)',
+            WebkitClipPath: 'inset(35% 0 0 0)',
           }}
-          aria-hidden={!tappable}
+          aria-hidden="true"
         >
           <KartuBack tier="matang" />
         </div>
-        {/* Pack bottom half — visible region 50-100%, pivot at split line */}
+
+        {/* Polaroid card — emerges from envelope */}
         <div
-          ref={bottomHalfRef}
-          className="row-start-1 col-start-1 pointer-events-none"
+          ref={polaroidRef}
+          className="row-start-1 col-start-1 mx-auto"
           style={{
-            clipPath: 'inset(50% 0 0 0)',
-            WebkitClipPath: 'inset(50% 0 0 0)',
-            transformOrigin: 'center 50%',
+            opacity: 0,
+            width: '92%',
+            padding: '12px 12px 36px 12px',
+            background:
+              'linear-gradient(180deg, #fefefe 0%, #fbf8f0 100%)',
+            borderRadius: '6px',
+            boxShadow:
+              '0 12px 28px rgba(61,52,43,0.22), 0 2px 6px rgba(61,52,43,0.15)',
+            border: '1px solid rgba(140,100,60,0.08)',
+            alignSelf: 'center',
+            justifySelf: 'center',
+            // Backface hidden — saat di belakang flap (rotateX -180), gak ke-see
+            backfaceVisibility: 'hidden',
           }}
-          aria-hidden={!tappable}
-        >
-          <KartuBack tier="matang" />
-        </div>
-        {/* Tear-seam flash — horizontal gold streak di split line.
-            Muncul saat pack mau robek, cue cahaya keluar dari dalam.
-            Cuma render kalau pluckedCard ada (skipPack pun gak render
-            karena pack udah robek sebelumnya). */}
-        {pluckedCard && !skipPack && (
-          <div
-            ref={tearFlashRef}
-            aria-hidden="true"
-            className="row-start-1 col-start-1 pointer-events-none flex items-center justify-center"
-            style={{ opacity: 0 }}
-          >
-            <div
-              style={{
-                width: '100%',
-                height: '14px',
-                background:
-                  'linear-gradient(90deg, transparent 0%, rgba(255, 230, 160, 0.7) 25%, rgba(255, 255, 240, 0.95) 50%, rgba(255, 230, 160, 0.7) 75%, transparent 100%)',
-                filter: 'blur(6px)',
-                transformOrigin: 'center',
-              }}
-            />
-          </div>
-        )}
-        {/* Card front — di belakang pack, opacity 0 initial.
-            HoloShimmer wrap kasih TCG Pocket-style mouse-tilt + foil
-            untuk langka+ tiers. Muda/matang render plain.
-            Light-sweep overlay nyapu kartu sekali setelah emerge —
-            kesan spotlight pass yang nambah elegance. */}
-        <div
-          ref={cardFrontRef}
-          className="row-start-1 col-start-1 relative"
-          style={{ opacity: 0, overflow: 'hidden', borderRadius: '1rem' }}
         >
           {pluckedCard && (
-            <HoloShimmer tier={pluckedCard.tier}>
-              <KartuIngatan card={pluckedCard} />
-            </HoloShimmer>
+            <>
+              <HoloShimmer tier={pluckedCard.tier}>
+                <KartuIngatan card={pluckedCard} />
+              </HoloShimmer>
+              {/* Polaroid caption bawah — date + tier badge */}
+              <div className="absolute bottom-2 left-0 right-0 flex items-center justify-between px-3 text-[8px] uppercase tracking-[0.2em] text-[color:var(--retro-brown-dark)]/55">
+                <span>{pluckedCard.era || 'arme'}</span>
+                <span className="font-bold">{pluckedCard.tier === 'legenda' ? 'S' : pluckedCard.tier === 'langka' ? 'A' : pluckedCard.tier === 'matang' ? 'B' : 'C'}</span>
+              </div>
+            </>
           )}
-          {/* Light sweep — diagonal gradient overlay yang nyapu kartu
-              sekali post-emerge. Positioned absolute, x animated via GSAP. */}
-          {pluckedCard && (
+        </div>
+
+        {/* Envelope flap — top half of master image, opens via rotateX */}
+        <div
+          ref={flapRef}
+          className="row-start-1 col-start-1 pointer-events-none"
+          style={{
+            clipPath: 'inset(0 0 65% 0)',
+            WebkitClipPath: 'inset(0 0 65% 0)',
+            transformOrigin: 'center top',
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden',
+          }}
+          aria-hidden={!interactive}
+        >
+          <KartuBack tier="matang" />
+          {/* Wax seal indicator — center of flap, only visible pre-pluck */}
+          {!pluckedCard && !openingFlap && (
             <div
-              ref={lightSweepRef}
               aria-hidden="true"
-              className="absolute inset-y-0 pointer-events-none"
+              className="absolute left-1/2 -translate-x-1/2"
               style={{
-                opacity: 0,
-                width: '60%',
-                left: 0,
+                top: '60px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
                 background:
-                  'linear-gradient(90deg, transparent 0%, rgba(255, 240, 200, 0.4) 35%, rgba(255, 255, 240, 0.7) 50%, rgba(255, 240, 200, 0.4) 65%, transparent 100%)',
-                mixBlendMode: 'overlay',
-                filter: 'blur(2px)',
+                  'radial-gradient(circle at 35% 30%, #c43838 0%, #8b1818 60%, #5a0e0e 100%)',
+                boxShadow:
+                  'inset -3px -3px 6px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25)',
               }}
-            />
+            >
+              <span
+                className="absolute inset-0 flex items-center justify-center text-[color:#fce8a0] text-xs font-bold"
+                style={{ fontFamily: '"Fraunces Variable", serif' }}
+              >
+                H
+              </span>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Particle burst — sparkles fly outward saat card emerge.
-          Per-tier count + palette. Triggered via particleTrigger bump
-          di timeline phase 4c. */}
+      {/* Particle burst on polaroid sharp */}
       {pluckedCard && (
-        <ParticleBurst
-          tier={pluckedCard.tier}
-          trigger={particleTrigger}
+        <ParticleBurst tier={pluckedCard.tier} trigger={particleTrigger} />
+      )}
+
+      {/* Pull-string — draggable red ribbon di sisi kanan flap.
+          Visible only pre-pluck. Drag down untuk membuka.
+          Touch-action: none supaya gesture gak ke-hijack browser scroll. */}
+      {!pluckedCard && canPluck && !openingFlap && (
+        <div
+          ref={stringRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className="absolute z-30 cursor-grab active:cursor-grabbing select-none"
+          style={{
+            top: '40px',
+            right: '20px',
+            width: '32px',
+            height: '110px',
+            touchAction: 'none',
+            transformOrigin: 'top center',
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Tarik pita untuk membuka amplop"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              finishOpen();
+            }
+          }}
+        >
+          {/* Ribbon visual — thin red strip + dot tassel at bottom */}
+          <div
+            className="mx-auto"
+            style={{
+              width: '4px',
+              height: '90px',
+              background:
+                'linear-gradient(180deg, #c43838 0%, #a02828 50%, #c43838 100%)',
+              borderRadius: '2px',
+              boxShadow: '1px 0 2px rgba(0,0,0,0.2)',
+            }}
+          />
+          <div
+            className="mx-auto -mt-1"
+            style={{
+              width: '14px',
+              height: '14px',
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle at 35% 30%, #d44a4a 0%, #8b1818 80%)',
+              boxShadow:
+                'inset -2px -2px 4px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)',
+            }}
+          />
+        </div>
+      )}
+
+      {/* Reduced-motion fallback OR keyboard tap target — large invisible
+          tap area covering pack saat pre-pluck. Prefers-reduced-motion
+          users tap to skip drag mechanic. */}
+      {interactive && prefersReducedMotion && (
+        <button
+          type="button"
+          onClick={handleTapFallback}
+          className="absolute inset-0 z-20 cursor-pointer rounded-2xl focus:outline-none focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/40"
+          aria-label="Buka amplop hari ini"
         />
       )}
 
-      {/* Click overlay — covers whole pack area pre-pluck untuk generous
-          touch target (mobile-friendly, >44px) */}
-      {tappable && (
-        <button
-          type="button"
-          onClick={handleClick}
-          onKeyDown={handleKey}
-          className="absolute inset-0 z-20 cursor-pointer rounded-2xl focus:outline-none focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/40"
-          aria-label="Buka kartu Pohon Aprikot hari ini"
-        />
+      {/* Hint text — kasih tau user untuk tarik string */}
+      {interactive && !prefersReducedMotion && dragProgress === 0 && (
+        <p
+          aria-hidden="true"
+          className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 pointer-events-none"
+          style={{ fontFamily: '"Fraunces Variable", serif' }}
+        >
+          ↓ Tarik pita merah
+        </p>
       )}
     </div>
   );
