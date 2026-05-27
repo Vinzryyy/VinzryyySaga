@@ -50,7 +50,15 @@ const ERA_FILTERS = [
   { id: 'fan-life', label: 'Daily' },
 ];
 
-const BukuPetikanItem = ({ card, isPulled, isWished, wishlistFull, onClick, onToggleWish }) => {
+const BukuPetikanItem = ({
+  card,
+  isPulled,
+  count = 0,
+  isWished,
+  wishlistFull,
+  onClick,
+  onToggleWish,
+}) => {
   const cfg = TIER_CONFIG[card.tier] || TIER_CONFIG.muda;
   // Heart toggle hanya tampil untuk kartu unowned (sudah pernah dapet
   // tidak perlu wishlist lagi). Disabled untuk tier muda — soft pity
@@ -177,6 +185,22 @@ const BukuPetikanItem = ({ card, isPulled, isWished, wishlistFull, onClick, onTo
           style={!isWished ? { color: 'var(--retro-burgundy)' } : undefined}
         />
       </button>
+    )}
+    {/* Duplicate count badge — taro di bawah kartu kalau user punya 2+
+        copies (count >= 2). "×N" pill style tipis di tengah, gak ganggu
+        layout aspect-ratio kartu di atas. */}
+    {isPulled && count >= 2 && (
+      <p
+        className="text-center text-[10px] font-bold mt-1 text-[color:var(--retro-burgundy)] tabular-nums"
+        style={{
+          fontFamily: '"Fraunces Variable", serif',
+          letterSpacing: '0.05em',
+        }}
+        title={`Punya ${count} kartu`}
+        aria-label={`Duplikat: ${count} kartu`}
+      >
+        ×{count}
+      </p>
     )}
     </div>
   );
@@ -825,6 +849,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
             key={card.id}
             card={card}
             isPulled={isPulled(card.id)}
+            count={state?.buku?.[card.id]?.count || 0}
             isWished={state?.wishlist?.has(card.id) || false}
             wishlistFull={wishlistFull}
             onClick={() => isPulled(card.id) && setSelectedCardId(card.id)}
