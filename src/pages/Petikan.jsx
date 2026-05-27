@@ -57,36 +57,38 @@ const BG_SRCS = [
 ];
 
 const BackgroundWallpaper = React.memo(() => {
-  // Doodle-style tile grid — 500 PNGs di-place dalam grid cells supaya
-  // gak overlap. Tiap cell isi 1 PNG dengan random source + jitter
-  // posisi ±15% dalam cell + rotate ±15° + size 65-95% cell width.
-  // Stable per-mount via useMemo.
+  // Sparse doodle scatter — ~40 PNGs di-place secara asymmetric dengan
+  // min-distance enforcement (Poisson-disk style lite). Stable per-mount.
+  // Warna (no grayscale) supaya chibi Arme tetep terbaca, opacity rendah
+  // (0.15-0.35) supaya gak compete dengan content.
   const items = useMemo(() => {
-    const count = 500;
-    const cols = 7;
-    const rows = Math.ceil(count / cols);
-    const cellWidthPct = 100 / cols; // ~14.3%
-    const cellHeightPx = 140;
-    return Array.from({ length: count }, (_, i) => {
-      const row = Math.floor(i / cols);
-      const col = i % cols;
-      const cellTop = row * cellHeightPx;
-      const cellLeft = col * cellWidthPct;
-      // Jitter dalam cell — ±15% horizontal, ±20px vertical.
-      const jitterX = (Math.random() - 0.5) * cellWidthPct * 0.3;
-      const jitterY = (Math.random() - 0.5) * 40;
-      // Image size 65-90% cell width supaya pasti gak nyentuh neighbor.
-      const sizePx = 75 + Math.random() * 35; // 75-110px
-      return {
-        key: i,
-        src: BG_SRCS[Math.floor(Math.random() * BG_SRCS.length)],
-        top: cellTop + jitterY,
-        left: cellLeft + jitterX,
-        width: sizePx,
-        rotate: (Math.random() - 0.5) * 30, // ±15°
-        opacity: 0.3 + Math.random() * 0.25, // 0.3-0.55
+    const TARGET = 40;
+    const MAX_ATTEMPTS = 2000;
+    const MIN_VERT_VH = 20; // jarak vertikal min antar item (vh)
+    const MIN_HORIZ_PCT = 14; // jarak horizontal min antar item (%)
+    const accepted = [];
+    let attempts = 0;
+    while (accepted.length < TARGET && attempts < MAX_ATTEMPTS) {
+      attempts += 1;
+      const candidate = {
+        top: Math.random() * 380, // 0-380vh
+        left: Math.random() * 88, // 0-88% (avoid right edge)
       };
-    });
+      const tooClose = accepted.some(
+        (p) =>
+          Math.abs(p.top - candidate.top) < MIN_VERT_VH &&
+          Math.abs(p.left - candidate.left) < MIN_HORIZ_PCT,
+      );
+      if (!tooClose) accepted.push(candidate);
+    }
+    return accepted.map((p, i) => ({
+      key: i,
+      src: BG_SRCS[Math.floor(Math.random() * BG_SRCS.length)],
+      top: p.top,
+      left: p.left,
+      rotate: (Math.random() - 0.5) * 24, // ±12°
+      opacity: 0.15 + Math.random() * 0.2, // 0.15-0.35
+    }));
   }, []);
 
   return (
@@ -104,12 +106,11 @@ const BackgroundWallpaper = React.memo(() => {
           decoding="async"
           className="absolute select-none"
           style={{
-            top: `${p.top}px`,
+            top: `${p.top}vh`,
             left: `${p.left}%`,
-            width: `${p.width}px`,
+            width: 'clamp(60px, 8vw, 100px)',
             opacity: p.opacity,
             transform: `rotate(${p.rotate}deg)`,
-            filter: 'grayscale(100%)',
           }}
         />
       ))}
