@@ -176,6 +176,37 @@ export const playLegendaChime = (volumeMultiplier = 1) => {
 };
 
 /**
+ * Select Item SFX — one-shot WAV asset playback untuk pack tap, swipe,
+ * thumbnail jump. Pakai HTMLAudio cloneNode pattern supaya bisa overlap
+ * (rapid taps gak terpotong). Honor townAudioBus enabled flag.
+ *
+ * Audio file di-cache module-level. Volume parameter (0..1) skala ke
+ * source volume — caller bisa kasih multiplier biar match dengan
+ * intensity action (tap kecil = 0.6, swipe besar = 0.9).
+ */
+let _selectItemAudio = null;
+const SELECT_ITEM_SRC = '/byUmusic/Select%20Item.wav';
+
+export const playSelectSfx = (volumeMultiplier = 1) => {
+  try {
+    if (typeof window === 'undefined' || typeof Audio === 'undefined') return;
+    // Lazy-init cached element. cloneNode kasih instance baru tiap call —
+    // overlap-friendly. Source element gak pernah di-play, cuma template.
+    if (!_selectItemAudio) {
+      _selectItemAudio = new Audio(SELECT_ITEM_SRC);
+      _selectItemAudio.preload = 'auto';
+    }
+    const clone = _selectItemAudio.cloneNode();
+    clone.volume = Math.max(0, Math.min(1, 0.55 * volumeMultiplier));
+    clone.play().catch(() => {
+      // Autoplay blocked / no gesture — silent fail.
+    });
+  } catch {
+    // Audio unsupported — silent fail
+  }
+};
+
+/**
  * Synthesized page-turn sfx pakai Web Audio API. No asset file needed —
  * generate noise burst with bandpass filter envelope. Volume tied ke
  * townAudioBus untuk konsistensi sama music ambient.

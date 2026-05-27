@@ -16,6 +16,9 @@ import KartuBrewek from '../components/petikan/KartuBrewek';
 import LegendaReveal from '../components/petikan/LegendaReveal';
 import BukuPetikan from '../components/petikan/BukuPetikan';
 import ShareCardImage from '../components/petikan/ShareCardImage';
+import BrewekMusic from '../components/petikan/BrewekMusic';
+import { playSelectSfx } from '../components/petikan/PluckTimeline';
+import { readEnabled, readVolume } from '../lib/townAudioBus';
 import {
   applyPlucks,
   canPluckToday,
@@ -166,6 +169,8 @@ const Petikan = () => {
   // Manual jump (tap, swipe, atau thumbnail click) — cancel pending
   // auto-advance, instant swap ke target index. No exit anim, no
   // entrance anim (KartuBrewek static mode saat skipPack=true).
+  // Fire SFX dengan multiplier sedikit lebih lirih (0.7) — action
+  // kecil dibanding pack tap awal.
   const jumpTo = useCallback(
     (targetIndex) => {
       if (pluckedCards.length === 0) return;
@@ -175,14 +180,27 @@ const Petikan = () => {
         clearTimeout(transitionTimerRef.current);
         transitionTimerRef.current = null;
       }
+      fireSelectSfx(0.7);
       setRevealIndex(targetIndex);
       setHasRippedThisBatch(true);
     },
-    [pluckedCards.length, revealIndex]
+    [pluckedCards.length, revealIndex, fireSelectSfx]
   );
+
+  // Helper untuk fire Select SFX dengan respect bus enabled + volume.
+  // Multiplier 0.9 untuk action besar (pack tap), 0.6 untuk action kecil
+  // (thumbnail jump). Disabled flag gate sebelum play biar mute global
+  // matiin SFX juga.
+  const fireSelectSfx = useCallback((multiplier = 0.9) => {
+    if (!readEnabled()) return;
+    const baseVol = readVolume();
+    if (baseVol <= 0) return;
+    playSelectSfx(multiplier * (baseVol * 2)); // scale up — volume slider 0.25 baseline
+  }, []);
 
   const handlePluck = useCallback(() => {
     if (!canPluck) return;
+    fireSelectSfx(1.0);
     const today = getJakartaDate(now);
     const cards = pickCards(state, today, CARDS_PER_PLUCK);
     if (cards.length === 0) {
@@ -291,6 +309,11 @@ const Petikan = () => {
         description="Satu kenangan dari Pohon Aprikot, tiap pagi. Arsip harian Eli JKT48 dari Armeniaca — batch Seitansai 2026."
         image="https://armeniaca.online/og-petikan.png"
       />
+
+      {/* Background track BREWEK.mp3 — mount sekali per /petikan visit,
+          unmount saat user navigate keluar. Loop continuous, respect
+          townAudioBus enabled + volume. */}
+      <BrewekMusic />
 
       <main className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] pt-28 pb-20 px-6">
         <div className="max-w-2xl mx-auto text-center">
