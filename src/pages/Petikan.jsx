@@ -34,17 +34,10 @@ import {
 import { BATCH_ID, CARDS_PER_PLUCK, pickCards } from '../data/pohonAprikot';
 import { pickProse } from '../data/petikanProse';
 
-// Hold duration per tier — berapa lama kartu di-display sebelum
-// auto-advance ke kartu berikutnya dalam triad. Naik dgn tier biar
-// kartu langka/legenda dapat dwell time lebih panjang untuk dinikmati.
-// Pakai milliseconds. Active hanya selama kartu BUKAN terakhir (kartu
-// terakhir tetap visible permanent sampai navigation).
-const TIER_HOLD_MS = {
-  muda: 3500,
-  matang: 4000,
-  langka: 5000,
-  legenda: 6500,
-};
+// Dev re-arm timer — di dev mode (?dev=1), kartu di-clear automatic
+// setelah window ini biar dev bisa pluck ulang tanpa reload. Fixed
+// duration karena auto-advance udah dihapus (user manual nav).
+const DEV_REARM_MS = 25000;
 
 // Background wallpaper — chibi Arme PNGs random scattered, B&W (grayscale),
 // opacity 50%. Random count (18-26) + positions di-compute via useMemo
@@ -241,25 +234,9 @@ const Petikan = () => {
     }
   }, [revealIndex, pluckedCards.length, allCardsRevealed]);
 
-  // Auto-advance reveal cursor. Setelah hold window selesai, langsung
-  // bump revealIndex + tandai hasRippedThisBatch=true (batched, same
-  // render). No exit animation — kartu lama instant swap ke kartu baru.
-  // Timer ID di-save ke ref supaya manual gesture bisa cancel.
-  useEffect(() => {
-    if (revealIndex < 0 || pluckedCards.length === 0) return undefined;
-    if (revealIndex >= pluckedCards.length - 1) return undefined;
-    const current = pluckedCards[revealIndex];
-    const holdMs = TIER_HOLD_MS[current?.tier] || TIER_HOLD_MS.muda;
-    const t = setTimeout(() => {
-      setRevealIndex((idx) => idx + 1);
-      setHasRippedThisBatch(true);
-    }, holdMs);
-    transitionTimerRef.current = t;
-    return () => {
-      clearTimeout(t);
-      transitionTimerRef.current = null;
-    };
-  }, [revealIndex, pluckedCards]);
+  // (auto-advance dihapus 2026-05-27 per user request — manual nav only).
+  // User control kapan lanjut: tap kartu / swipe-left → next, swipe-right
+  // → previous, atau tap thumbnail. Lihat jumpTo + pointer handler.
 
   // Helper untuk fire Select SFX dengan respect bus enabled + volume.
   // Multiplier 0.9 untuk action besar (pack tap), 0.7 untuk action kecil
@@ -389,16 +366,12 @@ const Petikan = () => {
   // reading time (sum hold per kartu di triad).
   useEffect(() => {
     if (!devBypass || pluckedCards.length === 0) return undefined;
-    const totalHoldMs = pluckedCards.reduce(
-      (acc, c) => acc + (TIER_HOLD_MS[c.tier] || TIER_HOLD_MS.muda),
-      0
-    );
     const t = setTimeout(() => {
       setPluckedCards([]);
       setRevealIndex(-1);
       setHasRippedThisBatch(false);
       setAllCardsRevealed(false);
-    }, totalHoldMs + 2000);
+    }, DEV_REARM_MS);
     return () => clearTimeout(t);
   }, [devBypass, pluckedCards]);
 
@@ -589,7 +562,7 @@ const Petikan = () => {
               Hanya visible saat sequential reveal lagi jalan. Jadi
               cue visual: ada berapa kartu lagi yang menanti. */}
           {pluckedCards.length > 1 && revealIndex >= 0 && (
-            <div className="flex justify-center gap-2 mb-6">
+            <div className="flex justify-center gap-2 mb-3">
               {pluckedCards.map((_, i) => (
                 <span
                   key={i}
@@ -605,6 +578,21 @@ const Petikan = () => {
               ))}
             </div>
           )}
+
+          {/* Hint manual navigation — kasih tau user tap/swipe untuk
+              lanjut ke kartu berikutnya. Hide di kartu terakhir + saat
+              isExiting. Style halus biar gak ganggu fokus baca kartu. */}
+          {pluckedCards.length > 1 &&
+            revealIndex >= 0 &&
+            revealIndex < pluckedCards.length - 1 && (
+              <p
+                className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/45 text-center mb-6 italic"
+                style={{ fontFamily: '"Fraunces Variable", serif' }}
+                aria-live="polite"
+              >
+                Tap atau geser → untuk lanjut
+              </p>
+            )}
 
           {/* Triad recap — 3 thumbnail kartu, tap untuk browse. Visible
               sekali semua kartu di batch udah pernah ditampilkan
