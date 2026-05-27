@@ -167,15 +167,20 @@ const Petikan = () => {
   }, [revealIndex, pluckedCards]);
 
   // Helper untuk fire Select SFX dengan respect bus enabled + volume.
-  // Multiplier 0.9 untuk action besar (pack tap), 0.6 untuk action kecil
+  // Multiplier 0.9 untuk action besar (pack tap), 0.7 untuk action kecil
   // (thumbnail jump). Disabled flag gate sebelum play biar mute global
   // matiin SFX juga. Declared sebelum jumpTo + handlePluck supaya gak
   // ke-TDZ (const hoisting block-scoped).
+  //
+  // SFX_VOLUME_MULTIPLIER mirror BREWEK_MUSIC pattern — cap output ke
+  // 50% × bus volume supaya gak overshadow music / dialog. Slider 100% =
+  // 0.5 SFX gain, slider 50% = 0.25, dst.
   const fireSelectSfx = useCallback((multiplier = 0.9) => {
     if (!readEnabled()) return;
     const baseVol = readVolume();
     if (baseVol <= 0) return;
-    playSelectSfx(multiplier * (baseVol * 2)); // scale up — volume slider 0.25 baseline
+    const SFX_VOLUME_MULTIPLIER = 0.5;
+    playSelectSfx(multiplier * baseVol * SFX_VOLUME_MULTIPLIER);
   }, []);
 
   // Manual jump (tap, swipe, atau thumbnail click) — cancel pending

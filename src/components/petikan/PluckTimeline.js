@@ -187,7 +187,7 @@ export const playLegendaChime = (volumeMultiplier = 1) => {
 let _selectItemAudio = null;
 const SELECT_ITEM_SRC = '/byUmusic/Select%20Item.wav';
 
-export const playSelectSfx = (volumeMultiplier = 1) => {
+export const playSelectSfx = (volume = 1) => {
   try {
     if (typeof window === 'undefined' || typeof Audio === 'undefined') return;
     // Lazy-init cached element. cloneNode kasih instance baru tiap call —
@@ -197,7 +197,7 @@ export const playSelectSfx = (volumeMultiplier = 1) => {
       _selectItemAudio.preload = 'auto';
     }
     const clone = _selectItemAudio.cloneNode();
-    clone.volume = Math.max(0, Math.min(1, 0.55 * volumeMultiplier));
+    clone.volume = Math.max(0, Math.min(1, volume));
     clone.play().catch(() => {
       // Autoplay blocked / no gesture — silent fail.
     });
