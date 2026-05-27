@@ -111,6 +111,10 @@ const BackgroundWallpaper = React.memo(() => {
             width: 'clamp(60px, 8vw, 100px)',
             opacity: p.opacity,
             transform: `rotate(${p.rotate}deg)`,
+            // Slight purple tint — sepia bikin warm base, hue-rotate
+            // 220° shift ke ungu-lavender. Saturate diturunin biar
+            // gak too vivid (background harusnya muted).
+            filter: 'sepia(0.5) hue-rotate(220deg) saturate(0.85)',
           }}
         />
       ))}
