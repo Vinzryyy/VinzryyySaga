@@ -62,17 +62,13 @@ const Petikan = () => {
   // -1 = belum ada pluck. 0..2 = kartu 1, 2, 3. Auto-advance via timer
   // setelah TIER_HOLD_MS, kecuali kartu terakhir (stay visible).
   const [revealIndex, setRevealIndex] = useState(-1);
-  // isExiting = true selama jeda transisi antar kartu di triad. Bikin
-  // pluckedCard prop ke KartuBrewek jadi null sehingga exit animation
-  // jalan, TANPA mengubah revealIndex (yang akan re-trigger auto-advance
-  // useEffect dan cancel t2). Reset balik ke false saat advance complete.
-  const [isExiting, setIsExiting] = useState(false);
-  // Pack udah robek di batch ini? True setelah kartu 1 emerge complete
-  // (revealIndex maju ke 1+). Dipakai supaya kalau user swipe-balik
-  // ke kartu 1, pack rip animation TIDAK replay (pack udah pergi).
+  // Pack udah robek di batch ini? True setelah kartu 1 dipindah ke
+  // kartu 2+. Dipakai supaya kartu setelahnya (atau swipe-back ke
+  // kartu 1) instant swap — pack rip animation cuma jalan SEKALI di
+  // first reveal.
   const [hasRippedThisBatch, setHasRippedThisBatch] = useState(false);
-  // Refs untuk cancel pending auto-advance timer saat manual gesture.
-  const transitionTimersRef = useRef({ t1: null, t2: null });
+  // Ref untuk cancel pending auto-advance timer saat manual gesture.
+  const transitionTimerRef = useRef(null);
   // Pointer/touch start untuk swipe vs tap detection.
   const pointerStartRef = useRef(null);
   const [emptyPool, setEmptyPool] = useState(false);
@@ -124,70 +120,47 @@ const Petikan = () => {
       setBuah(getBuah());
       setPluckedCards([]);
       setRevealIndex(-1);
-      setIsExiting(false);
       setHasRippedThisBatch(false);
       setEmptyPool(false);
     }
   }, [countdownMs, canPluck]);
 
-  // Auto-advance reveal cursor. Setelah hold window selesai, isExiting
-  // di-set true (KartuBrewek receive null → exit animation jalan), lalu
-  // bump revealIndex + reset isExiting. Pakai isExiting (bukan ubah
-  // revealIndex ke -1) supaya useEffect deps gak ke-trigger di tengah
-  // transisi — kalau ke-trigger, cleanup cancel t2 dan reveal stuck.
-  // Timer IDs di-save ke ref supaya manual gesture (tap/swipe) bisa
-  // cancel auto-advance.
+  // Auto-advance reveal cursor. Setelah hold window selesai, langsung
+  // bump revealIndex + tandai hasRippedThisBatch=true (batched, same
+  // render). No exit animation — kartu lama instant swap ke kartu baru.
+  // Timer ID di-save ke ref supaya manual gesture bisa cancel.
   useEffect(() => {
     if (revealIndex < 0 || pluckedCards.length === 0) return undefined;
     if (revealIndex >= pluckedCards.length - 1) return undefined;
     const current = pluckedCards[revealIndex];
     const holdMs = TIER_HOLD_MS[current?.tier] || TIER_HOLD_MS.muda;
-    const exitGapMs = 500;
-    const t1 = setTimeout(() => setIsExiting(true), holdMs);
-    const t2 = setTimeout(() => {
-      // Batched state updates — React 18+ groups setStates dalam 1 render.
-      // hasRippedThisBatch di-set true HERE supaya KartuBrewek receive
-      // skipPack=true SAME render dengan revealIndex maju — gak ada
-      // intermediate frame di mana pack rip animation kebanting muncul.
-      setIsExiting(false);
+    const t = setTimeout(() => {
       setRevealIndex((idx) => idx + 1);
       setHasRippedThisBatch(true);
-    }, holdMs + exitGapMs);
-    transitionTimersRef.current = { t1, t2 };
+    }, holdMs);
+    transitionTimerRef.current = t;
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      transitionTimersRef.current = { t1: null, t2: null };
+      clearTimeout(t);
+      transitionTimerRef.current = null;
     };
   }, [revealIndex, pluckedCards]);
 
   // Manual jump (tap, swipe, atau thumbnail click) — cancel pending
-  // auto-advance, trigger exit anim, advance/back ke target index.
-  // Guarded: skip kalau lagi exiting (let current transisi selesai) atau
-  // target invalid.
+  // auto-advance, instant swap ke target index. No exit anim, no
+  // entrance anim (KartuBrewek static mode saat skipPack=true).
   const jumpTo = useCallback(
     (targetIndex) => {
       if (pluckedCards.length === 0) return;
-      if (isExiting) return;
       if (targetIndex === revealIndex) return;
       if (targetIndex < 0 || targetIndex >= pluckedCards.length) return;
-      // Cancel pending auto-advance dari current revealIndex's effect.
-      const timers = transitionTimersRef.current;
-      if (timers.t1) clearTimeout(timers.t1);
-      if (timers.t2) clearTimeout(timers.t2);
-      transitionTimersRef.current = { t1: null, t2: null };
-      // Manual exit → bump
-      setIsExiting(true);
-      setTimeout(() => {
-        // Batched dengan revealIndex update — hasRippedThisBatch=true
-        // SAME render supaya pack rip animation gak kebanting di kartu
-        // berikutnya (atau saat swipe-back ke kartu 1).
-        setIsExiting(false);
-        setRevealIndex(targetIndex);
-        setHasRippedThisBatch(true);
-      }, 500);
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+        transitionTimerRef.current = null;
+      }
+      setRevealIndex(targetIndex);
+      setHasRippedThisBatch(true);
     },
-    [pluckedCards.length, isExiting, revealIndex]
+    [pluckedCards.length, revealIndex]
   );
 
   const handlePluck = useCallback(() => {
@@ -227,7 +200,6 @@ const Petikan = () => {
     }
     setPluckedCards(cardsWithProse);
     setRevealIndex(0);
-    setIsExiting(false);
     setHasRippedThisBatch(false);
   }, [canPluck, state, now, devBypass, hasFreeDaily]);
 
@@ -286,7 +258,6 @@ const Petikan = () => {
     const t = setTimeout(() => {
       setPluckedCards([]);
       setRevealIndex(-1);
-      setIsExiting(false);
       setHasRippedThisBatch(false);
     }, totalHoldMs + 2000);
     return () => clearTimeout(t);
@@ -357,9 +328,13 @@ const Petikan = () => {
               overlay + chime audio. Trigger saat current displayed card
               tier === legenda (bukan saat batch ada legenda — supaya
               aurora muncul di moment yang tepat). */}
-          {revealIndex >= 0 &&
-            !isExiting &&
-            pluckedCards[revealIndex]?.tier === 'legenda' && <LegendaReveal />}
+          {/* LegendaReveal aurora — fire HANYA saat first reveal kartu 1
+              yang kebetulan legenda (hasRippedThisBatch=false + tier=legenda).
+              Static swap ke kartu legenda di posisi 2/3 atau swipe-back =
+              gak trigger aurora ulang. */}
+          {revealIndex === 0 &&
+            !hasRippedThisBatch &&
+            pluckedCards[0]?.tier === 'legenda' && <LegendaReveal />}
           <div
             className="mb-8 relative z-10"
             onPointerDown={
@@ -376,9 +351,7 @@ const Petikan = () => {
             <KartuBrewek
               canPluck={canPluck && pluckedCards.length === 0}
               pluckedCard={
-                revealIndex >= 0 && !isExiting
-                  ? pluckedCards[revealIndex]
-                  : null
+                revealIndex >= 0 ? pluckedCards[revealIndex] : null
               }
               onPluck={handlePluck}
               skipPack={hasRippedThisBatch}
@@ -418,7 +391,7 @@ const Petikan = () => {
                   key={c.id + '-' + i}
                   type="button"
                   onClick={() => jumpTo(i)}
-                  disabled={isExiting || i === revealIndex}
+                  disabled={i === revealIndex}
                   className={`relative overflow-hidden rounded-md border transition-all cursor-pointer disabled:cursor-default ${
                     i === revealIndex
                       ? 'border-[color:var(--retro-burgundy)] shadow-md scale-105'

@@ -156,10 +156,51 @@ const KartuBrewek = ({
     const isLegenda = pluckedCard.tier === 'legenda';
     const reveal = TIER_REVEAL[pluckedCard.tier] || TIER_REVEAL.muda;
 
+    // Static mode (skipPack=true): pack udah robek di first reveal.
+    // Kartu setelahnya (atau swipe-back) instant swap — no entrance
+    // anim, no settle, no light sweep. Cuma set kartu visible langsung
+    // + kick halo pulse (untuk tier coloring).
+    if (skipPack) {
+      gsap.set([topHalfRef.current, bottomHalfRef.current], { opacity: 0 });
+      gsap.set(cardFrontRef.current, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotate: 0,
+        rotateX: 0,
+        filter: 'blur(0px)',
+        transformPerspective: 1000,
+      });
+      if (lightSweepRef.current) {
+        gsap.set(lightSweepRef.current, { opacity: 0, x: '-110%', skewX: -18 });
+      }
+      if (tearFlashRef.current) {
+        gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
+      }
+      const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
+      if (haloRef.current) {
+        if (haloPulseRef.current) {
+          haloPulseRef.current.kill();
+          haloPulseRef.current = null;
+        }
+        gsap.set(haloRef.current, { opacity: haloConfig.intensity });
+        if (haloConfig.intensity > 0) {
+          const peak = haloConfig.intensity;
+          const valley = peak * 0.7;
+          haloPulseRef.current = gsap.to(haloRef.current, {
+            opacity: valley,
+            duration: 2.2,
+            ease: 'sine.inOut',
+            yoyo: true,
+            repeat: -1,
+          });
+        }
+      }
+      return undefined;
+    }
+
     // Pre-set initial states. Kartu emerge dari sedikit bawah + tilt
     // mundur untuk kesan "diangkat dari dalam pack" — bukan cuma fade.
-    // skipPack mode: pack halves di-hide dari awal (kartu 2 & 3 di
-    // sequential triad — pack udah robek di kartu 1).
     gsap.set(cardFrontRef.current, {
       opacity: 0,
       scale: 0.88,
@@ -168,16 +209,12 @@ const KartuBrewek = ({
       filter: 'blur(6px)',
       transformPerspective: 1000,
     });
-    if (skipPack) {
-      gsap.set([topHalfRef.current, bottomHalfRef.current], { opacity: 0 });
-    } else {
-      gsap.set([topHalfRef.current, bottomHalfRef.current], {
-        y: 0,
-        rotate: 0,
-        scale: 1,
-        opacity: 1,
-      });
-    }
+    gsap.set([topHalfRef.current, bottomHalfRef.current], {
+      y: 0,
+      rotate: 0,
+      scale: 1,
+      opacity: 1,
+    });
     // Reset tear-flash + light-sweep ke initial hidden state.
     if (tearFlashRef.current) {
       gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
@@ -396,61 +433,33 @@ const KartuBrewek = ({
     };
   }, [pluckedCard, revealDelay, skipPack]);
 
-  // Reset state saat pluckedCard cleared (sequential triad transition,
-  // dev re-arm, midnight). Kalau ada kartu yang lagi visible, animate
-  // EXIT dulu (lift up + fade + blur) baru clear — supaya transisi
-  // antar kartu di triad terasa intentional, bukan cut hard.
+  // Reset state saat pluckedCard cleared (midnight transition, dev
+  // re-arm). Static — clear instantly tanpa exit animation. Triad
+  // navigation (kartu 2/3, swipe-back) gak lewat null lagi, jadi reset
+  // effect cuma fire untuk full state resets.
   useEffect(() => {
     if (pluckedCard) return;
-    const hadCard = prevCardIdRef.current !== null;
-    // Kill halo pulse — gak ada lagi yang harus glow.
     if (haloPulseRef.current) {
       haloPulseRef.current.kill();
       haloPulseRef.current = null;
     }
-    const clearAll = () => {
-      playedRef.current = false;
-      prevCardIdRef.current = null;
-      if (topHalfRef.current) gsap.set(topHalfRef.current, { clearProps: 'all' });
-      if (bottomHalfRef.current) gsap.set(bottomHalfRef.current, { clearProps: 'all' });
-      if (cardFrontRef.current) {
-        gsap.set(cardFrontRef.current, {
-          opacity: 0,
-          scale: 0.88,
-          y: 26,
-          rotateX: -8,
-          filter: 'blur(6px)',
-          rotate: 0,
-        });
-      }
-      if (haloRef.current) gsap.set(haloRef.current, { opacity: 0 });
-      if (lightSweepRef.current) gsap.set(lightSweepRef.current, { opacity: 0, x: '-110%', skewX: -18 });
-      if (tearFlashRef.current) gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
-    };
-    if (hadCard && cardFrontRef.current) {
-      // Exit animation — kartu lift up sedikit + scale down + fade +
-      // blur out. Tier-agnostic (semua kartu pakai same exit feel).
-      // Halo juga fade simultaneously.
-      const exitTl = gsap.timeline({ onComplete: clearAll });
-      exitTl.to(
-        cardFrontRef.current,
-        {
-          opacity: 0,
-          scale: 0.94,
-          y: -18,
-          filter: 'blur(5px)',
-          duration: 0.4,
-          ease: 'power2.in',
-        },
-        0
-      );
-      if (haloRef.current) {
-        exitTl.to(haloRef.current, { opacity: 0, duration: 0.35, ease: 'sine.in' }, 0);
-      }
-      return () => exitTl.kill();
+    playedRef.current = false;
+    prevCardIdRef.current = null;
+    if (topHalfRef.current) gsap.set(topHalfRef.current, { clearProps: 'all' });
+    if (bottomHalfRef.current) gsap.set(bottomHalfRef.current, { clearProps: 'all' });
+    if (cardFrontRef.current) {
+      gsap.set(cardFrontRef.current, {
+        opacity: 0,
+        scale: 0.88,
+        y: 26,
+        rotateX: -8,
+        filter: 'blur(6px)',
+        rotate: 0,
+      });
     }
-    clearAll();
-    return undefined;
+    if (haloRef.current) gsap.set(haloRef.current, { opacity: 0 });
+    if (lightSweepRef.current) gsap.set(lightSweepRef.current, { opacity: 0, x: '-110%', skewX: -18 });
+    if (tearFlashRef.current) gsap.set(tearFlashRef.current, { opacity: 0, scaleX: 0.3 });
   }, [pluckedCard]);
 
   if (!canPluck && !pluckedCard) return null;
