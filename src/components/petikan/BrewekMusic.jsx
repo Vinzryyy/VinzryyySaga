@@ -27,10 +27,10 @@ const SRC = '/byUmusic/BREWEK.mp3';
 const FADE_IN_DUR = 1.4;
 const FADE_OUT_DUR = 0.6;
 // BREWEK.mp3 source kerasa terlalu loud relatif ke ambient track lain.
-// Cap output gain ke 20% dari bus volume — slider tetep berfungsi proporsional
-// (slider 50% = 0.1 gain, slider 100% = 0.2 gain) tapi peak music dibatasi
+// Cap output gain ke 40% dari bus volume — slider tetep berfungsi proporsional
+// (slider 50% = 0.2 gain, slider 100% = 0.4 gain) tapi peak music dibatasi
 // supaya gak overshadow SFX dan dialog.
-const MUSIC_VOLUME_MULTIPLIER = 0.2;
+const MUSIC_VOLUME_MULTIPLIER = 0.4;
 
 const BrewekMusic = () => {
   const enabledRef = useRef(readEnabled());
