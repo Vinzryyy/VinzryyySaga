@@ -166,6 +166,18 @@ const Petikan = () => {
     };
   }, [revealIndex, pluckedCards]);
 
+  // Helper untuk fire Select SFX dengan respect bus enabled + volume.
+  // Multiplier 0.9 untuk action besar (pack tap), 0.6 untuk action kecil
+  // (thumbnail jump). Disabled flag gate sebelum play biar mute global
+  // matiin SFX juga. Declared sebelum jumpTo + handlePluck supaya gak
+  // ke-TDZ (const hoisting block-scoped).
+  const fireSelectSfx = useCallback((multiplier = 0.9) => {
+    if (!readEnabled()) return;
+    const baseVol = readVolume();
+    if (baseVol <= 0) return;
+    playSelectSfx(multiplier * (baseVol * 2)); // scale up — volume slider 0.25 baseline
+  }, []);
+
   // Manual jump (tap, swipe, atau thumbnail click) — cancel pending
   // auto-advance, instant swap ke target index. No exit anim, no
   // entrance anim (KartuBrewek static mode saat skipPack=true).
@@ -186,17 +198,6 @@ const Petikan = () => {
     },
     [pluckedCards.length, revealIndex, fireSelectSfx]
   );
-
-  // Helper untuk fire Select SFX dengan respect bus enabled + volume.
-  // Multiplier 0.9 untuk action besar (pack tap), 0.6 untuk action kecil
-  // (thumbnail jump). Disabled flag gate sebelum play biar mute global
-  // matiin SFX juga.
-  const fireSelectSfx = useCallback((multiplier = 0.9) => {
-    if (!readEnabled()) return;
-    const baseVol = readVolume();
-    if (baseVol <= 0) return;
-    playSelectSfx(multiplier * (baseVol * 2)); // scale up — volume slider 0.25 baseline
-  }, []);
 
   const handlePluck = useCallback(() => {
     if (!canPluck) return;
