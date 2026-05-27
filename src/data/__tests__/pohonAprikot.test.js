@@ -321,9 +321,12 @@ describe('POHON_APRIKOT_POOL (GIF-only experimental)', () => {
     });
   });
 
-  it('has pool size matching the EmoteLabs GIF set (~11)', () => {
-    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(10);
-    expect(POHON_APRIKOT_POOL.length).toBeLessThanOrEqual(20);
+  it('has pool size matching the EmoteLabs full set (~58)', () => {
+    // Full curation dari batch 2026-05-27 — 58 unique emotes (post-dupe
+    // filter), 4 tier. Range 50-80 supaya muat current set plus minor
+    // additions (kalau user tambah emote variant di future).
+    expect(POHON_APRIKOT_POOL.length).toBeGreaterThanOrEqual(50);
+    expect(POHON_APRIKOT_POOL.length).toBeLessThanOrEqual(80);
   });
 
   it('all cards have unique ids', () => {
