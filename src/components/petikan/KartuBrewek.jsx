@@ -348,50 +348,62 @@ const KartuBrewek = ({
       return undefined;
     }
 
-    // Full polaroid develop animation
+    // Surprise reveal: zoom-in dari small + heavy blur, clear dramatis
+    // di akhir. User gak bisa lihat tier sampai blur clear → rare card
+    // surprise lebih impact. Halo color (tier indicator) delay ke
+    // ujung reveal — gak telegraph tier lewat warna glow di awal.
     gsap.set(polaroidRef.current, {
       opacity: 0,
-      scale: 0.78,
-      y: -60,
+      scale: 0.5, // start small (distant)
+      y: -40,
       rotate: tilt - 4,
-      filter: 'blur(22px)',
+      filter: 'blur(45px)', // heavy blur — identitas kartu hidden
     });
 
     const tl = gsap.timeline({ delay: reveal.preDelay + revealDelay });
 
+    // Phase 1: quick fade + slide in (kartu masih small + blurred)
     tl.to(polaroidRef.current, {
-      y: 0,
-      scale: 1,
       opacity: 1,
+      y: 0,
       rotate: tilt,
-      duration: reveal.slideOut,
+      duration: 0.3,
       ease: 'power2.out',
     });
 
+    // Phase 2: SUSPENSE — zoom in + blur clear bareng dengan
+    // power3.in curve. Most action happens di 30% terakhir =
+    // build-up panjang lalu reveal cepat di akhir. Total durasi
+    // pakai tier-specific develop length.
+    const totalReveal = reveal.slideOut + reveal.develop;
     tl.to(
       polaroidRef.current,
       {
+        scale: 1.0,
         filter: 'blur(0px)',
-        duration: reveal.develop,
-        ease: 'power2.out',
+        duration: totalReveal,
+        ease: 'power3.in',
       },
-      reveal.slideOut * 0.4,
+      0,
     );
 
+    // Particle burst di reveal peak — moment blur clear sharp
     tl.add(() => {
       setParticleTrigger((p) => p + 1);
-    }, reveal.slideOut + reveal.develop * 0.6);
+    }, totalReveal * 0.92);
 
+    // Halo (tier-color) fade in DI AKHIR setelah blur clear — supaya
+    // user gak tau tier dari halo warna selama suspense phase.
     const haloConfig = TIER_HALO[pluckedCard.tier] || TIER_HALO.muda;
     if (haloRef.current && haloConfig.intensity > 0) {
       tl.to(
         haloRef.current,
         {
           opacity: haloConfig.intensity,
-          duration: reveal.develop,
+          duration: 0.45,
           ease: 'sine.out',
         },
-        reveal.slideOut * 0.5,
+        totalReveal * 0.88,
       );
       tl.add(() => {
         if (haloPulseRef.current) haloPulseRef.current.kill();
@@ -404,7 +416,7 @@ const KartuBrewek = ({
           yoyo: true,
           repeat: -1,
         });
-      }, reveal.slideOut + reveal.develop);
+      }, totalReveal + 0.3);
     }
 
     return () => {
@@ -431,9 +443,9 @@ const KartuBrewek = ({
     if (polaroidRef.current) {
       gsap.set(polaroidRef.current, {
         opacity: 0,
-        scale: 0.78,
-        y: -60,
-        filter: 'blur(22px)',
+        scale: 0.5,
+        y: -40,
+        filter: 'blur(45px)',
       });
     }
     if (haloRef.current) gsap.set(haloRef.current, { opacity: 0 });
