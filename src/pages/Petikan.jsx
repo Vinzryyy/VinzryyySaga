@@ -25,6 +25,7 @@ import {
   canPluckToday,
   getJakartaDate,
   getBuah,
+  grantDailyLoginBonusIfNew,
   grantFirstVisitBonusIfNew,
   loadState,
   msUntilNextJakartaMidnight,
@@ -134,10 +135,11 @@ const Petikan = () => {
   // di session ini. Ephemeral — reset di reload (intentional, biar moment
   // "petik" terasa langsung). Full koleksi historis di-render di Buku
   // Petikan (P7). Empty array sebelum first pluck di session ini.
-  // First-visit bonus state — kalau granted, show banner sekali biar
-  // user tau dapat 10 buah free. Reset di session (refresh page = no
-  // banner kalau localStorage flag udah set).
+  // Bonus state — kalau granted, show banner sekali. firstVisit grants
+  // 30 buah sekali per device; dailyLogin grants 5 buah per WIB day.
+  // Bisa kebagian dua-duanya di first visit (35 total).
   const [firstVisitGrant, setFirstVisitGrant] = useState(0);
+  const [dailyLoginGrant, setDailyLoginGrant] = useState(0);
   const [pluckedCards, setPluckedCards] = useState([]);
   // revealIndex = posisi kartu mana yang lagi di-display di slot center.
   // -1 = belum ada pluck. 0..2 = kartu 1, 2, 3. Auto-advance via timer
@@ -176,13 +178,16 @@ const Petikan = () => {
     return () => clearInterval(id);
   }, []);
 
-  // First-visit bonus — grant 10 buah sekali per device saat user
-  // pertama kali buka /petikan. Refresh buah state + show banner.
+  // Bonus grants — first-visit (30 sekali per device) + daily login
+  // (5 per WIB day). Both ke-trigger mount; sekali fire per condition.
   useEffect(() => {
-    const granted = grantFirstVisitBonusIfNew();
-    if (granted > 0) {
+    const today = getJakartaDate();
+    const fv = grantFirstVisitBonusIfNew();
+    const dl = grantDailyLoginBonusIfNew(today);
+    if (fv > 0 || dl > 0) {
       setBuah(getBuah());
-      setFirstVisitGrant(granted);
+      if (fv > 0) setFirstVisitGrant(fv);
+      if (dl > 0) setDailyLoginGrant(dl);
     }
   }, []);
 
@@ -413,23 +418,35 @@ const Petikan = () => {
         <BackgroundWallpaper />
 
         <div className="max-w-2xl mx-auto text-center relative" style={{ zIndex: 10 }}>
-          {/* First-visit bonus banner — sekali show per device, kasih
-              tau user dapat 10 buah selamat datang. User bisa dismiss
-              via tombol close. */}
-          {firstVisitGrant > 0 && (
+          {/* Bonus banner — show kalau ada grant (first-visit 30 sekali
+              per device + daily login 5 per WIB day). Single banner
+              dengan total + breakdown supaya gak crowded. */}
+          {(firstVisitGrant > 0 || dailyLoginGrant > 0) && (
             <div className="mb-6 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-[color:var(--retro-gold,#daaf5c)]/15 border border-[color:var(--retro-gold,#daaf5c)]/40 shadow-sm">
               <span className="text-lg">🍑</span>
               <span
                 className="text-sm text-[color:var(--retro-brown-dark)]"
                 style={{ fontFamily: '"Fraunces Variable", serif' }}
               >
-                Selamat datang! +{firstVisitGrant} buah masuk dompet.
+                {firstVisitGrant > 0 && dailyLoginGrant > 0 ? (
+                  <>
+                    Selamat datang! +{firstVisitGrant} bonus pendatang baru,
+                    +{dailyLoginGrant} login harian.
+                  </>
+                ) : firstVisitGrant > 0 ? (
+                  <>Selamat datang! +{firstVisitGrant} buah masuk dompet.</>
+                ) : (
+                  <>Login harian — +{dailyLoginGrant} 🍑 buah hari ini.</>
+                )}
               </span>
               <button
                 type="button"
-                onClick={() => setFirstVisitGrant(0)}
+                onClick={() => {
+                  setFirstVisitGrant(0);
+                  setDailyLoginGrant(0);
+                }}
                 className="text-[color:var(--retro-brown-dark)]/55 hover:text-[color:var(--retro-burgundy)] text-base leading-none"
-                aria-label="Tutup banner selamat datang"
+                aria-label="Tutup banner bonus"
               >
                 ×
               </button>

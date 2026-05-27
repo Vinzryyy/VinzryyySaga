@@ -31,6 +31,7 @@ const KEYS = {
   wishlist: 'aprikot_wishlist',
   quiz: 'aprikot_quiz_state',
   firstVisitBonus: 'aprikot_first_visit_bonus_v1',
+  dailyLoginBonus: 'aprikot_daily_login_bonus',
 };
 
 // Journal cap — full pluck history disimpan ke state.recent. UI bisa
@@ -416,11 +417,11 @@ export const saveQuizState = (state) => {
 };
 
 // ── First-visit bonus ───────────────────────────────────────────────
-// Grant 10 buah sekali aja per device, saat user first time buka
-// /petikan. Returns amount granted (10) atau 0 kalau udah ke-grant
+// Grant 30 buah sekali aja per device, saat user first time buka
+// /petikan. Returns amount granted (30) atau 0 kalau udah ke-grant
 // sebelumnya. Caller display notice ke user.
 
-export const FIRST_VISIT_BONUS = 10;
+export const FIRST_VISIT_BONUS = 30;
 
 export const grantFirstVisitBonusIfNew = () => {
   try {
@@ -432,6 +433,28 @@ export const grantFirstVisitBonusIfNew = () => {
     safeWrite(KEYS.buah, String(next));
     safeWrite(KEYS.firstVisitBonus, '1');
     return FIRST_VISIT_BONUS;
+  } catch {
+    return 0;
+  }
+};
+
+// ── Daily login bonus ───────────────────────────────────────────────
+// Grant 5 buah per WIB day saat user pertama buka /petikan hari itu.
+// Storage key tracks last bonus date (YYYY-MM-DD). Caller pass today
+// (Jakarta date) untuk avoid re-grant di session yang sama hari yang
+// sama. Returns amount granted (5) atau 0 kalau udah granted today.
+
+export const DAILY_LOGIN_BONUS = 5;
+
+export const grantDailyLoginBonusIfNew = (todayJakartaDate) => {
+  try {
+    if (!todayJakartaDate) return 0;
+    const last = localStorage.getItem(KEYS.dailyLoginBonus);
+    if (last === todayJakartaDate) return 0;
+    const next = Math.min(BUAH_CAP, getBuah() + DAILY_LOGIN_BONUS);
+    safeWrite(KEYS.buah, String(next));
+    safeWrite(KEYS.dailyLoginBonus, todayJakartaDate);
+    return DAILY_LOGIN_BONUS;
   } catch {
     return 0;
   }
@@ -451,6 +474,7 @@ export const resetState = () => {
     localStorage.removeItem(KEYS.wishlist);
     localStorage.removeItem(KEYS.quiz);
     localStorage.removeItem(KEYS.firstVisitBonus);
+    localStorage.removeItem(KEYS.dailyLoginBonus);
   } catch {
     // ignored
   }
