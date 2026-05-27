@@ -29,6 +29,7 @@ import HoloShimmer from './HoloShimmer';
 import ParticleBurst from './ParticleBurst';
 import { playPageTurnSfx } from './PluckTimeline';
 import { readEnabled, readVolume } from '../../lib/townAudioBus';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 // Per-tier halo glow palette — radiating dari belakang card saat emerge
 const TIER_HALO = {
@@ -105,16 +106,26 @@ const KartuBrewek = ({
   const lightSweepRef = useRef(null);
   // Halo pulse loop ref — buat kill saat unmount / card swap.
   const haloPulseRef = useRef(null);
+  // Accessibility — respect OS-level reduced-motion. Saat aktif:
+  // skip pack rip elaborate animation, no settle bounce, no light
+  // sweep, no halo pulse loop, no particle burst. Card just appears.
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   // Bumped to trigger ParticleBurst re-animation
   const [particleTrigger, setParticleTrigger] = useState(0);
 
   // Breathing animation — invitation cue saat pack siap dibuka. Hanya
   // di pack yang tappable (punya onPluck handler). 2nd/3rd pack di
-  // 3-pack triad gak breathing — cuma static pre-reveal.
+  // 3-pack triad gak breathing — cuma static pre-reveal. Skip kalau
+  // prefers-reduced-motion.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return undefined;
-    if (pluckedCard || !canPluck || typeof onPluck !== 'function') {
+    if (
+      pluckedCard ||
+      !canPluck ||
+      typeof onPluck !== 'function' ||
+      prefersReducedMotion
+    ) {
       if (breatheRef.current) {
         breatheRef.current.kill();
         breatheRef.current = null;
@@ -134,7 +145,7 @@ const KartuBrewek = ({
         breatheRef.current = null;
       }
     };
-  }, [canPluck, pluckedCard, onPluck]);
+  }, [canPluck, pluckedCard, onPluck, prefersReducedMotion]);
 
   // Unpack timeline — kicks off saat pluckedCard set. Re-runs saat
   // card.id berubah (sequential reveal di triad: card 1 → card 2 → card 3).
@@ -156,11 +167,11 @@ const KartuBrewek = ({
     const isLegenda = pluckedCard.tier === 'legenda';
     const reveal = TIER_REVEAL[pluckedCard.tier] || TIER_REVEAL.muda;
 
-    // Static mode (skipPack=true): pack udah robek di first reveal.
-    // Kartu setelahnya (atau swipe-back) instant swap — no entrance
-    // anim, no settle, no light sweep. Cuma set kartu visible langsung
-    // + kick halo pulse (untuk tier coloring).
-    if (skipPack) {
+    // Static mode (skipPack=true OR reduced-motion): pack udah robek
+    // di first reveal, atau user mau motion minimal. Instant swap —
+    // no entrance anim, no settle, no light sweep. Cuma set kartu
+    // visible langsung + kick halo pulse (untuk tier coloring).
+    if (skipPack || prefersReducedMotion) {
       gsap.set([topHalfRef.current, bottomHalfRef.current], { opacity: 0 });
       gsap.set(cardFrontRef.current, {
         opacity: 1,
@@ -184,7 +195,8 @@ const KartuBrewek = ({
           haloPulseRef.current = null;
         }
         gsap.set(haloRef.current, { opacity: haloConfig.intensity });
-        if (haloConfig.intensity > 0) {
+        // Pulse loop skip kalau reduced-motion (halo static intensity).
+        if (haloConfig.intensity > 0 && !prefersReducedMotion) {
           const peak = haloConfig.intensity;
           const valley = peak * 0.7;
           haloPulseRef.current = gsap.to(haloRef.current, {
@@ -431,7 +443,7 @@ const KartuBrewek = ({
         haloPulseRef.current = null;
       }
     };
-  }, [pluckedCard, revealDelay, skipPack]);
+  }, [pluckedCard, revealDelay, skipPack, prefersReducedMotion]);
 
   // Reset state saat pluckedCard cleared (midnight transition, dev
   // re-arm). Static — clear instantly tanpa exit animation. Triad

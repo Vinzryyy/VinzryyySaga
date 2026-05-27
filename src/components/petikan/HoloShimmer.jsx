@@ -20,6 +20,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const TILT_RANGE_DEG = 10;
 
@@ -27,24 +28,40 @@ const HoloShimmer = ({ tier = 'muda', children }) => {
   const containerRef = useRef(null);
   const [tilt, setTilt] = useState({ x: 0.5, y: 0.5 });
   const [autoAngle, setAutoAngle] = useState(0);
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   const isLangka = tier === 'langka';
   const isLegenda = tier === 'legenda';
   const hasHolo = isLangka || isLegenda;
 
-  // Auto-rotate angle for legenda — slow loop biar idle card hidup
+  // Auto-rotate angle for legenda — slow loop biar idle card hidup.
+  // Pause saat tab hidden (document.visibilityState) untuk save battery
+  // dan CPU. Skip entirely kalau prefers-reduced-motion.
   useEffect(() => {
-    if (!isLegenda) return undefined;
-    let raf;
-    const start = performance.now();
+    if (!isLegenda || prefersReducedMotion) return undefined;
+    let raf = 0;
+    let lastTime = performance.now();
+    let accumulated = 0;
     const tick = (now) => {
-      const elapsed = (now - start) / 1000;
-      setAutoAngle((elapsed * 30) % 360); // 12s full rotation
+      if (document.visibilityState === 'visible') {
+        const delta = now - lastTime;
+        accumulated += delta;
+        setAutoAngle((accumulated * 0.03) % 360); // 30 deg/sec → 12s rotation
+      }
+      lastTime = now;
       raf = requestAnimationFrame(tick);
     };
+    const onVisibility = () => {
+      // Reset lastTime saat tab balik visible biar gak ada jump besar.
+      lastTime = performance.now();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [isLegenda]);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [isLegenda, prefersReducedMotion]);
 
   const handleMove = (e) => {
     if (!hasHolo || !containerRef.current) return;

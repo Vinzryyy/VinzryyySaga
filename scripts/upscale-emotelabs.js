@@ -22,7 +22,8 @@
  *
  * Settings:
  *   - kernel: lanczos3 (sharp default for cel-shaded chibi)
- *   - quality: 90 (visual ~indistinguishable dari lossless, much smaller)
+ *   - quality: 80 (good balance — visual artifacts minimal di 200-300px
+ *     display, ~30% smaller dari q90. Was 90 sebelum perf audit 2026-05-27.)
  *   - effort: 6 (max libwebp compression effort — sekali run, file
  *     dipakai forever; CPU time saat build OK)
  *
@@ -48,7 +49,7 @@ const MAX_UPSCALE_FACTOR = 4;
 // + lightbox. 800px = 3x density at 266px display, comfy.
 const TARGET_WIDTH = 800;
 const KERNEL = 'lanczos3';
-const QUALITY = 90;
+const QUALITY = 80;
 const EFFORT = 6;
 
 const main = async () => {

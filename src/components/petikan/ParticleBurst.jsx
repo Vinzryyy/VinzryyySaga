@@ -16,6 +16,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const COUNTS = {
   muda: 8,
@@ -45,9 +46,12 @@ const ParticleBurst = ({ tier = 'muda', trigger = 0 }) => {
   const refs = useRef([]);
   const count = COUNTS[tier] || COUNTS.muda;
   const palette = PALETTES[tier] || PALETTES.muda;
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   useEffect(() => {
     if (!trigger) return undefined;
+    // Reduced-motion: skip particle burst entirely.
+    if (prefersReducedMotion) return undefined;
     const tweens = [];
     refs.current.slice(0, count).forEach((el, i) => {
       if (!el) return;
@@ -99,7 +103,7 @@ const ParticleBurst = ({ tier = 'muda', trigger = 0 }) => {
     });
     return () => tweens.forEach((t) => t.kill());
     // count is derived from tier, included for completeness
-  }, [trigger, count]);
+  }, [trigger, count, prefersReducedMotion]);
 
   return (
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-visible">

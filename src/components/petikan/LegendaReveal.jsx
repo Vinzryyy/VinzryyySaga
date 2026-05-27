@@ -24,15 +24,30 @@ import { gsap } from 'gsap';
 import FloatingPetals from '../countdown/FloatingPetals';
 import { playLegendaChime } from './PluckTimeline';
 import { readEnabled, readVolume } from '../../lib/townAudioBus';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const LegendaReveal = () => {
   const auroraRef = useRef(null);
   const uid = useId();
   const gradId = `legenda-aurora-${uid}`;
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   useEffect(() => {
     const el = auroraRef.current;
     if (!el) return undefined;
+
+    // Reduced-motion: static dim overlay, no buildup/pulse/fade animation.
+    // Chime audio tetap fire (auditory cue gak ganggu motion-sensitive users).
+    if (prefersReducedMotion) {
+      gsap.set(el, { opacity: 0.35, scale: 1.0 });
+      const chimeTimer = setTimeout(() => {
+        if (!readEnabled()) return;
+        const vol = readVolume();
+        const mult = Math.max(0.4, vol * 1.8);
+        playLegendaChime(mult);
+      }, 200);
+      return () => clearTimeout(chimeTimer);
+    }
 
     gsap.set(el, { opacity: 0, scale: 0.7 });
     const tl = gsap.timeline();
@@ -71,11 +86,14 @@ const LegendaReveal = () => {
       tl.kill();
       clearTimeout(chimeTimer);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <>
-      <FloatingPetals />
+      {/* Floating petals skip kalau reduced-motion — particles bergerak
+          continuously, ganggu motion-sensitive users. Aurora overlay
+          static masih jalan untuk visual cue tier legenda. */}
+      {!prefersReducedMotion && <FloatingPetals />}
       <div
         ref={auroraRef}
         className="fixed inset-0 pointer-events-none z-[5]"
