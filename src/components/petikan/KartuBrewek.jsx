@@ -80,7 +80,12 @@ const TIER_REVEAL = {
   },
 };
 
-const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
+const KartuBrewek = ({
+  canPluck = false,
+  pluckedCard = null,
+  onPluck,
+  revealDelay = 0,
+}) => {
   const containerRef = useRef(null);
   const topHalfRef = useRef(null);
   const bottomHalfRef = useRef(null);
@@ -91,11 +96,13 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
   // Bumped to trigger ParticleBurst re-animation
   const [particleTrigger, setParticleTrigger] = useState(0);
 
-  // Breathing animation — invitation cue saat pack siap dibuka
+  // Breathing animation — invitation cue saat pack siap dibuka. Hanya
+  // di pack yang tappable (punya onPluck handler). 2nd/3rd pack di
+  // 3-pack triad gak breathing — cuma static pre-reveal.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return undefined;
-    if (pluckedCard || !canPluck) {
+    if (pluckedCard || !canPluck || typeof onPluck !== 'function') {
       if (breatheRef.current) {
         breatheRef.current.kill();
         breatheRef.current = null;
@@ -115,7 +122,7 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
         breatheRef.current = null;
       }
     };
-  }, [canPluck, pluckedCard]);
+  }, [canPluck, pluckedCard, onPluck]);
 
   // Unpack timeline — kicks off saat pluckedCard set
   useEffect(() => {
@@ -138,7 +145,10 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
       opacity: 1,
     });
 
-    const tl = gsap.timeline({ delay: reveal.preDelay });
+    // revealDelay = stagger offset di 3-pack triad (kartu 2 dan 3 nunggu
+    // giliran). Ditambah ke tier-based preDelay, jadi legenda di slot 2
+    // dapet aurora window penuh + stagger nya.
+    const tl = gsap.timeline({ delay: reveal.preDelay + revealDelay });
 
     // Phase 1 — Anticipation (both halves slight scale up)
     tl.to(
@@ -219,7 +229,7 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
     }, reveal.emergeStart + 0.02);
 
     return () => tl.kill();
-  }, [pluckedCard]);
+  }, [pluckedCard, revealDelay]);
 
   // Reset state saat pluckedCard cleared (dev re-arm, midnight transition)
   useEffect(() => {
@@ -241,7 +251,9 @@ const KartuBrewek = ({ canPluck = false, pluckedCard = null, onPluck }) => {
 
   if (!canPluck && !pluckedCard) return null;
 
-  const tappable = canPluck && !pluckedCard;
+  // Tappable hanya kalau caller pass onPluck handler. Di 3-pack triad,
+  // pack 2 dan 3 receive onPluck=undefined → visible tapi gak interactive.
+  const tappable = canPluck && !pluckedCard && typeof onPluck === 'function';
   const handleClick = tappable && typeof onPluck === 'function' ? onPluck : undefined;
   const handleKey = (e) => {
     if (!tappable || typeof onPluck !== 'function') return;

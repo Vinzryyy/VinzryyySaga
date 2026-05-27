@@ -17,7 +17,7 @@ import LegendaReveal from '../components/petikan/LegendaReveal';
 import BukuPetikan from '../components/petikan/BukuPetikan';
 import ShareCardImage from '../components/petikan/ShareCardImage';
 import {
-  applyPluck,
+  applyPlucks,
   canPluckToday,
   getJakartaDate,
   getBuah,
@@ -26,8 +26,15 @@ import {
   saveState,
   spendBuah,
 } from '../lib/petikanStorage';
-import { BATCH_ID, pickCard } from '../data/pohonAprikot';
+import { BATCH_ID, CARDS_PER_PLUCK, pickCards } from '../data/pohonAprikot';
 import { pickProse } from '../data/petikanProse';
+
+// Stagger antar pack di 3-pack triad — pack 2 mulai animate setelah
+// pack 1 selesai (rip 0.5s + emerge 0.6s ≈ 1.1s untuk muda; legenda
+// total ~2.3s). 2.5s buffer kasih breathing room across tiers + biar
+// user proses tiap kartu sebelum next muncul. preDelay tier-specific
+// di KartuBrewek tetap berlaku per-pack.
+const STAGGER_PER_PACK_SEC = 2.5;
 
 const formatCountdown = (ms) => {
   if (ms <= 0) return '00:00:00';
@@ -41,10 +48,11 @@ const formatCountdown = (ms) => {
 const Petikan = () => {
   const [state, setState] = useState(() => loadState());
   const [now, setNow] = useState(() => new Date());
-  // pluckedCard = card yang baru di-petik di session ini. Ephemeral —
-  // reset di reload (intentional, biar moment "petik" terasa langsung).
-  // Full koleksi historis di-render di Buku Petikan (P7).
-  const [pluckedCard, setPluckedCard] = useState(null);
+  // pluckedCards = array of N kartu (CARDS_PER_PLUCK=3) yang baru di-petik
+  // di session ini. Ephemeral — reset di reload (intentional, biar moment
+  // "petik" terasa langsung). Full koleksi historis di-render di Buku
+  // Petikan (P7). Empty array sebelum first pluck di session ini.
+  const [pluckedCards, setPluckedCards] = useState([]);
   const [emptyPool, setEmptyPool] = useState(false);
   // Buah counter — earned via siraman di /26, dipakai untuk extra
   // pluck setelah free daily habis. Refresh on focus biar pickup
@@ -92,7 +100,7 @@ const Petikan = () => {
     if (countdownMs <= 1000 && !canPluck) {
       setState(loadState());
       setBuah(getBuah());
-      setPluckedCard(null);
+      setPluckedCards([]);
       setEmptyPool(false);
     }
   }, [countdownMs, canPluck]);
@@ -100,19 +108,21 @@ const Petikan = () => {
   const handlePluck = useCallback(() => {
     if (!canPluck) return;
     const today = getJakartaDate(now);
-    const card = pickCard(state, today);
-    if (!card) {
+    const cards = pickCards(state, today, CARDS_PER_PLUCK);
+    if (cards.length === 0) {
       // Pool fully empty — surface graceful empty-state, don't burn
       // the daily pluck token (state intact).
       setEmptyPool(true);
       return;
     }
-    // Pick prose line for today's journal entry — frozen at pluck time
-    // (random pick now, not deferred render) supaya entry stays stable
-    // even kalau prose library di-update di future deploy.
-    const prose = pickProse(card.tier);
-    const nextState = applyPluck(state, { ...card, prose }, now);
-    // Free daily first (set lastPluck via applyPluck), else spend buah.
+    // Pick prose per card — frozen at pluck time (random pick now, not
+    // deferred render) supaya entry stays stable even kalau prose library
+    // di-update di future deploy. Tiap kartu dapet prose-nya sendiri.
+    const cardsWithProse = cards.map((c) => ({ ...c, prose: pickProse(c.tier) }));
+    const nextState = applyPlucks(state, cardsWithProse, now);
+    // Free daily first (set lastPluck via applyPlucks), else spend buah.
+    // Cost model: 1 event = 1 free daily ATAU 1 buah, terlepas dari
+    // berapa kartu yang ke-pull dalam event itu.
     // Dev bypass: skip both — preserve lastPluck & buah for testing.
     if (devBypass) {
       saveState({ ...nextState, lastPluck: state.lastPluck });
@@ -130,17 +140,19 @@ const Petikan = () => {
       setState({ ...nextState, lastPluck: state.lastPluck });
       setBuah(getBuah());
     }
-    setPluckedCard(card);
+    setPluckedCards(cardsWithProse);
   }, [canPluck, state, now, devBypass, hasFreeDaily]);
 
   // Re-arm pluck after each reveal in dev mode so user bisa pluck lagi
-  // tanpa reload. Clear pluckedCard setelah 6s biar bisa tap KartuBack
-  // baru.
+  // tanpa reload. Clear pluckedCards setelah window cukup buat 3-pack
+  // reveal selesai + reading time.
   useEffect(() => {
-    if (!devBypass || !pluckedCard) return undefined;
-    const t = setTimeout(() => setPluckedCard(null), 6000);
+    if (!devBypass || pluckedCards.length === 0) return undefined;
+    const revealWindowMs =
+      6000 + STAGGER_PER_PACK_SEC * 1000 * (pluckedCards.length - 1);
+    const t = setTimeout(() => setPluckedCards([]), revealWindowMs);
     return () => clearTimeout(t);
-  }, [devBypass, pluckedCard]);
+  }, [devBypass, pluckedCards]);
 
   return (
     <>
@@ -195,21 +207,61 @@ const Petikan = () => {
             <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
           </div>
 
-          {/* KartuBrewek — primary affordance + reveal orchestrator.
-              Pre-pluck: KartuBack sealed pack dengan breathing animation,
-              tap untuk buka. Post-pluck: in-place flip rotateY 0→180 ke
-              KartuIngatan (book-page front). No tree, langsung pack.
+          {/* 3-pack triad — primary affordance + reveal orchestrator.
+              Pre-pluck: 3 KartuBack sealed packs berdampingan. Hanya
+              pack pertama yang tappable (breathing animation cue). Tap
+              kicks off reveal di semua 3 secara berurutan via stagger.
 
               Legenda tier dapat extra cinematic: LegendaReveal aurora
-              overlay + floating petals + chime audio. Flip di-delay 1.5s
-              biar aurora buildup finish dulu. */}
-          {pluckedCard && pluckedCard.tier === 'legenda' && <LegendaReveal />}
+              overlay + floating petals + chime audio. Trigger kalau
+              ada legenda di slot manapun. */}
+          {pluckedCards.some((c) => c && c.tier === 'legenda') && (
+            <LegendaReveal />
+          )}
           <div className="mb-8 relative z-10">
-            <KartuBrewek
-              canPluck={canPluck}
-              pluckedCard={pluckedCard}
-              onPluck={handlePluck}
-            />
+            {(canPluck || pluckedCards.length > 0) && (
+              <div className="flex justify-center gap-3 sm:gap-5 items-start">
+                {Array.from({ length: CARDS_PER_PLUCK }).map((_, i) => {
+                  // Scale wrapper — KartuBrewek native size 320×480.
+                  // Scale 0.35 mobile / 0.4 tablet+ supaya 3 pack muat
+                  // side-by-side. Outer reserves space sesuai scaled
+                  // dimensions; inner box di-transform tanpa ngubah
+                  // layout flow.
+                  const NATIVE_W = 320;
+                  const NATIVE_H = 480;
+                  const SCALE = 0.36;
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        width: `${NATIVE_W * SCALE}px`,
+                        height: `${NATIVE_H * SCALE}px`,
+                        position: 'relative',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${NATIVE_W}px`,
+                          height: `${NATIVE_H}px`,
+                          transform: `scale(${SCALE})`,
+                          transformOrigin: 'top left',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                        }}
+                      >
+                        <KartuBrewek
+                          canPluck={canPluck}
+                          pluckedCard={pluckedCards[i] || null}
+                          onPluck={i === 0 ? handlePluck : undefined}
+                          revealDelay={i * STAGGER_PER_PACK_SEC}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Buah badge — visible kalau ada buah tersedia, link ke /26
@@ -235,11 +287,11 @@ const Petikan = () => {
                   style={{ fontFamily: '"Fraunces Variable", serif' }}
                 >
                   {hasFreeDaily
-                    ? 'Sebuah kartu menanti.'
+                    ? `${CARDS_PER_PLUCK} kartu menanti.`
                     : `Petik habis hari ini, tapi ${buah} buah dari Pohon Kebaikan siap dipakai.`}
                 </p>
                 <p className="text-xs text-[color:var(--retro-brown-dark)]/60 mt-3">
-                  Tap kartu untuk membukanya.
+                  Tap salah satu pack — semua akan terbuka berurutan.
                 </p>
                 {!hasFreeDaily && buah > 0 && (
                   <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mt-3">
@@ -288,12 +340,20 @@ const Petikan = () => {
 
           {/* Share button — capture off-screen clone via html-to-image
               → Web Share API mobile, download fallback desktop. Render
-              hanya saat ada kartu yang udah ke-reveal. */}
-          {pluckedCard && (
-            <div className="mt-6 flex justify-center">
-              <ShareCardImage card={pluckedCard} />
-            </div>
-          )}
+              hanya saat ada kartu yang udah ke-reveal. Default share
+              the rarest card di batch (urutan tier: legenda > langka
+              > matang > muda) — highlight moment paling spesial. */}
+          {pluckedCards.length > 0 && (() => {
+            const TIER_RANK = { legenda: 4, langka: 3, matang: 2, muda: 1 };
+            const shareCard = [...pluckedCards].sort(
+              (a, b) => (TIER_RANK[b.tier] || 0) - (TIER_RANK[a.tier] || 0)
+            )[0];
+            return (
+              <div className="mt-6 flex justify-center">
+                <ShareCardImage card={shareCard} />
+              </div>
+            );
+          })()}
 
           {/* Buku Petikan — koleksi historis lintas hari. Render setelah
               tree + reveal supaya focus utama tetep di pohon hari ini. */}

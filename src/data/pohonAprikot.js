@@ -461,3 +461,47 @@ export const pickCard = (state, todayJakarta, rng = Math.random, pool = POHON_AP
   }
   return null;
 };
+
+/**
+ * Batch pick — N kartu untuk satu "buka" event. Default 3 (1 tap = 3 kartu).
+ *
+ * Semantics:
+ *   - Setiap kartu di-roll pakai state PRE-event (pity belum advance,
+ *     legenda set belum di-update). Tapi within batch, legenda yang udah
+ *     ke-pick di-track supaya gak duplicate dalam 1 buka (no-dup legenda).
+ *   - Soft batch-dupe avoidance: kalau roll dapet card-id yang udah dipick
+ *     di batch ini, retry sampai 5×. Setelah itu accept dupe (small pool
+ *     edge case — rather than infinite loop).
+ *   - Pool exhausted di-tengah-batch: return array < count (caller handle).
+ *
+ * Returns array of cards (length 0..count).
+ */
+export const pickCards = (
+  state,
+  todayJakarta,
+  count = 3,
+  rng = Math.random,
+  pool = POHON_APRIKOT_POOL
+) => {
+  const cards = [];
+  const batchLegenda = new Set(state.legenda || []);
+  const batchPickedIds = new Set();
+  for (let i = 0; i < count; i++) {
+    const tempState = { ...state, legenda: batchLegenda };
+    let card = pickCard(tempState, todayJakarta, rng, pool);
+    let attempts = 0;
+    while (card && batchPickedIds.has(card.id) && attempts < 5) {
+      card = pickCard(tempState, todayJakarta, rng, pool);
+      attempts += 1;
+    }
+    if (!card) break;
+    cards.push(card);
+    batchPickedIds.add(card.id);
+    if (card.tier === 'legenda') batchLegenda.add(card.id);
+  }
+  return cards;
+};
+
+// Default jumlah kartu per buka event. Single source — UI + tests
+// reference this. Naik dari 1 ke 3 di 2026-05-27.
+export const CARDS_PER_PLUCK = 3;

@@ -11,6 +11,7 @@ import {
   saveState,
   canPluckToday,
   applyPluck,
+  applyPlucks,
   resetState,
   getBuah,
   addBuah,
@@ -131,6 +132,138 @@ describe('applyPluck immutability + legenda dedup', () => {
     // 2026-05-26 23:30 UTC = 2026-05-27 06:30 WIB
     const next = applyPluck(state, card, new Date('2026-05-26T23:30:00Z'));
     expect(next.lastPluck).toBe('2026-05-27');
+  });
+});
+
+describe('applyPlucks batch (3-card pluck event)', () => {
+  const now = new Date('2026-05-26T10:00:00+07:00');
+
+  it('processes 3 cards atomically — buku increments each, lastPluck set once', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 0, legenda: 0 },
+      recent: [],
+    };
+    const cards = [
+      { id: 'a', tier: 'muda' },
+      { id: 'b', tier: 'muda' },
+      { id: 'c', tier: 'muda' },
+    ];
+    const next = applyPlucks(state, cards, now);
+    expect(next.lastPluck).toBe('2026-05-26');
+    expect(next.buku.a.count).toBe(1);
+    expect(next.buku.b.count).toBe(1);
+    expect(next.buku.c.count).toBe(1);
+    expect(next.recent).toHaveLength(3);
+  });
+
+  it('pity advances 1× per event, not per-card', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 5, legenda: 20 },
+      recent: [],
+    };
+    const cards = [
+      { id: 'a', tier: 'muda' },
+      { id: 'b', tier: 'muda' },
+      { id: 'c', tier: 'muda' },
+    ];
+    const next = applyPlucks(state, cards, now);
+    // 1 increment per event, NOT 3
+    expect(next.pity.langka).toBe(6);
+    expect(next.pity.legenda).toBe(21);
+  });
+
+  it('pity langka resets kalau any kartu langka+ ada di batch', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 8, legenda: 30 },
+      recent: [],
+    };
+    const cards = [
+      { id: 'a', tier: 'muda' },
+      { id: 'b', tier: 'langka' },
+      { id: 'c', tier: 'muda' },
+    ];
+    const next = applyPlucks(state, cards, now);
+    expect(next.pity.langka).toBe(0);
+    expect(next.pity.legenda).toBe(31); // langka tidak reset legenda counter
+  });
+
+  it('pity legenda resets kalau ada legenda di batch', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 8, legenda: 40 },
+      recent: [],
+    };
+    const cards = [
+      { id: 'a', tier: 'muda' },
+      { id: 'b', tier: 'muda' },
+      { id: 'c', tier: 'legenda' },
+    ];
+    const next = applyPlucks(state, cards, now);
+    expect(next.pity.langka).toBe(0); // legenda is langka+
+    expect(next.pity.legenda).toBe(0);
+    expect(next.legenda.has('c')).toBe(true);
+  });
+
+  it('recent journal prepends all 3 entries in batch order', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 0, legenda: 0 },
+      recent: [{ cardId: 'prev', tier: 'muda', at: '2026-05-25T10:00:00Z', prose: null }],
+    };
+    const cards = [
+      { id: 'first', tier: 'muda', prose: 'A' },
+      { id: 'second', tier: 'matang', prose: 'B' },
+      { id: 'third', tier: 'langka', prose: 'C' },
+    ];
+    const next = applyPlucks(state, cards, now);
+    expect(next.recent).toHaveLength(4);
+    expect(next.recent[0].cardId).toBe('first');
+    expect(next.recent[1].cardId).toBe('second');
+    expect(next.recent[2].cardId).toBe('third');
+    expect(next.recent[3].cardId).toBe('prev');
+  });
+
+  it('returns input state unchanged kalau cards array kosong', () => {
+    const state = {
+      lastPluck: '2026-05-25',
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 5, legenda: 10 },
+      recent: [],
+    };
+    const next = applyPlucks(state, [], now);
+    expect(next).toBe(state);
+  });
+
+  it('handles batch dupe (same card-id 2× di batch) by incrementing count properly', () => {
+    const state = {
+      lastPluck: null,
+      buku: {},
+      legenda: new Set(),
+      pity: { langka: 0, legenda: 0 },
+      recent: [],
+    };
+    const cards = [
+      { id: 'dupe', tier: 'muda' },
+      { id: 'dupe', tier: 'muda' },
+      { id: 'other', tier: 'muda' },
+    ];
+    const next = applyPlucks(state, cards, now);
+    expect(next.buku.dupe.count).toBe(2);
+    expect(next.buku.other.count).toBe(1);
   });
 });
 

@@ -252,6 +252,64 @@ export const applyPluck = (state, card, now = new Date()) => {
 };
 
 /**
+ * Batch variant — apply N kartu dari satu buka event atomically.
+ *
+ * Semantics berbeda dari applyPluck (single):
+ *   - lastPluck di-set sekali (satu event = satu daily slot consumed)
+ *   - buku increments per card (3 kartu = 3 increment, possibly to same id
+ *     kalau pool kecil ada batch dupe)
+ *   - legenda set absorb semua legenda picks di batch ini
+ *   - pity advance SEKALI per event (bukan per-card). Counter reset kalau
+ *     ada langka+ di batch (langka counter) / legenda (legenda counter).
+ *   - recent journal prepend semua entries dalam batch order (card pertama
+ *     di-pick = recent[0] paling baru)
+ *
+ * Pity 1× per event = balance preservation: PITY_THRESHOLD tetap 50/10
+ * meaningful, gak collapse jadi 17/3 effective day count.
+ */
+export const applyPlucks = (state, cards, now = new Date()) => {
+  if (!cards || cards.length === 0) return state;
+  const today = getJakartaDate(now);
+  const nextBuku = { ...state.buku };
+  const nextLegenda = new Set(state.legenda);
+  let hasLegendaInBatch = false;
+  let hasLangkaPlusInBatch = false;
+  const newEntries = [];
+  for (const card of cards) {
+    const prevEntry = nextBuku[card.id] || { count: 0, firstPluckedAt: null };
+    nextBuku[card.id] = {
+      count: prevEntry.count + 1,
+      firstPluckedAt: prevEntry.firstPluckedAt || today,
+    };
+    if (card.tier === 'legenda') {
+      nextLegenda.add(card.id);
+      hasLegendaInBatch = true;
+      hasLangkaPlusInBatch = true;
+    }
+    if (card.tier === 'langka') hasLangkaPlusInBatch = true;
+    newEntries.push({
+      cardId: card.id,
+      tier: card.tier,
+      at: now.toISOString(),
+      prose: card.prose || null,
+    });
+  }
+  const prevPity = state.pity || { langka: 0, legenda: 0 };
+  const nextPity = {
+    langka: hasLangkaPlusInBatch ? 0 : prevPity.langka + 1,
+    legenda: hasLegendaInBatch ? 0 : prevPity.legenda + 1,
+  };
+  const nextRecent = [...newEntries, ...(state.recent || [])].slice(0, JOURNAL_CAP);
+  return {
+    lastPluck: today,
+    buku: nextBuku,
+    legenda: nextLegenda,
+    pity: nextPity,
+    recent: nextRecent,
+  };
+};
+
+/**
  * Read current buah count (0..BUAH_CAP). Graceful fallback ke 0
  * kalau storage blocked atau value invalid.
  */

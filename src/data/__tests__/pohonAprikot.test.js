@@ -12,9 +12,11 @@ import {
   TIER_CONFIG,
   SEITANSAI_WINDOW,
   PITY_THRESHOLD,
+  CARDS_PER_PLUCK,
   rollTier,
   pickCardFromTier,
   pickCard,
+  pickCards,
   eligibleCards,
 } from '../pohonAprikot';
 
@@ -290,6 +292,59 @@ describe('pickCard wishlist soft-pity bias', () => {
     expect(card.tier).toBe('langka');
     // First langka card in the (filtered) candidates — might be wished
     // or not; we don't assert specifically since order depends on pool.
+  });
+});
+
+describe('pickCards batch (3 cards per pluck event)', () => {
+  it('CARDS_PER_PLUCK default = 3', () => {
+    expect(CARDS_PER_PLUCK).toBe(3);
+  });
+
+  it('returns 3 cards for a typical state', () => {
+    const state = { legenda: new Set(), pity: { langka: 0, legenda: 0 } };
+    const cards = pickCards(state, '2026-05-26', 3, seededRng(7));
+    expect(cards).toHaveLength(3);
+    cards.forEach((c) => expect(c).toHaveProperty('id'));
+  });
+
+  it('no-dup legenda within a single batch', () => {
+    // Force pity legenda → semua 3 roll forced ke legenda. Pool legenda
+    // cuma 1 (Lightstick), jadi card 1 = Lightstick, card 2 & 3 fallback
+    // ke langka (legenda exhausted dalam batch).
+    const state = {
+      legenda: new Set(),
+      pity: { langka: 0, legenda: PITY_THRESHOLD.legenda },
+    };
+    const cards = pickCards(state, '2026-05-26', 3, seededRng(42));
+    expect(cards).toHaveLength(3);
+    const legendaCount = cards.filter((c) => c.tier === 'legenda').length;
+    expect(legendaCount).toBeLessThanOrEqual(1);
+  });
+
+  it('returns smaller array kalau count > available pool size', () => {
+    // Pool tiny — 2 cards total
+    const tinyPool = [
+      { id: 'a', tier: 'muda', title: 'A', caption: 'a' },
+      { id: 'b', tier: 'legenda', title: 'B', caption: 'b' },
+    ];
+    const state = { legenda: new Set(['b']), pity: { langka: 0, legenda: 0 } };
+    const cards = pickCards(state, '2026-05-26', 5, seededRng(1), tinyPool);
+    // Card 'b' di-block (legenda owned). Cuma 'a' available, tapi loop
+    // tetap return multiple kartu 'a' karena no-dup avoidance soft (gak
+    // hard-block). Test cuma assert length <= 5 dan > 0.
+    expect(cards.length).toBeGreaterThan(0);
+    expect(cards.length).toBeLessThanOrEqual(5);
+  });
+
+  it('returns empty array kalau pool fully exhausted', () => {
+    const cards = pickCards(
+      { legenda: new Set(), pity: { langka: 0, legenda: 0 } },
+      '2026-05-26',
+      3,
+      Math.random,
+      []
+    );
+    expect(cards).toHaveLength(0);
   });
 });
 
