@@ -2,163 +2,76 @@
  * BrewekMusic — background track untuk halaman /petikan (Pohon Aprikot).
  *
  * Mount di Petikan.jsx, unmount saat user keluar halaman. Plays BREWEK.mp3
- * — track yang ngiringin proses buka kartu (brewek = TCG-style pack
- * opening). Loop continuous selama user di /petikan.
+ * — track yang ngiringin proses buka kartu. Loop continuous selama
+ * user di /petikan.
  *
- * Pasangan dgn TownMusic (di AppShell): TownMusic udah ngecualikan
- * /petikan (gak startsWith '/armeniacaTown'), jadi nggak ada overlap.
+ * Pakai plain HTMLAudio (bukan Web Audio API + AudioContext) supaya
+ * autoplay restriction lebih lenient — user nggak perlu tap dulu kalau
+ * navigation dari page lain (browser inherit gesture activation).
  *
- * Pakai bus yg sama (townAudioBus) — slider AmbientAudio mengontrol
- * track konsisten. Mute icon global mati = semua track + SFX mati.
- *
- * Pattern mirror PerpustakaanMusic / MenaraJamMusic — autoplay attempt
- * + gesture fallback kalau browser block first play.
+ * Behavior:
+ * - Always-on selama user di /petikan (independen dari townAudioBus —
+ *   slider/mute global gak ngaruh)
+ * - Fixed volume 0.1 (10%)
+ * - Loop continuous
+ * - Auto-play on mount via .play(). Kalau browser block (no gesture),
+ *   fallback gesture listener: first click/keydown/touchstart kebuka.
  */
 
 import { useEffect, useRef } from 'react';
 
 const SRC = '/byUmusic/BREWEK.mp3';
-const FADE_IN_DUR = 1.4;
-const FADE_OUT_DUR = 0.6;
-// BREWEK.mp3 ALWAYS-ON selama user di /petikan. Independen dari
-// townAudioBus enabled/volume (mute icon + slider gak ngaruh). Gain
-// fixed 0.2 — design choice: music background atmosfir buka pack,
-// gak boleh di-mute karena bagian dari experience. Slider/mute global
-// tetep berfungsi untuk track lain di kota.
-const FIXED_GAIN = 0.2;
+const FIXED_VOLUME = 0.1;
 
 const BrewekMusic = () => {
   const audioRef = useRef(null);
-  const ctxRef = useRef(null);
-  const gainRef = useRef(null);
-  const pauseTimerRef = useRef(null);
   const gestureCleanupRef = useRef(null);
-  const mountedRef = useRef(true);
-
-  const ensure = () => {
-    if (ctxRef.current) return true;
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return false;
-    try {
-      const audio = new Audio(SRC);
-      audio.loop = true;
-      audio.preload = 'auto';
-      const ctx = new Ctx();
-      const source = ctx.createMediaElementSource(audio);
-      const gain = ctx.createGain();
-      gain.gain.value = 0;
-      source.connect(gain);
-      gain.connect(ctx.destination);
-      audioRef.current = audio;
-      ctxRef.current = ctx;
-      gainRef.current = gain;
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const armGestureFallback = () => {
-    if (gestureCleanupRef.current) return;
-    const onGesture = () => {
-      const ctx = ctxRef.current;
-      const audio = audioRef.current;
-      if (!ctx || !audio) return;
-      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-      audio.play().catch(() => {});
-      // eslint-disable-next-line no-use-before-define
-      apply();
-      cleanup();
-    };
-    const cleanup = () => {
-      window.removeEventListener('click', onGesture, true);
-      window.removeEventListener('keydown', onGesture, true);
-      window.removeEventListener('touchstart', onGesture, true);
-      window.removeEventListener('pointerdown', onGesture, true);
-      gestureCleanupRef.current = null;
-    };
-    window.addEventListener('click', onGesture, true);
-    window.addEventListener('keydown', onGesture, true);
-    window.addEventListener('touchstart', onGesture, true);
-    window.addEventListener('pointerdown', onGesture, true);
-    gestureCleanupRef.current = cleanup;
-  };
-
-  const apply = () => {
-    const ctx = ctxRef.current;
-    const gain = gainRef.current;
-    const audio = audioRef.current;
-    if (!ctx || !gain || !audio) return;
-
-    const shouldPlay = mountedRef.current;
-    const now = ctx.currentTime;
-
-    if (pauseTimerRef.current) {
-      clearTimeout(pauseTimerRef.current);
-      pauseTimerRef.current = null;
-    }
-
-    if (shouldPlay) {
-      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-      audio.play().catch(() => {
-        armGestureFallback();
-      });
-      gain.gain.cancelScheduledValues(now);
-      gain.gain.setValueAtTime(gain.gain.value, now);
-      gain.gain.linearRampToValueAtTime(FIXED_GAIN, now + FADE_IN_DUR);
-    } else {
-      gain.gain.cancelScheduledValues(now);
-      gain.gain.setValueAtTime(gain.gain.value, now);
-      gain.gain.linearRampToValueAtTime(0, now + FADE_OUT_DUR);
-      pauseTimerRef.current = setTimeout(() => {
-        try {
-          audio.pause();
-        } catch {
-          /* noop */
-        }
-      }, Math.ceil(FADE_OUT_DUR * 1000) + 100);
-    }
-  };
 
   useEffect(() => {
-    mountedRef.current = true;
-    if (ensure()) {
-      apply();
-    }
+    const audio = new Audio(SRC);
+    audio.loop = true;
+    audio.volume = FIXED_VOLUME;
+    audio.preload = 'auto';
+    audioRef.current = audio;
+
+    const armGestureFallback = () => {
+      if (gestureCleanupRef.current) return;
+      const onGesture = () => {
+        audio.play().catch(() => {
+          /* still blocked — give up silently */
+        });
+        cleanup();
+      };
+      const cleanup = () => {
+        window.removeEventListener('click', onGesture, true);
+        window.removeEventListener('keydown', onGesture, true);
+        window.removeEventListener('touchstart', onGesture, true);
+        window.removeEventListener('pointerdown', onGesture, true);
+        gestureCleanupRef.current = null;
+      };
+      window.addEventListener('click', onGesture, true);
+      window.addEventListener('keydown', onGesture, true);
+      window.addEventListener('touchstart', onGesture, true);
+      window.addEventListener('pointerdown', onGesture, true);
+      gestureCleanupRef.current = cleanup;
+    };
+
+    // Attempt immediate playback. Browser autoplay policy: kalau document
+    // udah punya user activation (mis. user navigate dari Home via click),
+    // play() berhasil. Kalau gak, fallback ke gesture listener.
+    audio.play().catch(() => {
+      armGestureFallback();
+    });
 
     return () => {
-      mountedRef.current = false;
-      if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (gestureCleanupRef.current) gestureCleanupRef.current();
-      const ctx = ctxRef.current;
-      const gain = gainRef.current;
-      const audio = audioRef.current;
-      if (ctx && gain && audio) {
-        try {
-          const now = ctx.currentTime;
-          gain.gain.cancelScheduledValues(now);
-          gain.gain.setValueAtTime(gain.gain.value, now);
-          gain.gain.linearRampToValueAtTime(0, now + FADE_OUT_DUR);
-          setTimeout(() => {
-            try {
-              audio.pause();
-              ctx.close();
-            } catch {
-              /* noop */
-            }
-          }, Math.ceil(FADE_OUT_DUR * 1000) + 100);
-        } catch {
-          try {
-            audio.pause();
-            ctx.close();
-          } catch {
-            /* noop */
-          }
-        }
+      try {
+        audio.pause();
+        audio.src = '';
+      } catch {
+        /* noop */
       }
       audioRef.current = null;
-      ctxRef.current = null;
-      gainRef.current = null;
     };
   }, []);
 
