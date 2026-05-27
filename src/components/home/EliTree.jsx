@@ -367,19 +367,33 @@ const todayKey = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-const hasSupportedToday = () => {
+// Max nyiram per device per hari WIB. Was 1, naik ke 5 (2026-05-27)
+// supaya user dapat earn 5 buah/hari dari tree-watering — match quiz
+// generosity (5 soal × 3 = 15 buah). Each tap = +1 dukungan to tree
+// + +1 buah personal.
+const MAX_SUPPORTS_PER_DAY = 5;
+
+const getSupportCountToday = () => {
   try {
-    return localStorage.getItem(LS_KEY(todayKey())) === '1';
+    const raw = localStorage.getItem(LS_KEY(todayKey()));
+    if (!raw) return 0;
+    // Backward compat: legacy '1' string = count of 1 (old binary flag).
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n)) return raw === '1' ? 1 : 0;
+    return Math.max(0, Math.min(MAX_SUPPORTS_PER_DAY, n));
   } catch {
-    return false;
+    return 0;
   }
 };
 
-const markSupportedToday = () => {
+const incrementSupportCount = () => {
   try {
-    localStorage.setItem(LS_KEY(todayKey()), '1');
+    const current = getSupportCountToday();
+    const next = Math.min(MAX_SUPPORTS_PER_DAY, current + 1);
+    localStorage.setItem(LS_KEY(todayKey()), String(next));
+    return next;
   } catch {
-    /* private mode — no-op */
+    return 0;
   }
 };
 
@@ -1983,7 +1997,9 @@ const useCountUp = (target, duration = 700) => {
 
 const EliTree = () => {
   const [count, setCount] = useState(0);
-  const [supportedToday, setSupportedToday] = useState(false);
+  // supportCount = 0..MAX_SUPPORTS_PER_DAY (5). Replace dari binary
+  // supportedToday flag — sekarang user bisa nyiram 5×/hari WIB.
+  const [supportCount, setSupportCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null); // { kind: 'success'|'error', message }
   const [justAdvancedStage, setJustAdvancedStage] = useState(null);
@@ -2000,7 +2016,7 @@ const EliTree = () => {
   const displayCount = useCountUp(count);
 
   useEffect(() => {
-    setSupportedToday(hasSupportedToday());
+    setSupportCount(getSupportCountToday());
     const unsubCount = subscribeToTreeSupports(setCount);
     const unsubWishes = subscribeToWishes(setLiveWishes);
     return () => {
@@ -2053,7 +2069,7 @@ const EliTree = () => {
   const supportsToNext = isMaxStage ? 0 : SUPPORTS_PER_STAGE - intoCurrentStage;
 
   const handleSupport = async () => {
-    if (supportedToday || submitting) return;
+    if (supportCount >= MAX_SUPPORTS_PER_DAY || submitting) return;
     if (!isFirebaseConfigured) {
       setFeedback({
         kind: 'error',
@@ -2068,15 +2084,19 @@ const EliTree = () => {
     const result = await incrementTreeSupports();
     setSubmitting(false);
     if (result.ok) {
-      setSupportedToday(true);
-      markSupportedToday();
+      const newCount = incrementSupportCount();
+      setSupportCount(newCount);
       // Cross-feature link ke Petikan — tiap siraman = 1 buah personal
       // yang bisa di-spend untuk extra Petikan pluck di /petikan.
       // Capped at BUAH_CAP (30) di storage layer.
       const buahAfter = addPetikanBuah(1);
+      const remaining = MAX_SUPPORTS_PER_DAY - newCount;
       setFeedback({
         kind: 'success',
-        message: `Terima kasih! Dukunganmu sudah dikirim. Kamu dapat 🍑 1 buah untuk Petikan (total: ${buahAfter}). Kembali besok untuk menyiram lagi 🌱`,
+        message:
+          remaining > 0
+            ? `Terima kasih! Kamu dapat 🍑 1 buah untuk Petikan (total: ${buahAfter}). Sisa ${remaining} siraman lagi hari ini 🌱`
+            : `Terima kasih! 🍑 ${buahAfter} buah total. Siraman hari ini penuh (${MAX_SUPPORTS_PER_DAY}/${MAX_SUPPORTS_PER_DAY}) — kembali besok 🌱`,
       });
       // Trigger wobble (re-mount via key bump supaya animation restart).
       setWobbleKey((k) => k + 1);
@@ -2253,36 +2273,43 @@ const EliTree = () => {
               />
             </div>
 
-            {/* Action */}
-            <button
-              type="button"
-              onClick={handleSupport}
-              disabled={supportedToday || submitting}
-              className={`mt-6 inline-flex items-center gap-3 px-7 py-3.5 rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-lg ${
-                supportedToday
-                  ? 'bg-[color:var(--retro-brown-dark)]/15 text-[color:var(--color-text-muted)] cursor-default'
-                  : submitting
-                  ? 'bg-[color:var(--retro-burgundy)]/70 text-[color:var(--retro-cream)] cursor-wait'
-                  : 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:-translate-y-0.5 hover:shadow-xl active:scale-95'
-              }`}
-            >
-              {supportedToday ? (
-                <>
-                  <i className="ri-checkbox-circle-line text-lg" />
-                  Sudah menyiram hari ini
-                </>
-              ) : submitting ? (
-                <>
-                  <i className="ri-loader-4-line text-lg animate-spin" />
-                  Mengirim…
-                </>
-              ) : (
-                <>
-                  <i className="ri-water-flash-line text-lg" />
-                  Beri 1 Dukungan
-                </>
-              )}
-            </button>
+            {/* Action — 5 siraman/hari. Label dinamis: kasih tau sisa
+                kesempatan. Disabled saat full. */}
+            {(() => {
+              const isFull = supportCount >= MAX_SUPPORTS_PER_DAY;
+              const remaining = MAX_SUPPORTS_PER_DAY - supportCount;
+              return (
+                <button
+                  type="button"
+                  onClick={handleSupport}
+                  disabled={isFull || submitting}
+                  className={`mt-6 inline-flex items-center gap-3 px-7 py-3.5 rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-lg ${
+                    isFull
+                      ? 'bg-[color:var(--retro-brown-dark)]/15 text-[color:var(--color-text-muted)] cursor-default'
+                      : submitting
+                        ? 'bg-[color:var(--retro-burgundy)]/70 text-[color:var(--retro-cream)] cursor-wait'
+                        : 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:-translate-y-0.5 hover:shadow-xl active:scale-95'
+                  }`}
+                >
+                  {isFull ? (
+                    <>
+                      <i className="ri-checkbox-circle-line text-lg" />
+                      Sudah Penuh ({MAX_SUPPORTS_PER_DAY}/{MAX_SUPPORTS_PER_DAY})
+                    </>
+                  ) : submitting ? (
+                    <>
+                      <i className="ri-loader-4-line text-lg animate-spin" />
+                      Mengirim…
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-water-flash-line text-lg" />
+                      Nyiram Pohon ({remaining}/{MAX_SUPPORTS_PER_DAY})
+                    </>
+                  )}
+                </button>
+              );
+            })()}
 
             {feedback && (
               <p
