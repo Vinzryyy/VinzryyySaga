@@ -512,6 +512,48 @@ const Petikan = () => {
                     </a>
                   </p>
                 )}
+
+                {/* Quick-action button — context-aware:
+                    - pre-pluck + canPluck: "Buka Pack" → handlePluck
+                    - reveal in progress (bukan last): "Kartu Berikutnya" → jumpTo next
+                    - last card / all done + canPluck (extra buah): "Buka Pack Lagi" → handlePluck
+                    - last card / no more tokens: hidden */}
+                {(() => {
+                  const hasActivePluck = pluckedCards.length > 0;
+                  const atLastCard =
+                    hasActivePluck &&
+                    revealIndex >= pluckedCards.length - 1;
+                  // Show "Next Card" saat reveal jalan + bukan last
+                  if (hasActivePluck && !atLastCard) {
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => jumpTo(revealIndex + 1)}
+                        className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[11px] uppercase tracking-[0.25em] font-semibold shadow-md hover:opacity-90 active:scale-95 transition-all"
+                      >
+                        <span>Kartu Berikutnya</span>
+                        <i className="ri-arrow-right-line text-base" />
+                      </button>
+                    );
+                  }
+                  // Show "Buka Pack" saat bisa pluck (pre-pluck atau
+                  // udah revealed semua + masih ada token)
+                  if (canPluck && (!hasActivePluck || atLastCard)) {
+                    return (
+                      <button
+                        type="button"
+                        onClick={handlePluck}
+                        className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-white text-[11px] uppercase tracking-[0.25em] font-semibold shadow-md hover:opacity-90 active:scale-95 transition-all"
+                      >
+                        <i className="ri-magic-line text-base" />
+                        <span>
+                          {atLastCard ? 'Buka Pack Lagi' : 'Buka Pack'}
+                        </span>
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             );
           })()}
