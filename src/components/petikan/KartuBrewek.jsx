@@ -50,18 +50,21 @@ const KartuBrewek = ({
   skipPack = false,
 }) => {
   const containerRef = useRef(null);
+  const innerWrapperRef = useRef(null);
   const flapRef = useRef(null);
   const bodyRef = useRef(null);
   const polaroidRef = useRef(null);
   const haloRef = useRef(null);
   const slashRef = useRef(null);
   const splashRef = useRef(null);
+  const shimmerRef = useRef(null);
   const playedRef = useRef(false);
   const prevCardIdRef = useRef(null);
   const haloPulseRef = useRef(null);
   const breatheRef = useRef(null);
 
   const [cutting, setCutting] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [particleTrigger, setParticleTrigger] = useState(0);
   const polaroidTiltRef = useRef((Math.random() - 0.5) * 5);
 
@@ -108,11 +111,90 @@ const KartuBrewek = ({
   const interactive =
     canPluck && !pluckedCard && typeof onPluck === 'function' && !cutting;
 
+  // 3D mouse-tilt — pack rotates following cursor position relative to
+  // pack bounds. Hover lift + cursor-tracking shimmer overlay. Skip
+  // saat reduced-motion atau gak interactive.
+  const handlePointerMoveTilt = (e) => {
+    if (!interactive || prefersReducedMotion) return;
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const yRatio = (e.clientY - rect.top) / rect.height;
+    if (innerWrapperRef.current) {
+      gsap.to(innerWrapperRef.current, {
+        rotateY: (xRatio - 0.5) * 14, // ±7°
+        rotateX: -(yRatio - 0.5) * 14,
+        duration: 0.25,
+        ease: 'sine.out',
+        overwrite: 'auto',
+      });
+    }
+    if (shimmerRef.current) {
+      gsap.set(shimmerRef.current, {
+        '--shimmer-x': `${xRatio * 100}%`,
+        '--shimmer-y': `${yRatio * 100}%`,
+      });
+    }
+  };
+
+  const handlePointerEnterPack = () => {
+    if (!interactive || prefersReducedMotion) return;
+    setHovered(true);
+  };
+
+  const handlePointerLeavePack = () => {
+    setHovered(false);
+    if (innerWrapperRef.current && !cutting && !pluckedCard) {
+      gsap.to(innerWrapperRef.current, {
+        rotateY: 0,
+        rotateX: 0,
+        scale: 1,
+        duration: 0.4,
+        ease: 'power2.out',
+      });
+    }
+  };
+
+  const handlePressDown = () => {
+    if (!interactive || prefersReducedMotion) return;
+    if (innerWrapperRef.current) {
+      gsap.to(innerWrapperRef.current, {
+        scale: 0.96,
+        duration: 0.12,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    }
+  };
+
+  const handlePressUp = () => {
+    if (cutting || !innerWrapperRef.current) return;
+    gsap.to(innerWrapperRef.current, {
+      scale: 1,
+      duration: 0.28,
+      ease: 'back.out(2.2)',
+      overwrite: 'auto',
+    });
+  };
+
   // Cut animation — slash trail + split apart + onPluck
   const handleTapCut = (e) => {
     if (!interactive) return;
     e?.preventDefault?.();
     setCutting(true);
+    setHovered(false);
+
+    // Reset tilt + scale ke neutral sebelum slash animation jalan
+    if (innerWrapperRef.current) {
+      gsap.to(innerWrapperRef.current, {
+        rotateX: 0,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.15,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      });
+    }
 
     if (prefersReducedMotion) {
       // Reduced motion: skip slash, langsung fade pack out + onPluck
@@ -380,7 +462,18 @@ const KartuBrewek = ({
         />
       )}
 
-      <div className="relative grid" style={{ minHeight: '480px' }}>
+      {/* Inner 3D wrapper — receives mouse-tilt + press-compression
+          transforms. Preserve-3d supaya rotateX/Y stay 3D, gak flat
+          ke 2D rendering. */}
+      <div
+        ref={innerWrapperRef}
+        className="relative grid"
+        style={{
+          minHeight: '480px',
+          transformStyle: 'preserve-3d',
+          willChange: interactive ? 'transform' : 'auto',
+        }}
+      >
         {/* Envelope body — bottom 65% */}
         <div
           ref={bodyRef}
@@ -515,18 +608,51 @@ const KartuBrewek = ({
         </div>
       )}
 
-      {/* Tap-to-cut button — full pack area, large touch target */}
+      {/* Cursor-following shimmer overlay — radial gradient yang nge-track
+          mouse position via CSS variables. Hanya muncul saat hovered untuk
+          gak distract pre-pluck breathing. */}
+      {interactive && !prefersReducedMotion && (
+        <div
+          ref={shimmerRef}
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none rounded-2xl z-25 transition-opacity duration-300"
+          style={{
+            opacity: hovered ? 1 : 0,
+            background:
+              'radial-gradient(circle 120px at var(--shimmer-x, 50%) var(--shimmer-y, 50%), rgba(255, 240, 200, 0.28) 0%, rgba(255, 220, 160, 0.12) 35%, transparent 70%)',
+            mixBlendMode: 'overlay',
+          }}
+        />
+      )}
+
+      {/* Tap-to-cut button — full pack area, large touch target. Plus
+          mouse-tilt + hover lift + press compression handlers untuk
+          interactive idle pack feel. */}
       {interactive && (
         <button
           type="button"
           onClick={handleTapCut}
+          onPointerMove={handlePointerMoveTilt}
+          onPointerEnter={handlePointerEnterPack}
+          onPointerLeave={handlePointerLeavePack}
+          onPointerDown={handlePressDown}
+          onPointerUp={handlePressUp}
+          onPointerCancel={handlePressUp}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
               handleTapCut(e);
             }
           }}
-          className="absolute inset-0 z-20 cursor-pointer rounded-2xl focus:outline-none focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/40"
+          className="absolute inset-0 z-20 cursor-pointer rounded-2xl focus:outline-none focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/40 transition-transform"
+          style={{
+            transform: hovered && !cutting ? 'translateY(-3px)' : 'translateY(0)',
+            filter:
+              hovered && !cutting
+                ? 'drop-shadow(0 10px 22px rgba(61,52,43,0.22))'
+                : 'none',
+            transitionDuration: '220ms',
+          }}
           aria-label="Tap untuk membelah amplop"
         />
       )}
