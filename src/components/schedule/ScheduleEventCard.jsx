@@ -119,7 +119,9 @@ const ScheduleEventCard = ({ entry }) => {
               {entry.end_time ? ` – ${entry.end_time}` : ''}
             </p>
           )}
-          {entry.venue && (
+          {/* Venue ditampilkan untuk M&G/off-site/event; theater show
+              gak perlu (selalu JKT48 Theater, title udah cover setlist). */}
+          {entry.venue && entry.kind !== 'SHOW' && (
             <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
               <i className="ri-map-pin-line mr-1 align-[-2px]" />
               {entry.venue}

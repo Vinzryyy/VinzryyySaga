@@ -529,10 +529,11 @@ const ImminentSurface = ({ event, countdown }) => {
             <p className="text-sm text-[color:var(--retro-brown-dark)]/75 mb-1">
               {formatEventDate(event.date)}
             </p>
-            {event.venue && (
+            {/* Venue ditampilkan untuk M&G/off-site/event; theater show
+                gak perlu (venue + set_list udah implied oleh title). */}
+            {event.venue && event.kind !== 'SHOW' && (
               <p className="text-sm text-[color:var(--retro-brown-dark)]/65 italic">
                 {event.venue}
-                {event.set_list && ` · ${event.set_list}`}
               </p>
             )}
             {event.url && (
@@ -591,10 +592,9 @@ const UpcomingSurface = ({ event, countdown }) => {
             <p className="text-sm text-[color:var(--retro-brown-dark)]/75 mb-1">
               {formatEventDate(event.date)}
             </p>
-            {event.venue && (
+            {event.venue && event.kind !== 'SHOW' && (
               <p className="text-sm text-[color:var(--retro-brown-dark)]/60 italic">
                 {event.venue}
-                {event.set_list && ` · ${event.set_list}`}
               </p>
             )}
           </div>
