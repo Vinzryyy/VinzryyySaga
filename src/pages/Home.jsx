@@ -19,6 +19,7 @@ import { useShowroomLive } from '../hooks/useShowroomLive';
 import { useIdnLive } from '../hooks/useIdnLive';
 import EliStatusHero from '../components/home/EliStatusHero';
 import NewsStrip from '../components/home/NewsStrip';
+import AnnouncementPopup from '../components/home/AnnouncementPopup';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -917,6 +918,11 @@ const HomePage = () => {
           </div>
         </div>
       </Section>
+
+      {/* Pengumuman one-shot — Photo Frame Project. Auto-dismiss
+          persisted di localStorage, kelar dengan satu klik. Mount
+          terakhir biar overlay-nya selalu di atas section lainnya. */}
+      <AnnouncementPopup />
     </main>
   );
 };
