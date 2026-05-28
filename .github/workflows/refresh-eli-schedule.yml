@@ -1,12 +1,13 @@
-name: Refresh Eli Schedule
+name: Refresh Eli Data
 
-# Cron-scrape Eli's confirmed appearances from jkt48.com's public API
-# and commit the resulting JSON back to the repo. Frontend reads
-# /data/eli-schedule.json as a static asset.
+# Cron-scrape Eli's confirmed appearances, profile, active sales, and
+# Eli-mention news from jkt48.com's public API and commit the resulting
+# JSON back to the repo. Frontend reads each /data/*.json as a static
+# asset.
 #
-# The /api/v1/schedules listing + detail endpoints are public — no
-# auth/cookie/token needed. cloudscraper handles Cloudflare's bot
-# challenge.
+# The /api/v1/schedules, /members, /exclusives, and /news endpoints are
+# all public — no auth/cookie/token needed. cloudscraper handles
+# Cloudflare's bot challenge.
 
 on:
   schedule:
@@ -43,12 +44,22 @@ jobs:
 
       - name: Commit if changed
         run: |
-          if git diff --quiet -- public/data/eli-schedule.json; then
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # Stage every JSON the scraper writes — schedule, news (with
+          # Eli-mention flags), profile, and active sales. Each refresh
+          # may touch any subset of these.
+          git add \
+            public/data/eli-schedule.json \
+            public/data/eli-news.json \
+            public/data/eli-member.json \
+            public/data/eli-sales.json
+          if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/data/eli-schedule.json
-          git commit -m "chore(schedule): refresh Eli appearances from jkt48.com [skip ci]"
+          # Compose a commit subject listing which files changed so the
+          # log stays scannable when only one of the four moved.
+          changed=$(git diff --cached --name-only | sed 's|public/data/||;s|\.json$||' | paste -sd ',' -)
+          git commit -m "chore(data): refresh Eli data ($changed) from jkt48.com [skip ci]"
           git push
