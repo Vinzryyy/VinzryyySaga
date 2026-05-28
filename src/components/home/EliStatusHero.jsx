@@ -19,14 +19,15 @@
  * Data sources:
  *   - idnLive / showroomLive props (lifted dari Home — hooks tetep di
  *     parent biar polling gak duplikat)
- *   - /data/eli-schedule.json (auto-refreshed via GH Actions, sama
- *     dengan yang dipakai ScheduleCard)
+ *   - /data/eli-schedule.json (auto-refreshed via GH Actions tiap 6 jam,
+ *     sumber jkt48.com official API; sama dengan yg dipakai /schedule)
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Section from '../layout/Section';
 import IdnLiveStreamPlayer from '../IdnLiveStreamPlayer';
+import ScheduleEventCard from '../schedule/ScheduleEventCard';
 
 const SCHEDULE_URL = '/data/eli-schedule.json';
 const IMMINENT_MS = 24 * 60 * 60 * 1000;
@@ -79,6 +80,19 @@ const formatShortDate = (iso) => {
     hour: '2-digit',
     minute: '2-digit',
     timeZone: 'Asia/Jakarta',
+  }).format(d);
+};
+
+// Refresh timestamp untuk footer attribution — "Update 27 Mei 18:55"
+const formatRefreshed = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(d);
 };
 
@@ -230,13 +244,40 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
     );
   }, [schedule, nowMinute]);
 
+  // "Mendatang Lainnya" list — semua upcoming events, skip yang udah
+  // di-primary-surface (kalau non-live state). Cap di 3 biar tetep
+  // compact; CTA ke /schedule kalau ada lebih.
+  const upcomingOthers = useMemo(() => {
+    const events = schedule?.events || [];
+    const upcoming = events
+      .filter((e) => {
+        const t = new Date(e.date).getTime();
+        if (Number.isNaN(t)) return false;
+        return t >= nowMinute - ONGOING_GRACE_MS;
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Skip primary event hanya kalau primary state pakai event
+    // (imminent/upcoming). Untuk live/idle, tampilin semua upcoming.
+    const usesEventInPrimary = state === 'imminent' || state === 'upcoming';
+    return upcoming.slice(usesEventInPrimary ? 1 : 0, usesEventInPrimary ? 4 : 3);
+  }, [schedule, nowMinute, state]);
+
+  const totalUpcomingCount = useMemo(() => {
+    const events = schedule?.events || [];
+    return events.filter((e) => {
+      const t = new Date(e.date).getTime();
+      if (Number.isNaN(t)) return false;
+      return t >= nowMinute - ONGOING_GRACE_MS;
+    }).length;
+  }, [schedule, nowMinute]);
+
   return (
     <Section id="status-eli" padding="lg">
       <header className="flex items-center justify-center gap-3 mb-5">
         <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
         <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
           <i className={`text-base ${anyLive ? 'ri-broadcast-fill text-red-600' : 'ri-pulse-line'}`} />
-          Status Eli Sekarang
+          Status &amp; Jadwal Eli
         </p>
         <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
       </header>
@@ -264,12 +305,73 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
 
       {state === 'idle' && <IdleSurface />}
 
+      {/* Mendatang Lainnya — list 3 next events selain yang udah di
+          primary. Hidden saat idle (gak ada upcoming) atau saat
+          upcoming events <= 0 setelah skip primary. */}
+      {upcomingOthers.length > 0 && (
+        <div className="mt-8 pt-7 border-t border-[color:var(--retro-brown-dark)]/12">
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+              <i className="ri-calendar-event-line text-base" />
+              {state === 'live' ? 'Show & M&G Mendatang' : 'Mendatang Lainnya'}
+            </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+              {totalUpcomingCount} upcoming
+            </p>
+          </div>
+          <ol className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
+            {upcomingOthers.map((entry, idx) => (
+              <li
+                key={`${entry.code || entry.schedule_id}-${entry.date}-${entry.start_time || idx}`}
+                className="flex-shrink-0 w-[80%] sm:w-auto snap-center"
+              >
+                <ScheduleEventCard entry={entry} />
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       <PlatformStrip
         isIdnLive={isIdnLive}
         isShowroomLive={isShowroomLive}
         idnLiveUrl={idnLive?.liveStream?.url}
         nextShow={nextShow}
       />
+
+      {/* Source attribution + arsip CTA. Sumber + last refresh kalau
+          schedule data udah loaded. */}
+      {schedule && (
+        <div className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-2 flex-wrap">
+            <i className="ri-refresh-line" />
+            Auto-refresh tiap 6 jam · sumber{' '}
+            <a
+              href="https://jkt48.com/schedule"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[color:var(--retro-burgundy)] hover:underline"
+            >
+              jkt48.com (official)
+            </a>
+            {schedule.fetchedAt && (
+              <span className="text-[color:var(--color-text-muted)]/70 normal-case tracking-normal font-bold ml-1">
+                · Update {formatRefreshed(schedule.fetchedAt)}
+              </span>
+            )}
+          </p>
+          {totalUpcomingCount > 0 && (
+            <Link
+              to="/schedule"
+              className="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[color:var(--retro-burgundy)]/20 text-[color:var(--retro-burgundy)] font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
+            >
+              <i className="ri-calendar-line" />
+              Lihat semua jadwal
+              <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
+            </Link>
+          )}
+        </div>
+      )}
     </Section>
   );
 };

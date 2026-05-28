@@ -1,7 +1,7 @@
 /**
  * Schedule Page — full-page view of Eli's confirmed appearances.
  *
- * Source: same /data/eli-schedule.json that ScheduleCard reads on Home.
+ * Source: same /data/eli-schedule.json that EliStatusHero reads on Home.
  * That file is auto-refreshed every 6h via the GitHub Actions workflow
  * (.github/workflows/refresh-eli-schedule.yml → scrape-eli-schedule.py).
  *
