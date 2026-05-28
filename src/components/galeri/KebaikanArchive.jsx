@@ -157,6 +157,25 @@ const KebaikanArchive = () => {
   }, []);
 
   const stats = useMemo(() => getKebaikanStats(KEBAIKAN_ENTRIES), []);
+
+  // Only kategori dgn minimal 1 entry yg ditampilkan sebagai tab.
+  // Klik tab kategori kosong selalu landing ke empty state — bingung
+  // visitor + clutter. "Semua" tetap selalu visible sebagai default.
+  const visibleCategoryTabs = useMemo(
+    () => stats.byCategory.filter((c) => c.count > 0),
+    [stats.byCategory],
+  );
+
+  // Auto-recover kalau filter aktif merujuk kategori yang udah kosong
+  // (mis. semua entry satwa dihapus / belum ada). Tanpa ini, view
+  // stuck di empty state padahal tab-nya udah ilang dari UI.
+  useEffect(() => {
+    if (filter === 'all') return;
+    if (!visibleCategoryTabs.some((c) => c.id === filter)) {
+      setFilter('all');
+    }
+  }, [filter, visibleCategoryTabs]);
+
   const filtered = useMemo(() => {
     const list = filter === 'all'
       ? KEBAIKAN_ENTRIES
@@ -254,11 +273,12 @@ const KebaikanArchive = () => {
           aria-label="Filter kategori kebaikan"
           className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-hide"
         >
-          {[{ id: 'all', label: 'Semua', icon: 'ri-grid-line' }, ...KEBAIKAN_CATEGORIES].map((opt) => {
+          {[
+            { id: 'all', label: 'Semua', icon: 'ri-grid-line', count: stats.totalEntries },
+            ...visibleCategoryTabs,
+          ].map((opt) => {
             const active = filter === opt.id;
-            const count = opt.id === 'all'
-              ? stats.totalEntries
-              : stats.byCategory.find((c) => c.id === opt.id)?.count ?? 0;
+            const count = opt.count;
             return (
               <button
                 key={opt.id}
