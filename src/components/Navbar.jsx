@@ -52,8 +52,19 @@ function Navbar() {
     [location.pathname, location.hash]
   );
 
-  // Inject era items as children of the Archive dropdown
+  // Inject era items as children of the Archive dropdown; also drop
+  // any child whose availableFromIso hasn't been reached yet so the
+  // Photo Frame entry (and any future scheduled entry) stays hidden
+  // until launch. mountTimeMs is captured once via useState init so
+  // navItems stays memoized across re-renders; if the page sits open
+  // across a launch moment, a refresh reveals the entry.
+  const [mountTimeMs] = useState(() => Date.now());
   const navItems = useMemo(() => {
+    const isAvailable = (child) => {
+      if (!child.availableFromIso) return true;
+      const launch = new Date(child.availableFromIso).getTime();
+      return !Number.isFinite(launch) || mountTimeMs >= launch;
+    };
     return SITE_CONFIG.navigation.main.map((item) => {
       if (item.label === "Archive" && Array.isArray(item.children)) {
         return {
@@ -66,12 +77,15 @@ function Navbar() {
               description: `Frame tahun ${era.id}`,
               icon: "ri-calendar-line",
             })),
-          ],
+          ].filter(isAvailable),
         };
+      }
+      if (Array.isArray(item.children)) {
+        return { ...item, children: item.children.filter(isAvailable) };
       }
       return item;
     });
-  }, [eras]);
+  }, [eras, mountTimeMs]);
 
   // Scroll state + progress bar
   useEffect(() => {

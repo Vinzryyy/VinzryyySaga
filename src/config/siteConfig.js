@@ -4,6 +4,17 @@
  * All hardcoded content should be moved here
  */
 
+// Photo Frame Project (Palette.id × Armeniaca) launch gate. Until this
+// moment, the Home card, the navbar entry, and the AnnouncementPopup
+// stay hidden — the campaign teaser drops on H-5 of Eli's seitansai.
+// Bump the date here when planning to launch earlier/later; everything
+// else flows from this single constant.
+const PHOTO_FRAME_AVAILABLE_FROM_ISO = '2026-06-10T00:00:00+07:00';
+
+export const PHOTO_FRAME_CAMPAIGN = {
+  availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
+};
+
 export const SITE_CONFIG = {
   // Branding
   branding: {
@@ -58,6 +69,7 @@ export const SITE_CONFIG = {
             hash: 'photo-frame-popup',
             description: 'Photobox Helisma Day di booth Palette.id',
             icon: 'ri-camera-2-line',
+            availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
           },
           {
             label: 'ArmeniacaTown',
@@ -404,6 +416,7 @@ export const SITE_CONFIG = {
           ctaLabel: 'Lihat infonya',
           icon: 'ri-camera-2-line',
           hash: 'photo-frame-popup',
+          availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
         },
         {
           eyebrow: 'Hitung Mundur',

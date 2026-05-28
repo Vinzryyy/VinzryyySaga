@@ -241,6 +241,15 @@ const HomePage = () => {
   const { featuredImages, images } = useGallery();
   const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
+  // Hide cards whose campaign hasn't reached its availableFromIso yet.
+  // Drives the Photo Frame card's pre-10-June reveal gate; harmless
+  // pass-through for cards without the field.
+  const now = Date.now();
+  const visibleHarmoniCards = harmoniKebaikan.cards.filter((c) => {
+    if (!c.availableFromIso) return true;
+    const launch = new Date(c.availableFromIso).getTime();
+    return !Number.isFinite(launch) || now >= launch;
+  });
   const { open: openLightbox } = useLightbox();
   const showroomLive = useShowroomLive('JKT48_Eli');
   const idnLive = useIdnLive('jkt48_eli');
@@ -602,7 +611,7 @@ const HomePage = () => {
             </div>
 
             <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
-              {harmoniKebaikan.cards.map((card) => {
+              {visibleHarmoniCards.map((card) => {
                 // Cards with hash 'photo-frame-popup' (and any future
                 // popup: prefix) re-open the AnnouncementPopup via a
                 // custom event instead of navigating. Render as button

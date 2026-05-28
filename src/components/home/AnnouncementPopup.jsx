@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { PHOTO_FRAME_CAMPAIGN } from '../../config/siteConfig';
 
 const POPUP_VERSION = 'photo-frame-2026';
 const STORAGE_KEY = `armeniaca-popup-${POPUP_VERSION}`;
@@ -26,6 +27,13 @@ const AnnouncementPopup = () => {
   };
 
   useEffect(() => {
+    // Don't auto-show before the campaign launch date — Home card +
+    // navbar entry are also hidden via the same gate, so visitors
+    // simply won't see the project until then. Manual re-open via
+    // event still works (handled by the listener below) for testing.
+    const launchAt = new Date(PHOTO_FRAME_CAMPAIGN.availableFromIso).getTime();
+    if (Number.isFinite(launchAt) && Date.now() < launchAt) return undefined;
+
     // Skip users who already dismissed this campaign.
     try {
       if (window.localStorage.getItem(STORAGE_KEY) === 'dismissed') return undefined;
