@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-05-02T06:01:15.131681Z",
-  "salesCount": 3,
+  "fetchedAt": "2026-05-28T06:48:25.616086Z",
+  "salesCount": 4,
   "sales": [
     {
       "exclusiveId": 936,
@@ -11,18 +11,18 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-preview-8a69c1.jpg",
       "defaultPrice": 50000,
-      "totalQuota": 50000,
+      "totalQuota": 55000,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-04-02T11:00:00.000Z",
-          "end_date": "2026-05-23T03:00:00.000Z",
+          "end_date": "2026-05-20T16:59:00.000Z",
           "is_ofc_only": true
         },
         {
           "label": "General",
           "start_date": "2026-04-03T11:00:00.000Z",
-          "end_date": "2026-05-23T03:00:00.000Z",
+          "end_date": "2026-05-20T16:59:00.000Z",
           "is_ofc_only": false
         }
       ],
@@ -48,9 +48,66 @@
           "jalur": "Jalur 8",
           "ticketsSold": 250,
           "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 6",
+          "sessionDate": "2026-05-22T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 250,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "exclusiveId": 946,
+      "code": "EX3725",
+      "slug": "ex3725-16052026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "We Are Love, Dream Team, Passion On Fire!",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-thumb-f9f5e7.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-preview-d270de.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": 9450,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-05-06T15:00:00.000Z",
+          "end_date": "2026-05-16T00:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-05-07T15:00:00.000Z",
+          "end_date": "2026-05-16T00:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-05-08T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-05-08T17:00:00.000Z",
+          "jalur": "Jalur 1",
+          "ticketsSold": 35,
+          "remainingQuota": 10
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-05-08T17:00:00.000Z",
+          "jalur": "Jalur 1",
+          "ticketsSold": 20,
+          "remainingQuota": 25
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-05-08T17:00:00.000Z",
+          "jalur": "Jalur 1",
+          "ticketsSold": 41,
+          "remainingQuota": 4
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex3725-16052026"
     },
     {
       "exclusiveId": 944,
@@ -111,18 +168,18 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-thumb-c637b9.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-preview-e420c5.jpg",
       "defaultPrice": 180000,
-      "totalQuota": 6975,
+      "totalQuota": 7500,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-04-01T11:00:00.000Z",
-          "end_date": "2026-05-23T03:00:00.000Z",
+          "end_date": "2026-05-20T16:59:00.000Z",
           "is_ofc_only": true
         },
         {
           "label": "General",
           "start_date": "2026-04-03T11:00:00.000Z",
-          "end_date": "2026-05-23T03:00:00.000Z",
+          "end_date": "2026-05-20T16:59:00.000Z",
           "is_ofc_only": false
         }
       ],
