@@ -39,10 +39,9 @@ const STRIP_LIMIT = 15;
 
 // Fallback artwork when jkt48.com doesn't supply background_image (most
 // "Pengumuman Mengenai..." policy posts come back with image=null).
-// Eli-flagged rows get an Eli portrait so the gold badge has matching
-// context; everything else gets the JKT48 group fallback.
-const FALLBACK_IMAGE_GENERIC = '/jkt48.jpg';
-const FALLBACK_IMAGE_ELI = '/archive/img-009.webp';
+// Single Eli-portrait fallback for every card — keeps the strip on-brand
+// even when the upstream feed gives us nothing to render.
+const FALLBACK_IMAGE = '/archive/img-009.jpg';
 
 const formatDate = (iso) => {
   if (!iso) return '';
@@ -59,8 +58,7 @@ const NewsCard = ({ item }) => {
   const tone = CATEGORY_TONE[item.category] || CATEGORY_TONE.Other;
   const icon = CATEGORY_ICON[item.category] || CATEGORY_ICON.Other;
   const isEli = !!item.mentionsEli;
-  const imgSrc =
-    item.image || (isEli ? FALLBACK_IMAGE_ELI : FALLBACK_IMAGE_GENERIC);
+  const imgSrc = item.image || FALLBACK_IMAGE;
 
   return (
     <a
