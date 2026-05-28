@@ -37,6 +37,13 @@ const CATEGORY_ICON = {
 
 const STRIP_LIMIT = 15;
 
+// Fallback artwork when jkt48.com doesn't supply background_image (most
+// "Pengumuman Mengenai..." policy posts come back with image=null).
+// Eli-flagged rows get an Eli portrait so the gold badge has matching
+// context; everything else gets the JKT48 group fallback.
+const FALLBACK_IMAGE_GENERIC = '/jkt48.jpg';
+const FALLBACK_IMAGE_ELI = '/archive/img-009.webp';
+
 const formatDate = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -52,6 +59,8 @@ const NewsCard = ({ item }) => {
   const tone = CATEGORY_TONE[item.category] || CATEGORY_TONE.Other;
   const icon = CATEGORY_ICON[item.category] || CATEGORY_ICON.Other;
   const isEli = !!item.mentionsEli;
+  const imgSrc =
+    item.image || (isEli ? FALLBACK_IMAGE_ELI : FALLBACK_IMAGE_GENERIC);
 
   return (
     <a
@@ -65,14 +74,12 @@ const NewsCard = ({ item }) => {
       }`}
     >
       <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
-        {item.image && (
-          <img
-            src={item.image}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
+        <img
+          src={imgSrc}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
         <div className="absolute inset-x-0 top-0 p-3 flex items-start justify-between gap-2">
           <span
             className={`inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full ${tone}`}
