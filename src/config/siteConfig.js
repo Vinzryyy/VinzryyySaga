@@ -54,6 +54,12 @@ export const SITE_CONFIG = {
             icon: 'ri-heart-3-line',
           },
           {
+            label: 'Photo Frame Project',
+            hash: 'photo-frame-popup',
+            description: 'Photobox Helisma Day di booth Palette.id',
+            icon: 'ri-camera-2-line',
+          },
+          {
             label: 'ArmeniacaTown',
             hash: 'armeniacaTown',
             description: 'Dunia 3D yang tumbuh dari siraman — gerbang terbuka di 2000 dukungan',
@@ -389,6 +395,15 @@ export const SITE_CONFIG = {
           ctaLabel: 'Lihat arsipnya',
           icon: 'ri-heart-3-line',
           hash: 'galeri-kebaikan',
+        },
+        {
+          eyebrow: 'Pengumuman',
+          label: 'Photo Frame Project',
+          description:
+            'Cetak photobox dengan bingkai khusus Helisma Day di booth Palette.id. 3 lokasi, 15 Juni — 15 Juli 2026.',
+          ctaLabel: 'Lihat infonya',
+          icon: 'ri-camera-2-line',
+          hash: 'photo-frame-popup',
         },
         {
           eyebrow: 'Hitung Mundur',

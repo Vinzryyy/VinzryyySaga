@@ -127,6 +127,15 @@ function Navbar() {
   }, [openDropdown]);
 
   const navigateTo = (hash) => {
+    // Sentinel hash that re-opens the AnnouncementPopup instead of
+    // navigating to a route. Keeps siteConfig data-driven without
+    // wiring a special-case prop through every consumer.
+    if (hash === 'photo-frame-popup') {
+      window.dispatchEvent(new CustomEvent('announcement:open'));
+      setOpen(false);
+      setOpenDropdown(null);
+      return;
+    }
     const href = hashToHref(hash);
     const currentHref = `${location.pathname}${location.hash}`;
     if (href === currentHref) {

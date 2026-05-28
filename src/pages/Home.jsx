@@ -602,45 +602,74 @@ const HomePage = () => {
             </div>
 
             <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
-              {harmoniKebaikan.cards.map((card) => (
-                <Link
-                  key={card.hash}
-                  to={hashToHref(card.hash)}
-                  className="
+              {harmoniKebaikan.cards.map((card) => {
+                // Cards with hash 'photo-frame-popup' (and any future
+                // popup: prefix) re-open the AnnouncementPopup via a
+                // custom event instead of navigating. Render as button
+                // to keep semantics correct.
+                const isPopupTrigger = card.hash === 'photo-frame-popup';
+                const sharedClassName = `
                     group relative flex flex-col gap-4 p-5 md:p-6 rounded-2xl
-                    flex-shrink-0 w-[80%] sm:w-auto snap-center
+                    flex-shrink-0 w-[80%] sm:w-auto snap-center text-left
                     bg-white/70 backdrop-blur-sm
                     border border-[color:var(--retro-burgundy)]/15
                     hover:border-[color:var(--retro-burgundy)]/40
                     hover:bg-white hover:-translate-y-0.5
                     shadow-[0_4px_18px_rgba(61,52,43,0.06)] hover:shadow-[0_12px_32px_rgba(61,52,43,0.10)]
                     transition-all duration-300
-                  "
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="w-11 h-11 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
-                      <i className={`${card.icon} text-xl`} />
-                    </span>
-                    <span className="text-[9px] font-black uppercase tracking-[0.32em] text-[color:var(--color-text-muted)]">
-                      {card.eyebrow}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-header text-xl md:text-2xl font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-2">
-                      {card.label}
-                    </h3>
-                    <p className="text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-relaxed">
-                      {card.description}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-[color:var(--retro-burgundy)]/10">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                      {card.ctaLabel}
-                    </span>
-                    <i className="ri-arrow-right-up-line text-base text-[color:var(--retro-burgundy)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                </Link>
-              ))}
+                  `;
+                const innerContent = (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="w-11 h-11 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
+                        <i className={`${card.icon} text-xl`} />
+                      </span>
+                      <span className="text-[9px] font-black uppercase tracking-[0.32em] text-[color:var(--color-text-muted)]">
+                        {card.eyebrow}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-header text-xl md:text-2xl font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-2">
+                        {card.label}
+                      </h3>
+                      <p className="text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-relaxed">
+                        {card.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t border-[color:var(--retro-burgundy)]/10">
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                        {card.ctaLabel}
+                      </span>
+                      <i className="ri-arrow-right-up-line text-base text-[color:var(--retro-burgundy)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    </div>
+                  </>
+                );
+
+                if (isPopupTrigger) {
+                  return (
+                    <button
+                      key={card.hash}
+                      type="button"
+                      onClick={() =>
+                        window.dispatchEvent(new CustomEvent('announcement:open'))
+                      }
+                      className={sharedClassName}
+                    >
+                      {innerContent}
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={card.hash}
+                    to={hashToHref(card.hash)}
+                    className={sharedClassName}
+                  >
+                    {innerContent}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>

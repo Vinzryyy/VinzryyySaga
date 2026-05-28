@@ -37,6 +37,15 @@ const AnnouncementPopup = () => {
     return () => window.clearTimeout(id);
   }, []);
 
+  // Manual re-open via custom event — fired by the Home Harmoni Kebaikan
+  // card and the Navbar dropdown entry so dismissed users can revisit.
+  // Bypasses the localStorage check on purpose: user is asking for it.
+  useEffect(() => {
+    const onOpen = () => setVisible(true);
+    window.addEventListener('announcement:open', onOpen);
+    return () => window.removeEventListener('announcement:open', onOpen);
+  }, []);
+
   // ESC close + body scroll lock while open.
   useEffect(() => {
     if (!visible) return undefined;
