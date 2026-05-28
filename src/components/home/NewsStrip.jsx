@@ -58,7 +58,11 @@ const NewsCard = ({ item }) => {
   const tone = CATEGORY_TONE[item.category] || CATEGORY_TONE.Other;
   const icon = CATEGORY_ICON[item.category] || CATEGORY_ICON.Other;
   const isEli = !!item.mentionsEli;
-  const imgSrc = item.image || FALLBACK_IMAGE;
+  // Many migrated articles point at jkt48logo.jpg which 404s; treat any
+  // load failure the same as a missing image and swap to the local
+  // fallback so the strip never shows a broken-image placeholder.
+  const [imgFailed, setImgFailed] = useState(false);
+  const imgSrc = !item.image || imgFailed ? FALLBACK_IMAGE : item.image;
 
   return (
     <a
@@ -76,6 +80,7 @@ const NewsCard = ({ item }) => {
           src={imgSrc}
           alt=""
           loading="lazy"
+          onError={() => setImgFailed(true)}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-x-0 top-0 p-3 flex items-start justify-between gap-2">
