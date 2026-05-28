@@ -48,6 +48,12 @@ export const SITE_CONFIG = {
             icon: 'ri-plant-line',
           },
           {
+            label: 'Galeri Kebaikan',
+            hash: 'galeri-kebaikan',
+            description: 'Arsip donasi nyata atas nama Ceu Eli',
+            icon: 'ri-heart-3-line',
+          },
+          {
             label: 'ArmeniacaTown',
             hash: 'armeniacaTown',
             description: 'Dunia 3D yang tumbuh dari siraman — gerbang terbuka di 2000 dukungan',
@@ -374,6 +380,15 @@ export const SITE_CONFIG = {
           ctaLabel: 'Sirami pohonnya',
           icon: 'ri-plant-line',
           hash: '26',
+        },
+        {
+          eyebrow: 'Bukti Nyata',
+          label: 'Galeri Kebaikan',
+          description:
+            'Arsip donasi yang sudah disalurkan atas nama Ceu Eli — lingkungan, satwa, kemanusiaan. Project Helismiley × Armeniaca.',
+          ctaLabel: 'Lihat arsipnya',
+          icon: 'ri-heart-3-line',
+          hash: 'galeri-kebaikan',
         },
         {
           eyebrow: 'Hitung Mundur',
