@@ -29,6 +29,7 @@ import {
 } from '../../lib/petikanStorage';
 import KartuIngatan from './KartuIngatan';
 import BackupRestoreModal from './BackupRestoreModal';
+import FrozenWebp from './FrozenWebp';
 
 // Tier display labels match TIER_CONFIG.label (S/A/B/C). Filter values
 // tetep internal key (legenda/langka/matang/muda) untuk data query.
@@ -98,13 +99,13 @@ const BukuPetikanItem = ({
 
       {isPulled ? (
         <>
-          {/* Image */}
+          {/* Image — frozen by default, animates on hover/focus to keep
+              grid lightweight saat 50+ kartu kepetik. */}
           {card.image && (
-            <img
+            <FrozenWebp
               src={card.image}
               alt={card.title}
-              loading="lazy"
-              className="w-full h-full object-cover"
+              objectFit="cover"
               style={{ filter: 'sepia(0.18) saturate(0.92)' }}
             />
           )}
@@ -304,11 +305,10 @@ const MemoriHariIni = ({ recent, onSelectCard, expanded, onToggleExpand }) => {
                         backgroundColor: 'var(--retro-cream, #faf6ed)',
                       }}
                     >
-                      <img
+                      <FrozenWebp
                         src={card.image}
                         alt=""
-                        loading="lazy"
-                        className={`w-full h-full ${card.artStyle === 'chibi' ? 'object-contain' : 'object-cover'}`}
+                        objectFit={card.artStyle === 'chibi' ? 'contain' : 'cover'}
                         style={{ filter: 'sepia(0.18) saturate(0.92)' }}
                       />
                     </span>
@@ -387,11 +387,10 @@ const RecentPullsRow = ({ recent, onSelectCard }) => {
               title={`${card.title} · ${cfg.label} · ${formatRelative(entry.at)}`}
             >
               {card.image && (
-                <img
+                <FrozenWebp
                   src={card.image}
                   alt=""
-                  loading="lazy"
-                  className={`w-full h-full ${card.artStyle === 'chibi' ? 'object-contain' : 'object-cover'}`}
+                  objectFit={card.artStyle === 'chibi' ? 'contain' : 'cover'}
                   style={{ filter: 'sepia(0.18) saturate(0.92)' }}
                 />
               )}
