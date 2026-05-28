@@ -18,6 +18,7 @@ import Seo from '../components/Seo';
 import { useShowroomLive } from '../hooks/useShowroomLive';
 import { useIdnLive } from '../hooks/useIdnLive';
 import EliStatusHero from '../components/home/EliStatusHero';
+import NewsStrip from '../components/home/NewsStrip';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -556,6 +557,11 @@ const HomePage = () => {
           live (IDN/SHOWROOM) → imminent (≤24h) → upcoming (≤30d) → idle.
           Hooks polling tetep di sini biar gak duplikat dengan social pills. */}
       <EliStatusHero idnLive={idnLive} showroomLive={showroomLive} />
+
+      {/* BERITA JKT48 — hybrid strip: latest /api/v1/news with Eli-mention
+          rows pinned to the front + gold badge. Auto-hides if the scrape
+          hasn't run yet. Data refreshed every 6h via GH Actions. */}
+      <NewsStrip />
 
       {/* HARMONI KEBAIKAN — notice block teasing the three birthday
           sub-pages (#26, Countdown, Wishes) so home visitors see the
