@@ -33,8 +33,10 @@ Run locally:
 """
 
 import json
+import re
 import time
 from datetime import datetime
+from html import unescape
 from pathlib import Path
 
 import cloudscraper
@@ -73,8 +75,29 @@ DETAIL_DELAY_S = 0.4
 OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-schedule.json"
 MEMBER_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-member.json"
 SALES_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-sales.json"
-NEWS_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "jkt48-news.json"
+ELI_NEWS_OUTPUT_PATH = Path(__file__).parent.parent / "public" / "data" / "eli-news.json"
 BASE = "https://jkt48.com"
+
+# How many news entries to pull from the listing endpoint per scrape.
+# JKT48's news template rarely names individual members in the body —
+# only ~1 out of every 50 articles mentions "Helisma" directly. So the
+# strip ships as "JKT48 Resmi" with an Eli highlight badge per row.
+# 50 covers ~5 months of announcements so a fan loading the page sees
+# at least one badged article even during quiet stretches; fits inside
+# the ~60s news-pass budget even with detail fetches.
+NEWS_SCAN_LIMIT = 50
+
+# Eli-name regex used to flag (not filter) news articles. Word boundary
+# on "Helisma" avoids partial matches inside unrelated words; "Helisma
+# Putri" is her unique full name. We deliberately don't match bare
+# "Eli" — too many JKT48 names start with E (Elin, Eliana, Elsa, etc.).
+ELI_NAME_RE = re.compile(r"\bHelisma\b", re.IGNORECASE)
+
+# Strip HTML tags + collapse whitespace for the snippet preview. Cheap
+# regex pass is fine here — jkt48.com content_body is well-formed HTML
+# from a rich-text editor (no <script>/<style> to worry about).
+_HTML_TAG_RE = re.compile(r"<[^>]+>")
+_WS_RE = re.compile(r"\s+")
 
 
 def make_scraper() -> cloudscraper.CloudScraper:
@@ -339,7 +362,7 @@ def main():
     print("[3/3] Fetching member profile + active sales + news...")
     fetch_member(sc)
     fetch_active_sales(sc, slug_by_code)
-    fetch_news(sc)
+    fetch_eli_news(sc)
 
 
 def fetch_member(sc):
@@ -533,47 +556,153 @@ def fetch_active_sales(sc, slug_by_code=None):
     print(f"      wrote {SALES_OUTPUT_PATH} ({len(eli_sales)} active sales)")
 
 
-def fetch_news(sc, limit=10):
-    """Cache the latest JKT48 news headlines for the NewsStrip on Home.
-    The /api/v1/news endpoint returns recent announcements with title,
-    category, slug, and a background image URL — enough to render
-    cards that link back to the canonical jkt48.com/news/{slug} page.
+def _html_to_snippet(html: str, max_chars: int = 220) -> str:
+    """Reduce an HTML body to a plain-text preview snippet.
+
+    jkt48.com `content_body` is rich-text editor output — paragraphs of
+    nested <span> styling. The first paragraph is usually the lede, so
+    grabbing the first ~220 chars of stripped text gives a usable
+    preview without us needing a real parser.
     """
-    url = f"{BASE}/api/v1/news?lang=id&limit={limit}"
+    if not html:
+        return ""
+    text = _HTML_TAG_RE.sub(" ", html)
+    text = unescape(text)
+    text = _WS_RE.sub(" ", text).strip()
+    if len(text) > max_chars:
+        # Trim to last word boundary for a cleaner cut.
+        text = text[:max_chars].rsplit(" ", 1)[0] + "…"
+    return text
+
+
+def _eli_snippet(html: str, max_chars: int = 220) -> str:
+    """Like _html_to_snippet, but anchored around the first 'Helisma'
+    mention so the preview shows WHY the article matched.
+
+    Useful for headlines like "Personal Meet and Greet Festival LDP"
+    where Eli appears 30 paragraphs deep in a cast list — the lede
+    would say nothing about her otherwise.
+    """
+    if not html:
+        return ""
+    text = _HTML_TAG_RE.sub(" ", html)
+    text = unescape(text)
+    text = _WS_RE.sub(" ", text).strip()
+    match = ELI_NAME_RE.search(text)
+    if not match:
+        return text[:max_chars] + ("…" if len(text) > max_chars else "")
+    # Anchor a window ~40 chars before the match to give context.
+    start = max(0, match.start() - 40)
+    end = min(len(text), start + max_chars)
+    snippet = text[start:end]
+    if start > 0:
+        snippet = "…" + snippet.lstrip()
+    if end < len(text):
+        snippet = snippet.rstrip() + "…"
+    return snippet
+
+
+def fetch_eli_news(sc, scan_limit: int = NEWS_SCAN_LIMIT):
+    """Pull the latest JKT48 news with an Eli-mention highlight flag.
+
+    Hybrid feed (not a strict filter): we keep every recent announcement
+    so the Home strip has consistent content, but each article carries
+    a `mentionsEli` boolean so the UI can badge the ones that actually
+    name Helisma Putri. Sparse upstream — only ~1 in 50 mentions her
+    directly — so filtering alone would leave the strip empty.
+
+    The detail endpoint wraps the real payload under `data.result`
+    (different shape from the schedule API — discovered via probe).
+    """
+    url = f"{BASE}/api/v1/news?lang=id&limit={scan_limit}"
     try:
-        r = sc.get(url, timeout=20)
+        r = _get_with_retry(sc, url, label="news listing")
         r.raise_for_status()
         items = r.json().get("data") or []
     except Exception as e:
-        print(f"  [warn] news fetch failed: {e}")
+        print(f"  [warn] eli-news listing failed: {e}")
         return
 
-    payload_items = []
-    for n in items[:limit]:
+    out_items = []
+    eli_hit_count = 0
+    detail_calls = 0
+    for n in items[:scan_limit]:
         slug = n.get("link")
         if not slug:
             continue
-        payload_items.append({
+        title = n.get("title") or ""
+        title_match = bool(ELI_NAME_RE.search(title))
+
+        # Detail fetch gets us both content_body (for body match + snippet)
+        # and the canonical background_image (the listing's version is
+        # sometimes null while the detail has it).
+        body = ""
+        detail_bg = None
+        try:
+            d = _get_with_retry(
+                sc, f"{BASE}/api/v1/news/{slug}", label=f"news {slug[:40]}"
+            )
+            time.sleep(DETAIL_DELAY_S)
+            if d.status_code == 200:
+                detail_calls += 1
+                result = (d.json().get("data") or {}).get("result") or {}
+                body = result.get("content_body") or ""
+                detail_bg = result.get("background_image") or None
+        except Exception as e:
+            print(f"  [warn] news detail {slug[:50]} failed: {e}")
+            # Continue without body — we still want the headline in the feed.
+
+        body_match = bool(ELI_NAME_RE.search(body)) if body else False
+        mentions_eli = title_match or body_match
+        if mentions_eli:
+            eli_hit_count += 1
+
+        out_items.append({
             "id": n.get("news_id"),
-            "title": n.get("title"),
+            "title": title,
             "category": n.get("category"),
             "slug": slug,
             "url": f"{BASE}/news/{slug}",
-            "image": n.get("background_image"),
+            "image": detail_bg or n.get("background_image") or None,
             "publishedAt": n.get("valid_date_from"),
+            "snippet": (
+                _eli_snippet(body) if body_match
+                else _html_to_snippet(body) if body
+                else ""
+            ),
+            "mentionsEli": mentions_eli,
+            "matchedIn": (
+                "title+body" if title_match and body_match
+                else "title" if title_match
+                else "body" if body_match
+                else None
+            ),
         })
 
     payload = {
+        "source": "https://jkt48.com (official public API)",
+        "sourceNote": (
+            "Latest {limit} JKT48 news announcements. Articles that name "
+            "Helisma Putri (Eli, member_id 112) in title or content_body "
+            "carry mentionsEli=true — JKT48's news template rarely names "
+            "individual members, so the strip surfaces general updates "
+            "with Eli highlights badged when she does appear."
+        ).format(limit=scan_limit),
         "fetchedAt": datetime.utcnow().isoformat() + "Z",
-        "count": len(payload_items),
-        "items": payload_items,
+        "scanned": len(out_items),
+        "eliMentionCount": eli_hit_count,
+        "items": out_items,
     }
-    NEWS_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    NEWS_OUTPUT_PATH.write_text(
+    ELI_NEWS_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ELI_NEWS_OUTPUT_PATH.write_text(
         json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    print(f"      wrote {NEWS_OUTPUT_PATH} ({len(payload_items)} news items)")
+    print(
+        f"      wrote {ELI_NEWS_OUTPUT_PATH} "
+        f"({len(out_items)} articles, {eli_hit_count} mention Eli, "
+        f"{detail_calls} detail fetches)"
+    )
 
 
 if __name__ == "__main__":
