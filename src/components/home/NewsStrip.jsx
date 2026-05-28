@@ -46,7 +46,9 @@ const STRIP_LIMIT = 15;
 const FALLBACK_IMAGE_GENERIC = '/jkt48.jpg';
 const FALLBACK_IMAGE_ELI = '/archive/img-009.jpg';
 
-const formatDate = (iso) => {
+// Absolute id-ID date — used as the title tooltip so hovering still
+// reveals the precise publish date.
+const formatDateAbsolute = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
@@ -55,6 +57,29 @@ const formatDate = (iso) => {
     month: 'short',
     year: 'numeric',
   }).format(d);
+};
+
+// Relative time in Bahasa for the news strip — "5 bulan lalu" reads as
+// live feed where "23 Des 2025" reads as archive.
+const formatRelative = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const sec = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
+  if (sec < 45) return 'Baru saja';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min} menit lalu`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} jam lalu`;
+  const day = Math.floor(hr / 24);
+  if (day === 1) return 'Kemarin';
+  if (day < 7) return `${day} hari lalu`;
+  const week = Math.floor(day / 7);
+  if (week < 5) return `${week} minggu lalu`;
+  const month = Math.floor(day / 30);
+  if (month < 12) return `${month} bulan lalu`;
+  const year = Math.floor(day / 365);
+  return year === 1 ? '1 tahun lalu' : `${year} tahun lalu`;
 };
 
 const NewsCard = ({ item }) => {
@@ -104,9 +129,12 @@ const NewsCard = ({ item }) => {
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
       </div>
       <div className="p-4 flex flex-col gap-2">
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1">
-          <i className="ri-calendar-line text-base" />
-          {formatDate(item.publishedAt)}
+        <p
+          title={formatDateAbsolute(item.publishedAt)}
+          className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1"
+        >
+          <i className="ri-time-line text-base" />
+          {formatRelative(item.publishedAt)}
         </p>
         <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-snug line-clamp-2 min-h-[2.4em]">
           {item.title}
@@ -129,37 +157,87 @@ const NewsCard = ({ item }) => {
   );
 };
 
+// Card-shaped placeholder used while the JSON is loading — same
+// dimensions as NewsCard so the strip doesn't reflow when real cards
+// arrive. Animate-pulse on the image + text bars hints "loading".
+const SkeletonCard = () => (
+  <div
+    aria-hidden="true"
+    className="flex-shrink-0 w-[300px] sm:w-[360px] rounded-2xl overflow-hidden bg-white border border-[color:var(--retro-brown-dark)]/10"
+  >
+    <div className="aspect-[16/9] bg-[color:var(--retro-bg-secondary)] animate-pulse" />
+    <div className="p-4 flex flex-col gap-2">
+      <div className="h-3 w-24 rounded bg-[color:var(--retro-bg-secondary)] animate-pulse" />
+      <div className="h-4 w-full rounded bg-[color:var(--retro-bg-secondary)] animate-pulse" />
+      <div className="h-4 w-3/4 rounded bg-[color:var(--retro-bg-secondary)] animate-pulse" />
+      <div className="h-3 w-5/6 rounded bg-[color:var(--retro-bg-secondary)] animate-pulse mt-1" />
+      <div className="h-3 w-28 rounded bg-[color:var(--retro-bg-secondary)] animate-pulse mt-2" />
+    </div>
+  </div>
+);
+
+// Exit card at the tail of the strip — invites users who want more
+// than the 15-card slice to head to the official news index.
+const ViewAllCard = () => (
+  <a
+    href="https://jkt48.com/news"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group flex-shrink-0 w-[200px] sm:w-[220px] rounded-2xl overflow-hidden bg-transparent border-2 border-dashed border-[color:var(--retro-burgundy)]/30 hover:border-[color:var(--retro-burgundy)]/70 hover:bg-[color:var(--retro-burgundy)]/5 transition-colors flex flex-col items-center justify-center gap-3 p-6 snap-start"
+  >
+    <span className="w-12 h-12 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
+      <i className="ri-arrow-right-up-line text-2xl" />
+    </span>
+    <p className="font-header text-lg font-black tracking-tight text-[color:var(--retro-text-primary)] text-center leading-tight">
+      Lihat semua
+      <br />
+      <span className="text-[color:var(--retro-burgundy)]">di jkt48.com</span>
+    </p>
+    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] text-center">
+      Arsip resmi
+    </p>
+  </a>
+);
+
 const NewsStrip = () => {
   const [items, setItems] = useState([]);
   const [eliCount, setEliCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetch('/data/eli-news.json', { cache: 'no-cache' })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (cancelled || !d?.items) return;
-        // Pin Eli-mentioning articles to the front so they're visible
-        // without scrolling. Within each bucket, preserve API order
-        // (most-recent-first from jkt48.com).
-        const sorted = [...d.items].sort((a, b) => {
-          if (!!a.mentionsEli !== !!b.mentionsEli) return a.mentionsEli ? -1 : 1;
-          return 0;
-        });
-        setItems(sorted.slice(0, STRIP_LIMIT));
-        setEliCount(
-          typeof d.eliMentionCount === 'number'
-            ? d.eliMentionCount
-            : d.items.filter((x) => x.mentionsEli).length
-        );
+        if (cancelled) return;
+        if (d?.items) {
+          // Pin Eli-mentioning articles to the front so they're visible
+          // without scrolling. Within each bucket, preserve API order
+          // (most-recent-first from jkt48.com).
+          const sorted = [...d.items].sort((a, b) => {
+            if (!!a.mentionsEli !== !!b.mentionsEli) return a.mentionsEli ? -1 : 1;
+            return 0;
+          });
+          setItems(sorted.slice(0, STRIP_LIMIT));
+          setEliCount(
+            typeof d.eliMentionCount === 'number'
+              ? d.eliMentionCount
+              : d.items.filter((x) => x.mentionsEli).length
+          );
+        }
+        setLoading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  if (items.length === 0) return null;
+  // Auto-hide only after the fetch settled — during the load window we
+  // show skeletons so the page doesn't jump when the JSON arrives.
+  if (!loading && items.length === 0) return null;
 
   return (
     <section
@@ -177,7 +255,12 @@ const NewsStrip = () => {
               Berita JKT48
               <span className="text-[color:var(--retro-burgundy)]"> terbaru.</span>
             </h2>
-            {eliCount > 0 ? (
+            {loading ? (
+              <p className="mt-2 text-xs text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5">
+                <i className="ri-loader-4-line animate-spin" />
+                Memuat rilis terbaru…
+              </p>
+            ) : eliCount > 0 ? (
               <p className="mt-2 text-xs text-[color:var(--color-text-secondary)] inline-flex items-center gap-1.5">
                 <i className="ri-sparkling-2-fill text-[color:var(--retro-gold)]" />
                 {eliCount} artikel menyebut Eli — ditandai di depan
@@ -198,9 +281,10 @@ const NewsStrip = () => {
           className="-mx-1 px-1 flex gap-3 md:gap-4 overflow-x-auto pb-3 scrollbar-hide snap-x snap-proximity"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
-          {items.map((item) => (
-            <NewsCard key={item.id || item.slug} item={item} />
-          ))}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`skeleton-${i}`} />)
+            : items.map((item) => <NewsCard key={item.id || item.slug} item={item} />)}
+          {!loading && items.length > 0 && <ViewAllCard />}
         </div>
       </div>
     </section>
