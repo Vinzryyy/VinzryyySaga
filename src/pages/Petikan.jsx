@@ -32,7 +32,7 @@ import {
   saveState,
   spendBuah,
 } from '../lib/petikanStorage';
-import { BATCH_ID, CARDS_PER_PLUCK, pickCards } from '../data/pohonAprikot';
+import { BATCH_ID, CARDS_PER_PLUCK, pickCards, POHON_APRIKOT_POOL } from '../data/pohonAprikot';
 import { pickProse } from '../data/petikanProse';
 
 // Dev re-arm timer — di dev mode (?dev=1), kartu di-clear automatic
@@ -171,6 +171,43 @@ const Petikan = () => {
   // diabaikan total.
   const devBypass =
     import.meta.env.DEV && searchParams.get('dev') === '1';
+
+  // Screenshot-mode buttons: backup → fill all 51 cards → screenshot →
+  // restore. Backup stored at __armepack_backup key. Only visible saat
+  // devBypass active. State refresh via loadState() — no page reload needed.
+  const BACKUP_KEY = '__armepack_backup';
+  const STATE_KEYS = ['aprikot_buku', 'aprikot_legenda', 'aprikot_pity'];
+  const hasBackup =
+    devBypass && typeof window !== 'undefined' && !!localStorage.getItem(BACKUP_KEY);
+
+  const handleFillCollection = useCallback(() => {
+    const todayWib = getJakartaDate(new Date());
+    const backup = {};
+    for (const k of STATE_KEYS) backup[k] = localStorage.getItem(k);
+    localStorage.setItem(BACKUP_KEY, JSON.stringify(backup));
+    const buku = {};
+    const legendaIds = [];
+    for (const card of POHON_APRIKOT_POOL) {
+      buku[card.id] = { count: 1, firstPluckedAt: todayWib };
+      if (card.tier === 'legenda') legendaIds.push(card.id);
+    }
+    localStorage.setItem('aprikot_buku', JSON.stringify(buku));
+    localStorage.setItem('aprikot_legenda', JSON.stringify(legendaIds));
+    localStorage.setItem('aprikot_pity', JSON.stringify({ langka: 0, legenda: 0 }));
+    setState(loadState());
+  }, []);
+
+  const handleRestoreBackup = useCallback(() => {
+    const raw = localStorage.getItem(BACKUP_KEY);
+    if (!raw) return;
+    const backup = JSON.parse(raw);
+    for (const [k, v] of Object.entries(backup)) {
+      if (v === null) localStorage.removeItem(k);
+      else localStorage.setItem(k, v);
+    }
+    localStorage.removeItem(BACKUP_KEY);
+    setState(loadState());
+  }, []);
 
   // Tick every second untuk countdown ke midnight WIB.
   useEffect(() => {
@@ -455,11 +492,31 @@ const Petikan = () => {
 
           {/* Dev mode banner — visible saat ?dev=1, gated DEV build */}
           {devBypass && (
-            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/30">
-              <i className="ri-flask-line text-[color:var(--retro-burgundy)] text-sm" />
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                Dev mode — pluck unlimited
-              </span>
+            <div className="mb-6 flex flex-col items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)]/15 border border-[color:var(--retro-burgundy)]/30">
+                <i className="ri-flask-line text-[color:var(--retro-burgundy)] text-sm" />
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                  Dev mode — pluck unlimited
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleFillCollection}
+                  disabled={hasBackup}
+                  className="px-3 py-1.5 rounded-md bg-[color:var(--retro-burgundy)] text-white text-[10px] uppercase tracking-[0.2em] font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Fill collection (screenshot)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRestoreBackup}
+                  disabled={!hasBackup}
+                  className="px-3 py-1.5 rounded-md border border-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] text-[10px] uppercase tracking-[0.2em] font-semibold hover:bg-[color:var(--retro-burgundy)]/8 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Restore
+                </button>
+              </div>
             </div>
           )}
 
