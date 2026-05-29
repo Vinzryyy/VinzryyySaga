@@ -176,7 +176,7 @@ export const HELISMA_QUIZ_POOL = [
     id: 'fight-tagline-year',
     question: 'Tahun berapa JKT48 mengumumkan era baru "Fight!"?',
     options: ['2024', '2025', '2026', '2027'],
-    correctIndex: 2,
+    correctIndex: 1,
     category: 'career',
   },
   {
