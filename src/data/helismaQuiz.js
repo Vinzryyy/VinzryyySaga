@@ -355,9 +355,9 @@ export const HELISMA_QUIZ_POOL = [
     category: 'discography',
   },
   {
-    id: 'rapsodi-votes',
-    question: 'Suara Helisma di Sousenkyo Rapsodi (Senbatsu, 2020)?',
-    options: ['~10.000', '~15.000', '~20.000', '~25.000'],
+    id: 'rapsodi-release-year',
+    question: 'Tahun rilis single "Rapsodi" oleh JKT48?',
+    options: ['2019', '2020', '2021', '2022'],
     correctIndex: 1,
     category: 'discography',
   },
