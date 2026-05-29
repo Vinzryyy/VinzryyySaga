@@ -180,7 +180,7 @@ export const PETIKAN_EMOTELABS_CARDS = [
     id: 'arme-copium-news',
     tier: 'matang',
     title: 'Menghirup Harapan',
-    caption: 'Menatap jadwal livestream Helisma yang bentrok dengan tugas kuliah — menarik napas dalam-dalam, berharap semoga ada keajaiban siaran ulang.',
+    caption: 'Kondisi kritis Arme saat mendapati jadwal penting Helisma bentrok dengan kesibukan dunia nyata. Gak ada pilihan lain selain pasrah sambil menghirup asupan harapan dalam-dalam, berharap ada keajaiban siaran ulang.',
     image: EM('Arme_Copium_2026-05-27-07-48-19.webp'),
     era: 'fan-life',
     artStyle: 'chibi',
