@@ -33,6 +33,21 @@ const staggerClass = (visible) =>
     visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
   }`;
 
+// Derive a year per image — prefer explicit `year` field, fall back to
+// parsing the first 4 chars of `date` (YYYY-MM-DD). Returns null when
+// neither is usable so the image is excluded from year buckets.
+const imageYear = (img) => {
+  if (img?.year) {
+    const y = Number(img.year);
+    if (Number.isFinite(y)) return y;
+  }
+  if (img?.date) {
+    const m = String(img.date).match(/^(\d{4})/);
+    if (m) return Number(m[1]);
+  }
+  return null;
+};
+
 // Fisher-Yates on a copy. Used so the archive marquee shows a fresh
 // random slice on every page mount instead of the same fixed sequence.
 const shuffleArray = (arr) => {
@@ -367,25 +382,50 @@ const HomePage = () => {
     [featuredImages]
   );
 
-  // Marquee strip — random 14-frame slice from the broader archive pool,
-  // excluding the bento's first 8 featured frames so they don't duplicate.
-  // Reshuffles per mount, so each refresh surfaces different photos.
-  // Duplicated in JSX for the seamless 50%-translate loop.
-  const marqueeFrames = useMemo(() => {
+  // Year-filter state for the marquee. null = "Semua" (random shuffle of
+  // the full archive); a year value filters the marquee to that year only.
+  // Filter chips render above the marquee; "Semua" preserves the original
+  // serendipity, picking a year repurposes the marquee as a timeline-nav.
+  const [marqueeYear, setMarqueeYear] = useState(null);
+
+  // Marquee candidate pool — broader archive minus the bento's first 8
+  // featured frames so they don't duplicate. Extracted from the marquee
+  // memo below so the year chip strip can render from the same source.
+  const marqueeCandidates = useMemo(() => {
     const featured = featuredImages || [];
     const pool = images && images.length > 0 ? images : featured;
     if (pool.length === 0) return [];
     const bentoIds = new Set(featured.slice(0, 8).map((f) => f.id));
-    const candidates =
-      pool.length > 8 ? pool.filter((img) => !bentoIds.has(img.id)) : pool;
-    return shuffleArray(candidates).slice(0, Math.min(candidates.length, 14));
+    return pool.length > 8 ? pool.filter((img) => !bentoIds.has(img.id)) : pool;
   }, [featuredImages, images]);
+
+  // Years that actually have ≥1 image in the candidate pool — drives the
+  // chip strip. Sorted descending so newest archive era leads.
+  const availableMarqueeYears = useMemo(() => {
+    const set = new Set();
+    marqueeCandidates.forEach((img) => {
+      const y = imageYear(img);
+      if (y) set.add(y);
+    });
+    return Array.from(set).sort((a, b) => b - a);
+  }, [marqueeCandidates]);
+
+  // Marquee strip — random 14-frame slice when "Semua" is active, or all
+  // frames from the picked year (random within the year) when filtered.
+  // Reshuffles each time `marqueeYear` toggles so swapping years feels
+  // intentional, not a cached pre-roll.
+  const marqueeFrames = useMemo(() => {
+    if (marqueeCandidates.length === 0) return [];
+    const filtered = marqueeYear == null
+      ? marqueeCandidates
+      : marqueeCandidates.filter((img) => imageYear(img) === marqueeYear);
+    if (filtered.length === 0) return [];
+    return shuffleArray(filtered).slice(0, Math.min(filtered.length, 14));
+  }, [marqueeCandidates, marqueeYear]);
 
   const featuredMeta = useMemo(() => {
     if (featuredEight.length === 0) return null;
-    const years = featuredEight
-      .map((img) => Number(img.year))
-      .filter((y) => Number.isFinite(y));
+    const years = featuredEight.map(imageYear).filter((y) => y != null);
     if (years.length === 0) return null;
     const minY = Math.min(...years);
     const maxY = Math.max(...years);
@@ -1001,53 +1041,103 @@ const HomePage = () => {
           />
         )}
 
-        {/* Infinite marquee — CSS-only horizontal scroll of additional frames,
-            pauses on hover/focus. Duplicated track gives a seamless loop at
-            translateX(-50%). Edge fades hint that there's more off-screen. */}
-        {marqueeFrames.length > 0 && (
+        {/* Infinite marquee + year-filter chips. Chips are part of the
+            marquee surface (they CONTROL it), not a separate section —
+            keeps the Gallery section count at HighlightReel + Marquee
+            + CTA = 3. "Semua" preserves the original random shuffle;
+            picking a year repurposes the marquee as a timeline-nav. */}
+        {marqueeCandidates.length > 0 && (
           <div className="mt-12 md:mt-16">
             <div className="flex items-baseline justify-between mb-4">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-                Lebih banyak dari arsip
+                {marqueeYear ? `Arsip ${marqueeYear}` : 'Lebih banyak dari arsip'}
               </p>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
-                Hover untuk pause
+                {marqueeYear ? `${marqueeFrames.length} frame` : 'Hover untuk pause'}
               </p>
             </div>
-            <div
-              className="marquee-wrapper relative overflow-hidden"
-              style={{ '--marquee-duration': `${Math.max(30, marqueeFrames.length * 3)}s` }}
-            >
-              {/* Edge fade overlays */}
-              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-[color:var(--retro-bg-secondary)] to-transparent" />
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-[color:var(--retro-bg-secondary)] to-transparent" />
 
-              <div className="marquee-track flex gap-3 md:gap-4 w-max">
-                {[...marqueeFrames, ...marqueeFrames].map((image, i) => (
+            {availableMarqueeYears.length > 1 && (
+              <div className="-mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto mb-5">
+                <div
+                  role="tablist"
+                  aria-label="Filter arsip per tahun"
+                  className="flex gap-2 w-max sm:w-auto sm:flex-wrap"
+                >
                   <button
                     type="button"
-                    key={`${image.id}-${i}`}
-                    onClick={() => openLightbox(marqueeFrames, i % marqueeFrames.length)}
-                    aria-label={`Buka frame: ${image.title || 'Eli JKT48'}`}
-                    className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10 cursor-zoom-in"
-                    aria-hidden={i >= marqueeFrames.length}
-                    tabIndex={i >= marqueeFrames.length ? -1 : 0}
+                    role="tab"
+                    aria-selected={marqueeYear === null}
+                    onClick={() => setMarqueeYear(null)}
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-colors whitespace-nowrap ${
+                      marqueeYear === null
+                        ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md shadow-[color:var(--retro-burgundy)]/20'
+                        : 'bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] border border-[color:var(--retro-burgundy)]/20 hover:bg-[color:var(--retro-burgundy)]/10'
+                    }`}
                   >
-                    <picture>
-                      {image.avifSrcSet && <source srcSet={image.avifSrcSet} type="image/avif" />}
-                      {image.webpSrcSet && <source srcSet={image.webpSrcSet} type="image/webp" />}
-                      <img
-                        src={image.thumbnail || image.url}
-                        alt={image.alt || image.title || 'Eli JKT48'}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
-                      />
-                    </picture>
-                    <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover/tile:bg-[color:var(--retro-brown-dark)]/30 transition-colors" />
+                    Semua
                   </button>
-                ))}
+                  {availableMarqueeYears.map((year) => (
+                    <button
+                      key={year}
+                      type="button"
+                      role="tab"
+                      aria-selected={marqueeYear === year}
+                      onClick={() => setMarqueeYear(year)}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-colors whitespace-nowrap tabular-nums ${
+                        marqueeYear === year
+                          ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md shadow-[color:var(--retro-burgundy)]/20'
+                          : 'bg-[color:var(--retro-cream)] text-[color:var(--retro-burgundy)] border border-[color:var(--retro-burgundy)]/20 hover:bg-[color:var(--retro-burgundy)]/10'
+                      }`}
+                    >
+                      {year}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {marqueeFrames.length > 0 ? (
+              <div
+                key={marqueeYear ?? 'all'}
+                className="marquee-wrapper relative overflow-hidden"
+                style={{ '--marquee-duration': `${Math.max(30, marqueeFrames.length * 3)}s` }}
+              >
+                {/* Edge fade overlays */}
+                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-r from-[color:var(--retro-bg-secondary)] to-transparent" />
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 z-10 bg-gradient-to-l from-[color:var(--retro-bg-secondary)] to-transparent" />
+
+                <div className="marquee-track flex gap-3 md:gap-4 w-max">
+                  {[...marqueeFrames, ...marqueeFrames].map((image, i) => (
+                    <button
+                      type="button"
+                      key={`${image.id}-${i}`}
+                      onClick={() => openLightbox(marqueeFrames, i % marqueeFrames.length)}
+                      aria-label={`Buka frame: ${image.title || 'Eli JKT48'}`}
+                      className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10 cursor-zoom-in"
+                      aria-hidden={i >= marqueeFrames.length}
+                      tabIndex={i >= marqueeFrames.length ? -1 : 0}
+                    >
+                      <picture>
+                        {image.avifSrcSet && <source srcSet={image.avifSrcSet} type="image/avif" />}
+                        {image.webpSrcSet && <source srcSet={image.webpSrcSet} type="image/webp" />}
+                        <img
+                          src={image.thumbnail || image.url}
+                          alt={image.alt || image.title || 'Eli JKT48'}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
+                        />
+                      </picture>
+                      <div className="absolute inset-0 bg-[color:var(--retro-brown-dark)]/0 group-hover/tile:bg-[color:var(--retro-brown-dark)]/30 transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-[color:var(--color-text-muted)] italic py-8 text-center">
+                Belum ada frame untuk tahun ini.
+              </p>
+            )}
           </div>
         )}
 
