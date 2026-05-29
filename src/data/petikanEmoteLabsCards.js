@@ -317,7 +317,7 @@ export const PETIKAN_EMOTELABS_CARDS = [
     id: 'arme-crowbar-helltaker',
     tier: 'muda',
     title: 'Crowbar Acak',
-    caption: 'Niatnya ingin ikut menjaga ketertiban, tapi karena terlalu panik melihat troll, Arme malah salah menekan rentetan emotikon hati sampai memenuhi layar obrolan.',
+    caption: 'Sisi lain Arme yang mendadak aktif saat chatbox terlalu barbar. Sambil memegang linggis dengan tatapan kosong, dia siap meratakan para pengacau demi kedamaian livestream Helisma.',
     image: EM('Arme_Crowbar 1_2026-05-27-07-48-25.webp'),
     era: 'fan-life',
     artStyle: 'chibi',
