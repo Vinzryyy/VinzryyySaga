@@ -255,6 +255,27 @@ const HomePage = () => {
   const showroomLive = useShowroomLive('JKT48_Eli');
   const idnLive = useIdnLive('jkt48_eli');
 
+  // HarmoniKebaikan mobile carousel — track which card is centered in
+  // the snap-x scroll so dot indicators below match visitor position.
+  // Click on a dot scrolls back to its card (UX bonus). No-op on sm+
+  // where the strip becomes a grid (dots are sm:hidden).
+  const harmoniScrollRef = useRef(null);
+  const [harmoniActiveIdx, setHarmoniActiveIdx] = useState(0);
+  useEffect(() => {
+    const el = harmoniScrollRef.current;
+    if (!el) return undefined;
+    const onScroll = () => {
+      const card = el.firstElementChild;
+      if (!card) return;
+      // Card width on mobile = w-[80%] of container + gap-4 (16px)
+      const step = card.offsetWidth + 16;
+      const idx = Math.round(el.scrollLeft / step);
+      setHarmoniActiveIdx(Math.max(0, Math.min(visibleHarmoniCards.length - 1, idx)));
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [visibleHarmoniCards.length]);
+
   // Shared schedule load — EliStatusHero uses the same hook, module-level
   // promise cache dedupes the request. Drives the hero "Berikutnya" chip
   // for the 'upcoming' state (>24h, ≤30d) where EliStatusHero renders null.
@@ -466,7 +487,27 @@ const HomePage = () => {
     return () => window.clearInterval(id);
   }, [heroSlides.length, hero.backgroundIntervalMs]);
 
-  // Preload the next slide so the crossfade starts from a cached image.
+  // Prefetch every hero slide once via requestIdleCallback so subsequent
+  // cycles don't flicker. Browser already loads the first slide eagerly
+  // (it's painted), and the next slide stays preloaded via the second
+  // effect below — this one fills in slides 2..N during idle time so a
+  // visitor who stays for two cycles never sees an uncached crossfade.
+  useEffect(() => {
+    if (heroSlides.length <= 1) return undefined;
+    const idle = window.requestIdleCallback || ((cb) => window.setTimeout(cb, 200));
+    const cancel = window.cancelIdleCallback || window.clearTimeout;
+    const handle = idle(() => {
+      heroSlides.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    });
+    return () => cancel(handle);
+  }, [heroSlides]);
+
+  // Belt-and-braces — explicitly preload the immediate next slide on
+  // every index tick. Redundant after the idle prefetch above resolves,
+  // but covers the gap between mount and idle-callback firing.
   useEffect(() => {
     if (heroSlides.length <= 1) return;
     const next = heroSlides[(slideIndex + 1) % heroSlides.length];
@@ -608,11 +649,22 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Scroll cue */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-[color:var(--retro-cream)]/50">
-          <span className="text-[9px] font-black uppercase tracking-[0.4em]">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-[color:var(--retro-cream)]/50 to-transparent" />
-        </div>
+        {/* Scroll cue — anchors to first numbered spread (01 Data Eli).
+            Hidden when the Berikutnya chip renders so hero doesn't end up
+            with four competing anchor elements (eyebrow + CTAs + chip +
+            cue). Without the chip, this stays as the scroll affordance. */}
+        {!upcomingChipDays && (
+          <a
+            href="#data"
+            aria-label="Lanjut ke Data Eli"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-[color:var(--retro-cream)]/50 hover:text-[color:var(--retro-cream)]/80 transition-colors group"
+          >
+            <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+              Lanjut ke Data Eli
+            </span>
+            <div className="w-px h-8 bg-gradient-to-b from-current to-transparent group-hover:h-10 transition-all" />
+          </a>
+        )}
       </section>
 
       {/* STATUS ELI SEKARANG — unified hero, selalu render. Empat state:
@@ -662,7 +714,10 @@ const HomePage = () => {
               </p>
             </div>
 
-            <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none">
+            <div
+              ref={harmoniScrollRef}
+              className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none"
+            >
               {visibleHarmoniCards.map((card) => {
                 // Cards with hash 'photo-frame-popup' (and any future
                 // popup: prefix) re-open the AnnouncementPopup via a
@@ -732,6 +787,39 @@ const HomePage = () => {
                 );
               })}
             </div>
+
+            {/* Mobile pagination dots — only render when there are
+                multiple cards to scroll between. Active dot extends to
+                a pill width as a clear "you are here" signal. */}
+            {visibleHarmoniCards.length > 1 && (
+              <div className="flex justify-center gap-1.5 mt-5 sm:hidden">
+                {visibleHarmoniCards.map((card, idx) => (
+                  <button
+                    type="button"
+                    key={`dot-${card.hash}`}
+                    onClick={() => {
+                      const el = harmoniScrollRef.current;
+                      if (!el) return;
+                      const target = el.children[idx];
+                      if (target) {
+                        target.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'nearest',
+                          inline: 'center',
+                        });
+                      }
+                    }}
+                    aria-label={`Lihat kartu ${idx + 1} dari ${visibleHarmoniCards.length}`}
+                    aria-current={idx === harmoniActiveIdx ? 'true' : undefined}
+                    className={`h-1.5 rounded-full transition-all ${
+                      idx === harmoniActiveIdx
+                        ? 'w-6 bg-[color:var(--retro-burgundy)]'
+                        : 'w-1.5 bg-[color:var(--retro-burgundy)]/25 hover:bg-[color:var(--retro-burgundy)]/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </Section>
@@ -831,7 +919,14 @@ const HomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
             </div>
             <div className="absolute -bottom-6 -left-6 px-5 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
-              JKT48 Team Dream
+              JKT48 {eli.team}
+            </div>
+            {/* Plate credit — mirrors Data section's magazine signature.
+                mt-12 clears the Team pill which overlaps -bottom-6. */}
+            <div className="mt-12 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
+              <span>Plate 02</span>
+              <span>{eli.stageName} — Profil</span>
+              <span>{new Date().getFullYear()}</span>
             </div>
           </div>
 
@@ -971,6 +1066,18 @@ const HomePage = () => {
 
       {/* COMMUNITY — Helismiley as a 2-col platform card (header left, link list right) */}
       <Section id="community" padding="lg">
+        {/* Palette bridge — cream→dark transition was abrupt without
+            this. Centered burgundy ornament + thin rules previews the
+            colour shift so the dark card below feels editorial, not
+            jarring. */}
+        <div className="flex items-center justify-center gap-4 mb-10">
+          <span className="flex-1 h-px bg-gradient-to-r from-transparent via-[color:var(--retro-brown-dark)]/20 to-[color:var(--retro-brown-dark)]/30" />
+          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)]">
+            <i className="ri-flower-line text-base text-[color:var(--retro-gold)]" />
+            Komunitas
+          </span>
+          <span className="flex-1 h-px bg-gradient-to-l from-transparent via-[color:var(--retro-brown-dark)]/20 to-[color:var(--retro-brown-dark)]/30" />
+        </div>
         <div className="relative overflow-hidden rounded-[2rem] bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]">
           <div className="absolute -top-24 -right-24 w-[360px] h-[360px] rounded-full bg-[color:var(--retro-burgundy)]/40 blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-[320px] h-[320px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
