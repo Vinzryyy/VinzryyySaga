@@ -767,6 +767,21 @@ export const SITE_CONFIG = {
       'Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli — dari Generasi 7 hingga era Team Dream JKT48 Fight 2026.',
     creditPrefix: 'Dibuat dengan',
     creditSuffix: 'untuk Eli JKT48',
+    // Legal/transparency line — important for an unofficial fan
+    // archive. Surfaced beside the copyright to make affiliation clear.
+    disclaimer:
+      'Arsip penggemar independen. Tidak berafiliasi resmi dengan JKT48 Operation Team.',
+    // Editorial label for the footer eyebrow (replaces hardcoded
+    // "Est. 2024"). Mirrors the rotated side caption in the hero.
+    eyebrow: 'Mermaid Archive',
+    // Data + collaboration credits — one row of attributed sources
+    // replaces the generic "Crafted with ♥" credit so visitors can
+    // trace what feeds the site.
+    sources: [
+      { label: 'jkt48.com', url: 'https://jkt48.com', note: 'Schedule & news' },
+      { label: '@armeniaca15', url: 'https://x.com/armeniaca15', note: 'Frame archive' },
+      { label: '@helismiley_', url: 'https://x.com/helismiley_', note: 'Komunitas Eli' },
+    ],
   },
 };
 
