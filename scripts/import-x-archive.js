@@ -77,18 +77,28 @@ const downloadBuffer = (url, hops = 0) =>
       .on('error', reject);
   });
 
-// Stable basename derived from the twimg media key so re-runs are
-// idempotent. Example URL:
-//   https://pbs.twimg.com/media/GHmSHjFaEAA28L0?format=jpg&name=large
-// → media key `GHmSHjFaEAA28L0` → basename `x-GHmSHjFaEAA28L0`.
-const mediaKeyFromUrl = (url) => {
+// Classify source URL into one of two types so the importer can also
+// register manually-added local files (e.g. drops from non-X sources)
+// without trying to download them from twimg.
+//
+//   - 'twimg': pbs.twimg.com URLs from the X archive scrape.
+//     Basename = `x-MEDIAKEY`.
+//   - 'local': already-on-disk files at `/archive/x/img-NNN.jpg`.
+//     Basename = `img-NNN` (no `x-` prefix; matches the existing filename).
+//
+// `baseName` is the full file stem used for jpg/webp/avif siblings.
+const classifyUrl = (url) => {
+  if (!url) return { type: 'invalid' };
+  const localMatch = url.match(/^\/archive\/x\/(img-[0-9A-Za-z_-]+)\.(?:jpg|jpeg|png|webp)$/i);
+  if (localMatch) return { type: 'local', baseName: localMatch[1] };
   try {
     const u = new URL(url);
     const m = u.pathname.match(/\/media\/([A-Za-z0-9_-]+)/);
-    return m ? m[1] : null;
+    if (m) return { type: 'twimg', baseName: `x-${m[1]}` };
   } catch {
-    return null;
+    // fall through to invalid
   }
+  return { type: 'invalid' };
 };
 
 const monthNames = [
@@ -107,8 +117,8 @@ const normalizeEntry = (entry) => {
   };
 };
 
-const processEntry = async (entry, mediaKey) => {
-  const baseName = `x-${mediaKey}`;
+const processEntry = async (entry, info) => {
+  const baseName = info.baseName;
   const jpgPath = path.join(OUT_DIR, `${baseName}.jpg`);
   const webpPath = path.join(OUT_DIR, `${baseName}.webp`);
   const avifPath = path.join(OUT_DIR, `${baseName}.avif`);
@@ -129,7 +139,16 @@ const processEntry = async (entry, mediaKey) => {
     return { baseName, dims, status: 'skipped' };
   }
 
-  const buf = await downloadBuffer(entry.url);
+  // Source buffer: for local entries we read the existing jpg from disk
+  // (no twimg URL to download from). The jpg MUST exist for local entries
+  // — that's the contract of registering a manual archive entry.
+  let buf;
+  if (info.type === 'local') {
+    if (!hasJpg) throw new Error(`Local entry missing source jpg: ${jpgPath}`);
+    buf = await readFile(jpgPath);
+  } else {
+    buf = await downloadBuffer(entry.url);
+  }
   const meta = await sharp(buf).metadata();
   const willResize = meta.width > MAX_WIDTH;
   dims = willResize
@@ -198,12 +217,12 @@ const main = async () => {
 
   const queue = entries.map((entry) => ({
     entry,
-    mediaKey: mediaKeyFromUrl(entry.url),
+    info: classifyUrl(entry.url),
   }));
 
-  // Drop entries whose URL doesn't match the twimg media pattern (rare —
-  // usually only happens with hand-edited rows).
-  const valid = queue.filter((q) => q.mediaKey);
+  // Drop entries whose URL doesn't match a known pattern (twimg media or
+  // local /archive/x/img-NNN.jpg). Rare — usually only hand-edited rows.
+  const valid = queue.filter((q) => q.info.type !== 'invalid');
   const dropped = queue.length - valid.length;
   if (dropped) console.log(`Skipping ${dropped} entries with unrecognised URLs`);
 
@@ -215,9 +234,9 @@ const main = async () => {
 
   const worker = async (q) => {
     while (q.length) {
-      const { entry, mediaKey } = q.shift();
+      const { entry, info } = q.shift();
       try {
-        const result = await processEntry(entry, mediaKey);
+        const result = await processEntry(entry, info);
         results.push({
           id: entry.id,
           url: `/archive/x/${result.baseName}.jpg`,
