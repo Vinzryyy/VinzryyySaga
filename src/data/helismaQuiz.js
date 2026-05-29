@@ -344,7 +344,7 @@ export const HELISMA_QUIZ_POOL = [
     id: 'first-senbatsu-year',
     question: 'Helisma pertama kali masuk Senbatsu di tahun?',
     options: ['2019', '2020', '2021', '2022'],
-    correctIndex: 1,
+    correctIndex: 0,
     category: 'discography',
   },
   {
