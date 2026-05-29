@@ -17,6 +17,7 @@ import { hashToHref } from '../utils/routes';
 import Seo from '../components/Seo';
 import { useShowroomLive } from '../hooks/useShowroomLive';
 import { useIdnLive } from '../hooks/useIdnLive';
+import { useEliSchedule, deriveLiveState } from '../hooks/useEliSchedule';
 import EliStatusHero from '../components/home/EliStatusHero';
 import NewsStrip from '../components/home/NewsStrip';
 import AnnouncementPopup from '../components/home/AnnouncementPopup';
@@ -130,7 +131,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
         </p>
       </div>
 
-      <div className="relative min-h-[720px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px]">
+      <div className="relative min-h-[560px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px]">
         {/* Floating frames — one absolute layer per highlight, only the
             active one is opaque. pointer-events-none so they don't trap
             taps/hovers on the title list underneath. */}
@@ -173,7 +174,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
         {/* Title list — relative + z-10 so it sits above the floating
             frames and stays the click/hover target. */}
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-[720px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px] py-8 md:py-12">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-[560px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px] py-8 md:py-12">
           <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4 md:mb-6">
             {title}
           </p>
@@ -253,6 +254,30 @@ const HomePage = () => {
   const { open: openLightbox } = useLightbox();
   const showroomLive = useShowroomLive('JKT48_Eli');
   const idnLive = useIdnLive('jkt48_eli');
+
+  // Shared schedule load — EliStatusHero uses the same hook, module-level
+  // promise cache dedupes the request. Drives the hero "Berikutnya" chip
+  // for the 'upcoming' state (>24h, ≤30d) where EliStatusHero renders null.
+  const eliSchedule = useEliSchedule();
+  const eliStatus = useMemo(
+    () => deriveLiveState({
+      schedule: eliSchedule,
+      idnLive,
+      showroomLive,
+      now: Date.now(),
+    }),
+    [eliSchedule, idnLive, showroomLive],
+  );
+  const upcomingChipDays = useMemo(() => {
+    if (eliStatus.state !== 'upcoming' || !eliStatus.nextEvent) return null;
+    const eventDate = new Date(eliStatus.nextEvent.date);
+    const today = new Date();
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((eventDate - today) / (24 * 60 * 60 * 1000));
+    if (diffDays <= 1) return 'Besok';
+    return `${diffDays} hari lagi`;
+  }, [eliStatus.state, eliStatus.nextEvent]);
 
   const profileFacts = useMemo(
     () => [
@@ -553,6 +578,33 @@ const HomePage = () => {
                 {hero.secondaryCta.label}
               </Link>
             </div>
+
+            {/* Berikutnya chip — only renders for 'upcoming' state
+                (>24h, ≤30d). Live/imminent get the full EliStatusHero
+                section below; idle has nothing actionable. */}
+            {upcomingChipDays && eliStatus.nextEvent && (
+              <div
+                style={{ transitionDelay: '800ms' }}
+                className={`mt-5 transition-all duration-1000 ease-out ${
+                  heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                }`}
+              >
+                <Link
+                  to="/schedule"
+                  title={eliStatus.nextEvent.title || 'Event Eli berikutnya'}
+                  className="group inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md border border-[color:var(--retro-cream)]/20 hover:bg-[color:var(--retro-cream)]/15 hover:border-[color:var(--retro-cream)]/35 transition-all"
+                >
+                  <i className="ri-calendar-event-line text-[color:var(--retro-gold-light)] text-sm" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
+                    Berikutnya
+                  </span>
+                  <span className="text-[11px] font-bold text-[color:var(--retro-cream)] tracking-wide">
+                    {upcomingChipDays}
+                  </span>
+                  <i className="ri-arrow-right-line text-[color:var(--retro-cream)]/55 text-xs group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
@@ -716,9 +768,12 @@ const HomePage = () => {
 
           {/* Editorial fact list */}
           <div className="lg:col-span-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
-              {data.eyebrow}
-            </p>
+            <div className="flex items-baseline gap-3 mb-4">
+              <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">01</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                /  {data.eyebrow}
+              </span>
+            </div>
             <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
               {data.title}
             </h2>
@@ -782,8 +837,11 @@ const HomePage = () => {
 
           {/* Text + inline header */}
           <div className="order-1 lg:order-2">
-            <div className="flex items-center gap-3 mb-4 text-[color:var(--retro-burgundy)]">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">{about.eyebrow}</span>
+            <div className="flex items-baseline gap-3 mb-4">
+              <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">02</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                /  {about.eyebrow}
+              </span>
               <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
             </div>
             <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-text-primary)] mb-8">
@@ -919,9 +977,12 @@ const HomePage = () => {
 
           <div className="relative grid lg:grid-cols-5 gap-10 lg:gap-12 p-8 md:p-12 lg:p-16">
             <div className="lg:col-span-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-4">
-                {community.eyebrow}
-              </p>
+              <div className="flex items-baseline gap-3 mb-4">
+                <span className="font-header text-3xl font-black text-[color:var(--retro-gold-light)]">04</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/60">
+                  /  {community.eyebrow}
+                </span>
+              </div>
               <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter">
                 {community.title}
               </h2>

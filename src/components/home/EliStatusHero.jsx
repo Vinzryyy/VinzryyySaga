@@ -28,13 +28,11 @@ import { Link } from 'react-router-dom';
 import Section from '../layout/Section';
 import IdnLiveStreamPlayer from '../IdnLiveStreamPlayer';
 import ScheduleEventCard from '../schedule/ScheduleEventCard';
-
-const SCHEDULE_URL = '/data/eli-schedule.json';
-const IMMINENT_MS = 24 * 60 * 60 * 1000;
-const UPCOMING_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
-// Event yang udah dimulai dalam 2 jam terakhir masih dianggap "next"
-// (mungkin masih ongoing — show ~2h durasi).
-const ONGOING_GRACE_MS = 2 * 60 * 60 * 1000;
+import {
+  useEliSchedule,
+  deriveLiveState,
+  ONGOING_GRACE_MS,
+} from '../../hooks/useEliSchedule';
 
 const KIND_LABEL = {
   SHOW: 'Theater',
@@ -189,46 +187,19 @@ const PlatformDot = ({ live, label, sub, href }) => {
 };
 
 const EliStatusHero = ({ idnLive, showroomLive }) => {
-  const [schedule, setSchedule] = useState(null);
+  const schedule = useEliSchedule();
   const now = useTicker(1000);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch(SCHEDULE_URL, { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .then((data) => { if (!cancelled) setSchedule(data); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  // Re-pick nextEvent setiap menit — event window can pass during a
-  // long session. Avoid 1s recompute (wasteful).
+  // Re-pick state setiap menit — event window can pass during a long
+  // session. Avoid 1s recompute (wasteful). Countdown display uses
+  // the 1s `now` so HH:MM:SS still ticks smoothly within imminent state.
   const nowMinute = Math.floor(now / 60000) * 60000;
-  const nextEvent = useMemo(() => {
-    const events = schedule?.events || [];
-    return (
-      events
-        .filter((e) => {
-          const t = new Date(e.date).getTime();
-          if (Number.isNaN(t)) return false;
-          return t >= nowMinute - ONGOING_GRACE_MS;
-        })
-        .sort((a, b) => new Date(a.date) - new Date(b.date))[0] || null
-    );
-  }, [schedule, nowMinute]);
-
-  const isIdnLive = !!idnLive?.isLive;
-  const isShowroomLive = !!showroomLive?.isLive;
+  const { state, nextEvent, isIdnLive, isShowroomLive } = useMemo(
+    () => deriveLiveState({ schedule, idnLive, showroomLive, now: nowMinute }),
+    [schedule, idnLive, showroomLive, nowMinute],
+  );
   const anyLive = isIdnLive || isShowroomLive;
-
-  const diffToNext = nextEvent
-    ? new Date(nextEvent.date).getTime() - now
-    : null;
-
-  let state = 'idle';
-  if (anyLive) state = 'live';
-  else if (diffToNext != null && diffToNext <= IMMINENT_MS) state = 'imminent';
-  else if (diffToNext != null && diffToNext <= UPCOMING_WINDOW_MS) state = 'upcoming';
+  const diffToNext = nextEvent ? new Date(nextEvent.date).getTime() - now : null;
 
   // Bottom platform strip — always shown. Theater = next SHOW event.
   const nextShow = useMemo(() => {
@@ -270,6 +241,11 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
       return t >= nowMinute - ONGOING_GRACE_MS;
     }).length;
   }, [schedule, nowMinute]);
+
+  // Skip rendering for non-urgent states — 'upcoming' (>24h) folds into a
+  // compact chip in Home hero, 'idle' has nothing actionable to show.
+  // Only 'live' and 'imminent' (≤24h) earn the full status section.
+  if (state === 'upcoming' || state === 'idle') return null;
 
   return (
     <Section id="status-eli" padding="lg">
