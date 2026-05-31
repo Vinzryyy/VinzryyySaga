@@ -31,8 +31,11 @@ const WISHES_PATH = 'wishes';
 // them without pulling full wish bodies. Schema: /wish_hearts/{id} = N.
 const HEARTS_PATH = 'wish_hearts';
 // Cap on how many wishes the wall renders. RTDB's limitToLast keeps the
-// query cheap regardless of total volume.
-const WISHES_PAGE_SIZE = 100;
+// query cheap regardless of total volume. 500 covers expected 2026
+// seitansai volume comfortably; accurate total still flows through
+// subscribeToWishCount so the header pill never under-reports even if
+// submissions exceed this cap.
+const WISHES_PAGE_SIZE = 500;
 
 /**
  * Submit a new wish.

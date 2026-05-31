@@ -21,6 +21,7 @@ import { WISH_TEMPLATES } from '../components/wishes/templates';
 import {
   submitWish,
   subscribeToWishes,
+  subscribeToWishCount,
   subscribeToHearts,
   incrementWishHearts,
 } from '../lib/wishesDb';
@@ -133,6 +134,9 @@ const WishesPage = () => {
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
   const [error, setError] = useState('');
   const [liveWishes, setLiveWishes] = useState([]);
+  // True RTDB wish count — independent of the wall's render cap so the
+  // header pill stays accurate even when total exceeds WISHES_PAGE_SIZE.
+  const [liveWishCount, setLiveWishCount] = useState(0);
   const [heartCounts, setHeartCounts] = useState({});
   const [heartedIds, setHeartedIds] = useState(() => loadHeartedSet());
   const [sortMode, setSortMode] = useState('newest');
@@ -145,12 +149,16 @@ const WishesPage = () => {
   const isOverLimit = charsLeft < 0;
   const formDisabled = status === 'submitting' || isOverLimit || !name.trim() || !message.trim();
 
-  // Subscribe to live RTDB wishes feed + per-wish heart counts.
+  // Subscribe to live RTDB wishes feed + per-wish heart counts + the
+  // total count (separate from the wall cap so the header reports real
+  // submissions even past WISHES_PAGE_SIZE).
   useEffect(() => {
     const unsubWishes = subscribeToWishes(setLiveWishes);
+    const unsubCount = subscribeToWishCount(setLiveWishCount);
     const unsubHearts = subscribeToHearts(setHeartCounts);
     return () => {
       unsubWishes();
+      unsubCount();
       unsubHearts();
     };
   }, []);
@@ -225,9 +233,15 @@ const WishesPage = () => {
     // newest
     return list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   }, [allWishes, sortMode, randomNonce]);
-  // Live counter for the header pill — total of curated seeds plus
-  // RTDB submissions. Increments in real time as fans submit.
-  const totalWishCount = seeds.length;
+  // Live counter for the header pill — total of curated seeds plus the
+  // TRUE RTDB count (not the wall-capped liveWishes length). Increments
+  // in real time as fans submit, never under-reports past the cap.
+  const totalWishCount = curatedSeeds.length + liveWishCount;
+  // Detect when wall is showing fewer cards than total (real count
+  // exceeds WISHES_PAGE_SIZE → divergence between header pill and wall
+  // body). Surfaces a small "menampilkan X dari Y" hint so the gap is
+  // explained instead of looking like a counting bug.
+  const wallCappedAt = seeds.length < totalWishCount ? seeds.length : null;
 
   const { elementRef: wallRef, isVisible: wallVisible } = useScrollReveal({
     threshold: 0.05,
@@ -656,7 +670,10 @@ const WishesPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-              Wall · {seeds.length} ucapan
+              Wall ·{' '}
+              {wallCappedAt
+                ? `menampilkan ${wallCappedAt} dari ${totalWishCount} ucapan`
+                : `${seeds.length} ucapan`}
             </p>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
               Tap kartu untuk kasih ❤
