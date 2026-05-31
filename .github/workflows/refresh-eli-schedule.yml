@@ -42,18 +42,27 @@ jobs:
       - name: Scrape Eli schedule
         run: python scripts/scrape-eli-schedule.py
 
+      - name: Scrape Chekicha sessions
+        # Separate platform (ckc.utaten.com) — Birthday Chekicha + 2shot
+        # events that don't appear in the jkt48.com schedule. Run after
+        # the main scrape so the Eli refresh proceeds even if Chekicha
+        # is down. Non-fatal: workflow continues either way.
+        run: python scripts/scrape-chekicha-eli.py
+        continue-on-error: true
+
       - name: Commit if changed
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           # Stage every JSON the scraper writes — schedule, news (with
-          # Eli-mention flags), profile, and active sales. Each refresh
-          # may touch any subset of these.
+          # Eli-mention flags), profile, active sales, and Chekicha
+          # sessions. Each refresh may touch any subset of these.
           git add \
             public/data/eli-schedule.json \
             public/data/eli-news.json \
             public/data/eli-member.json \
-            public/data/eli-sales.json
+            public/data/eli-sales.json \
+            public/data/chekicha-eli.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0

@@ -1,0 +1,99 @@
+{
+  "source": "https://ckc.utaten.com/idol/detail/Helisma%20Putri/MRI67PYR88/",
+  "sourceNote": "Eli (Helisma Putri) Chekicha sessions scraped from ckc.utaten.com. Upcoming = video meet-and-greet slots she's confirmed for. History = past Birthday Chekicha + 2shot events. Chekicha is a JP-only app — armeniaca.online surfaces this for fans outside the Japanese App Store / Play Store ecosystem.",
+  "fetchedAt": "2026-05-31T08:50:20.184122Z",
+  "talent": {
+    "name": "Helisma Putri",
+    "group": "@JKT48",
+    "avatar": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380",
+    "chekichaId": "MRI67PYR88",
+    "profileUrl": "https://ckc.utaten.com/idol/detail/Helisma%20Putri/MRI67PYR88/",
+    "livefeedUrl": "https://ckc.utaten.com/idol/livefeed/MRI67PYR88/"
+  },
+  "timezone": "WIB (UTC+7, Asia/Jakarta)",
+  "upcoming": [],
+  "upcomingEmptyPlaceholder": true,
+  "history": [
+    {
+      "date": "2025/06/19",
+      "time": "17:45",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2025/06/19",
+      "time": "16:30",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2024/06/20",
+      "time": "17:45",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2024/06/20",
+      "time": "16:30",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2023/06/19",
+      "time": "17:45",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2023/06/19",
+      "time": "16:30",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2022/06/19",
+      "time": "14:30",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2022/06/19",
+      "time": "13:00",
+      "title": "Birthday Chekicha!",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2022/04/25",
+      "time": "19:00",
+      "title": "JKT48 Chekicha 2shot Event",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2021/12/19",
+      "time": "16:00",
+      "title": "special chekicha! 2shot event！",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    },
+    {
+      "date": "2021/09/07",
+      "time": "19:50",
+      "title": "CHEKICHA！×JKT48",
+      "idol": "Helisma Putri",
+      "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
+    }
+  ],
+  "counts": {
+    "upcoming": 0,
+    "history": 11
+  }
+}
