@@ -340,10 +340,13 @@ export const ARME_DIALOGS = [
     category: 'besar',
     label: 'Aula Galeri di tengah kebuka',
     cinematic: true,
-    // H-1 sebelum seitansai Eli (2026-06-15) — sync sama Galeri
-    // Kebaikan offline CGV FX. Aula petak juga hidden di scene sampai
-    // tanggal ini (lihat AulaLandmark gating di TamanPeta.jsx).
-    trigger: { type: 'date-match', iso: '2026-06-14' },
+    // Originally H-1 sebelum seitansai Eli (2026-06-14). r6 Aula
+    // dibatalkan 2026-05-31 — trigger digeser ke far future supaya
+    // dialog gak fire menyesatkan. Audio 53-55 sudah ke-record;
+    // entry + audio sengaja dipertahankan supaya bisa direvive
+    // dengan revert trigger ISO ke '2026-06-14' kalau r6 diaktifkan
+    // lagi nanti.
+    trigger: { type: 'date-match', iso: '2099-01-01' },
     lines: [
       'Aula di tengah… pintunya bergerak sendiri tadi, apakah kamu melihatnya?',
       'Dulu sekelompok komunitas bernama "Helismiley" sering mengadakan pameran lukisan di sini.',

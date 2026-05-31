@@ -15620,7 +15620,11 @@ const TamanScene = ({
       {/* LandmarkAuras (4 glow discs di Telaga/Arsip/Menara/Panggung) di-
           disable per user feedback — circle marker ngeganggu, cuma Pohon
           (CenterTree) yg masih punya halo rings. */}
-      <AulaLandmark />
+      {/* AulaLandmark di-disable 2026-05-31 — r6 (Aula Galeri) tidak jadi
+          rilis. Component, route /armeniacaTown/r6, TamanAula.jsx, dan
+          dialog 'aula-reveal' sengaja dibiarkan utuh supaya gampang
+          dihidupkan lagi kalau di kemudian hari diaktifkan. */}
+      {/* <AulaLandmark /> */}
       {/* Warga balik — post-purified populace ramp. Spawn dari 7500
           (sosok jauh di edge), peak di 10000 (ramai plaza). Bayar
           janji narasi Arme "yang lain butuh waktu balik". */}
