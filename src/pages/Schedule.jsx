@@ -17,6 +17,7 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import LiveCounter from '../components/schedule/LiveCounter';
 import SetlistGrid from '../components/schedule/SetlistGrid';
 import OnSaleStrip from '../components/schedule/OnSaleStrip';
+import ChekichaStrip from '../components/schedule/ChekichaStrip';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 const TEAM_LABEL = {
@@ -434,6 +435,11 @@ const SchedulePage = () => {
           (siteConfig.sedangDijual.products), all in one row. Auto-hides
           when both sources are empty. */}
       <OnSaleStrip />
+
+      {/* Chekicha strip — Eli's video meet-and-greet sessions from
+          ckc.utaten.com (JP-only app, separate from jkt48.com M&G).
+          Active when upcoming sessions exist, recap card otherwise. */}
+      <ChekichaStrip />
 
       {/* Setlist grid — every theater setlist Eli has performed in,
           merged from ELI_THEATER metadata + lifetime per-setlist counts
