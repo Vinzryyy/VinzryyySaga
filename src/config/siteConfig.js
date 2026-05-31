@@ -6,10 +6,9 @@
 
 // Photo Frame Project (Palette.id × Armeniaca) launch gate. Until this
 // moment, the Home card, the navbar entry, and the AnnouncementPopup
-// stay hidden — the campaign teaser drops on H-5 of Eli's seitansai.
-// Bump the date here when planning to launch earlier/later; everything
-// else flows from this single constant.
-const PHOTO_FRAME_AVAILABLE_FROM_ISO = '2026-06-10T00:00:00+07:00';
+// stay hidden. Bump the date here when planning to launch earlier/later;
+// everything else flows from this single constant.
+const PHOTO_FRAME_AVAILABLE_FROM_ISO = '2026-06-01T00:00:00+07:00';
 
 export const PHOTO_FRAME_CAMPAIGN = {
   availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
