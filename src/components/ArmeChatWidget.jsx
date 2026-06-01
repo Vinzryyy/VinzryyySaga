@@ -21,12 +21,12 @@ const MAX_HISTORY = 16;
 const MAX_INPUT_CHARS = 1200;
 
 const GREETING =
-  'Halo. Arme di sini — warga terakhir ArmeniacaTown. Mau nanya soal Eli, kota ini, atau sekedar nemenin sebentar?';
+  'Halo. Aku Arme — pemandu situs ini, bukan Eli. Aku bisa bantu kamu nemu halaman, jawab info dasar soal Eli, atau cerita ringan soal kota. Mau mulai dari mana?';
 
 const PROMPT_SUGGESTIONS = [
-  'Eli itu siapa sih?',
-  'Cerita dong soal kotanya',
-  'Kapan seitansai Eli?',
+  'Halaman apa aja yang ada di sini?',
+  'Eli di JKT48 sejak kapan?',
+  'Cara kirim ucapan ulang tahun?',
 ];
 
 const loadHistory = () => {
@@ -289,9 +289,9 @@ const ArmeChatWidget = () => {
             <Avatar size={36} />
             <div className="flex-1 min-w-0">
               <div className="text-[10px] uppercase tracking-[0.2em] text-[#f4c896]">
-                Ngobrol dengan
+                Pemandu Situs
               </div>
-              <div className="text-sm font-semibold truncate">Arme</div>
+              <div className="text-sm font-semibold truncate">Arme · bukan Eli</div>
             </div>
             <button
               type="button"
