@@ -12,8 +12,9 @@
  * Cleared via the reset button in panel header.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getQuoteOfTheDay } from '../lib/quoteOfTheDay';
 
 const STORAGE_KEY = 'armeniaca-arme-chat-v1';
 // Two-pose set — matches ArmeMascot's idle/talk asset convention.
@@ -22,8 +23,9 @@ const AVATAR_TALK = '/Arme/ELI_1_a.png'; // pointing, while answering
 const MAX_HISTORY = 16;
 const MAX_INPUT_CHARS = 1200;
 
-const GREETING =
-  'Halo. Aku Arme — pemandu situs ini, bukan Eli. Aku bisa bantu kamu nemu halaman, jawab info dasar soal Eli, atau cerita ringan soal kota. Mau mulai dari mana?';
+const GREETING_INTRO =
+  'Halo. Aku Arme — pemandu situs ini, bukan Eli. Aku bantu kamu nemu halaman atau jawab info dasar soal Eli. Mau mulai dari mana?';
+const GREETING_QUOTE_PREFIX = 'Sebelum mulai, kata untuk hari ini —';
 
 const PROMPT_SUGGESTIONS = [
   'Halaman apa aja yang ada di sini?',
@@ -410,6 +412,12 @@ const ArmeChatWidget = () => {
     }
   };
 
+  // Daily quote — computed once per mount, same source as the home
+  // strip (lib/quoteOfTheDay). Stable across the panel session; flips
+  // at WIB midnight on next mount. Computed before the `hidden` early
+  // return so hooks order stays consistent across renders.
+  const dailyQuote = useMemo(() => getQuoteOfTheDay(), []);
+
   if (hidden) return null;
 
   const showSuggestions = !sending && messages.length === 0;
@@ -554,11 +562,23 @@ const ArmeChatWidget = () => {
             className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#fdf6ee]"
             style={{ scrollBehavior: 'smooth' }}
           >
-            {/* Greeting bubble */}
+            {/* Greeting bubble — intro + daily quote (same source as
+                home strip; quote flips at WIB midnight). */}
             <div className="flex items-start gap-2">
               <Avatar size={28} />
               <div className="flex-1 max-w-[85%] rounded-2xl rounded-tl-sm bg-white ring-1 ring-[#d4a574]/30 px-3.5 py-2.5 text-[13px] leading-relaxed text-[#1c1f2a] shadow-sm">
-                {GREETING}
+                <p>{GREETING_INTRO}</p>
+                {dailyQuote && (
+                  <p className="mt-2 pt-2 border-t border-[#d4a574]/25 text-[12px]">
+                    <span className="text-[#9a5b4a]/80">{GREETING_QUOTE_PREFIX}</span>{' '}
+                    <span
+                      className="italic text-[#3a2818]"
+                      style={{ fontFamily: '"Fraunces Variable", "Fraunces", serif' }}
+                    >
+                      “{dailyQuote}”
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
 

@@ -20,6 +20,7 @@ import { useIdnLive } from '../hooks/useIdnLive';
 import { useEliSchedule, deriveLiveState } from '../hooks/useEliSchedule';
 import EliStatusHero from '../components/home/EliStatusHero';
 import NewsStrip from '../components/home/NewsStrip';
+import QuoteOfTheDayStrip from '../components/home/QuoteOfTheDayStrip';
 import AnnouncementPopup from '../components/home/AnnouncementPopup';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
@@ -711,6 +712,12 @@ const HomePage = () => {
           live (IDN/SHOWROOM) → imminent (≤24h) → upcoming (≤30d) → idle.
           Hooks polling tetep di sini biar gak duplikat dengan social pills. */}
       <EliStatusHero idnLive={idnLive} showroomLive={showroomLive} />
+
+      {/* KATA HARI INI — daily-rotating Eli/Armeniaca quote. Pool +
+          rotation logic in src/lib/quoteOfTheDay.js, shared with the
+          Arme chat greeting so both surfaces show the same daily
+          quote (WIB-anchored midnight flip). */}
+      <QuoteOfTheDayStrip />
 
       {/* BERITA JKT48 — hybrid strip: latest /api/v1/news with Eli-mention
           rows pinned to the front + gold badge. Auto-hides if the scrape
