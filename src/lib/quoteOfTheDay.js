@@ -75,4 +75,24 @@ export const getQuoteOfTheDay = (nowMs = Date.now()) => {
   return QUOTE_POOL[idx];
 };
 
+// Random pick from the same pool. Used by the Arme chat greeting so
+// every panel-open gives a fresh quote (per the "Option A" split: home
+// strip stays daily-anchored for shareability, chat stays random for
+// freshness). Optional `avoid` lets the caller exclude the day's
+// deterministic quote so the chat greeting and home strip don't
+// accidentally match when the random roll lands on today's number.
+export const getRandomQuote = (avoid = null) => {
+  if (QUOTE_POOL.length === 0) return '';
+  if (QUOTE_POOL.length === 1) return QUOTE_POOL[0];
+  let pick = QUOTE_POOL[Math.floor(Math.random() * QUOTE_POOL.length)];
+  if (avoid && pick === avoid) {
+    // One re-roll is enough — pool >1 guarantees a different result on
+    // the second draw (worst case 1-in-pool.length chance to land on
+    // the same again, but the user notices "same as home strip" less
+    // strongly than they'd notice repeated duplication).
+    pick = QUOTE_POOL[Math.floor(Math.random() * QUOTE_POOL.length)];
+  }
+  return pick;
+};
+
 export const getQuotePoolSize = () => QUOTE_POOL.length;
