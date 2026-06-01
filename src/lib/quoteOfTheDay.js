@@ -18,6 +18,7 @@
  */
 
 import { SITE_CONFIG } from '../config/siteConfig';
+import { POSITIVE_QUOTES_POOL } from './positiveQuotePool';
 
 // Curated quotes — short, on-brand, Eli/archive-themed. Append to grow
 // the cycle; insert order is preserved so rotation stays predictable.
@@ -47,16 +48,31 @@ const SEITANSAI_QUOTES = SITE_CONFIG?.countdown?.gifts?.quotes ?? [];
 
 // Dedupe (case-insensitive) and freeze. Insertion order preserved so
 // older quotes land on the same days they always did.
-const seen = new Set();
-const QUOTE_POOL = [];
-for (const q of [...CURATED_QUOTES, ...SEITANSAI_QUOTES]) {
-  if (typeof q !== 'string') continue;
-  const trimmed = q.trim();
-  const key = trimmed.toLowerCase();
-  if (!trimmed || seen.has(key)) continue;
-  seen.add(key);
-  QUOTE_POOL.push(trimmed);
-}
+const dedupe = (...lists) => {
+  const seen = new Set();
+  const out = [];
+  for (const list of lists) {
+    for (const q of list) {
+      if (typeof q !== 'string') continue;
+      const trimmed = q.trim();
+      const key = trimmed.toLowerCase();
+      if (!trimmed || seen.has(key)) continue;
+      seen.add(key);
+      out.push(trimmed);
+    }
+  }
+  return out;
+};
+
+// Daily-rotation pool — curated only. Stays on-brand for the home strip
+// (Eli/Armeniaca-specific). Don't add generic positive quotes here or
+// the home strip loses its signature.
+const QUOTE_POOL = dedupe(CURATED_QUOTES, SEITANSAI_QUOTES);
+
+// Random pool (chat greeting) — daily pool + 400 generic positive
+// quotes. Bigger pool means chat greetings feel fresh per panel-open
+// without sacrificing brand voice on the home strip.
+const QUOTE_POOL_RANDOM = dedupe(QUOTE_POOL, POSITIVE_QUOTES_POOL);
 
 // Days since a fixed WIB epoch. Using a fixed anchor (Eli's audition
 // date, 29 Sep 2018) gives an interpretable rotation cursor: "day 2837
@@ -75,24 +91,22 @@ export const getQuoteOfTheDay = (nowMs = Date.now()) => {
   return QUOTE_POOL[idx];
 };
 
-// Random pick from the same pool. Used by the Arme chat greeting so
-// every panel-open gives a fresh quote (per the "Option A" split: home
-// strip stays daily-anchored for shareability, chat stays random for
-// freshness). Optional `avoid` lets the caller exclude the day's
-// deterministic quote so the chat greeting and home strip don't
-// accidentally match when the random roll lands on today's number.
+// Random pick — draws from the EXTENDED pool (curated + 400 positive)
+// so the chat greeting feels fresh per panel-open. Optional `avoid`
+// excludes one quote (typically today's deterministic QOTD) so the
+// chat greeting and home strip don't accidentally echo each other.
 export const getRandomQuote = (avoid = null) => {
-  if (QUOTE_POOL.length === 0) return '';
-  if (QUOTE_POOL.length === 1) return QUOTE_POOL[0];
-  let pick = QUOTE_POOL[Math.floor(Math.random() * QUOTE_POOL.length)];
+  const pool = QUOTE_POOL_RANDOM;
+  if (pool.length === 0) return '';
+  if (pool.length === 1) return pool[0];
+  let pick = pool[Math.floor(Math.random() * pool.length)];
   if (avoid && pick === avoid) {
-    // One re-roll is enough — pool >1 guarantees a different result on
-    // the second draw (worst case 1-in-pool.length chance to land on
-    // the same again, but the user notices "same as home strip" less
-    // strongly than they'd notice repeated duplication).
-    pick = QUOTE_POOL[Math.floor(Math.random() * QUOTE_POOL.length)];
+    // One re-roll is enough — pool size makes a second collision
+    // statistically negligible.
+    pick = pool[Math.floor(Math.random() * pool.length)];
   }
   return pick;
 };
 
 export const getQuotePoolSize = () => QUOTE_POOL.length;
+export const getRandomPoolSize = () => QUOTE_POOL_RANDOM.length;
