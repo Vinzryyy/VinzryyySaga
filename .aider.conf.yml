@@ -1,0 +1,4 @@
+model: openrouter/moonshotai/kimi-k2.6:free
+env-file: .env.local
+gitignore: false
+auto-commits: false
