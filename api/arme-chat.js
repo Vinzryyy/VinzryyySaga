@@ -21,6 +21,7 @@
  */
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const OPENROUTER_MODELS = [
   'moonshotai/kimi-k2.6:free',
   'deepseek/deepseek-chat-v3.1:free',
@@ -217,6 +218,47 @@ const callGemini = async (apiKey, messages) => {
   };
 };
 
+// ── Groq (Llama 3.3 70B via OpenAI-compatible API) ────────────────────
+// Independent infra, ~14400 RPD per key, very fast inference. Sits in
+// the middle of the fallback chain — if Gemini errors, Groq usually
+// answers before we even need to touch OpenRouter.
+const callGroq = async (apiKey, messages) => {
+  const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      max_tokens: MAX_TOKENS,
+      temperature: 0.4,
+      top_p: 0.85,
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+    }),
+  });
+  if (!upstream.ok) {
+    const text = await upstream.text().catch(() => '');
+    return { ok: false, status: upstream.status, body: text.slice(0, 800) };
+  }
+  const data = await upstream.json();
+  const reply = data?.choices?.[0]?.message?.content?.trim();
+  if (!reply) {
+    return {
+      ok: false,
+      status: 502,
+      body: `empty: ${JSON.stringify(data).slice(0, 400)}`,
+    };
+  }
+  return {
+    ok: true,
+    reply,
+    provider: 'groq',
+    model: data.model || GROQ_MODEL,
+    usage: data.usage,
+  };
+};
+
 // ── OpenRouter (Kimi + fallback chain) ───────────────────────────────
 const callOpenRouter = async (apiKey, messages) => {
   const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -265,8 +307,9 @@ export default async function handler(req, res) {
   }
 
   const geminiKey = process.env.GOOGLE_AI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
   const openrouterKey = process.env.OPENROUTER_API_KEY;
-  if (!geminiKey && !openrouterKey) {
+  if (!geminiKey && !groqKey && !openrouterKey) {
     return res.status(500).json({ error: 'server tidak terkonfigurasi' });
   }
 
@@ -298,6 +341,26 @@ export default async function handler(req, res) {
     } catch (err) {
       errors.push(`gemini threw: ${err?.message || err}`);
       console.error('[arme-chat] gemini threw', err);
+    }
+  }
+
+  // Try Groq next — independent infra, very fast, big free tier.
+  if (groqKey) {
+    try {
+      const r = await callGroq(groqKey, messages);
+      if (r.ok) {
+        return res.status(200).json({
+          reply: r.reply,
+          provider: r.provider,
+          model: r.model,
+          usage: r.usage,
+        });
+      }
+      errors.push(`groq ${r.status}: ${r.body}`);
+      console.error('[arme-chat] groq failed', r.status, r.body);
+    } catch (err) {
+      errors.push(`groq threw: ${err?.message || err}`);
+      console.error('[arme-chat] groq threw', err);
     }
   }
 
