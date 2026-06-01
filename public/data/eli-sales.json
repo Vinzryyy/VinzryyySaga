@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-05-31T07:28:09.280249Z",
+  "fetchedAt": "2026-06-01T01:09:16.239061Z",
   "salesCount": 4,
   "sales": [
     {
@@ -112,7 +112,7 @@
     {
       "exclusiveId": 944,
       "code": "EXBE10",
-      "slug": "exbe10-20042026",
+      "slug": "exbe10-14042026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Love Dream Passion - Music Video Behind the Scenes",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
@@ -157,7 +157,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/exbe10-20042026"
+      "url": "https://jkt48.com/schedule/exbe10-14042026"
     },
     {
       "exclusiveId": 933,
