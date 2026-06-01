@@ -33,6 +33,7 @@ import Footer from './components/layout/Footer';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
 import TownMusic from './components/taman/TownMusic';
+import ArmeChatWidget from './components/ArmeChatWidget';
 import useIsBirthdayToday from './hooks/useIsBirthdayToday';
 import { SITE_CONFIG } from './config/siteConfig';
 
@@ -480,6 +481,7 @@ function AppShell() {
         </Suspense>
         <Footer />
       </div>
+      <ArmeChatWidget />
     </>
   );
 }
