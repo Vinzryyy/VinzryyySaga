@@ -234,15 +234,43 @@ const ArmeChatWidget = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const [isMobile, setIsMobile] = useState(() => isMobileViewport());
+  // Mobile: amount of viewport hidden by the soft keyboard. Used to
+  // anchor the sheet's bottom edge above the keyboard on iOS where
+  // visualViewport shrinks but layout viewport (and CSS `bottom: 0`)
+  // doesn't, leaving the input bar covered by default.
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  // Mobile: vertical drag offset while the user is swiping the sheet
+  // down to dismiss. Reset to 0 on release (either committed to close
+  // or sprung back). Negative drags ignored (no over-pull).
+  const [dragOffset, setDragOffset] = useState(0);
 
   const scrollerRef = useRef(null);
   const textareaRef = useRef(null);
   const abortRef = useRef(null);
+  const dragStartRef = useRef(null);
 
   const handleRouteClick = useCallback(
     (route) => {
-      setOpen(false);
-      navigate(route);
+      // Pop the chat history marker (if we pushed one for the Android
+      // back-button intercept) BEFORE navigating, so the new route
+      // pushes onto the original page state instead of onto a ghost
+      // marker entry. Without this, a back-press from the destination
+      // would land on the marker (same URL as before chat opened) and
+      // visually rewind one extra step.
+      if (typeof window !== 'undefined' && window.history.state?.armeChatModal === true) {
+        const handlePop = () => {
+          window.removeEventListener('popstate', handlePop);
+          // Schedule navigate after browser commits the popstate so we
+          // don't race the close cleanup.
+          requestAnimationFrame(() => navigate(route));
+        };
+        window.addEventListener('popstate', handlePop, { once: true });
+        setOpen(false);
+        window.history.back();
+      } else {
+        setOpen(false);
+        navigate(route);
+      }
     },
     [navigate],
   );
@@ -258,6 +286,56 @@ const ArmeChatWidget = () => {
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
+
+  // Track soft-keyboard height via visualViewport API (iOS Safari +
+  // Android Chrome). When keyboard opens, vv.height shrinks; the
+  // difference equals the obscured area. We use that to slide the
+  // sheet up so the input bar stays visible above the keyboard.
+  useEffect(() => {
+    if (!isMobile || !open) {
+      setKeyboardHeight(0);
+      return undefined;
+    }
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+    const update = () => {
+      const h = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKeyboardHeight(h);
+    };
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    update();
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, [isMobile, open]);
+
+  // History intercept — when panel opens on mobile, push a synthetic
+  // history entry so the Android hardware back button closes the panel
+  // instead of navigating away from the page. iOS doesn't have a back
+  // button but the entry doesn't hurt; it gets popped on UI close so
+  // the history stack stays tidy.
+  useEffect(() => {
+    if (!open || !isMobile) return undefined;
+    const marker = { armeChatModal: true, ts: Date.now() };
+    window.history.pushState(marker, '');
+    const onPop = () => {
+      // Back button pressed — close panel. State already popped by
+      // the browser, so cleanup below skips the back() call.
+      setOpen(false);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      // If the panel was closed via UI (X / backdrop / drag-dismiss),
+      // popstate never fired and our marker is still on top. Pop it
+      // so back() from the page doesn't surface the dead marker.
+      if (window.history.state?.armeChatModal === true) {
+        window.history.back();
+      }
+    };
+  }, [open, isMobile]);
 
   useEffect(() => {
     saveHistory(messages);
@@ -521,9 +599,33 @@ const ArmeChatWidget = () => {
           style={
             isMobile
               ? {
-                  height: 'min(82vh, 640px)',
-                  paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                  animation: 'armeChatSheetIn 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+                  // When keyboard is up, fill exactly the visible
+                  // viewport so the input bar sits above the keyboard
+                  // (vh units track layout viewport, which doesn't
+                  // shrink on iOS — visualViewport.height does).
+                  height:
+                    keyboardHeight > 0 && typeof window !== 'undefined'
+                      ? `${window.visualViewport?.height || window.innerHeight}px`
+                      : 'min(82vh, 640px)',
+                  bottom: keyboardHeight > 0 ? `${keyboardHeight}px` : 0,
+                  paddingBottom:
+                    keyboardHeight > 0
+                      ? '0px'
+                      : 'env(safe-area-inset-bottom, 0px)',
+                  // While dragging, translate the sheet by the drag
+                  // offset (additive on top of the entrance animation).
+                  transform: dragOffset > 0 ? `translateY(${dragOffset}px)` : undefined,
+                  // Skip the entrance animation while dragging so the
+                  // user-controlled gesture doesn't visually conflict.
+                  animation:
+                    dragOffset > 0
+                      ? 'none'
+                      : 'armeChatSheetIn 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both',
+                  // Disable transition during active drag (instant
+                  // follow), spring back via short transition on
+                  // release (handled in touchEnd).
+                  transition: dragOffset > 0 ? 'none' : 'transform 200ms ease-out',
+                  touchAction: 'pan-y',
                 }
               : {
                   right: 'max(16px, env(safe-area-inset-right, 0px))',
@@ -535,8 +637,42 @@ const ArmeChatWidget = () => {
                 }
           }
         >
-          {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3 bg-[#9a5b4a] text-white">
+          {/* Header — also functions as the drag handle on mobile. Touch
+              events here translate the sheet down; releasing past the
+              threshold closes the panel (a la WhatsApp / Slack sheets). */}
+          <div
+            className="flex items-center gap-3 px-4 py-3 bg-[#9a5b4a] text-white relative"
+            onTouchStart={(e) => {
+              if (!isMobile) return;
+              dragStartRef.current = e.touches[0].clientY;
+            }}
+            onTouchMove={(e) => {
+              if (!isMobile || dragStartRef.current === null) return;
+              const delta = e.touches[0].clientY - dragStartRef.current;
+              if (delta > 0) setDragOffset(delta);
+            }}
+            onTouchEnd={() => {
+              if (!isMobile || dragStartRef.current === null) return;
+              const finalOffset = dragOffset;
+              dragStartRef.current = null;
+              setDragOffset(0);
+              // Threshold: 100px commits to close, less springs back.
+              if (finalOffset > 100) setOpen(false);
+            }}
+            onTouchCancel={() => {
+              dragStartRef.current = null;
+              setDragOffset(0);
+            }}
+          >
+            {/* Mobile drag handle pill — visual cue that the sheet is
+                swipe-down-dismissable. Hidden on desktop where the
+                panel doesn't have a "drag" affordance. */}
+            {isMobile && (
+              <span
+                className="absolute left-1/2 -translate-x-1/2 -top-0 mt-1 h-1 w-10 rounded-full bg-white/35"
+                aria-hidden
+              />
+            )}
             <Avatar size={36} />
             <div className="flex-1 min-w-0">
               <div className="text-[10px] uppercase tracking-[0.2em] text-[#f4c896]">
