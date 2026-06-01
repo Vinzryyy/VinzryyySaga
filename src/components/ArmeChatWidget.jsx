@@ -13,7 +13,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const STORAGE_KEY = 'armeniaca-arme-chat-v1';
 const AVATAR = '/Arme/ELI_1_a.png';
@@ -28,6 +28,69 @@ const PROMPT_SUGGESTIONS = [
   'Eli di JKT48 sejak kapan?',
   'Cara kirim ucapan ulang tahun?',
 ];
+
+// Whitelisted routes — only these become clickable when mentioned by
+// Arme. Anything else parsed as `/something` stays as plain text so we
+// never navigate to a hallucinated path.
+const KNOWN_ROUTES = new Set([
+  '/',
+  '/profile',
+  '/about',
+  '/gallery',
+  '/vivo',
+  '/schedule',
+  '/wishes',
+  '/countdown',
+  '/26',
+  '/byu-music',
+  '/armepack',
+  '/galeri-kebaikan',
+  '/denyut',
+  '/armeniacaTown',
+  '/armeniacaTown/peta',
+  '/armeniacaTown/r1',
+  '/armeniacaTown/r2',
+  '/armeniacaTown/r3',
+  '/armeniacaTown/r4',
+  '/armeniacaTown/r5',
+  '/armeniacaTown/r6',
+]);
+
+// Match `/segment` or `/segment/segment`. Starts at a non-word boundary
+// (whitespace, punctuation, line start) — avoids matching paths inside
+// URLs (https://x.com/foo) or fractions like "1/2".
+const ROUTE_REGEX = /(^|[\s(,])(\/[a-zA-Z][\w-]*(?:\/[a-zA-Z0-9][\w-]*)*)/g;
+
+const renderTextWithRoutes = (text, onRouteClick) => {
+  if (!text) return null;
+  const out = [];
+  let lastEnd = 0;
+  let match;
+  let key = 0;
+  ROUTE_REGEX.lastIndex = 0;
+  while ((match = ROUTE_REGEX.exec(text)) !== null) {
+    const [, leading, route] = match;
+    const startOfRoute = match.index + leading.length;
+    if (startOfRoute > lastEnd) out.push(text.slice(lastEnd, startOfRoute));
+    if (KNOWN_ROUTES.has(route)) {
+      out.push(
+        <button
+          key={`r-${key++}`}
+          type="button"
+          onClick={() => onRouteClick(route)}
+          className="inline-flex items-baseline gap-0.5 px-1.5 py-0 mx-0.5 rounded-md bg-[#9a5b4a]/10 hover:bg-[#9a5b4a]/20 text-[#7a3f30] ring-1 ring-[#9a5b4a]/25 hover:ring-[#9a5b4a]/45 font-medium transition-colors cursor-pointer"
+        >
+          {route}
+        </button>,
+      );
+    } else {
+      out.push(route);
+    }
+    lastEnd = startOfRoute + route.length;
+  }
+  if (lastEnd < text.length) out.push(text.slice(lastEnd));
+  return out;
+};
 
 const loadHistory = () => {
   try {
@@ -84,8 +147,14 @@ const TypingDots = () => (
 
 const ArmeChatWidget = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState(() => loadHistory());
+  // streamingContent is the partial assistant reply being streamed in
+  // right now. Rendered as an extra bubble below `messages` while non-
+  // null; committed to `messages` (and cleared) on stream completion.
+  // Kept out of `messages` to avoid noisy localStorage writes per delta.
+  const [streamingContent, setStreamingContent] = useState(null);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
@@ -93,6 +162,15 @@ const ArmeChatWidget = () => {
 
   const scrollerRef = useRef(null);
   const textareaRef = useRef(null);
+  const abortRef = useRef(null);
+
+  const handleRouteClick = useCallback(
+    (route) => {
+      setOpen(false);
+      navigate(route);
+    },
+    [navigate],
+  );
 
   // Hide on /peta (ArmeMascot owns that route) and on the standalone
   // birthday page /26 (cake/gift takeover — don't clutter).
@@ -110,7 +188,7 @@ const ArmeChatWidget = () => {
     saveHistory(messages);
   }, [messages]);
 
-  // Auto-scroll to bottom on new message / typing indicator
+  // Auto-scroll to bottom on new message / typing indicator / stream tick
   useEffect(() => {
     if (!open) return;
     const el = scrollerRef.current;
@@ -118,7 +196,7 @@ const ArmeChatWidget = () => {
     requestAnimationFrame(() => {
       el.scrollTop = el.scrollHeight;
     });
-  }, [messages, sending, open]);
+  }, [messages, streamingContent, sending, open]);
 
   // Focus textarea when panel opens
   useEffect(() => {
@@ -146,25 +224,80 @@ const ArmeChatWidget = () => {
       const next = [...messages, { role: 'user', content: text }].slice(-MAX_HISTORY);
       setMessages(next);
       setSending(true);
+      setStreamingContent('');
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+      let accumulated = '';
+      let serverError = null;
+
       try {
         const res = await fetch('/api/arme-chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: next }),
+          headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
+          body: JSON.stringify({ messages: next, stream: true }),
+          signal: controller.signal,
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
+
+        const ctype = res.headers.get('content-type') || '';
+        if (!res.ok || !ctype.includes('text/event-stream')) {
+          // Non-stream error fallthrough — backend returned JSON error
+          // body (e.g. 4xx validation) or refused to upgrade. Parse it
+          // the old way so the user still sees a useful message.
+          const data = await res.json().catch(() => ({}));
           setError(data?.error || 'Arme lagi gak bisa jawab. Coba lagi sebentar.');
-        } else if (data?.reply) {
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buf = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          // Drain complete SSE events (separated by blank lines).
+          let nlIdx;
+          while ((nlIdx = buf.indexOf('\n\n')) >= 0) {
+            const chunk = buf.slice(0, nlIdx);
+            buf = buf.slice(nlIdx + 2);
+            const dataLines = chunk
+              .split('\n')
+              .filter((l) => l.startsWith('data:'))
+              .map((l) => l.slice(5).trimStart());
+            if (!dataLines.length) continue;
+            const payload = dataLines.join('\n');
+            try {
+              const obj = JSON.parse(payload);
+              if (obj.delta) {
+                accumulated += obj.delta;
+                setStreamingContent(accumulated);
+              }
+              if (obj.error) serverError = obj.error;
+              if (obj.done) break;
+            } catch {
+              /* malformed line — ignore */
+            }
+          }
+        }
+      } catch (err) {
+        if (err?.name !== 'AbortError') {
+          setError('Jaringan terputus. Cek koneksi lalu coba lagi.');
+        }
+      } finally {
+        abortRef.current = null;
+        // Commit streamed content to history (if any), then clear the
+        // ephemeral streaming bubble.
+        if (accumulated.trim()) {
           setMessages((prev) =>
-            [...prev, { role: 'assistant', content: data.reply }].slice(-MAX_HISTORY),
+            [...prev, { role: 'assistant', content: accumulated.trim() }].slice(-MAX_HISTORY),
           );
-        } else {
+        } else if (serverError) {
+          setError(serverError);
+        } else if (!accumulated && !serverError) {
           setError('Jawaban Arme kosong. Coba tanya lagi.');
         }
-      } catch {
-        setError('Jaringan terputus. Cek koneksi lalu coba lagi.');
-      } finally {
+        setStreamingContent(null);
         setSending(false);
       }
     },
@@ -220,6 +353,10 @@ const ArmeChatWidget = () => {
         @keyframes armeChatSheetIn {
           0%   { opacity: 0; transform: translateY(100%); }
           100% { opacity: 1; transform: translateY(0);    }
+        }
+        @keyframes armeChatCaret {
+          0%, 49%   { opacity: 1; }
+          50%, 100% { opacity: 0; }
         }
       `}</style>
 
@@ -337,13 +474,33 @@ const ArmeChatWidget = () => {
                 <div key={i} className="flex items-start gap-2">
                   <Avatar size={28} />
                   <div className="flex-1 max-w-[85%] rounded-2xl rounded-tl-sm bg-white ring-1 ring-[#d4a574]/30 px-3.5 py-2.5 text-[13px] leading-relaxed text-[#1c1f2a] whitespace-pre-wrap shadow-sm">
-                    {m.content}
+                    {renderTextWithRoutes(m.content, handleRouteClick)}
                   </div>
                 </div>
               ),
             )}
 
-            {sending && (
+            {/* Streaming bubble — visible while Arme is still generating.
+                Routes aren't parsed here (partial paths would flicker
+                between text/button mid-stream). Final message commit
+                renders via the main messages map with full parsing. */}
+            {streamingContent !== null && (
+              <div className="flex items-start gap-2">
+                <Avatar size={28} />
+                <div className="flex-1 max-w-[85%] rounded-2xl rounded-tl-sm bg-white ring-1 ring-[#d4a574]/30 px-3.5 py-2.5 text-[13px] leading-relaxed text-[#1c1f2a] whitespace-pre-wrap shadow-sm">
+                  {streamingContent || <TypingDots />}
+                  {streamingContent && (
+                    <span
+                      className="inline-block w-[2px] h-[1em] bg-[#9a5b4a] ml-0.5 align-middle"
+                      style={{ animation: 'armeChatCaret 1s steps(1) infinite' }}
+                      aria-hidden
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {sending && streamingContent === null && (
               <div className="flex items-start gap-2">
                 <Avatar size={28} />
                 <div className="rounded-2xl rounded-tl-sm bg-white ring-1 ring-[#d4a574]/30 px-3.5 py-3 shadow-sm">

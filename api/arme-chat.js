@@ -156,6 +156,47 @@ const sanitizeMessages = (raw) => {
   return cleaned.slice(-MAX_TURNS);
 };
 
+// ── Streaming helpers ─────────────────────────────────────────────────
+const setupSSE = (res) => {
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  // Disable upstream buffering (nginx, vercel edge) — without this,
+  // chunks queue until the response finishes, defeating streaming UX.
+  res.setHeader('X-Accel-Buffering', 'no');
+  // Send headers immediately so the browser starts reading.
+  if (typeof res.flushHeaders === 'function') res.flushHeaders();
+};
+
+const writeSSE = (res, payload) => {
+  try {
+    res.write(`data: ${JSON.stringify(payload)}\n\n`);
+  } catch {
+    /* connection closed mid-write */
+  }
+};
+
+// Pull complete SSE events from an accumulating buffer. Returns
+// { events: [bodyString], rest: leftoverBuffer }. SSE events end on
+// double newline (\n\n).
+const drainSSE = (buffer) => {
+  const events = [];
+  let rest = buffer;
+  let idx;
+  while ((idx = rest.indexOf('\n\n')) >= 0) {
+    const chunk = rest.slice(0, idx);
+    rest = rest.slice(idx + 2);
+    // Each event may have multiple `data:` lines — concatenate them
+    // per SSE spec, ignore others (event:, id:, retry:).
+    const dataLines = chunk
+      .split('\n')
+      .filter((l) => l.startsWith('data:'))
+      .map((l) => l.slice(5).trimStart());
+    if (dataLines.length) events.push(dataLines.join('\n'));
+  }
+  return { events, rest };
+};
+
 // ── Gemini (Google AI Studio) ────────────────────────────────────────
 // Native API shape — separate `systemInstruction`, `contents` array with
 // 'user'|'model' roles (not 'assistant'), each turn wrapped in `parts`.
@@ -218,6 +259,73 @@ const callGemini = async (apiKey, messages) => {
   };
 };
 
+// Streaming variant — uses :streamGenerateContent + alt=sse. Pipes each
+// delta to the client as SSE. Returns true on full success, false if
+// the upstream errored before producing any tokens (lets the caller try
+// the next provider). Once any token has been written we stay committed
+// to this provider — switching mid-stream would mangle output.
+const streamGemini = async (apiKey, messages, res, ctx) => {
+  const contents = messages.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${encodeURIComponent(
+    apiKey,
+  )}`;
+  const upstream = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents,
+      generationConfig: {
+        maxOutputTokens: MAX_TOKENS,
+        temperature: 0.4,
+        topP: 0.85,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+      ],
+    }),
+  });
+  if (!upstream.ok) {
+    const text = await upstream.text().catch(() => '');
+    ctx.errors.push(`gemini ${upstream.status}: ${text.slice(0, 400)}`);
+    return false;
+  }
+  let buf = '';
+  let wroteAny = false;
+  const reader = upstream.body.getReader();
+  const decoder = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const { events, rest } = drainSSE(buf);
+    buf = rest;
+    for (const payload of events) {
+      try {
+        const obj = JSON.parse(payload);
+        const delta = obj?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (delta) {
+          if (!wroteAny) {
+            wroteAny = true;
+            writeSSE(res, { provider: 'gemini', model: GEMINI_MODEL });
+          }
+          writeSSE(res, { delta });
+        }
+      } catch {
+        /* skip malformed line */
+      }
+    }
+  }
+  return wroteAny;
+};
+
 // ── Groq (Llama 3.3 70B via OpenAI-compatible API) ────────────────────
 // Independent infra, ~14400 RPD per key, very fast inference. Sits in
 // the middle of the fallback chain — if Gemini errors, Groq usually
@@ -258,6 +366,89 @@ const callGroq = async (apiKey, messages) => {
     usage: data.usage,
   };
 };
+
+// Streaming variant — OpenAI-compatible SSE. `data: {...}\n\n` chunks
+// ending with `data: [DONE]\n\n`.
+const streamOpenAICompat = async (url, apiKey, body, providerName, res, ctx, extraHeaders = {}) => {
+  const upstream = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+      ...extraHeaders,
+    },
+    body: JSON.stringify({ ...body, stream: true }),
+  });
+  if (!upstream.ok) {
+    const text = await upstream.text().catch(() => '');
+    ctx.errors.push(`${providerName} ${upstream.status}: ${text.slice(0, 400)}`);
+    return false;
+  }
+  let buf = '';
+  let wroteAny = false;
+  let modelSeen = null;
+  const reader = upstream.body.getReader();
+  const decoder = new TextDecoder();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const { events, rest } = drainSSE(buf);
+    buf = rest;
+    for (const payload of events) {
+      if (payload === '[DONE]') continue;
+      try {
+        const obj = JSON.parse(payload);
+        if (!modelSeen && obj?.model) modelSeen = obj.model;
+        const delta = obj?.choices?.[0]?.delta?.content;
+        if (delta) {
+          if (!wroteAny) {
+            wroteAny = true;
+            writeSSE(res, { provider: providerName, model: modelSeen || body.model });
+          }
+          writeSSE(res, { delta });
+        }
+      } catch {
+        /* skip malformed */
+      }
+    }
+  }
+  return wroteAny;
+};
+
+const streamGroq = (apiKey, messages, res, ctx) =>
+  streamOpenAICompat(
+    'https://api.groq.com/openai/v1/chat/completions',
+    apiKey,
+    {
+      model: GROQ_MODEL,
+      max_tokens: MAX_TOKENS,
+      temperature: 0.4,
+      top_p: 0.85,
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+    },
+    'groq',
+    res,
+    ctx,
+  );
+
+const streamOpenRouter = (apiKey, messages, res, ctx) =>
+  streamOpenAICompat(
+    'https://openrouter.ai/api/v1/chat/completions',
+    apiKey,
+    {
+      model: OPENROUTER_MODELS[0],
+      models: OPENROUTER_MODELS,
+      max_tokens: MAX_TOKENS,
+      temperature: 0.4,
+      top_p: 0.85,
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+    },
+    'openrouter',
+    res,
+    ctx,
+    { 'HTTP-Referer': 'https://armeniaca.online', 'X-Title': 'Armeniaca Arme Chat' },
+  );
 
 // ── OpenRouter (Kimi + fallback chain) ───────────────────────────────
 const callOpenRouter = async (apiKey, messages) => {
@@ -323,7 +514,38 @@ export default async function handler(req, res) {
 
   const errors = [];
   const dev = process.env.NODE_ENV !== 'production';
+  const wantStream = req.body?.stream === true;
 
+  // ── Streaming path ──────────────────────────────────────────────
+  if (wantStream) {
+    setupSSE(res);
+    const ctx = { errors };
+    try {
+      if (geminiKey && (await streamGemini(geminiKey, messages, res, ctx))) {
+        writeSSE(res, { done: true });
+        return res.end();
+      }
+      if (groqKey && (await streamGroq(groqKey, messages, res, ctx))) {
+        writeSSE(res, { done: true });
+        return res.end();
+      }
+      if (openrouterKey && (await streamOpenRouter(openrouterKey, messages, res, ctx))) {
+        writeSSE(res, { done: true });
+        return res.end();
+      }
+    } catch (err) {
+      ctx.errors.push(`stream threw: ${err?.message || err}`);
+      console.error('[arme-chat] stream threw', err);
+    }
+    console.error('[arme-chat] all providers failed stream', ctx.errors);
+    const errPayload = { error: 'Arme gak bisa nyambung. Coba lagi nanti.' };
+    if (dev) errPayload.detail = ctx.errors.join(' | ');
+    writeSSE(res, errPayload);
+    writeSSE(res, { done: true });
+    return res.end();
+  }
+
+  // ── Non-streaming JSON path (legacy / fallback) ─────────────────
   // Try Gemini first (personal quota, more reliable).
   if (geminiKey) {
     try {
