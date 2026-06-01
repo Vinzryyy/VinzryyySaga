@@ -18,7 +18,16 @@
  * message is length-capped to keep free-tier requests cheap.
  */
 
-const MODEL = 'moonshotai/kimi-k2.6:free';
+// Primary + fallbacks — OpenRouter's `models` param tries each in order
+// until one isn't rate-limited. Capped at 3 (OpenRouter limit). Kimi
+// K2.6 free is the headliner but its shared pool gets saturated; the
+// rest are similar-capability free tiers that handle Indonesian +
+// persona prompts reasonably.
+const MODELS = [
+  'moonshotai/kimi-k2.6:free',
+  'deepseek/deepseek-chat-v3.1:free',
+  'meta-llama/llama-3.3-70b-instruct:free',
+];
 const MAX_TURNS = 16;
 const MAX_MESSAGE_CHARS = 1200;
 const MAX_TOKENS = 320;
@@ -88,10 +97,11 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
         'HTTP-Referer': 'https://armeniaca.online',
-        'X-Title': 'Armeniaca — Arme Chat',
+        'X-Title': 'Armeniaca Arme Chat',
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: MODELS[0],
+        models: MODELS,
         max_tokens: MAX_TOKENS,
         temperature: 0.7,
         messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
@@ -105,10 +115,10 @@ export default async function handler(req, res) {
         upstream.status === 429
           ? 'Arme lagi capek (rate limit). Coba lagi sebentar lagi ya.'
           : `upstream ${upstream.status}`;
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('[arme-chat] upstream error', upstream.status, text.slice(0, 500));
-      }
-      return res.status(status).json({ error: msg });
+      console.error('[arme-chat] upstream error', upstream.status, text.slice(0, 800));
+      const body = { error: msg };
+      if (process.env.NODE_ENV !== 'production') body.upstream = text.slice(0, 400);
+      return res.status(status).json(body);
     }
 
     const data = await upstream.json();
@@ -116,11 +126,12 @@ export default async function handler(req, res) {
     if (!reply) {
       return res.status(502).json({ error: 'jawaban kosong dari model' });
     }
-    return res.status(200).json({ reply, usage: data.usage });
+    return res.status(200).json({ reply, model: data.model, usage: data.usage });
   } catch (err) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('[arme-chat] fetch error', err);
-    }
-    return res.status(500).json({ error: 'Arme gak bisa nyambung. Coba lagi nanti.' });
+    const detail = err?.message || String(err);
+    console.error('[arme-chat] fetch error', detail, err?.cause?.code);
+    const body = { error: 'Arme gak bisa nyambung. Coba lagi nanti.' };
+    if (process.env.NODE_ENV !== 'production') body.detail = detail;
+    return res.status(500).json(body);
   }
 }
