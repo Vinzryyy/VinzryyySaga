@@ -143,6 +143,71 @@ Milestone karier Eli (pakai info ini buat jawab pertanyaan timeline):
 - ANTI-PLATFORM-LUAR: fokus ke armeniaca.online + sosial Eli resmi. Jangan promosi Showroom (Eli jarang aktif), platform fan-made lain, atau merchandise tidak resmi.
 - TETAP dalam karakter — pemandu lembut & sabar. Bukan asisten AI generik, bukan Eli, bukan curhat box.`;
 
+// ── Dynamic context (birthday awareness + current route) ─────────────
+// Computed per request and appended to SYSTEM_PROMPT so Arme can say
+// things like "H-3 nih menuju seitansai" or "kamu lagi di /gallery ya".
+// Anchor: Eli's birthday 15 Juni 2026 WIB +07:00 (per memory).
+const SEITANSAI_ISO = '2026-06-15T00:00:00+07:00';
+const SEITANSAI_MS = new Date(SEITANSAI_ISO).getTime();
+
+const ROUTE_DESCRIPTIONS = {
+  '/': 'Pengunjung sekarang di Home.',
+  '/profile': 'Pengunjung sekarang di halaman Profil Lengkap Eli (timeline, diskografi, sousenkyo).',
+  '/about': 'Pengunjung sekarang di halaman About — narasi "Sang Mermaid".',
+  '/gallery': 'Pengunjung sekarang di Memoria gallery — bisa filter per era.',
+  '/vivo': 'Pengunjung sekarang di Vivo — playlist IDN Live & SHOWROOM Eli.',
+  '/schedule': 'Pengunjung sekarang di halaman Jadwal Eli.',
+  '/wishes': 'Pengunjung sekarang di Wishes Wall — bisa langsung dorong kirim ucapan.',
+  '/countdown': 'Pengunjung sekarang di Countdown menuju 15 Juni 2026.',
+  '/26': 'Pengunjung sekarang di Pohon Kebaikan (#26) — bisa langsung ajak siram pohon.',
+  '/byu-music': 'Pengunjung sekarang di ByU Music — page lagu titipan fans.',
+  '/armepack': 'Pengunjung sekarang di ArmePack (Petikan) — sistem kartu harian.',
+  '/galeri-kebaikan': 'Pengunjung sekarang di Galeri Kebaikan — arsip donasi.',
+  '/denyut': 'Pengunjung sekarang di Denyut — heartbeat website.',
+  '/armeniacaTown': 'Pengunjung sekarang di gerbang ArmeniacaTown.',
+};
+
+const describeRoute = (pathname) => {
+  if (typeof pathname !== 'string') return null;
+  if (ROUTE_DESCRIPTIONS[pathname]) return ROUTE_DESCRIPTIONS[pathname];
+  // Era-keyed gallery: /gallery/2024 etc
+  if (pathname.startsWith('/gallery/')) {
+    const era = pathname.slice('/gallery/'.length).replace(/[^\w-]/g, '');
+    if (era) return `Pengunjung sekarang lihat galeri era "${era}".`;
+  }
+  // ArmeniacaTown petak: /armeniacaTown/r1, r2, etc
+  if (pathname.startsWith('/armeniacaTown/r')) {
+    const m = pathname.match(/\/armeniacaTown\/(r[1-6])/);
+    if (m) return `Pengunjung sekarang di petak ${m[1].toUpperCase()} ArmeniacaTown.`;
+  }
+  return null;
+};
+
+const describeBirthday = () => {
+  const dayMs = 86_400_000;
+  const diffDays = Math.ceil((SEITANSAI_MS - Date.now()) / dayMs);
+  if (diffDays > 0 && diffDays <= 30) {
+    return `Sekarang H-${diffDays} hari menuju ulang tahun ke-26 Eli (15 Juni 2026). Boleh sesekali singgung kalau relevan dengan pertanyaan user.`;
+  }
+  if (diffDays === 0) {
+    return `HARI INI 15 JUNI 2026 — SEITANSAI ELI! Hangatkan suasana sedikit kalau user nyebut tanggal atau ulang tahun.`;
+  }
+  if (diffDays < 0 && diffDays >= -14) {
+    return `Seitansai Eli baru lewat ${Math.abs(diffDays)} hari yang lalu (15 Juni 2026). Kalau relevan, boleh sebut singkat.`;
+  }
+  return null;
+};
+
+const buildContextSuffix = (pathname) => {
+  const lines = [];
+  const bday = describeBirthday();
+  if (bday) lines.push(bday);
+  const route = describeRoute(pathname);
+  if (route) lines.push(route);
+  if (!lines.length) return '';
+  return `\n\n═══ KONTEKS PENGUNJUNG (LIVE — gunakan ini buat warm-up reply, tapi tetap singkat) ═══\n${lines.join('\n')}`;
+};
+
 const sanitizeMessages = (raw) => {
   if (!Array.isArray(raw)) return [];
   const cleaned = [];
@@ -200,7 +265,7 @@ const drainSSE = (buffer) => {
 // ── Gemini (Google AI Studio) ────────────────────────────────────────
 // Native API shape — separate `systemInstruction`, `contents` array with
 // 'user'|'model' roles (not 'assistant'), each turn wrapped in `parts`.
-const callGemini = async (apiKey, messages) => {
+const callGemini = async (apiKey, messages, systemPrompt) => {
   const contents = messages.map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
@@ -212,7 +277,7 @@ const callGemini = async (apiKey, messages) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      systemInstruction: { parts: [{ text: systemPrompt }] },
       contents,
       generationConfig: {
         maxOutputTokens: MAX_TOKENS,
@@ -264,7 +329,7 @@ const callGemini = async (apiKey, messages) => {
 // the upstream errored before producing any tokens (lets the caller try
 // the next provider). Once any token has been written we stay committed
 // to this provider — switching mid-stream would mangle output.
-const streamGemini = async (apiKey, messages, res, ctx) => {
+const streamGemini = async (apiKey, messages, res, ctx, systemPrompt) => {
   const contents = messages.map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
@@ -276,7 +341,7 @@ const streamGemini = async (apiKey, messages, res, ctx) => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      systemInstruction: { parts: [{ text: systemPrompt }] },
       contents,
       generationConfig: {
         maxOutputTokens: MAX_TOKENS,
@@ -330,7 +395,7 @@ const streamGemini = async (apiKey, messages, res, ctx) => {
 // Independent infra, ~14400 RPD per key, very fast inference. Sits in
 // the middle of the fallback chain — if Gemini errors, Groq usually
 // answers before we even need to touch OpenRouter.
-const callGroq = async (apiKey, messages) => {
+const callGroq = async (apiKey, messages, systemPrompt) => {
   const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -342,7 +407,7 @@ const callGroq = async (apiKey, messages) => {
       max_tokens: MAX_TOKENS,
       temperature: 0.4,
       top_p: 0.85,
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
     }),
   });
   if (!upstream.ok) {
@@ -416,7 +481,7 @@ const streamOpenAICompat = async (url, apiKey, body, providerName, res, ctx, ext
   return wroteAny;
 };
 
-const streamGroq = (apiKey, messages, res, ctx) =>
+const streamGroq = (apiKey, messages, res, ctx, systemPrompt) =>
   streamOpenAICompat(
     'https://api.groq.com/openai/v1/chat/completions',
     apiKey,
@@ -425,14 +490,14 @@ const streamGroq = (apiKey, messages, res, ctx) =>
       max_tokens: MAX_TOKENS,
       temperature: 0.4,
       top_p: 0.85,
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
     },
     'groq',
     res,
     ctx,
   );
 
-const streamOpenRouter = (apiKey, messages, res, ctx) =>
+const streamOpenRouter = (apiKey, messages, res, ctx, systemPrompt) =>
   streamOpenAICompat(
     'https://openrouter.ai/api/v1/chat/completions',
     apiKey,
@@ -442,7 +507,7 @@ const streamOpenRouter = (apiKey, messages, res, ctx) =>
       max_tokens: MAX_TOKENS,
       temperature: 0.4,
       top_p: 0.85,
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
     },
     'openrouter',
     res,
@@ -451,7 +516,7 @@ const streamOpenRouter = (apiKey, messages, res, ctx) =>
   );
 
 // ── OpenRouter (Kimi + fallback chain) ───────────────────────────────
-const callOpenRouter = async (apiKey, messages) => {
+const callOpenRouter = async (apiKey, messages, systemPrompt) => {
   const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -466,7 +531,7 @@ const callOpenRouter = async (apiKey, messages) => {
       max_tokens: MAX_TOKENS,
       temperature: 0.4,
       top_p: 0.85,
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
     }),
   });
   if (!upstream.ok) {
@@ -515,21 +580,24 @@ export default async function handler(req, res) {
   const errors = [];
   const dev = process.env.NODE_ENV !== 'production';
   const wantStream = req.body?.stream === true;
+  // Compose system prompt with live context (birthday H-N, current
+  // route) so every call gets fresh awareness without persisting state.
+  const systemPrompt = SYSTEM_PROMPT + buildContextSuffix(req.body?.pathname);
 
   // ── Streaming path ──────────────────────────────────────────────
   if (wantStream) {
     setupSSE(res);
     const ctx = { errors };
     try {
-      if (geminiKey && (await streamGemini(geminiKey, messages, res, ctx))) {
+      if (geminiKey && (await streamGemini(geminiKey, messages, res, ctx, systemPrompt))) {
         writeSSE(res, { done: true });
         return res.end();
       }
-      if (groqKey && (await streamGroq(groqKey, messages, res, ctx))) {
+      if (groqKey && (await streamGroq(groqKey, messages, res, ctx, systemPrompt))) {
         writeSSE(res, { done: true });
         return res.end();
       }
-      if (openrouterKey && (await streamOpenRouter(openrouterKey, messages, res, ctx))) {
+      if (openrouterKey && (await streamOpenRouter(openrouterKey, messages, res, ctx, systemPrompt))) {
         writeSSE(res, { done: true });
         return res.end();
       }
@@ -549,7 +617,7 @@ export default async function handler(req, res) {
   // Try Gemini first (personal quota, more reliable).
   if (geminiKey) {
     try {
-      const r = await callGemini(geminiKey, messages);
+      const r = await callGemini(geminiKey, messages, systemPrompt);
       if (r.ok) {
         return res.status(200).json({
           reply: r.reply,
@@ -569,7 +637,7 @@ export default async function handler(req, res) {
   // Try Groq next — independent infra, very fast, big free tier.
   if (groqKey) {
     try {
-      const r = await callGroq(groqKey, messages);
+      const r = await callGroq(groqKey, messages, systemPrompt);
       if (r.ok) {
         return res.status(200).json({
           reply: r.reply,
@@ -589,7 +657,7 @@ export default async function handler(req, res) {
   // Fall back to OpenRouter chain.
   if (openrouterKey) {
     try {
-      const r = await callOpenRouter(openrouterKey, messages);
+      const r = await callOpenRouter(openrouterKey, messages, systemPrompt);
       if (r.ok) {
         return res.status(200).json({
           reply: r.reply,

@@ -16,7 +16,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const STORAGE_KEY = 'armeniaca-arme-chat-v1';
-const AVATAR = '/Arme/ELI_1_a.png';
+// Two-pose set — matches ArmeMascot's idle/talk asset convention.
+const AVATAR_IDLE = '/Arme/ELI_2_a.png'; // hand-to-chin, default
+const AVATAR_TALK = '/Arme/ELI_1_a.png'; // pointing, while answering
 const MAX_HISTORY = 16;
 const MAX_INPUT_CHARS = 1200;
 
@@ -60,6 +62,67 @@ const KNOWN_ROUTES = new Set([
 // (whitespace, punctuation, line start) — avoids matching paths inside
 // URLs (https://x.com/foo) or fractions like "1/2".
 const ROUTE_REGEX = /(^|[\s(,])(\/[a-zA-Z][\w-]*(?:\/[a-zA-Z0-9][\w-]*)*)/g;
+
+// Follow-up suggestion library — pick 3 contextual chips after each
+// assistant reply. Keyed by route mentioned in the reply; falls back
+// to GENERIC_FOLLOWUPS when no route keyword matches.
+const FOLLOWUPS_BY_ROUTE = {
+  '/wishes': ['Aturan kirim ucapan apa?', 'Berapa karakter maksimal?'],
+  '/profile': ['Diskografi Eli apa aja?', 'Posisi Eli di Team Dream?'],
+  '/gallery': ['Era apa aja di galeri?', 'Berapa total foto Eli di sini?'],
+  '/schedule': ['Eli show terdekat kapan?', 'Cara cek jadwal theater?'],
+  '/26': ['Cara siram pohon gimana?', 'Pohon udah tahap apa?'],
+  '/byu-music': ['Apa itu by-U?', 'Kapan lagunya kebuka?'],
+  '/galeri-kebaikan': ['Donasi apa aja yang udah jalan?', 'Cara ikut donasi?'],
+  '/armeniacaTown': ['Petak apa aja di kota?', 'Cara buka petak baru?'],
+  '/armeniacaTown/peta': ['Apa yang ada di Peta?', 'Petak mana yang dulu kebuka?'],
+  '/armepack': ['Apa itu Petikan?', 'Berapa kartu di batch pertama?'],
+  '/countdown': ['Apa yang spesial di hari-H?', 'Berapa hari lagi seitansai?'],
+  '/about': ['Apa itu "Sang Mermaid"?', 'Eli orang mana?'],
+  '/vivo': ['Eli aktif IDN Live atau Showroom?', 'Berapa playlist arsipnya?'],
+};
+
+const GENERIC_FOLLOWUPS = [
+  'Halaman apa lagi yang menarik?',
+  'Cerita dong soal kotanya',
+  'Kapan seitansai Eli?',
+  'Eli sekarang di tim apa?',
+  'Apa itu Harmoni Kebaikan?',
+  'Cara siram Pohon Kebaikan?',
+  'Apa itu ArmeniacaTown?',
+];
+
+const pickFollowups = (lastAssistantText, askedSet, count = 3) => {
+  if (!lastAssistantText) return [];
+  const chosen = [];
+  const taken = new Set();
+  const push = (q) => {
+    if (taken.has(q) || askedSet.has(q.toLowerCase())) return;
+    taken.add(q);
+    chosen.push(q);
+  };
+  // Route-keyed first
+  for (const route of Object.keys(FOLLOWUPS_BY_ROUTE)) {
+    if (lastAssistantText.includes(route)) {
+      for (const q of FOLLOWUPS_BY_ROUTE[route]) {
+        push(q);
+        if (chosen.length === count) return chosen;
+      }
+    }
+  }
+  // Fill rest with generic, shuffled-ish (date-seeded so it changes per
+  // minute but stays stable across re-renders in same minute).
+  const seed = Math.floor(Date.now() / 60000);
+  const rotated = [
+    ...GENERIC_FOLLOWUPS.slice(seed % GENERIC_FOLLOWUPS.length),
+    ...GENERIC_FOLLOWUPS.slice(0, seed % GENERIC_FOLLOWUPS.length),
+  ];
+  for (const q of rotated) {
+    push(q);
+    if (chosen.length === count) break;
+  }
+  return chosen;
+};
 
 const renderTextWithRoutes = (text, onRouteClick) => {
   if (!text) return null;
@@ -114,18 +177,28 @@ const saveHistory = (messages) => {
 const isMobileViewport = () =>
   typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
 
-const Avatar = ({ size = 36 }) => (
+const Avatar = ({ size = 36, talking = false }) => (
   <span
-    className="inline-flex items-center justify-center rounded-full overflow-hidden bg-[#f4e3cc] ring-1 ring-[#d4a574]/60 shrink-0"
-    style={{ width: size, height: size }}
+    className="inline-flex items-center justify-center rounded-full overflow-hidden bg-[#f4e3cc] ring-1 ring-[#d4a574]/60 shrink-0 transition-all"
+    style={{
+      width: size,
+      height: size,
+      boxShadow: talking
+        ? '0 0 0 2px rgba(244,200,150,0.55), 0 0 12px rgba(244,200,150,0.6)'
+        : 'none',
+    }}
     aria-hidden
   >
     <img
-      src={AVATAR}
+      src={talking ? AVATAR_TALK : AVATAR_IDLE}
       alt=""
       draggable={false}
       className="w-full h-full object-cover object-top"
-      style={{ filter: 'drop-shadow(0 0 6px rgba(244,200,150,0.4))' }}
+      style={{
+        filter: talking
+          ? 'drop-shadow(0 0 8px rgba(244,200,150,0.7)) brightness(1.05)'
+          : 'drop-shadow(0 0 6px rgba(244,200,150,0.4))',
+      }}
     />
   </span>
 );
@@ -235,7 +308,13 @@ const ArmeChatWidget = () => {
         const res = await fetch('/api/arme-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-          body: JSON.stringify({ messages: next, stream: true }),
+          body: JSON.stringify({
+            messages: next,
+            stream: true,
+            // Page Arme is on — backend uses this to inject "user
+            // sedang di /gallery" etc into the system prompt.
+            pathname,
+          }),
           signal: controller.signal,
         });
 
@@ -301,7 +380,7 @@ const ArmeChatWidget = () => {
         setSending(false);
       }
     },
-    [input, messages, sending],
+    [input, messages, sending, pathname],
   );
 
   const reset = useCallback(() => {
@@ -334,6 +413,26 @@ const ArmeChatWidget = () => {
   if (hidden) return null;
 
   const showSuggestions = !sending && messages.length === 0;
+  // Contextual follow-up chips — shown after the last assistant message
+  // (when not streaming). Picks 3 chips keyed by routes Arme mentioned
+  // in her last reply; falls back to a rotating generic set.
+  const lastMsg = messages[messages.length - 1];
+  const showFollowups =
+    !sending &&
+    streamingContent === null &&
+    lastMsg?.role === 'assistant' &&
+    messages.length > 0;
+  const followupChips = showFollowups
+    ? pickFollowups(
+        lastMsg.content,
+        new Set(
+          messages
+            .filter((m) => m.role === 'user')
+            .map((m) => m.content.toLowerCase().trim()),
+        ),
+        3,
+      )
+    : [];
 
   return (
     <>
@@ -376,7 +475,7 @@ const ArmeChatWidget = () => {
           }}
         >
           <img
-            src={AVATAR}
+            src={AVATAR_IDLE}
             alt="Arme"
             draggable={false}
             className="w-12 h-12 rounded-full object-cover object-top"
@@ -481,12 +580,14 @@ const ArmeChatWidget = () => {
             )}
 
             {/* Streaming bubble — visible while Arme is still generating.
-                Routes aren't parsed here (partial paths would flicker
-                between text/button mid-stream). Final message commit
-                renders via the main messages map with full parsing. */}
+                Avatar swaps to talking pose (ELI_1_a + glow) so the
+                avatar feels alive while text streams in. Routes aren't
+                parsed here (partial paths would flicker between text
+                /button mid-stream); final commit renders via the main
+                messages map with full parsing. */}
             {streamingContent !== null && (
               <div className="flex items-start gap-2">
-                <Avatar size={28} />
+                <Avatar size={28} talking />
                 <div className="flex-1 max-w-[85%] rounded-2xl rounded-tl-sm bg-white ring-1 ring-[#d4a574]/30 px-3.5 py-2.5 text-[13px] leading-relaxed text-[#1c1f2a] whitespace-pre-wrap shadow-sm">
                   {streamingContent || <TypingDots />}
                   {streamingContent && (
@@ -523,6 +624,27 @@ const ArmeChatWidget = () => {
                     type="button"
                     onClick={() => send(s)}
                     className="text-[12px] px-3 py-1.5 rounded-full bg-white ring-1 ring-[#d4a574]/40 text-[#9a5b4a] hover:bg-[#fff3e2] transition-colors"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Follow-up chips after a completed assistant reply.
+                Subtler styling than the initial suggestions to read as
+                "by the way…" rather than "click me first". */}
+            {followupChips.length > 0 && (
+              <div className="pt-1 pl-9 flex flex-wrap gap-1.5">
+                <div className="w-full text-[10px] uppercase tracking-[0.15em] text-[#9a5b4a]/60 mb-0.5">
+                  Tanya lagi
+                </div>
+                {followupChips.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => send(s)}
+                    className="text-[11px] px-2.5 py-1 rounded-full bg-[#9a5b4a]/8 ring-1 ring-[#9a5b4a]/20 text-[#7a3f30] hover:bg-[#9a5b4a]/15 hover:ring-[#9a5b4a]/35 transition-colors"
                   >
                     {s}
                   </button>
