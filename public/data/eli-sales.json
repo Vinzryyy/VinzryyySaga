@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-02T13:29:12.037851Z",
+  "fetchedAt": "2026-06-02T19:23:53.449815Z",
   "salesCount": 4,
   "sales": [
     {
@@ -11,7 +11,7 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-preview-8a69c1.jpg",
       "defaultPrice": 50000,
-      "totalQuota": 55000,
+      "totalQuota": 51250,
       "salesPeriod": [
         {
           "label": "OFC",
