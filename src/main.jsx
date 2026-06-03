@@ -27,7 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 // brand moment, not a flash). performance.now() measures ms since the
 // browser began navigating — so the math accounts for time the user
 // has already been looking at the splash before main.jsx executes.
-const PRELOADER_MIN_MS = 2000;
+const PRELOADER_MIN_MS = 800;
 const hidePreloader = () => {
   const el = document.getElementById("preloader");
   if (!el) return;

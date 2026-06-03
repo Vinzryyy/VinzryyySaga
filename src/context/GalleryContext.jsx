@@ -11,17 +11,12 @@
  */
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect, useMemo } from 'react';
-import {
-  GALLERY_IMAGES,
-  CATEGORIES,
-  getFeaturedImages,
-  getAvailableEras,
-} from '../data/galleryData';
 
 const ActionTypes = {
   SET_ERA_FILTER: 'SET_ERA_FILTER',
   SET_EVENT_QUERY: 'SET_EVENT_QUERY',
   LOAD_IMAGES: 'LOAD_IMAGES',
+  LOAD_GALLERY_DATA: 'LOAD_GALLERY_DATA',
   APPLY_ENRICHMENTS: 'APPLY_ENRICHMENTS',
   CLEAR_FILTERS: 'CLEAR_FILTERS',
   SET_SELECTED_IMAGE: 'SET_SELECTED_IMAGE',
@@ -29,18 +24,19 @@ const ActionTypes = {
 };
 
 const initialState = {
-  images: GALLERY_IMAGES,
-  filteredImages: GALLERY_IMAGES,
-  categories: CATEGORIES,
-  eras: getAvailableEras(),
+  images: [],
+  filteredImages: [],
+  categories: [{ id: 'all', label: 'All Memoria', icon: 'ri-gallery-line' }],
+  eras: [],
   filters: {
     era: 'all',
     eventQuery: '',
   },
-  isLoading: false,
+  isLoading: true,
   error: null,
   selectedImage: null,
   enrichmentsLoaded: false,
+  featuredImages: [],
 };
 
 // Pulls "MEDIAKEY" out of `/archive/x/x-MEDIAKEY.jpg` (and similar).
@@ -132,12 +128,25 @@ const galleryReducer = (state, action) => {
     }
     case ActionTypes.LOAD_IMAGES:
       return { ...state, images: action.payload, filteredImages: action.payload, isLoading: false };
+    case ActionTypes.LOAD_GALLERY_DATA: {
+      const { images, eras, categories, featuredImages } = action.payload;
+      return {
+        ...state,
+        images,
+        filteredImages: applyFilters(images, state.filters),
+        eras,
+        categories,
+        featuredImages,
+        isLoading: false,
+      };
+    }
     case ActionTypes.APPLY_ENRICHMENTS: {
       const enriched = mergeEnrichments(state.images, action.payload);
       return {
         ...state,
         images: enriched,
         filteredImages: applyFilters(enriched, state.filters),
+        featuredImages: enriched.filter((img) => img.featured),
         enrichmentsLoaded: true,
       };
     }
@@ -183,20 +192,31 @@ export const GalleryProvider = ({ children }) => {
   const setSelectedImage = useCallback((image) => dispatch({ type: ActionTypes.SET_SELECTED_IMAGE, payload: image }), []);
   const clearSelectedImage = useCallback(() => dispatch({ type: ActionTypes.CLEAR_SELECTED_IMAGE }), []);
 
-  // Fetch enrichments once on mount. Cache: 'force-cache' is fine —
-  // the JSON only changes when scripts/build-gallery-enrichments.js
-  // re-runs, and a hard refresh defeats it. Failure here is silent so
-  // the gallery still renders with placeholder titles if the enrichment
-  // fetch is blocked.
+  // Lazy-load galleryData — the 168KB image array is dynamically imported
+  // so it doesn't block first paint. Entry bundle stays lean; data loads
+  // in parallel with React's initial render. Enrichments chain after.
   useEffect(() => {
     let cancelled = false;
-    fetch('/data/gallery-enrichments.json', { cache: 'force-cache' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((doc) => {
-        if (cancelled || !doc) return;
-        dispatch({ type: ActionTypes.APPLY_ENRICHMENTS, payload: doc });
-      })
-      .catch(() => {});
+    import('../data/galleryData').then((mod) => {
+      if (cancelled) return;
+      dispatch({
+        type: ActionTypes.LOAD_GALLERY_DATA,
+        payload: {
+          images: mod.GALLERY_IMAGES,
+          eras: mod.getAvailableEras(),
+          categories: mod.CATEGORIES,
+          featuredImages: mod.getFeaturedImages(),
+        },
+      });
+      // Chain enrichments after gallery data is loaded
+      fetch('/data/gallery-enrichments.json', { cache: 'force-cache' })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((doc) => {
+          if (cancelled || !doc) return;
+          dispatch({ type: ActionTypes.APPLY_ENRICHMENTS, payload: doc });
+        })
+        .catch(() => {});
+    });
     return () => {
       cancelled = true;
     };
@@ -214,7 +234,6 @@ export const GalleryProvider = ({ children }) => {
       (state.filters.era !== 'all' ? 1 : 0) + (state.filters.eventQuery ? 1 : 0),
     totalImages: state.images.length,
     filteredCount: state.filteredImages.length,
-    featuredImages: getFeaturedImages(),
   }), [state, setEraFilter, setEventQuery, clearFilters, setSelectedImage, clearSelectedImage]);
 
   return <GalleryContext.Provider value={contextValue}>{children}</GalleryContext.Provider>;
