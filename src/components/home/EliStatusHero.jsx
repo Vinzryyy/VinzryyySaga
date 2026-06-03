@@ -242,10 +242,8 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
     }).length;
   }, [schedule, nowMinute]);
 
-  // Skip rendering for non-urgent states — 'upcoming' (>24h) folds into a
-  // compact chip in Home hero, 'idle' has nothing actionable to show.
-  // Only 'live' and 'imminent' (≤24h) earn the full status section.
-  if (state === 'upcoming' || state === 'idle') return null;
+  // All states now render — mini schedule list is always visible so
+  // visitors immediately see Eli's upcoming events on the home page.
 
   return (
     <Section id="status-eli" padding="lg">
