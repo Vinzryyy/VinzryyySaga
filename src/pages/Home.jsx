@@ -626,13 +626,14 @@ const HomePage = () => {
               style={{ perspective: '600px' }}
             >
               {hero.title}
-              <br />
-              <span className="text-[color:var(--retro-gold-light)]">{hero.subtitle}.</span>
             </h1>
+            <p className="font-header text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-[1.1] tracking-tight text-[color:var(--retro-gold-light)] mt-2 md:mt-3">
+              {hero.subtitle}.
+            </p>
 
             <p
               style={{ transitionDelay: '450ms' }}
-              className={`mt-4 md:mt-6 text-xs sm:text-sm md:text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl line-clamp-3 md:line-clamp-none transition-all duration-1000 ease-out ${
+              className={`mt-4 md:mt-6 text-xs sm:text-sm md:text-base text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl line-clamp-none transition-all duration-1000 ease-out ${
                 heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
             >
