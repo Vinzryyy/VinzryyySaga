@@ -1,10 +1,22 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-06-03T07:53:59.770105Z",
+  "fetchedAt": "2026-06-03T13:50:57.360343Z",
   "scanned": 50,
-  "eliMentionCount": 1,
+  "eliMentionCount": 2,
   "items": [
+    {
+      "id": 1838,
+      "title": "Pengumuman Mengenai Birthday 2-Shot Online bulan Juni dengan Chekicha",
+      "category": "Birthday",
+      "slug": "pengumuman-mengenai-birthday-2-shot-online-bulan-juni-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juni-dengan-chekicha",
+      "image": null,
+      "publishedAt": "2026-06-02T17:00:00.000Z",
+      "snippet": "…ntuk JKT48. Untuk merayakan ulang tahun Helisma Putri, Nayla Suji, Gendis Mayrannisa, dan Gita Sekar di bulan Juni ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail ja…",
+      "mentionsEli": true,
+      "matchedIn": "body"
+    },
     {
       "id": 1837,
       "title": "Pengumuman Mengenai Jadwal dan Detail Tiket JKT48 Theater Sementara Surabaya & Yogyakarta serta Personal Meet and Greet & 2-Shot Event",
@@ -590,18 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2025-12-18T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Mari rayakan 14 tahun perjalanan JKT48 dan momen kelulusan Gracia dengan merchandise yang akan dirilis pada konser ini. Berikut adalah daftar merchandise yang akan dirilis:…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1174,
-      "title": "Pengumuman Mengenai Pengganti Birthday 2-Shot Online dengan Chekicha Desy Natalia",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-pengganti-birthday-2shot-online-dengan-chekicha-desy-natalia",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-pengganti-birthday-2shot-online-dengan-chekicha-desy-natalia",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2025-12-14T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan kegiatan Desy Natalia, yang tidak memungkinkan untuk mengikuti Birthday 2-shot dengan Chekicha pada Rabu, 17 Desember 2025, kami akan mengadakan pengganti…",
       "mentionsEli": false,
       "matchedIn": null
     }
