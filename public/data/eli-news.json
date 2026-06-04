@@ -1,9 +1,9 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-06-04T07:48:55.950208Z",
+  "fetchedAt": "2026-06-04T13:18:20.706083Z",
   "scanned": 50,
-  "eliMentionCount": 2,
+  "eliMentionCount": 0,
   "items": [
     {
       "id": 1838,
@@ -13,9 +13,9 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juni-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-06-02T17:00:00.000Z",
-      "snippet": "…ntuk JKT48. Untuk merayakan ulang tahun Helisma Putri, Nayla Suji, Gendis Mayrannisa, dan Gita Sekar di bulan Juni ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail ja…",
-      "mentionsEli": true,
-      "matchedIn": "body"
+      "snippet": "",
+      "mentionsEli": false,
+      "matchedIn": null
     },
     {
       "id": 1837,
@@ -25,7 +25,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jadwal-dan-detail-tiket-jkt48-theater-sementara-surabaya-yogyakarta-serta-person",
       "image": null,
       "publishedAt": "2026-05-25T17:00:00.000Z",
-      "snippet": "T erima kasih atas dukungannya untuk JKT48. JKT48 Theater merupakan tempat di mana para member menghadirkan pertunjukan yang membekas di hati para penggemar. Bersama Team Love, Team Dream, dan Team Passion, JKT48 akan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -37,7 +37,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-stage-activity-dan-mini-live-performance-di-jkt48-personal-meet-and-greet-festiv",
       "image": null,
       "publishedAt": "2026-05-21T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 Sebagaimana yang telah diumumkan sebelumnya, JKT48 akan mengadakan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION pada tanggal 23 Mei 2026 di Hall 9 dan 10 ICE…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -49,7 +49,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-official-team-merchandise-vol-1",
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -61,7 +61,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -73,7 +73,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-showroom-idn-live-member-generasi-14-jkt48",
       "image": null,
       "publishedAt": "2026-05-17T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Setelah melakukan trial pada beberapa waktu lalu, kini para generasi 14 akan mendapatkan akun SHOWROOM dan IDN Live mereka masing - masing. Mulai sekarang kalian bisa…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -85,7 +85,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-penjualan-tambahan-tiket-jkt48-personal-meet-and-greet-festival-love-dream-passi",
       "image": null,
       "publishedAt": "2026-05-16T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan berakhirnya masa penangguhan aktivitas Gendis Mayrannisa pada 17 Mei 2026, dengan ini kami ingin menginformasikan bahwa Gendis Mayrannisa akan berpartisipasi…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -97,7 +97,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-chelsea-davina-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-05-15T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat-saat terakhir Chelsea Davina yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -109,7 +109,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-chelsea-davina",
       "image": null,
       "publishedAt": "2026-05-14T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Chelsea telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 1 April 2026, kami dengan ini…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -121,7 +121,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-mei-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-05-13T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Cathleen Nixie di bulan Mei ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail jadwalnya:…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -133,7 +133,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-media-sosial-member-jkt48",
       "image": null,
       "publishedAt": "2026-05-08T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Guna memberikan ruang digital yang lebih aman dan nyaman, aktivitas media sosial member JKT48 yang masih berusia di bawah 16 tahun akan diwadahi melalui satu akun bersama. Akun…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -145,7 +145,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-tiket-event-jkt48-request-hour-2026-setlist-best-40",
       "image": null,
       "publishedAt": "2026-05-07T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Voting untuk Request Hour 2026 masih terus berlangsung! Sudahkah kalian memilih lagu favorit kalian? Lagu pilihan kalian akan dibawakan dalam bentuk countdown spesial di dalam…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -157,7 +157,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-ofc-event-arisan-48",
       "image": null,
       "publishedAt": "2026-05-04T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48! JKT48 OFC Event akan segera hadir untuk menambah keseruan di bulan Mei bersama member Team Love, Dream dan Passion, dalam acara “ARISAN 48” yang akan mengajak kalian untuk…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -169,7 +169,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-we-are-love-dream-team-passion-on-fire-dengan-",
       "image": null,
       "publishedAt": "2026-05-03T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 6 Mei 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “We Are Love, Dream Team, Passion On Fire!” dengan bonus Video Call bersama JKT48.…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -181,7 +181,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-trial-video-call-bersama-member-jkt48-generasi-14",
       "image": null,
       "publishedAt": "2026-04-23T17:00:00.000Z",
-      "snippet": "Untuk memperkenalkan generasi baru JKT48, kami akan mengadakan Trial Video Call bersama member Generasi 14! Khusus bagi para anggota OFC, kalian akan mendapatkan benefit untuk melakukan Trial Video Call bersama para…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -193,7 +193,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-love-dream-passion-music-video-behind-the-scen",
       "image": null,
       "publishedAt": "2026-04-08T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 10 April 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “Love Dream Passion - Music Video Behind The Scenes” dengan bonus Video Call bersama…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -205,7 +205,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-april-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-04-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Celline Thefani dan Michelle Alexandra di bulan April ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha.…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -217,7 +217,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-request-hour-2026-setlist-best-40",
       "image": null,
       "publishedAt": "2026-03-30T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 Request Hour akhirnya kembali! Melalui event ini, kalian dapat memilih lagu JKT48 favorit dengan cara melakukan voting. Lagu-lagu dengan jumlah voting terbanyak akan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -229,7 +229,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-peraturan-jkt48-personal-meet-and-greet-festival-love-dream-passion",
       "image": null,
       "publishedAt": "2026-03-27T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 akan mengadakan Personal Meet and Greet Festival kembali dengan tema \"LOVE DREAM PASSION\" yang akan diselenggarakan pada 23 Mei 2026 di ICE Indonesia, BSD City,…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -241,7 +241,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion",
       "image": "https://jkt48.com/api/v1/storages/media/news/2026/03/pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion-df75e1.png",
       "publishedAt": "2026-03-26T17:00:00.000Z",
-      "snippet": "Berikut kami sampaikan timetable Personal Meet & Greet dan 2-Shot untuk acara JKT48 Personal Meet & Greet Festival: LOVE DREAM PASSION yang akan diselenggarakan pada: Lokasi: ICE Indonesia, BSD City, Tangerang Tanggal:…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -253,19 +253,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jadwal-penjualan-tiket-2-shot-photocard-jkt48-personal-meet-greet-festival-love-",
       "image": null,
       "publishedAt": "2026-03-24T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 akan segera mengadakan kembali Personal Meet & Greet Festival dengan tema “LOVE DREAM PASSION” , sebuah event spesial yang memberikan kesempatan bagi para penggemar untuk…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 946,
-      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka menghadirkan pengalaman yang lebih dekat antara member JKT48 dan para penggemar, JKT48 akan mengadakan sebuah event spesial bertajuk “ LOVE DREAM PASSION” yang…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -277,7 +265,19 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
+      "snippet": "",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 946,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-12T17:00:00.000Z",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -289,7 +289,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2shot-online-amanda-sukma-dengan-chekicha",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -301,7 +301,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -313,7 +313,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-maegan-jovanka-dari-jkt48",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-08T17:00:00.000Z",
-      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Maegan Jovanka dari generasi 14 JKT48 telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menghargai…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -325,7 +325,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pembaruan-identitas-seluruh-pemilik-akun-jkt48",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-04T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Guna meningkatkan layanan yang diberikan, kami akan menerapkan prosedur pembaruan identitas untuk seluruh akun JKT48 yang telah terdaftar. Prosedur ini wajib dilakukan agar…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -337,7 +337,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2shot-online-bulan-maret-dengan-chekicha-2003",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-03T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Victoria Kimberly dan Indah Cahya di bulan Maret ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -349,7 +349,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-amanda-sukma",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-02-28T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Amanda telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 5 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 21 Oktober 2025, kami dengan ini…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -361,7 +361,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-jkt48-digital-photobook-radiant-hues-dengan-bonus-video-call-with-jkt48",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/Maret-4-6.jpg",
       "publishedAt": "2026-02-26T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 1 Maret 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “Radiant Hues” dengan bonus Video Call bersama JKT48. Photobook “Radiant Hues”…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -373,7 +373,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-ofc-event-jkt48-psychology-project-discovering-our-love-dream-and-passion-",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-02-22T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Era yang baru telah tiba, JKT48 Fight! Bersama semangat baru ini, setiap team di JKT48 akan bersinar dengan cahayanya sendiri. Kali ini, JKT48 OFC Event hadir dengan tajuk…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -385,7 +385,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-ramadhan-charity-donation-2026",
       "image": null,
       "publishedAt": "2026-02-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sampai hari ini, bencana alam yang melanda Aceh masih terasa dampaknya dan masih banyak saudara-saudara kita di sana yang membutuhkan bantuan agar bisa segera pulih. JKT48…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -397,7 +397,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-aktivitas-gendis-mayrannisa-di-jkt48",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-02-16T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Terkait foto yang beredar di sosial media beberapa hari lalu, Gendis telah menjelaskan kejadian tersebut dengan sejujur-jujurnya kepada manajemen. Kurangnya kesadaran diri yang…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -409,7 +409,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/akbi-bundle-4-5.jpg",
       "publishedAt": "2026-02-15T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Merchandise istimewa dari single terbaru ke-27 JKT48, “Andai ’Ku Bukan Idola” , sudah bisa kamu miliki melalui sistem pre-order di Tokopedia . Berikut informasi dari “Andai ‘Ku…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -421,7 +421,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-aktivitas-jkt48-theater-selama-bulan-ramadan-2026",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-02-15T17:00:00.000Z",
-      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Bulan Ramadan telah tiba! Di tahun 2026 ini, JKT48 akan kembali mengadakan berbagai macam pertunjukan teater spesial untuk menemani kalian di bulan suci ini. Berikut…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -433,7 +433,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-penjualan-digital-wallpaper-pack-a-day-full-of-hearts-dengan-bonus-video-call-wi",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48virtual-2602.png",
       "publishedAt": "2026-02-04T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 dan JKT48 Virtual. Pada tanggal 6 Februari 2026, JKT48 akan membuka penjualan Digital Wallpaper Pack “A Day Full of Hearts” dengan bonus Video Call with JKT48 Virtual. Berikut…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -445,7 +445,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-27th-single-andai-ku-bukan-idola-idol-nan",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/2602-8-10.jpg",
       "publishedAt": "2026-02-02T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 5 Februari 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “JKT48 27th Single: Andai 'Ku Bukan Idola – Idol Nanka Janakattara ” dengan bonus…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -457,7 +457,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2shot-online-bulan-februari-dengan-chekicha-1990",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-28T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Fiony Alveria, Freya Jayawardana, Jazzlyn Trisha, dan Febriola Sinambela di bulan Februari ini, Online Birthday 2-Shot akan kembali diadakan dengan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -469,7 +469,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-chelsea-davina",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-24T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Chelsea Davina yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48 14th Anniversary Concert & Gracia…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -481,7 +481,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-gabriela-abigail-cornelia-vanisa-dan-amanda-sukma",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-20T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Gabriela Abigail, Cornelia Vanisa, dan Amanda Sukma, yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -493,19 +493,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-1987",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-11T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan kegiatan Raisha Syifa yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48 14th Anniversary Concert & Gracia…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 961,
-      "title": "Pengumuman Mengenai JKT48 Special Show Ramune No Nomikata - Cara Meminum Ramune “LADIES NIGHT\"",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-jkt48-special-show-ramune-no-nomikata-cara-meminum-ramune-ladies-night",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-special-show-ramune-no-nomikata-cara-meminum-ramune-ladies-night",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-01-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya selalu untuk JKT48. JKT48 akan menggelar show istimewa di JKT48 Theater, yaitu Ladies Night. Pertunjukan ini khusus diadakan untuk penonton wanita, dengan detail sebagai berikut:…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -517,19 +505,19 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2shot-online-bulan-januari-dengan-chekicha-1986",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Ribka Budiman, Greesella Adhalia, Marsha Lenathea, dan Michelle Levia di bulan Januari ini, Online Birthday 2-Shot akan kembali diadakan dengan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
     {
-      "id": 1374,
-      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 14th Anniversary Concert & Gracia Graduation Ceremony” dengan bonus Video Call with JKT48",
+      "id": 961,
+      "title": "Pengumuman Mengenai JKT48 Special Show Ramune No Nomikata - Cara Meminum Ramune “LADIES NIGHT\"",
       "category": "Theater",
-      "slug": "pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-14th-anniversary-concert-gracia-graduatio",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-14th-anniversary-concert-gracia-graduatio",
+      "slug": "pengumuman-mengenai-jkt48-special-show-ramune-no-nomikata-cara-meminum-ramune-ladies-night",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-special-show-ramune-no-nomikata-cara-meminum-ramune-ladies-night",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-01-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Januari 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “JKT48 14th Anniversary Concert & Gracia Graduation Ceremony” dengan bonus Video…",
+      "publishedAt": "2026-01-10T17:00:00.000Z",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -541,7 +529,19 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-sistem-2shot-birthday-dan-graduation-di-jkt48-theater",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan upaya untuk terus meningkatkan kenyamanan dan ketertiban bersama di area JKT48 Theater, kami ingin mengumumkan penyesuaian prosedur 2-Shot Birthday dan…",
+      "snippet": "",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1374,
+      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 14th Anniversary Concert & Gracia Graduation Ceremony” dengan bonus Video Call with JKT48",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-14th-anniversary-concert-gracia-graduatio",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-14th-anniversary-concert-gracia-graduatio",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-01-06T17:00:00.000Z",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -553,7 +553,7 @@
       "url": "https://jkt48.com/news/jkt48-2026-calendar-freckles-reckless",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/2026cal.jpg",
       "publishedAt": "2026-01-05T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Kalender 2026 JKT48 hadir dengan tema FRECKLES RECKLESS yang menggabungkan konsep berani dan visual khas dari para member JKT48. Kalender tersedia dalam 3 tipe, yaitu VEIL,…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -565,7 +565,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-shania-gracia",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2025-12-23T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Gracia telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 11 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 26 Juli 2025, kami dengan ini…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -577,9 +577,9 @@
       "url": "https://jkt48.com/news/pengumuman-yang-disampaikan-pada-konser-jkt48-the-first-snow",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2025-12-22T17:00:00.000Z",
-      "snippet": "…Adhalia Kathrina Irene Gracie Octaviani Helisma Putri Lulu Salsabila Hillary Abigail Jesslyn Elly Michelle Levia Indah Cahya Marsha Lenathe Mutiara Azzahra Jazzlyn Trisha Nina Tutachia Raisha Syifa Michelle Alexandra Oli…",
-      "mentionsEli": true,
-      "matchedIn": "body"
+      "snippet": "",
+      "mentionsEli": false,
+      "matchedIn": null
     },
     {
       "id": 886,
@@ -589,7 +589,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2shot-online-shania-gracia-dengan-chekicha",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2025-12-21T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Shania Gracia yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -601,7 +601,7 @@
       "url": "https://jkt48.com/news/pengumuman-merchandise-dan-pengambilan-benefit-the-first-snow-jkt48-14th-anniversary-concert-gracia-",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2025-12-18T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Mari rayakan 14 tahun perjalanan JKT48 dan momen kelulusan Gracia dengan merchandise yang akan dirilis pada konser ini. Berikut adalah daftar merchandise yang akan dirilis:…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     }
