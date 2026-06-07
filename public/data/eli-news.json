@@ -1,10 +1,22 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-06-07T01:08:48.159742Z",
+  "fetchedAt": "2026-06-07T07:33:48.156395Z",
   "scanned": 50,
   "eliMentionCount": 2,
   "items": [
+    {
+      "id": 1839,
+      "title": "Pengumuman Mengenai Live Streaming Event JKT48 Request Hour 2026 Setlist Best 40",
+      "category": "Streaming",
+      "slug": "pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "image": null,
+      "publishedAt": "2026-06-06T17:00:00.000Z",
+      "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1838,
       "title": "Pengumuman Mengenai Birthday 2-Shot Online bulan Juni dengan Chekicha",
@@ -42,18 +54,6 @@
       "matchedIn": null
     },
     {
-      "id": 1835,
-      "title": "Pengumuman Mengenai Official Team Merchandise Vol. 1",
-      "category": "Goods",
-      "slug": "pengumuman-mengenai-official-team-merchandise-vol-1",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-official-team-merchandise-vol-1",
-      "image": null,
-      "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1834,
       "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
       "category": "Event",
@@ -62,6 +62,18 @@
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1835,
+      "title": "Pengumuman Mengenai Official Team Merchandise Vol. 1",
+      "category": "Goods",
+      "slug": "pengumuman-mengenai-official-team-merchandise-vol-1",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-official-team-merchandise-vol-1",
+      "image": null,
+      "publishedAt": "2026-05-19T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -590,18 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2025-12-21T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Shania Gracia yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1547,
-      "title": "Pengumuman Merchandise dan Pengambilan Benefit THE FIRST SNOW | JKT48 14th Anniversary Concert & Gracia Graduation Ceremony",
-      "category": "Goods",
-      "slug": "pengumuman-merchandise-dan-pengambilan-benefit-the-first-snow-jkt48-14th-anniversary-concert-gracia-",
-      "url": "https://jkt48.com/news/pengumuman-merchandise-dan-pengambilan-benefit-the-first-snow-jkt48-14th-anniversary-concert-gracia-",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2025-12-18T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Mari rayakan 14 tahun perjalanan JKT48 dan momen kelulusan Gracia dengan merchandise yang akan dirilis pada konser ini. Berikut adalah daftar merchandise yang akan dirilis:…",
       "mentionsEli": false,
       "matchedIn": null
     }
