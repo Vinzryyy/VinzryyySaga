@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-06-09T07:25:19.795573Z",
-  "salesCount": 4,
+  "fetchedAt": "2026-06-09T18:52:44.610875Z",
+  "salesCount": 5,
   "sales": [
     {
       "exclusiveId": 936,
@@ -58,6 +58,56 @@
         }
       ],
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "exclusiveId": 947,
+      "code": "EX783D",
+      "slug": "ex783d-24062026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-thumb-edd92f.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-preview-c1bec0.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": 50000,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-09T13:00:00.000Z",
+          "end_date": "2026-06-24T00:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-10T13:00:00.000Z",
+          "end_date": "2026-06-24T00:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-06-15T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-06-15T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 17,
+          "remainingQuota": 28
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-06-15T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 19,
+          "remainingQuota": 26
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-06-15T17:00:00.000Z",
+          "jalur": "Jalur 8",
+          "ticketsSold": 45,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex783d-24062026"
     },
     {
       "exclusiveId": 946,
