@@ -921,6 +921,7 @@ const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
       setHasClicked(true);
       setJustClicked(true);
       setTimeout(() => setJustClicked(false), 2200);
+      window.open('https://hypeddit.com/putrihelisma26', '_blank', 'noopener,noreferrer');
     } else {
       setError(friendlyError(result.error));
     }
@@ -968,6 +969,17 @@ const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
             <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
               {formatNumber(supporters)} orang sedang menjaga denyutnya.
             </div>
+            <a
+              href="https://hypeddit.com/putrihelisma26"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[color:var(--retro-burgundy)] bg-transparent text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300 group"
+            >
+              <i className="ri-external-link-line text-base group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+              <span className="font-header text-[11px] sm:text-xs font-black uppercase tracking-[0.32em]">
+                Pre-save di platform lain
+              </span>
+            </a>
           </div>
         ) : (
           <div className="space-y-3">
@@ -985,6 +997,17 @@ const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
             <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
               {formatNumber(supporters)} orang sedang menjaga denyutnya.
             </div>
+            <a
+              href="https://hypeddit.com/putrihelisma26"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[color:var(--retro-burgundy)] bg-transparent text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300 group"
+            >
+              <i className="ri-external-link-line text-base group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+              <span className="font-header text-[11px] sm:text-xs font-black uppercase tracking-[0.32em]">
+                Pre-save di platform lain
+              </span>
+            </a>
             {error && (
               <div className="text-[11px] text-[color:var(--retro-burgundy)]">{error}</div>
             )}
@@ -1139,6 +1162,20 @@ const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
           {formatNumber(supporters)} orang
         </span>{' '}
         sampai hari ini.
+      </div>
+
+      <div className="mt-6 text-center">
+        <a
+          href="https://hypeddit.com/putrihelisma26"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[color:var(--retro-burgundy)] bg-transparent text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300 group"
+        >
+          <i className="ri-external-link-line text-base group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+          <span className="font-header text-[11px] sm:text-xs font-black uppercase tracking-[0.32em]">
+            Dengarkan di platform lain
+          </span>
+        </a>
       </div>
 
       <div className="mt-4 text-center text-[10px] text-[color:var(--color-text-secondary)]/65 italic">
