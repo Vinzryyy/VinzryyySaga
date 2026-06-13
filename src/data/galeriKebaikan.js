@@ -204,6 +204,36 @@ export const KEBAIKAN_ENTRIES = [
     executedAt: '2026-05-19',
     proposedAt: '2026-05-15',
   },
+  {
+    id: 'yayasan-tumbuh-harapan-2026',
+    title: 'Dukungan Anak — Yayasan Tumbuh Harapan',
+    category: 'kemanusiaan',
+    description:
+      'Donasi atas nama Ceu Eli untuk Yayasan Tumbuh Harapan — mendukung tumbuh kembang ' +
+      'dan masa depan anak-anak yang membutuhkan.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Yayasan Tumbuh Harapan',
+    amount: 500000,
+    proofUrl: '/Donasists26/Kemanusian/Yayasan Tumbuh Harapan.jpg',
+    status: 'executed',
+    executedAt: '2026-06-12',
+    proposedAt: '2026-06-12',
+  },
+  {
+    id: 'panti-helisma-kemanusiaan-2026',
+    title: 'Donasi Panti Asuhan — Panti Helisma',
+    category: 'kemanusiaan',
+    description:
+      'Donasi atas nama Ceu Eli untuk Panti Helisma — mendukung kesejahteraan ' +
+      'dan kebutuhan penghuni panti asuhan.',
+    contributorCredit: 'Armeniaca × Helismiley',
+    recipient: 'Panti Helisma',
+    amount: 2760026,
+    proofUrl: '/Donasists26/Kemanusian/Sertifikat Panti Helisma_page-0001.jpg',
+    status: 'executed',
+    executedAt: '2026-06-13',
+    proposedAt: '2026-06-13',
+  },
 ];
 
 export const formatRupiah = (n) => {
