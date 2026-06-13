@@ -22,6 +22,7 @@ import EliStatusHero from '../components/home/EliStatusHero';
 import NewsStrip from '../components/home/NewsStrip';
 import QuoteOfTheDayStrip from '../components/home/QuoteOfTheDayStrip';
 import AnnouncementPopup from '../components/home/AnnouncementPopup';
+import VideotronPopup from '../components/home/VideotronPopup';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -767,11 +768,14 @@ const HomePage = () => {
               className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none"
             >
               {visibleHarmoniCards.map((card) => {
-                // Cards with hash 'photo-frame-popup' (and any future
-                // popup: prefix) re-open the AnnouncementPopup via a
-                // custom event instead of navigating. Render as button
-                // to keep semantics correct.
-                const isPopupTrigger = card.hash === 'photo-frame-popup';
+                // Cards whose hash ends with '-popup' re-open their
+                // respective popup via a custom event instead of
+                // navigating. Render as button for correct semantics.
+                const popupEvents = {
+                  'photo-frame-popup': 'announcement:open',
+                  'videotron-popup': 'videotron:open',
+                };
+                const isPopupTrigger = card.hash in popupEvents;
                 const sharedClassName = `
                     group relative flex flex-col gap-4 p-5 md:p-6 rounded-2xl
                     flex-shrink-0 w-[80%] sm:w-auto snap-center text-left
@@ -815,7 +819,7 @@ const HomePage = () => {
                       key={card.hash}
                       type="button"
                       onClick={() =>
-                        window.dispatchEvent(new CustomEvent('announcement:open'))
+                        window.dispatchEvent(new CustomEvent(popupEvents[card.hash]))
                       }
                       className={sharedClassName}
                     >
@@ -1227,6 +1231,7 @@ const HomePage = () => {
           persisted di localStorage, kelar dengan satu klik. Mount
           terakhir biar overlay-nya selalu di atas section lainnya. */}
       <AnnouncementPopup />
+      <VideotronPopup />
     </main>
   );
 };

@@ -14,6 +14,13 @@ export const PHOTO_FRAME_CAMPAIGN = {
   availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
 };
 
+// Videotron Project (Armeniaca) launch gate — same mechanic as Photo Frame.
+const VIDEOTRON_AVAILABLE_FROM_ISO = '2026-06-13T00:00:00+07:00';
+
+export const VIDEOTRON_CAMPAIGN = {
+  availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
+};
+
 export const SITE_CONFIG = {
   // Branding
   branding: {
@@ -69,6 +76,13 @@ export const SITE_CONFIG = {
             description: 'Photobox Helisma Day di booth Palette.id',
             icon: 'ri-camera-2-line',
             availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
+          },
+          {
+            label: 'Videotron Project',
+            hash: 'videotron-popup',
+            description: 'Double-sided videotron di Pillar MRT Blok M',
+            icon: 'ri-vidicon-line',
+            availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
           },
           {
             label: 'ArmeniacaTown',
@@ -416,6 +430,16 @@ export const SITE_CONFIG = {
           icon: 'ri-camera-2-line',
           hash: 'photo-frame-popup',
           availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
+        },
+        {
+          eyebrow: 'Pengumuman',
+          label: 'Videotron Project',
+          description:
+            'Double-sided videotron di Pillar MRT Blok M — 3 pilar, 6 layar. Senin, 15 Juni 2026, 06.00–24.00 WIB.',
+          ctaLabel: 'Lihat infonya',
+          icon: 'ri-vidicon-line',
+          hash: 'videotron-popup',
+          availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
         },
         {
           eyebrow: 'Hitung Mundur',

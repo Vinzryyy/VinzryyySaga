@@ -141,11 +141,14 @@ function Navbar() {
   }, [openDropdown]);
 
   const navigateTo = (hash) => {
-    // Sentinel hash that re-opens the AnnouncementPopup instead of
-    // navigating to a route. Keeps siteConfig data-driven without
-    // wiring a special-case prop through every consumer.
-    if (hash === 'photo-frame-popup') {
-      window.dispatchEvent(new CustomEvent('announcement:open'));
+    // Sentinel hashes that re-open popup modals instead of navigating
+    // to a route. Keeps siteConfig data-driven without special-case props.
+    const popupEvents = {
+      'photo-frame-popup': 'announcement:open',
+      'videotron-popup': 'videotron:open',
+    };
+    if (hash in popupEvents) {
+      window.dispatchEvent(new CustomEvent(popupEvents[hash]));
       setOpen(false);
       setOpenDropdown(null);
       return;
