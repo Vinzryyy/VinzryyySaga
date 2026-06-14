@@ -1,19 +1,19 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-06-14T07:46:15.773379Z",
+  "fetchedAt": "2026-06-14T12:49:35.660628Z",
   "scanned": 50,
-  "eliMentionCount": 2,
+  "eliMentionCount": 1,
   "items": [
     {
-      "id": 1839,
-      "title": "Pengumuman Mengenai Live Streaming Event JKT48 Request Hour 2026 Setlist Best 40",
-      "category": "Streaming",
-      "slug": "pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "id": 1841,
+      "title": "Informasi Mengenai Pre-Order “JKT48 Request Hour 2026 Setlist Best 40 Official T-Shirt”",
+      "category": "Goods",
+      "slug": "informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
+      "url": "https://jkt48.com/news/informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
       "image": null,
-      "publishedAt": "2026-06-06T17:00:00.000Z",
-      "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
+      "publishedAt": "2026-06-14T02:00:00.000Z",
+      "snippet": "Terima kasih atas partisipasi dan antusiasme seluruh fans dalam Request Hour tahun ini! Sebanyak 40 lagu teratas yang terpilih melalui hasil voting telah diumumkan dan resmi menjadi setlist Request Hour 2026. Kini kamu…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -26,6 +26,18 @@
       "image": null,
       "publishedAt": "2026-06-06T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Juni 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION ” dengan bonus Video Call…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1839,
+      "title": "Pengumuman Mengenai Live Streaming Event JKT48 Request Hour 2026 Setlist Best 40",
+      "category": "Streaming",
+      "slug": "pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "image": null,
+      "publishedAt": "2026-06-06T17:00:00.000Z",
+      "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -282,18 +294,6 @@
       "matchedIn": null
     },
     {
-      "id": 946,
-      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka menghadirkan pengalaman yang lebih dekat antara member JKT48 dan para penggemar, JKT48 akan mengadakan sebuah event spesial bertajuk “ LOVE DREAM PASSION” yang…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1032,
       "title": "Pengumuman Mengenai Maintenance Website JKT48",
       "category": "Other",
@@ -302,6 +302,18 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-12T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 946,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-12T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka menghadirkan pengalaman yang lebih dekat antara member JKT48 dan para penggemar, JKT48 akan mengadakan sebuah event spesial bertajuk “ LOVE DREAM PASSION” yang…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -426,18 +438,6 @@
       "matchedIn": null
     },
     {
-      "id": 1328,
-      "title": "Pengumuman Mengenai Pre-Order “Andai 'Ku Bukan Idola Box Set”",
-      "category": "Goods",
-      "slug": "pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/akbi-bundle-4-5.jpg",
-      "publishedAt": "2026-02-15T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Merchandise istimewa dari single terbaru ke-27 JKT48, “Andai ’Ku Bukan Idola” , sudah bisa kamu miliki melalui sistem pre-order di Tokopedia . Berikut informasi dari “Andai ‘Ku…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 705,
       "title": "Pengumuman Mengenai Aktivitas JKT48 Theater Selama Bulan Ramadan 2026",
       "category": "Theater",
@@ -446,6 +446,18 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-02-15T17:00:00.000Z",
       "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Bulan Ramadan telah tiba! Di tahun 2026 ini, JKT48 akan kembali mengadakan berbagai macam pertunjukan teater spesial untuk menemani kalian di bulan suci ini. Berikut…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1328,
+      "title": "Pengumuman Mengenai Pre-Order “Andai 'Ku Bukan Idola Box Set”",
+      "category": "Goods",
+      "slug": "pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/akbi-bundle-4-5.jpg",
+      "publishedAt": "2026-02-15T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Merchandise istimewa dari single terbaru ke-27 JKT48, “Andai ’Ku Bukan Idola” , sudah bisa kamu miliki melalui sistem pre-order di Tokopedia . Berikut informasi dari “Andai ‘Ku…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -592,18 +604,6 @@
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Gracia telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 11 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 26 Juli 2025, kami dengan ini…",
       "mentionsEli": false,
       "matchedIn": null
-    },
-    {
-      "id": 1656,
-      "title": "Pengumuman yang Disampaikan pada Konser JKT48 THE FIRST SNOW",
-      "category": "Theater",
-      "slug": "pengumuman-yang-disampaikan-pada-konser-jkt48-the-first-snow",
-      "url": "https://jkt48.com/news/pengumuman-yang-disampaikan-pada-konser-jkt48-the-first-snow",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2025-12-22T17:00:00.000Z",
-      "snippet": "…Adhalia Kathrina Irene Gracie Octaviani Helisma Putri Lulu Salsabila Hillary Abigail Jesslyn Elly Michelle Levia Indah Cahya Marsha Lenathe Mutiara Azzahra Jazzlyn Trisha Nina Tutachia Raisha Syifa Michelle Alexandra Oli…",
-      "mentionsEli": true,
-      "matchedIn": "body"
     }
   ]
 }
