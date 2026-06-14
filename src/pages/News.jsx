@@ -2,7 +2,7 @@
  * NewsPage — segment-based news hub.
  *
  * Two views driven by the `:slug` route param:
- *   /news            → listing (preview cards for each article)
+ *   /news            → listing (hero banner + preview cards)
  *   /news/:slug      → detail (full article with setlist, metadata, etc.)
  *
  * Articles live in src/data/newsArticles.js — newest first.
@@ -49,21 +49,6 @@ const CATEGORY_ICON = {
   Other: 'ri-megaphone-line',
 };
 
-/* ------------------------------------------------------------------ */
-/*  Decorative background (shared)                                    */
-/* ------------------------------------------------------------------ */
-
-const DecorativeBg = () => (
-  <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-    <i className="absolute ri-newspaper-line text-[color:var(--retro-burgundy)]/[0.04] text-[200px] sm:text-[280px]"
-       style={{ top: '6%', left: '-5%', transform: 'rotate(-12deg)' }} />
-    <i className="absolute ri-ticket-2-line text-[color:var(--retro-gold)]/[0.06] text-[160px] sm:text-[220px]"
-       style={{ top: '40%', right: '-4%', transform: 'rotate(15deg)' }} />
-    <i className="absolute ri-mic-line text-[color:var(--retro-burgundy)]/[0.04] text-[140px] sm:text-[200px]"
-       style={{ top: '70%', left: '-3%', transform: 'rotate(8deg)' }} />
-  </div>
-);
-
 /* ================================================================== */
 /*  LISTING VIEW — /news                                              */
 /* ================================================================== */
@@ -80,9 +65,9 @@ const PreviewCard = ({ article, index }) => {
         group block transition-all duration-700 ease-out
         ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
       `}
-      style={{ transitionDelay: `${index * 80}ms` }}
+      style={{ transitionDelay: `${index * 100}ms` }}
     >
-      <div className="bg-[color:var(--retro-cream)] rounded-2xl overflow-hidden shadow-retro border border-[color:var(--retro-border)]/30 hover:shadow-retro-lg hover:border-[color:var(--retro-burgundy)]/30 transition-all duration-300">
+      <div className="bg-[color:var(--retro-cream)] rounded-2xl overflow-hidden shadow-retro border border-[color:var(--retro-border)]/30 hover:shadow-retro-lg hover:border-[color:var(--retro-burgundy)]/30 hover:-translate-y-1 transition-all duration-300">
         <div className="flex flex-col sm:flex-row">
           {/* Thumbnail */}
           {article.image && (
@@ -90,12 +75,11 @@ const PreviewCard = ({ article, index }) => {
               <img
                 src={article.image}
                 alt={article.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/40 via-transparent to-transparent" />
-              {/* Category pill */}
-              <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-widest">
+              <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
+              <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/90 backdrop-blur-sm text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-widest">
                 <i className={`${CATEGORY_ICON[article.category] || 'ri-megaphone-line'} mr-1`} />
                 {article.category}
               </span>
@@ -103,25 +87,25 @@ const PreviewCard = ({ article, index }) => {
           )}
 
           {/* Text content */}
-          <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center gap-2.5">
-            <h2 className="font-header text-lg sm:text-xl font-black text-[color:var(--retro-text-primary)] leading-snug group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+          <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center gap-3">
+            <h2 className="font-header text-lg sm:text-xl font-black text-[color:var(--retro-text-primary)] leading-snug group-hover:text-[color:var(--retro-burgundy)] transition-colors duration-300">
               {article.title}
             </h2>
             {article.subtitle && (
-              <p className="text-sm text-[color:var(--retro-text-secondary)] line-clamp-2">
+              <p className="text-sm text-[color:var(--retro-text-secondary)] line-clamp-2 leading-relaxed">
                 {article.subtitle}
               </p>
             )}
 
             {/* Meta row */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[color:var(--retro-text-light)]">
-              <span className="inline-flex items-center gap-1">
-                <i className="ri-calendar-event-line" />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[color:var(--retro-text-light)] mt-1">
+              <span className="inline-flex items-center gap-1.5">
+                <i className="ri-calendar-event-line text-[color:var(--retro-burgundy)]" />
                 {formatDateShort(article.date)}
               </span>
               {article.venue && (
-                <span className="inline-flex items-center gap-1">
-                  <i className="ri-map-pin-2-line" />
+                <span className="inline-flex items-center gap-1.5">
+                  <i className="ri-map-pin-2-line text-[color:var(--retro-burgundy)]" />
                   {article.venue}
                 </span>
               )}
@@ -133,9 +117,9 @@ const PreviewCard = ({ article, index }) => {
               )}
             </div>
 
-            {/* Read more hint */}
-            <span className="inline-flex items-center gap-1 text-xs font-bold text-[color:var(--retro-burgundy)] opacity-0 group-hover:opacity-100 transition-opacity">
-              Baca selengkapnya <i className="ri-arrow-right-line" />
+            {/* Read more */}
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[color:var(--retro-burgundy)] mt-1 group-hover:gap-2.5 transition-all duration-300">
+              Baca selengkapnya <i className="ri-arrow-right-line transition-transform duration-300 group-hover:translate-x-1" />
             </span>
           </div>
         </div>
@@ -144,33 +128,62 @@ const PreviewCard = ({ article, index }) => {
   );
 };
 
-const NewsListing = () => (
-  <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-    <Seo
-      title="News"
-      description="Kabar terbaru seputar Eli JKT48 — rekap event, pengumuman, dan highlight."
-      path="/news"
-    />
-    <DecorativeBg />
+const NewsListing = () => {
+  const { elementRef: heroRef, isVisible: heroVisible } = useScrollReveal({ threshold: 0.05, triggerOnce: true });
 
-    <div className="relative z-10">
-      {/* Page header */}
-      <header className="pt-28 sm:pt-32 md:pt-36 pb-8 sm:pb-10 px-5 sm:px-8 md:px-12">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[color:var(--retro-burgundy)] mb-3">
-            Armeniaca
-          </p>
-          <h1 className="font-header text-3xl sm:text-4xl md:text-5xl font-black text-[color:var(--retro-text-primary)] leading-[1.1]">
-            News
-          </h1>
-          <p className="mt-3 text-sm sm:text-base text-[color:var(--retro-text-secondary)] max-w-xl">
-            Rekap event dan kabar terbaru seputar Eli JKT48 — dicatat oleh Armeniaca.
-          </p>
+  return (
+    <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
+      <Seo
+        title="News"
+        description="Kabar terbaru seputar Eli JKT48 — rekap event, pengumuman, dan highlight."
+        path="/news"
+      />
+
+      {/* ── Hero banner with background image ── */}
+      <header className="relative overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <img
+            src="/news-bg.png"
+            alt=""
+            className="w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--retro-bg-dark)]/70 via-[color:var(--retro-bg-dark)]/50 to-[color:var(--retro-bg-primary)]" />
+        </div>
+
+        {/* Content */}
+        <div
+          ref={heroRef}
+          className={`
+            relative z-10 pt-32 sm:pt-36 md:pt-44 pb-16 sm:pb-20 md:pb-28 px-5 sm:px-8 md:px-12
+            transition-all duration-1000 ease-out
+            ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}
+          `}
+        >
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.6em] text-[color:var(--retro-gold-light)] mb-4">
+              Armeniaca
+            </p>
+            <h1 className="font-header text-4xl sm:text-5xl md:text-6xl font-black text-white leading-[1.1] drop-shadow-lg">
+              News
+            </h1>
+            <p className="mt-4 text-sm sm:text-base text-white/70 max-w-md mx-auto leading-relaxed">
+              Rekap event dan kabar terbaru seputar Eli JKT48 — dicatat oleh Armeniaca.
+            </p>
+
+            {/* Article count pill */}
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+              <i className="ri-article-line text-[color:var(--retro-gold-light)]" />
+              <span className="text-xs font-bold text-white/80">
+                {NEWS_ARTICLES.length} artikel
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Article cards */}
-      <section className="px-5 sm:px-8 md:px-12 pb-16 md:pb-24">
+      {/* ── Article cards ── */}
+      <section className="px-5 sm:px-8 md:px-12 -mt-4 pb-16 md:pb-24 relative z-10">
         <div className="max-w-4xl mx-auto space-y-5">
           {NEWS_ARTICLES.map((article, i) => (
             <PreviewCard key={article.id} article={article} index={i} />
@@ -187,9 +200,9 @@ const NewsListing = () => (
           </span>
         </div>
       </div>
-    </div>
-  </main>
-);
+    </main>
+  );
+};
 
 /* ================================================================== */
 /*  DETAIL VIEW — /news/:slug                                        */
@@ -266,7 +279,14 @@ const ArticleDetail = ({ article }) => {
         description={article.subtitle || article.title}
         path={`/news/${article.slug}`}
       />
-      <DecorativeBg />
+
+      {/* Subtle bg texture */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <i className="absolute ri-newspaper-line text-[color:var(--retro-burgundy)]/[0.03] text-[240px] sm:text-[320px]"
+           style={{ top: '5%', left: '-6%', transform: 'rotate(-15deg)' }} />
+        <i className="absolute ri-ticket-2-line text-[color:var(--retro-gold)]/[0.05] text-[180px] sm:text-[240px]"
+           style={{ top: '45%', right: '-5%', transform: 'rotate(12deg)' }} />
+      </div>
 
       <div className="relative z-10">
         {/* Back link */}
@@ -274,7 +294,7 @@ const ArticleDetail = ({ article }) => {
           <div className="max-w-4xl mx-auto">
             <Link
               to="/news"
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-[color:var(--retro-burgundy)] hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-[color:var(--retro-burgundy)] hover:gap-2.5 hover:underline transition-all duration-200"
             >
               <i className="ri-arrow-left-line" />
               Semua News
@@ -292,7 +312,7 @@ const ArticleDetail = ({ article }) => {
           `}
         >
           <div className="max-w-4xl mx-auto">
-            <div className="bg-[color:var(--retro-cream)] rounded-2xl overflow-hidden shadow-retro border border-[color:var(--retro-border)]/30">
+            <div className="bg-[color:var(--retro-cream)] rounded-2xl overflow-hidden shadow-retro-lg border border-[color:var(--retro-border)]/30">
               {/* Hero image */}
               {article.image && (
                 <div className="relative aspect-[21/9] sm:aspect-[2.5/1] overflow-hidden">
@@ -301,9 +321,9 @@ const ArticleDetail = ({ article }) => {
                     alt={article.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
 
-                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-widest">
+                  <span className="absolute top-4 left-4 px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/90 backdrop-blur-sm text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-widest">
                     <i className={`${CATEGORY_ICON[article.category] || 'ri-megaphone-line'} mr-1`} />
                     {article.category}
                   </span>
@@ -313,7 +333,7 @@ const ArticleDetail = ({ article }) => {
                       {article.title}
                     </h1>
                     {article.subtitle && (
-                      <p className="mt-1 text-sm sm:text-base text-white/80 font-medium drop-shadow">
+                      <p className="mt-1.5 text-sm sm:text-base text-white/80 font-medium drop-shadow leading-relaxed">
                         {article.subtitle}
                       </p>
                     )}
@@ -351,6 +371,47 @@ const ArticleDetail = ({ article }) => {
                       </span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Body text */}
+              {article.body && (
+                <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
+                  <p className="text-sm sm:text-base text-[color:var(--retro-text-secondary)] leading-relaxed">
+                    {article.body}
+                  </p>
+                </div>
+              )}
+
+              {/* Detail rows (key-value) */}
+              {article.details && article.details.length > 0 && (
+                <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                      Detail
+                    </h3>
+                    <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+                  </div>
+                  <div className="space-y-1">
+                    {article.details.map((d) => (
+                      <div key={d.label} className="flex items-start gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 rounded-lg hover:bg-[color:var(--retro-brown-dark)]/5 transition-colors">
+                        <span className="flex-shrink-0 w-24 sm:w-28 text-[11px] font-black uppercase tracking-wider text-[color:var(--retro-text-muted)] pt-0.5">
+                          {d.label}
+                        </span>
+                        <span className="text-sm sm:text-base font-medium text-[color:var(--retro-text-primary)]">
+                          {d.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Credit */}
+              {article.credit && (
+                <div className="px-5 sm:px-8 py-4 border-b border-[color:var(--retro-border)]/20 flex items-center gap-2 text-xs text-[color:var(--retro-text-muted)]">
+                  <i className="ri-heart-3-line text-[color:var(--retro-burgundy)]" />
+                  <span className="font-bold">{article.credit}</span>
                 </div>
               )}
 
