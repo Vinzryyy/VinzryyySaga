@@ -56,6 +56,7 @@ const CATEGORY_ICON = {
 const PreviewCard = ({ article, index }) => {
   const { elementRef, isVisible } = useScrollReveal({ threshold: 0.08, triggerOnce: true });
   const eliSongCount = (article.setlist || []).filter((s) => s.eliHighlight).length;
+  const donationCount = (article.donations || []).length;
 
   return (
     <Link
@@ -113,6 +114,12 @@ const PreviewCard = ({ article, index }) => {
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-gold)]/20 text-[color:var(--retro-brown-dark)] font-bold">
                   <i className="ri-star-fill text-[10px]" />
                   Eli in {eliSongCount} lagu
+                </span>
+              )}
+              {donationCount > 0 && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] font-bold">
+                  <i className="ri-hand-heart-line text-[10px]" />
+                  {donationCount} donasi
                 </span>
               )}
             </div>
@@ -403,6 +410,68 @@ const ArticleDetail = ({ article }) => {
                         </span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Donations list */}
+              {article.donations && article.donations.length > 0 && (
+                <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
+                  <div className="flex items-baseline gap-3 mb-4">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                      Daftar Donasi
+                    </h3>
+                    <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                      {article.donations.length} kebaikan
+                    </span>
+                  </div>
+
+                  {/* Total */}
+                  {(() => {
+                    const total = article.donations.reduce((s, d) => s + (d.amount || 0), 0);
+                    return total > 0 && (
+                      <div className="mb-4 px-4 py-3 rounded-xl bg-[color:var(--retro-gold)]/10 border border-[color:var(--retro-gold)]/30 flex items-center gap-3">
+                        <i className="ri-hand-heart-line text-lg text-[color:var(--retro-burgundy)]" />
+                        <p className="text-sm text-[color:var(--retro-text-secondary)]">
+                          Total donasi:{' '}
+                          <span className="font-black text-[color:var(--retro-burgundy)]">
+                            Rp {total.toLocaleString('id-ID')}+
+                          </span>
+                        </p>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="space-y-1.5">
+                    {article.donations.map((d) => {
+                      const catIcon = d.category === 'Lingkungan' ? 'ri-leaf-line'
+                        : d.category === 'Satwa' ? 'ri-bear-smile-line'
+                        : 'ri-hand-heart-line';
+                      return (
+                        <div
+                          key={d.title}
+                          className="flex items-start gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg hover:bg-[color:var(--retro-brown-dark)]/5 transition-colors"
+                        >
+                          <span className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[color:var(--retro-burgundy)]/10 flex items-center justify-center">
+                            <i className={`${catIcon} text-sm text-[color:var(--retro-burgundy)]`} />
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm sm:text-base font-bold text-[color:var(--retro-text-primary)] leading-snug">
+                              {d.title}
+                            </p>
+                            <p className="text-xs sm:text-sm text-[color:var(--retro-text-light)] mt-0.5 truncate">
+                              {d.recipient}
+                            </p>
+                          </div>
+                          {d.amount && (
+                            <span className="flex-shrink-0 text-xs sm:text-sm font-black text-[color:var(--retro-burgundy)] tabular-nums whitespace-nowrap">
+                              Rp {d.amount.toLocaleString('id-ID')}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
