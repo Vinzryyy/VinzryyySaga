@@ -267,6 +267,32 @@ const KebaikanArchive = () => {
           </div>
         </div>
 
+        {/* Source breakdown — Armeniaca vs Helismiley */}
+        {stats.bySource && Object.keys(stats.bySource).length > 1 && (
+          <div className="grid grid-cols-2 gap-3 md:gap-4 mb-8">
+            {Object.entries(stats.bySource).map(([src, data]) => (
+              <div
+                key={src}
+                className={`rounded-2xl p-5 ${
+                  src === 'Helismiley'
+                    ? 'bg-[color:var(--retro-burgundy)]/8 border border-[color:var(--retro-burgundy)]/20'
+                    : 'bg-[color:var(--retro-gold)]/8 border border-[color:var(--retro-gold)]/20'
+                }`}
+              >
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
+                  {src}
+                </p>
+                <p className="font-header text-xl md:text-2xl font-black tabular-nums leading-none text-[color:var(--retro-text-primary)]">
+                  {formatRupiah(data.amount)}
+                </p>
+                <p className="text-xs text-[color:var(--retro-text-light)] mt-1.5">
+                  {data.count} donasi
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Filter chips */}
         <div
           role="tablist"

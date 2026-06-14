@@ -69,6 +69,7 @@ export const KEBAIKAN_ENTRIES = [
       'PIK (Jakarta), Sukawati, dan Kartikajaya (Kendal) — sebagai simbol kebaikan yang tumbuh ' +
       'dari setiap dukungan komunitas.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'LindungiHutan — 4 kampanye reforestasi pesisir (26 pohon)',
     amount: 2600000,
     proofUrl: '/Donasists26/Lingkungan/Pohon kebaikan 1.jpeg',
@@ -93,6 +94,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi atas nama Ceu Eli untuk Borneo Orangutan Survival Foundation, ' +
       'mendukung konservasi dan rehabilitasi orangutan di Kalimantan.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Borneo Orangutan Survival Foundation (BOS)',
     amount: 400000,
     proofUrl: '/Donasists26/Hewan/Certificate-DON-20260519350292122145952_page-0001.jpg',
@@ -108,6 +110,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi untuk Kukangku, organisasi yang fokus pada konservasi dan ' +
       'penyelamatan kukang (slow loris) di Indonesia.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Kukangku — #PenyelamatKukang',
     amount: 400000,
     proofUrl: '/Donasists26/Hewan/kukangku.png',
@@ -123,6 +126,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi untuk program konservasi satwa liar Inggris — membantu hewan-hewan ' +
       'mendapatkan kesempatan kedua untuk kembali ke alam liar.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'British Wildlife Fund',
     amount: 400000,
     proofUrl: '/Donasists26/Hewan/wwif.png',
@@ -138,6 +142,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi untuk program konservasi dan perlindungan gajah — mendukung upaya ' +
       'menjaga habitat dan kelangsungan hidup gajah di alam liar.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Program Konservasi Gajah',
     amount: 400000,
     proofUrl: '/Donasists26/Hewan/Gajah.png',
@@ -154,6 +159,7 @@ export const KEBAIKAN_ENTRIES = [
       'perlindungan penyu laut dan pelestarian habitatnya. Penyu jadi indikator ' +
       'kesehatan ekosistem laut yang sehat.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Yayasan Penyu Indonesia (yayasanpenyu.org) — Sea Turtle Protection #4868',
     amount: 20000,
     proofUrl: '/Donasists26/Hewan/thankyou-4868_page-0001.jpg',
@@ -168,6 +174,7 @@ export const KEBAIKAN_ENTRIES = [
     description:
       'Donasi via Dompet Dhuafa untuk program kemanusiaan dan bantuan dhuafa di Indonesia.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Dompet Dhuafa',
     amount: 100000,
     proofUrl: '/Donasists26/Kemanusian/dompetdhuafa.png',
@@ -183,6 +190,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi untuk Save The Children Indonesia — mendukung kesejahteraan, ' +
       'pendidikan, dan masa depan anak-anak Indonesia.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Save The Children Indonesia',
     proofUrl: '/Donasists26/Kemanusian/save the chilfdren.png',
     status: 'executed',
@@ -197,6 +205,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi untuk UNICEF Indonesia — mendukung hak dan masa depan ' +
       'anak-anak Indonesia mencapai potensi terbaik mereka.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'UNICEF Indonesia',
     amount: 300000,
     proofUrl: '/Donasists26/Kemanusian/TRX_20260519123447F1210864Q_page-0001.jpg',
@@ -212,6 +221,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi atas nama Ceu Eli untuk Yayasan Tumbuh Harapan — mendukung tumbuh kembang ' +
       'dan masa depan anak-anak yang membutuhkan.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Armeniaca',
     recipient: 'Yayasan Tumbuh Harapan',
     amount: 500000,
     proofUrl: '/Donasists26/Kemanusian/Yayasan Tumbuh Harapan.jpg',
@@ -227,6 +237,7 @@ export const KEBAIKAN_ENTRIES = [
       'Donasi atas nama Ceu Eli untuk Panti Helisma — mendukung kesejahteraan ' +
       'dan kebutuhan penghuni panti asuhan.',
     contributorCredit: 'Armeniaca × Helismiley',
+    source: 'Helismiley',
     recipient: 'Panti Helisma',
     amount: 2760026,
     proofUrl: '/Donasists26/Kemanusian/Sertifikat Panti Helisma_page-0001.jpg',
@@ -249,5 +260,12 @@ export const getKebaikanStats = (entries) => {
     const amount = items.reduce((s, e) => s + (Number(e.amount) || 0), 0);
     return { ...cat, count: items.length, amount };
   });
-  return { totalEntries, totalAmount, byCategory };
+  const bySource = entries.reduce((acc, e) => {
+    const key = e.source || 'Lainnya';
+    if (!acc[key]) acc[key] = { count: 0, amount: 0 };
+    acc[key].count += 1;
+    acc[key].amount += Number(e.amount) || 0;
+    return acc;
+  }, {});
+  return { totalEntries, totalAmount, byCategory, bySource };
 };
