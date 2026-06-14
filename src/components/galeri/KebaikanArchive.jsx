@@ -285,9 +285,6 @@ const KebaikanArchive = () => {
                 <p className="font-header text-xl md:text-2xl font-black tabular-nums leading-none text-[color:var(--retro-text-primary)]">
                   {formatRupiah(data.amount)}
                 </p>
-                <p className="text-xs text-[color:var(--retro-text-light)] mt-1.5">
-                  {data.count} donasi
-                </p>
               </div>
             ))}
           </div>
