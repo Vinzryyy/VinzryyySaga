@@ -427,18 +427,38 @@ const ArticleDetail = ({ article }) => {
                     </span>
                   </div>
 
-                  {/* Total */}
+                  {/* Total + source breakdown */}
                   {(() => {
                     const total = article.donations.reduce((s, d) => s + (d.amount || 0), 0);
+                    const hasSources = article.donations.some((d) => d.source);
+                    const bySource = hasSources
+                      ? article.donations.reduce((acc, d) => {
+                          const key = d.source || 'Lainnya';
+                          acc[key] = (acc[key] || 0) + (d.amount || 0);
+                          return acc;
+                        }, {})
+                      : null;
                     return total > 0 && (
-                      <div className="mb-4 px-4 py-3 rounded-xl bg-[color:var(--retro-gold)]/10 border border-[color:var(--retro-gold)]/30 flex items-center gap-3">
-                        <i className="ri-hand-heart-line text-lg text-[color:var(--retro-burgundy)]" />
-                        <p className="text-sm text-[color:var(--retro-text-secondary)]">
-                          Total donasi:{' '}
-                          <span className="font-black text-[color:var(--retro-burgundy)]">
-                            Rp {total.toLocaleString('id-ID')}+
-                          </span>
-                        </p>
+                      <div className="mb-4 px-4 py-3 rounded-xl bg-[color:var(--retro-gold)]/10 border border-[color:var(--retro-gold)]/30 space-y-2">
+                        <div className="flex items-center gap-3">
+                          <i className="ri-hand-heart-line text-lg text-[color:var(--retro-burgundy)]" />
+                          <p className="text-sm text-[color:var(--retro-text-secondary)]">
+                            Total donasi:{' '}
+                            <span className="font-black text-[color:var(--retro-burgundy)]">
+                              Rp {total.toLocaleString('id-ID')}+
+                            </span>
+                          </p>
+                        </div>
+                        {bySource && Object.keys(bySource).length > 1 && (
+                          <div className="flex flex-wrap gap-3 pl-8 text-xs text-[color:var(--retro-text-light)]">
+                            {Object.entries(bySource).map(([src, amt]) => (
+                              <span key={src} className="inline-flex items-center gap-1">
+                                <span className="font-bold text-[color:var(--retro-text-secondary)]">{src}</span>
+                                <span>Rp {amt.toLocaleString('id-ID')}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
@@ -464,11 +484,18 @@ const ArticleDetail = ({ article }) => {
                               {d.recipient}
                             </p>
                           </div>
-                          {d.amount && (
-                            <span className="flex-shrink-0 text-xs sm:text-sm font-black text-[color:var(--retro-burgundy)] tabular-nums whitespace-nowrap">
-                              Rp {d.amount.toLocaleString('id-ID')}
-                            </span>
-                          )}
+                          <div className="flex-shrink-0 flex flex-col items-end gap-0.5">
+                            {d.amount && (
+                              <span className="text-xs sm:text-sm font-black text-[color:var(--retro-burgundy)] tabular-nums whitespace-nowrap">
+                                Rp {d.amount.toLocaleString('id-ID')}
+                              </span>
+                            )}
+                            {d.source && (
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--retro-text-muted)]">
+                                {d.source}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
