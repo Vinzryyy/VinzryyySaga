@@ -1,10 +1,34 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-06-14T12:49:35.660628Z",
+  "fetchedAt": "2026-06-14T18:38:48.558273Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
+    {
+      "id": 1843,
+      "title": "Pengumuman Mengenai Detail Timetable Personal Meet and Greet, 2-Shot Event pada JKT48 Theater Surabaya & Yogyakarta",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-detail-timetable-personal-meet-and-greet-2-shot-event-pada-jkt48-theater-surabay",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-detail-timetable-personal-meet-and-greet-2-shot-event-pada-jkt48-theater-surabay",
+      "image": null,
+      "publishedAt": "2026-06-13T17:00:00.000Z",
+      "snippet": "T erima kasih atas dukungannya untuk JKT48. Seperti yang sudah diumumkan sebelumnya, JKT48 Fight! akan membawa semangat baru melalui JKT48 Theater Sementara 2026 yang akan hadir di Surabaya dan Yogyakarta pada…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1842,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet & 2-Shot Event di Surabaya",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
+      "image": null,
+      "publishedAt": "2026-06-13T17:00:00.000Z",
+      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1841,
       "title": "Informasi Mengenai Pre-Order “JKT48 Request Hour 2026 Setlist Best 40 Official T-Shirt”",
@@ -78,18 +102,6 @@
       "matchedIn": null
     },
     {
-      "id": 1834,
-      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "image": null,
-      "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1835,
       "title": "Pengumuman Mengenai Official Team Merchandise Vol. 1",
       "category": "Goods",
@@ -98,6 +110,18 @@
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1834,
+      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "image": null,
+      "publishedAt": "2026-05-19T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -558,18 +582,6 @@
       "matchedIn": null
     },
     {
-      "id": 1441,
-      "title": "Pengumuman Mengenai Sistem 2-Shot Birthday dan Graduation di JKT48 Theater",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-sistem-2shot-birthday-dan-graduation-di-jkt48-theater",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-sistem-2shot-birthday-dan-graduation-di-jkt48-theater",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-01-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan upaya untuk terus meningkatkan kenyamanan dan ketertiban bersama di area JKT48 Theater, kami ingin mengumumkan penyesuaian prosedur 2-Shot Birthday dan…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1374,
       "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 14th Anniversary Concert & Gracia Graduation Ceremony” dengan bonus Video Call with JKT48",
       "category": "Theater",
@@ -582,26 +594,14 @@
       "matchedIn": null
     },
     {
-      "id": 366,
-      "title": "JKT48 2026 Calendar \"FRECKLES RECKLESS\"",
-      "category": "Goods",
-      "slug": "jkt48-2026-calendar-freckles-reckless",
-      "url": "https://jkt48.com/news/jkt48-2026-calendar-freckles-reckless",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/2026cal.jpg",
-      "publishedAt": "2026-01-05T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Kalender 2026 JKT48 hadir dengan tema FRECKLES RECKLESS yang menggabungkan konsep berani dan visual khas dari para member JKT48. Kalender tersedia dalam 3 tipe, yaitu VEIL,…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1280,
-      "title": "Pengumuman Mengenai Pertunjukan Teater Kelulusan dan Prosesi Pelepasan Kabesha Shania Gracia",
+      "id": 1441,
+      "title": "Pengumuman Mengenai Sistem 2-Shot Birthday dan Graduation di JKT48 Theater",
       "category": "Theater",
-      "slug": "pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-shania-gracia",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-shania-gracia",
+      "slug": "pengumuman-mengenai-sistem-2shot-birthday-dan-graduation-di-jkt48-theater",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-sistem-2shot-birthday-dan-graduation-di-jkt48-theater",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2025-12-23T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Gracia telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 11 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 26 Juli 2025, kami dengan ini…",
+      "publishedAt": "2026-01-06T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan upaya untuk terus meningkatkan kenyamanan dan ketertiban bersama di area JKT48 Theater, kami ingin mengumumkan penyesuaian prosedur 2-Shot Birthday dan…",
       "mentionsEli": false,
       "matchedIn": null
     }
