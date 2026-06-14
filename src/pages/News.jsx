@@ -463,38 +463,78 @@ const ArticleDetail = ({ article }) => {
                     );
                   })()}
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-3">
                     {article.donations.map((d) => {
                       const catIcon = d.category === 'Lingkungan' ? 'ri-leaf-line'
                         : d.category === 'Satwa' ? 'ri-bear-smile-line'
                         : 'ri-hand-heart-line';
+                      const isHelismiley = d.source === 'Helismiley';
                       return (
                         <div
                           key={d.title}
-                          className="flex items-start gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg hover:bg-[color:var(--retro-brown-dark)]/5 transition-colors"
+                          className={`
+                            rounded-xl border p-4 sm:p-5 transition-colors
+                            ${isHelismiley
+                              ? 'bg-[color:var(--retro-burgundy)]/5 border-[color:var(--retro-burgundy)]/25'
+                              : 'bg-[color:var(--retro-bg-secondary)]/50 border-[color:var(--retro-border)]/20 hover:border-[color:var(--retro-border)]/40'
+                            }
+                          `}
                         >
-                          <span className="flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[color:var(--retro-burgundy)]/10 flex items-center justify-center">
-                            <i className={`${catIcon} text-sm text-[color:var(--retro-burgundy)]`} />
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm sm:text-base font-bold text-[color:var(--retro-text-primary)] leading-snug">
-                              {d.title}
-                            </p>
-                            <p className="text-xs sm:text-sm text-[color:var(--retro-text-light)] mt-0.5 truncate">
-                              {d.recipient}
-                            </p>
+                          {/* Top row: icon + title + source badge */}
+                          <div className="flex items-start gap-3">
+                            <span className={`
+                              flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                              ${isHelismiley
+                                ? 'bg-[color:var(--retro-burgundy)]/15'
+                                : 'bg-[color:var(--retro-burgundy)]/10'
+                              }
+                            `}>
+                              <i className={`${catIcon} text-base text-[color:var(--retro-burgundy)]`} />
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-sm sm:text-base font-black text-[color:var(--retro-text-primary)] leading-snug">
+                                  {d.title}
+                                </p>
+                                {d.source && (
+                                  <span className={`
+                                    inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider
+                                    ${isHelismiley
+                                      ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
+                                      : 'bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--retro-brown-dark)]'
+                                    }
+                                  `}>
+                                    {d.source}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs sm:text-sm text-[color:var(--retro-text-light)] mt-1">
+                                {d.recipient}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex-shrink-0 flex flex-col items-end gap-0.5">
-                            {d.amount && (
-                              <span className="text-xs sm:text-sm font-black text-[color:var(--retro-burgundy)] tabular-nums whitespace-nowrap">
+
+                          {/* Bottom row: amount + category + date */}
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[color:var(--retro-border)]/15">
+                            {d.amount ? (
+                              <span className="text-base sm:text-lg font-black text-[color:var(--retro-burgundy)] tabular-nums">
                                 Rp {d.amount.toLocaleString('id-ID')}
                               </span>
+                            ) : (
+                              <span className="text-xs text-[color:var(--retro-text-muted)] italic">Nominal tidak dipublikasi</span>
                             )}
-                            {d.source && (
-                              <span className="text-[9px] font-bold uppercase tracking-wider text-[color:var(--retro-text-muted)]">
-                                {d.source}
+                            <div className="flex items-center gap-3 text-[10px] sm:text-xs text-[color:var(--retro-text-muted)]">
+                              <span className="inline-flex items-center gap-1">
+                                <i className={`${catIcon} text-xs`} />
+                                {d.category}
                               </span>
-                            )}
+                              {d.date && (
+                                <span className="inline-flex items-center gap-1">
+                                  <i className="ri-calendar-line text-xs" />
+                                  {new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short' }).format(new Date(d.date))}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
