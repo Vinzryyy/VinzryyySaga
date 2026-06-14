@@ -173,6 +173,7 @@ export const SITE_CONFIG = {
         icon: 'ri-leaf-line',
         description: 'Tiga kartu tiap hari — The Life of Armeniaca.',
       },
+      { label: 'News', hash: 'news', icon: 'ri-newspaper-line' },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
       { label: 'About', hash: 'about', icon: 'ri-information-line' },
     ],

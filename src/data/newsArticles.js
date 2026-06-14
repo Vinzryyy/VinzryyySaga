@@ -1,0 +1,70 @@
+/**
+ * News Articles — editorial content for /news.
+ *
+ * Each article is a self-contained object. `eliHighlight` flags songs
+ * or items where Eli participates so the UI can badge them.
+ *
+ * Add newest articles at the TOP of the array — the page renders
+ * in array order (newest first).
+ */
+
+const NEWS_ARTICLES = [
+  {
+    id: 'request-hour-2026',
+    slug: 'request-hour-2026',
+    title: 'JKT48 Request Hour 2026 Setlist Best 40',
+    subtitle: 'Fajar Sang Idola meraih peringkat pertama',
+    date: '2026-06-13',
+    category: 'Event',
+    image: '/RH2K26/Rh2k26.png',
+    venue: 'Tennis Indoor Senayan, Jakarta',
+    shows: [
+      { label: 'Show 1', time: '15.00 – 17.00 WIB', ranks: '40 – 21' },
+      { label: 'Show 2', time: '18.30 – 21.00 WIB', ranks: '20 – 1' },
+    ],
+    setlist: [
+      { rank: 40, title: 'Suki Suki Skip', performers: 'All Gen 11' },
+      { rank: 39, title: 'Cinta tak Terbalas Karage', performers: 'Muthe, Lily, Lia, Cathy' },
+      { rank: 38, title: 'Balada Serangga', performers: 'Lyn' },
+      { rank: 37, title: 'Berkedip 3 Kali', performers: 'All Gen 13' },
+      { rank: 36, title: 'Di Atas Freyana', performers: null },
+      { rank: 35, title: 'Eureka milik kita (New Version)', performers: 'Levi' },
+      { rank: 34, title: 'Cinta Huragashi', performers: 'Nachia & Nala' },
+      { rank: 33, title: 'Dua Orang Terlarang', performers: 'Oline & Erine' },
+      { rank: 32, title: 'Lebih Dari Memori', performers: 'Gracie, Desa, Deni' },
+      { rank: 31, title: 'Khayalan', performers: 'Ella & Lulu' },
+      { rank: 30, title: 'Pulang Kampung', performers: 'Gita, Oniel, Indah' },
+      { rank: 29, title: 'Menanti', performers: 'Cathy' },
+      { rank: 28, title: '18 Bersaudari', performers: 'Olla, Nala, Lyn' },
+      { rank: 27, title: 'Hubungan Antara Aku dan Kau', performers: 'Fiony & Elin' },
+      { rank: 26, title: 'Mimpi yang hina', performers: 'Desa & Deni' },
+      { rank: 25, title: 'Serigala & Pride', performers: 'Fritzy & Lily' },
+      { rank: 24, title: 'Candy', performers: 'Anin, Fritzy, Trisha' },
+      { rank: 23, title: 'Natasha yang ku cinta', performers: 'Atin, Christy, Aralie' },
+      { rank: 22, title: 'Ekor Malaikat', performers: 'Ella, Gita, Gressell' },
+      { rank: 21, title: 'Kita berdua jadian', performers: 'Jessie' },
+      { rank: 20, title: 'Aku Juette dan jet coaster', performers: 'Oniel, Jessie, Nala' },
+      { rank: 19, title: 'Berikan coklat dengan bibir', performers: 'Delynn, Cynthia, Raisa' },
+      { rank: 18, title: 'Perbuatan angin malam', performers: 'Lulu' },
+      { rank: 17, title: 'Jika Aku Di Peluk Mu', performers: 'All Gen 8' },
+      { rank: 16, title: 'Aturan Anti Cinta', performers: 'Kimmy, Trisha, Lana' },
+      { rank: 15, title: 'Bird', performers: 'Lia, Lana, Nayla' },
+      { rank: 14, title: 'Oshibe', performers: 'Aralie, Levi' },
+      { rank: 13, title: 'Pencuri Cinta Pertama', performers: 'Intan, Ekin, Jemima' },
+      { rank: 12, title: 'Bibir yang telah dicuri', performers: 'All Senbatsu Undergirl (Indira change Virgi)', eliHighlight: true, eliNote: 'Eli in Group Song' },
+      { rank: 11, title: 'Ame No Pianist', performers: 'Alya, Cynthia, Elin' },
+      { rank: 10, title: 'Akai no Pen Hell to Professor', performers: 'Muthe' },
+      { rank: 9, title: 'Si Ulat Penakut', performers: 'Gressell' },
+      { rank: 8, title: 'Ingatan Cosmos', performers: null, eliHighlight: true, eliNote: 'Eli in Group Song' },
+      { rank: 7, title: 'Cinta yang tulus cressendo', performers: 'Michi, Gressel, Gracie' },
+      { rank: 6, title: 'Blue Rose', performers: 'Oline, Delynn, Ribka, Erine' },
+      { rank: 5, title: 'Stasiun Daun Kering', performers: 'Aralie' },
+      { rank: 4, title: 'Bibir dari Plastic', performers: 'Christy' },
+      { rank: 3, title: 'Si Bintang Jatuh Yang Egois', performers: 'Ribka & Indah' },
+      { rank: 2, title: 'Oshibe New Version', performers: 'Marsha, Auwia, Delynn, Freya, Oline' },
+      { rank: 1, title: 'Fajar Sang Idola', performers: null },
+    ],
+  },
+];
+
+export default NEWS_ARTICLES;

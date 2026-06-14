@@ -112,6 +112,7 @@ const ByuMusicPage = lazy(() => import('./pages/ByuMusic'));
 // Pohon Aprikot (batch #1 untuk Seitansai 2026). Lazy supaya GSAP timeline
 // + html-to-image chunks (P4/P7) gak masuk first paint pages lain.
 const PetikanPage = lazy(() => import('./pages/Petikan'));
+const NewsPage = lazy(() => import('./pages/News'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -425,6 +426,8 @@ function AppShell() {
               path="/petikan"
               element={<Navigate to="/armepack" replace />}
             />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:slug" element={<NewsPage />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/armeniacaTown" element={<TamanPage />} />
