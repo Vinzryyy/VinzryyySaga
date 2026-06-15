@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-15T08:15:35.918723Z",
+  "fetchedAt": "2026-06-15T14:18:02.002274Z",
   "salesCount": 7,
   "sales": [
     {
@@ -89,15 +89,15 @@
           "sessionLabel": "Sesi 1 (DREAM) · 02/07",
           "sessionDate": "2026-07-01T17:00:00.000Z",
           "jalur": "Jalur 6",
-          "ticketsSold": 18,
-          "remainingQuota": 62
+          "ticketsSold": 19,
+          "remainingQuota": 61
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
           "sessionDate": "2026-07-01T17:00:00.000Z",
           "jalur": "Jalur 6",
-          "ticketsSold": 11,
-          "remainingQuota": 69
+          "ticketsSold": 12,
+          "remainingQuota": 68
         }
       ],
       "url": "https://jkt48.com/schedule/ex3773-02072026"
@@ -108,8 +108,8 @@
       "slug": "ex9a4a-02072026",
       "category": "PHOTOCARD",
       "title": "Team Love & Team Dream, Meet and Greet Surabaya",
-      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-thumb-606311.jpg",
-      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-preview-9c34fe.jpg",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-thumb-736b1c.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-preview-792fcc.jpg",
       "defaultPrice": 50000,
       "totalQuota": 11880,
       "salesPeriod": [
@@ -132,8 +132,8 @@
           "sessionLabel": "Sesi 3 (DREAM) · 02/07",
           "sessionDate": "2026-07-01T17:00:00.000Z",
           "jalur": "Jalur 6",
-          "ticketsSold": 26,
-          "remainingQuota": 194
+          "ticketsSold": 31,
+          "remainingQuota": 189
         },
         {
           "sessionLabel": "Sesi 4 (DREAM) · 02/07",
@@ -175,8 +175,8 @@
           "sessionLabel": "Sesi 1",
           "sessionDate": "2026-06-15T17:00:00.000Z",
           "jalur": "Jalur 8",
-          "ticketsSold": 35,
-          "remainingQuota": 10
+          "ticketsSold": 45,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 2",

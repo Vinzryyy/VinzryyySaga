@@ -1,8 +1,8 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-06-15T08:15:28.789098Z",
-  "eventCount": 21,
+  "fetchedAt": "2026-06-15T14:17:54.836971Z",
+  "eventCount": 23,
   "events": [
     {
       "kind": "EXCLUSIVE",
@@ -1078,13 +1078,13 @@
         "Jalur 8"
       ],
       "tickets_sold_eli": [
-        35
+        45
       ],
       "eli_remaining": [
-        10
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 10,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex783d-15062026"
     },
@@ -1191,94 +1191,158 @@
       "url": "https://jkt48.com/schedule/ex783d-15062026"
     },
     {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 954,
-      "code": "EX3773",
-      "title": "Team Love & Team Dream, 2shot Surabaya (Sesi 1 (DREAM) · 02/07)",
-      "date": "2026-07-01T17:00:00.000Z",
-      "start_time": "13:00",
-      "end_time": "14:00",
-      "category": "TWO_SHOT",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
+      "kind": "SHOW",
+      "schedule_id": 3169,
+      "code": "SH691B",
+      "title": "Pertaruhan Cinta",
+      "date": "2026-06-20T17:00:00.000Z",
+      "start_time": "16:00",
+      "end_time": "18:00",
+      "set_list": "SL_24",
+      "team": "JKT48",
+      "venue": "JKT48 Theater",
       "members": [
         {
-          "name": "Freya Jayawardana"
+          "name": "Angelina Christy",
+          "member_id": 22,
+          "type": "PASSION"
         },
         {
-          "name": "Greesella Adhalia"
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
         },
         {
-          "name": "Gita Sekar Andarini"
+          "name": "Fiony Alveria",
+          "member_id": 91,
+          "type": "LOVE"
         },
         {
-          "name": "Marsha Lenathea"
+          "name": "Freya Jayawardana",
+          "member_id": 94,
+          "type": "DREAM"
         },
         {
-          "name": "Jesslyn Elly"
+          "name": "Gabriela Abigail",
+          "member_id": 97,
+          "type": "DREAM"
         },
         {
-          "name": "Helisma Putri"
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
+        },
+        {
+          "name": "Grace Octaviani",
+          "member_id": 105,
+          "type": "LOVE"
+        },
+        {
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
+        },
+        {
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
+        },
+        {
+          "name": "Jessica Chandra",
+          "member_id": 127,
+          "type": "PASSION"
+        },
+        {
+          "name": "Michelle Alexandra",
+          "member_id": 159,
+          "type": "LOVE"
+        },
+        {
+          "name": "Mutiara Azzahra",
+          "member_id": 166,
+          "type": "PASSION"
         }
       ],
-      "eli_jalur": [
-        "Jalur 6"
-      ],
-      "tickets_sold_eli": [
-        18
-      ],
-      "eli_remaining": [
-        62
-      ],
-      "sold_out": false,
-      "remaining_total": 62,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex3773-28062026"
+      "is_birthday_show": true,
+      "is_video_call": false,
+      "url": "https://jkt48.com/schedule/sh691b-pertaruhan-cinta"
     },
     {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 954,
-      "code": "EX3773",
-      "title": "Team Love & Team Dream, 2shot Surabaya (Sesi 2 (DREAM) · 02/07)",
-      "date": "2026-07-01T17:00:00.000Z",
-      "start_time": "14:00",
-      "end_time": "15:00",
-      "category": "TWO_SHOT",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
+      "kind": "SHOW",
+      "schedule_id": 3170,
+      "code": "SH1B46",
+      "title": "Sambil Menggandeng Erat Tanganku",
+      "date": "2026-06-23T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_12",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
       "members": [
         {
-          "name": "Freya Jayawardana"
+          "name": "Adeline Wijaya",
+          "member_id": 2,
+          "type": "DREAM"
         },
         {
-          "name": "Greesella Adhalia"
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
         },
         {
-          "name": "Gita Sekar Andarini"
+          "name": "Freya Jayawardana",
+          "member_id": 94,
+          "type": "DREAM"
         },
         {
-          "name": "Marsha Lenathea"
+          "name": "Gendis Mayrannisa",
+          "member_id": 102,
+          "type": "DREAM"
         },
         {
-          "name": "Jesslyn Elly"
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
         },
         {
-          "name": "Helisma Putri"
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
+        },
+        {
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
+        },
+        {
+          "name": "Jesslyn Elly",
+          "member_id": 131,
+          "type": "DREAM"
+        },
+        {
+          "name": "Marsha Lenathea",
+          "member_id": 152,
+          "type": "DREAM"
+        },
+        {
+          "name": "Nina Tutachia",
+          "member_id": 178,
+          "type": "DREAM"
+        },
+        {
+          "name": "Oline Manuel",
+          "member_id": 185,
+          "type": "DREAM"
+        },
+        {
+          "name": "Shabilqis Naila",
+          "member_id": 221,
+          "type": "DREAM"
         }
       ],
-      "eli_jalur": [
-        "Jalur 6"
-      ],
-      "tickets_sold_eli": [
-        11
-      ],
-      "eli_remaining": [
-        69
-      ],
-      "sold_out": false,
-      "remaining_total": 69,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex3773-28062026"
+      "is_birthday_show": true,
+      "is_video_call": false,
+      "url": "https://jkt48.com/schedule/sh1b46-sambil-menggandeng-erat-tanganku"
     },
     {
       "kind": "EXCLUSIVE",
@@ -1315,13 +1379,13 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        26
+        31
       ],
       "eli_remaining": [
-        194
+        189
       ],
       "sold_out": false,
-      "remaining_total": 194,
+      "remaining_total": 189,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex9a4a-28062026"
     },
@@ -1369,6 +1433,96 @@
       "remaining_total": 188,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex9a4a-28062026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 954,
+      "code": "EX3773",
+      "title": "Team Love & Team Dream, 2shot Surabaya (Sesi 1 (DREAM) · 02/07)",
+      "date": "2026-07-01T17:00:00.000Z",
+      "start_time": "13:00",
+      "end_time": "14:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Gita Sekar Andarini"
+        },
+        {
+          "name": "Marsha Lenathea"
+        },
+        {
+          "name": "Jesslyn Elly"
+        },
+        {
+          "name": "Helisma Putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 6"
+      ],
+      "tickets_sold_eli": [
+        19
+      ],
+      "eli_remaining": [
+        61
+      ],
+      "sold_out": false,
+      "remaining_total": 61,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/ex3773-28062026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 954,
+      "code": "EX3773",
+      "title": "Team Love & Team Dream, 2shot Surabaya (Sesi 2 (DREAM) · 02/07)",
+      "date": "2026-07-01T17:00:00.000Z",
+      "start_time": "14:00",
+      "end_time": "15:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Gita Sekar Andarini"
+        },
+        {
+          "name": "Marsha Lenathea"
+        },
+        {
+          "name": "Jesslyn Elly"
+        },
+        {
+          "name": "Helisma Putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 6"
+      ],
+      "tickets_sold_eli": [
+        12
+      ],
+      "eli_remaining": [
+        68
+      ],
+      "sold_out": false,
+      "remaining_total": 68,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/ex3773-28062026"
     }
   ]
 }
