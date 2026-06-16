@@ -265,6 +265,34 @@ export const SITE_CONFIG = {
           'Selamat ulang tahun, Ceu Eli. Tetap jadi sinar senja yang menghangatkan panggung — kami akan terus mengabadikan setiap momennya.',
         date: '2026-04-15',
       },
+      {
+        name: 'Helismiley',
+        handle: '@helismiley_',
+        message:
+          'Happy birthday Eli! Dari panggung pertama sampai sekarang, kamu selalu jadi alasan kami datang ke teater. Semoga tahun ke-26 penuh kebahagiaan.',
+        date: '2026-06-15',
+      },
+      {
+        name: 'Penggemar Bandung',
+        handle: '',
+        message:
+          'Ceu Eli tetap kebanggaan Bandung. Dari audisi 2018 sampai Team Dream, perjalanannya selalu menginspirasi. HBD ke-26!',
+        date: '2026-06-14',
+      },
+      {
+        name: 'Fans Lama Gen 7',
+        handle: '',
+        message:
+          'Masih ingat pertama kali lihat Eli di Academy Class B. Sekarang sudah 8 tahun lebih dan masih di sini — terus bersinar ya, Ceu.',
+        date: '2026-06-13',
+      },
+      {
+        name: 'NCTzen × Helismiley',
+        handle: '',
+        message:
+          'Eli yang suka Jaehyun, kami yang suka Eli. Selamat ulang tahun, semoga semakin sukses di JKT48 dan selalu bahagia!',
+        date: '2026-06-15',
+      },
     ],
   },
 
