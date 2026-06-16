@@ -379,10 +379,9 @@ const WishesPage = () => {
         </div>
       </header>
 
-      {/* Submission form — burgundy editorial plate (og-card style),
-          form on the left + Eli portrait on the right. No template
-          picker on this version (template selection happens elsewhere
-          if at all — wall just cycles through templates by index). */}
+      {/* Submission form + template picker — hidden post-birthday
+          (collecting phase over). */}
+      {!isBirthdayPassed && (<>
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 mb-12 md:mb-16">
         <div className="max-w-5xl mx-auto">
           <div className="rounded-[2rem] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] relative overflow-hidden shadow-2xl shadow-[color:var(--retro-burgundy)]/30">
@@ -642,6 +641,7 @@ const WishesPage = () => {
           </div>
         </div>
       </section>
+      </>)}
 
       {/* Flying marquee — wishes drift past in two opposite-direction bands.
           Edge-to-edge (breaks out of container max-w) for the full sky-of-
