@@ -15,12 +15,12 @@ import React, { useEffect, useState } from 'react';
 
 const CATEGORY_TONE = {
   Event: 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]',
-  Theater: 'bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]',
+  Theater: 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]',
   Birthday: 'bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]',
-  Goods: 'bg-[color:var(--retro-sepia)] text-[color:var(--retro-cream)]',
-  Media: 'bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)]',
-  Trainee: 'bg-[color:var(--retro-brown)]/80 text-[color:var(--retro-cream)]',
-  'Graduation 2-Shot': 'bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]',
+  Goods: 'bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]',
+  Media: 'bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]',
+  Trainee: 'bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)]',
+  'Graduation 2-Shot': 'bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]',
   Other: 'bg-[color:var(--retro-brown)]/15 text-[color:var(--retro-brown-dark)]',
 };
 
