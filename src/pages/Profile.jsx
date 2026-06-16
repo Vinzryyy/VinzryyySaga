@@ -189,6 +189,22 @@ const ProfilePage = () => {
         title="Profil Eli"
         description="Profil lengkap Helisma Putri (Eli JKT48) — timeline karier, JKT48 Fight 2026 di Team Dream, diskografi termasuk Sousenkyo Rapsodi, plus trivia dan fun facts."
         path="/profile"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Person',
+          name: 'Helisma Putri Kurnia',
+          alternateName: 'Eli',
+          birthDate: '2000-06-15',
+          birthPlace: { '@type': 'Place', name: 'Bandung, Jawa Barat, Indonesia' },
+          memberOf: { '@type': 'MusicGroup', name: 'JKT48' },
+          image: 'https://armeniaca.online/archive/img-364.jpg',
+          url: 'https://armeniaca.online/profile',
+          sameAs: [
+            'https://www.instagram.com/jkt48.eli/',
+            'https://x.com/H_EliJKT48',
+            'https://www.tiktok.com/@elijkt48',
+          ],
+        }}
       />
       {/* Ambient motif backdrop — 20 themed glyphs (apricot, blossom, butterfly,
           ribbon, leaf, bug, ice, star, split apricot) drifting softly behind

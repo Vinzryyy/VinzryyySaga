@@ -570,6 +570,19 @@ const HomePage = () => {
       <Seo
         path="/"
         description="Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026."
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'Armeniaca',
+          url: 'https://armeniaca.online',
+          description: 'Arsip visual independen untuk Helisma Putri (Eli JKT48)',
+          publisher: {
+            '@type': 'Organization',
+            name: 'Armeniaca',
+            url: 'https://armeniaca.online',
+            logo: { '@type': 'ImageObject', url: 'https://armeniaca.online/og-card.png' },
+          },
+        }}
       />
       {/* HERO — full-bleed Eli portrait with Ken Burns reveal */}
       <section

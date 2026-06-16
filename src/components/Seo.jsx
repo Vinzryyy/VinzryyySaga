@@ -1,7 +1,8 @@
 /**
  * Seo helper — emits per-page <title>, <meta description>, canonical
- * link, and OG/Twitter tags via react-helmet-async. Defaults bubble
- * up from index.html for any page that doesn't override.
+ * link, OG/Twitter tags, and optional JSON-LD structured data via
+ * react-helmet-async. Defaults bubble up from index.html for any page
+ * that doesn't override.
  */
 
 import React from 'react';
@@ -16,6 +17,7 @@ const Seo = ({
   path = '/',
   image = DEFAULT_OG_IMAGE,
   type = 'website',
+  jsonLd,
 }) => {
   const fullTitle = title ? `${title} · Armeniaca` : 'Armeniaca — Arsip Visual Eli JKT48';
   const url = `${SITE_URL}${path === '/' ? '' : path}`;
@@ -33,6 +35,9 @@ const Seo = ({
       <meta name="twitter:title" content={fullTitle} />
       {description && <meta name="twitter:description" content={description} />}
       <meta name="twitter:image" content={image} />
+      {jsonLd && (
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+      )}
     </Helmet>
   );
 };
