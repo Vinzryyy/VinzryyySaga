@@ -47,6 +47,13 @@ const PortraitCardStack = ({ portraits, wrapperStyle }) => {
   // value — and so a user toggling OS-level reduced-motion mid-session
   // updates the stack's transition behavior without a refresh.
   const [reducedMotion, setReducedMotion] = useState(false);
+  // One-time nudge hint — briefly shift the top card so users see it's draggable.
+  const [hintDone, setHintDone] = useState(false);
+  useEffect(() => {
+    if (reducedMotion) { setHintDone(true); return undefined; }
+    const id = setTimeout(() => setHintDone(true), 1800);
+    return () => clearTimeout(id);
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined;
@@ -131,6 +138,9 @@ const PortraitCardStack = ({ portraits, wrapperStyle }) => {
             tx = drag.x;
             ty = drag.y;
             rot = drag.x * ROTATION_PER_PX;
+          } else if (!hintDone) {
+            tx = 18;
+            rot = 18 * ROTATION_PER_PX;
           }
         }
 
