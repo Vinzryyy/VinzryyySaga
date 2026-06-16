@@ -367,7 +367,7 @@ export const SITE_CONFIG = {
         '/archive/img-083.jpg',
         '/archive/img-335.jpg',
       ],
-      backgroundIntervalMs: 10000,
+      backgroundIntervalMs: 18000,
       primaryCta: { label: 'Jelajahi Memoria', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
       secondaryCta: { label: 'Mengenal Armeniaca', hash: 'about', icon: 'ri-information-line' },
     },
