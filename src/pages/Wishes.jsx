@@ -280,7 +280,7 @@ const WishesPage = () => {
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
       <Seo
         title="Wishes untuk Eli"
-        description="Tinggalkan ucapan dan harapan untuk Helisma Putri (Eli JKT48). Wishes wall fans menjelang ulang tahun ke-26 di 15 Juni 2026."
+        description="Ucapan dan harapan dari fans untuk Helisma Putri (Eli JKT48). Wishes wall perayaan ulang tahun ke-26 pada 15 Juni 2026."
         path="/wishes"
       />
       {/* Ambient motif backdrop — same brand symbology used on Profile,

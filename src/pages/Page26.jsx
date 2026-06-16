@@ -76,7 +76,7 @@ const Page26 = () => {
           Setiap satu dukungan adalah satu siraman; setiap 100 siraman, pohon
           untuk Eli naik ke tahap berikutnya — dari bibit, tunas, pohon muda,
           dewasa, berbunga, hingga berbuah aprikot. Mari kumpulkan tangan-tangan
-          Helismiley sebanyak mungkin sebelum 15 Juni 2026 tiba.
+          Helismiley sebanyak mungkin — pohon ini tetap tumbuh meski harinya sudah berlalu.
         </p>
         <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
       </div>
@@ -97,8 +97,8 @@ const Page26 = () => {
         </p>
         <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
           Pohon di atas adalah modul pertama dari Harmoni Kebaikan untuk
-          ulang tahun ke-26 Eli. Modul-modul lain akan menyusul sebelum
-          15 Juni 2026.
+          ulang tahun ke-26 Eli. Modul-modul lain kini sudah hadir — dan
+          pohon ini tetap bisa disirami kapan saja.
         </p>
 
         {/* Peta Filosofi CTA — opens FilosofiModal which embeds the

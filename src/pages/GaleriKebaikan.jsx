@@ -19,7 +19,7 @@ const GaleriKebaikan = () => (
     <Seo
       path="/galeri-kebaikan"
       title="Galeri Kebaikan — Harmoni Kebaikan"
-      description="Arsip aksi kebaikan yang dilakukan atas nama Helisma Putri (Eli JKT48) menjelang seitansai 15 Juni 2026. Project Helismiley × Armeniaca."
+      description="Arsip aksi kebaikan yang dilakukan atas nama Helisma Putri (Eli JKT48) untuk seitansai ke-26 pada 15 Juni 2026. Project Helismiley × Armeniaca."
     />
 
     <MotifBackdrop count={40} seed="galeri-kebaikan-2026" />
@@ -66,7 +66,7 @@ const GaleriKebaikan = () => (
         </p>
         <p className="mt-4 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
           Ruang yang merefleksikan nilai kebaikan Helisma — menampilkan kontribusi nyata yang
-          dilakukan atas namanya menjelang ulang tahun ke-26. Tanpa disadari, kebaikan kecil yang
+          dilakukan atas namanya untuk ulang tahun ke-26. Tanpa disadari, kebaikan kecil yang
           ia bawa setiap hari menjadikannya pahlawan sehari-hari.
         </p>
         <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
@@ -174,10 +174,10 @@ const GaleriKebaikan = () => (
             <div className="absolute -top-24 -right-24 w-[280px] h-[280px] rounded-full bg-[color:var(--retro-gold)]/15 blur-3xl pointer-events-none" />
             <div className="relative">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3 inline-flex items-center gap-2">
-                <i className="ri-map-pin-line text-base" /> Display Fisik · Hari-H
+                <i className="ri-map-pin-line text-base" /> Display Fisik · Rekap
               </p>
               <h3 className="font-header text-2xl md:text-3xl font-black tracking-tighter leading-tight mb-3">
-                Galeri Kebaikan akan hadir di <br />
+                Galeri Kebaikan tampil di <br />
                 <span className="text-[color:var(--retro-gold-light)]">CGV FX Sudirman F7.</span>
               </h3>
               <p className="text-sm text-[color:var(--retro-cream)]/80 leading-relaxed">

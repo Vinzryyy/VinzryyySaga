@@ -24,7 +24,7 @@ const ByuMusic = () => (
     <Seo
       path="/byu-music"
       title="By-U Music"
-      description="Sebuah lagu yang masih tersegel. Akan dibuka 15 Juni 2026. Sampai saat itu, kita yang menjaga denyutnya. Bagian dari Harmoni Kebaikan."
+      description="Lagu By-U untuk Putri Helisma — dirilis 15 Juni 2026 sebagai bagian dari Harmoni Kebaikan. Dengarkan sekarang."
     />
 
     <FloatingPetals />
@@ -64,13 +64,13 @@ const ByuMusic = () => (
           <span className="text-[color:var(--retro-burgundy-light)]"> Music.</span>
         </h1>
         <p className="mt-5 sm:mt-6 font-header italic text-base sm:text-lg md:text-xl text-[color:var(--retro-cream)]/85 leading-relaxed max-w-2xl">
-          Sebuah lagu yang menunggu dibuka.
+          Sebuah lagu yang telah terbuka.
         </p>
         <p className="mt-4 text-sm sm:text-base md:text-lg text-[color:var(--retro-text-primary)] leading-relaxed max-w-2xl">
-          Masih tersegel. Akan dibuka pada{' '}
+          Dirilis pada{' '}
           <span className="font-bold text-[color:var(--retro-burgundy)]">15 Juni 2026</span>{' '}
-          — bertepatan dgn ulang tahun ke-26 Eli. Sampai saat itu, kita yang
-          menjaganya: tiap klik "Saya menunggu" jadi satu doa untuk hari rilis.
+          — bertepatan dengan ulang tahun ke-26 Eli. Lagu ini adalah hadiah kolektif
+          dari komunitas yang menunggu bersama hingga hari itu tiba.
         </p>
         <div className="mt-8 h-px bg-gradient-to-r from-[color:var(--retro-burgundy-light)]/40 via-[color:var(--retro-cream)]/15 to-transparent" />
       </div>
