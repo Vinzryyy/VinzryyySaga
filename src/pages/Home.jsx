@@ -1074,7 +1074,7 @@ const HomePage = () => {
             </div>
 
             {availableMarqueeYears.length > 1 && (
-              <div className="-mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto mb-5">
+              <div className="-mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto mb-5 [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden">
                 <div
                   role="tablist"
                   aria-label="Filter arsip per tahun"

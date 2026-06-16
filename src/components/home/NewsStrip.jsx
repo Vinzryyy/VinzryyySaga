@@ -107,7 +107,7 @@ const NewsCard = ({ item }) => {
       <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-bg-secondary)]">
         <img
           src={imgSrc}
-          alt=""
+          alt={item.title}
           loading="lazy"
           onError={() => setImgFailed(true)}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
