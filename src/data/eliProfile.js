@@ -288,18 +288,43 @@ export const ELI_DISCOGRAPHY = [
     rosterLabel: 'Undergirls Roster',
     members: SOUSENKYO_2024_UNDERGIRLS,
   },
-  // Single JKT48 lainnya yang melibatkan Eli akan ditambah seiring data
-  // posisi per single terverifikasi.
-  { title: 'Single JKT48 lainnya', type: 'Reference', year: '2020 - 2026', position: 'Berbagai posisi', note: 'Daftar lengkap akan diperbarui.', placeholder: true },
+  {
+    title: 'Cara Ceroboh untuk Mencinta (Darashinai Aishikata)',
+    type: 'Single',
+    year: '2019',
+    position: 'Under Girls',
+    note: 'Single ke-22 JKT48. Eli masuk formasi Under Girls sebagai member Gen 7 di tahun pertamanya.',
+  },
+  {
+    title: 'Dirimu Melody (Kimi wa Melody)',
+    type: 'Single',
+    year: '2022',
+    position: 'Selected Member',
+    note: 'Single rilisan era pandemi. Eli dipilih ke formasi selected member.',
+  },
+  {
+    title: 'Flying High',
+    type: 'Single',
+    year: '2023',
+    position: 'Selected Member',
+    note: 'Single original JKT48 pasca restrukturisasi. Eli masuk formasi reguler.',
+  },
+  {
+    title: 'Langit Biru Cinta Searah',
+    type: 'Single',
+    year: '2024',
+    position: 'Selected Member',
+    note: 'Single bertepatan dengan era Sousenkyo 2024 (#Semangka). Eli aktif di formasi reguler.',
+  },
 ];
 
 // Album appearances — JKT48 album tracks Eli was part of. Pulled from
 // fan-curated participation list (JOY KICK! TEARS, THIS IS JKT48 NEW ERA,
-// Mahagita Vol. 2). Year column left blank when not yet verified.
+// Mahagita Vol. 2).
 export const ELI_ALBUMS = [
   {
     title: 'JOY KICK! TEARS',
-    year: null,
+    year: '2019',
     cover: null,
     tracks: [
       { song: 'Teacher Teacher' },
@@ -307,7 +332,7 @@ export const ELI_ALBUMS = [
   },
   {
     title: 'THIS IS JKT48 NEW ERA',
-    year: null,
+    year: '2021',
     cover: null,
     tracks: [
       { song: '109 (Marukyu)' },
@@ -316,7 +341,7 @@ export const ELI_ALBUMS = [
   },
   {
     title: 'Mahagita Vol. 2',
-    year: null,
+    year: '2022',
     cover: null,
     tracks: [
       { song: 'Bokura no Eureka' },
