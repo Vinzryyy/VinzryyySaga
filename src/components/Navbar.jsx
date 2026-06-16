@@ -132,6 +132,22 @@ function Navbar() {
     };
   }, [openDropdown]);
 
+  // Keyboard navigation for dropdown menus (arrow keys + Home/End).
+  const handleMenuKeyDown = (e) => {
+    const menu = e.currentTarget.closest('[role="menu"]');
+    if (!menu) return;
+    const items = [...menu.querySelectorAll('[role="menuitem"]')];
+    const idx = items.indexOf(document.activeElement);
+    let next = -1;
+    if (e.key === 'ArrowDown') next = idx < items.length - 1 ? idx + 1 : 0;
+    else if (e.key === 'ArrowUp') next = idx > 0 ? idx - 1 : items.length - 1;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = items.length - 1;
+    else return;
+    e.preventDefault();
+    items[next]?.focus();
+  };
+
   const navigateTo = (hash) => {
     // Sentinel hashes that re-open popup modals instead of navigating
     // to a route. Keeps siteConfig data-driven without special-case props.
@@ -292,6 +308,16 @@ function Navbar() {
                       onClick={() =>
                         setOpenDropdown((current) => (current === item.label ? null : item.label))
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === 'ArrowDown' && !dropOpen) {
+                          e.preventDefault();
+                          setOpenDropdown(item.label);
+                          requestAnimationFrame(() => {
+                            const menu = e.currentTarget.parentElement?.querySelector('[role="menu"]');
+                            menu?.querySelector('[role="menuitem"]')?.focus();
+                          });
+                        }
+                      }}
                       className={`
                         inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
                         ${active || dropOpen
@@ -316,6 +342,8 @@ function Navbar() {
                           <button
                             type="button"
                             role="menuitem"
+                            tabIndex={0}
+                            onKeyDown={handleMenuKeyDown}
                             onClick={() => navigateTo(item.hash)}
                             className="w-full flex items-center justify-between gap-3 px-3 py-2 mb-1 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/5"
                           >
@@ -329,6 +357,8 @@ function Navbar() {
                               key={`${item.label}-${child.hash}`}
                               type="button"
                               role="menuitem"
+                              tabIndex={0}
+                              onKeyDown={handleMenuKeyDown}
                               onClick={() => navigateTo(child.hash)}
                               className={`
                                 group flex items-start gap-3 px-3 py-3 rounded-xl text-left transition-colors
