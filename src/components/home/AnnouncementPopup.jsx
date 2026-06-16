@@ -31,8 +31,11 @@ const AnnouncementPopup = () => {
     // navbar entry are also hidden via the same gate, so visitors
     // simply won't see the project until then. Manual re-open via
     // event still works (handled by the listener below) for testing.
+    const now = Date.now();
     const launchAt = new Date(PHOTO_FRAME_CAMPAIGN.availableFromIso).getTime();
-    if (Number.isFinite(launchAt) && Date.now() < launchAt) return undefined;
+    if (Number.isFinite(launchAt) && now < launchAt) return undefined;
+    const endAt = new Date(PHOTO_FRAME_CAMPAIGN.availableUntilIso).getTime();
+    if (Number.isFinite(endAt) && now >= endAt) return undefined;
 
     // Skip users who already dismissed this campaign.
     try {
