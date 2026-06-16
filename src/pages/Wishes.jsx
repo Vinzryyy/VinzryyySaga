@@ -666,7 +666,7 @@ const WishesPage = () => {
       )}
 
       {/* Wall */}
-      <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-16 md:pb-24">
+      <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-16 md:pb-24 overflow-x-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">

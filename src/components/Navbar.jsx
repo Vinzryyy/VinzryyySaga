@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SITE_CONFIG } from "../config/siteConfig";
-import { useGallery } from "../context";
+
 import { hashToHref, hrefToActiveId } from "../utils/routes";
 
 const NAVBAR_HIDDEN_KEY = 'navbar-hidden';
@@ -13,7 +13,7 @@ function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState(null);
   const dropdownRef = useRef(null);
-  const { eras } = useGallery();
+
   const location = useLocation();
   const navigate = useNavigate();
   // Hide/show navbar manual toggle, persist localStorage. Saat hidden,
@@ -72,26 +72,12 @@ function Navbar() {
       return true;
     };
     return SITE_CONFIG.navigation.main.map((item) => {
-      if (item.label === "Archive" && Array.isArray(item.children)) {
-        return {
-          ...item,
-          children: [
-            ...item.children,
-            ...eras.map((era) => ({
-              label: era.label,
-              hash: String(era.id),
-              description: `Frame tahun ${era.id}`,
-              icon: "ri-calendar-line",
-            })),
-          ].filter(isAvailable),
-        };
-      }
       if (Array.isArray(item.children)) {
         return { ...item, children: item.children.filter(isAvailable) };
       }
       return item;
     });
-  }, [eras, mountTimeMs]);
+  }, [mountTimeMs]);
 
   // Scroll state + progress bar
   useEffect(() => {
@@ -384,7 +370,7 @@ function Navbar() {
             <button
               type="button"
               onClick={toggleHidden}
-              className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${palette.text} ${palette.hoverBg} transition`}
+              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${palette.text} ${palette.hoverBg} transition`}
               aria-label="Sembunyikan navbar"
               title="Sembunyikan navbar"
             >
