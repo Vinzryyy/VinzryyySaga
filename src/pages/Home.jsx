@@ -259,14 +259,18 @@ const HomePage = () => {
   const { featuredImages, images } = useGallery();
   const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
-  // Hide cards whose campaign hasn't reached its availableFromIso yet.
-  // Drives the Photo Frame card's pre-10-June reveal gate; harmless
-  // pass-through for cards without the field.
+  // Hide cards outside their available window (availableFromIso → availableUntilIso).
   const now = Date.now();
   const visibleHarmoniCards = harmoniKebaikan.cards.filter((c) => {
-    if (!c.availableFromIso) return true;
-    const launch = new Date(c.availableFromIso).getTime();
-    return !Number.isFinite(launch) || now >= launch;
+    if (c.availableFromIso) {
+      const launch = new Date(c.availableFromIso).getTime();
+      if (Number.isFinite(launch) && now < launch) return false;
+    }
+    if (c.availableUntilIso) {
+      const end = new Date(c.availableUntilIso).getTime();
+      if (Number.isFinite(end) && now >= end) return false;
+    }
+    return true;
   });
   const { open: openLightbox } = useLightbox();
   const showroomLive = useShowroomLive('JKT48_Eli');

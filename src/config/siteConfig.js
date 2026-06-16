@@ -17,8 +17,11 @@ export const PHOTO_FRAME_CAMPAIGN = {
 // Videotron Project (Armeniaca) launch gate — same mechanic as Photo Frame.
 const VIDEOTRON_AVAILABLE_FROM_ISO = '2026-06-13T00:00:00+07:00';
 
+const VIDEOTRON_AVAILABLE_UNTIL_ISO = '2026-06-16T00:00:00+07:00';
+
 export const VIDEOTRON_CAMPAIGN = {
   availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
+  availableUntilIso: VIDEOTRON_AVAILABLE_UNTIL_ISO,
 };
 
 export const SITE_CONFIG = {
@@ -415,6 +418,7 @@ export const SITE_CONFIG = {
           icon: 'ri-vidicon-line',
           hash: 'videotron-popup',
           availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
+          availableUntilIso: VIDEOTRON_AVAILABLE_UNTIL_ISO,
         },
         {
           eyebrow: 'Rekap',

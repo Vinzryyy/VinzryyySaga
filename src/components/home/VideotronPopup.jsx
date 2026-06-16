@@ -26,8 +26,11 @@ const VideotronPopup = () => {
   };
 
   useEffect(() => {
+    const now = Date.now();
     const launchAt = new Date(VIDEOTRON_CAMPAIGN.availableFromIso).getTime();
-    if (Number.isFinite(launchAt) && Date.now() < launchAt) return undefined;
+    if (Number.isFinite(launchAt) && now < launchAt) return undefined;
+    const endAt = new Date(VIDEOTRON_CAMPAIGN.availableUntilIso).getTime();
+    if (Number.isFinite(endAt) && now >= endAt) return undefined;
 
     try {
       if (window.localStorage.getItem(STORAGE_KEY) === 'dismissed') return undefined;

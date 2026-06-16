@@ -61,9 +61,15 @@ function Navbar() {
   const [mountTimeMs] = useState(() => Date.now());
   const navItems = useMemo(() => {
     const isAvailable = (child) => {
-      if (!child.availableFromIso) return true;
-      const launch = new Date(child.availableFromIso).getTime();
-      return !Number.isFinite(launch) || mountTimeMs >= launch;
+      if (child.availableFromIso) {
+        const launch = new Date(child.availableFromIso).getTime();
+        if (Number.isFinite(launch) && mountTimeMs < launch) return false;
+      }
+      if (child.availableUntilIso) {
+        const end = new Date(child.availableUntilIso).getTime();
+        if (Number.isFinite(end) && mountTimeMs >= end) return false;
+      }
+      return true;
     };
     return SITE_CONFIG.navigation.main.map((item) => {
       if (item.label === "Archive" && Array.isArray(item.children)) {
