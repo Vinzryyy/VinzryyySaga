@@ -87,6 +87,12 @@ export const SITE_CONFIG = {
             description: 'Kilas balik momen ke-26 Ceu Eli',
             icon: 'ri-book-read-line',
           },
+          {
+            label: 'Ucapan',
+            hash: 'wishes',
+            description: 'Pesan dari fans untuk Ceu Eli',
+            icon: 'ri-mail-heart-line',
+          },
         ],
       },
       {
