@@ -236,7 +236,7 @@ export const SITE_CONFIG = {
     title: 'Ucapkan untuk',
     titleAccent: 'Ceu Eli.',
     lead:
-      'Tinggalkan pesan ulang tahun untuk Eli menjelang 15 Juni 2026. Pesan akan dimoderasi Armeniaca lalu masuk ke dinding ini — jadi catatan kolektif penggemar.',
+      'Tinggalkan pesan untuk Eli — meski 15 Juni 2026 sudah lewat, pesanmu tetap kami terima. Pesan akan dimoderasi Armeniaca lalu masuk ke dinding ini — catatan kolektif yang terus bertambah.',
     completedEyebrow: 'Selamat Ulang Tahun',
     completedTitle: 'Terima kasih atas',
     completedTitleAccent: 'semua ucapannya.',
@@ -354,7 +354,7 @@ export const SITE_CONFIG = {
       title: 'Selamat Datang di Armeniaca',
       subtitle: 'Arsip Visual Helisma Putri — Eli JKT48',
       lead:
-        'Arsip visual independen untuk Helisma Putri (Eli JKT48) — member aktif Generasi 7 dari Bandung, kini di Team Dream untuk Fight 2026. Kami rawat panggung-panggungnya satu per satu, sambil menyiapkan ulang tahun ke-26 di 15 Juni 2026.',
+        'Arsip visual independen untuk Helisma Putri (Eli JKT48) — member aktif Generasi 7 dari Bandung, kini di Team Dream untuk Fight 2026. Kami rawat panggung-panggungnya satu per satu, dari perayaan ulang tahun ke-26 hingga momen-momen yang belum datang.',
       backgrounds: [
         '/archive/img-310.jpg',
         '/archive/img-305.jpg',
@@ -372,11 +372,11 @@ export const SITE_CONFIG = {
     // surfaced together so visitors landing on Home immediately see
     // the project even if they skip the navbar dropdown.
     harmoniKebaikan: {
-      eyebrow: 'Notice · Untuk 15 Juni 2026',
+      eyebrow: 'Notice · Harmoni Kebaikan',
       title: 'Harmoni Kebaikan',
       titleAccent: 'untuk Ceu Eli.',
       lead:
-        'Menjelang ulang tahun ke-26 Ceu Eli pada 15 Juni 2026, lima ruang kecil dikumpulkan jadi satu perayaan — sirami pohonnya, hitung mundur bersama, tinggalkan ucapan, tunggu lagu, dan ikut menumbuhkan kota. Hadiah dari penggemar, untuk Eli.',
+        'Ulang tahun ke-26 Ceu Eli pada 15 Juni 2026 telah berlalu — tapi arsip perayaannya tetap hidup di sini. Pohon kebaikan terus bertumbuh, ucapan tetap masuk, dan momen itu diabadikan selamanya. Hadiah dari penggemar, untuk Eli.',
       cards: [
         {
           eyebrow: 'Project Inti',
@@ -417,11 +417,11 @@ export const SITE_CONFIG = {
           availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
         },
         {
-          eyebrow: 'Hitung Mundur',
-          label: 'Countdown',
+          eyebrow: 'Rekap',
+          label: 'Rekap Seitansai',
           description:
-            'Detik per detik menuju 15 Juni 2026. Momen kecil sebelum panggung besar, hadiah random saat hari-H tiba.',
-          ctaLabel: 'Lihat hitungannya',
+            'Kilas balik momen ke-26 Ceu Eli — ucapan, kebaikan, lagu, dan kenangan yang terangkum di satu halaman.',
+          ctaLabel: 'Lihat rekapnya',
           icon: 'ri-time-line',
           hash: 'countdown',
         },
@@ -438,7 +438,7 @@ export const SITE_CONFIG = {
           eyebrow: 'Lagu Penanda',
           label: 'ByU Music — Putri Helisma',
           description:
-            'Page dedicated buat lagu By-U yang dirilis untuk Eli. Pre-release support phase — auto-reveal player saat 15 Juni 2026 tiba.',
+            'Lagu By-U untuk Eli, dirilis 15 Juni 2026. Player sudah terbuka — dengarkan kolaborasi khusus dari komunitas.',
           ctaLabel: 'Buka ByU Music',
           icon: 'ri-music-line',
           hash: 'byu-music',
@@ -465,7 +465,7 @@ export const SITE_CONFIG = {
       paragraphs: [
         'Helisma Putri Kurnia — atau Ceu Eli — debut sebagai member Generasi 7 JKT48 pada 29 September 2018. Lahir di Bandung 15 Juni 2000, ia membagi waktu antara panggung dan kuliah Sastra Korea.',
         'Sejak debut, namanya melekat dengan vokal matang, presence panggung yang hangat, dan kepemimpinan yang muncul natural di tiap unit yang ia tempati.',
-        'Tahun ini Eli tergabung di Team Dream untuk JKT48 Fight 2026 — babak baru dengan format kompetisi yang menempatkan setiap member di tim baru. Armeniaca merawat setiap momennya, mendekati ulang tahun ke-26.',
+        'Tahun ini Eli tergabung di Team Dream untuk JKT48 Fight 2026 — babak baru dengan format kompetisi yang menempatkan setiap member di tim baru. Armeniaca merawat setiap momennya, dari perayaan ulang tahun ke-26 yang telah berlalu hingga panggung-panggung selanjutnya.',
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
