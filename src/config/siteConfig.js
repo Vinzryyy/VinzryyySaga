@@ -71,47 +71,21 @@ export const SITE_CONFIG = {
             icon: 'ri-heart-3-line',
           },
           {
-            label: 'Photo Frame Project',
-            hash: 'photo-frame-popup',
-            description: 'Photobox Helisma Day di booth Palette.id',
-            icon: 'ri-camera-2-line',
-            availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,
-          },
-          {
-            label: 'Videotron Project',
-            hash: 'videotron-popup',
-            description: 'Double-sided videotron di Pillar MRT Blok M',
-            icon: 'ri-vidicon-line',
-            availableFromIso: VIDEOTRON_AVAILABLE_FROM_ISO,
-          },
-          {
             label: 'ArmeniacaTown',
             hash: 'armeniacaTown',
             description: 'Dunia 3D yang tumbuh dari siraman — gerbang terbuka di 2000 dukungan',
             icon: 'ri-gamepad-line',
           },
           {
-            label: 'By-U Music',
-            hash: 'byu-music',
-            description: 'Lagu tersegel — dibuka 15 Juni 2026',
-            icon: 'ri-music-2-line',
-          },
-          {
-            label: 'Countdown',
+            label: 'Rekap Seitansai',
             hash: 'countdown',
-            description: 'Hitung mundur 15 Juni 2026',
-            icon: 'ri-time-line',
-          },
-          {
-            label: 'Wishes',
-            hash: 'wishes',
-            description: 'Kirim ucapan untuk Eli',
-            icon: 'ri-mail-send-line',
+            description: 'Kilas balik momen ke-26 Ceu Eli',
+            icon: 'ri-book-read-line',
           },
         ],
       },
       {
-        label: 'Profil',
+        label: 'Eli',
         hash: 'profile',
         icon: 'ri-user-3-line',
         children: [
@@ -208,15 +182,15 @@ export const SITE_CONFIG = {
       'Helisma Putri akan merayakan ulang tahun ke-26 pada 15 Juni 2026. Armeniaca menghitung mundur menjelang harinya — momen kecil sebelum stage besar.',
     age: 26,
     backgroundImage: '/archive/img-127.jpg',
-    completedEyebrow: 'Hari Itu Tiba',
-    completedTitle: 'Selamat Ulang Tahun',
-    completedAccent: 'Ceu Eli!',
+    completedEyebrow: 'Rekap Seitansai',
+    completedTitle: 'Momen ke-26',
+    completedAccent: 'sudah berlalu.',
     completedLead:
-      '15 Juni 2026 sudah tiba. Terima kasih sudah menemani perjalanan Eli dari panggung ke panggung — Armeniaca tetap berjaga, satu frame demi satu frame.',
-    completedAboutEyebrow: 'Hari Itu',
+      '15 Juni 2026 sudah lewat — tapi jejaknya tetap di sini. Setiap ucapan, setiap kebaikan, setiap lagu yang menunggu dibuka. Ini adalah catatan kolektif dari mereka yang merayakan bersama.',
+    completedAboutEyebrow: 'Kilas Balik',
     completedAboutTitle: '15 Juni 2026, momen ke-{age}.',
     completedAboutBody:
-      'Helisma Putri Kurnia lahir di Bandung pada 15 Juni 2000. Hari ini, di tengah era JKT48 Fight 2026 dan posisinya di Team Dream, ulang tahun ke-{age}-nya menandai satu dekade lebih perjalanan musiknya — satu frame yang Armeniaca rawat untuk selalu diingat.',
+      'Helisma Putri Kurnia lahir di Bandung pada 15 Juni 2000. Di tengah era JKT48 Fight 2026 dan posisinya di Team Dream, ulang tahun ke-{age}-nya menandai satu dekade lebih perjalanan musiknya — satu frame yang Armeniaca rawat untuk selalu diingat.',
     // Gift box reveal pool — random pairing of one photo + one quote
     // shown when fans open the gift on the celebration plate. Photos
     // and quotes are paired independently on each open, so 10 × 10 =
