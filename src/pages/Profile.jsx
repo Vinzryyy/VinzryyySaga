@@ -248,7 +248,7 @@ const ProfilePage = () => {
                 style={{ transform: `translate3d(0, ${collageOffsetA}px, 0) rotate(-3deg)` }}
                 className="absolute top-0 right-12 w-[55%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl z-10 will-change-transform"
               >
-                <img src={profile.heroCollage[0]} alt="" loading="lazy" className="w-full h-full object-cover" />
+                <img src={profile.heroCollage[0]} alt="Eli JKT48" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
             {profile.heroCollage[1] && (
@@ -256,7 +256,7 @@ const ProfilePage = () => {
                 style={{ transform: `translate3d(0, ${collageOffsetB}px, 0) rotate(2deg)` }}
                 className="absolute top-32 left-0 w-[50%] aspect-[3/4] rounded-sm overflow-hidden shadow-2xl z-20 will-change-transform"
               >
-                <img src={profile.heroCollage[1]} alt="" loading="lazy" className="w-full h-full object-cover" />
+                <img src={profile.heroCollage[1]} alt="Eli JKT48" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
             {profile.heroCollage[2] && (
@@ -264,7 +264,7 @@ const ProfilePage = () => {
                 style={{ transform: `translate3d(0, ${collageOffsetC}px, 0) rotate(-1deg)` }}
                 className="absolute bottom-0 right-0 w-[45%] aspect-[3/4] rounded-sm overflow-hidden shadow-xl z-10 will-change-transform"
               >
-                <img src={profile.heroCollage[2]} alt="" loading="lazy" className="w-full h-full object-cover" />
+                <img src={profile.heroCollage[2]} alt="Eli JKT48" loading="lazy" className="w-full h-full object-cover" />
               </div>
             )}
             {/* Decorative tag */}
@@ -276,7 +276,7 @@ const ProfilePage = () => {
           {/* Mobile portrait — single image strip */}
           {profile.heroCollage[0] && (
             <div className="md:hidden relative aspect-[16/10] -mx-6 overflow-hidden">
-              <img src={profile.heroCollage[0]} alt="" loading="lazy" className="w-full h-full object-cover" />
+              <img src={profile.heroCollage[0]} alt="Eli JKT48" loading="lazy" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 to-transparent" />
             </div>
           )}

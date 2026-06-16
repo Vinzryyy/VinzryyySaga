@@ -248,12 +248,12 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
   return (
     <Section id="status-eli" padding="lg">
       <header className="flex items-center justify-center gap-3 mb-5">
-        <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
+        <span aria-hidden="true" className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
         <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
           <i className={`text-base ${anyLive ? 'ri-broadcast-fill text-red-600' : 'ri-pulse-line'}`} />
           Status &amp; Jadwal Eli
         </p>
-        <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
+        <span aria-hidden="true" className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
       </header>
 
       {state === 'live' && (
