@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-15T19:26:21.711458Z",
+  "fetchedAt": "2026-06-16T01:16:03.816625Z",
   "salesCount": 7,
   "sales": [
     {
@@ -89,8 +89,8 @@
           "sessionLabel": "Sesi 1 (DREAM) · 02/07",
           "sessionDate": "2026-07-01T17:00:00.000Z",
           "jalur": "Jalur 6",
-          "ticketsSold": 19,
-          "remainingQuota": 61
+          "ticketsSold": 20,
+          "remainingQuota": 60
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
