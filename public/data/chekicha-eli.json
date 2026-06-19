@@ -1,7 +1,7 @@
 {
   "source": "https://ckc.utaten.com/idol/detail/Helisma%20Putri/MRI67PYR88/",
   "sourceNote": "Eli (Helisma Putri) Chekicha sessions scraped from ckc.utaten.com. Upcoming = video meet-and-greet slots she's confirmed for. History = past Birthday Chekicha + 2shot events. Chekicha is a JP-only app — armeniaca.online surfaces this for fans outside the Japanese App Store / Play Store ecosystem.",
-  "fetchedAt": "2026-06-19T13:21:19.173923Z",
+  "fetchedAt": "2026-06-19T18:46:02.161705Z",
   "talent": {
     "name": "Helisma Putri",
     "group": "@JKT48",
@@ -11,17 +11,16 @@
     "livefeedUrl": "https://ckc.utaten.com/idol/livefeed/MRI67PYR88/"
   },
   "timezone": "WIB (UTC+7, Asia/Jakarta)",
-  "upcoming": [
+  "upcoming": [],
+  "upcomingEmptyPlaceholder": true,
+  "history": [
     {
       "date": "2026/06/19",
-      "time": "20:15〜21:15",
+      "time": "20:15",
       "title": "Birthday Chekicha!",
-      "idol": null,
+      "idol": "Helisma Putri",
       "thumbnail": "https://user.ckc.utaten.com/8658323cf397401fb6b5b2d6f3017e78_34412.jpg?w=380"
-    }
-  ],
-  "upcomingEmptyPlaceholder": false,
-  "history": [
+    },
     {
       "date": "2026/06/19",
       "time": "19:00",
@@ -108,7 +107,7 @@
     }
   ],
   "counts": {
-    "upcoming": 1,
-    "history": 12
+    "upcoming": 0,
+    "history": 13
   }
 }
