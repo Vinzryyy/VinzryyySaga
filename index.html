@@ -2,184 +2,75 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo-armeniaca.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Armeniaca</title>
-    <meta name="description" content="Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026." />
-    <meta name="keywords" content="Eli JKT48, Helisma Putri, JKT48, Team Dream, JKT48 Fight 2026, fan archive, Armeniaca" />
-    <meta name="author" content="Armeniaca" />
-    <meta name="theme-color" content="#8B4040" />
-    <link rel="canonical" href="https://armeniaca.online/" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Armeniaca — Arsip Visual Eli JKT48" />
-    <meta property="og:description" content="Arsip visual independen yang merawat perjalanan Eli JKT48 — dari Generasi 7 hingga era Team Dream di JKT48 Fight 2026." />
-    <meta property="og:url" content="https://armeniaca.online/" />
-    <meta property="og:image" content="https://armeniaca.online/og-card.png" />
-    <meta property="og:image:alt" content="Armeniaca — Arsip Visual Helisma Putri (Eli JKT48). Dari Generasi 7 hingga era Team Dream JKT48 Fight 2026." />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:site_name" content="Armeniaca" />
-    <meta property="og:locale" content="id_ID" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Armeniaca — Arsip Visual Eli JKT48" />
-    <meta name="twitter:description" content="Arsip visual independen yang merawat perjalanan Eli JKT48 — dari Generasi 7 hingga era Team Dream di JKT48 Fight 2026." />
-    <meta name="twitter:image" content="https://armeniaca.online/og-card.png" />
-    <meta name="twitter:image:alt" content="Armeniaca — Arsip Visual Helisma Putri (Eli JKT48). Dari Generasi 7 hingga era Team Dream JKT48 Fight 2026." />
-
-    <link rel="preload" as="image" href="/logo-armeniaca.png" fetchpriority="high" />
-
-    <script>
-      // Skip the preloader on repeat visits within the same tab session.
-      // Runs before any paint, so cached visits never see a flash of splash.
-      try {
-        if (sessionStorage.getItem("armeniaca-preloader-seen")) {
-          document.documentElement.classList.add("preloader-skip");
-        }
-      } catch (_) {
-        // sessionStorage blocked (private mode w/ strict settings) → show splash, harmless.
-      }
-    </script>
-
+    <meta name="robots" content="noindex, nofollow" />
     <style>
-      /* Preloader — inline so it paints before the JS bundle parses.
-         Removed from the DOM by src/main.jsx after React mounts +
-         a min-display window (so users actually see the splash). */
-      .preloader-skip #preloader {
-        display: none;
-      }
-      #preloader {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        height: 100%;
+        background: #0a0a0a;
+        color: #f5f5f5;
+        font-family: "Georgia", serif;
         display: flex;
         align-items: center;
         justify-content: center;
-        background:
-          radial-gradient(ellipse at 50% 28%, rgba(201, 169, 97, 0.22) 0%, transparent 55%),
-          linear-gradient(180deg, #5C4A3A 0%, #3D342B 100%);
-        font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
-        color: #FDF6E3;
-        transform-origin: center;
-        transition:
-          opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-          visibility 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-          transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-          filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      #preloader.is-hidden {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transform: scale(1.06);
-        filter: blur(8px);
-      }
-      .preloader-inner {
-        text-align: center;
-        padding: 0 1.5rem;
-        max-width: min(92vw, 480px);
-        animation: pre-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-      .preloader-logo {
-        display: block;
-        width: clamp(220px, 42vw, 380px);
-        height: auto;
-        margin: 0 auto 1rem;
-        filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.3));
-        animation: pre-logo-in 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
-      }
-      .preloader-tagline {
-        margin: 0.5rem 0 2rem;
-        font-style: italic;
-        color: #E5C575;
-        font-size: 0.95rem;
-        letter-spacing: 0.08em;
-        animation: pre-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
-      }
-      .preloader-bar {
-        width: 160px;
-        height: 1px;
-        margin: 0 auto;
-        background: rgba(253, 246, 227, 0.14);
         overflow: hidden;
-        border-radius: 1px;
-        animation: pre-fade-up 0.7s ease-out 0.5s both;
       }
-      .preloader-bar > span {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, #C9A961, #E5C575);
-        transform: scaleX(0);
-        transform-origin: left center;
-        animation: pre-bar-fill 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+
+      .container {
+        text-align: center;
+        padding: 2rem;
+        user-select: none;
       }
-      .preloader-eyebrow {
-        margin-top: 1.5rem;
-        font-family: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
-        font-size: 10px;
-        font-style: normal;
+
+      .label {
+        font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+        letter-spacing: 0.5em;
         text-transform: uppercase;
-        letter-spacing: 0.36em;
-        color: rgba(253, 246, 227, 0.55);
-        animation: pre-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.7s both;
+        color: #555;
+        margin-bottom: 2.5rem;
       }
-      @keyframes pre-rise {
-        from { opacity: 0; transform: translateY(14px); }
-        to   { opacity: 1; transform: translateY(0); }
+
+      .headline {
+        font-size: clamp(3rem, 12vw, 10rem);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 0.9;
+        color: #f5f5f5;
+        text-transform: uppercase;
       }
-      @keyframes pre-logo-in {
-        from {
-          opacity: 0;
-          transform: scale(0.92);
-          filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.3)) blur(6px);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-          filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.3)) blur(0);
-        }
+
+      .headline span {
+        display: block;
       }
-      @keyframes pre-fade-up {
-        from { opacity: 0; transform: translateY(8px); }
-        to   { opacity: 1; transform: translateY(0); }
+
+      .divider {
+        width: 60px;
+        height: 2px;
+        background: #444;
+        margin: 2.5rem auto;
       }
-      @keyframes pre-bar-fill {
-        from { transform: scaleX(0); }
-        to   { transform: scaleX(1); }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .preloader-inner,
-        .preloader-logo,
-        .preloader-tagline,
-        .preloader-bar,
-        .preloader-bar > span,
-        .preloader-eyebrow {
-          animation: none;
-        }
-        .preloader-bar > span { transform: scaleX(1); }
-        #preloader.is-hidden { transform: none; filter: none; }
+
+      .sub {
+        font-size: clamp(0.75rem, 1.8vw, 1rem);
+        color: #444;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-family: system-ui, sans-serif;
       }
     </style>
   </head>
   <body>
-    <div id="preloader" role="status" aria-label="Memuat Armeniaca">
-      <div class="preloader-inner">
-        <img
-          class="preloader-logo"
-          src="/logo-armeniaca.png"
-          alt="Armeniaca"
-          width="380"
-          height="146"
-        />
-        <p class="preloader-tagline">#BloomInSpring</p>
-        <div class="preloader-bar" aria-hidden="true"><span></span></div>
-        <p class="preloader-eyebrow">Arsip Visual · Eli JKT48</p>
-      </div>
+    <div class="container">
+      <p class="label">armeniaca.online</p>
+      <h1 class="headline">
+        <span>ARMENIACA</span>
+        <span>SHUTDOWN</span>
+      </h1>
+      <div class="divider"></div>
+      <p class="sub">Site tidak tersedia</p>
     </div>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
