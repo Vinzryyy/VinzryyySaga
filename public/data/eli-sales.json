@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-06-22T01:12:30.180176Z",
-  "salesCount": 7,
+  "fetchedAt": "2026-06-22T08:16:24.670624Z",
+  "salesCount": 9,
   "sales": [
     {
       "exclusiveId": 936,
@@ -60,6 +60,92 @@
       "url": "https://jkt48.com/schedule/exe588-23052026"
     },
     {
+      "exclusiveId": 960,
+      "code": "EXFB66",
+      "slug": "exfb66-05072026",
+      "category": "TWO_SHOT",
+      "title": "Team Love & Team Dream, 2shot Yogyakarta",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-thumb-ba1e85.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-preview-bb4a0e.jpg",
+      "defaultPrice": 180000,
+      "totalQuota": 4480,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-22T05:00:00.000Z",
+          "end_date": "2026-07-04T02:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-23T05:00:00.000Z",
+          "end_date": "2026-07-04T02:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-07-04T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 3 (DREAM) · 05/07",
+          "sessionDate": "2026-07-04T17:00:00.000Z",
+          "jalur": "Jalur 6",
+          "ticketsSold": 39,
+          "remainingQuota": 41
+        },
+        {
+          "sessionLabel": "Sesi 4 (DREAM) · 05/07",
+          "sessionDate": "2026-07-04T17:00:00.000Z",
+          "jalur": "Jalur 6",
+          "ticketsSold": 18,
+          "remainingQuota": 62
+        }
+      ],
+      "url": "https://jkt48.com/schedule/exfb66-05072026"
+    },
+    {
+      "exclusiveId": 959,
+      "code": "EXA340",
+      "slug": "exa340-05072026",
+      "category": "PHOTOCARD",
+      "title": "Team Love & Team Dream, Meet and Greet Yogyakarta",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-thumb-bc4526.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-preview-c338ee.jpg",
+      "defaultPrice": 50000,
+      "totalQuota": 12320,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-22T05:00:00.000Z",
+          "end_date": "2026-07-04T02:00:00.000Z",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-23T05:00:00.000Z",
+          "end_date": "2026-07-04T02:00:00.000Z",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-07-04T17:00:00.000Z",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1 (DREAM) · 05/07",
+          "sessionDate": "2026-07-04T17:00:00.000Z",
+          "jalur": "Jalur 6",
+          "ticketsSold": 24,
+          "remainingQuota": 196
+        },
+        {
+          "sessionLabel": "Sesi 2 (DREAM) · 05/07",
+          "sessionDate": "2026-07-04T17:00:00.000Z",
+          "jalur": "Jalur 6",
+          "ticketsSold": 55,
+          "remainingQuota": 165
+        }
+      ],
+      "url": "https://jkt48.com/schedule/exa340-05072026"
+    },
+    {
       "exclusiveId": 954,
       "code": "EX3773",
       "slug": "ex3773-02072026",
@@ -96,8 +182,8 @@
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
           "sessionDate": "2026-07-01T17:00:00.000Z",
           "jalur": "Jalur 6",
-          "ticketsSold": 25,
-          "remainingQuota": 55
+          "ticketsSold": 26,
+          "remainingQuota": 54
         }
       ],
       "url": "https://jkt48.com/schedule/ex3773-02072026"
@@ -132,8 +218,8 @@
           "sessionLabel": "Sesi 3 (DREAM) · 02/07",
           "sessionDate": "2026-07-01T17:00:00.000Z",
           "jalur": "Jalur 6",
-          "ticketsSold": 42,
-          "remainingQuota": 178
+          "ticketsSold": 43,
+          "remainingQuota": 177
         },
         {
           "sessionLabel": "Sesi 4 (DREAM) · 02/07",
