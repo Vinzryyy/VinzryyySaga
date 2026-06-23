@@ -46,6 +46,7 @@ const SchedulePage = lazy(() => import('./pages/Schedule'));
 const WishesPage = lazy(() => import('./pages/Wishes'));
 const Page26 = lazy(() => import('./pages/Page26'));
 const GaleriKebaikanPage = lazy(() => import('./pages/GaleriKebaikan'));
+const HarmoniKebaikanPage = lazy(() => import('./pages/HarmoniKebaikan'));
 const VivoPage = lazy(() => import('./pages/Vivo'));
 // Taman Kebaikan — fase 1 (Padang Tandus / R0 entrance) dan fase 2
 // (Peta Taman / hub denah). Lazy-loaded supaya bundle Three.js + R3F
@@ -419,6 +420,7 @@ function AppShell() {
               element={<Navigate to="/byu-music" replace />}
             />
             <Route path="/galeri-kebaikan" element={<GaleriKebaikanPage />} />
+            <Route path="/harmoni-kebaikan" element={<HarmoniKebaikanPage />} />
             <Route path="/armepack" element={<PetikanPage />} />
             {/* Backward-compat redirect — old /petikan URLs (shared
                 links, bookmarks) redirect ke /armepack baru. */}
