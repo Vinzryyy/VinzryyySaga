@@ -25,6 +25,7 @@ import { subscribeToTreeSupports } from '../lib/treeDb';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { KEBAIKAN_CATEGORIES, KEBAIKAN_ENTRIES, getKebaikanStats } from '../data/galeriKebaikan';
 import HarmoniFlipbook from '../components/harmoni/HarmoniFlipbook';
+import VideotronDisplay from '../components/harmoni/VideotronDisplay';
 
 /* ------------------------------------------------------------------ */
 /*  Countdown hook — retained for pre-birthday fallback               */
@@ -596,6 +597,20 @@ const CountdownPage = () => {
                 subtitle="Diambil dari arsip, ditampilkan kembali untuk dikenang."
               />
               <HarmoniFlipbook />
+            </div>
+          </RecapSection>
+
+          <SectionDivider />
+
+          {/* ---- VIDEOTRON ---- */}
+          <RecapSection>
+            <div data-recap-section>
+              <SectionHeader
+                eyebrow="Videotron Project"
+                title="Tayang di Blok M."
+                subtitle="Double-sided videotron di Pillar MRT Blok M — 3 pilar, 6 layar, seharian penuh pada 15 Juni 2026."
+              />
+              <VideotronDisplay />
             </div>
           </RecapSection>
 
