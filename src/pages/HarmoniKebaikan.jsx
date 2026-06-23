@@ -34,7 +34,7 @@ const HarmoniKebaikan = () => (
       <div className="relative max-w-4xl mx-auto">
         {/* Back to recap */}
         <Link
-          to="/countdown"
+          to="/happy-helisma-day-26"
           className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-cream)]/55 hover:text-[color:var(--retro-gold-light)] transition-colors mb-6"
         >
           <i className="ri-arrow-left-line text-sm" />

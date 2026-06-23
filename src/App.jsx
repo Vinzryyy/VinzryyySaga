@@ -41,7 +41,7 @@ const HomePage = lazy(() => import('./pages/Home'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
-const CountdownPage = lazy(() => import('./pages/Countdown'));
+const HappyHelismaDay26Page = lazy(() => import('./pages/HappyHelismaDay26'));
 const SchedulePage = lazy(() => import('./pages/Schedule'));
 const WishesPage = lazy(() => import('./pages/Wishes'));
 const Page26 = lazy(() => import('./pages/Page26'));
@@ -404,7 +404,8 @@ function AppShell() {
             <Route path="/gallery/:year" element={<GalleryPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/countdown" element={<CountdownPage />} />
+            <Route path="/happy-helisma-day-26" element={<HappyHelismaDay26Page />} />
+            <Route path="/countdown" element={<Navigate to="/happy-helisma-day-26" replace />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />

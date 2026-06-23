@@ -352,7 +352,7 @@ const WishesPage = () => {
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">{headerEyebrow}</span>
             <span className="w-10 h-px bg-[color:var(--retro-burgundy-light)]/50" />
             <Link
-              to="/countdown"
+              to="/happy-helisma-day-26"
               className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65 hover:text-[color:var(--retro-burgundy-light)] transition-colors inline-flex items-center gap-2"
             >
               <i className="ri-cake-2-line text-base" />

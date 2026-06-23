@@ -288,7 +288,7 @@ const CountdownPage = () => {
       <Seo
         title="Rekap Seitansai ke-26 Ceu Eli"
         description="Kilas balik momen ulang tahun ke-26 Helisma Putri (Eli JKT48) — 15 Juni 2026. Ucapan, kebaikan, lagu, dan kenangan."
-        path="/countdown"
+        path="/happy-helisma-day-26"
       />
 
       {/* ============================================================ */}

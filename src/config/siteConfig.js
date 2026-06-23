@@ -59,43 +59,6 @@ export const SITE_CONFIG = {
     main: [
       { label: 'Home', hash: 'home', icon: 'ri-home-4-line' },
       {
-        label: 'Harmoni Kebaikan',
-        hash: '26',
-        icon: 'ri-plant-line',
-        children: [
-          {
-            label: '#26 — Pohon Kebaikan',
-            hash: '26',
-            description: 'Pohon untuk Eli yang tumbuh dari dukungan',
-            icon: 'ri-plant-line',
-          },
-          {
-            label: 'Galeri Kebaikan',
-            hash: 'galeri-kebaikan',
-            description: 'Arsip donasi nyata atas nama Ceu Eli',
-            icon: 'ri-heart-3-line',
-          },
-          {
-            label: 'ArmeniacaTown',
-            hash: 'armeniacaTown',
-            description: 'Dunia 3D yang tumbuh dari siraman — gerbang terbuka di 2000 dukungan',
-            icon: 'ri-gamepad-line',
-          },
-          {
-            label: 'Rekap Seitansai',
-            hash: 'countdown',
-            description: 'Kilas balik momen ke-26 Ceu Eli',
-            icon: 'ri-book-read-line',
-          },
-          {
-            label: 'Ucapan',
-            hash: 'wishes',
-            description: 'Pesan dari fans untuk Ceu Eli',
-            icon: 'ri-mail-heart-line',
-          },
-        ],
-      },
-      {
         label: 'Eli',
         hash: 'profile',
         icon: 'ri-user-3-line',
