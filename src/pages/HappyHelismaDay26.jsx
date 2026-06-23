@@ -531,7 +531,7 @@ const CountdownPage = () => {
                 </Link>
 
                 <Link
-                  to="/harmoni-kebaikan"
+                  to="/26"
                   className="group inline-flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-all duration-300"
                 >
                   <i className="ri-book-open-line text-base" />
