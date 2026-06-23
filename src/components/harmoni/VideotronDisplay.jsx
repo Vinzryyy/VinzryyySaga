@@ -16,7 +16,7 @@ const SCREENS = [
   },
   {
     id: 'sisi-b',
-    src: '/videotron2k26sts/Blok%20M%20Set%201_Videotron%20Helisma%20B_arah%20ke%20MRT%20Blok%20M..mov',
+    src: '/videotron2k26sts/0601b.mp4',
     label: 'Sisi B',
     sublabel: 'Arah MRT Blok M',
   },
