@@ -606,12 +606,6 @@ const CountdownPage = () => {
                         loading="lazy"
                         decoding="async"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/60 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                        <p className="font-header text-sm sm:text-base italic text-[color:var(--retro-cream)]/90">
-                          {config.gifts.quotes[photoIdx % config.gifts.quotes.length]}
-                        </p>
-                      </div>
                     </div>
                   </div>
 
@@ -625,9 +619,6 @@ const CountdownPage = () => {
                     >
                       <i className="ri-arrow-left-s-line text-lg" />
                     </button>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums">
-                      {photoIdx + 1} / {photos.length}
-                    </span>
                     <button
                       type="button"
                       onClick={nextPhoto}
