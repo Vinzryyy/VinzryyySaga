@@ -595,12 +595,6 @@ const CountdownPage = () => {
           {photos.length > 0 && (
             <RecapSection>
               <div data-recap-section>
-                <SectionHeader
-                  eyebrow="Kenangan"
-                  title="Frame yang tersimpan."
-                  subtitle="Momen-momen yang Armeniaca rawat — diambil dari arsip, ditampilkan kembali untuk dikenang."
-                />
-
                 <div className="relative">
                   <div className="rounded-2xl overflow-hidden border-2 border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-brown-dark)]">
                     <div className="aspect-[16/9] sm:aspect-[2/1] relative">
