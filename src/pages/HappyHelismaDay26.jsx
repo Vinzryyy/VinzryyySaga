@@ -413,10 +413,11 @@ const CountdownPage = () => {
           <div data-recap-section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {[
               {
-                icon: 'ri-mail-heart-line',
+                icon: '💌',
                 value: isFirebaseConfigured ? wishCount.toLocaleString('id-ID') : '—',
                 label: 'Ucapan masuk',
                 gold: true,
+                emoji: true,
               },
               {
                 icon: 'ri-plant-line',
@@ -447,10 +448,12 @@ const CountdownPage = () => {
                 )}
                 <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mx-auto mb-3 ${
                   stat.gold
-                    ? 'bg-[color:var(--retro-gold)]/15 text-[color:var(--retro-gold)]'
+                    ? 'bg-[color:var(--retro-gold)]/15'
                     : 'bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)]'
                 }`}>
-                  <i className={`${stat.icon} text-base sm:text-lg`} />
+                  {stat.emoji
+                    ? <span className="text-base sm:text-lg leading-none">{stat.icon}</span>
+                    : <i className={`${stat.icon} text-base sm:text-lg`} />}
                 </div>
                 <p className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-burgundy)] tabular-nums">
                   {stat.value}
