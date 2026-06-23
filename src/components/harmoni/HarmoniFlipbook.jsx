@@ -1,5 +1,8 @@
 /**
- * HarmoniFlipbook — 3D CSS flipbook for Harmoni Kebaikan recap.
+ * HarmoniFlipbook — 3D CSS flipbook "Frame yang Tersimpan".
+ *
+ * Arsip visual Armeniaca yang diambil kembali untuk dikenang —
+ * photo spreads spanning different eras of Eli's journey.
  *
  * Each spread = two pages side by side. Navigation flips the full spread
  * around the vertical center axis using GSAP + CSS perspective.
@@ -15,38 +18,28 @@ const PAGE_W = 360;
 const PAGE_H = 500;
 const BOOK_W  = PAGE_W * 2; // 720
 
-/* ── Spread data ─────────────────────────────────────────────────── */
+/* ── Spread data — Frame yang Tersimpan ─────────────────────────── */
 const SPREADS = [
   { type: 'cover' },
   {
-    chapter: 'Venue & Display',
-    left:  { img: '/cgv/layout/cgv layout.png',       caption: 'CGV FX Sudirman F7' },
-    right: { img: '/cgv/layout/sts poster.png',        caption: 'Display Galeri Kebaikan' },
+    chapter: '2023',
+    left:  { img: '/archive/x/x-F_dQvCcbgAAbHRd.jpg', caption: '' },
+    right: { img: '/archive/x/x-F9NvZJPbwAAiqT-.jpg',  caption: '' },
   },
   {
-    chapter: 'Dinding Kebaikan',
-    left:  { img: '/cgv/layout/dinding kebaikan.png',   caption: 'Dinding Kebaikan' },
-    right: { img: '/cgv/layout/dinding kebaikan 2.png', caption: '' },
+    chapter: '2024',
+    left:  { img: '/archive/x/x-GaIgEnvb0AE28ns.jpg', caption: '' },
+    right: { img: '/archive/x/x-GPmnsIfbYAA5bBj.jpg',  caption: '' },
   },
   {
-    chapter: 'Apresiasi',
-    left:  { img: '/cgv/layout/cgv top spender.png',   caption: 'Top Supporter' },
-    right: { img: '/cgv/layout/table.png',              caption: 'Meja Display' },
+    chapter: '2025',
+    left:  { img: '/archive/x/x-G3dmdfTXUAAHh9n.jpg',  caption: '' },
+    right: { img: '/archive/x/x-GvVEeSHXUAAnu7M.jpg',  caption: '' },
   },
   {
-    chapter: 'Ceu Eli',
-    left:  { img: '/cgv/eli.png',         caption: 'Helisma Putri · Ceu Eli' },
-    right: { img: '/cgv/eliwithfans.png', caption: 'Bersama para penggemar' },
-  },
-  {
-    chapter: 'Komunitas',
-    left:  { img: '/cgv/queen cemot.png', caption: '' },
-    right: { img: '/cgv/cemot.png',       caption: '' },
-  },
-  {
-    chapter: 'Kenangan',
-    left:  { img: '/cgv/cangcorang.png',      caption: '' },
-    right: { img: '/cgv/armephotostrip.png',  caption: 'Kenangan bersama Armeniaca' },
+    chapter: '2026',
+    left:  { img: '/archive/x/img-382.jpg', caption: '' },
+    right: { img: '/archive/x/img-390.jpg', caption: '' },
   },
   { type: 'back-cover' },
 ];
@@ -103,17 +96,17 @@ const CoverSpread = () => (
         fontSize: 9, fontWeight: 900,
         textTransform: 'uppercase', letterSpacing: '0.45em',
         marginBottom: 22, position: 'relative',
-      }}>Helismiley × Armeniaca</p>
+      }}>Armeniaca · Arsip Visual</p>
 
       <h1 style={{
         color: '#FDF6E3',
         fontFamily: 'Fraunces Variable, Fraunces, Georgia, serif',
-        fontSize: 46, fontWeight: 900,
-        lineHeight: 0.9, letterSpacing: '-0.02em',
+        fontSize: 40, fontWeight: 900,
+        lineHeight: 0.92, letterSpacing: '-0.02em',
         marginBottom: 6, position: 'relative',
       }}>
-        Harmoni<br />
-        <span style={{ color: '#E5C575' }}>Kebaikan</span>
+        Frame yang<br />
+        <span style={{ color: '#E5C575' }}>Tersimpan</span>
       </h1>
 
       <div style={{
@@ -124,11 +117,13 @@ const CoverSpread = () => (
 
       <p style={{
         color: 'rgba(253,246,227,0.5)',
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: 9, fontWeight: 900,
-        textTransform: 'uppercase', letterSpacing: '0.3em',
+        fontFamily: 'Fraunces Variable, Fraunces, Georgia, serif',
+        fontStyle: 'italic',
+        fontSize: 11,
         position: 'relative',
-      }}>15 Juni 2026 · CGV FX Sudirman</p>
+        lineHeight: 1.6,
+        maxWidth: 220,
+      }}>Momen-momen yang Armeniaca rawat — diambil dari arsip, ditampilkan kembali untuk dikenang.</p>
     </div>
   </div>
 );
@@ -166,9 +161,9 @@ const BackCoverSpread = () => (
         letterSpacing: '-0.02em', lineHeight: 1.05,
         marginBottom: 14, position: 'relative',
       }}>
-        Setiap kebaikan<br />
-        yang diberikan<br />
-        <span style={{ color: '#8B4040' }}>tercatat di sini.</span>
+        Setiap frame<br />
+        yang tersimpan<br />
+        <span style={{ color: '#8B4040' }}>adalah kenangan.</span>
       </h2>
 
       <div style={{
@@ -184,7 +179,7 @@ const BackCoverSpread = () => (
         fontSize: 11, lineHeight: 1.65,
         maxWidth: 240, position: 'relative',
       }}>
-        Dari Armeniaca, untuk Ceu Eli — dan untuk semua yang ikut berbuat baik.
+        Dirawat oleh Armeniaca — untuk Ceu Eli, untuk semua yang ikut merayakan.
       </p>
 
       <p style={{
@@ -376,7 +371,7 @@ const HarmoniFlipbook = () => {
       {/* Chapter label */}
       <div className="mb-5 text-center">
         <p className="text-[9px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)] mb-1">
-          Harmoni Kebaikan · 15 Juni 2026
+          Frame yang Tersimpan · Armeniaca
         </p>
         <h2 className="font-header text-base sm:text-lg font-black tracking-tight text-[color:var(--retro-text-primary)]">
           {chapter}

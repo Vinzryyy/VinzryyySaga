@@ -1,15 +1,15 @@
 /**
- * HarmoniKebaikan — recap page for the Harmoni Kebaikan event.
+ * HarmoniKebaikan — recap page for the Harmoni Kebaikan event at CGV FX.
  *
- * Accessible only via CTA from /countdown (no navbar link, no direct
- * promotion). Contains the 3D flipbook of CGV FX event documentation.
+ * Accessible only via CTA from /happy-helisma-day-26 (no navbar link).
+ * Documents the physical Galeri Kebaikan display on 15 Juni 2026.
  */
 
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import HarmoniFlipbook from '../components/harmoni/HarmoniFlipbook';
 import FloatingPetals from '../components/countdown/FloatingPetals';
+import KebaikanArchive from '../components/galeri/KebaikanArchive';
 
 const HarmoniKebaikan = () => (
   <main className="relative min-h-screen bg-[color:var(--retro-bg-primary)] overflow-x-hidden">
@@ -22,7 +22,6 @@ const HarmoniKebaikan = () => (
 
     {/* Header */}
     <header className="relative pt-24 sm:pt-28 pb-10 px-5 sm:px-6 md:px-12 lg:px-20 overflow-hidden">
-      {/* Background tint */}
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-0 pointer-events-none"
@@ -32,7 +31,6 @@ const HarmoniKebaikan = () => (
         }}
       />
       <div className="relative max-w-4xl mx-auto">
-        {/* Back to recap */}
         <Link
           to="/happy-helisma-day-26"
           className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-cream)]/55 hover:text-[color:var(--retro-gold-light)] transition-colors mb-6"
@@ -62,14 +60,8 @@ const HarmoniKebaikan = () => (
       </div>
     </header>
 
-    {/* Flipbook section */}
-    <section className="px-5 sm:px-6 md:px-8 pb-16 md:pb-24">
-      <div className="max-w-4xl mx-auto">
-        <HarmoniFlipbook />
-      </div>
-    </section>
+    <KebaikanArchive />
 
-    {/* Footer note */}
     <div className="pb-12 text-center">
       <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
         Armeniaca · Helismiley × Armeniaca · 2026

@@ -24,6 +24,7 @@ import { subscribeToByuSupportCount } from '../lib/byuSupportDb';
 import { subscribeToTreeSupports } from '../lib/treeDb';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { KEBAIKAN_CATEGORIES, KEBAIKAN_ENTRIES, getKebaikanStats } from '../data/galeriKebaikan';
+import HarmoniFlipbook from '../components/harmoni/HarmoniFlipbook';
 
 /* ------------------------------------------------------------------ */
 /*  Countdown hook — retained for pre-birthday fallback               */
@@ -646,6 +647,20 @@ const CountdownPage = () => {
               </div>
             </RecapSection>
           )}
+
+          <SectionDivider />
+
+          {/* ---- FRAME YANG TERSIMPAN — 3D FLIPBOOK ---- */}
+          <RecapSection>
+            <div data-recap-section>
+              <SectionHeader
+                eyebrow="Frame yang Tersimpan"
+                title="Momen yang Armeniaca rawat."
+                subtitle="Diambil dari arsip, ditampilkan kembali untuk dikenang."
+              />
+              <HarmoniFlipbook />
+            </div>
+          </RecapSection>
 
           <SectionDivider />
 

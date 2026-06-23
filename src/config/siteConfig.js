@@ -58,6 +58,7 @@ export const SITE_CONFIG = {
   navigation: {
     main: [
       { label: 'Home', hash: 'home', icon: 'ri-home-4-line' },
+      { label: 'Harmoni Kebaikan', hash: 'happy-helisma-day-26', icon: 'ri-hand-heart-line' },
       {
         label: 'Eli',
         hash: 'profile',
