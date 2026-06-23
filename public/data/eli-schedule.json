@@ -1,8 +1,8 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-06-23T07:11:53.963644Z",
-  "eventCount": 27,
+  "fetchedAt": "2026-06-23T07:16:59.151204Z",
+  "eventCount": 33,
   "events": [
     {
       "kind": "EXCLUSIVE",
@@ -187,6 +187,7 @@
       ],
       "is_birthday_show": false,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/sh1723-dream-bakudan"
     },
     {
@@ -264,6 +265,7 @@
       ],
       "is_birthday_show": false,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/shee46-cara-meminum-ramune"
     },
     {
@@ -341,6 +343,7 @@
       ],
       "is_birthday_show": false,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/shb0ef-dream-bakudan"
     },
     {
@@ -958,6 +961,7 @@
       ],
       "is_birthday_show": false,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/shbc0d-dream-bakudan"
     },
     {
@@ -1035,6 +1039,7 @@
       ],
       "is_birthday_show": false,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/sheedb-dream-bakudan"
     },
     {
@@ -1265,6 +1270,7 @@
       ],
       "is_birthday_show": true,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/sh691b-pertaruhan-cinta"
     },
     {
@@ -1342,7 +1348,59 @@
       ],
       "is_birthday_show": false,
       "is_video_call": false,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/sh1b46-sambil-menggandeng-erat-tanganku"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3179,
+      "code": "SH4CA4",
+      "title": "DREAM BAKUDAN - Surabaya",
+      "date": "2026-06-28T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_32",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "eli_inferred": true,
+      "url": "https://jkt48.com/schedule/sh4ca4-dream-bakudan-surabaya"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3180,
+      "code": "SHF963",
+      "title": "DREAM BAKUDAN - Surabaya",
+      "date": "2026-06-29T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_32",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "eli_inferred": true,
+      "url": "https://jkt48.com/schedule/shf963-dream-bakudan-surabaya"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3181,
+      "code": "SH6886",
+      "title": "DREAM BAKUDAN - Surabaya",
+      "date": "2026-06-30T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_32",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "eli_inferred": true,
+      "url": "https://jkt48.com/schedule/sh6886-dream-bakudan-surabaya"
     },
     {
       "kind": "EXCLUSIVE",
@@ -1715,6 +1773,57 @@
       "remaining_total": 153,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exa340-04072026"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3185,
+      "code": "SH7891",
+      "title": "DREAM BAKUDAN - Yogyakarta",
+      "date": "2026-07-05T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_33",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "eli_inferred": true,
+      "url": "https://jkt48.com/schedule/sh7891-dream-bakudan-yogyakarta"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3186,
+      "code": "SH8AE3",
+      "title": "DREAM BAKUDAN - Yogyakarta",
+      "date": "2026-07-06T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_33",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "eli_inferred": true,
+      "url": "https://jkt48.com/schedule/sh8ae3-dream-bakudan-yogyakarta"
+    },
+    {
+      "kind": "SHOW",
+      "schedule_id": 3187,
+      "code": "SH1C3D",
+      "title": "DREAM BAKUDAN - Yogyakarta",
+      "date": "2026-07-07T17:00:00.000Z",
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "set_list": "SL_33",
+      "team": "DREAM",
+      "venue": "JKT48 Theater",
+      "members": [],
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "eli_inferred": true,
+      "url": "https://jkt48.com/schedule/sh1c3d-dream-bakudan-yogyakarta"
     }
   ]
 }

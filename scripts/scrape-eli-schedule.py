@@ -159,13 +159,20 @@ def normalize_showlike(detail: dict, slug: str, kind: str) -> dict | None:
     All three share the same detail shape: flat `jkt48_member` array
     plus top-level date/start_time/end_time. Difference is intent
     (theater vs special event vs public event), surfaced via `kind`.
+
+    Special rule: Team Dream shows (jkt48_member_type == "DREAM") are
+    included even when Eli isn't yet explicitly listed in the cast.
+    Eli is an active Team Dream member so her presence is certain —
+    some shows are announced before the full cast is confirmed.
     """
     members = detail.get("jkt48_member") or []
-    eli = any(
+    team = (detail.get("jkt48_member_type") or "").upper()
+    eli_explicit = any(
         m.get("member_id") == ELI_MEMBER_ID or m.get("name") == ELI_NAME
         for m in members
     )
-    if not eli:
+    eli_inferred = not eli_explicit and kind == "SHOW" and team == "DREAM"
+    if not eli_explicit and not eli_inferred:
         return None
     # Pick a sensible default venue per kind. EVENT can be in-theater or
     # virtual (Video Call); honor `is_in_theater` when present.
@@ -194,6 +201,9 @@ def normalize_showlike(detail: dict, slug: str, kind: str) -> dict | None:
         ],
         "is_birthday_show": detail.get("birthday_member") is not None,
         "is_video_call": kind == "EVENT" and "video call" in (detail.get("title") or "").lower(),
+        # True when Eli isn't listed in the cast yet but we include the
+        # show because she's a confirmed Team Dream member.
+        "eli_inferred": eli_inferred,
         # jkt48.com uses the full slug from the listing (e.g.
         # `sh86f5-sambil-menggandeng-erat-tanganku`), not just the
         # short `code` (`SH86F5`). Short-form URLs redirect to
