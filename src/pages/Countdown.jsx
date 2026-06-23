@@ -523,14 +523,25 @@ const CountdownPage = () => {
                 })}
               </div>
 
-              <Link
-                to="/galeri-kebaikan"
-                className="group inline-flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full border-2 border-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300"
-              >
-                <i className="ri-heart-3-line text-base" />
-                <span>Lihat arsip kebaikan</span>
-                <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/galeri-kebaikan"
+                  className="group inline-flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full border-2 border-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] transition-all duration-300"
+                >
+                  <i className="ri-heart-3-line text-base" />
+                  <span>Lihat arsip kebaikan</span>
+                  <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
+                </Link>
+
+                <Link
+                  to="/harmoni-kebaikan"
+                  className="group inline-flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-all duration-300"
+                >
+                  <i className="ri-book-open-line text-base" />
+                  <span>Buka rekap event</span>
+                  <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
             </div>
           </RecapSection>
 
