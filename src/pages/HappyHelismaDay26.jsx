@@ -8,13 +8,14 @@
  *   4. Galeri Kebaikan summary — donation categories + total
  *   5. By-U Music — embedded player + final supporter count
  *   6. Frame yang Tersimpan — 3D flipbook archive photos
- *   7. Closing message — sentimental thank you
+ *   7. Videotron — dual portrait screens
+ *   8. Closing message — sentimental thank you
  *
  * Retains the /countdown route for backward compat. Pre-birthday timer
  * still works if targetIso hasn't passed (future-proof).
  */
 
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
@@ -80,11 +81,15 @@ const TimeUnit = ({ value, label, accent = false }) => (
 );
 
 /* ------------------------------------------------------------------ */
-/*  Section divider                                                    */
+/*  Section divider — thin rule with center ornament                   */
 /* ------------------------------------------------------------------ */
 const SectionDivider = () => (
   <div className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
-    <div className="h-px bg-gradient-to-r from-transparent via-[color:var(--retro-brown-dark)]/15 to-transparent" />
+    <div className="flex items-center gap-4">
+      <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[color:var(--retro-brown-dark)]/15" />
+      <span className="text-[color:var(--retro-gold)] text-xs opacity-60">✦</span>
+      <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[color:var(--retro-brown-dark)]/15" />
+    </div>
   </div>
 );
 
@@ -102,9 +107,13 @@ const RecapSection = ({ children, className = '' }) => (
 /* ------------------------------------------------------------------ */
 const SectionHeader = ({ eyebrow, title, subtitle }) => (
   <div className="mb-8 sm:mb-10">
-    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
-      {eyebrow}
-    </p>
+    <div className="flex items-center gap-3 mb-3">
+      <span className="w-1 h-4 rounded-full bg-[color:var(--retro-gold)]" />
+      <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+        {eyebrow}
+      </p>
+      <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/12 max-w-[120px]" />
+    </div>
     <h2 className="font-header text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
       {title}
     </h2>
@@ -123,17 +132,20 @@ const formatRupiah = (n) =>
   `Rp ${n.toLocaleString('id-ID')}`;
 
 /* ------------------------------------------------------------------ */
-/*  Wish card for preview                                              */
+/*  Wish card for preview — deterministic rotation from id             */
 /* ------------------------------------------------------------------ */
-const WishPreviewCard = ({ wish, hearts }) => (
+const cardRotations = [-1.1, 0.8, -0.5, 1.3, -0.9, 0.6, -1.4, 0.4];
+const WishPreviewCard = ({ wish, hearts, index = 0 }) => (
   <div
-    className="rounded-xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)] p-4 sm:p-5 shadow-sm"
-    style={{ transform: `rotate(${(Math.random() * 2.4 - 1.2).toFixed(2)}deg)` }}
+    className="group rounded-xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)] p-4 sm:p-5 shadow-[0_4px_20px_rgba(61,52,43,0.07)] hover:shadow-[0_8px_32px_rgba(61,52,43,0.12)] transition-all duration-300 relative"
+    style={{ transform: `rotate(${cardRotations[index % cardRotations.length]}deg)` }}
   >
-    <p className="text-sm sm:text-base text-[color:var(--retro-text-primary)] leading-relaxed mb-3 font-serif italic">
+    {/* Tape accent */}
+    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3.5 bg-[color:var(--retro-gold)]/30 rounded-sm" />
+    <p className="text-sm sm:text-base text-[color:var(--retro-text-primary)] leading-relaxed mb-3 font-serif italic pt-1">
       &ldquo;{wish.message}&rdquo;
     </p>
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between border-t border-[color:var(--retro-brown-dark)]/8 pt-3">
       <div>
         <p className="text-xs font-bold text-[color:var(--retro-text-primary)]">{wish.name}</p>
         {wish.handle && (
@@ -141,7 +153,7 @@ const WishPreviewCard = ({ wish, hearts }) => (
         )}
       </div>
       {hearts > 0 && (
-        <span className="inline-flex items-center gap-1 text-xs text-[color:var(--retro-burgundy)] font-bold">
+        <span className="inline-flex items-center gap-1 text-xs text-[color:var(--retro-burgundy)] font-bold bg-[color:var(--retro-burgundy)]/8 px-2 py-0.5 rounded-full">
           <i className="ri-heart-3-fill text-sm" />
           {hearts}
         </span>
@@ -191,8 +203,6 @@ const CountdownPage = () => {
 
   /* ---- Galeri Kebaikan stats ---- */
   const kebaikanStats = useMemo(() => getKebaikanStats(KEBAIKAN_ENTRIES), []);
-
-
 
   /* ---- GSAP entrance ---- */
   const rootRef = useRef(null);
@@ -282,7 +292,7 @@ const CountdownPage = () => {
       id="countdown"
       className="bg-[color:var(--retro-bg-primary)] overflow-x-hidden"
     >
-      {!isComplete && <FloatingPetals />}
+      <FloatingPetals />
       <Seo
         title="Rekap Seitansai ke-26 Ceu Eli"
         description="Kilas balik momen ulang tahun ke-26 Helisma Putri (Eli JKT48) — 15 Juni 2026. Ucapan, kebaikan, lagu, dan kenangan."
@@ -292,7 +302,7 @@ const CountdownPage = () => {
       {/* ============================================================ */}
       {/*  HERO                                                         */}
       {/* ============================================================ */}
-      <header className="relative min-h-[60vh] min-h-[60svh] sm:min-h-[70svh] md:min-h-[80svh] flex items-end overflow-hidden">
+      <header className="relative min-h-[85svh] flex items-end overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <img
             ref={heroBgRef}
@@ -300,25 +310,47 @@ const CountdownPage = () => {
             alt=""
             className="w-full h-full object-cover will-change-transform"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/70 to-[color:var(--retro-brown-dark)]/40" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--retro-brown-dark)]/70 via-transparent to-transparent" />
+          {/* Layered gradients for depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/65 to-[color:var(--retro-brown-dark)]/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--retro-brown-dark)]/80 via-[color:var(--retro-brown-dark)]/30 to-transparent" />
+          {/* Film grain texture */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+              backgroundSize: '128px',
+            }}
+          />
+          {/* Large faded date watermark */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-end pr-8 md:pr-16 pointer-events-none overflow-hidden"
+          >
+            <p
+              className="font-header font-black text-[color:var(--retro-cream)]/[0.04] select-none leading-none"
+              style={{ fontSize: 'clamp(8rem, 20vw, 22rem)', letterSpacing: '-0.04em' }}
+            >
+              26
+            </p>
+          </div>
         </div>
 
         <div
-          className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pt-28 sm:pt-32 md:pt-36 pb-10 sm:pb-12 md:pb-16 w-full"
+          className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pt-28 sm:pt-32 md:pt-36 pb-12 sm:pb-16 md:pb-20 w-full"
           style={{ perspective: '600px' }}
         >
           <div className="max-w-3xl">
             <span
               ref={heroTagRef}
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em] mb-4 sm:mb-6 border border-[color:var(--retro-cream)]/20"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em] mb-5 sm:mb-7 border border-[color:var(--retro-cream)]/20"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
               {isComplete ? config.completedEyebrow : config.eyebrow}
             </span>
             <h1
               ref={heroTitleRef}
-              className="font-header text-[2rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-cream)] break-words"
+              className="font-header text-[2.4rem] sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.9] tracking-tighter text-[color:var(--retro-cream)] break-words"
             >
               {isComplete ? config.completedTitle : config.title}
               <br />
@@ -328,17 +360,24 @@ const CountdownPage = () => {
             </h1>
             <p
               ref={heroLeadRef}
-              className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-[color:var(--retro-cream)]/80 leading-relaxed max-w-2xl"
+              className="mt-5 sm:mt-7 text-sm sm:text-base md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl"
             >
               {isComplete ? config.completedLead : config.lead}
             </p>
-            <div className="mt-6 sm:mt-8 inline-flex items-center gap-3 text-[color:var(--retro-cream)]/70">
-              <i className="ri-calendar-event-line text-base" />
+            <div className="mt-7 sm:mt-9 flex items-center gap-3 text-[color:var(--retro-cream)]/60">
+              <div className="w-px h-5 bg-[color:var(--retro-gold)]/50" />
+              <i className="ri-calendar-event-line text-sm" />
               <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em]">
                 {config.targetLabel}
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 opacity-40">
+          <div className="w-px h-8 bg-gradient-to-b from-transparent to-[color:var(--retro-cream)]" />
+          <i className="ri-arrow-down-s-line text-[color:var(--retro-cream)] text-lg animate-bounce" />
         </div>
       </header>
 
@@ -370,13 +409,14 @@ const CountdownPage = () => {
       {/*  HIGHLIGHTS STRIP (post-birthday)                             */}
       {/* ============================================================ */}
       {isComplete && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-20 mt-10 sm:mt-14 md:mt-16">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-20 mt-12 sm:mt-16 md:mt-20">
           <div data-recap-section className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {[
               {
                 icon: 'ri-mail-heart-line',
                 value: isFirebaseConfigured ? wishCount.toLocaleString('id-ID') : '—',
                 label: 'Ucapan masuk',
+                gold: true,
               },
               {
                 icon: 'ri-plant-line',
@@ -396,9 +436,22 @@ const CountdownPage = () => {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)] p-4 sm:p-5 md:p-6 text-center"
+                className={`relative rounded-2xl border bg-[color:var(--retro-cream)] p-4 sm:p-5 md:p-6 text-center overflow-hidden ${
+                  stat.gold
+                    ? 'border-[color:var(--retro-gold)]/40 shadow-[0_4px_24px_rgba(201,169,97,0.15)]'
+                    : 'border-[color:var(--retro-brown-dark)]/10'
+                }`}
               >
-                <i className={`${stat.icon} text-xl sm:text-2xl text-[color:var(--retro-burgundy)] mb-2 inline-block`} />
+                {stat.gold && (
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-[color:var(--retro-gold)] to-transparent" />
+                )}
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mx-auto mb-3 ${
+                  stat.gold
+                    ? 'bg-[color:var(--retro-gold)]/15 text-[color:var(--retro-gold)]'
+                    : 'bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)]'
+                }`}>
+                  <i className={`${stat.icon} text-base sm:text-lg`} />
+                </div>
                 <p className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-burgundy)] tabular-nums">
                   {stat.value}
                 </p>
@@ -439,12 +492,14 @@ const CountdownPage = () => {
             </p>
           </div>
 
-          <blockquote className="border-l-2 border-[color:var(--retro-gold)] pl-5 sm:pl-6">
-            <i className="ri-double-quotes-l text-2xl sm:text-3xl text-[color:var(--retro-gold)] mb-3 inline-block" />
+          <blockquote className="relative pl-6 sm:pl-7">
+            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[color:var(--retro-gold)] via-[color:var(--retro-gold)]/50 to-transparent rounded-full" />
+            <i className="ri-double-quotes-l text-2xl sm:text-3xl text-[color:var(--retro-gold)] mb-4 inline-block" />
             <p className="font-header text-base sm:text-lg md:text-xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
               {SITE_CONFIG.eli.catchphrase}
             </p>
-            <footer className="mt-3 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            <footer className="mt-4 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <span className="w-4 h-px bg-[color:var(--color-text-muted)]/40" />
               Catchphrase {SITE_CONFIG.eli.nickname}
             </footer>
           </blockquote>
@@ -468,9 +523,9 @@ const CountdownPage = () => {
               />
 
               {topWishes.length > 0 ? (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
-                  {topWishes.map((w) => (
-                    <WishPreviewCard key={w.id} wish={w} hearts={heartCounts[w.id] || 0} />
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 mb-10 py-3">
+                  {topWishes.map((w, i) => (
+                    <WishPreviewCard key={w.id} wish={w} hearts={heartCounts[w.id] || 0} index={i} />
                   ))}
                 </div>
               ) : (
@@ -501,15 +556,28 @@ const CountdownPage = () => {
                 subtitle={`${kebaikanStats.totalEntries} kebaikan tersalurkan senilai ${formatRupiah(kebaikanStats.totalAmount)} — atas nama Ceu Eli, dari fans yang peduli.`}
               />
 
+              {/* Total amount highlight */}
+              <div className="mb-6 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-[color:var(--retro-burgundy)]/6 border border-[color:var(--retro-burgundy)]/15">
+                <i className="ri-hand-heart-line text-xl text-[color:var(--retro-burgundy)]" />
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">Total Tersalurkan</p>
+                  <p className="font-header text-xl sm:text-2xl font-black tracking-tight text-[color:var(--retro-burgundy)]">
+                    {formatRupiah(kebaikanStats.totalAmount)}
+                  </p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
                 {KEBAIKAN_CATEGORIES.map((cat) => {
                   const catStat = kebaikanStats.byCategory.find((c) => c.id === cat.id);
                   return (
                     <div
                       key={cat.id}
-                      className="rounded-xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)] p-3 sm:p-4 text-center"
+                      className="group rounded-xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)] p-3 sm:p-4 text-center hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(61,52,43,0.1)] transition-all duration-300"
                     >
-                      <i className={`${cat.icon} text-xl sm:text-2xl text-[color:var(--retro-burgundy)] mb-2 inline-block`} />
+                      <div className="w-9 h-9 rounded-full bg-[color:var(--retro-burgundy)]/8 group-hover:bg-[color:var(--retro-burgundy)]/14 flex items-center justify-center mx-auto mb-2 transition-colors">
+                        <i className={`${cat.icon} text-base text-[color:var(--retro-burgundy)]`} />
+                      </div>
                       <p className="text-xs sm:text-sm font-bold text-[color:var(--retro-text-primary)]">
                         {cat.label}
                       </p>
@@ -554,34 +622,55 @@ const CountdownPage = () => {
                 subtitle="Sebelum 15 Juni, lagu ini tersegel. Fans menunggu bersama — dan di hari itu, musiknya akhirnya terdengar."
               />
 
-              <div className="rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)] p-5 sm:p-6 md:p-8">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-5">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-[color:var(--retro-burgundy)] flex items-center justify-center flex-shrink-0">
+              <div className="relative rounded-2xl overflow-hidden bg-[color:var(--retro-brown-dark)] shadow-[0_20px_60px_rgba(61,52,43,0.25)]">
+                {/* Background texture */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-[0.06]"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle at 70% 50%, rgba(201,169,97,0.6) 0%, transparent 60%)',
+                  }}
+                />
+                {/* Waveform decoration */}
+                <div aria-hidden="true" className="absolute right-6 sm:right-10 top-1/2 -translate-y-1/2 flex items-center gap-[3px] opacity-10">
+                  {[18, 32, 24, 40, 28, 48, 22, 36, 30, 44, 20, 38, 26, 42, 18].map((h, i) => (
+                    <div
+                      key={i}
+                      className="w-1 rounded-full bg-[color:var(--retro-cream)]"
+                      style={{ height: `${h}px` }}
+                    />
+                  ))}
+                </div>
+
+                <div className="relative p-6 sm:p-8 md:p-10 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[color:var(--retro-cream)]/10 border border-[color:var(--retro-cream)]/15 flex items-center justify-center flex-shrink-0">
                     <i className="ri-music-2-line text-2xl sm:text-3xl text-[color:var(--retro-cream)]" />
                   </div>
-                  <div>
-                    <p className="font-header text-xl sm:text-2xl font-black tracking-tight text-[color:var(--retro-text-primary)]">
+                  <div className="flex-1">
+                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/50 mb-1">
+                      Lagu Seitansai
+                    </p>
+                    <p className="font-header text-2xl sm:text-3xl font-black tracking-tight text-[color:var(--retro-cream)] mb-1">
                       By-U
                     </p>
-                    <p className="text-sm text-[color:var(--color-text-secondary)]">
+                    <p className="text-sm text-[color:var(--retro-cream)]/60">
                       Putri Helisma · Seitansai ke-26
                     </p>
                     {isFirebaseConfigured && byuCount > 0 && (
-                      <p className="mt-1 text-xs text-[color:var(--retro-burgundy)] font-bold">
+                      <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-[color:var(--retro-gold)] font-bold">
+                        <i className="ri-group-line" />
                         {byuCount.toLocaleString('id-ID')} orang menunggu bersama
                       </p>
                     )}
                   </div>
+                  <Link
+                    to="/byu-music"
+                    className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:bg-[color:var(--retro-gold-light)] transition-colors flex-shrink-0"
+                  >
+                    <i className="ri-play-circle-fill text-base" />
+                    <span>Dengarkan</span>
+                  </Link>
                 </div>
-
-                <Link
-                  to="/byu-music"
-                  className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-opacity"
-                >
-                  <i className="ri-play-circle-line text-base" />
-                  <span>Dengarkan sekarang</span>
-                  <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
-                </Link>
               </div>
             </div>
           </RecapSection>
@@ -619,12 +708,30 @@ const CountdownPage = () => {
           {/* ---- CLOSING MESSAGE ---- */}
           <RecapSection>
             <div data-recap-section className="text-center max-w-2xl mx-auto">
-              <i className="ri-quill-pen-line text-3xl sm:text-4xl text-[color:var(--retro-burgundy)] mb-4 inline-block" />
+              {/* Decorative frame */}
+              <div className="relative inline-block mb-8">
+                <div className="w-16 h-16 rounded-full bg-[color:var(--retro-burgundy)]/8 border border-[color:var(--retro-burgundy)]/20 flex items-center justify-center mx-auto">
+                  <i className="ri-quill-pen-line text-2xl text-[color:var(--retro-burgundy)]" />
+                </div>
+                {/* Radial dots */}
+                {[0, 60, 120, 180, 240, 300].map((deg) => (
+                  <span
+                    key={deg}
+                    aria-hidden="true"
+                    className="absolute w-1 h-1 rounded-full bg-[color:var(--retro-gold)]/40"
+                    style={{
+                      top: `calc(50% + ${Math.sin((deg * Math.PI) / 180) * 36}px - 2px)`,
+                      left: `calc(50% + ${Math.cos((deg * Math.PI) / 180) * 36}px - 2px)`,
+                    }}
+                  />
+                ))}
+              </div>
+
               <h2 className="font-header text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-5 sm:mb-6">
                 Terima kasih sudah<br />
                 <span className="text-[color:var(--retro-burgundy)]">merayakan bersama.</span>
               </h2>
-              <p className="text-sm sm:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-6">
+              <p className="text-sm sm:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-4">
                 Halaman ini bukan sekadar arsip — ini adalah bukti bahwa setiap panggung yang Eli pijak,
                 ada yang menunggu di luar sana. Dari ucapan tulus di dinding wishes, pohon kebaikan yang
                 tumbuh dari dukungan nyata, hingga lagu yang tersegel sampai hari itu tiba.
@@ -633,9 +740,20 @@ const CountdownPage = () => {
                 Semua dimulai dari hal kecil — dan Armeniaca ada untuk memastikan
                 tidak ada yang terlupa.
               </p>
-              <p className="font-header text-lg sm:text-xl italic text-[color:var(--retro-burgundy)]">
-                — Armeniaca, untuk Ceu Eli.
-              </p>
+
+              {/* Signature */}
+              <div className="inline-flex flex-col items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-px bg-[color:var(--retro-gold)]/50" />
+                  <p className="font-header text-lg sm:text-xl italic text-[color:var(--retro-burgundy)]">
+                    Armeniaca, untuk Ceu Eli.
+                  </p>
+                  <span className="w-8 h-px bg-[color:var(--retro-gold)]/50" />
+                </div>
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                  15 · 06 · 2026
+                </p>
+              </div>
             </div>
           </RecapSection>
         </>
