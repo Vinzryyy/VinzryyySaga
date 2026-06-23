@@ -22,24 +22,34 @@ const BOOK_W  = PAGE_W * 2; // 720
 const SPREADS = [
   { type: 'cover' },
   {
-    chapter: '2023',
-    left:  { img: '/archive/x/x-F_dQvCcbgAAbHRd.jpg', caption: '' },
-    right: { img: '/archive/x/x-F9NvZJPbwAAiqT-.jpg',  caption: '' },
+    chapter: 'Venue',
+    left:  { img: '/cgv/layout/cgv layout.png',  caption: 'CGV FX Sudirman F7' },
+    right: { img: '/cgv/layout/sts poster.png',  caption: '' },
   },
   {
-    chapter: '2024',
-    left:  { img: '/archive/x/x-GaIgEnvb0AE28ns.jpg', caption: '' },
-    right: { img: '/archive/x/x-GPmnsIfbYAA5bBj.jpg',  caption: '' },
+    chapter: 'Dinding Kebaikan',
+    left:  { img: '/cgv/layout/dinding kebaikan.png',   caption: '' },
+    right: { img: '/cgv/layout/dinding kebaikan 2.png', caption: '' },
   },
   {
-    chapter: '2025',
-    left:  { img: '/archive/x/x-G3dmdfTXUAAHh9n.jpg',  caption: '' },
-    right: { img: '/archive/x/x-GvVEeSHXUAAnu7M.jpg',  caption: '' },
+    chapter: 'Apresiasi',
+    left:  { img: '/cgv/layout/cgv top spender.png', caption: '' },
+    right: { img: '/cgv/layout/table.png',           caption: '' },
   },
   {
-    chapter: '2026',
-    left:  { img: '/archive/x/img-382.jpg', caption: '' },
-    right: { img: '/archive/x/img-390.jpg', caption: '' },
+    chapter: 'Ceu Eli',
+    left:  { img: '/cgv/eli.png',         caption: '' },
+    right: { img: '/cgv/eliwithfans.png', caption: '' },
+  },
+  {
+    chapter: 'Komunitas',
+    left:  { img: '/cgv/queen cemot.png', caption: '' },
+    right: { img: '/cgv/cemot.png',       caption: '' },
+  },
+  {
+    chapter: 'Kenangan',
+    left:  { img: '/cgv/cangcorang.png',     caption: '' },
+    right: { img: '/cgv/armephotostrip.png', caption: '' },
   },
   { type: 'back-cover' },
 ];
