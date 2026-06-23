@@ -7,7 +7,7 @@
  *   3. Wishes preview — top hearted wishes with CTA to full wall
  *   4. Galeri Kebaikan summary — donation categories + total
  *   5. By-U Music — embedded player + final supporter count
- *   6. Photo carousel — gift pool photos as memory strip
+ *   6. Frame yang Tersimpan — 3D flipbook archive photos
  *   7. Closing message — sentimental thank you
  *
  * Retains the /countdown route for backward compat. Pre-birthday timer
@@ -191,11 +191,7 @@ const CountdownPage = () => {
   /* ---- Galeri Kebaikan stats ---- */
   const kebaikanStats = useMemo(() => getKebaikanStats(KEBAIKAN_ENTRIES), []);
 
-  /* ---- Photo carousel state ---- */
-  const photos = config.gifts?.photos || [];
-  const [photoIdx, setPhotoIdx] = useState(0);
-  const nextPhoto = useCallback(() => setPhotoIdx((i) => (i + 1) % photos.length), [photos.length]);
-  const prevPhoto = useCallback(() => setPhotoIdx((i) => (i - 1 + photos.length) % photos.length), [photos.length]);
+
 
   /* ---- GSAP entrance ---- */
   const rootRef = useRef(null);
@@ -588,50 +584,6 @@ const CountdownPage = () => {
               </div>
             </div>
           </RecapSection>
-
-          <SectionDivider />
-
-          {/* ---- PHOTO MEMORIES ---- */}
-          {photos.length > 0 && (
-            <RecapSection>
-              <div data-recap-section>
-                <div className="relative">
-                  <div className="rounded-2xl overflow-hidden border-2 border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-brown-dark)]">
-                    <div className="aspect-[16/9] sm:aspect-[2/1] relative">
-                      <img
-                        key={photos[photoIdx]}
-                        src={photos[photoIdx]}
-                        alt={`Kenangan Eli — frame ${photoIdx + 1}`}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Nav arrows */}
-                  <div className="flex items-center justify-center gap-3 mt-4">
-                    <button
-                      type="button"
-                      onClick={prevPhoto}
-                      className="w-9 h-9 rounded-full border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-cream)] flex items-center justify-center text-[color:var(--retro-text-primary)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
-                      aria-label="Foto sebelumnya"
-                    >
-                      <i className="ri-arrow-left-s-line text-lg" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={nextPhoto}
-                      className="w-9 h-9 rounded-full border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-cream)] flex items-center justify-center text-[color:var(--retro-text-primary)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)] transition-all"
-                      aria-label="Foto berikutnya"
-                    >
-                      <i className="ri-arrow-right-s-line text-lg" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </RecapSection>
-          )}
 
           <SectionDivider />
 
