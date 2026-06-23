@@ -10,7 +10,7 @@ import React, { useRef, useState, useEffect } from 'react';
 const SCREENS = [
   {
     id: 'sisi-a',
-    src: '/videotron2k26sts/0601.mp4',
+    src: '/videotron2k26sts/0601a.mp4',
     label: 'Sisi A',
     sublabel: 'Arah Taman Literasi',
   },
