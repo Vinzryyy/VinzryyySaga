@@ -88,8 +88,8 @@ const VideotronScreen = ({ src, label, sublabel }) => {
                   aria-label={`Putar ulang ${label}`}
                   className="flex flex-col items-center gap-3 group"
                 >
-                  <span className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/15 border border-white/30 flex items-center justify-center group-hover:bg-white/25 transition-colors">
-                    <i className="ri-replay-line text-white text-2xl sm:text-3xl" />
+                  <span className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/15 border border-white/30 flex items-center justify-center group-hover:bg-white/25 transition-colors text-3xl sm:text-4xl">
+                    🔁
                   </span>
                   <span className="text-[9px] font-black uppercase tracking-[0.35em] text-white/70">
                     Putar Ulang
