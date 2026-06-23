@@ -51,6 +51,11 @@ const SPREADS = [
     left:  { img: '/cgv/cangcorang.png',     caption: '' },
     right: { img: '/cgv/armephotostrip.png', caption: '' },
   },
+  {
+    chapter: 'Videotron',
+    left:  { img: '/cgv/layout/videotron visit.png',  caption: '' },
+    right: { img: '/cgv/layout/videotron visit2.png', caption: '' },
+  },
   { type: 'back-cover' },
 ];
 
