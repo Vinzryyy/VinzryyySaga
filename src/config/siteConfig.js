@@ -117,10 +117,23 @@ export const SITE_CONFIG = {
         ],
       },
       {
-        label: 'ArmePack',
-        hash: 'armepack',
-        icon: 'ri-leaf-line',
-        description: 'Tiga kartu tiap hari — The Life of Armeniaca.',
+        label: 'Arme Games',
+        hash: 'armeniacaTown',
+        icon: 'ri-gamepad-line',
+        children: [
+          {
+            label: 'ArmeniacaTown',
+            hash: 'armeniacaTown',
+            description: 'Kota yang tumbuh dari setiap siraman.',
+            icon: 'ri-map-pin-2-line',
+          },
+          {
+            label: 'ArmePack',
+            hash: 'armepack',
+            description: 'Tiga kartu tiap hari — The Life of Armeniaca.',
+            icon: 'ri-leaf-line',
+          },
+        ],
       },
       { label: 'News', hash: 'news', icon: 'ri-newspaper-line' },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
