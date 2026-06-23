@@ -257,45 +257,12 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
-  const { hero, harmoniKebaikan, data, about, gallery, community } = SITE_CONFIG.home;
+  const { hero, data, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
-  // Hide cards outside their available window (availableFromIso → availableUntilIso).
-  const now = Date.now();
-  const visibleHarmoniCards = harmoniKebaikan.cards.filter((c) => {
-    if (c.availableFromIso) {
-      const launch = new Date(c.availableFromIso).getTime();
-      if (Number.isFinite(launch) && now < launch) return false;
-    }
-    if (c.availableUntilIso) {
-      const end = new Date(c.availableUntilIso).getTime();
-      if (Number.isFinite(end) && now >= end) return false;
-    }
-    return true;
-  });
   const { open: openLightbox } = useLightbox();
   const showroomLive = useShowroomLive('JKT48_Eli');
   const idnLive = useIdnLive('jkt48_eli');
 
-  // HarmoniKebaikan mobile carousel — track which card is centered in
-  // the snap-x scroll so dot indicators below match visitor position.
-  // Click on a dot scrolls back to its card (UX bonus). No-op on sm+
-  // where the strip becomes a grid (dots are sm:hidden).
-  const harmoniScrollRef = useRef(null);
-  const [harmoniActiveIdx, setHarmoniActiveIdx] = useState(0);
-  useEffect(() => {
-    const el = harmoniScrollRef.current;
-    if (!el) return undefined;
-    const onScroll = () => {
-      const card = el.firstElementChild;
-      if (!card) return;
-      // Card width on mobile = w-[80%] of container + gap-4 (16px)
-      const step = card.offsetWidth + 16;
-      const idx = Math.round(el.scrollLeft / step);
-      setHarmoniActiveIdx(Math.max(0, Math.min(visibleHarmoniCards.length - 1, idx)));
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [visibleHarmoniCards.length]);
 
   // Shared schedule load — EliStatusHero uses the same hook, module-level
   // promise cache dedupes the request. Drives the hero "Berikutnya" chip
@@ -743,15 +710,9 @@ const HomePage = () => {
           hasn't run yet. Data refreshed every 6h via GH Actions. */}
       <NewsStrip />
 
-      {/* HARMONI KEBAIKAN — notice block teasing the three birthday
-          sub-pages (#26, Countdown, Wishes) so home visitors see the
-          project even if they skip the navbar dropdown. Placed right
-          after the hero so it's the first call to action. */}
+      {/* HARMONI KEBAIKAN — single CTA banner to the recap page */}
       <Section id="harmoni-kebaikan" padding="lg">
         <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
-          {/* Soft burgundy/gold radial wash — gives the block a warm
-              "notice" tint without competing with the photography on
-              other sections. */}
           <div
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none opacity-70"
@@ -760,135 +721,25 @@ const HomePage = () => {
                 'radial-gradient(circle at 20% 0%, rgba(122, 46, 46, 0.08) 0%, transparent 55%), radial-gradient(circle at 100% 100%, rgba(201, 169, 97, 0.12) 0%, transparent 60%)',
             }}
           />
-
-          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14">
-            <div className="flex items-center gap-3 mb-4 text-[color:var(--retro-burgundy)] flex-wrap">
-              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em]">
+          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
-                {harmoniKebaikan.eyebrow}
+                Rekap Seitansai
               </span>
-              <span className="hidden sm:block flex-1 h-px bg-[color:var(--retro-burgundy)]/20 max-w-[160px]" />
-            </div>
-
-            <div className="grid lg:grid-cols-12 gap-6 lg:gap-12 items-end mb-10">
-              <h2 className="lg:col-span-7 font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
-                {harmoniKebaikan.title}
-                <span className="text-[color:var(--retro-burgundy)]"> {harmoniKebaikan.titleAccent}</span>
+              <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
+                Harmoni Kebaikan
+                <span className="text-[color:var(--retro-burgundy)]"> untuk Ceu Eli.</span>
               </h2>
-              <p className="lg:col-span-5 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
-                {harmoniKebaikan.lead}
-              </p>
             </div>
-
-            <div
-              ref={harmoniScrollRef}
-              className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 -mx-6 sm:mx-0 px-6 sm:px-0 overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none"
+            <Link
+              to="/happy-helisma-day-26"
+              className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-opacity flex-shrink-0"
             >
-              {visibleHarmoniCards.map((card) => {
-                // Cards whose hash ends with '-popup' re-open their
-                // respective popup via a custom event instead of
-                // navigating. Render as button for correct semantics.
-                const popupEvents = {
-                  'photo-frame-popup': 'announcement:open',
-                  'videotron-popup': 'videotron:open',
-                };
-                const isPopupTrigger = card.hash in popupEvents;
-                const sharedClassName = `
-                    group relative flex flex-col gap-4 p-5 md:p-6 rounded-2xl
-                    flex-shrink-0 w-[80%] sm:w-auto snap-center text-left
-                    bg-white/70 backdrop-blur-sm
-                    border border-[color:var(--retro-burgundy)]/15
-                    hover:border-[color:var(--retro-burgundy)]/40
-                    hover:bg-white hover:-translate-y-0.5
-                    shadow-[0_4px_18px_rgba(61,52,43,0.06)] hover:shadow-[0_12px_32px_rgba(61,52,43,0.10)]
-                    transition-all duration-300
-                  `;
-                const innerContent = (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <span className="w-11 h-11 rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] flex items-center justify-center group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
-                        <i className={`${card.icon} text-xl`} />
-                      </span>
-                      <span className="text-[9px] font-black uppercase tracking-[0.32em] text-[color:var(--color-text-muted)]">
-                        {card.eyebrow}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-header text-xl md:text-2xl font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-2">
-                        {card.label}
-                      </h3>
-                      <p className="text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-relaxed">
-                        {card.description}
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-[color:var(--retro-burgundy)]/10">
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                        {card.ctaLabel}
-                      </span>
-                      <i className="ri-arrow-right-up-line text-base text-[color:var(--retro-burgundy)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                    </div>
-                  </>
-                );
-
-                if (isPopupTrigger) {
-                  return (
-                    <button
-                      key={card.hash}
-                      type="button"
-                      onClick={() =>
-                        window.dispatchEvent(new CustomEvent(popupEvents[card.hash]))
-                      }
-                      className={sharedClassName}
-                    >
-                      {innerContent}
-                    </button>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={card.hash}
-                    to={hashToHref(card.hash)}
-                    className={sharedClassName}
-                  >
-                    {innerContent}
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Mobile pagination dots — only render when there are
-                multiple cards to scroll between. Active dot extends to
-                a pill width as a clear "you are here" signal. */}
-            {visibleHarmoniCards.length > 1 && (
-              <div className="flex justify-center gap-1.5 mt-5 sm:hidden">
-                {visibleHarmoniCards.map((card, idx) => (
-                  <button
-                    type="button"
-                    key={`dot-${card.hash}`}
-                    onClick={() => {
-                      const el = harmoniScrollRef.current;
-                      if (!el) return;
-                      const target = el.children[idx];
-                      if (target) {
-                        target.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'nearest',
-                          inline: 'center',
-                        });
-                      }
-                    }}
-                    aria-label={`Lihat kartu ${idx + 1} dari ${visibleHarmoniCards.length}`}
-                    aria-current={idx === harmoniActiveIdx ? 'true' : undefined}
-                    className={`h-1.5 rounded-full transition-all ${
-                      idx === harmoniActiveIdx
-                        ? 'w-6 bg-[color:var(--retro-burgundy)]'
-                        : 'w-1.5 bg-[color:var(--retro-burgundy)]/25 hover:bg-[color:var(--retro-burgundy)]/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
+              <i className="ri-hand-heart-line text-base" />
+              <span>Lihat Rekap</span>
+              <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
       </Section>
