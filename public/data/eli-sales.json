@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-25T12:56:33.495591Z",
+  "fetchedAt": "2026-06-25T18:53:20.019451Z",
   "salesCount": 9,
   "sales": [
     {
@@ -96,8 +96,8 @@
           "sessionLabel": "Sesi 4 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 39,
-          "remainingQuota": 41
+          "ticketsSold": 41,
+          "remainingQuota": 39
         }
       ],
       "url": "https://jkt48.com/schedule/exfb66-05072026"
