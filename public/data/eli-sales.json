@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-06-27T01:01:47.670987Z",
-  "salesCount": 8,
+  "fetchedAt": "2026-06-27T07:14:52.939735Z",
+  "salesCount": 9,
   "sales": [
     {
       "exclusiveId": 936,
@@ -96,8 +96,8 @@
           "sessionLabel": "Sesi 4 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 47,
-          "remainingQuota": 33
+          "ticketsSold": 49,
+          "remainingQuota": 31
         }
       ],
       "url": "https://jkt48.com/schedule/exfb66-05072026"
@@ -139,8 +139,8 @@
           "sessionLabel": "Sesi 2 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 75,
-          "remainingQuota": 145
+          "ticketsSold": 76,
+          "remainingQuota": 144
         }
       ],
       "url": "https://jkt48.com/schedule/exa340-05072026"
@@ -175,15 +175,15 @@
           "sessionLabel": "Sesi 1 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 32,
-          "remainingQuota": 48
+          "ticketsSold": 33,
+          "remainingQuota": 47
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 27,
-          "remainingQuota": 53
+          "ticketsSold": 28,
+          "remainingQuota": 52
         }
       ],
       "url": "https://jkt48.com/schedule/ex3773-02072026"
@@ -280,6 +280,56 @@
         }
       ],
       "url": "https://jkt48.com/schedule/ex783d-24062026"
+    },
+    {
+      "exclusiveId": 946,
+      "code": "EX3725",
+      "slug": "ex3725-16052026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "We Are Love, Dream Team, Passion On Fire!",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-thumb-f9f5e7.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-preview-d270de.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": 9450,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-05-06T22:00:00",
+          "end_date": "2026-05-16T07:00:00",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-05-07T22:00:00",
+          "end_date": "2026-05-16T07:00:00",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-05-09",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-05-09",
+          "jalur": "Jalur 1",
+          "ticketsSold": 35,
+          "remainingQuota": 10
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-05-09",
+          "jalur": "Jalur 1",
+          "ticketsSold": 20,
+          "remainingQuota": 25
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-05-09",
+          "jalur": "Jalur 1",
+          "ticketsSold": 41,
+          "remainingQuota": 4
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex3725-16052026"
     },
     {
       "exclusiveId": 944,
