@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-28T07:31:20.617907Z",
+  "fetchedAt": "2026-06-28T12:37:58.949939Z",
   "salesCount": 9,
   "sales": [
     {
@@ -96,8 +96,8 @@
           "sessionLabel": "Sesi 4 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 58,
-          "remainingQuota": 22
+          "ticketsSold": 61,
+          "remainingQuota": 19
         }
       ],
       "url": "https://jkt48.com/schedule/exfb66-05072026"
@@ -139,8 +139,8 @@
           "sessionLabel": "Sesi 2 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 96,
-          "remainingQuota": 124
+          "ticketsSold": 106,
+          "remainingQuota": 114
         }
       ],
       "url": "https://jkt48.com/schedule/exa340-05072026"
@@ -175,8 +175,8 @@
           "sessionLabel": "Sesi 1 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 33,
-          "remainingQuota": 47
+          "ticketsSold": 34,
+          "remainingQuota": 46
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
@@ -225,8 +225,8 @@
           "sessionLabel": "Sesi 4 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 48,
-          "remainingQuota": 172
+          "ticketsSold": 49,
+          "remainingQuota": 171
         }
       ],
       "url": "https://jkt48.com/schedule/ex9a4a-02072026"

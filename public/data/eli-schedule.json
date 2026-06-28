@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-06-28T07:31:09.811766Z",
+  "fetchedAt": "2026-06-28T12:37:48.560415Z",
   "eventCount": 33,
   "events": [
     {
@@ -1482,13 +1482,13 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        48
+        49
       ],
       "eli_remaining": [
-        172
+        171
       ],
       "sold_out": false,
-      "remaining_total": 172,
+      "remaining_total": 171,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex9a4a-28062026"
     },
@@ -1527,13 +1527,13 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        33
+        34
       ],
       "eli_remaining": [
-        47
+        46
       ],
       "sold_out": false,
-      "remaining_total": 47,
+      "remaining_total": 46,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex3773-28062026"
     },
@@ -1668,13 +1668,13 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        58
+        61
       ],
       "eli_remaining": [
-        22
+        19
       ],
       "sold_out": false,
-      "remaining_total": 22,
+      "remaining_total": 19,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exfb66-04072026"
     },
@@ -1764,13 +1764,13 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        96
+        106
       ],
       "eli_remaining": [
-        124
+        114
       ],
       "sold_out": false,
-      "remaining_total": 124,
+      "remaining_total": 114,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exa340-04072026"
     },
