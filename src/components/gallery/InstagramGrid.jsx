@@ -18,8 +18,8 @@ import { useGallery } from '../../context';
 import { useLightbox } from '../../context/LightboxContext';
 import { SITE_CONFIG } from '../../config/siteConfig';
 
-const INITIAL_COUNT = 15; // first paint stays light — only 15 thumbs render
-const BATCH_SIZE = 15;    // each subsequent scroll-triggered append
+const INITIAL_COUNT = 30; // first paint — 30 thumbs
+const BATCH_SIZE = 30;    // each subsequent scroll-triggered append
 
 // Derive 400px-wide thumbnail URLs from an /archive/x/x-{key}.{jpg|webp}
 // path. The dedicated thumbs are produced by scripts/build-thumbnails.js
