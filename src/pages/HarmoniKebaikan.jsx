@@ -9,6 +9,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import KebaikanArchive from '../components/galeri/KebaikanArchive';
+import HarmoniFlipbook from '../components/harmoni/HarmoniFlipbook';
 
 const HarmoniKebaikan = () => (
   <main className="relative min-h-screen bg-[color:var(--retro-bg-primary)] overflow-x-hidden">
@@ -21,6 +22,10 @@ const HarmoniKebaikan = () => (
 
     <div className="pt-24 sm:pt-28">
       <KebaikanArchive />
+    </div>
+
+    <div className="px-4 pb-8">
+      <HarmoniFlipbook />
     </div>
 
     <div className="pb-12 text-center">
