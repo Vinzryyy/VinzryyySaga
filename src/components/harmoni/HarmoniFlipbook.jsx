@@ -56,6 +56,25 @@ const SPREADS = [
     left:  { img: '/cgv/layout/videotron visit.webp',  caption: '' },
     right: { img: '/cgv/layout/videotron visit2.webp', caption: '' },
   },
+  {
+    chapter: 'Cimot',
+    left:  { img: '/cgv/cimot1.webp', caption: '' },
+    right: { img: '/cgv/cimot2.webp', caption: '' },
+  },
+  {
+    chapter: 'Cimot',
+    left:  { img: '/cgv/cimot3.webp', caption: '' },
+    right: { img: '/cgv/cimot6.webp', caption: '' },
+  },
+  {
+    chapter: 'Cimot',
+    left:  { img: '/cgv/cimotbendera.webp',  caption: '' },
+    right: { img: '/cgv/cimotpotokue.webp', caption: '' },
+  },
+  {
+    chapter: 'Cimot',
+    left:  { img: '/cgv/cimotlegend.webp', caption: '' },
+  },
   { type: 'back-cover' },
 ];
 
@@ -266,10 +285,27 @@ const PhotoSpread = ({ spread, spreadIdx }) => {
     </div>
   );
 
+  const decorativePage = (
+    <div style={{
+      width: PAGE_W, height: '100%', flexShrink: 0,
+      background: 'linear-gradient(155deg, #2a1f17 0%, #3D342B 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: `repeating-linear-gradient(45deg,
+          rgba(201,169,97,0.045) 0px, rgba(201,169,97,0.045) 1px,
+          transparent 1px, transparent 18px)`,
+      }} />
+      <span style={{ color: 'rgba(229,197,117,0.2)', fontSize: 44, lineHeight: 1, userSelect: 'none', position: 'relative' }}>✿</span>
+    </div>
+  );
+
   return (
     <div style={{ display: 'flex', width: BOOK_W, height: PAGE_H }}>
-      {renderPage('left',  spread.left,  spreadIdx * 2)}
-      {renderPage('right', spread.right, spreadIdx * 2 + 1)}
+      {spread.left  ? renderPage('left',  spread.left,  spreadIdx * 2)      : decorativePage}
+      {spread.right ? renderPage('right', spread.right, spreadIdx * 2 + 1)  : decorativePage}
     </div>
   );
 };
