@@ -286,7 +286,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-396",
-    "url": "/archive/x/img-396.jpg",
+    "url": "/archive/x/img-396.webp",
     "thumbnail": "/archive/x/img-396.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -300,7 +300,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-397",
-    "url": "/archive/x/img-397.jpg",
+    "url": "/archive/x/img-397.webp",
     "thumbnail": "/archive/x/img-397.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -314,7 +314,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-398",
-    "url": "/archive/x/img-398.jpg",
+    "url": "/archive/x/img-398.webp",
     "thumbnail": "/archive/x/img-398.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -328,7 +328,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-399",
-    "url": "/archive/x/img-399.jpg",
+    "url": "/archive/x/img-399.webp",
     "thumbnail": "/archive/x/img-399.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -342,7 +342,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-400",
-    "url": "/archive/x/img-400.jpg",
+    "url": "/archive/x/img-400.webp",
     "thumbnail": "/archive/x/img-400.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -356,7 +356,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-401",
-    "url": "/archive/x/img-401.jpg",
+    "url": "/archive/x/img-401.webp",
     "thumbnail": "/archive/x/img-401.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -370,7 +370,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-402",
-    "url": "/archive/x/img-402.jpg",
+    "url": "/archive/x/img-402.webp",
     "thumbnail": "/archive/x/img-402.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -384,7 +384,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-403",
-    "url": "/archive/x/img-403.jpg",
+    "url": "/archive/x/img-403.webp",
     "thumbnail": "/archive/x/img-403.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -398,7 +398,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-404",
-    "url": "/archive/x/img-404.jpg",
+    "url": "/archive/x/img-404.webp",
     "thumbnail": "/archive/x/img-404.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
@@ -412,7 +412,7 @@ const RAW_DATA = [
   },
   {
     "id": "eli-local-img-405",
-    "url": "/archive/x/img-405.jpg",
+    "url": "/archive/x/img-405.webp",
     "thumbnail": "/archive/x/img-405.webp",
     "title": "Galeri Kebaikan · CGV FX",
     "description": "Harmoni Kebaikan · Seitansai Helisma 26",
