@@ -16,7 +16,7 @@ const NEWS_ARTICLES = [
     subtitle: 'Fajar Sang Idola meraih peringkat pertama',
     date: '2026-06-13',
     category: 'Event',
-    image: '/RH2K26/Rh2k26.png',
+    image: '/RH2K26/Rh2k26.webp',
     venue: 'Tennis Indoor Senayan, Jakarta',
     shows: [
       { label: 'Show 1', time: '15.00 – 17.00 WIB', ranks: '40 – 21' },
