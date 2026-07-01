@@ -84,11 +84,14 @@ const VideotronPopup = () => {
       <div className="relative w-full max-w-md md:max-w-lg max-h-[92vh] overflow-y-auto rounded-3xl bg-[color:var(--retro-cream)] shadow-2xl ring-1 ring-[color:var(--retro-gold)]/40 animate-popup-card">
         {/* Hero image */}
         <div className="relative aspect-[4/5] overflow-hidden rounded-t-3xl bg-[color:var(--retro-brown-dark)]">
-          <img
-            src="/Videotron.jpg"
-            alt="Videotron Project — Happy Helisma Day 2026"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <picture>
+            <source srcSet="/Videotron.webp" type="image/webp" />
+            <img
+              src="/Videotron.jpg"
+              alt="Videotron Project — Happy Helisma Day 2026"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </picture>
           <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
           <button
             type="button"

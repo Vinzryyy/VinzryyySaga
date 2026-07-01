@@ -112,7 +112,7 @@ const NEWS_ARTICLES = [
     subtitle: 'Double-sided videotron di Pillar MRT Blok M untuk Helisma Day',
     date: '2026-06-15',
     category: 'Event',
-    image: '/Videotron.jpg',
+    image: '/Videotron.webp',
     venue: 'Pillar MRT Blok M, Jakarta',
     details: [
       { label: 'Tanggal', value: 'Senin, 15 Juni 2026' },
