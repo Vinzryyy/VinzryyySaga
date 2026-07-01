@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-06-30T18:46:44.420681Z",
+  "fetchedAt": "2026-07-01T01:06:39.637599Z",
   "salesCount": 9,
   "sales": [
     {
@@ -182,8 +182,8 @@
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 39,
-          "remainingQuota": 41
+          "ticketsSold": 40,
+          "remainingQuota": 40
         }
       ],
       "url": "https://jkt48.com/schedule/ex3773-02072026"
@@ -284,7 +284,7 @@
     {
       "exclusiveId": 946,
       "code": "EX3725",
-      "slug": "ex3725-16052026",
+      "slug": "ex3725-08052026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "We Are Love, Dream Team, Passion On Fire!",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-thumb-f9f5e7.jpg",
@@ -329,7 +329,7 @@
           "remainingQuota": 4
         }
       ],
-      "url": "https://jkt48.com/schedule/ex3725-16052026"
+      "url": "https://jkt48.com/schedule/ex3725-08052026"
     },
     {
       "exclusiveId": 944,
