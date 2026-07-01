@@ -150,11 +150,15 @@ const NewsListing = () => {
       <header className="relative overflow-hidden">
         {/* Background image */}
         <div className="absolute inset-0">
-          <img
-            src="/news-bg.png"
-            alt=""
-            className="w-full h-full object-cover object-top"
-          />
+          <picture>
+            <source srcSet="/news-bg.webp" type="image/webp" />
+            <img
+              src="/news-bg.png"
+              alt=""
+              className="w-full h-full object-cover object-top"
+              fetchPriority="high"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-b from-[color:var(--retro-bg-dark)]/70 via-[color:var(--retro-bg-dark)]/50 to-[color:var(--retro-bg-primary)]" />
         </div>
 
