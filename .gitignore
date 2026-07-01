@@ -27,3 +27,4 @@ image.png
 # Aider artifacts (chat history, input history, tags cache) — keep config
 .aider*
 !.aider.conf.yml
+.claude/settings.local.json

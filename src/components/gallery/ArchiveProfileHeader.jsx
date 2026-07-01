@@ -24,7 +24,7 @@ import IdnLiveStreamPlayer from '../IdnLiveStreamPlayer';
 import { useShowroomLive } from '../../hooks/useShowroomLive';
 import { useIdnLive } from '../../hooks/useIdnLive';
 
-const COVER_IMAGE = '/archive/img-024.jpg';
+const COVER_IMAGE = '/archive/img-024.webp';
 
 // 252586 → "253K", 1500000 → "1.5M". Compact format for IG-style
 // stat strip where space is tight. Uses Indonesian formatting.
@@ -68,7 +68,7 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
     };
   }, [images, totalImages]);
 
-  const avatar = SITE_CONFIG.eli?.portrait || '/archive/img-364.jpg';
+  const avatar = SITE_CONFIG.eli?.portrait || '/archive/img-364.webp';
   const handle = (SITE_CONFIG.social.twitter || 'https://x.com/armeniaca15')
     .split('/')
     .pop();

@@ -185,16 +185,16 @@ export const SITE_CONFIG = {
     // 100 unique combinations.
     gifts: {
       photos: [
-        '/archive/img-310.jpg',
-        '/archive/img-211.jpg',
-        '/archive/img-119.jpg',
-        '/archive/img-087.jpg',
-        '/archive/img-083.jpg',
-        '/archive/img-335.jpg',
-        '/archive/img-070.jpg',
-        '/archive/img-022.jpg',
-        '/archive/img-359.jpg',
-        '/archive/img-148.jpg',
+        '/archive/img-310.webp',
+        '/archive/img-211.webp',
+        '/archive/img-119.webp',
+        '/archive/img-087.webp',
+        '/archive/img-083.webp',
+        '/archive/img-335.webp',
+        '/archive/img-070.webp',
+        '/archive/img-022.webp',
+        '/archive/img-359.webp',
+        '/archive/img-148.webp',
       ],
       quotes: [
         'Bagai lembayung senja — menghangatkan setiap panggung.',
@@ -284,21 +284,21 @@ export const SITE_CONFIG = {
     slides: [
       {
         id: 1,
-        image: '/archive/img-000.jpg',
+        image: '/archive/img-000.webp',
         title: 'Eli',
         subtitle: 'The Lovely Mermaid',
         meta: 'JKT48 Eli | ARCHIVE',
       },
       {
         id: 2,
-        image: '/archive/img-002.jpg',
+        image: '/archive/img-002.webp',
         title: 'The Most',
         subtitle: 'Beautiful Woman',
         meta: 'JKT48 Eli | SEASONS',
       },
       {
         id: 3,
-        image: '/archive/img-004.jpg',
+        image: '/archive/img-004.webp',
         title: 'Capturing Every',
         subtitle: 'Moment',
         meta: 'JKT48 Eli | MOMENTS',
@@ -331,7 +331,7 @@ export const SITE_CONFIG = {
     origin: 'Bandung',
     catchphrase:
       'Bagai Lembayung Senja, Dengan Energi Kegembiraan ku aku akan menghangatkan suasana.',
-    portrait: '/archive/img-364.jpg',
+    portrait: '/archive/img-364.webp',
     // Eli's official social / live-streaming handles. Rendered in the
     // "Profil Singkat" (Data Eli) section on Home as inline icon
     // links. To add more (Instagram, TikTok, etc), append to this
@@ -372,18 +372,18 @@ export const SITE_CONFIG = {
       lead:
         'Arsip visual independen untuk Helisma Putri (Eli JKT48) — member aktif Generasi 7 dari Bandung, kini di Team Dream untuk Fight 2026. Kami rawat panggung-panggungnya satu per satu, dari perayaan ulang tahun ke-26 hingga momen-momen yang belum datang.',
       backgrounds: [
-        '/archive/img-310.jpg',
-        '/archive/img-305.jpg',
-        '/archive/img-211.jpg',
-        '/archive/img-119.jpg',
-        '/archive/img-087.jpg',
-        '/archive/img-083.jpg',
-        '/archive/img-335.jpg',
-        '/archive/img-364.jpg',
-        '/archive/img-148.jpg',
-        '/archive/img-050.jpg',
-        '/archive/img-207.jpg',
-        '/archive/img-359.jpg',
+        '/archive/img-310.webp',
+        '/archive/img-305.webp',
+        '/archive/img-211.webp',
+        '/archive/img-119.webp',
+        '/archive/img-087.webp',
+        '/archive/img-083.webp',
+        '/archive/img-335.webp',
+        '/archive/img-364.webp',
+        '/archive/img-148.webp',
+        '/archive/img-050.webp',
+        '/archive/img-207.webp',
+        '/archive/img-359.webp',
       ],
       backgroundIntervalMs: 18000,
       primaryCta: { label: 'Jelajahi Memoria', hash: 'gallery', icon: 'ri-arrow-right-up-line' },
@@ -492,7 +492,7 @@ export const SITE_CONFIG = {
       ],
       ctaLabel: 'Selengkapnya',
       ctaHash: 'about',
-      portrait: '/archive/img-070.jpg',
+      portrait: '/archive/img-070.webp',
       portraitAlt: 'Helisma Putri (Eli JKT48)',
     },
     gallery: {
@@ -514,17 +514,17 @@ export const SITE_CONFIG = {
           subtitle: '231015 · Indomaret Fresh Pahlawan Seribu, BSD',
           frames: [
             '/archive/img-365.webp',
-            '/archive/img-363.jpg',
-            '/archive/img-353.jpg',
+            '/archive/img-363.webp',
+            '/archive/img-353.webp',
           ],
         },
         {
           title: 'TV Station',
           subtitle: '240111 · Konser Raya 29 Tahun Indosiar Luar Biasa',
           frames: [
-            '/archive/img-335.jpg',
-            '/archive/img-334.jpg',
-            '/archive/img-333.jpg',
+            '/archive/img-335.webp',
+            '/archive/img-334.webp',
+            '/archive/img-333.webp',
             '/archive/img-332.webp',
           ],
         },
@@ -532,29 +532,29 @@ export const SITE_CONFIG = {
           title: 'Airport Fashion',
           subtitle: 'Every Airport',
           frames: [
-            '/archive/img-207.jpg',
-            '/archive/img-142.jpg',
-            '/archive/img-050.jpg',
-            '/archive/img-033.jpg',
+            '/archive/img-207.webp',
+            '/archive/img-142.webp',
+            '/archive/img-050.webp',
+            '/archive/img-033.webp',
           ],
         },
         {
           title: 'JKT48 Event',
           subtitle: 'JKT48 Official Event',
           frames: [
-            '/archive/img-090.jpg',
-            '/archive/img-106.jpg',
-            '/archive/img-073.jpg',
+            '/archive/img-090.webp',
+            '/archive/img-106.webp',
+            '/archive/img-073.webp',
           ],
         },
         {
           title: 'Team Dream',
           subtitle: 'Adventure with Team Dream',
           frames: [
-            '/archive/img-366.jpg',
-            '/archive/img-369.jpg',
-            '/archive/img-372.jpg',
-            '/archive/img-377.jpg',
+            '/archive/img-366.webp',
+            '/archive/img-369.webp',
+            '/archive/img-372.webp',
+            '/archive/img-377.webp',
           ],
         },
       ],
@@ -582,7 +582,7 @@ export const SITE_CONFIG = {
     titleAccent: 'momen live Eli.',
     lead:
       'Arsip lengkap live streaming Helisma Putri di IDN Live dan SHOWROOM — tertawa, lagu, ngobrol panjang dengan Helismiley. Auto-update kalau playlist YouTube ditambah.',
-    coverImage: '/archive/img-211.jpg',
+    coverImage: '/archive/img-211.webp',
     coverPosition: '50% 30%',
     platforms: [
       {
@@ -672,9 +672,9 @@ export const SITE_CONFIG = {
     lead:
       'Riwayat karier Eli, partisipasi single, setlist teater, posisinya di JKT48 Fight 2026, sampai trivia ringan — semua dirangkum dalam satu tempat.',
     heroCollage: [
-      '/archive/img-310.jpg',
-      '/archive/img-142.jpg',
-      '/archive/img-211.jpg',
+      '/archive/img-310.webp',
+      '/archive/img-142.webp',
+      '/archive/img-211.webp',
     ],
     quickStats: [
       { label: 'Generasi', value: '7' },
@@ -702,12 +702,12 @@ export const SITE_CONFIG = {
       // First entry is the resting top card. Each `src` stem auto-derives
       // .avif / .webp / .jpg <picture> sources at render time.
       portraits: [
-        { src: '/archive/img-359.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-148.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-085.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-022.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-011.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
-        { src: '/archive/img-379.jpg', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-359.webp', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-148.webp', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-085.webp', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-022.webp', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-011.webp', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
+        { src: '/archive/img-379.webp', alt: 'Helisma Putri (Eli JKT48) — potret arsip.' },
       ],
     },
     etymology: {

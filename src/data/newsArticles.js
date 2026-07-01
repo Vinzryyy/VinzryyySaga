@@ -72,7 +72,7 @@ const NEWS_ARTICLES = [
     subtitle: 'Sebuah lagu yang tersegel, dibuka 15 Juni 2026 bertepatan ulang tahun ke-26 Eli',
     date: '2026-06-15',
     category: 'Event',
-    image: '/archive/img-090.jpg',
+    image: '/archive/img-090.webp',
     body: 'Sebuah lagu fan-commissioned yang dipersembahkan untuk ulang tahun ke-26 Eli. Tersegel sejak awal — setiap klik "Saya menunggu" dari fans jadi satu doa untuk hari rilis. Lagu resmi dibuka pada 15 Juni 2026 pukul 00.00 WIB, bertepatan dengan seitansai Ceu Eli.',
     details: [
       { label: 'Rilis', value: '15 Juni 2026, 00.00 WIB' },

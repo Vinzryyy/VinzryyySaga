@@ -316,7 +316,7 @@ const WishesPage = () => {
           aria-hidden="true"
           className="absolute inset-0 -z-0 pointer-events-none"
           style={{
-            backgroundImage: 'url(/archive/img-353.jpg)',
+            backgroundImage: 'url(/archive/img-353.webp)',
             backgroundSize: 'cover',
             backgroundPosition: '50% 30%',
             backgroundRepeat: 'no-repeat',
@@ -534,7 +534,7 @@ const WishesPage = () => {
               {/* RIGHT — portrait peeking from the side */}
               <div className="relative order-1 md:order-2 min-h-[260px] md:min-h-[560px] overflow-hidden">
                 <img
-                  src="/archive/img-024.jpg"
+                  src="/archive/img-024.webp"
                   alt={`Portrait ${eli.stageName} (${eli.fullName || 'Helisma Putri'})`}
                   loading="eager"
                   decoding="async"

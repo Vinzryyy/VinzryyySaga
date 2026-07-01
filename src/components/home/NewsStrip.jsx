@@ -44,7 +44,7 @@ const STRIP_LIMIT = 15;
 // gold badge has matching context; everything else gets the JKT48
 // group fallback.
 const FALLBACK_IMAGE_GENERIC = '/jkt48.jpg';
-const FALLBACK_IMAGE_ELI = '/archive/img-009.jpg';
+const FALLBACK_IMAGE_ELI = '/archive/img-009.webp';
 
 // Absolute id-ID date — used as the title tooltip so hovering still
 // reveals the precise publish date.

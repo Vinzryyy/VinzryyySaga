@@ -32,7 +32,7 @@ const GaleriKebaikan = () => (
         aria-hidden="true"
         className="absolute inset-0 -z-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(/archive/img-156.jpg)',
+          backgroundImage: 'url(/archive/img-156.webp)',
           backgroundSize: 'cover',
           backgroundPosition: '50% 30%',
           backgroundRepeat: 'no-repeat',

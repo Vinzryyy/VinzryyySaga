@@ -197,7 +197,7 @@ const ProfilePage = () => {
           birthDate: '2000-06-15',
           birthPlace: { '@type': 'Place', name: 'Bandung, Jawa Barat, Indonesia' },
           memberOf: { '@type': 'MusicGroup', name: 'JKT48' },
-          image: 'https://armeniaca.online/archive/img-364.jpg',
+          image: 'https://armeniaca.online/archive/img-364.webp',
           url: 'https://armeniaca.online/profile',
           sameAs: [
             'https://www.instagram.com/jkt48.eli/',
@@ -951,7 +951,7 @@ const TriviaSection = () => {
                   // Fallback chain — kalau img-019 fail, coba img-015
                   if (!e.target.dataset.fallback) {
                     e.target.dataset.fallback = '1';
-                    e.target.src = '/archive/img-015.jpg';
+                    e.target.src = '/archive/img-015.webp';
                   }
                 }}
                 className="absolute inset-0 w-full h-full object-cover object-[35%_25%] transition-transform duration-700 group-hover:scale-105"

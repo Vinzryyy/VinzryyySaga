@@ -21,7 +21,7 @@ import { SITE_CONFIG } from '../../config/siteConfig';
 // across whatever sale entries are visible — first card gets the
 // first frame, second card the second, and so on. Wraps if there
 // are more sales than frames.
-const SALE_FRAMES = ['/archive/img-303.jpg', '/archive/img-206.jpg'];
+const SALE_FRAMES = ['/archive/img-303.webp', '/archive/img-206.webp'];
 
 const CATEGORY_LABEL = {
   TWO_SHOT: '2Shot',

@@ -34,7 +34,7 @@ const ByuMusic = () => (
         aria-hidden="true"
         className="absolute inset-0 -z-0 pointer-events-none"
         style={{
-          backgroundImage: 'url(/archive/img-090.jpg)',
+          backgroundImage: 'url(/archive/img-090.webp)',
           backgroundSize: 'cover',
           backgroundPosition: '50% 35%',
           backgroundRepeat: 'no-repeat',
