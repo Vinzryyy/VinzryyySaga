@@ -18,8 +18,8 @@ import { getQuoteOfTheDay, getRandomQuote } from '../lib/quoteOfTheDay';
 
 const STORAGE_KEY = 'armeniaca-arme-chat-v1';
 // Two-pose set — matches ArmeMascot's idle/talk asset convention.
-const AVATAR_IDLE = '/Arme/ELI_2_a.png'; // hand-to-chin, default
-const AVATAR_TALK = '/Arme/ELI_1_a.png'; // pointing, while answering
+const AVATAR_IDLE = '/Arme/ELI_2_a.webp'; // hand-to-chin, default
+const AVATAR_TALK = '/Arme/ELI_1_a.webp'; // pointing, while answering
 const MAX_HISTORY = 16;
 const MAX_INPUT_CHARS = 1200;
 

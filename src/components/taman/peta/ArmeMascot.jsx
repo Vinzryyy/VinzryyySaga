@@ -29,8 +29,8 @@ import { ARME_DIALOGS, ARME_CATEGORIES } from '../../../data/armeDialogs';
 import { writeDuckFactor } from '../../../lib/townAudioBus';
 
 const STORAGE_KEY = 'armeniaca-arme';
-const AVATAR_IDLE = '/Arme/ELI_2_a.png';
-const AVATAR_TALK = '/Arme/ELI_1_a.png';
+const AVATAR_IDLE = '/Arme/ELI_2_a.webp';
+const AVATAR_TALK = '/Arme/ELI_1_a.webp';
 
 // Fallback timer untuk text-only line (no audio). Sekarang dynamic
 // berdasarkan char count via computeTextDuration(); konstanta ini
