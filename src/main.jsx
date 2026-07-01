@@ -11,7 +11,7 @@ import App from "./App.jsx";
 import "@fontsource-variable/fraunces";
 import "@fontsource-variable/plus-jakarta-sans";
 import "./index.css";
-import "remixicon/fonts/remixicon.css";
+import "./remixicon.css";
 import { initMonitoring } from "./utils/monitoring";
 
 initMonitoring();
