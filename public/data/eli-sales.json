@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-01T18:47:16.006778Z",
+  "fetchedAt": "2026-07-02T01:02:16.638931Z",
   "salesCount": 9,
   "sales": [
     {
@@ -182,8 +182,8 @@
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 48,
-          "remainingQuota": 32
+          "ticketsSold": 52,
+          "remainingQuota": 28
         }
       ],
       "url": "https://jkt48.com/schedule/ex3773-02072026"
@@ -218,8 +218,8 @@
           "sessionLabel": "Sesi 3 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 60,
-          "remainingQuota": 160
+          "ticketsSold": 61,
+          "remainingQuota": 159
         },
         {
           "sessionLabel": "Sesi 4 (DREAM) · 02/07",
