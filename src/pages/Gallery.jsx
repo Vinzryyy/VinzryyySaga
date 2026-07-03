@@ -15,7 +15,6 @@ import { useGallery } from '../context';
 import ArchiveProfileHeader from '../components/gallery/ArchiveProfileHeader';
 import InstagramGrid from '../components/gallery/InstagramGrid';
 import FilterBar from '../components/gallery/FilterBar';
-import HorizontalShowcase from '../components/gallery/HorizontalShowcase';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
 
@@ -72,14 +71,8 @@ const GalleryPage = () => {
         {/* Profile bar — IG-style header with avatar, handle, stats, bio. */}
         <ArchiveProfileHeader />
 
-        {/* Horizontal-Pan showcase — GSAP pinned strip on desktop,
-            native snap row on mobile. Sits between header and filter
-            so the gallery page opens with a cinematic highlight reel
-            before the user drops into the grid. */}
-        <HorizontalShowcase />
-
         {/* Sticky filter bar — era pills + event search. Sits right under
-            the showcase so filtering stays one tap away. */}
+            the profile header so filtering stays one tap away. */}
         <FilterBar />
 
         {/* IG-style square photo grid */}
