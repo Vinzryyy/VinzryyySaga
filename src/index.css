@@ -71,6 +71,13 @@ html {
   scroll-behavior: smooth;
 }
 
+/* text-wrap: balance prevents single-word orphans on wide screens.
+   Applied globally to all headings — safe because it only affects
+   line-break decisions, never layout width. */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
 body {
   /* Plus Jakarta Sans Variable — Indonesian-designed (Tokotype) sans
      with proper Bahasa diacritic + ng/ny rendering. Single variable
