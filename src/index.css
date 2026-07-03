@@ -843,6 +843,51 @@ img[loading="lazy"] {
 }
 
 /* ==========================================================================
+   Hover Micro-interactions (C)
+   ========================================================================== */
+
+/* Shine sweep — a warm cream glint that crosses the image on hover.
+   Apply to any overflow-hidden image wrapper. The ::after sits above
+   the image (z-index 1) but below interactive overlays (z-index 2+). */
+.img-shine {
+  position: relative;
+  overflow: hidden;
+}
+.img-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(253, 246, 227, 0.18) 50%,
+    transparent 65%
+  );
+  transform: translateX(-115%);
+  pointer-events: none;
+  z-index: 1;
+}
+.img-shine:hover::after {
+  transform: translateX(115%);
+  transition: transform 0.65s ease;
+}
+
+/* Button press — slight sink + scale on :active for tactile feedback.
+   Pair with any existing transition class. */
+.btn-press:active {
+  transform: scale(0.97) translateY(1px) !important;
+}
+
+/* Card warm hover — lift + deeper shadow. */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px var(--retro-shadow-dark);
+}
+
+/* ==========================================================================
    Retro Theme Component Classes
    ========================================================================== */
 

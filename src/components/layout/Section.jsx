@@ -14,8 +14,8 @@ const Section = ({
   padding = 'default',
 }) => {
   const { elementRef, isVisible } = useScrollReveal({
-    threshold: 0.1,
-    triggerOnce: false,
+    threshold: 0.08,
+    triggerOnce: true,
   });
 
   const backgroundClasses = {
@@ -46,8 +46,8 @@ const Section = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`
-            transform transition-all duration-700
-            ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+            transform transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]
+            ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.99]'}
           `}
         >
           {children}

@@ -14,6 +14,7 @@ import { useParallax } from '../hooks/useParallax';
 import { useElementParallax } from '../hooks/useElementParallax';
 import { useLightbox } from '../context/LightboxContext';
 import { hashToHref } from '../utils/routes';
+import useSplitTextReveal from '../hooks/useSplitTextReveal';
 import Seo from '../components/Seo';
 import { useShowroomLive } from '../hooks/useShowroomLive';
 import { useIdnLive } from '../hooks/useIdnLive';
@@ -428,6 +429,15 @@ const HomePage = () => {
   const dataPortraitOffset = useParallax(-0.08);
   const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.1, 40);
 
+  // Section heading word-reveal refs (F) — each fires once when the heading
+  // enters the viewport. Stagger 0.07s between words feels editorial without
+  // being slow. Community heading uses a slightly longer delay so the dark
+  // card has time to bloom in before the title animates.
+  const dataTitleRef = useSplitTextReveal();
+  const aboutTitleRef = useSplitTextReveal();
+  const galleryTitleRef = useSplitTextReveal();
+  const communityTitleRef = useSplitTextReveal({ delay: 0.15 });
+
   // GSAP SplitText hero entrance — lazy-loaded so the ~30KB GSAP core only
   // ships when the user lands on the home page, and only when the hero is
   // visible (no work for reduced-motion or background tab cases).
@@ -633,7 +643,7 @@ const HomePage = () => {
             >
               <Link
                 to={hashToHref(hero.primaryCta.hash)}
-                className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-xs md:text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all"
+                className="group inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full bg-[color:var(--retro-cream)] text-[color:var(--retro-brown-dark)] font-bold text-xs md:text-sm uppercase tracking-widest shadow-2xl hover:-translate-y-0.5 transition-all btn-press"
               >
                 {hero.primaryCta.label}
                 <i className={`${hero.primaryCta.icon} group-hover:translate-x-1 transition-transform`} />
@@ -754,7 +764,7 @@ const HomePage = () => {
               out by parallax. Parallax intensity halved so the image
               barely shifts on scroll, keeping face locked in view. */}
           <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[3/4] rounded-sm overflow-hidden">
+            <div className="relative aspect-[3/4] rounded-sm overflow-hidden img-shine">
               <img
                 src={eli.portrait}
                 alt={about.portraitAlt}
@@ -782,7 +792,7 @@ const HomePage = () => {
                 /  {data.eyebrow}
               </span>
             </div>
-            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
+            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
               {data.title}
             </h2>
 
@@ -827,7 +837,7 @@ const HomePage = () => {
             <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
               <div
                 style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.15)` }}
-                className="absolute inset-0 will-change-transform"
+                className="absolute inset-0 will-change-transform img-shine"
               >
                 <img
                   src={about.portrait}
@@ -859,7 +869,7 @@ const HomePage = () => {
               </span>
               <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
             </div>
-            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-text-primary)] mb-8">
+            <h2 ref={aboutTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-text-primary)] mb-8">
               {about.title}
             </h2>
             {about.paragraphs.map((p, i) => (
@@ -872,7 +882,7 @@ const HomePage = () => {
             ))}
             <Link
               to={hashToHref(about.ctaHash)}
-              className="group inline-flex items-center gap-3 mt-4 px-7 py-3.5 rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest transition-colors"
+              className="group inline-flex items-center gap-3 mt-4 px-7 py-3.5 rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest transition-colors btn-press"
             >
               {about.ctaLabel}
               <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
@@ -891,7 +901,7 @@ const HomePage = () => {
                 /  {gallery.eyebrow}
               </span>
             </div>
-            <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mt-3">
+            <h2 ref={galleryTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mt-3">
               {gallery.title}
             </h2>
           </div>
@@ -994,7 +1004,7 @@ const HomePage = () => {
                       key={`${image.id}-${i}`}
                       onClick={() => openLightbox(marqueeFrames, i % marqueeFrames.length)}
                       aria-label={`Buka frame: ${image.title || 'Eli JKT48'}`}
-                      className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10 cursor-zoom-in"
+                      className="group/tile flex-shrink-0 w-32 sm:w-40 md:w-44 lg:w-52 aspect-[3/4] rounded-sm overflow-hidden relative bg-[color:var(--retro-brown-dark)]/10 cursor-zoom-in img-shine"
                       aria-hidden={i >= marqueeFrames.length}
                       tabIndex={i >= marqueeFrames.length ? -1 : 0}
                     >
@@ -1026,7 +1036,7 @@ const HomePage = () => {
         <div className="text-center mt-10">
           <Link
             to={hashToHref(gallery.ctaHash)}
-            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest shadow-lg shadow-[color:var(--retro-burgundy)]/30 hover:shadow-xl hover:-translate-y-0.5 transition-all btn-press"
           >
             {gallery.ctaLabel}
             <i className="ri-arrow-right-up-line group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -1060,7 +1070,7 @@ const HomePage = () => {
                   /  {community.eyebrow}
                 </span>
               </div>
-              <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter">
+              <h2 ref={communityTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter">
                 {community.title}
               </h2>
               <p className="mt-6 text-base md:text-lg text-[color:var(--retro-cream)]/75 leading-relaxed max-w-xl">
