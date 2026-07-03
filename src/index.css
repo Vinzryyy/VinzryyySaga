@@ -54,6 +54,7 @@
   --color-text-primary: var(--retro-text-primary);
   --color-text-secondary: var(--retro-text-secondary);
   --color-text-light: var(--retro-text-light);
+  --color-text-muted: var(--retro-text-muted);
   --color-accent: var(--retro-burgundy);
   --color-accent-hover: var(--retro-burgundy-light);
   
@@ -75,8 +76,8 @@ body {
      with proper Bahasa diacritic + ng/ny rendering. Single variable
      file covers 200–800 weight. */
   font-family: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
-  background-color: var(--retro-bg-primary) !important;
-  background-image: linear-gradient(180deg, var(--retro-bg-primary) 0%, var(--retro-bg-secondary) 100%) !important;
+  background-color: var(--retro-bg-primary);
+  background-image: linear-gradient(180deg, var(--retro-bg-primary) 0%, var(--retro-bg-secondary) 100%);
   min-height: 100vh;
   color: var(--retro-text-primary);
 }
@@ -783,30 +784,6 @@ img[loading="lazy"] {
   background-image: linear-gradient(135deg, var(--retro-burgundy) 0%, var(--retro-brown) 100%);
 }
 
-/* ==========================================================================
-   Line Clamp Utilities
-   ========================================================================== */
-
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
 
 /* ==========================================================================
    Responsive Container
@@ -869,7 +846,7 @@ img[loading="lazy"] {
    Retro Theme Component Classes
    ========================================================================== */
 
-/* Soft shadow for retro theme */
+/* Shadows */
 .shadow-retro {
   box-shadow: 0 4px 20px var(--retro-shadow);
 }
@@ -878,23 +855,8 @@ img[loading="lazy"] {
   box-shadow: 0 10px 40px var(--retro-shadow-dark);
 }
 
-.shadow-pastel {
-  box-shadow: 0 4px 20px var(--retro-shadow);
-}
-
-.shadow-pastel-lg {
-  box-shadow: 0 10px 40px var(--retro-shadow-dark);
-}
-
 /* Glass effect with retro tint */
 .glass-retro {
-  background: rgba(253, 246, 227, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--retro-border);
-}
-
-.glass-pastel {
   background: rgba(253, 246, 227, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -910,89 +872,7 @@ img[loading="lazy"] {
   border-radius: 1.5rem;
 }
 
-.rounded-pastel {
-  border-radius: 1rem;
-}
-
-.rounded-pastel-lg {
-  border-radius: 1.5rem;
-}
-
-/* Text utilities */
-.text-retro-cream {
-  color: var(--retro-cream);
-}
-
-.text-retro-sepia {
-  color: var(--retro-sepia);
-}
-
-.text-retro-gold {
-  color: var(--retro-gold);
-}
-
-.text-retro-burgundy {
-  color: var(--retro-burgundy);
-}
-
-.text-pastel-pink {
-  color: var(--retro-burgundy-light);
-}
-
-.text-pastel-rose {
-  color: var(--retro-burgundy);
-}
-
-.text-pastel-peach {
-  color: var(--retro-sepia);
-}
-
-.text-pastel-tan {
-  color: var(--retro-brown);
-}
-
-.text-pastel-cream {
-  color: var(--retro-cream-dark);
-}
-
-/* Background utilities */
-.bg-retro-cream {
-  background-color: var(--retro-cream);
-}
-
-.bg-retro-sepia {
-  background-color: var(--retro-sepia);
-}
-
-.bg-retro-gold {
-  background-color: var(--retro-gold);
-}
-
-.bg-retro-burgundy {
-  background-color: var(--retro-burgundy);
-}
-
-.bg-pastel-pink {
-  background-color: var(--retro-burgundy-light);
-}
-
-.bg-pastel-rose {
-  background-color: var(--retro-burgundy);
-}
-
-.bg-pastel-peach {
-  background-color: var(--retro-sepia);
-}
-
-.bg-pastel-tan {
-  background-color: var(--retro-brown);
-}
-
-.bg-pastel-cream {
-  background-color: var(--retro-cream-dark);
-}
-
-/* Hover effects */
+/* Hover lift */
 .hover-lift-retro {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -1002,48 +882,8 @@ img[loading="lazy"] {
   box-shadow: 0 10px 30px var(--retro-shadow-dark);
 }
 
-.hover-lift-pastel {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.hover-lift-pastel:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px var(--retro-shadow-dark);
-}
-
 /* Soft focus ring */
 .focus-retro:focus-visible {
   outline: 2px solid var(--retro-gold);
   outline-offset: 2px;
-}
-
-.focus-pastel:focus-visible {
-  outline: 2px solid var(--retro-burgundy);
-  outline-offset: 2px;
-}
-
-/* Vintage Border Styles */
-.border-retro {
-  border: 1px solid var(--retro-border);
-}
-
-.border-retro-dark {
-  border: 1px solid var(--retro-border-dark);
-}
-
-/* Sepia Filter for Images */
-.filter-sepia {
-  filter: sepia(0.3);
-}
-
-.filter-sepia-strong {
-  filter: sepia(0.6);
-}
-
-/* Vintage Frame */
-.vintage-frame {
-  border: 8px solid var(--retro-cream-dark);
-  box-shadow: 
-    0 4px 20px var(--retro-shadow-dark),
-    inset 0 0 0 2px var(--retro-border);
 }
