@@ -12,6 +12,7 @@ const Section = ({
   className = '',
   background = 'default',
   padding = 'default',
+  glow = null,
 }) => {
   const { elementRef, isVisible } = useScrollReveal({
     threshold: 0.08,
@@ -38,12 +39,24 @@ const Section = ({
       id={id}
       ref={elementRef}
       className={`
+        relative
         ${backgroundClasses[background]}
         ${paddingClasses[padding]}
         ${className}
       `}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Ambient glow overlay — absolute, renders before the content div in
+          DOM order. Content div is also `relative` (positioned), so both are
+          in the same z-index:auto stacking step; DOM order puts content on
+          top of the glow. pointer-events-none keeps the glow inert. */}
+      {glow && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: glow }}
+        />
+      )}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`
             transform transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]

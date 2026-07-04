@@ -634,6 +634,17 @@ const HomePage = () => {
           {/* Tonal grade — warms to the cream palette while keeping text legible */}
           <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)] via-[color:var(--retro-brown-dark)]/60 to-[color:var(--retro-brown-dark)]/30" />
           <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--retro-brown-dark)]/80 via-transparent to-transparent" />
+          {/* Film light leak — warm amber streak bleeding in from the top-right
+              corner, layered above the dark vignette so it reads as light
+              intruding through the grain, photographic analog effect. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse at 88% -5%, rgba(201,169,97,0.38) 0%, rgba(201,169,97,0.14) 28%, transparent 55%)',
+            }}
+          />
         </div>
 
         {/* Vertical side caption */}
@@ -803,7 +814,11 @@ const HomePage = () => {
 
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
-      <Section id="data" padding="xl">
+      <Section
+        id="data"
+        padding="xl"
+        glow="radial-gradient(ellipse at 0% 100%, rgba(139,64,64,0.09) 0%, transparent 52%), radial-gradient(ellipse at 100% 0%, rgba(201,169,97,0.11) 0%, transparent 52%)"
+      >
         <SectionOrnament />
         {/* Ghost watermark — magazine-editorial large section number behind content */}
         <div className="relative overflow-hidden">
@@ -882,7 +897,11 @@ const HomePage = () => {
       </Section>
 
       {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
-      <Section id="about-preview" padding="xl">
+      <Section
+        id="about-preview"
+        padding="xl"
+        glow="radial-gradient(ellipse at 100% 100%, rgba(201,169,97,0.10) 0%, transparent 52%), radial-gradient(ellipse at 0% 0%, rgba(139,64,64,0.07) 0%, transparent 52%)"
+      >
         <SectionOrnament />
         {/* Ghost watermark */}
         <div className="relative overflow-hidden">
@@ -957,7 +976,12 @@ const HomePage = () => {
       </Section>
 
       {/* GALLERY ELI — bento mosaic with feature tile + integrated CTA cell */}
-      <Section id="gallery-preview" padding="xl" background="gradient">
+      <Section
+        id="gallery-preview"
+        padding="xl"
+        background="gradient"
+        glow="radial-gradient(ellipse at 100% 0%, rgba(201,169,97,0.13) 0%, transparent 50%), radial-gradient(ellipse at 0% 100%, rgba(139,64,64,0.08) 0%, transparent 50%)"
+      >
         <SectionOrnament />
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-[color:var(--retro-brown-dark)]/15 pb-6 mb-12">
           <div>
