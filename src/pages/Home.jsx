@@ -811,7 +811,7 @@ const HomePage = () => {
               top + drop the scale entirely so the face is never pushed
               out by parallax. Parallax intensity halved so the image
               barely shifts on scroll, keeping face locked in view. */}
-          <div className="lg:col-span-6 relative">
+          <div className="lg:col-span-5 relative">
             <div className="relative aspect-[3/4] rounded-sm overflow-hidden img-shine">
               <img
                 src={eli.portrait}
@@ -833,7 +833,7 @@ const HomePage = () => {
           </div>
 
           {/* Editorial fact list */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">01</span>
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
