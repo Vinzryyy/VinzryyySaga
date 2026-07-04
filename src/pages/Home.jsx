@@ -35,6 +35,65 @@ const staggerClass = (visible) =>
   `transition-all duration-700 ease-out ${
     visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
   }`;
+// Horizontal variant — fact rows slide in from left instead of up.
+const staggerClassH = (visible) =>
+  `transition-all duration-700 ease-out ${
+    visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5'
+  }`;
+
+// Count-up animation — fires once when `trigger` turns true.
+// Pure RAF, no GSAP dependency needed for a simple counter.
+const useCountUp = (target, trigger, duration = 1200) => {
+  const [value, setValue] = React.useState(0);
+  const rafRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!trigger || !target) return undefined;
+    let startTime = null;
+    const step = (ts) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      setValue(Math.round(eased * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [target, trigger, duration]);
+  return value;
+};
+
+// Thin ornamental rule between editorial sections — keeps the cream
+// pages from reading as one unbroken wall of whitespace.
+const SectionOrnament = () => (
+  <div className="flex items-center justify-center gap-4 mb-14 mt-2" aria-hidden="true">
+    <span className="flex-1 h-px bg-gradient-to-r from-transparent to-[color:var(--retro-brown-dark)]/18" />
+    <i className="ri-seedling-line text-sm text-[color:var(--retro-gold)]/55" />
+    <span className="flex-1 h-px bg-gradient-to-l from-transparent to-[color:var(--retro-brown-dark)]/18" />
+  </div>
+);
+
+// Inline badge that counts up — used in Gallery header.
+const GalleryCountBadge = ({ total, trigger }) => {
+  const count = useCountUp(total, trigger, 1000);
+  return <>{count}+ Frame</>;
+};
+
+// Animated stat pill — counts up from 0 to value when visible.
+const StatPill = ({ value, suffix = '', label, trigger, delay = 0 }) => {
+  const count = useCountUp(value, trigger, 1200 + delay);
+  return (
+    <div className="flex flex-col items-center gap-1 px-4 py-3 rounded-2xl bg-[color:var(--retro-cream-dark)] border border-[color:var(--retro-brown-dark)]/10">
+      <span
+        className="font-header text-2xl sm:text-3xl font-black tracking-tighter text-[color:var(--retro-text-primary)] tabular-nums leading-none"
+      >
+        {count.toLocaleString('id-ID')}{suffix}
+      </span>
+      <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)]">
+        {label}
+      </span>
+    </div>
+  );
+};
 
 // Derive a year per image — prefer explicit `year` field, fall back to
 // parsing the first 4 chars of `date` (YYYY-MM-DD). Returns null when
@@ -421,13 +480,17 @@ const HomePage = () => {
     threshold: 0.1,
     rootMargin: '-40px',
   });
+  const { elementRef: galleryStatRef, isVisible: galleryStatVisible } = useScrollReveal({
+    threshold: 0.1,
+    triggerOnce: true,
+  });
   // Subtle parallax for the two on-page portraits. Data Eli sits high on
   // the page so simple scrollY-driven parallax stays in range. About Eli is
   // farther down, so it uses element-relative parallax (centered around the
   // section's viewport position) — otherwise the cumulative scrollY would
   // shift the image off-frame before the user even sees it.
-  const dataPortraitOffset = useParallax(-0.08);
-  const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.1, 40);
+  const dataPortraitOffset = useParallax(-0.14);
+  const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.16, 40);
 
   // Section heading word-reveal refs (F) — each fires once when the heading
   // enters the viewport. Stagger 0.07s between words feels editorial without
@@ -757,6 +820,7 @@ const HomePage = () => {
 
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">
+        <SectionOrnament />
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           {/* Portrait close-up. Source img-364 has Eli's face in the
               upper 5-25% of frame — anchor object-position at the very
@@ -769,7 +833,7 @@ const HomePage = () => {
                 src={eli.portrait}
                 alt={about.portraitAlt}
                 style={{
-                  transform: `translate3d(0, ${dataPortraitOffset * 0.5}px, 0)`,
+                  transform: `translate3d(0, ${dataPortraitOffset}px, 0)`,
                   objectPosition: '50% 0%',
                 }}
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-1000 will-change-transform"
@@ -792,16 +856,41 @@ const HomePage = () => {
                 /  {data.eyebrow}
               </span>
             </div>
-            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
+            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-8">
               {data.title}
             </h2>
+
+            {/* Animated stat pills — count up once when section enters view */}
+            <div className="grid grid-cols-3 gap-3 mb-8">
+              <StatPill
+                value={images?.length || 350}
+                suffix="+"
+                label="Frame Arsip"
+                trigger={factsVisible}
+                delay={0}
+              />
+              <StatPill
+                value={eli.careerStats?.theater || 385}
+                suffix="+"
+                label="Theater Show"
+                trigger={factsVisible}
+                delay={150}
+              />
+              <StatPill
+                value={51}
+                suffix=""
+                label="Kartu ArmePack"
+                trigger={factsVisible}
+                delay={300}
+              />
+            </div>
 
             <dl ref={factsRef} className="divide-y divide-[color:var(--retro-brown-dark)]/15 border-y border-[color:var(--retro-brown-dark)]/15">
               {profileFacts.map((fact, idx) => (
                 <div
                   key={fact.label}
                   style={staggerStyle(idx)}
-                  className={`grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group ${staggerClass(factsVisible)}`}
+                  className={`grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group ${staggerClassH(factsVisible)}`}
                 >
                   <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] pt-1.5">
                     {fact.label}
@@ -827,6 +916,7 @@ const HomePage = () => {
 
       {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
       <Section id="about-preview" padding="xl">
+        <SectionOrnament />
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Portrait — element-relative parallax centered on the section's
               viewport position so the image doesn't drift off-frame before
@@ -893,6 +983,7 @@ const HomePage = () => {
 
       {/* GALLERY ELI — bento mosaic with feature tile + integrated CTA cell */}
       <Section id="gallery-preview" padding="xl" background="gradient">
+        <SectionOrnament />
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-[color:var(--retro-brown-dark)]/15 pb-6 mb-12">
           <div>
             <div className="flex items-baseline gap-3">
@@ -905,14 +996,12 @@ const HomePage = () => {
               {gallery.title}
             </h2>
           </div>
-          <div className="flex flex-col md:items-end gap-3 md:max-w-sm">
-            {featuredMeta && (
-              <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
-                <span className="px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10">
-                  {featuredMeta.count} Frames
+          <div ref={galleryStatRef} className="flex flex-col md:items-end gap-3 md:max-w-sm">
+            {images?.length > 0 && (
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                <span className="px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 tabular-nums">
+                  <GalleryCountBadge total={images.length} trigger={galleryStatVisible} />
                 </span>
-                <span className="text-[color:var(--color-text-muted)]">·</span>
-                <span>Curated {featuredMeta.span}</span>
               </div>
             )}
             <p className="text-sm text-[color:var(--color-text-secondary)] leading-relaxed md:text-right">
