@@ -1680,8 +1680,8 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
         {' '}Saat{' '}
         <strong className="text-white/90 font-medium">2.000 siraman</strong>{' '}
         terkumpul, gerbang terbuka. Saat{' '}
-        <strong className="text-white/90 font-medium">4.000</strong>,
-        ekosistem pulih sepenuhnya.
+        <strong className="text-white/90 font-medium">7.000</strong>,
+        kota pulih sepenuhnya.
       </p>
       <p
         className="hidden sm:block text-white/55 text-xs md:text-sm leading-relaxed mb-7 italic"
