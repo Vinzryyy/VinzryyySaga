@@ -473,7 +473,7 @@ const HomePage = () => {
   // farther down, so it uses element-relative parallax (centered around the
   // section's viewport position) — otherwise the cumulative scrollY would
   // shift the image off-frame before the user even sees it.
-  const dataPortraitOffset = useParallax(-0.14);
+  const dataPortraitOffset = useParallax(-0.08);
   const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.16, 40);
 
   // Section heading word-reveal refs (F) — each fires once when the heading
@@ -817,7 +817,7 @@ const HomePage = () => {
                 src={eli.portrait}
                 alt={about.portraitAlt}
                 style={{
-                  transform: `translate3d(0, ${dataPortraitOffset}px, 0)`,
+                  transform: `translate3d(0, ${dataPortraitOffset * 0.5}px, 0)`,
                   objectPosition: '50% 0%',
                 }}
                 className="w-full h-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-1000 will-change-transform"
