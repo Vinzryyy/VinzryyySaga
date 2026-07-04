@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-04T13:40:47.016475Z",
+  "fetchedAt": "2026-07-04T19:19:38.503077Z",
   "salesCount": 9,
   "sales": [
     {
@@ -132,15 +132,15 @@
           "sessionLabel": "Sesi 1 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 41,
-          "remainingQuota": 179
+          "ticketsSold": 42,
+          "remainingQuota": 178
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 165,
-          "remainingQuota": 55
+          "ticketsSold": 177,
+          "remainingQuota": 43
         }
       ],
       "url": "https://jkt48.com/schedule/exa340-05072026"
