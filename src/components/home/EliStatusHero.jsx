@@ -600,18 +600,56 @@ const UpcomingSurface = ({ event, countdown }) => {
   );
 };
 
+const IDLE_LINKS = [
+  {
+    to: '/gallery',
+    icon: 'ri-image-2-line',
+    label: 'Galeri Arsip',
+    sub: 'Jelajahi 350+ frame visual Eli',
+  },
+  {
+    to: '/armepack',
+    icon: 'ri-cards-line',
+    label: 'ArmePack',
+    sub: '3 kartu harian menunggu',
+  },
+  {
+    to: '/schedule',
+    icon: 'ri-calendar-event-line',
+    label: 'Arsip Jadwal',
+    sub: 'Riwayat show & event Eli',
+  },
+];
+
 const IdleSurface = () => (
-  <div className="relative rounded-3xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] px-6 sm:px-8 py-6 text-center">
-    <p className="text-sm text-[color:var(--retro-brown-dark)]/65 italic mb-2">
-      Belum ada jadwal Eli yang tercatat saat ini.
+  <div className="relative rounded-3xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] px-6 sm:px-8 py-7">
+    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
+      Saat Eli Offline
     </p>
-    <Link
-      to="/schedule"
-      className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-burgundy-light)] underline decoration-dotted underline-offset-4"
-    >
-      <i className="ri-archive-line text-sm" />
-      Buka Arsip Jadwal
-    </Link>
+    <p className="text-sm text-[color:var(--retro-brown-dark)]/65 italic mb-6">
+      Belum ada jadwal yang tercatat. Sementara itu, ada ini untukmu:
+    </p>
+    <div className="grid sm:grid-cols-3 gap-3">
+      {IDLE_LINKS.map(({ to, icon, label, sub }) => (
+        <Link
+          key={to}
+          to={to}
+          className="group flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-[color:var(--retro-brown-dark)]/12 bg-[color:var(--retro-cream)] hover:border-[color:var(--retro-burgundy)]/30 hover:bg-[color:var(--retro-cream-dark)] transition-colors"
+        >
+          <span className="w-9 h-9 rounded-xl bg-[color:var(--retro-burgundy)]/8 group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] flex items-center justify-center transition-colors flex-shrink-0">
+            <i className={`${icon} text-base`} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-primary)] truncate">
+              {label}
+            </p>
+            <p className="text-[10px] text-[color:var(--color-text-muted)] truncate mt-0.5">
+              {sub}
+            </p>
+          </div>
+        </Link>
+      ))}
+    </div>
   </div>
 );
 
