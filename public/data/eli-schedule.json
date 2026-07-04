@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-07-04T08:42:23.139912Z",
+  "fetchedAt": "2026-07-04T13:40:35.697250Z",
   "eventCount": 21,
   "events": [
     {
@@ -624,6 +624,102 @@
     },
     {
       "kind": "EXCLUSIVE",
+      "schedule_id": 959,
+      "code": "EXA340",
+      "title": "Team Love & Team Dream, Meet and Greet Yogyakarta (Sesi 1 (DREAM) · 05/07)",
+      "date": "2026-07-05",
+      "start_time": "13:00",
+      "end_time": "14:00",
+      "category": "PHOTOCARD",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Gita Sekar Andarini"
+        },
+        {
+          "name": "Marsha Lenathea"
+        },
+        {
+          "name": "Jesslyn Elly"
+        },
+        {
+          "name": "Helisma Putri"
+        },
+        {
+          "name": "Oline Manuel"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 6"
+      ],
+      "tickets_sold_eli": [
+        41
+      ],
+      "eli_remaining": [
+        179
+      ],
+      "sold_out": false,
+      "remaining_total": 179,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/exa340-04072026"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "schedule_id": 959,
+      "code": "EXA340",
+      "title": "Team Love & Team Dream, Meet and Greet Yogyakarta (Sesi 2 (DREAM) · 05/07)",
+      "date": "2026-07-05",
+      "start_time": "14:00",
+      "end_time": "15:00",
+      "category": "PHOTOCARD",
+      "team": null,
+      "venue": "JKT48 Personal M&G Festival",
+      "members": [
+        {
+          "name": "Freya Jayawardana"
+        },
+        {
+          "name": "Greesella Adhalia"
+        },
+        {
+          "name": "Gita Sekar Andarini"
+        },
+        {
+          "name": "Marsha Lenathea"
+        },
+        {
+          "name": "Jesslyn Elly"
+        },
+        {
+          "name": "Helisma Putri"
+        },
+        {
+          "name": "Oline Manuel"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 6"
+      ],
+      "tickets_sold_eli": [
+        165
+      ],
+      "eli_remaining": [
+        55
+      ],
+      "sold_out": false,
+      "remaining_total": 55,
+      "is_birthday_show": false,
+      "url": "https://jkt48.com/schedule/exa340-04072026"
+    },
+    {
+      "kind": "EXCLUSIVE",
       "schedule_id": 960,
       "code": "EXFB66",
       "title": "Team Love & Team Dream, 2shot Yogyakarta (Sesi 3 (DREAM) · 05/07)",
@@ -717,102 +813,6 @@
       "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/exfb66-04072026"
-    },
-    {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 959,
-      "code": "EXA340",
-      "title": "Team Love & Team Dream, Meet and Greet Yogyakarta (Sesi 1 (DREAM) · 05/07)",
-      "date": "2026-07-05",
-      "start_time": "13:00",
-      "end_time": "14:00",
-      "category": "PHOTOCARD",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
-      "members": [
-        {
-          "name": "Freya Jayawardana"
-        },
-        {
-          "name": "Greesella Adhalia"
-        },
-        {
-          "name": "Gita Sekar Andarini"
-        },
-        {
-          "name": "Marsha Lenathea"
-        },
-        {
-          "name": "Jesslyn Elly"
-        },
-        {
-          "name": "Helisma Putri"
-        },
-        {
-          "name": "Oline Manuel"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 6"
-      ],
-      "tickets_sold_eli": [
-        41
-      ],
-      "eli_remaining": [
-        179
-      ],
-      "sold_out": false,
-      "remaining_total": 179,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/exa340-04072026"
-    },
-    {
-      "kind": "EXCLUSIVE",
-      "schedule_id": 959,
-      "code": "EXA340",
-      "title": "Team Love & Team Dream, Meet and Greet Yogyakarta (Sesi 2 (DREAM) · 05/07)",
-      "date": "2026-07-05",
-      "start_time": "14:00",
-      "end_time": "15:00",
-      "category": "PHOTOCARD",
-      "team": null,
-      "venue": "JKT48 Personal M&G Festival",
-      "members": [
-        {
-          "name": "Freya Jayawardana"
-        },
-        {
-          "name": "Greesella Adhalia"
-        },
-        {
-          "name": "Gita Sekar Andarini"
-        },
-        {
-          "name": "Marsha Lenathea"
-        },
-        {
-          "name": "Jesslyn Elly"
-        },
-        {
-          "name": "Helisma Putri"
-        },
-        {
-          "name": "Oline Manuel"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 6"
-      ],
-      "tickets_sold_eli": [
-        162
-      ],
-      "eli_remaining": [
-        58
-      ],
-      "sold_out": false,
-      "remaining_total": 58,
-      "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/exa340-04072026"
     },
     {
       "kind": "SHOW",
