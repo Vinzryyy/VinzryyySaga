@@ -812,7 +812,7 @@ const HomePage = () => {
               out by parallax. Parallax intensity halved so the image
               barely shifts on scroll, keeping face locked in view. */}
           <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[3/4] rounded-sm overflow-hidden img-shine">
+            <div className="relative aspect-[2/3] rounded-sm overflow-hidden img-shine">
               <img
                 src={eli.portrait}
                 alt={about.portraitAlt}
