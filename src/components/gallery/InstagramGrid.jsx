@@ -14,6 +14,7 @@
  */
 
 import React, { memo, useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { gsap } from 'gsap';
 import { useGallery } from '../../context';
 import { useLightbox } from '../../context/LightboxContext';
 import { SITE_CONFIG } from '../../config/siteConfig';
@@ -132,6 +133,30 @@ const InstagramGrid = memo(function InstagramGrid() {
   const [isAppending, setIsAppending] = useState(false);
   const sentinelRef = useRef(null);
   const appendTimeoutRef = useRef(null);
+  const gridRef = useRef(null);
+  const hasAnimatedRef = useRef(false);
+
+  // Stagger-animate the first batch of thumbnails once data arrives.
+  // hasAnimatedRef prevents re-triggering on filter changes.
+  useEffect(() => {
+    if (isLoading || hasAnimatedRef.current || !gridRef.current) return;
+    hasAnimatedRef.current = true;
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const items = gridRef.current?.querySelectorAll('[role="listitem"]');
+      if (!items?.length) return;
+      gsap.from(items, {
+        opacity: 0,
+        scale: 0.88,
+        duration: 0.45,
+        ease: 'power2.out',
+        stagger: 0.018,
+        delay: 0.85,
+        clearProps: 'opacity,scale,transform',
+      });
+    });
+    return () => mm.revert();
+  }, [isLoading]);
 
   useEffect(() => {
     setVisibleCount(INITIAL_COUNT);
@@ -207,7 +232,7 @@ const InstagramGrid = memo(function InstagramGrid() {
   }
 
   return (
-    <div className="relative">
+    <div ref={gridRef} className="relative">
       <div
         className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-[2px] sm:gap-[3px]"
         role="list"

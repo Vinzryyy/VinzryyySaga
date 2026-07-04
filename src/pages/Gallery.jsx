@@ -9,7 +9,8 @@
  *   InstagramGrid (3-5 col square thumbs)
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 import { useParams } from 'react-router-dom';
 import { useGallery } from '../context';
 import ArchiveProfileHeader from '../components/gallery/ArchiveProfileHeader';
@@ -21,6 +22,25 @@ import Seo from '../components/Seo';
 const GalleryPage = () => {
   const { eras, setEraFilter } = useGallery();
   const { year } = useParams();
+  const headerRef = useRef(null);
+  const filterRef = useRef(null);
+
+  // Entrance animation — header fades up, then filterbar slides in.
+  // Skipped automatically when prefers-reduced-motion is set.
+  useEffect(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      if (headerRef.current) {
+        tl.from(headerRef.current, { opacity: 0, y: 24, duration: 0.75 });
+      }
+      if (filterRef.current) {
+        tl.from(filterRef.current, { opacity: 0, y: -12, duration: 0.45 }, '-=0.35');
+      }
+      return () => tl.kill();
+    });
+    return () => mm.revert();
+  }, []);
 
   // Sync the era filter to whatever year is in the URL. `/gallery` (no
   // year) clears to "all"; `/gallery/2025` sets it to that era.
@@ -69,11 +89,15 @@ const GalleryPage = () => {
       {/* All page content sits above the decorative layer. */}
       <div className="relative z-10">
         {/* Profile bar — IG-style header with avatar, handle, stats, bio. */}
-        <ArchiveProfileHeader />
+        <div ref={headerRef}>
+          <ArchiveProfileHeader />
+        </div>
 
         {/* Sticky filter bar — era pills + event search. Sits right under
             the profile header so filtering stays one tap away. */}
-        <FilterBar />
+        <div ref={filterRef}>
+          <FilterBar />
+        </div>
 
         {/* IG-style square photo grid */}
         <section className="px-1 sm:px-2 md:px-4 lg:px-6 pb-12 md:pb-16">
