@@ -94,6 +94,9 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
   const petalWrapRef = useRef(null);
   const petalRefs    = useRef([]);
   const titleRef     = useRef(null);
+  const lineLeftRef  = useRef(null);
+  const lineDotRef   = useRef(null);
+  const lineRightRef = useRef(null);
   const subtitleRef  = useRef(null);
   const btnRef       = useRef(null);
   const skipRef      = useRef(null);
@@ -106,6 +109,7 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
     gsap.set(bgRef.current, { backgroundColor: C.cream });
     gsap.set(treeRef.current, { opacity: 0 });
     gsap.set([titleRef.current, subtitleRef.current, btnRef.current], { opacity: 1 });
+    gsap.set([lineLeftRef.current, lineRightRef.current, lineDotRef.current], { opacity: 0.75 });
     gsap.set(skipRef.current, { opacity: 0 });
   }, [prefersReducedMotion]);
 
@@ -276,12 +280,33 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
         4.35,
       );
 
+      // ornament lines extend from center outward after title lands
+      gsap.set([lineLeftRef.current, lineRightRef.current, lineDotRef.current], { opacity: 0 });
+      tl.fromTo(
+        lineLeftRef.current,
+        { scaleX: 0, opacity: 0.75, transformOrigin: 'right center' },
+        { scaleX: 1, opacity: 0.75, duration: 0.5, ease: 'power2.out' },
+        4.85,
+      );
+      tl.fromTo(
+        lineRightRef.current,
+        { scaleX: 0, opacity: 0.75, transformOrigin: 'left center' },
+        { scaleX: 1, opacity: 0.75, duration: 0.5, ease: 'power2.out' },
+        4.85,
+      );
+      tl.fromTo(
+        lineDotRef.current,
+        { opacity: 0, scale: 0 },
+        { opacity: 0.9, scale: 1, duration: 0.3, ease: 'back.out(2)' },
+        5.1,
+      );
+
       // subtitle
       tl.fromTo(
         subtitleRef.current,
         { opacity: 0, y: 7 },
         { opacity: 1, y: 0, duration: 0.45, ease: 'sine.out' },
-        4.8,
+        5.2,
       );
 
       // masuk button
@@ -289,11 +314,11 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
         btnRef.current,
         { opacity: 0, y: 5 },
         { opacity: 1, y: 0, duration: 0.4, ease: 'sine.out' },
-        5.15,
+        5.55,
       );
 
       // skip fades out (button takes over)
-      tl.to(skipRef.current, { opacity: 0, duration: 0.3 }, 5.0);
+      tl.to(skipRef.current, { opacity: 0, duration: 0.3 }, 5.4);
     }, wrapRef);
 
     return () => ctx.revert();
@@ -486,6 +511,25 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
         >
           Harmoni Kebaikan
         </h1>
+
+        {/* ornament lines — extend after title stamps in */}
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <div
+            ref={lineLeftRef}
+            className="h-px w-14 sm:w-20"
+            style={{ backgroundColor: C.gold, opacity: 0 }}
+          />
+          <div
+            ref={lineDotRef}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: C.gold, opacity: 0 }}
+          />
+          <div
+            ref={lineRightRef}
+            className="h-px w-14 sm:w-20"
+            style={{ backgroundColor: C.gold, opacity: 0 }}
+          />
+        </div>
 
         <p
           ref={subtitleRef}
