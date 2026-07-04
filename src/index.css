@@ -19,10 +19,17 @@
   --retro-brown-dark: #5C4A3A;
   
   /* Accent Colors - Muted Vintage Gold & Burgundy */
-  --retro-gold: #C9A961;
-  --retro-gold-light: #E5C575;
-  --retro-burgundy: #8B4040;
-  --retro-burgundy-light: #A95050;
+  /* Arah A (2026-07-04): gold warmed from #C9A961 (olive cast) → #C8952A (amber);
+     burgundy deepened from #8B4040 (brownish) → #7C2D34 (richer crimson).
+     Light variants re-derived to stay in family. */
+  --retro-gold: #C8952A;
+  --retro-gold-light: #DFAE42;
+  --retro-burgundy: #7C2D34;
+  --retro-burgundy-light: #9E3E4A;
+
+  /* Parchment — new mid-tone between cream-dark and sepia.
+     Use for featured card backgrounds, callout surfaces. */
+  --retro-parchment: #F0D5A0;
   
   /* Text Colors - Darker Brown-ish */
   --retro-text-primary: #3D342B;
@@ -33,7 +40,7 @@
   /* Background Colors - Cream & Sepia */
   --retro-bg-primary: #FDF6E3;
   --retro-bg-secondary: #F5E6C8;
-  --retro-bg-tertiary: #EBD9A8;
+  --retro-bg-tertiary: var(--retro-parchment);
   --retro-bg-dark: #3D342B;
   
   /* Borders & Shadows - Subtle */
