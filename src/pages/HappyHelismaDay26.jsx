@@ -27,6 +27,7 @@ import { isFirebaseConfigured } from '../lib/firebase';
 import { KEBAIKAN_CATEGORIES, KEBAIKAN_ENTRIES, getKebaikanStats } from '../data/galeriKebaikan';
 import HarmoniFlipbook from '../components/harmoni/HarmoniFlipbook';
 import VideotronDisplay from '../components/harmoni/VideotronDisplay';
+import HarmoniKebaikanIntro from '../components/harmoni/HarmoniKebaikanIntro';
 
 /* ------------------------------------------------------------------ */
 /*  Countdown hook — retained for pre-birthday fallback               */
@@ -169,6 +170,9 @@ const CountdownPage = () => {
   const config = SITE_CONFIG.countdown;
   const { days, hours, minutes, seconds, isComplete } = useCountdown(config.targetIso);
 
+  /* ---- intro — plays on every page load (no session gate) ---- */
+  const [introPlayed, setIntroPlayed] = useState(false);
+
   /* ---- Firebase live data ---- */
   const [wishCount, setWishCount] = useState(0);
   const [wishes, setWishes] = useState([]);
@@ -273,7 +277,7 @@ const CountdownPage = () => {
               scrollTrigger: {
                 trigger: el,
                 start: 'top bottom-=80',
-                toggleActions: 'play none none reverse',
+                once: true,
               },
             });
           });
@@ -292,6 +296,10 @@ const CountdownPage = () => {
       id="countdown"
       className="bg-[color:var(--retro-bg-primary)] overflow-x-hidden"
     >
+      {!introPlayed && (
+        <HarmoniKebaikanIntro onComplete={() => setIntroPlayed(true)} />
+      )}
+
       <FloatingPetals />
       <Seo
         title="Rekap Seitansai ke-26 Ceu Eli"
