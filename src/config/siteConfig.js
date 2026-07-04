@@ -331,7 +331,7 @@ export const SITE_CONFIG = {
     origin: 'Bandung',
     catchphrase:
       'Bagai Lembayung Senja, Dengan Energi Kegembiraan ku aku akan menghangatkan suasana.',
-    portrait: '/archive/img-364.webp',
+    portrait: '/archive/img-345.webp',
     // Eli's official social / live-streaming handles. Rendered in the
     // "Profil Singkat" (Data Eli) section on Home as inline icon
     // links. To add more (Instagram, TikTok, etc), append to this
