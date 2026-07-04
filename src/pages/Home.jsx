@@ -78,22 +78,6 @@ const GalleryCountBadge = ({ total, trigger }) => {
   return <>{count}+ Frame</>;
 };
 
-// Animated stat pill — counts up from 0 to value when visible.
-const StatPill = ({ value, suffix = '', label, trigger, delay = 0 }) => {
-  const count = useCountUp(value, trigger, 1200 + delay);
-  return (
-    <div className="flex flex-col items-center gap-1 px-4 py-3 rounded-2xl bg-[color:var(--retro-cream-dark)] border border-[color:var(--retro-brown-dark)]/10">
-      <span
-        className="font-header text-2xl sm:text-3xl font-black tracking-tighter text-[color:var(--retro-text-primary)] tabular-nums leading-none"
-      >
-        {count.toLocaleString('id-ID')}{suffix}
-      </span>
-      <span className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)]">
-        {label}
-      </span>
-    </div>
-  );
-};
 
 // Derive a year per image — prefer explicit `year` field, fall back to
 // parsing the first 4 chars of `date` (YYYY-MM-DD). Returns null when
@@ -827,7 +811,7 @@ const HomePage = () => {
               top + drop the scale entirely so the face is never pushed
               out by parallax. Parallax intensity halved so the image
               barely shifts on scroll, keeping face locked in view. */}
-          <div className="lg:col-span-5 relative">
+          <div className="lg:col-span-6 relative">
             <div className="relative aspect-[3/4] rounded-sm overflow-hidden img-shine">
               <img
                 src={eli.portrait}
@@ -849,41 +833,16 @@ const HomePage = () => {
           </div>
 
           {/* Editorial fact list */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-6">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">01</span>
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
                 /  {data.eyebrow}
               </span>
             </div>
-            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-8">
+            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
               {data.title}
             </h2>
-
-            {/* Animated stat pills — count up once when section enters view */}
-            <div className="grid grid-cols-3 gap-3 mb-8">
-              <StatPill
-                value={images?.length || 350}
-                suffix="+"
-                label="Frame Arsip"
-                trigger={factsVisible}
-                delay={0}
-              />
-              <StatPill
-                value={eli.careerStats?.theater || 385}
-                suffix="+"
-                label="Theater Show"
-                trigger={factsVisible}
-                delay={150}
-              />
-              <StatPill
-                value={51}
-                suffix=""
-                label="Kartu ArmePack"
-                trigger={factsVisible}
-                delay={300}
-              />
-            </div>
 
             <dl ref={factsRef} className="divide-y divide-[color:var(--retro-brown-dark)]/15 border-y border-[color:var(--retro-brown-dark)]/15">
               {profileFacts.map((fact, idx) => (
