@@ -805,6 +805,13 @@ const HomePage = () => {
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">
         <SectionOrnament />
+        {/* Ghost watermark — magazine-editorial large section number behind content */}
+        <div className="relative overflow-hidden">
+          <span
+            aria-hidden="true"
+            className="absolute -right-4 -top-8 font-header font-black leading-none select-none pointer-events-none text-[color:var(--retro-brown-dark)]/[0.04]"
+            style={{ fontSize: 'clamp(7rem,22vw,19rem)' }}
+          >01</span>
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           {/* Portrait close-up. Source img-364 has Eli's face in the
               upper 5-25% of frame — anchor object-position at the very
@@ -871,11 +878,19 @@ const HomePage = () => {
             </blockquote>
           </div>
         </div>
+        </div>{/* /relative overflow-hidden ghost-watermark wrapper */}
       </Section>
 
       {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
       <Section id="about-preview" padding="xl">
         <SectionOrnament />
+        {/* Ghost watermark */}
+        <div className="relative overflow-hidden">
+          <span
+            aria-hidden="true"
+            className="absolute -left-4 -top-8 font-header font-black leading-none select-none pointer-events-none text-[color:var(--retro-brown-dark)]/[0.04]"
+            style={{ fontSize: 'clamp(7rem,22vw,19rem)' }}
+          >02</span>
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Portrait — element-relative parallax centered on the section's
               viewport position so the image doesn't drift off-frame before
@@ -938,6 +953,7 @@ const HomePage = () => {
             </Link>
           </div>
         </div>
+        </div>{/* /relative overflow-hidden ghost-watermark wrapper */}
       </Section>
 
       {/* GALLERY ELI — bento mosaic with feature tile + integrated CTA cell */}

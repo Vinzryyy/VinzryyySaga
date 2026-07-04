@@ -98,6 +98,25 @@ body {
   font-variation-settings: "opsz" 144, "SOFT" 50;
 }
 
+/* Paper dot-grid texture — applied via .bg-paper on cream sections.
+   1 px dots at 28 px spacing register as delicate texture rather than
+   a visible grid at normal zoom; subtle enough on retina, readable on
+   standard-dpi screens at the chosen opacity. */
+.bg-paper {
+  background-color: var(--retro-bg-primary);
+  background-image: radial-gradient(circle, rgba(92, 74, 58, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Gradient variant — sepia fade top→mid→top + same dot grid layered on top */
+.bg-paper-gradient {
+  background-color: var(--retro-bg-secondary);
+  background-image:
+    radial-gradient(circle, rgba(92, 74, 58, 0.065) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--retro-bg-primary), var(--retro-bg-secondary), var(--retro-bg-primary));
+  background-size: 28px 28px, auto;
+}
+
 /* Retro Film Grain Overlay Effect */
 .retro-grain {
   position: relative;

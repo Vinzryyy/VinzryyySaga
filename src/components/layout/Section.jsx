@@ -19,9 +19,9 @@ const Section = ({
   });
 
   const backgroundClasses = {
-    default: 'bg-[color:var(--retro-bg-primary)]',
+    default: 'bg-paper',
     dark: 'bg-[color:var(--retro-bg-dark)]',
-    gradient: 'bg-gradient-to-b from-[color:var(--retro-bg-primary)] via-[color:var(--retro-bg-secondary)] to-[color:var(--retro-bg-primary)]',
+    gradient: 'bg-paper-gradient',
     transparent: 'bg-transparent',
   };
 
