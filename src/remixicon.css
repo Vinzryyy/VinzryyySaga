@@ -14,8 +14,10 @@
  * declaration wins (browsers use the last matching @font-face).
  */
 
-/* Pull in all icon unicode mappings from the upstream package */
-@import "../node_modules/remixicon/fonts/remixicon.css";
+/* Icon unicode mappings only — no @font-face url() references.
+   Generated from node_modules/remixicon/fonts/remixicon.css with the
+   @font-face block stripped so Vite doesn't bundle legacy font formats. */
+@import "./remixicon-icons.css";
 
 /* Override @font-face to use WOFF2-only (strips ~3MB of legacy font formats) */
 @font-face {

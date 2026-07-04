@@ -1080,7 +1080,7 @@ const HomePage = () => {
               to="/armepack"
               className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-opacity flex-shrink-0"
             >
-              <i className="ri-cards-line text-base" />
+              <i className="ri-coupon-3-line text-base" />
               <span>Buka Pack</span>
               <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
             </Link>

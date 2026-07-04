@@ -609,7 +609,7 @@ const IDLE_LINKS = [
   },
   {
     to: '/armepack',
-    icon: 'ri-cards-line',
+    icon: 'ri-coupon-3-line',
     label: 'ArmePack',
     sub: '3 kartu harian menunggu',
   },
