@@ -43,7 +43,15 @@ const C = {
 /* ─── tree geometry ─────────────────────────────────────────────── */
 // ViewBox: 0 0 200 280. Trunk rises from bottom-center; 5 branches
 // spread to different heights; 6 foliage blobs cluster at tips.
+// Roots spread downward from trunk base, drawn simultaneously with trunk.
 const TRUNK_D = 'M 100 262 C 98 235 102 205 100 168';
+
+const ROOTS = [
+  { d: 'M 100 262 C 88 268 70 272 53 275', w: 3 },   // left main root
+  { d: 'M 100 262 C 112 268 130 272 147 275', w: 3 }, // right main root
+  { d: 'M 100 262 C 84 271 60 277 42 279', w: 2 },    // left deep root
+  { d: 'M 100 262 C 116 271 140 277 158 279', w: 2 }, // right deep root
+];
 
 const BRANCHES = [
   { d: 'M 100 200 C 85 192 68 178 52 164', w: 5 },   // left main
@@ -78,6 +86,7 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
   const dustRefs     = useRef([]);
   const treeRef      = useRef(null);
   const trunkRef     = useRef(null);
+  const rootRefs     = useRef([]);
   const branchRefs   = useRef([]);
   const foliageRefs  = useRef([]);
   const flashRef     = useRef(null);
@@ -106,8 +115,9 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
     const ctx = gsap.context(() => {
       /* set up stroke-dashoffset drawing */
       const trunk = trunkRef.current;
+      const roots = rootRefs.current.filter(Boolean);
       const branches = branchRefs.current.filter(Boolean);
-      [trunk, ...branches].filter(Boolean).forEach((path) => {
+      [trunk, ...roots, ...branches].filter(Boolean).forEach((path) => {
         const len = path.getTotalLength();
         gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
       });
@@ -156,6 +166,14 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
       tl.to(skipRef.current, { opacity: 0.55, duration: 0.5 }, 0.9);
 
       /* ── Phase 2: Tumbuh (0.5 – 3.1s) ── */
+      // roots spread downward simultaneously with trunk
+      tl.to(roots, {
+        strokeDashoffset: 0,
+        duration: 0.5,
+        ease: 'power1.inOut',
+        stagger: 0.07,
+      }, 0.5);
+
       // trunk draws upward
       tl.to(trunk, {
         strokeDashoffset: 0,
@@ -370,6 +388,20 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
           xmlns="http://www.w3.org/2000/svg"
           overflow="visible"
         >
+          {/* roots — draw downward from trunk base, same time as trunk */}
+          {ROOTS.map((r, i) => (
+            <path
+              key={i}
+              ref={(el) => { rootRefs.current[i] = el; }}
+              d={r.d}
+              stroke={C.brown}
+              fill="none"
+              strokeWidth={r.w}
+              strokeLinecap="round"
+              opacity={0.7}
+            />
+          ))}
+
           {/* trunk */}
           <path
             ref={trunkRef}
