@@ -60,7 +60,9 @@ import MiracleStreetLamps from '../components/taman/peta/MiracleStreetLamps';
 import JapaneseFestivalDecor from '../components/taman/peta/JapaneseFestivalDecor';
 import GroundDetails from '../components/taman/peta/GroundDetails';
 import FallingLeaves from '../components/taman/peta/FallingLeaves';
+import { gsap } from 'gsap';
 import { playSfx } from '../lib/townSfx';
+import MilestoneRevealCard from '../components/taman/peta/MilestoneRevealCard';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -113,6 +115,81 @@ const MAP_THRESHOLDS = {
   airMancurT4: 6000,
   airMancurT5: 7500,
   airMancurT6: 10000,
+};
+
+// Milestone reveals — shown once per session when count crosses threshold.
+// Each entry: { threshold, title, eyebrow, desc, accent, icon }
+const MILESTONE_REVEALS = [
+  {
+    threshold: 3000,
+    title: 'Menara Jam Terbit',
+    eyebrow: 'Petak baru terbuka',
+    desc: 'Menara di sudut utara kota mulai berdetak kembali. Kamu bisa mengunjunginya sekarang.',
+    accent: '#c8a870',
+    icon: 'ri-time-line',
+  },
+  {
+    threshold: 4000,
+    title: 'Konstelasi Menyala',
+    eyebrow: 'Petak baru terbuka',
+    desc: 'Bintang-bintang di langit Lorong Pohon kini membentuk pola. Telaga Harapan juga mulai bisa diakses.',
+    accent: '#9890d0',
+    icon: 'ri-star-line',
+  },
+  {
+    threshold: 4500,
+    title: 'Panggung Sorotan Terbuka',
+    eyebrow: 'Petak baru terbuka',
+    desc: 'Cahaya pertama menerangi panggung terbuka di sudut tenggara kota.',
+    accent: '#e8a870',
+    icon: 'ri-spotlight-line',
+  },
+  {
+    threshold: 5000,
+    title: 'Perpustakaan Terbuka',
+    eyebrow: 'Dua petak berubah',
+    desc: 'Pintu Perpustakaan kembali bisa dimasuki. Menara Jam juga telah dipulihkan sepenuhnya.',
+    accent: '#a07840',
+    icon: 'ri-book-open-line',
+  },
+  {
+    threshold: 7000,
+    title: 'Kota Telah Pulih',
+    eyebrow: 'Pemulihan penuh',
+    desc: 'Semua petak telah dipulihkan. ArmeniacaTown hidup kembali — terima kasih sudah di sini.',
+    accent: '#e8d070',
+    icon: 'ri-plant-line',
+  },
+  {
+    threshold: 9700,
+    title: 'Mercusuar Armeniaca',
+    eyebrow: 'Fase legenda',
+    desc: '"Pohon mulai memancarkan cahayanya... dulu mereka panggil Pohon ini Mercusuar Armeniaca."',
+    accent: '#f8e870',
+    icon: 'ri-flashlight-line',
+  },
+  {
+    threshold: 10000,
+    title: 'Armeniaca — Warisan',
+    eyebrow: 'Puncak kota',
+    desc: 'Kota mencapai fase legenda. Mercusuar ini akan terus bersinar, lama setelah kamu pergi.',
+    accent: '#f0c840',
+    icon: 'ri-award-line',
+  },
+];
+
+const MILESTONE_SESSION_KEY = 'armeniaca-milestones-shown';
+const readShownMilestones = () => {
+  try {
+    return new Set(JSON.parse(sessionStorage.getItem(MILESTONE_SESSION_KEY) || '[]'));
+  } catch {
+    return new Set();
+  }
+};
+const writeShownMilestones = (set) => {
+  try {
+    sessionStorage.setItem(MILESTONE_SESSION_KEY, JSON.stringify([...set]));
+  } catch { /* blocked */ }
 };
 
 const useArmeniacaProgress = () => {
@@ -16711,6 +16788,13 @@ const TamanPetaPage = () => {
   const { count: armeniacaCount, loaded: armeniacaLoaded } =
     useArmeniacaProgress();
   const [hoveredPetakId, setHoveredPetakId] = useState(null);
+  const [fadingOut, setFadingOut] = useState(false);
+  const [milestoneReveal, setMilestoneReveal] = useState(null);
+  const fadeOverlayRef = useRef(null);
+  // Milestone reveal detection — prev count ref initialized after first
+  // Firebase load so we don't trigger reveals for pre-existing count.
+  const prevCountRef = useRef(null);
+  const milestoneInitRef = useRef(false);
   const [hoveredCenter, setHoveredCenter] = useState(false);
   const [hoveredGerbang, setHoveredGerbang] = useState(false);
   const [hoveredLorong, setHoveredLorong] = useState(false);
@@ -16755,6 +16839,31 @@ const TamanPetaPage = () => {
       return next;
     });
   }, []);
+
+  // Milestone reveal detection — fires once per session when armeniacaCount
+  // crosses a MILESTONE_REVEALS threshold while user is on this page.
+  // On first Firebase load, sets baseline without triggering any reveals.
+  useEffect(() => {
+    if (!armeniacaLoaded) return;
+    if (!milestoneInitRef.current) {
+      milestoneInitRef.current = true;
+      prevCountRef.current = armeniacaCount;
+      return;
+    }
+    const prev = prevCountRef.current ?? armeniacaCount;
+    if (armeniacaCount > prev) {
+      const shown = readShownMilestones();
+      for (const ms of MILESTONE_REVEALS) {
+        if (prev < ms.threshold && armeniacaCount >= ms.threshold && !shown.has(ms.threshold)) {
+          shown.add(ms.threshold);
+          writeShownMilestones(shown);
+          setMilestoneReveal(ms);
+          break; // one at a time
+        }
+      }
+    }
+    prevCountRef.current = armeniacaCount;
+  }, [armeniacaCount, armeniacaLoaded]);
 
   // Purified — full city restoration (count >= 7000). Diteruskan ke
   // AmbientAudio (swell + shimmer) di samping dipakai di scene.
@@ -17235,7 +17344,19 @@ const TamanPetaPage = () => {
       writePreviewed(next);
       return next;
     });
-    navigate(route);
+    // Fade to black before navigating — TownPageFade in the room page
+    // fades in from black, producing a smooth cross-dissolve.
+    setFadingOut(true);
+    const el = fadeOverlayRef.current;
+    if (el) {
+      gsap.fromTo(
+        el,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.45, ease: 'power2.in', onComplete: () => navigate(route) },
+      );
+    } else {
+      setTimeout(() => navigate(route), 450);
+    }
   };
 
   return (
@@ -17389,6 +17510,22 @@ const TamanPetaPage = () => {
         />
         <AmbientAudio position="top-right" />
         <RotateRecommendation />
+        {/* Milestone reveal — fades in over semi-dark overlay when
+            armeniacaCount crosses a key threshold. Session-gated. */}
+        <MilestoneRevealCard
+          milestone={milestoneReveal}
+          onClose={() => setMilestoneReveal(null)}
+        />
+        {/* Fade-to-black overlay for peta→room transition. Triggered
+            by handlePetakPreviewConfirm; GSAP animates opacity 0→1,
+            then navigate fires. Room page's TownPageFade fades back. */}
+        {fadingOut && (
+          <div
+            ref={fadeOverlayRef}
+            className="pointer-events-none fixed inset-0 z-[999] bg-black"
+            aria-hidden="true"
+          />
+        )}
         {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
             via CompassTracker (useFrame ref-mutation, no React re-render). */}
         <div className="pointer-events-none absolute bottom-6 right-4 md:bottom-8 md:right-6 z-10 w-12 h-12 md:w-14 md:h-14">

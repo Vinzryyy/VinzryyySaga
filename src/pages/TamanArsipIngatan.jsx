@@ -42,6 +42,7 @@ import * as THREE from 'three';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
+import TownPageFade from '../components/taman/TownPageFade';
 import { useIsMobile } from '../components/taman/r3/utils';
 import {
   ARSIP_BOOKS,
@@ -5113,6 +5114,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
 
         <ArsipIntroTitle />
         <AmbientAudio position="bottom-right" />
+        <TownPageFade />
         <PerpustakaanMusic />
         <RotateRecommendation />
       </div>

@@ -39,6 +39,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
+import TownPageFade from '../components/taman/TownPageFade';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { useIsMobile } from '../components/taman/r3/utils';
 import { ELI_TIMELINE } from '../data/eliProfile';
@@ -634,6 +635,7 @@ const TamanLorongPohonPage = () => {
         />
         <AmbientAudio position="top-right" />
         <RotateRecommendation />
+        <TownPageFade />
         {perfEnabled && <PerfHUD statsRef={perfFpsRef} />}
       </div>
     </>
