@@ -15307,6 +15307,7 @@ const TamanScene = ({
   purifyProgress = 0,
   postLegacyProgress = 0,
   compassRotateRef,
+  resetCameraRef,
   onFlyInComplete,
   onPetakHover,
   onPetakOut,
@@ -15342,6 +15343,15 @@ const TamanScene = ({
   const controlsRef = useRef();
   const idleTimerRef = useRef();
   const [autoRotate, setAutoRotate] = useState(false);
+
+  // Expose OrbitControls.reset() to parent via resetCameraRef so the
+  // HTML reset button (outside Canvas) can snap camera back.
+  useEffect(() => {
+    if (!resetCameraRef) return undefined;
+    resetCameraRef.current = () => { controlsRef.current?.reset(); };
+    return () => { resetCameraRef.current = null; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Pause auto-rotate kalau user lagi hover petak — kerasa weird kalau
   // kamera bergerak sambil user fokus baca label.
   const userIsHovering =
@@ -16792,6 +16802,14 @@ const TamanPetaPage = () => {
   const [fadingOut, setFadingOut] = useState(false);
   const [milestoneReveal, setMilestoneReveal] = useState(null);
   const fadeOverlayRef = useRef(null);
+  // Exposed by TamanScene so the HTML reset button can call
+  // OrbitControls.reset() without needing a ref to the R3F tree.
+  const resetCameraRef = useRef(null);
+  // Gesture hint — mobile-only, session-gated, auto-dismisses after 4s.
+  const [gestureHintVisible, setGestureHintVisible] = useState(() => {
+    try { return !sessionStorage.getItem('armeniaca-peta-gesture'); }
+    catch { return false; }
+  });
   // Milestone reveal detection — prev count ref initialized after first
   // Firebase load so we don't trigger reveals for pre-existing count.
   const prevCountRef = useRef(null);
@@ -16865,6 +16883,16 @@ const TamanPetaPage = () => {
     }
     prevCountRef.current = armeniacaCount;
   }, [armeniacaCount, armeniacaLoaded]);
+
+  // Gesture hint auto-dismiss — 4s after fly-in settles on mobile.
+  useEffect(() => {
+    if (!isMobile || !gestureHintVisible || flyInActive) return undefined;
+    const id = setTimeout(() => {
+      setGestureHintVisible(false);
+      try { sessionStorage.setItem('armeniaca-peta-gesture', '1'); } catch {}
+    }, 4000);
+    return () => clearTimeout(id);
+  }, [isMobile, gestureHintVisible, flyInActive]);
 
   // Purified — full city restoration (count >= 7000). Diteruskan ke
   // AmbientAudio (swell + shimmer) di samping dipakai di scene.
@@ -17412,6 +17440,7 @@ const TamanPetaPage = () => {
               purifyProgress={purifyProgress}
               postLegacyProgress={postLegacyProgress}
               compassRotateRef={compassRotateRef}
+              resetCameraRef={resetCameraRef}
               onFlyInComplete={handleFlyInComplete}
               onPetakHover={handlePetakHover}
               onPetakOut={handlePetakOut}
@@ -17527,6 +17556,32 @@ const TamanPetaPage = () => {
             className="pointer-events-none fixed inset-0 z-[999] bg-black"
             aria-hidden="true"
           />
+        )}
+        {/* Gesture hint — mobile-only, session-gated, auto-dismisses.
+            Shows "Seret untuk putar · Cubit untuk zoom" for 4s after
+            fly-in completes. Hidden when any modal is open. */}
+        {isMobile && gestureHintVisible && !flyInActive && !petakPreview && (
+          <div className="pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm ring-1 ring-white/15 text-white/65 text-[9px] uppercase tracking-[0.2em] whitespace-nowrap">
+              <i className="ri-drag-move-fill text-xs opacity-60" />
+              <span>Seret untuk putar</span>
+              <span className="text-white/25">·</span>
+              <span>Cubit untuk zoom</span>
+            </div>
+          </div>
+        )}
+        {/* Camera reset button — snaps OrbitControls back to default
+            isometric position. Hidden during fly-in and when modal open. */}
+        {!flyInActive && !petakPreview && (
+          <button
+            type="button"
+            onClick={() => resetCameraRef.current?.()}
+            className="pointer-events-auto absolute bottom-6 left-4 md:bottom-8 md:left-6 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/35 backdrop-blur-sm ring-1 ring-white/15 flex items-center justify-center text-white/50 hover:text-white/85 hover:bg-black/50 transition"
+            title="Reset posisi kamera"
+            aria-label="Reset posisi kamera"
+          >
+            <i className="ri-focus-3-line text-base" />
+          </button>
         )}
         {/* Compass widget — N selalu tunjuk world -Z direction. Rotates
             via CompassTracker (useFrame ref-mutation, no React re-render). */}
