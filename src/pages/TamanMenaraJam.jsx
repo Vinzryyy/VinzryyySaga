@@ -49,6 +49,7 @@ import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import TownPageFade from '../components/taman/TownPageFade';
+import PetakQuickNav from '../components/taman/PetakQuickNav';
 import MenaraJamMusic from '../components/taman/r4/MenaraJamMusic';
 import { useIsMobile } from '../components/taman/r4/utils';
 import {
@@ -139,6 +140,7 @@ const TamanMenaraJamPage = ({ restored = false }) => {
         <Header restored={restored} />
         {restored ? <AlmanakCard /> : <CountdownChip />}
         <TimePill restored={restored} />
+        <PetakQuickNav currentId="r4" />
       </div>
     </>
   );

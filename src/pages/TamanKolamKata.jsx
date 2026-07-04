@@ -57,6 +57,7 @@ import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import TownPageFade from '../components/taman/TownPageFade';
+import PetakQuickNav from '../components/taman/PetakQuickNav';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import {
   RIVER_WIDTH,
@@ -5797,6 +5798,7 @@ const TamanKolamKataPage = () => {
         <AmbientAudio position="top-right" />
         <RotateRecommendation />
         <TownPageFade />
+        <PetakQuickNav currentId="r3" />
         {/* Skip intro button — click anywhere during cinematic lerp
             atau press dedicated button untuk fast-forward. UX win:
             user yang udah pernah liat intro gak harus nunggu 3.5s. */}

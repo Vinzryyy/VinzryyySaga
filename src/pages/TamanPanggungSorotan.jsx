@@ -35,6 +35,7 @@ import Seo from '../components/Seo';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import TownPageFade from '../components/taman/TownPageFade';
+import PetakQuickNav from '../components/taman/PetakQuickNav';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import {
   KEBAIKAN_CATEGORIES,
@@ -3375,6 +3376,7 @@ const TamanPanggungSorotan = ({ restored = false }) => {
         <FooterHint entriesCount={KEBAIKAN_ENTRIES.length} restored={restored} />
         <AmbientAudio position="top-right" />
         <TownPageFade />
+        <PetakQuickNav currentId="r5" />
         <DonationOverlay
           entry={selectedEntry}
           onClose={handleOverlayClose}
