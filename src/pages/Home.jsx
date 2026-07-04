@@ -24,6 +24,8 @@ import NewsStrip from '../components/home/NewsStrip';
 import QuoteOfTheDayStrip from '../components/home/QuoteOfTheDayStrip';
 import AnnouncementPopup from '../components/home/AnnouncementPopup';
 import VideotronPopup from '../components/home/VideotronPopup';
+import StatsStrip from '../components/home/StatsStrip';
+import CareerTimeline from '../components/home/CareerTimeline';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -802,6 +804,13 @@ const HomePage = () => {
       </Section>
 
 
+      {/* STATS STRIP — dark band with count-up numbers bridging the announcement
+          zone above and the editorial profile sections below. */}
+      <StatsStrip
+        frameCount={images?.length || 0}
+        theaterCount={eli.careerStats?.theater || 385}
+      />
+
       {/* DATA ELI — editorial spread (portrait left, vertical fact list right) */}
       <Section id="data" padding="xl">
         <SectionOrnament />
@@ -938,6 +947,13 @@ const HomePage = () => {
             </Link>
           </div>
         </div>
+      </Section>
+
+      {/* CAREER TIMELINE — horizontal scroll milestone strip bridging the
+          About Eli prose section and the Gallery. Pulls curated entries
+          from ELI_TIMELINE so no separate data source is needed. */}
+      <Section id="timeline-preview" padding="xl">
+        <CareerTimeline />
       </Section>
 
       {/* GALLERY ELI — bento mosaic with feature tile + integrated CTA cell */}
