@@ -16321,6 +16321,30 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
 // RTDB tree_support. Show count, threshold next, percent pulih. Bikin
 // user yang udah masuk peta tetep aware sama progress restorasi.
 const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
+  const prevCountRef = useRef(count);
+  const [bump, setBump] = useState(null); // { delta, key } | null
+  const bumpRef = useRef(null);
+
+  // Detect count increase and trigger the float animation.
+  useEffect(() => {
+    if (!loaded) { prevCountRef.current = count; return; }
+    const prev = prevCountRef.current;
+    if (count > prev) setBump({ delta: count - prev, key: Date.now() });
+    prevCountRef.current = count;
+  }, [count, loaded]);
+
+  // GSAP float: "+N" rises and fades when bump is set.
+  useEffect(() => {
+    if (!bump || !bumpRef.current) return undefined;
+    const el = bumpRef.current;
+    const tween = gsap.fromTo(
+      el,
+      { opacity: 1, y: 0 },
+      { opacity: 0, y: -22, duration: 1.4, ease: 'power2.out', onComplete: () => setBump(null) },
+    );
+    return () => tween.kill();
+  }, [bump]);
+
   if (modalOpen || !loaded) return null;
   const fullRestore = MAP_THRESHOLDS.fullRestore;
   const pct = Math.min(100, (count / fullRestore) * 100);
@@ -16367,7 +16391,17 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="text-white/85">
+          <span className="relative text-white/85">
+            {bump && (
+              <span
+                ref={bumpRef}
+                key={bump.key}
+                className="pointer-events-none absolute -top-4 left-0 text-emerald-300/90 text-[9px] font-black whitespace-nowrap"
+                aria-hidden="true"
+              >
+                +{bump.delta.toLocaleString('id-ID')}
+              </span>
+            )}
             {count.toLocaleString('id-ID')}
             <span className="text-white/45"> / {fullRestore.toLocaleString('id-ID')} siraman</span>
           </span>
