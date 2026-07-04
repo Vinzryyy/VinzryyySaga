@@ -771,7 +771,7 @@ const WishesPage = () => {
                         onClick={() => shareWishToX(wish)}
                         aria-label="Bagikan ucapan ke X"
                         title="Bagikan ke X"
-                        className="inline-flex items-center justify-center w-7 h-7 rounded-full text-[10px] font-black transition-all shadow-md bg-white/95 backdrop-blur-sm text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-full text-[10px] font-black transition-all shadow-md bg-white/95 backdrop-blur-sm text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] hover:scale-110 active:scale-95 cursor-pointer"
                       >
                         <i className="ri-twitter-x-line text-sm" />
                       </button>
