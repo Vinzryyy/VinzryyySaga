@@ -63,6 +63,7 @@ import FallingLeaves from '../components/taman/peta/FallingLeaves';
 import { gsap } from 'gsap';
 import { playSfx } from '../lib/townSfx';
 import MilestoneRevealCard from '../components/taman/peta/MilestoneRevealCard';
+import TownPageFade from '../components/taman/TownPageFade';
 
 // Threshold restorasi — sinkron dgn App.jsx & Taman.jsx (idealnya
 // di-extract ke shared config nanti). 2000 = gerbang/peta buka,
@@ -17510,6 +17511,7 @@ const TamanPetaPage = () => {
         />
         <AmbientAudio position="top-right" />
         <RotateRecommendation />
+        <TownPageFade />
         {/* Milestone reveal — fades in over semi-dark overlay when
             armeniacaCount crosses a key threshold. Session-gated. */}
         <MilestoneRevealCard

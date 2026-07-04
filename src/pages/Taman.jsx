@@ -40,7 +40,8 @@
  */
 
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { gsap } from 'gsap';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stats } from '@react-three/drei';
@@ -1790,7 +1791,7 @@ const TapHint = ({ visible }) => (
 // Overlay akhir setelah transisi selesai. Untuk Fase 1 (denah belum
 // dibangun), opsi yang ditampilkan: ulangi R0, atau kembali ke beranda.
 // Setelah Fase 2 jadi, ganti jadi auto-navigate ke /museum/denah.
-const ExitOverlay = ({ visible, onRestart }) => (
+const ExitOverlay = ({ visible, onRestart, onNavigatePeta }) => (
   <div
     className={`absolute inset-0 flex items-center justify-center px-4 py-4 sm:py-8 transition-opacity duration-[1500ms] ${
       visible
@@ -1838,12 +1839,13 @@ const ExitOverlay = ({ visible, onRestart }) => (
         Masuk untuk menjelajahi.
       </p>
       <div className="flex flex-col gap-3 justify-center px-6">
-        <Link
-          to="/armeniacaTown/peta"
+        <button
+          type="button"
+          onClick={onNavigatePeta}
           className="px-5 py-3 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition"
         >
           Masuk Peta Taman →
-        </Link>
+        </button>
         <div className="flex gap-3 justify-center">
           <button
             type="button"
@@ -1871,8 +1873,11 @@ const SceneFallback = () => (
 );
 
 const MuseumPage = () => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { unlocked, count, loaded: countLoaded } = useGateUnlock();
+  const fadeOverlayRef = useRef(null);
+  const [fadingOut, setFadingOut] = useState(false);
   // ?clean=1 — sembunyiin semua text overlay (LockedHint, TapHint,
   // OpeningText, OpeningCeremony, ExitOverlay, AmbientAudio button,
   // bottom label, RotateRecommendation, dev Stats). Khusus buat
@@ -1993,6 +1998,25 @@ const MuseumPage = () => {
     setResetTrigger((c) => c + 1);
   };
 
+  const handleNavigatePeta = () => {
+    setFadingOut(true);
+    const el = fadeOverlayRef.current;
+    if (el) {
+      gsap.fromTo(
+        el,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.5,
+          ease: 'power2.in',
+          onComplete: () => navigate('/armeniacaTown/peta'),
+        },
+      );
+    } else {
+      setTimeout(() => navigate('/armeniacaTown/peta'), 500);
+    }
+  };
+
   return (
     <>
       <Seo
@@ -2074,7 +2098,15 @@ const MuseumPage = () => {
             <ExitOverlay
               visible={stage === 'done'}
               onRestart={handleRestart}
+              onNavigatePeta={handleNavigatePeta}
             />
+            {fadingOut && (
+              <div
+                ref={fadeOverlayRef}
+                className="pointer-events-none fixed inset-0 z-[999] bg-black"
+                aria-hidden="true"
+              />
+            )}
             <AmbientAudio position="top-right" />
             {/* Subtle place label di bottom — dev mode tambah stage indicator
                 buat debug. Production cuma label "Gerbang" yg minimal. */}
