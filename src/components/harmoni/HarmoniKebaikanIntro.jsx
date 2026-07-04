@@ -90,6 +90,7 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
   const branchRefs   = useRef([]);
   const foliageRefs  = useRef([]);
   const flashRef     = useRef(null);
+  const rippleRefs   = useRef([]);
   const petalWrapRef = useRef(null);
   const petalRefs    = useRef([]);
   const titleRef     = useRef(null);
@@ -200,6 +201,18 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
       /* ── Phase 3: Mekar (3.1 – 4.6s) ── */
       // dust fades before the flash
       tl.to(dust, { opacity: 0, duration: 0.4, stagger: 0.02 }, 2.9);
+
+      // ripple rings expand outward before the flash peak
+      const ripples = rippleRefs.current.filter(Boolean);
+      gsap.set(ripples, { scale: 0, opacity: 0 });
+      ripples.forEach((el, i) => {
+        tl.fromTo(
+          el,
+          { scale: 0.2, opacity: 0.65 },
+          { scale: 5 + i * 1.8, opacity: 0, duration: 0.75, ease: 'power2.out' },
+          2.75 + i * 0.14,
+        );
+      });
 
       // white flash peaks
       tl.to(flashRef.current, {
@@ -372,6 +385,26 @@ const HarmoniKebaikanIntro = ({ onComplete }) => {
             </div>
           );
         })}
+      </div>
+
+      {/* ripple rings — phase 3, expand outward before flash */}
+      <div
+        className="absolute inset-0 pointer-events-none flex items-center justify-center"
+        aria-hidden="true"
+      >
+        {[C.gold, C.burgundy, C.sepia].map((color, i) => (
+          <div
+            key={i}
+            ref={(el) => { rippleRefs.current[i] = el; }}
+            className="absolute rounded-full"
+            style={{
+              width: 64,
+              height: 64,
+              border: `2px solid ${color}`,
+              opacity: 0,
+            }}
+          />
+        ))}
       </div>
 
       {/* tree SVG — phases 1 & 2 */}
