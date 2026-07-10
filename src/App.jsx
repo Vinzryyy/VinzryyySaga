@@ -12,7 +12,7 @@
  *   target to mount).
  */
 
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import {
   BrowserRouter,
   Routes,
