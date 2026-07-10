@@ -125,12 +125,17 @@ const PageLoader = () => (
   </div>
 );
 
-const ScrollManager = () => {
+const ScrollManager = ({ lenisRef }) => {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    const lenis = lenisRef?.current;
     if (!hash) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Instant jump — the blossom curtain covers the transition so the
+      // user never sees the position snap. Smooth scroll here would cause
+      // the page to drift into position after the curtain reveals it.
+      if (lenis) lenis.scrollTo(0, { immediate: true });
+      else window.scrollTo({ top: 0 });
       return undefined;
     }
     const id = hash.replace('#', '');
@@ -139,11 +144,15 @@ const ScrollManager = () => {
     const tryScroll = () => {
       const el = id ? document.getElementById(id) : null;
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (lenis) lenis.scrollTo(el, { duration: 1.2, offset: -80 });
+        else el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
       }
       if (++attempts < 20) raf = requestAnimationFrame(tryScroll);
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
+      else {
+        if (lenis) lenis.scrollTo(0, { immediate: true });
+        else window.scrollTo({ top: 0 });
+      }
     };
     raf = requestAnimationFrame(tryScroll);
     return () => raf && cancelAnimationFrame(raf);
@@ -384,16 +393,45 @@ const TamanR3RouteChooser = () => {
 };
 
 function AppShell() {
-  // Site-wide birthday overlay — balloons + confetti + sparkles on
-  // every page on 15 Juni 2026 (24-hour window only). After the day
-  // passes, the overlay quietly removes itself; takeover headers /
-  // cake / gift on Countdown stay forever via separate isComplete
-  // checks.
   const isBirthdayToday = useIsBirthdayToday(SITE_CONFIG.countdown.targetIso);
+
+  // Lenis smooth scroll — wired into GSAP ticker so ScrollTrigger
+  // animations stay in sync. Disabled for prefers-reduced-motion.
+  // smoothTouch: false keeps native iOS momentum on touch devices.
+  const lenisRef = useRef(null);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let gsapTicker;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [{ default: Lenis }, { gsap }, { ScrollTrigger }] = await Promise.all([
+          import('lenis'),
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
+        if (cancelled) return;
+        gsap.registerPlugin(ScrollTrigger);
+        const lenis = new Lenis({ duration: 1.2, smoothTouch: false });
+        lenisRef.current = lenis;
+        lenis.on('scroll', ScrollTrigger.update);
+        gsapTicker = (time) => lenis.raf(time * 1000);
+        gsap.ticker.add(gsapTicker);
+        gsap.ticker.lagSmoothing(0);
+      } catch { /* native scroll continues */ }
+    })();
+    return () => {
+      cancelled = true;
+      if (lenisRef.current) { lenisRef.current.destroy(); lenisRef.current = null; }
+      if (gsapTicker) {
+        import('gsap').then(({ gsap }) => gsap.ticker.remove(gsapTicker));
+      }
+    };
+  }, []);
 
   return (
     <>
-      <ScrollManager />
+      <ScrollManager lenisRef={lenisRef} />
       <PageBlossomTransition />
       <PetalBurst />
       <BirthdayCelebration active={isBirthdayToday} />
