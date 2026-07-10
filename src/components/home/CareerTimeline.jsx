@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ELI_TIMELINE } from '../../data/eliProfile';
 import { hashToHref } from '../../utils/routes';
@@ -22,10 +22,70 @@ const CareerTimeline = () => {
     []
   );
 
+  const headerRef = useRef(null);
+  const trackRef  = useRef(null);
+  const stRefs    = useRef([]);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    const track  = trackRef.current;
+    if (!header && !track) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
+        if (cancelled) return;
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Header entrance
+        if (header) {
+          gsap.from(header, {
+            opacity: 0,
+            y: 28,
+            duration: 0.6,
+            ease: 'power2.out',
+            scrollTrigger: { trigger: header, start: 'top 88%', once: true },
+          });
+        }
+
+        // Cards stagger in when the track enters the viewport
+        if (track) {
+          const cols = track.querySelectorAll('.timeline-col');
+          gsap.set(cols, { opacity: 0, y: 32 });
+          stRefs.current.push(
+            ScrollTrigger.create({
+              trigger: track,
+              start: 'top 86%',
+              once: true,
+              onEnter: () =>
+                gsap.to(cols, {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.5,
+                  stagger: 0.055,
+                  ease: 'power2.out',
+                }),
+            })
+          );
+        }
+      } catch { /* GSAP unavailable — render static */ }
+    })();
+
+    return () => {
+      cancelled = true;
+      stRefs.current.forEach((st) => st.kill());
+    };
+  }, [entries.length]);
+
   return (
     <div>
       {/* ── Header ─────────────────────────────────────────────── */}
-      <div className="flex items-end justify-between gap-4 mb-3 md:mb-4">
+      <div ref={headerRef} className="flex items-end justify-between gap-4 mb-3 md:mb-4">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-2">
             Linimasa
@@ -57,7 +117,7 @@ const CareerTimeline = () => {
         <div className="pointer-events-none absolute right-0 top-0 bottom-4 w-14 z-10 bg-gradient-to-l from-[color:var(--retro-bg-primary)] to-transparent" />
 
         <div className="-mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 overflow-x-auto [scrollbar-width:none] [-webkit-overflow-scrolling:touch] [&::-webkit-scrollbar]:hidden pb-6">
-          <div className="flex w-max">
+          <div ref={trackRef} className="flex w-max">
             {entries.map((entry, i) => {
               const isShowMilestone = entry.category === 'show-recap';
               const isFirst = i === 0;
@@ -77,7 +137,7 @@ const CareerTimeline = () => {
                 : 'border-t-[color:var(--retro-burgundy)]/30';
 
               return (
-                <div key={entry.id} className="flex-shrink-0 w-52 sm:w-60 flex items-start">
+                <div key={entry.id} className="timeline-col flex-shrink-0 w-52 sm:w-60 flex items-start">
                   <div className="w-full">
                     {/* Year label */}
                     <p className={`text-[11px] font-black uppercase tracking-[0.35em] mb-3 px-1 ${yearClass}`}>

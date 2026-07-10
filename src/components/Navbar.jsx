@@ -12,7 +12,11 @@ function Navbar() {
   const [progress, setProgress] = useState(0);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState(null);
-  const dropdownRef = useRef(null);
+  const dropdownRef     = useRef(null);
+  const navWrapperRef   = useRef(null);
+  const indicatorRef    = useRef(null);
+  const itemRefsMap     = useRef({});
+  const isFirstIndicator = useRef(true);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -131,6 +135,43 @@ function Navbar() {
       document.removeEventListener("keydown", onEsc);
     };
   }, [openDropdown]);
+
+  // Slide the indicator pill to the active desktop nav item
+  useEffect(() => {
+    const wrapper   = navWrapperRef.current;
+    const indicator = indicatorRef.current;
+    if (!wrapper || !indicator) return undefined;
+
+    const activeItem = navItems.find((item) => isItemActive(item));
+    if (!activeItem) return undefined;
+
+    const li  = itemRefsMap.current[activeItem.label];
+    const btn = li?.querySelector('button');
+    if (!li || !btn) return undefined;
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const btnRect     = btn.getBoundingClientRect();
+    const props = {
+      opacity : 1,
+      left    : btnRect.left   - wrapperRect.left,
+      top     : btnRect.top    - wrapperRect.top,
+      width   : btnRect.width,
+      height  : btnRect.height,
+    };
+
+    let cancelled = false;
+    (async () => {
+      const { gsap } = await import('gsap');
+      if (cancelled) return;
+      if (isFirstIndicator.current) {
+        isFirstIndicator.current = false;
+        gsap.set(indicator, props);
+      } else {
+        gsap.to(indicator, { ...props, duration: 0.35, ease: 'power2.inOut' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [activeHash, navItems, scrolled]);
 
   // Keyboard navigation for dropdown menus (arrow keys + Home/End).
   const handleMenuKeyDown = (e) => {
@@ -274,7 +315,18 @@ function Navbar() {
             </a>
 
             {/* Desktop menu */}
-            <ul className="hidden lg:flex items-center gap-1">
+            <div ref={navWrapperRef} className="hidden lg:flex items-center gap-1 relative">
+              {/* Sliding active indicator — GSAP positions this behind the active button */}
+              <div
+                ref={indicatorRef}
+                aria-hidden="true"
+                className="absolute rounded-full pointer-events-none z-0 shadow-md"
+                style={{
+                  backgroundColor: scrolled ? 'var(--retro-burgundy)' : 'rgba(255,255,255,0.15)',
+                  opacity: 0, top: 0, left: 0, width: 0, height: 0,
+                }}
+              />
+              <ul className="flex items-center gap-1 relative z-10">
               {navItems.map((item) => {
                 const hasChildren = Array.isArray(item.children) && item.children.length > 0;
                 const active = isItemActive(item);
@@ -282,14 +334,14 @@ function Navbar() {
 
                 if (!hasChildren) {
                   return (
-                    <li key={item.label}>
+                    <li key={item.label} ref={(el) => { itemRefsMap.current[item.label] = el; }}>
                       <button
                         type="button"
                         onClick={() => navigateTo(item.hash)}
                         className={`
-                          inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
+                          relative z-10 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
                           ${active
-                            ? "bg-[color:var(--retro-burgundy)] text-white shadow-md"
+                            ? "text-white"
                             : `${palette.textMuted} ${palette.hoverBg} hover:${palette.text}`}
                         `}
                       >
@@ -300,7 +352,7 @@ function Navbar() {
                 }
 
                 return (
-                  <li key={item.label} className="relative">
+                  <li key={item.label} className="relative" ref={(el) => { itemRefsMap.current[item.label] = el; }}>
                     <button
                       type="button"
                       aria-expanded={dropOpen}
@@ -319,10 +371,12 @@ function Navbar() {
                         }
                       }}
                       className={`
-                        inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
-                        ${active || dropOpen
-                          ? "bg-[color:var(--retro-burgundy)] text-white shadow-md"
-                          : `${palette.textMuted} ${palette.hoverBg} hover:${palette.text}`}
+                        relative z-10 inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-all
+                        ${active
+                          ? "text-white"
+                          : dropOpen
+                            ? "bg-[color:var(--retro-burgundy)] text-white shadow-md"
+                            : `${palette.textMuted} ${palette.hoverBg} hover:${palette.text}`}
                       `}
                     >
                       {item.label}
@@ -393,7 +447,8 @@ function Navbar() {
                   </li>
                 );
               })}
-            </ul>
+              </ul>
+            </div>
 
             {/* Hide navbar toggle — small button di kanan, sebelah
                 hamburger. Klik → navbar slide up, re-show via top tab. */}
