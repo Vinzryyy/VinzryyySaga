@@ -30,7 +30,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
-import PageTransition from './components/layout/PageTransition';
+import PageBlossomTransition from './components/layout/PageBlossomTransition';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
 import TownMusic from './components/taman/TownMusic';
@@ -392,7 +392,7 @@ function AppShell() {
   return (
     <>
       <ScrollManager />
-      <PageTransition />
+      <PageBlossomTransition />
       <BirthdayCelebration active={isBirthdayToday} />
       <BirthdayMusic />
       <TownMusic />
