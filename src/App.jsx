@@ -28,6 +28,7 @@ import { ThemeProvider } from './context';
 import { LightboxProvider } from './context/LightboxContext';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import PageSkeleton from './components/ui/PageSkeleton';
 import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
 import PageBlossomTransition from './components/layout/PageBlossomTransition';
@@ -400,7 +401,7 @@ function AppShell() {
       <TownMusic />
       <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
         <Navbar />
-        <Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
