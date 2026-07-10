@@ -31,6 +31,7 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
 import PageBlossomTransition from './components/layout/PageBlossomTransition';
+import PetalBurst from './components/ui/PetalBurst';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
 import TownMusic from './components/taman/TownMusic';
@@ -393,6 +394,7 @@ function AppShell() {
     <>
       <ScrollManager />
       <PageBlossomTransition />
+      <PetalBurst />
       <BirthdayCelebration active={isBirthdayToday} />
       <BirthdayMusic />
       <TownMusic />
