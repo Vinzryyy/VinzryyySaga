@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-17T08:15:25.172945Z",
+  "fetchedAt": "2026-07-17T13:45:55.661172Z",
   "salesCount": 10,
   "sales": [
     {
@@ -89,22 +89,22 @@
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 13,
-          "remainingQuota": 32
+          "ticketsSold": 15,
+          "remainingQuota": 30
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 6,
-          "remainingQuota": 39
+          "ticketsSold": 9,
+          "remainingQuota": 36
         },
         {
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 38,
-          "remainingQuota": 7
+          "ticketsSold": 42,
+          "remainingQuota": 3
         }
       ],
       "url": "https://jkt48.com/schedule/ex7f6c-26072026"
