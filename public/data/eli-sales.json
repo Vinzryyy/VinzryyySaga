@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-17T19:16:04.123683Z",
+  "fetchedAt": "2026-07-18T02:45:00.189921Z",
   "salesCount": 10,
   "sales": [
     {
@@ -103,8 +103,8 @@
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 44,
-          "remainingQuota": 1
+          "ticketsSold": 45,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex7f6c-26072026"
