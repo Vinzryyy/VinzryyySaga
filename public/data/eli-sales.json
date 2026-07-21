@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-07-10T03:38:15.050437Z",
-  "salesCount": 9,
+  "fetchedAt": "2026-07-21T05:13:53.023619Z",
+  "salesCount": 10,
   "sales": [
     {
       "exclusiveId": 936,
@@ -58,6 +58,56 @@
         }
       ],
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "exclusiveId": 962,
+      "code": "EX7F6C",
+      "slug": "ex7f6c-26072026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "JKT48 Request Hour 2026 Setlist Best 40",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-thumb-a2122e.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-preview-872f71.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": 10800,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-07-16T20:00:00",
+          "end_date": "2026-07-26T07:00:00",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-07-17T20:00:00",
+          "end_date": "2026-07-26T07:00:00",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-07-26",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-07-26",
+          "jalur": "Jalur 5",
+          "ticketsSold": 18,
+          "remainingQuota": 27
+        },
+        {
+          "sessionLabel": "Sesi 5",
+          "sessionDate": "2026-07-26",
+          "jalur": "Jalur 5",
+          "ticketsSold": 22,
+          "remainingQuota": 23
+        },
+        {
+          "sessionLabel": "Sesi 6",
+          "sessionDate": "2026-07-26",
+          "jalur": "Jalur 5",
+          "ticketsSold": 45,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex7f6c-26072026"
     },
     {
       "exclusiveId": 960,

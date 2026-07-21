@@ -355,11 +355,11 @@ export const SITE_CONFIG = {
     //
     // Update protocol: bump `theater` + `asOfDate` saat TSV diperbarui.
     careerStats: {
-      asOfDate: '2026-04-26',
+      asOfDate: '2026-07-17',
       // Lifetime theater shows (SHOW + in-theater EVENT). Includes
       // regular stages, Sousenkyo concerts, anniversary nights,
       // dedicated theater sessions. Excludes Video Calls, M&G, off-site.
-      theater: 385,
+      theater: 399,
     },
   },
 

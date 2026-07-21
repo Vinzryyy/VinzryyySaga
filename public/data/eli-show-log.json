@@ -1,7 +1,7 @@
 {
   "source": "Manual show log",
-  "totalShows": 385,
-  "asOfDate": "2026-04-24",
+  "totalShows": 399,
+  "asOfDate": "2026-07-17",
   "totals": {
     "centers": 49,
     "solos": 9,
@@ -140,11 +140,24 @@
       ]
     },
     {
+      "setlist": "Dream Bakudan",
+      "count": 13,
+      "centerCount": 0,
+      "firstDate": "2026-04-18",
+      "lastDate": "2026-07-17",
+      "units": [
+        {
+          "name": "Kinjirareta Futari",
+          "count": 1
+        }
+      ]
+    },
+    {
       "setlist": "Pertaruhan Cinta",
-      "count": 8,
+      "count": 9,
       "centerCount": 0,
       "firstDate": "2025-10-12",
-      "lastDate": "2026-04-04",
+      "lastDate": "2026-06-21",
       "units": [
         {
           "name": "Sahabat Atau Cinta",
@@ -161,17 +174,12 @@
       "units": []
     },
     {
-      "setlist": "Dream Bakudan",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
       "count": 2,
       "centerCount": 0,
-      "firstDate": "2026-04-18",
-      "lastDate": "2026-04-24",
-      "units": [
-        {
-          "name": "Kinjirareta Futari",
-          "count": 1
-        }
-      ]
+      "firstDate": "2026-06-24",
+      "lastDate": "2026-07-11",
+      "units": []
     },
     {
       "setlist": "Romansa Sang Gadis",
@@ -4416,6 +4424,160 @@
       "no": 385,
       "day": "Jumat",
       "date": "2026-04-24",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 386,
+      "day": "Minggu",
+      "date": "2026-05-10",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 387,
+      "day": "Kamis",
+      "date": "2026-05-21",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 388,
+      "day": "Sabtu",
+      "date": "2026-05-30",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 389,
+      "day": "Jumat",
+      "date": "2026-06-05",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 390,
+      "day": "Minggu",
+      "date": "2026-06-21",
+      "setlist": "Pertaruhan Cinta",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 391,
+      "day": "Rabu",
+      "date": "2026-06-24",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 392,
+      "day": "Senin",
+      "date": "2026-06-29",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": "Surabaya"
+    },
+    {
+      "no": 393,
+      "day": "Selasa",
+      "date": "2026-06-30",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": "Surabaya"
+    },
+    {
+      "no": 394,
+      "day": "Rabu",
+      "date": "2026-07-01",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": "Surabaya"
+    },
+    {
+      "no": 395,
+      "day": "Senin",
+      "date": "2026-07-06",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": "Yogyakarta"
+    },
+    {
+      "no": 396,
+      "day": "Selasa",
+      "date": "2026-07-07",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": "Yogyakarta"
+    },
+    {
+      "no": 397,
+      "day": "Rabu",
+      "date": "2026-07-08",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": "Yogyakarta"
+    },
+    {
+      "no": 398,
+      "day": "Sabtu",
+      "date": "2026-07-11",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 399,
+      "day": "Jumat",
+      "date": "2026-07-17",
       "setlist": "Dream Bakudan",
       "unitSong": null,
       "position": null,
