@@ -9,7 +9,7 @@
 // stay hidden. Bump the date here when planning to launch earlier/later;
 // everything else flows from this single constant.
 const PHOTO_FRAME_AVAILABLE_FROM_ISO = '2026-06-01T00:00:00+07:00';
-const PHOTO_FRAME_AVAILABLE_UNTIL_ISO = '2026-07-16T00:00:00+07:00';
+const PHOTO_FRAME_AVAILABLE_UNTIL_ISO = '2026-08-31T23:59:59+07:00';
 
 export const PHOTO_FRAME_CAMPAIGN = {
   availableFromIso: PHOTO_FRAME_AVAILABLE_FROM_ISO,

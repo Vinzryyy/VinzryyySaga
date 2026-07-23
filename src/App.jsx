@@ -117,6 +117,7 @@ const ByuMusicPage = lazy(() => import('./pages/ByuMusic'));
 // + html-to-image chunks (P4/P7) gak masuk first paint pages lain.
 const PetikanPage = lazy(() => import('./pages/Petikan'));
 const NewsPage = lazy(() => import('./pages/News'));
+const PhotostripPage = lazy(() => import('./pages/Photostrip'));
 const NotFoundPage = lazy(() => import('./pages/NotFound'));
 
 const PageLoader = () => (
@@ -474,6 +475,7 @@ function AppShell() {
             />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/news/:slug" element={<NewsPage />} />
+            <Route path="/photostrip" element={<PhotostripPage />} />
             <Route path="/vivo" element={<VivoPage />} />
             <Route path="/denyut" element={<DenyutPage />} />
             <Route path="/armeniacaTown" element={<TamanPage />} />
