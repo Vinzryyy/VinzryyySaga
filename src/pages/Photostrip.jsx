@@ -149,6 +149,7 @@ export default function PhotostripPage() {
   const [facingMode, setFacingMode]     = useState('user');
   const [selectedFilter, setSelectedFilter] = useState('none');
   const [canShare, setCanShare]         = useState(false);
+  const [swapIndex, setSwapIndex]       = useState(null); // index of slot selected for swap in review
 
   const videoRef             = useRef(null);
   const streamRef            = useRef(null);
@@ -191,6 +192,11 @@ export default function PhotostripPage() {
     stopCamera();
     clearTimeout(timerRef.current);
   }, [stopCamera]);
+
+  // Reset swap selection whenever review phase is exited
+  useEffect(() => {
+    if (phase !== 'review') setSwapIndex(null);
+  }, [phase]);
 
   // ── GSAP animate countdown on each tick ──────────────────────────────────
   useEffect(() => {
@@ -408,6 +414,31 @@ export default function PhotostripPage() {
       startStream(facingMode);
     }
   }, [facingMode, inputMode, openGalleryPicker, startStream]);
+
+  // ── Manual shutter: cancel countdown and capture immediately ─────────────
+  const handleManualShutter = useCallback(() => {
+    clearTimeout(timerRef.current);
+    setCountdown(null);
+    captureFrame();
+  }, [captureFrame]);
+
+  // ── Swap two slots in review phase ────────────────────────────────────────
+  const handleSwapSlot = useCallback((i) => {
+    setSwapIndex(prev => {
+      if (prev === null) return i;           // select first slot
+      if (prev === i)   return null;         // deselect same slot
+      // swap buffers and previews
+      const buf = [...shotBufferRef.current];
+      [buf[prev], buf[i]] = [buf[i], buf[prev]];
+      shotBufferRef.current = buf;
+      setShotPreviews(ps => {
+        const next = [...ps];
+        [next[prev], next[i]] = [next[i], next[prev]];
+        return next;
+      });
+      return null; // clear selection after swap
+    });
+  }, []);
 
   const handleBuildStrip = useCallback(() => {
     const map = shotCountRef.current === 6 ? SLOT_SHOT_MAP_6 : SLOT_SHOT_MAP_3;
@@ -672,8 +703,19 @@ export default function PhotostripPage() {
             ))}
           </div>
 
+          {/* Manual shutter button */}
+          <button
+            onClick={handleManualShutter}
+            disabled={flash}
+            className="w-14 h-14 rounded-full border-4 flex items-center justify-center transition active:scale-90 disabled:opacity-40"
+            style={{ borderColor: 'var(--retro-burgundy)', backgroundColor: 'var(--retro-cream)' }}
+            aria-label="Foto sekarang"
+          >
+            <div className="w-9 h-9 rounded-full" style={{ backgroundColor: 'var(--retro-burgundy)' }} />
+          </button>
+
           <p className="text-xs" style={{ color: 'var(--retro-text-muted)' }}>
-            Foto diambil otomatis saat hitungan mundur selesai
+            Tekan tombol di atas untuk foto sekarang, atau tunggu hitungan mundur
           </p>
         </div>
       )}
@@ -847,62 +889,118 @@ export default function PhotostripPage() {
       {/* ── REVIEW ───────────────────────────────────────────────────────── */}
       {phase === 'review' && (
         <div className="flex flex-col items-center gap-5 w-full max-w-sm">
-          <p className="text-sm font-medium" style={{ color: 'var(--retro-text-primary)' }}>
-            Cek foto kamu
-          </p>
+          <div className="text-center">
+            <p className="text-sm font-medium" style={{ color: 'var(--retro-text-primary)' }}>
+              Cek foto kamu
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--retro-text-muted)' }}>
+              {swapIndex !== null
+                ? 'Pilih foto lain untuk menukar posisi'
+                : 'Ketuk foto untuk menukar urutan'}
+            </p>
+          </div>
 
-          {/* Thumbnail slots with re-take / re-upload buttons */}
-          <div className={`grid gap-2 w-full ${shotCount === 6 ? 'grid-cols-3' : 'grid-cols-3'}`}>
-            {Array.from({ length: shotCount }, (_, i) => (
-              <div key={i} className="flex flex-col items-center gap-1">
-                <div
-                  className="w-full aspect-[3/2] rounded-lg overflow-hidden border-2"
-                  style={{ borderColor: 'var(--retro-border)' }}
-                >
-                  {shotPreviews[i] && (
-                    <img
-                      src={shotPreviews[i]}
-                      alt={`Foto ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      style={{ filter: FILTERS[selectedFilter].css }}
-                    />
+          {/* Thumbnail slots — tappable for swap */}
+          <div className="grid grid-cols-3 gap-2 w-full">
+            {Array.from({ length: shotCount }, (_, i) => {
+              const isSelected  = swapIndex === i;
+              const isSwapReady = swapIndex !== null && !isSelected;
+              return (
+                <div key={i} className="flex flex-col items-center gap-1">
+                  {/* Tappable thumbnail */}
+                  <button
+                    onClick={() => handleSwapSlot(i)}
+                    className="relative w-full aspect-[3/2] rounded-lg overflow-hidden border-2 transition-all active:scale-95"
+                    style={{
+                      borderColor: isSelected
+                        ? 'var(--retro-gold-light, #d4a843)'
+                        : isSwapReady
+                        ? 'var(--retro-burgundy)'
+                        : 'var(--retro-border)',
+                      boxShadow: isSelected ? '0 0 0 2px var(--retro-gold-light, #d4a843)' : 'none',
+                    }}
+                    aria-label={isSelected ? `Foto ${i + 1} dipilih` : `Tukar dengan foto ${i + 1}`}
+                  >
+                    {shotPreviews[i] && (
+                      <img
+                        src={shotPreviews[i]}
+                        alt={`Foto ${i + 1}`}
+                        className="w-full h-full object-cover transition-opacity"
+                        style={{
+                          filter: FILTERS[selectedFilter].css,
+                          opacity: isSwapReady ? 0.6 : 1,
+                        }}
+                      />
+                    )}
+                    {/* Selected overlay */}
+                    {isSelected && (
+                      <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white drop-shadow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    )}
+                    {/* Swap-target overlay */}
+                    {isSwapReady && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-white text-[10px] font-bold drop-shadow-md bg-black/30 rounded px-1">Tukar</span>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Retake / replace — hidden during swap mode */}
+                  {swapIndex === null && (
+                    <button
+                      onClick={() => handleRetakeSlot(i)}
+                      className="text-[10px] px-2 py-0.5 rounded-full border transition hover:opacity-80"
+                      style={{ borderColor: 'var(--retro-border-dark)', color: 'var(--retro-text-secondary)' }}
+                    >
+                      {inputMode === 'camera' ? 'Ulangi' : 'Ganti'}
+                    </button>
                   )}
                 </div>
-                <button
-                  onClick={() => handleRetakeSlot(i)}
-                  className="text-[10px] px-2 py-0.5 rounded-full border transition hover:opacity-80"
-                  style={{ borderColor: 'var(--retro-border-dark)', color: 'var(--retro-text-secondary)' }}
-                >
-                  {inputMode === 'camera' ? 'Ulangi' : 'Ganti'}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Filter selector */}
-          <div className="flex flex-col items-center gap-2 w-full">
-            <span className="text-xs" style={{ color: 'var(--retro-text-muted)' }}>Filter</span>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {Object.entries(FILTERS).map(([key, { label }]) => (
-                <button
-                  key={key}
-                  onClick={() => setSelectedFilter(key)}
-                  className="px-3 py-1 rounded-full text-xs font-medium border-2 transition"
-                  style={{
-                    borderColor: selectedFilter === key ? 'var(--retro-burgundy)' : 'var(--retro-border)',
-                    backgroundColor: selectedFilter === key ? 'var(--retro-burgundy)' : 'transparent',
-                    color: selectedFilter === key ? 'var(--retro-cream)' : 'var(--retro-text-secondary)',
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
+          {/* Cancel swap hint */}
+          {swapIndex !== null && (
+            <button
+              onClick={() => setSwapIndex(null)}
+              className="text-xs underline"
+              style={{ color: 'var(--retro-text-muted)' }}
+            >
+              Batalkan pilihan
+            </button>
+          )}
+
+          {/* Filter selector — hidden during swap mode */}
+          {swapIndex === null && (
+            <div className="flex flex-col items-center gap-2 w-full">
+              <span className="text-xs" style={{ color: 'var(--retro-text-muted)' }}>Filter</span>
+              <div className="flex gap-2 flex-wrap justify-center">
+                {Object.entries(FILTERS).map(([key, { label }]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedFilter(key)}
+                    className="px-3 py-1 rounded-full text-xs font-medium border-2 transition"
+                    style={{
+                      borderColor: selectedFilter === key ? 'var(--retro-burgundy)' : 'var(--retro-border)',
+                      backgroundColor: selectedFilter === key ? 'var(--retro-burgundy)' : 'transparent',
+                      color: selectedFilter === key ? 'var(--retro-cream)' : 'var(--retro-text-secondary)',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <button
             onClick={handleBuildStrip}
-            className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95"
+            disabled={swapIndex !== null}
+            className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ backgroundColor: 'var(--retro-burgundy)', color: 'var(--retro-cream)' }}
           >
             Buat Strip
