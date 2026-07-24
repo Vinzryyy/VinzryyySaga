@@ -518,7 +518,7 @@ export default function PhotostripPage() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <main
-      className="min-h-screen flex flex-col items-center py-10 px-4"
+      className="min-h-screen flex flex-col items-center pt-28 pb-10 px-4"
       style={{ backgroundColor: 'var(--retro-bg-primary)' }}
     >
       <Helmet>
