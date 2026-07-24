@@ -136,10 +136,10 @@ async function dataUrlToBlob(dataUrl) {
 
 // ────────────────────────────────────────────────────────────────────────────
 export default function PhotostripPage() {
-  // phase: 'idle' | 'camera' | 'gallery' | 'review' | 'result'
+  // phase: 'idle' | 'camera' | 'gallery' | 'combo' | 'review' | 'result'
   const [phase, setPhase]               = useState('idle');
   const [shotCount, setShotCount]       = useState(3);       // 3 or 6
-  const [inputMode, setInputMode]       = useState('camera'); // 'camera' | 'gallery'
+  const [inputMode, setInputMode]       = useState('camera'); // 'camera' | 'gallery' | 'combo'
   const [shotsTaken, setShotsTaken]     = useState(0);
   const [shotPreviews, setShotPreviews] = useState([]);
   const [countdown, setCountdown]       = useState(null);
@@ -161,8 +161,9 @@ export default function PhotostripPage() {
   const shotCountRef         = useRef(3);
   const countdownElRef       = useRef(null);
   const resultImgRef         = useRef(null);
-  const galleryInputRef      = useRef(null);
+  const galleryInputRef       = useRef(null);
   const pendingGallerySlotRef = useRef(null);
+  const returnPhaseRef        = useRef('review'); // where retake-mode camera returns to
 
   // Keep refs in sync with state
   useEffect(() => { shotCountRef.current = shotCount; }, [shotCount]);
@@ -271,7 +272,7 @@ export default function PhotostripPage() {
       retakeSlotRef.current = null;
       stopCamera();
       setCountdown(null);
-      setPhase('review');
+      setPhase(returnPhaseRef.current);
     } else {
       // Normal mode: accumulate shots
       shotBufferRef.current.push(tmp);
@@ -363,17 +364,25 @@ export default function PhotostripPage() {
     });
   }, []);
 
+  // ── Combo: open camera for a single slot, return to combo after ──────────
+  const handleComboCamera = useCallback((slotIndex) => {
+    retakeSlotRef.current  = slotIndex;
+    returnPhaseRef.current = 'combo';
+    startStream(facingMode);
+  }, [facingMode, startStream]);
+
   const handleStart = useCallback(() => {
     const n = shotCountRef.current;
     setShotsTaken(0);
     retakeSlotRef.current = null;
 
-    if (inputMode === 'gallery') {
+    if (inputMode === 'gallery' || inputMode === 'combo') {
       shotBufferRef.current = new Array(n).fill(null); // index-based assignment
       setShotPreviews(new Array(n).fill(null));
-      setPhase('gallery');
+      setPhase(inputMode === 'combo' ? 'combo' : 'gallery');
     } else {
-      shotBufferRef.current = []; // push-based, must start empty
+      returnPhaseRef.current = 'review';
+      shotBufferRef.current  = []; // push-based, must start empty
       setShotPreviews([]);
       startStream(facingMode);
     }
@@ -390,8 +399,12 @@ export default function PhotostripPage() {
   const handleRetakeSlot = useCallback((slotIndex) => {
     if (inputMode === 'gallery') {
       openGalleryPicker(slotIndex);
+    } else if (inputMode === 'combo') {
+      // Return to combo phase so user can pick camera or gallery for that slot
+      setPhase('combo');
     } else {
-      retakeSlotRef.current = slotIndex;
+      returnPhaseRef.current = 'review';
+      retakeSlotRef.current  = slotIndex;
       startStream(facingMode);
     }
   }, [facingMode, inputMode, openGalleryPicker, startStream]);
@@ -537,6 +550,7 @@ export default function PhotostripPage() {
               {[
                 { key: 'camera',  label: 'Kamera' },
                 { key: 'gallery', label: 'Dari Galeri' },
+                { key: 'combo',   label: 'Combo' },
               ].map(({ key, label }) => (
                 <button
                   key={key}
@@ -557,6 +571,8 @@ export default function PhotostripPage() {
           <p className="text-sm text-center leading-relaxed" style={{ color: 'var(--retro-text-secondary)' }}>
             {inputMode === 'gallery'
               ? <>Pilih <strong>{shotCount} foto</strong> dari galeri untuk dimasukkan ke bingkai.</>
+              : inputMode === 'combo'
+              ? <>Tiap slot bisa kamu isi dari <strong>kamera</strong> atau <strong>galeri</strong> — bebas campur sesuai keinginan.</>
               : <>Abadikan momen bersama bingkai HarmoniKebaikan.<br />Ambil <strong>{shotCount} foto</strong> — hasilnya langsung bisa kamu download!</>
             }
           </p>
@@ -729,6 +745,105 @@ export default function PhotostripPage() {
         </div>
       )}
 
+      {/* ── COMBO ────────────────────────────────────────────────────────── */}
+      {phase === 'combo' && (
+        <div className="flex flex-col items-center gap-5 w-full max-w-sm">
+          <div className="text-center">
+            <p className="text-sm font-medium" style={{ color: 'var(--retro-text-primary)' }}>
+              Pilih sumber tiap foto
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--retro-text-muted)' }}>
+              {gallerySlotsFilledCount} / {shotCount} slot terisi · tap slot kosong untuk mengisi
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 w-full">
+            {Array.from({ length: shotCount }, (_, i) => (
+              <div key={i} className="flex flex-col gap-1">
+                {shotPreviews[i] ? (
+                  /* Filled slot — show preview + two replace buttons */
+                  <>
+                    <div
+                      className="w-full aspect-[3/2] rounded-lg overflow-hidden border-2"
+                      style={{ borderColor: 'var(--retro-burgundy)' }}
+                    >
+                      <img src={shotPreviews[i]} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleComboCamera(i)}
+                        className="flex-1 py-0.5 rounded text-[10px] border transition hover:opacity-80 flex items-center justify-center"
+                        style={{ borderColor: 'var(--retro-border-dark)', color: 'var(--retro-text-secondary)' }}
+                        aria-label={`Ganti slot ${i + 1} via kamera`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => openGalleryPicker(i)}
+                        className="flex-1 py-0.5 rounded text-[10px] border transition hover:opacity-80 flex items-center justify-center"
+                        style={{ borderColor: 'var(--retro-border-dark)', color: 'var(--retro-text-secondary)' }}
+                        aria-label={`Ganti slot ${i + 1} via galeri`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  /* Empty slot — two stacked action buttons */
+                  <div
+                    className="w-full aspect-[3/2] rounded-lg border-2 flex flex-col overflow-hidden"
+                    style={{ borderColor: 'var(--retro-border)', backgroundColor: 'var(--retro-bg-secondary)' }}
+                  >
+                    <button
+                      onClick={() => handleComboCamera(i)}
+                      className="flex-1 flex flex-col items-center justify-center gap-0.5 border-b transition hover:bg-black/5 active:scale-95"
+                      style={{ borderColor: 'var(--retro-border)', color: 'var(--retro-text-secondary)' }}
+                      aria-label={`Foto slot ${i + 1} via kamera`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                      </svg>
+                      <span className="text-[9px]">Kamera</span>
+                    </button>
+                    <button
+                      onClick={() => openGalleryPicker(i)}
+                      className="flex-1 flex flex-col items-center justify-center gap-0.5 transition hover:bg-black/5 active:scale-95"
+                      style={{ color: 'var(--retro-text-secondary)' }}
+                      aria-label={`Foto slot ${i + 1} via galeri`}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                      </svg>
+                      <span className="text-[9px]">Galeri</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setPhase('review')}
+            disabled={gallerySlotsFilledCount < shotCount}
+            className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: 'var(--retro-burgundy)', color: 'var(--retro-cream)' }}
+          >
+            Lanjut →
+          </button>
+          <button
+            onClick={handleRetry}
+            className="text-xs underline"
+            style={{ color: 'var(--retro-text-muted)' }}
+          >
+            Mulai ulang
+          </button>
+        </div>
+      )}
+
       {/* ── REVIEW ───────────────────────────────────────────────────────── */}
       {phase === 'review' && (
         <div className="flex flex-col items-center gap-5 w-full max-w-sm">
@@ -758,7 +873,7 @@ export default function PhotostripPage() {
                   className="text-[10px] px-2 py-0.5 rounded-full border transition hover:opacity-80"
                   style={{ borderColor: 'var(--retro-border-dark)', color: 'var(--retro-text-secondary)' }}
                 >
-                  {inputMode === 'gallery' ? 'Ganti' : 'Ulangi'}
+                  {inputMode === 'camera' ? 'Ulangi' : 'Ganti'}
                 </button>
               </div>
             ))}
