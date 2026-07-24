@@ -2,15 +2,16 @@
  * Photostrip — web photobox experience.
  *
  * Features:
- *  - 3-shot capture with 3-2-1 GSAP-animated countdown
- *  - Shutter click sound (Web Audio, no file needed)
+ *  - 3-shot or 6-shot capture (user-selectable)
+ *  - Gallery upload mode: pick photos from device (twibon-style)
+ *  - Camera mode: 3-2-1 GSAP-animated countdown, shutter sound, auto-capture
  *  - Live thumbnail strip below camera (fills as shots are taken)
- *  - Review phase: per-slot re-take + filter selector before compositing
+ *  - Review phase: per-slot re-take / re-upload + filter selector before compositing
  *  - Front / back camera toggle
  *  - Filters: Normal · Grayscale · Warm · Vintage (CSS + canvas)
  *  - Petal burst animation on result reveal
  *  - Web Share API (native share sheet on mobile)
- *  - iOS-aware download fallback
+ *  - iOS download: blob URL + share-first fallback
  *
  * Template: /Photobox/FRAME ARMEN 2.png  (1180 × 1770 px dual-strip)
  * Slot boundaries measured from PNG alpha-channel pixel scan.
@@ -29,10 +30,14 @@ const SLOT_PX = [
   { x: 631, y: 598,  w: 508, h: 348 }, // right 2
   { x: 631, y: 1004, w: 508, h: 348 }, // right 3
 ];
-const SLOT_SHOT_MAP = [0, 1, 2, 0, 1, 2];
 
-const FRAME_SRC   = '/Photobox/FRAME ARMEN 2.png';
-const TOTAL_SHOTS = 3;
+// slot-to-shot mapping per shot count
+// 3 shots: duplicate left column into right column
+// 6 shots: each slot gets a unique photo
+const SLOT_SHOT_MAP_3 = [0, 1, 2, 0, 1, 2];
+const SLOT_SHOT_MAP_6 = [0, 1, 2, 3, 4, 5];
+
+const FRAME_SRC        = '/Photobox/FRAME ARMEN 2.png';
 const COUNTDOWN_START  = 3;
 const BETWEEN_SHOTS_MS = 900;
 
@@ -104,27 +109,39 @@ function triggerPetalBurst(el) {
 
 // ─── Cover-crop helper ───────────────────────────────────────────────────────
 function drawCoverCrop(ctx, shot, x, y, w, h, filterCss) {
+  if (!shot) return;
+  const sw0 = shot.videoWidth  ?? shot.naturalWidth  ?? shot.width;
+  const sh0 = shot.videoHeight ?? shot.naturalHeight ?? shot.height;
+  if (!sw0 || !sh0) return;
   const slotAR = w / h;
-  const shotAR = shot.width / shot.height;
-  let sx = 0, sy = 0, sw = shot.width, sh = shot.height;
+  const shotAR = sw0 / sh0;
+  let sx = 0, sy = 0, sw = sw0, sh = sh0;
   if (shotAR > slotAR) {
-    sw = Math.round(shot.height * slotAR);
-    sx = Math.round((shot.width - sw) / 2);
+    sw = Math.round(sh0 * slotAR);
+    sx = Math.round((sw0 - sw) / 2);
   } else {
-    sh = Math.round(shot.width / slotAR);
-    sy = Math.round((shot.height - sh) / 2);
+    sh = Math.round(sw0 / slotAR);
+    sy = Math.round((sh0 - sh) / 2);
   }
   if (filterCss && filterCss !== 'none') ctx.filter = filterCss;
   ctx.drawImage(shot, sx, sy, sw, sh, x, y, w, h);
   ctx.filter = 'none';
 }
 
+// ─── dataURL → Blob ──────────────────────────────────────────────────────────
+async function dataUrlToBlob(dataUrl) {
+  const res = await fetch(dataUrl);
+  return res.blob();
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 export default function PhotostripPage() {
-  // phase: 'idle' | 'camera' | 'review' | 'result'
+  // phase: 'idle' | 'camera' | 'gallery' | 'review' | 'result'
   const [phase, setPhase]               = useState('idle');
+  const [shotCount, setShotCount]       = useState(3);       // 3 or 6
+  const [inputMode, setInputMode]       = useState('camera'); // 'camera' | 'gallery'
   const [shotsTaken, setShotsTaken]     = useState(0);
-  const [shotPreviews, setShotPreviews] = useState([]); // data URLs for thumbnails
+  const [shotPreviews, setShotPreviews] = useState([]);
   const [countdown, setCountdown]       = useState(null);
   const [flash, setFlash]               = useState(false);
   const [resultUrl, setResultUrl]       = useState(null);
@@ -133,16 +150,22 @@ export default function PhotostripPage() {
   const [selectedFilter, setSelectedFilter] = useState('none');
   const [canShare, setCanShare]         = useState(false);
 
-  const videoRef       = useRef(null);
-  const streamRef      = useRef(null);
-  const canvasRef      = useRef(null);
-  const frameImgRef    = useRef(null);
-  const shotBufferRef  = useRef([]); // raw HTMLCanvasElements
-  const timerRef       = useRef(null);
-  const retakeSlotRef  = useRef(null); // null = normal flow, N = retake slot N
-  const facingModeRef  = useRef('user');
-  const countdownElRef = useRef(null);
-  const resultImgRef   = useRef(null);
+  const videoRef             = useRef(null);
+  const streamRef            = useRef(null);
+  const canvasRef            = useRef(null);
+  const frameImgRef          = useRef(null);
+  const shotBufferRef        = useRef([]); // HTMLCanvasElement (camera) or HTMLImageElement (gallery)
+  const timerRef             = useRef(null);
+  const retakeSlotRef        = useRef(null);
+  const facingModeRef        = useRef('user');
+  const shotCountRef         = useRef(3);
+  const countdownElRef       = useRef(null);
+  const resultImgRef         = useRef(null);
+  const galleryInputRef      = useRef(null);
+  const pendingGallerySlotRef = useRef(null);
+
+  // Keep refs in sync with state
+  useEffect(() => { shotCountRef.current = shotCount; }, [shotCount]);
 
   // Preload frame image
   useEffect(() => {
@@ -151,7 +174,7 @@ export default function PhotostripPage() {
     frameImgRef.current = img;
   }, []);
 
-  // Check Web Share API file support
+  // Check Web Share API support
   useEffect(() => {
     setCanShare(typeof navigator.share === 'function');
   }, []);
@@ -168,7 +191,7 @@ export default function PhotostripPage() {
     clearTimeout(timerRef.current);
   }, [stopCamera]);
 
-  // ── GSAP animate countdown on each tick ────────────────────────────────
+  // ── GSAP animate countdown on each tick ──────────────────────────────────
   useEffect(() => {
     if (countdown !== null && countdownElRef.current) {
       gsap.fromTo(
@@ -179,8 +202,8 @@ export default function PhotostripPage() {
     }
   }, [countdown]);
 
-  // ── Composite shots + frame onto hidden canvas ──────────────────────────
-  const composeStrip = useCallback(async (shots, filter) => {
+  // ── Composite shots + frame onto hidden canvas ────────────────────────────
+  const composeStrip = useCallback(async (shots, filter, slotMap) => {
     const frameImg = frameImgRef.current;
     if (!frameImg.complete) {
       await new Promise(res => { frameImg.onload = res; });
@@ -196,7 +219,8 @@ export default function PhotostripPage() {
     ctx.fillRect(0, 0, W, H);
 
     SLOT_PX.forEach((slot, i) => {
-      drawCoverCrop(ctx, shots[SLOT_SHOT_MAP[i]], slot.x, slot.y, slot.w, slot.h, FILTERS[filter].css);
+      const shot = shots[slotMap[i]];
+      drawCoverCrop(ctx, shot, slot.x, slot.y, slot.w, slot.h, FILTERS[filter].css);
     });
 
     ctx.filter = 'none';
@@ -212,7 +236,7 @@ export default function PhotostripPage() {
     });
   }, []);
 
-  // ── Capture one frame from the live video ──────────────────────────────
+  // ── Capture one frame from the live video ────────────────────────────────
   const captureFrame = useCallback(() => {
     const video = videoRef.current;
     if (!video || video.readyState < 2) return;
@@ -255,7 +279,7 @@ export default function PhotostripPage() {
       const newCount = shotBufferRef.current.length;
       setShotsTaken(newCount);
 
-      if (newCount >= TOTAL_SHOTS) {
+      if (newCount >= shotCountRef.current) {
         stopCamera();
         setCountdown(null);
         setPhase('review');
@@ -265,7 +289,7 @@ export default function PhotostripPage() {
     }
   }, [stopCamera]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── 3-2-1 countdown then capture ────────────────────────────────────────
+  // ── 3-2-1 countdown then capture ─────────────────────────────────────────
   const startCountdown = useCallback(() => {
     let t = COUNTDOWN_START;
     setCountdown(t);
@@ -307,13 +331,51 @@ export default function PhotostripPage() {
     }
   }, [stopCamera, startCountdown]);
 
+  // ── Gallery: open file picker for a specific slot ─────────────────────────
+  const openGalleryPicker = useCallback((slotIndex) => {
+    pendingGallerySlotRef.current = slotIndex;
+    galleryInputRef.current?.click();
+  }, []);
+
+  // ── Gallery: handle file selected ─────────────────────────────────────────
+  const handleGalleryFile = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = ''; // reset so same file can be picked again
+
+    const reader = new FileReader();
+    const dataUrl = await new Promise(resolve => {
+      reader.onload = ev => resolve(ev.target.result);
+      reader.readAsDataURL(file);
+    });
+
+    const img = new Image();
+    await new Promise(resolve => { img.onload = resolve; img.src = dataUrl; });
+
+    const slotIndex = pendingGallerySlotRef.current;
+    if (slotIndex === null) return;
+
+    shotBufferRef.current[slotIndex] = img;
+    setShotPreviews(prev => {
+      const next = [...prev];
+      next[slotIndex] = dataUrl;
+      return next;
+    });
+  }, []);
+
   const handleStart = useCallback(() => {
-    shotBufferRef.current = [];
+    const n = shotCountRef.current;
+    shotBufferRef.current = new Array(n).fill(null);
     setShotsTaken(0);
-    setShotPreviews([]);
+    setShotPreviews(new Array(n).fill(null));
     retakeSlotRef.current = null;
-    startStream(facingMode);
-  }, [facingMode, startStream]);
+
+    if (inputMode === 'gallery') {
+      setPhase('gallery');
+    } else {
+      startStream(facingMode);
+    }
+  }, [facingMode, inputMode, startStream]);
 
   const handleFlip = useCallback(async () => {
     const next = facingMode === 'user' ? 'environment' : 'user';
@@ -324,28 +386,61 @@ export default function PhotostripPage() {
   }, [facingMode, startStream]);
 
   const handleRetakeSlot = useCallback((slotIndex) => {
-    retakeSlotRef.current = slotIndex;
-    startStream(facingMode);
-  }, [facingMode, startStream]);
+    if (inputMode === 'gallery') {
+      openGalleryPicker(slotIndex);
+    } else {
+      retakeSlotRef.current = slotIndex;
+      startStream(facingMode);
+    }
+  }, [facingMode, inputMode, openGalleryPicker, startStream]);
 
   const handleBuildStrip = useCallback(() => {
-    composeStrip(shotBufferRef.current, selectedFilter);
+    const map = shotCountRef.current === 6 ? SLOT_SHOT_MAP_6 : SLOT_SHOT_MAP_3;
+    composeStrip(shotBufferRef.current, selectedFilter, map);
   }, [composeStrip, selectedFilter]);
 
   // ── Download / Share ──────────────────────────────────────────────────────
-  const handleDownload = () => {
-    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIos) { window.open(resultUrl, '_blank'); return; }
-    const a = document.createElement('a');
-    a.href     = resultUrl;
-    a.download = `armeniaca-photostrip-${Date.now()}.jpg`;
-    a.click();
+  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  const handleDownload = async () => {
+    try {
+      const blob = await dataUrlToBlob(resultUrl);
+      const file = new File([blob], `armeniaca-photostrip-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+      if (isIos) {
+        // iOS: try share sheet first (saves directly to camera roll)
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Armeniaca Photostrip' });
+          return;
+        }
+        // Fallback: blob URL in new tab — user long-press saves
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        return;
+      }
+
+      // Desktop / Android: anchor download via blob URL
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = file.name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    } catch (err) {
+      if (err.name === 'AbortError') return; // user cancelled share sheet
+      // Final fallback: data URL
+      const a = document.createElement('a');
+      a.href = resultUrl;
+      a.download = `armeniaca-photostrip-${Date.now()}.jpg`;
+      a.click();
+    }
   };
 
   const handleShare = async () => {
     if (!navigator.share) return;
     try {
-      const blob = await fetch(resultUrl).then(r => r.blob());
+      const blob = await dataUrlToBlob(resultUrl);
       const file = new File([blob], 'armeniaca-photostrip.jpg', { type: 'image/jpeg' });
       const payload = { title: 'HarmoniKebaikan × Armeniaca', files: [file] };
       if (navigator.canShare?.(payload)) {
@@ -360,6 +455,7 @@ export default function PhotostripPage() {
 
   const handleRetry = () => {
     clearTimeout(timerRef.current);
+    stopCamera();
     setResultUrl(null);
     setShotsTaken(0);
     setShotPreviews([]);
@@ -367,9 +463,11 @@ export default function PhotostripPage() {
     setFlash(false);
     setSelectedFilter('none');
     setPhase('idle');
+    // Keep shotCount and inputMode so user doesn't have to reselect
   };
 
-  const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  // Gallery phase: count of filled slots
+  const gallerySlotsFilledCount = shotPreviews.filter(Boolean).length;
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
@@ -382,7 +480,17 @@ export default function PhotostripPage() {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
+      {/* Hidden canvas for compositing */}
       <canvas ref={canvasRef} className="hidden" />
+
+      {/* Hidden file input for gallery mode */}
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleGalleryFile}
+      />
 
       {/* Header */}
       <div className="text-center mb-8">
@@ -396,15 +504,65 @@ export default function PhotostripPage() {
 
       {/* ── IDLE ─────────────────────────────────────────────────────────── */}
       {phase === 'idle' && (
-        <div className="flex flex-col items-center gap-6 max-w-xs w-full">
+        <div className="flex flex-col items-center gap-5 max-w-xs w-full">
           <img src={FRAME_SRC} alt="Bingkai HarmoniKebaikan" className="w-52 rounded-xl shadow-md" />
+
+          {/* Shot count selector */}
+          <div className="flex flex-col items-center gap-2 w-full">
+            <span className="text-xs" style={{ color: 'var(--retro-text-muted)' }}>Jumlah foto</span>
+            <div className="flex gap-2">
+              {[3, 6].map(n => (
+                <button
+                  key={n}
+                  onClick={() => setShotCount(n)}
+                  className="px-5 py-1.5 rounded-full text-xs font-medium border-2 transition"
+                  style={{
+                    borderColor: shotCount === n ? 'var(--retro-burgundy)' : 'var(--retro-border)',
+                    backgroundColor: shotCount === n ? 'var(--retro-burgundy)' : 'transparent',
+                    color: shotCount === n ? 'var(--retro-cream)' : 'var(--retro-text-secondary)',
+                  }}
+                >
+                  {n} foto
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Input mode selector */}
+          <div className="flex flex-col items-center gap-2 w-full">
+            <span className="text-xs" style={{ color: 'var(--retro-text-muted)' }}>Mode</span>
+            <div className="flex gap-2">
+              {[
+                { key: 'camera',  label: 'Kamera' },
+                { key: 'gallery', label: 'Dari Galeri' },
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setInputMode(key)}
+                  className="px-4 py-1.5 rounded-full text-xs font-medium border-2 transition"
+                  style={{
+                    borderColor: inputMode === key ? 'var(--retro-burgundy)' : 'var(--retro-border)',
+                    backgroundColor: inputMode === key ? 'var(--retro-burgundy)' : 'transparent',
+                    color: inputMode === key ? 'var(--retro-cream)' : 'var(--retro-text-secondary)',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <p className="text-sm text-center leading-relaxed" style={{ color: 'var(--retro-text-secondary)' }}>
-            Abadikan momen bersama bingkai HarmoniKebaikan.<br />
-            Ambil <strong>3 foto</strong> — hasilnya langsung bisa kamu download!
+            {inputMode === 'gallery'
+              ? <>Pilih <strong>{shotCount} foto</strong> dari galeri untuk dimasukkan ke bingkai.</>
+              : <>Abadikan momen bersama bingkai HarmoniKebaikan.<br />Ambil <strong>{shotCount} foto</strong> — hasilnya langsung bisa kamu download!</>
+            }
           </p>
+
           {cameraError && (
             <p className="text-sm text-red-600 text-center">{cameraError}</p>
           )}
+
           <button
             onClick={handleStart}
             className="px-8 py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95"
@@ -420,7 +578,7 @@ export default function PhotostripPage() {
         <div className="flex flex-col items-center gap-3 w-full max-w-lg">
           {/* Progress dots */}
           <div className="flex items-center gap-2">
-            {Array.from({ length: TOTAL_SHOTS }, (_, i) => (
+            {Array.from({ length: shotCount }, (_, i) => (
               <div
                 key={i}
                 className="w-3 h-3 rounded-full border-2 transition-colors duration-300"
@@ -431,12 +589,12 @@ export default function PhotostripPage() {
               />
             ))}
             <span className="ml-2 text-sm" style={{ color: 'var(--retro-text-secondary)' }}>
-              Foto {Math.min(shotsTaken + 1, TOTAL_SHOTS)} / {TOTAL_SHOTS}
+              Foto {Math.min(shotsTaken + 1, shotCount)} / {shotCount}
               {retakeSlotRef.current !== null && ` — ulangi slot ${retakeSlotRef.current + 1}`}
             </span>
           </div>
 
-          {/* Camera viewport — aspect matches actual slot ratio (508×348 ≈ 3:2) */}
+          {/* Camera viewport */}
           <div className="relative w-full aspect-[3/2] bg-black rounded-xl overflow-hidden shadow-lg">
             <video
               ref={videoRef}
@@ -475,11 +633,11 @@ export default function PhotostripPage() {
           </div>
 
           {/* Live thumbnails */}
-          <div className="flex gap-2 w-full justify-center">
-            {Array.from({ length: TOTAL_SHOTS }, (_, i) => (
+          <div className={`grid gap-2 w-full ${shotCount === 6 ? 'grid-cols-6' : 'grid-cols-3'}`}>
+            {Array.from({ length: shotCount }, (_, i) => (
               <div
                 key={i}
-                className="flex-1 aspect-[3/2] rounded-lg overflow-hidden border-2 transition-colors"
+                className="aspect-[3/2] rounded-lg overflow-hidden border-2 transition-colors"
                 style={{
                   borderColor: i < shotsTaken ? 'var(--retro-burgundy)' : 'var(--retro-border)',
                   backgroundColor: 'var(--retro-bg-secondary)',
@@ -502,6 +660,73 @@ export default function PhotostripPage() {
         </div>
       )}
 
+      {/* ── GALLERY ──────────────────────────────────────────────────────── */}
+      {phase === 'gallery' && (
+        <div className="flex flex-col items-center gap-5 w-full max-w-sm">
+          <div className="text-center">
+            <p className="text-sm font-medium" style={{ color: 'var(--retro-text-primary)' }}>
+              Pilih {shotCount} foto dari galeri
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--retro-text-muted)' }}>
+              {gallerySlotsFilledCount} / {shotCount} foto dipilih
+            </p>
+          </div>
+
+          {/* Upload slots grid */}
+          <div className={`grid gap-3 w-full ${shotCount === 6 ? 'grid-cols-3' : 'grid-cols-3'}`}>
+            {Array.from({ length: shotCount }, (_, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <button
+                  onClick={() => openGalleryPicker(i)}
+                  className="w-full aspect-[3/2] rounded-lg overflow-hidden border-2 transition hover:opacity-80 flex items-center justify-center"
+                  style={{
+                    borderColor: shotPreviews[i] ? 'var(--retro-burgundy)' : 'var(--retro-border)',
+                    backgroundColor: 'var(--retro-bg-secondary)',
+                  }}
+                  aria-label={shotPreviews[i] ? `Ganti foto ${i + 1}` : `Pilih foto ${i + 1}`}
+                >
+                  {shotPreviews[i] ? (
+                    <img src={shotPreviews[i]} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--retro-text-muted)' }}>
+                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+                      <path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                  )}
+                </button>
+                <span className="text-[10px]" style={{ color: 'var(--retro-text-muted)' }}>
+                  {shotPreviews[i] ? (
+                    <button
+                      onClick={() => openGalleryPicker(i)}
+                      className="underline hover:opacity-70 transition"
+                      style={{ color: 'var(--retro-text-secondary)' }}
+                    >
+                      Ganti
+                    </button>
+                  ) : `Slot ${i + 1}`}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setPhase('review')}
+            disabled={gallerySlotsFilledCount < shotCount}
+            className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: 'var(--retro-burgundy)', color: 'var(--retro-cream)' }}
+          >
+            Lanjut →
+          </button>
+          <button
+            onClick={handleRetry}
+            className="text-xs underline"
+            style={{ color: 'var(--retro-text-muted)' }}
+          >
+            Mulai ulang
+          </button>
+        </div>
+      )}
+
       {/* ── REVIEW ───────────────────────────────────────────────────────── */}
       {phase === 'review' && (
         <div className="flex flex-col items-center gap-5 w-full max-w-sm">
@@ -509,10 +734,10 @@ export default function PhotostripPage() {
             Cek foto kamu
           </p>
 
-          {/* 3 thumbnail slots with re-take buttons */}
-          <div className="flex gap-2 w-full">
-            {Array.from({ length: TOTAL_SHOTS }, (_, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+          {/* Thumbnail slots with re-take / re-upload buttons */}
+          <div className={`grid gap-2 w-full ${shotCount === 6 ? 'grid-cols-3' : 'grid-cols-3'}`}>
+            {Array.from({ length: shotCount }, (_, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
                 <div
                   className="w-full aspect-[3/2] rounded-lg overflow-hidden border-2"
                   style={{ borderColor: 'var(--retro-border)' }}
@@ -531,7 +756,7 @@ export default function PhotostripPage() {
                   className="text-[10px] px-2 py-0.5 rounded-full border transition hover:opacity-80"
                   style={{ borderColor: 'var(--retro-border-dark)', color: 'var(--retro-text-secondary)' }}
                 >
-                  Ulangi
+                  {inputMode === 'gallery' ? 'Ganti' : 'Ulangi'}
                 </button>
               </div>
             ))}
@@ -558,7 +783,6 @@ export default function PhotostripPage() {
             </div>
           </div>
 
-          {/* CTA */}
           <button
             onClick={handleBuildStrip}
             className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95"
@@ -587,8 +811,8 @@ export default function PhotostripPage() {
           />
           <p className="text-xs text-center" style={{ color: 'var(--retro-text-muted)' }}>
             {isIos
-              ? 'Tahan foto di atas → Simpan Gambar'
-              : 'Tekan Download untuk menyimpan'}
+              ? 'Tekan Download — pilih "Simpan Gambar" di menu share'
+              : 'Tekan Download untuk menyimpan ke perangkat'}
           </p>
           <div className="flex gap-2 w-full">
             <button
@@ -598,7 +822,7 @@ export default function PhotostripPage() {
             >
               Download
             </button>
-            {canShare && (
+            {canShare && !isIos && (
               <button
                 onClick={handleShare}
                 className="flex-1 py-2.5 rounded-full font-semibold text-sm border-2 transition hover:opacity-80 active:scale-95"
