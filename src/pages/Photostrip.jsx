@@ -365,14 +365,16 @@ export default function PhotostripPage() {
 
   const handleStart = useCallback(() => {
     const n = shotCountRef.current;
-    shotBufferRef.current = new Array(n).fill(null);
     setShotsTaken(0);
-    setShotPreviews(new Array(n).fill(null));
     retakeSlotRef.current = null;
 
     if (inputMode === 'gallery') {
+      shotBufferRef.current = new Array(n).fill(null); // index-based assignment
+      setShotPreviews(new Array(n).fill(null));
       setPhase('gallery');
     } else {
+      shotBufferRef.current = []; // push-based, must start empty
+      setShotPreviews([]);
       startStream(facingMode);
     }
   }, [facingMode, inputMode, startStream]);
