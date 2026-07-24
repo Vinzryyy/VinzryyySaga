@@ -1,10 +1,22 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-07-21T05:14:15.434857Z",
+  "fetchedAt": "2026-07-24T08:33:01.396129Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
+    {
+      "id": 1848,
+      "title": "Pengumuman Berakhirnya Operasional Proyek JKT48 Virtual",
+      "category": "Other",
+      "slug": "pengumuman-berakhirnya-operasional-proyek-jkt48-virtual",
+      "url": "https://jkt48.com/news/pengumuman-berakhirnya-operasional-proyek-jkt48-virtual",
+      "image": null,
+      "publishedAt": "2026-07-20T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48 dan JKT48 Virtual. PT Indonesia Musik Nusantara (IMN) selaku perusahaan yang menaungi JKT48 secara resmi telah memutuskan untuk mengakhiri kontrak lisensi dengan AKA Virtual…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1847,
       "title": "Pengumuman Mengenai Birthday 2-Shot Online dengan Chekicha Pengganti untuk Cornelia Vanisa, Kathrina Irene dan Fritzy Rosmerian",
@@ -54,18 +66,6 @@
       "matchedIn": null
     },
     {
-      "id": 1841,
-      "title": "Informasi Mengenai Pre-Order “JKT48 Request Hour 2026 Setlist Best 40 Official T-Shirt”",
-      "category": "Goods",
-      "slug": "informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
-      "url": "https://jkt48.com/news/informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
-      "image": null,
-      "publishedAt": "2026-06-14T02:00:00.000Z",
-      "snippet": "Terima kasih atas partisipasi dan antusiasme seluruh fans dalam Request Hour tahun ini! Sebanyak 40 lagu teratas yang terpilih melalui hasil voting telah diumumkan dan resmi menjadi setlist Request Hour 2026. Kini kamu…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1842,
       "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet & 2-Shot Event di Surabaya",
       "category": "Event",
@@ -74,6 +74,18 @@
       "image": null,
       "publishedAt": "2026-06-13T17:00:00.000Z",
       "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1841,
+      "title": "Informasi Mengenai Pre-Order “JKT48 Request Hour 2026 Setlist Best 40 Official T-Shirt”",
+      "category": "Goods",
+      "slug": "informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
+      "url": "https://jkt48.com/news/informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
+      "image": null,
+      "publishedAt": "2026-06-14T02:00:00.000Z",
+      "snippet": "Terima kasih atas partisipasi dan antusiasme seluruh fans dalam Request Hour tahun ini! Sebanyak 40 lagu teratas yang terpilih melalui hasil voting telah diumumkan dan resmi menjadi setlist Request Hour 2026. Kini kamu…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -366,18 +378,6 @@
       "matchedIn": null
     },
     {
-      "id": 1032,
-      "title": "Pengumuman Mengenai Maintenance Website JKT48",
-      "category": "Other",
-      "slug": "pengumuman-mengenai-maintenance-website-jkt48-2008",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 946,
       "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
       "category": "Event",
@@ -386,6 +386,18 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-12T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka menghadirkan pengalaman yang lebih dekat antara member JKT48 dan para penggemar, JKT48 akan mengadakan sebuah event spesial bertajuk “ LOVE DREAM PASSION” yang…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1032,
+      "title": "Pengumuman Mengenai Maintenance Website JKT48",
+      "category": "Other",
+      "slug": "pengumuman-mengenai-maintenance-website-jkt48-2008",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-12T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -590,18 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-20T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Gabriela Abigail, Cornelia Vanisa, dan Amanda Sukma, yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1522,
-      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-1987",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-1987",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-01-11T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan kegiatan Raisha Syifa yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48 14th Anniversary Concert & Gracia…",
       "mentionsEli": false,
       "matchedIn": null
     }
