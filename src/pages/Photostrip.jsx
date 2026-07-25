@@ -150,6 +150,7 @@ export default function PhotostripPage() {
   const [selectedFilter, setSelectedFilter] = useState('none');
   const [canShare, setCanShare]         = useState(false);
   const [swapIndex, setSwapIndex]       = useState(null); // index of slot selected for swap in review
+  const [isCompositing, setIsCompositing] = useState(false);
 
   const videoRef             = useRef(null);
   const streamRef            = useRef(null);
@@ -166,6 +167,7 @@ export default function PhotostripPage() {
   const pendingGallerySlotRef = useRef(null);
   const returnPhaseRef        = useRef('review'); // where retake-mode camera returns to
   const resultBlobUrlRef      = useRef(null);     // pre-generated blob URL for synchronous download
+  const slotMapRef            = useRef(SLOT_SHOT_MAP_3); // remembered for re-compositing from result
 
   // Keep refs in sync with state
   useEffect(() => { shotCountRef.current = shotCount; }, [shotCount]);
@@ -212,6 +214,9 @@ export default function PhotostripPage() {
 
   // ── Composite shots + frame onto hidden canvas ────────────────────────────
   const composeStrip = useCallback(async (shots, filter, slotMap) => {
+    setIsCompositing(true);
+    slotMapRef.current = slotMap;
+
     const frameImg = frameImgRef.current;
     if (!frameImg.complete) {
       await new Promise(res => { frameImg.onload = res; });
@@ -244,9 +249,10 @@ export default function PhotostripPage() {
       resultBlobUrlRef.current = URL.createObjectURL(blob);
     }).catch(() => {});
 
+    setIsCompositing(false);
     setPhase('result');
 
-    // Petal burst after image renders
+    // Petal burst after image renders (only on first build, not filter changes)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => triggerPetalBurst(resultImgRef.current));
     });
@@ -453,6 +459,11 @@ export default function PhotostripPage() {
     const map = shotCountRef.current === 6 ? SLOT_SHOT_MAP_6 : SLOT_SHOT_MAP_3;
     composeStrip(shotBufferRef.current, selectedFilter, map);
   }, [composeStrip, selectedFilter]);
+
+  const handleResultFilterChange = useCallback((filter) => {
+    setSelectedFilter(filter);
+    composeStrip(shotBufferRef.current, filter, slotMapRef.current);
+  }, [composeStrip]);
 
   // ── Download / Share ──────────────────────────────────────────────────────
   const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -1014,11 +1025,18 @@ export default function PhotostripPage() {
 
           <button
             onClick={handleBuildStrip}
-            disabled={swapIndex !== null}
-            className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+            disabled={swapIndex !== null || isCompositing}
+            className="w-full py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             style={{ backgroundColor: 'var(--retro-burgundy)', color: 'var(--retro-cream)' }}
           >
-            Buat Strip
+            {isCompositing ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round"/>
+                </svg>
+                Memproses…
+              </>
+            ) : 'Buat Strip'}
           </button>
           <button
             onClick={handleRetry}
@@ -1033,21 +1051,57 @@ export default function PhotostripPage() {
       {/* ── RESULT ───────────────────────────────────────────────────────── */}
       {phase === 'result' && resultUrl && (
         <div className="flex flex-col items-center gap-5 w-full max-w-xs">
-          <img
-            ref={resultImgRef}
-            src={resultUrl}
-            alt="Hasil photostrip kamu"
-            className="w-full rounded-xl shadow-lg"
-          />
+
+          {/* Strip image with compositing overlay */}
+          <div className="relative w-full">
+            <img
+              ref={resultImgRef}
+              src={resultUrl}
+              alt="Hasil photostrip kamu"
+              className="w-full rounded-xl shadow-lg"
+              style={{ opacity: isCompositing ? 0.4 : 1, transition: 'opacity 0.2s' }}
+            />
+            {isCompositing && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl">
+                <svg className="w-8 h-8 animate-spin" viewBox="0 0 24 24" fill="none"
+                  style={{ color: 'var(--retro-burgundy)' }}>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"
+                    strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round"/>
+                </svg>
+              </div>
+            )}
+          </div>
+
+          {/* Filter selector */}
+          <div className="flex flex-col items-center gap-2 w-full">
+            <span className="text-xs" style={{ color: 'var(--retro-text-muted)' }}>Ganti filter</span>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {Object.entries(FILTERS).map(([key, { label }]) => (
+                <button
+                  key={key}
+                  onClick={() => handleResultFilterChange(key)}
+                  disabled={isCompositing}
+                  className="px-3 py-1 rounded-full text-xs font-medium border-2 transition disabled:opacity-40"
+                  style={{
+                    borderColor: selectedFilter === key ? 'var(--retro-burgundy)' : 'var(--retro-border)',
+                    backgroundColor: selectedFilter === key ? 'var(--retro-burgundy)' : 'transparent',
+                    color: selectedFilter === key ? 'var(--retro-cream)' : 'var(--retro-text-secondary)',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <p className="text-xs text-center" style={{ color: 'var(--retro-text-muted)' }}>
-            {isIos
-              ? 'Tekan Download — pilih "Simpan Gambar" di menu share'
-              : 'Tekan Download untuk menyimpan ke perangkat'}
+            Tekan Download untuk menyimpan ke perangkat
           </p>
           <div className="flex gap-2 w-full">
             <button
               onClick={handleDownload}
-              className="flex-1 py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95"
+              disabled={isCompositing}
+              className="flex-1 py-2.5 rounded-full font-semibold text-sm transition hover:opacity-90 active:scale-95 disabled:opacity-40"
               style={{ backgroundColor: 'var(--retro-burgundy)', color: 'var(--retro-cream)' }}
             >
               Download
@@ -1055,7 +1109,8 @@ export default function PhotostripPage() {
             {canShare && (
               <button
                 onClick={handleShare}
-                className="flex-1 py-2.5 rounded-full font-semibold text-sm border-2 transition hover:opacity-80 active:scale-95"
+                disabled={isCompositing}
+                className="flex-1 py-2.5 rounded-full font-semibold text-sm border-2 transition hover:opacity-80 active:scale-95 disabled:opacity-40"
                 style={{ borderColor: 'var(--retro-burgundy)', color: 'var(--retro-burgundy)' }}
               >
                 Bagikan
