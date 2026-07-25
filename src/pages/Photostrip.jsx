@@ -1052,7 +1052,7 @@ export default function PhotostripPage() {
             >
               Download
             </button>
-            {canShare && !isIos && (
+            {canShare && (
               <button
                 onClick={handleShare}
                 className="flex-1 py-2.5 rounded-full font-semibold text-sm border-2 transition hover:opacity-80 active:scale-95"
