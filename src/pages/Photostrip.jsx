@@ -165,6 +165,7 @@ export default function PhotostripPage() {
   const galleryInputRef       = useRef(null);
   const pendingGallerySlotRef = useRef(null);
   const returnPhaseRef        = useRef('review'); // where retake-mode camera returns to
+  const resultBlobUrlRef      = useRef(null);     // pre-generated blob URL for synchronous download
 
   // Keep refs in sync with state
   useEffect(() => { shotCountRef.current = shotCount; }, [shotCount]);
@@ -235,6 +236,14 @@ export default function PhotostripPage() {
 
     const url = canvas.toDataURL('image/jpeg', 0.95);
     setResultUrl(url);
+
+    // Pre-generate blob URL so handleDownload can be fully synchronous
+    // (awaiting inside a click handler breaks the user-gesture chain on mobile)
+    dataUrlToBlob(url).then(blob => {
+      if (resultBlobUrlRef.current) URL.revokeObjectURL(resultBlobUrlRef.current);
+      resultBlobUrlRef.current = URL.createObjectURL(blob);
+    }).catch(() => {});
+
     setPhase('result');
 
     // Petal burst after image renders
@@ -449,38 +458,40 @@ export default function PhotostripPage() {
   const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   const handleDownload = async () => {
-    try {
-      const blob = await dataUrlToBlob(resultUrl);
-      const file = new File([blob], `armeniaca-photostrip-${Date.now()}.jpg`, { type: 'image/jpeg' });
+    const filename = `armeniaca-photostrip-${Date.now()}.jpg`;
 
-      if (isIos) {
-        // iOS: try share sheet first (saves directly to camera roll)
+    if (isIos) {
+      // iOS: share sheet first (saves to camera roll), then blob-in-tab fallback
+      try {
+        const blob = await dataUrlToBlob(resultUrl);
+        const file = new File([blob], filename, { type: 'image/jpeg' });
         if (navigator.share && navigator.canShare?.({ files: [file] })) {
           await navigator.share({ files: [file], title: 'Armeniaca Photostrip' });
           return;
         }
-        // Fallback: blob URL in new tab — user long-press saves
         const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl, '_blank');
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
-        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        const a = document.createElement('a');
+        a.href = resultUrl;
+        a.download = filename;
+        a.click();
       }
-
-      // Desktop / Android: anchor download via blob URL
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = file.name;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-    } catch (err) {
-      if (err.name === 'AbortError') return; // user cancelled share sheet
-      // Final fallback: data URL
-      const a = document.createElement('a');
-      a.href = resultUrl;
-      a.download = `armeniaca-photostrip-${Date.now()}.jpg`;
-      a.click();
+      return;
     }
+
+    // Desktop / Android: use pre-generated blob URL (synchronous — keeps user gesture intact)
+    const a = document.createElement('a');
+    a.download = filename;
+    if (resultBlobUrlRef.current) {
+      a.href = resultBlobUrlRef.current;
+    } else {
+      // Blob URL not ready yet (very fast user?), fall back to data URL
+      a.href = resultUrl;
+    }
+    a.click();
   };
 
   const handleShare = async () => {
@@ -502,6 +513,10 @@ export default function PhotostripPage() {
   const handleRetry = () => {
     clearTimeout(timerRef.current);
     stopCamera();
+    if (resultBlobUrlRef.current) {
+      URL.revokeObjectURL(resultBlobUrlRef.current);
+      resultBlobUrlRef.current = null;
+    }
     setResultUrl(null);
     setShotsTaken(0);
     setShotPreviews([]);
