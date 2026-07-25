@@ -1,10 +1,22 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-07-24T13:52:04.055956Z",
+  "fetchedAt": "2026-07-24T19:29:50.933396Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
+    {
+      "id": 1849,
+      "title": "Pengumuman Mengenai Pengunduran Diri Gendis Mayrannisa dari JKT48",
+      "category": "Other",
+      "slug": "pengumuman-mengenai-pengunduran-diri-gendis-mayrannisa-dari-jkt48",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-gendis-mayrannisa-dari-jkt48",
+      "image": null,
+      "publishedAt": "2026-07-23T17:00:00.000Z",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Gendis Mayrannisa dari JKT48 Team Dream telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1848,
       "title": "Pengumuman Berakhirnya Operasional Proyek JKT48 Virtual",
@@ -66,18 +78,6 @@
       "matchedIn": null
     },
     {
-      "id": 1842,
-      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet & 2-Shot Event di Surabaya",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
-      "image": null,
-      "publishedAt": "2026-06-13T17:00:00.000Z",
-      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1841,
       "title": "Informasi Mengenai Pre-Order “JKT48 Request Hour 2026 Setlist Best 40 Official T-Shirt”",
       "category": "Goods",
@@ -86,6 +86,18 @@
       "image": null,
       "publishedAt": "2026-06-14T02:00:00.000Z",
       "snippet": "Terima kasih atas partisipasi dan antusiasme seluruh fans dalam Request Hour tahun ini! Sebanyak 40 lagu teratas yang terpilih melalui hasil voting telah diumumkan dan resmi menjadi setlist Request Hour 2026. Kini kamu…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1842,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet & 2-Shot Event di Surabaya",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
+      "image": null,
+      "publishedAt": "2026-06-13T17:00:00.000Z",
+      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -162,18 +174,6 @@
       "matchedIn": null
     },
     {
-      "id": 1834,
-      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "image": null,
-      "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1835,
       "title": "Pengumuman Mengenai Official Team Merchandise Vol. 1",
       "category": "Goods",
@@ -182,6 +182,18 @@
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1834,
+      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "image": null,
+      "publishedAt": "2026-05-19T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -590,18 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-01-24T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Chelsea Davina yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48 14th Anniversary Concert & Gracia…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1507,
-      "title": "Pengumuman Mengenai Video Call Pengganti Gabriela Abigail, Cornelia Vanisa, dan Amanda Sukma",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-video-call-pengganti-gabriela-abigail-cornelia-vanisa-dan-amanda-sukma",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-gabriela-abigail-cornelia-vanisa-dan-amanda-sukma",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-01-20T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Gabriela Abigail, Cornelia Vanisa, dan Amanda Sukma, yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “JKT48…",
       "mentionsEli": false,
       "matchedIn": null
     }
