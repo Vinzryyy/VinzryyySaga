@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-27T14:43:04.365665Z",
+  "fetchedAt": "2026-07-28T08:39:44.603555Z",
   "salesCount": 10,
   "sales": [
     {
@@ -284,7 +284,7 @@
     {
       "exclusiveId": 947,
       "code": "EX783D",
-      "slug": "ex783d-24062026",
+      "slug": "ex783d-15062026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-thumb-edd92f.jpg",
@@ -329,7 +329,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex783d-24062026"
+      "url": "https://jkt48.com/schedule/ex783d-15062026"
     },
     {
       "exclusiveId": 946,
