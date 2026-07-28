@@ -1,0 +1,79 @@
+name: IDN Live Recorder
+
+# Polls every 5 minutes. If Eli is live, records until stream ends
+# (or the 5h50min job cap). Files are committed back to the repo.
+#
+# Concurrency key prevents two simultaneous recording jobs — when a
+# new cron fires while recording is already in progress the new job
+# is queued (not cancelled) and runs after the current one finishes.
+# Jobs where Eli is not live exit in ~5s so the queue clears quickly.
+#
+# Manual trigger: Actions → IDN Live Recorder → Run workflow
+# Force a specific slug (if auto-detect misses it):
+#   workflow_dispatch with input slug=<slug>
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Force-record a specific stream slug (leave blank for auto-detect)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: idn-live-recorder
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install deps
+        run: pip install -r scripts/requirements.txt
+
+      - name: Record (auto-detect or forced slug)
+        run: |
+          if [ -n "${{ github.event.inputs.slug }}" ]; then
+            echo "Force-recording slug: ${{ github.event.inputs.slug }}"
+            python scripts/record-idn-live.py \
+              --slug "${{ github.event.inputs.slug }}" \
+              --max-minutes 340
+          else
+            python scripts/record-idn-live.py \
+              --ci-mode \
+              --max-minutes 340
+          fi
+
+      - name: Commit recorded data
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data/idn-replay/
+          if git diff --cached --quiet; then
+            echo "No new recordings to commit"
+            exit 0
+          fi
+          # Use the session slug as the commit subject if available
+          slug=$(git diff --cached --name-only \
+            | grep 'sessions/' | head -1 \
+            | xargs -I{} basename {} .json 2>/dev/null \
+            || echo "unknown")
+          git commit -m "chore(idn-replay): record session $slug [skip ci]"
+          git push
