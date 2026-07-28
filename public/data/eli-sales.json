@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-07-24T19:29:15.773858Z",
+  "fetchedAt": "2026-07-28T08:39:44.603555Z",
   "salesCount": 10,
   "sales": [
     {
@@ -89,15 +89,15 @@
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 31,
-          "remainingQuota": 14
+          "ticketsSold": 44,
+          "remainingQuota": 1
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 38,
-          "remainingQuota": 7
+          "ticketsSold": 45,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 6",
@@ -284,7 +284,7 @@
     {
       "exclusiveId": 947,
       "code": "EX783D",
-      "slug": "ex783d-24062026",
+      "slug": "ex783d-15062026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-thumb-edd92f.jpg",
@@ -329,7 +329,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex783d-24062026"
+      "url": "https://jkt48.com/schedule/ex783d-15062026"
     },
     {
       "exclusiveId": 946,
