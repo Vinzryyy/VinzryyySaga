@@ -1,46 +1,62 @@
 """
 record-idn-live.py — Armeniaca IDN Live recorder for Helisma Putri (jkt48_eli)
 
-Detects when Eli goes live on IDN, then records:
-  - Chat messages  →  public/data/idn-replay/srt/{slug}.srt
-  - Gift log       →  public/data/idn-replay/top_gifters/{slug}.json
-  - Session meta   →  public/data/idn-replay/sessions/{slug}.json
+Chat via WebSocket IRC (wss://chat.idn.app), gifts via HTTP polling.
+
+Protocol (from ikhbaldwiyan/showroom CommentIDN.jsx):
+  1. Connect  wss://chat.idn.app
+  2. NICK     idn-{uuid8}-{unix_ts}
+  3. USER     idn-{uuid8}-{unix_ts} 0 * null
+  4. Wait for server :001 (registered)
+  5. JOIN     #{chat_room_id}
+  6. Parse    PRIVMSG #{ch} :{json}
+     json = { user:{name,username,avatar_url}, chat:{message}, timestamp }
+
+chat_room_id comes from IDN API v4:
+  GET https://api.idn.app/api/v4/livestream/{slug}
+  Header: x-api-key: 123f4c4e-6ce1-404d-8786-d17e46d65b5c
+
+Outputs:
+  public/data/idn-replay/srt/{slug}.srt
+  public/data/idn-replay/top_gifters/{slug}.json
+  public/data/idn-replay/sessions/{slug}.json
 
 Usage:
   python scripts/record-idn-live.py                        # watch + auto-record
   python scripts/record-idn-live.py --slug <slug>          # force a specific slug
   python scripts/record-idn-live.py --ci-mode              # GitHub Actions mode
-  python scripts/record-idn-live.py --probe --slug <slug>  # dump raw API responses for debugging
-  python scripts/record-idn-live.py --dry-run              # detect only, no file writes
+  python scripts/record-idn-live.py --probe --slug <slug>  # probe gift endpoints
+  python scripts/record-idn-live.py --dry-run              # no file writes
 
-Stream detection: IDN API v4 (primary) → GraphQL (fallback)
-Chat/gift:        v4 chat_room_id-based endpoints (probed on first live session)
-
-Requirements:
-  pip install requests>=2.31.0
+Requirements: pip install -r scripts/requirements.txt
 """
 
 import argparse
 import json
 import os
+import queue
 import signal
 import sys
+import threading
 import time
+import uuid
 from datetime import datetime, timezone
 
 import requests
+import websocket  # websocket-client
 
 # ── Config ────────────────────────────────────────────────────────────────────
-IDN_V4_URL    = "https://api.idn.app/api/v4"
-IDN_API_KEY   = "123f4c4e-6ce1-404d-8786-d17e46d65b5c"   # public key from jkt48.gemes.in
-GRAPHQL_URL   = "https://api.idn.app/graphql"
-MOBILE_API    = "https://mobile-api.idn.app"
-ELI_USERNAME  = "jkt48_eli"
+IDN_V4_URL   = "https://api.idn.app/api/v4"
+IDN_API_KEY  = "123f4c4e-6ce1-404d-8786-d17e46d65b5c"
+GRAPHQL_URL  = "https://api.idn.app/graphql"
+MOBILE_API   = "https://mobile-api.idn.app"
+CHAT_WS_URL  = "wss://chat.idn.app"
+ELI_USERNAME = "jkt48_eli"
 
-CHAT_POLL_SEC     = 5
 GIFT_POLL_SEC     = 10
 WATCH_SEC         = 30
-STREAM_END_CHECKS = 3
+STREAM_END_CHECKS = 3   # consecutive misses before declaring stream ended
+WS_RECONNECT_SEC  = 5   # wait before reconnecting on WS drop
 
 HEADERS_V4 = {
     "Accept": "application/json",
@@ -62,43 +78,22 @@ def ensure_dir(sub):
 
 # ── v4 REST helpers ───────────────────────────────────────────────────────────
 def v4_get(path, params=None):
-    r = requests.get(
-        IDN_V4_URL + path,
-        params=params,
-        headers=HEADERS_V4,
-        timeout=15,
-    )
+    r = requests.get(IDN_V4_URL + path, params=params, headers=HEADERS_V4, timeout=15)
     r.raise_for_status()
     return r.json()
 
-# ── GraphQL fallback ──────────────────────────────────────────────────────────
 def gql(query):
-    r = requests.post(
-        GRAPHQL_URL,
-        json={"query": query},
-        headers=HEADERS_GQL,
-        timeout=15,
-    )
+    r = requests.post(GRAPHQL_URL, json={"query": query}, headers=HEADERS_GQL, timeout=15)
     r.raise_for_status()
     return r.json()
 
 # ── Stream detection ──────────────────────────────────────────────────────────
 def find_eli_stream():
-    """
-    Primary: walk /api/v4/livestreams pages for jkt48_eli.
-    Fallback: GraphQL getLivestreams.
-    Returns normalized stream dict or None.
-    """
-    # ── v4 REST ───────────────────────────────────────────────────────────
+    """v4 REST primary → GraphQL fallback. Returns normalized dict or None."""
     for page in range(1, 9):
         try:
-            data = v4_get("/livestreams", params={"category": "all", "page": page})
-            # v4 shape: {"data": [...]} or {"livestreams": [...]}
-            streams = (
-                data.get("data")
-                or data.get("livestreams")
-                or []
-            )
+            data    = v4_get("/livestreams", params={"category": "all", "page": page})
+            streams = data.get("data") or data.get("livestreams") or []
             if not streams:
                 break
             match = next(
@@ -107,12 +102,11 @@ def find_eli_stream():
                 None,
             )
             if match:
-                return _normalize_v4_stream(match)
+                return _normalize_v4(match)
         except Exception as e:
-            print(f"[WATCH] v4 error page {page}: {e}")
+            print(f"[WATCH] v4 error p{page}: {e}")
             break
 
-    # ── GraphQL fallback ──────────────────────────────────────────────────
     for page in range(1, 9):
         try:
             resp = gql(
@@ -134,94 +128,198 @@ def find_eli_stream():
             if match:
                 return match
         except Exception as e:
-            print(f"[WATCH] GraphQL error page {page}: {e}")
+            print(f"[WATCH] GQL error p{page}: {e}")
             break
 
     return None
 
 
 def fetch_stream_detail(slug):
-    """
-    Pull full stream detail from v4 — includes chat_room_id and extra fields
-    not available from the list endpoint. Returns merged dict or original slug stub.
-    """
+    """Pull full v4 detail to get chat_room_id. Returns normalized dict."""
     try:
-        data = v4_get(f"/livestream/{slug}")
-        # v4 shape: {"data": {...}} or the object directly
+        data   = v4_get(f"/livestream/{slug}")
         detail = data.get("data") or data
         if isinstance(detail, dict) and detail.get("slug"):
-            return _normalize_v4_stream(detail)
+            return _normalize_v4(detail)
     except Exception as e:
-        print(f"[STREAM] Detail fetch failed for {slug}: {e}")
+        print(f"[STREAM] Detail fetch failed: {e}")
     return {"slug": slug}
 
 
-def _normalize_v4_stream(s):
-    """Map v4 fields → our internal dict shape (same keys as GraphQL version)."""
+def _normalize_v4(s):
     creator = s.get("creator") or s.get("user") or {}
     return {
-        "slug":           s.get("slug") or s.get("id") or "",
-        "title":          s.get("title") or s.get("name") or "",
-        "status":         s.get("status") or "live",
-        "live_at":        s.get("live_at") or s.get("created_at") or s.get("started_at") or "",
-        "view_count":     s.get("view_count") or s.get("viewers") or 0,
-        "image_url":      s.get("image_url") or s.get("thumbnail") or s.get("cover") or "",
-        "playback_url":   s.get("playback_url") or s.get("hls_url") or s.get("stream_url") or "",
-        "room_identifier":s.get("room_identifier") or s.get("room_id") or "",
-        "chat_room_id":   s.get("chat_room_id") or s.get("chatroom_id") or s.get("chat_id") or "",
-        "creator":        {"username": creator.get("username", ""), "name": creator.get("name", "")},
-        # keep raw for debugging
-        "_raw": s,
+        "slug":            s.get("slug") or s.get("id") or "",
+        "title":           s.get("title") or s.get("name") or "",
+        "live_at":         s.get("live_at") or s.get("created_at") or s.get("started_at") or "",
+        "view_count":      s.get("view_count") or s.get("viewers") or 0,
+        "image_url":       s.get("image_url") or s.get("thumbnail") or s.get("cover") or "",
+        "playback_url":    s.get("playback_url") or s.get("hls_url") or s.get("stream_url") or "",
+        "room_identifier": s.get("room_identifier") or s.get("room_id") or "",
+        "chat_room_id":    s.get("chat_room_id") or s.get("chatroom_id") or s.get("chat_id") or "",
+        "creator":         {"username": creator.get("username", ""), "name": creator.get("name", "")},
     }
 
-# ── Probe mode — dump raw responses for all candidate chat endpoints ──────────
-def probe_endpoints(slug, chat_room_id):
+# ── WebSocket IRC chat client ─────────────────────────────────────────────────
+class IRCChatClient:
     """
-    Called with --probe flag. Hits every candidate chat/gift endpoint and
-    dumps the raw response so we can identify which one actually returns data.
+    Connects to wss://chat.idn.app using IRC protocol, joins #{chat_room_id},
+    and puts parsed chat dicts into `msg_queue`.
+
+    Thread-safe: runs in a daemon thread, main loop drains the queue.
+    Auto-reconnects on unexpected close while `self.active` is True.
     """
-    print(f"\n[PROBE] slug={slug}  chat_room_id={chat_room_id or '(none)'}")
-    print("─" * 60)
 
-    candidates = [
-        # v4 chat_room_id-based
-        (HEADERS_V4,  f"{IDN_V4_URL}/chat-room/{chat_room_id}/messages"),
-        (HEADERS_V4,  f"{IDN_V4_URL}/chat-room/{chat_room_id}/comments"),
-        (HEADERS_V4,  f"{IDN_V4_URL}/chat-room/{chat_room_id}/chats"),
-        # v4 slug-based
-        (HEADERS_V4,  f"{IDN_V4_URL}/livestream/{slug}/comments"),
-        (HEADERS_V4,  f"{IDN_V4_URL}/livestream/{slug}/chat"),
-        (HEADERS_V4,  f"{IDN_V4_URL}/livestream/{slug}/messages"),
-        # mobile API slug-based
-        (HEADERS_V4,  f"{MOBILE_API}/v1/stream/{slug}/comment"),
-        (HEADERS_V4,  f"{MOBILE_API}/v1/live/{slug}/comment"),
-        (HEADERS_V4,  f"{MOBILE_API}/v2/stream/{slug}/comment"),
-        # mobile API chat_room_id-based
-        (HEADERS_V4,  f"{MOBILE_API}/v1/chat-room/{chat_room_id}/messages"),
-    ]
+    def __init__(self, chat_room_id, msg_queue):
+        self.chat_room_id = chat_room_id
+        self.queue        = msg_queue
+        self.active       = False
+        self._ws          = None
+        self._thread      = None
+        self._nick        = self._make_nick()
 
-    for headers, url in candidates:
-        if not url or "(none)" in url:
-            continue
+    @staticmethod
+    def _make_nick():
+        uid = uuid.uuid4().hex[:8]
+        return f"idn-{uid}-{int(time.time())}"
+
+    # ── IRC handlers ──────────────────────────────────────────────────────
+    def _on_open(self, ws):
+        print(f"[WS] Connected → {CHAT_WS_URL}")
+        ws.send(f"NICK {self._nick}")
+        ws.send(f"USER {self._nick} 0 * null")
+
+    def _on_message(self, ws, raw):
+        # IRC PING keepalive
+        if raw.startswith("PING"):
+            ws.send("PONG " + raw[5:].strip())
+            return
+
+        # 001 = server confirmed registration → join room
+        if " 001 " in raw:
+            ws.send(f"JOIN #{self.chat_room_id}")
+            print(f"[WS] Joined #{self.chat_room_id}")
+            return
+
+        # PRIVMSG carries the chat payload
+        if "PRIVMSG" not in raw:
+            return
         try:
-            r = requests.get(url, headers=headers, timeout=8)
-            snippet = r.text[:300].replace("\n", " ")
-            print(f"  [{r.status_code}] {url}")
-            if r.status_code == 200:
-                print(f"         → {snippet}")
-        except Exception as e:
-            print(f"  [ERR ] {url} — {e}")
+            # :nick!user@host PRIVMSG #channel :{json}
+            colon_idx = raw.index(":", raw.index("PRIVMSG"))
+            data      = json.loads(raw[colon_idx + 1:])
+            # Normalise into our internal shape
+            user    = data.get("user") or {}
+            chat    = data.get("chat") or {}
+            message = chat.get("message") or data.get("message") or ""
+            if not message:
+                return
+            self.queue.put({
+                "id":         data.get("id") or f"{time.time():.3f}",
+                "message":    message,
+                "created_at": data.get("timestamp") or data.get("created_at") or "",
+                "user": {
+                    "name":     user.get("name") or user.get("username") or "anon",
+                    "username": user.get("username") or "",
+                },
+            })
+        except Exception:
+            pass
 
-    print("\n[PROBE] Gift endpoints:")
-    gift_candidates = [
+    def _on_error(self, ws, error):
+        print(f"[WS] Error: {error}")
+
+    def _on_close(self, ws, code, msg):
+        print(f"[WS] Closed ({code}): {msg}")
+        # Reconnect loop — keep retrying while the session is active
+        if self.active:
+            print(f"[WS] Reconnecting in {WS_RECONNECT_SEC}s...")
+            time.sleep(WS_RECONNECT_SEC)
+            if self.active:
+                self._connect()
+
+    # ── Lifecycle ─────────────────────────────────────────────────────────
+    def _connect(self):
+        self._nick = self._make_nick()   # fresh nick on every (re)connect
+        self._ws   = websocket.WebSocketApp(
+            CHAT_WS_URL,
+            on_open=self._on_open,
+            on_message=self._on_message,
+            on_error=self._on_error,
+            on_close=self._on_close,
+        )
+        self._ws.run_forever(ping_interval=30, ping_timeout=10)
+
+    def start(self):
+        self.active  = True
+        self._thread = threading.Thread(target=self._connect, daemon=True)
+        self._thread.start()
+        print(f"[WS] IRC client started (nick={self._nick})")
+
+    def stop(self):
+        self.active = False
+        if self._ws:
+            self._ws.close()
+
+# ── Gift polling (HTTP) ───────────────────────────────────────────────────────
+_gift_endpoint_ok = None
+
+def fetch_gifts(slug, chat_room_id=None):
+    global _gift_endpoint_ok
+    candidates = []
+    if chat_room_id:
+        candidates += [
+            f"{IDN_V4_URL}/chat-room/{chat_room_id}/gifts",
+            f"{IDN_V4_URL}/chat-room/{chat_room_id}/top-gifters",
+        ]
+    candidates += [
         f"{IDN_V4_URL}/livestream/{slug}/gifts",
-        f"{IDN_V4_URL}/chat-room/{chat_room_id}/gifts",
+        f"{IDN_V4_URL}/livestream/{slug}/top-gifters",
         f"{MOBILE_API}/v1/stream/{slug}/gift",
         f"{MOBILE_API}/v1/live/{slug}/gift",
     ]
-    for url in gift_candidates:
-        if not url or "(none)" in url:
-            continue
+    if _gift_endpoint_ok:
+        candidates = [c for c in candidates if c == _gift_endpoint_ok]
+
+    for url in candidates:
+        try:
+            r = requests.get(url, headers=HEADERS_V4, timeout=10)
+            if r.status_code != 200:
+                continue
+            body  = r.json()
+            gifts = (
+                (body.get("data") or {}).get("gifts")
+                or (body.get("data") or {}).get("top_gifters")
+                or body.get("gifts") or body.get("top_gifters")
+                or (body.get("data") if isinstance(body.get("data"), list) else None)
+                or []
+            )
+            if gifts:
+                if _gift_endpoint_ok != url:
+                    print(f"[GIFT] ✓ Endpoint: {url}")
+                    _gift_endpoint_ok = url
+                return gifts
+        except Exception:
+            pass
+    return []
+
+# ── Probe gift endpoints ──────────────────────────────────────────────────────
+def probe_gifts(slug, chat_room_id):
+    print(f"\n[PROBE] slug={slug}  chat_room_id={chat_room_id or '(none)'}")
+    print("─" * 60)
+    candidates = []
+    if chat_room_id:
+        candidates += [
+            f"{IDN_V4_URL}/chat-room/{chat_room_id}/gifts",
+            f"{IDN_V4_URL}/chat-room/{chat_room_id}/top-gifters",
+        ]
+    candidates += [
+        f"{IDN_V4_URL}/livestream/{slug}/gifts",
+        f"{IDN_V4_URL}/livestream/{slug}/top-gifters",
+        f"{MOBILE_API}/v1/stream/{slug}/gift",
+        f"{MOBILE_API}/v1/live/{slug}/gift",
+    ]
+    for url in candidates:
         try:
             r = requests.get(url, headers=HEADERS_V4, timeout=8)
             snippet = r.text[:300].replace("\n", " ")
@@ -230,117 +328,7 @@ def probe_endpoints(slug, chat_room_id):
                 print(f"         → {snippet}")
         except Exception as e:
             print(f"  [ERR ] {url} — {e}")
-
     print("─" * 60)
-
-# ── Chat polling ──────────────────────────────────────────────────────────────
-_chat_endpoint_confirmed = None
-
-def fetch_comments(slug, chat_room_id=None, after_id=None):
-    """
-    Try endpoints in priority order, cache the first one that returns data.
-    Priority: v4 chat_room_id → v4 slug → mobile API slug
-    """
-    global _chat_endpoint_confirmed
-
-    params = {}
-    if after_id:
-        params["after_id"] = after_id
-        params["latest_comment_id"] = after_id
-
-    # Build candidate list — chat_room_id paths first if we have one
-    candidates = []
-    if chat_room_id:
-        candidates += [
-            (HEADERS_V4, f"{IDN_V4_URL}/chat-room/{chat_room_id}/messages",  params),
-            (HEADERS_V4, f"{IDN_V4_URL}/chat-room/{chat_room_id}/comments",  params),
-            (HEADERS_V4, f"{IDN_V4_URL}/chat-room/{chat_room_id}/chats",     params),
-        ]
-    candidates += [
-        (HEADERS_V4, f"{IDN_V4_URL}/livestream/{slug}/comments",            params),
-        (HEADERS_V4, f"{IDN_V4_URL}/livestream/{slug}/chat",                params),
-        (HEADERS_V4, f"{MOBILE_API}/v1/stream/{slug}/comment",
-            {**params, "sort": "newest", "page": 1}),
-        (HEADERS_V4, f"{MOBILE_API}/v1/live/{slug}/comment",
-            {**params, "sort": "newest", "page": 1}),
-    ]
-
-    # If already confirmed, jump straight to that endpoint
-    if _chat_endpoint_confirmed:
-        candidates = [c for c in candidates if _chat_endpoint_confirmed in c[1]]
-
-    for headers, url, p in candidates:
-        try:
-            r = requests.get(url, headers=headers, params=p, timeout=10)
-            if r.status_code != 200:
-                continue
-            body = r.json()
-            comments = (
-                (body.get("data") or {}).get("messages")
-                or (body.get("data") or {}).get("comments")
-                or (body.get("data") or {}).get("chats")
-                or body.get("messages")
-                or body.get("comments")
-                or body.get("chats")
-                or (body.get("data") if isinstance(body.get("data"), list) else None)
-                or []
-            )
-            if comments:
-                if _chat_endpoint_confirmed != url:
-                    print(f"[CHAT] ✓ Endpoint confirmed: {url}")
-                    _chat_endpoint_confirmed = url
-                return comments
-        except Exception:
-            pass
-
-    if not _chat_endpoint_confirmed:
-        print(
-            "[CHAT] ⚠️  No chat endpoint returned data yet. "
-            "Run with --probe during a live stream to identify the correct path."
-        )
-    return []
-
-# ── Gift polling ──────────────────────────────────────────────────────────────
-_gift_endpoint_confirmed = None
-
-def fetch_gifts(slug, chat_room_id=None):
-    global _gift_endpoint_confirmed
-
-    candidates = []
-    if chat_room_id:
-        candidates.append(f"{IDN_V4_URL}/chat-room/{chat_room_id}/gifts")
-    candidates += [
-        f"{IDN_V4_URL}/livestream/{slug}/gifts",
-        f"{IDN_V4_URL}/livestream/{slug}/top-gifters",
-        f"{MOBILE_API}/v1/stream/{slug}/gift",
-        f"{MOBILE_API}/v1/live/{slug}/gift",
-    ]
-
-    if _gift_endpoint_confirmed:
-        candidates = [c for c in candidates if c == _gift_endpoint_confirmed]
-
-    for url in candidates:
-        try:
-            r = requests.get(url, headers=HEADERS_V4, timeout=10)
-            if r.status_code != 200:
-                continue
-            body = r.json()
-            gifts = (
-                (body.get("data") or {}).get("gifts")
-                or (body.get("data") or {}).get("top_gifters")
-                or body.get("gifts")
-                or body.get("top_gifters")
-                or (body.get("data") if isinstance(body.get("data"), list) else None)
-                or []
-            )
-            if gifts:
-                if _gift_endpoint_confirmed != url:
-                    print(f"[GIFT] ✓ Endpoint confirmed: {url}")
-                    _gift_endpoint_confirmed = url
-                return gifts
-        except Exception:
-            pass
-    return []
 
 # ── SRT helpers ───────────────────────────────────────────────────────────────
 def ms_to_srt(ms):
@@ -349,12 +337,11 @@ def ms_to_srt(ms):
     m, s   = divmod(rem, 60)
     return f"{h:02d}:{m:02d}:{s:02d},{ms % 1000:03d}"
 
-def build_srt_entry(idx, start_ms, end_ms, author, message):
+def srt_entry(idx, start_ms, end_ms, author, message):
     safe = message.replace("<", "&lt;").replace(">", "&gt;")
     return f"{idx}\n{ms_to_srt(start_ms)} --> {ms_to_srt(end_ms)}\n<b>{author}</b>: {safe}\n\n"
 
 def parse_ts(ts_str):
-    """Parse ISO or Unix timestamp → epoch seconds, or None."""
     if not ts_str:
         return None
     try:
@@ -368,50 +355,50 @@ def parse_ts(ts_str):
 
 # ── Record session ────────────────────────────────────────────────────────────
 def record_session(stream, dry_run=False, max_seconds=None, probe=False):
-    slug          = stream["slug"]
-    live_at       = stream.get("live_at") or datetime.now(timezone.utc).isoformat()
-    origin_s      = parse_ts(live_at) or time.time()
+    slug         = stream["slug"]
+    live_at      = stream.get("live_at") or datetime.now(timezone.utc).isoformat()
+    origin_s     = parse_ts(live_at) or time.time()
 
-    # Pull full detail to get chat_room_id (may not be in list response)
-    detail        = fetch_stream_detail(slug)
-    chat_room_id  = (
-        detail.get("chat_room_id")
-        or stream.get("chat_room_id")
-        or ""
-    )
+    detail       = fetch_stream_detail(slug)
+    chat_room_id = detail.get("chat_room_id") or stream.get("chat_room_id") or ""
 
-    print(f"\n{'[DRY] ' if dry_run else ''}[REC] ── Session: {slug} ──────────────────")
-    print(f"  Title:        {stream.get('title') or detail.get('title', '(no title)')}")
+    print(f"\n{'[DRY] ' if dry_run else ''}[REC] ── {slug} ──────────────────────────")
+    print(f"  Title:        {detail.get('title') or stream.get('title', '(no title)')}")
     print(f"  Live at:      {live_at}")
     print(f"  Playback:     {detail.get('playback_url') or stream.get('playback_url', '(none)')}")
-    print(f"  chat_room_id: {chat_room_id or '(not found yet)'}")
+    print(f"  chat_room_id: {chat_room_id or '⚠️  not found — WS will not connect'}")
     if max_seconds:
         print(f"  Time cap:     {max_seconds // 60} min")
 
     if probe:
-        probe_endpoints(slug, chat_room_id)
+        probe_gifts(slug, chat_room_id)
 
     if dry_run:
-        print("[DRY] Dry-run — no files written.")
+        print("[DRY] No files written.")
+        return
+
+    if not chat_room_id:
+        print("[REC] ⚠️  No chat_room_id — cannot open WebSocket. Aborting.")
         return
 
     srt_path     = os.path.join(ensure_dir("srt"),         f"{slug}.srt")
     gifts_path   = os.path.join(ensure_dir("top_gifters"), f"{slug}.json")
     session_path = os.path.join(ensure_dir("sessions"),    f"{slug}.json")
 
-    session_meta = {
-        "slug":           slug,
-        "title":          detail.get("title") or stream.get("title"),
-        "live_at":        live_at,
-        "playback_url":   detail.get("playback_url") or stream.get("playback_url"),
-        "image_url":      detail.get("image_url") or stream.get("image_url"),
-        "room_identifier":detail.get("room_identifier") or stream.get("room_identifier"),
-        "chat_room_id":   chat_room_id,
-        "recorded_at":    datetime.now(timezone.utc).isoformat(),
-    }
     with open(session_path, "w", encoding="utf-8") as f:
-        json.dump(session_meta, f, ensure_ascii=False, indent=2)
+        json.dump({
+            "slug":            slug,
+            "title":           detail.get("title") or stream.get("title"),
+            "live_at":         live_at,
+            "playback_url":    detail.get("playback_url") or stream.get("playback_url"),
+            "image_url":       detail.get("image_url") or stream.get("image_url"),
+            "room_identifier": detail.get("room_identifier") or stream.get("room_identifier"),
+            "chat_room_id":    chat_room_id,
+            "recorded_at":     datetime.now(timezone.utc).isoformat(),
+        }, f, ensure_ascii=False, indent=2)
 
+    msg_queue     = queue.Queue()
+    ws_client     = IRCChatClient(chat_room_id, msg_queue)
     seen_ids      = set()
     srt_index     = 1
     gift_totals   = {}
@@ -428,48 +415,55 @@ def record_session(stream, dry_run=False, max_seconds=None, probe=False):
     signal.signal(signal.SIGINT,  stop)
     signal.signal(signal.SIGTERM, stop)
 
+    ws_client.start()
+
     with open(srt_path, "w", encoding="utf-8") as srt_f:
         while running:
             now = time.time()
 
+            # ── Time cap ──────────────────────────────────────────────────
             if max_seconds and (now - session_start) >= max_seconds:
-                print(f"[REC] Time cap ({max_seconds // 60} min) reached — saving progress.")
+                print(f"[REC] Time cap ({max_seconds // 60} min) — saving progress.")
                 running = False
                 continue
 
-            # ── Chat ──────────────────────────────────────────────────────
-            latest_id = max(seen_ids, default=None) if seen_ids else None
-            comments  = fetch_comments(slug, chat_room_id=chat_room_id, after_id=latest_id)
-            new_cmts  = [c for c in comments if c.get("id") not in seen_ids]
-            new_cmts.sort(key=lambda c: parse_ts(c.get("created_at")) or 0)
+            # ── Drain WebSocket message queue ─────────────────────────────
+            new_count = 0
+            while not msg_queue.empty():
+                try:
+                    c   = msg_queue.get_nowait()
+                    cid = c.get("id", "")
+                    if cid in seen_ids:
+                        continue
+                    seen_ids.add(cid)
 
-            for c in new_cmts:
-                cid     = c.get("id", "")
-                seen_ids.add(cid)
-                author  = (c.get("user") or {}).get("name") or "anon"
-                message = c.get("message") or c.get("text") or c.get("content") or ""
-                if not message:
-                    continue
-                ts_s     = parse_ts(c.get("created_at"))
-                start_ms = int((ts_s - origin_s) * 1000) if ts_s else int((now - origin_s) * 1000)
-                start_ms = max(0, start_ms)
-                srt_f.write(build_srt_entry(srt_index, start_ms, start_ms + 4000, author, message))
-                srt_f.flush()
-                srt_index += 1
+                    author  = (c.get("user") or {}).get("name") or "anon"
+                    message = c.get("message") or ""
+                    if not message:
+                        continue
 
-            if new_cmts:
-                print(f"[CHAT] +{len(new_cmts)} (total {srt_index - 1})")
+                    ts_s     = parse_ts(c.get("created_at"))
+                    start_ms = int((ts_s - origin_s) * 1000) if ts_s else int((now - origin_s) * 1000)
+                    start_ms = max(0, start_ms)
 
-            # ── Gifts ─────────────────────────────────────────────────────
+                    srt_f.write(srt_entry(srt_index, start_ms, start_ms + 4000, author, message))
+                    srt_f.flush()
+                    srt_index += 1
+                    new_count += 1
+                except queue.Empty:
+                    break
+
+            if new_count:
+                print(f"[CHAT] +{new_count} (total {srt_index - 1})")
+
+            # ── Gift polling ──────────────────────────────────────────────
             if now - last_gift_t >= GIFT_POLL_SEC:
                 last_gift_t = now
                 for g in fetch_gifts(slug, chat_room_id=chat_room_id):
                     uname = (g.get("user") or {}).get("username") or "anon"
                     name  = (g.get("user") or {}).get("name") or uname
                     coins = (
-                        g.get("coins")
-                        or (g.get("gift") or {}).get("coins")
-                        or g.get("price") or 0
+                        g.get("coins") or (g.get("gift") or {}).get("coins") or g.get("price") or 0
                     )
                     if uname not in gift_totals:
                         gift_totals[uname] = {"name": name, "total_coins": 0, "count": 0}
@@ -484,15 +478,16 @@ def record_session(stream, dry_run=False, max_seconds=None, probe=False):
                 end_check_ct += 1
                 print(f"[REC] Not detected ({end_check_ct}/{STREAM_END_CHECKS})...")
                 if end_check_ct >= STREAM_END_CHECKS:
-                    print("[REC] Stream ended — finalizing.")
+                    print("[REC] Stream ended.")
                     running = False
             else:
                 end_check_ct = 0
 
             if running:
-                time.sleep(CHAT_POLL_SEC)
+                time.sleep(1)   # tight loop — WS pushes messages, no need to sleep long
 
-    # ── Save gifts ────────────────────────────────────────────────────────
+    ws_client.stop()
+
     gifters_list = sorted(
         [{"username": u, **v} for u, v in gift_totals.items()],
         key=lambda x: x["total_coins"], reverse=True,
@@ -504,28 +499,28 @@ def record_session(stream, dry_run=False, max_seconds=None, probe=False):
             f, ensure_ascii=False, indent=2,
         )
 
-    print(f"\n[REC] ✓ SRT      → {srt_path}  ({srt_index - 1} lines)")
-    print(f"[REC] ✓ Gifters  → {gifts_path}  ({len(gifters_list)} unique)")
-    print(f"[REC] ✓ Session  → {session_path}")
+    print(f"\n[REC] ✓ SRT     → {srt_path}  ({srt_index - 1} lines)")
+    print(f"[REC] ✓ Gifters → {gifts_path}  ({len(gifters_list)} unique)")
+    print(f"[REC] ✓ Session → {session_path}")
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 def main():
-    ap = argparse.ArgumentParser(description="Armeniaca IDN Live recorder")
+    ap = argparse.ArgumentParser(description="Armeniaca IDN Live recorder (WebSocket IRC)")
     ap.add_argument("--slug",        help="Force-record a specific stream slug")
     ap.add_argument("--dry-run",     action="store_true")
     ap.add_argument("--probe",       action="store_true",
-                    help="Dump raw responses from all candidate endpoints (run during a live stream)")
+                    help="Probe gift HTTP endpoints and exit (run during a live stream)")
     ap.add_argument("--ci-mode",     action="store_true",
-                    help="Exit immediately if not live (GitHub Actions)")
-    ap.add_argument("--max-minutes", type=int, default=0)
+                    help="Exit immediately if Eli is not live (GitHub Actions)")
+    ap.add_argument("--max-minutes", type=int, default=0,
+                    help="Stop after N minutes (0 = unlimited)")
     args = ap.parse_args()
 
     max_seconds = args.max_minutes * 60 if args.max_minutes > 0 else None
 
     def run(stream):
-        global _chat_endpoint_confirmed, _gift_endpoint_confirmed
-        _chat_endpoint_confirmed = None
-        _gift_endpoint_confirmed = None
+        global _gift_endpoint_ok
+        _gift_endpoint_ok = None
         record_session(stream, dry_run=args.dry_run,
                        max_seconds=max_seconds, probe=args.probe)
 
@@ -543,7 +538,6 @@ def main():
         run(stream)
         return
 
-    # Watch mode
     print(f"[WATCH] Polling every {WATCH_SEC}s for {ELI_USERNAME}... (Ctrl+C to stop)")
     try:
         while True:
