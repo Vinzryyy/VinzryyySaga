@@ -614,6 +614,12 @@ const IDLE_LINKS = [
     sub: '3 kartu harian menunggu',
   },
   {
+    to: '/photostrip',
+    icon: 'ri-camera-3-line',
+    label: 'Photobox Armeniaca',
+    sub: 'Buat strip foto kamu sendiri',
+  },
+  {
     to: '/schedule',
     icon: 'ri-calendar-event-line',
     label: 'Arsip Jadwal',
@@ -627,9 +633,9 @@ const IdleSurface = () => (
       Saat Eli Offline
     </p>
     <p className="text-sm text-[color:var(--retro-brown-dark)]/65 italic mb-6">
-      Belum ada jadwal yang tercatat. Sementara itu, ada ini untukmu:
+      Belum ada jadwal yang tercatat. Sementara itu, disini aj —
     </p>
-    <div className="grid sm:grid-cols-3 gap-3">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {IDLE_LINKS.map(({ to, icon, label, sub }) => (
         <Link
           key={to}

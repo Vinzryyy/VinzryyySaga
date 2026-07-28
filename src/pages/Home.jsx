@@ -1108,6 +1108,43 @@ const HomePage = () => {
         </div>
       </Section>
 
+      {/* PHOTOSTRIP — web photobox CTA. */}
+      <Section id="photostrip-cta" padding="lg">
+        <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none opacity-70"
+            style={{
+              background:
+                'radial-gradient(circle at 80% 0%, rgba(201, 169, 97, 0.12) 0%, transparent 55%), radial-gradient(circle at 0% 100%, rgba(122, 46, 46, 0.08) 0%, transparent 60%)',
+            }}
+          />
+          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
+                <i className="ri-camera-3-line text-sm text-[color:var(--retro-gold)]" />
+                Photobox Armeniaca
+              </span>
+              <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
+                Foto Bareng
+                <span className="text-[color:var(--retro-burgundy)]"> Ceu Eli.</span>
+              </h2>
+              <p className="mt-3 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-md">
+                Buat strip foto kamu sendiri — pilih gaya, ambil momen, simpan kenangan.
+              </p>
+            </div>
+            <Link
+              to="/photostrip"
+              className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-opacity flex-shrink-0"
+            >
+              <i className="ri-camera-3-line text-base" />
+              <span>Buka Photostrip</span>
+              <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        </div>
+      </Section>
+
       {/* PETIKAN — ArmePack teaser. Surfaces the daily card feature that sits
           behind the navbar and is otherwise invisible on the homepage. Dark card
           intentionally contrasts the cream Gallery section above it. */}
