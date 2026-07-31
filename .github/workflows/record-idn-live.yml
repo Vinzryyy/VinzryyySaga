@@ -76,4 +76,5 @@ jobs:
             | xargs -I{} basename {} .json 2>/dev/null \
             || echo "unknown")
           git commit -m "chore(idn-replay): record session $slug [skip ci]"
+          git pull --rebase origin main
           git push

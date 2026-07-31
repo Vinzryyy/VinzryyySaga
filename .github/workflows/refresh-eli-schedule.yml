@@ -71,4 +71,5 @@ jobs:
           # log stays scannable when only one of the four moved.
           changed=$(git diff --cached --name-only | sed 's|public/data/||;s|\.json$||' | paste -sd ',' -)
           git commit -m "chore(data): refresh Eli data ($changed) from jkt48.com [skip ci]"
+          git pull --rebase origin main
           git push
