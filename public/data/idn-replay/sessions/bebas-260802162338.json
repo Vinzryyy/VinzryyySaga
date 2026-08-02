@@ -1,0 +1,10 @@
+{
+  "slug": "bebas-260802162338",
+  "title": "BEBAS",
+  "live_at": 1785662626,
+  "playback_url": "https://4b964ca68cf1.us-east-1.playback.live-video.net/api/video/v1/us-east-1.050891932989.channel.809zi18MGuB1.m3u8",
+  "image_url": "https://cdn.idntimes.com/content-images/post/20260802/1f119aa1-3482-44b6-9f68-2ad41c8d6743-260802162338.jpg",
+  "room_identifier": "0d840cc9-4608-4ad3-afde-7ee48cd6834c",
+  "chat_room_id": "arn:aws:ivschat:us-east-1:050891932989:room/C93cx9bobpGd",
+  "recorded_at": "2026-08-02T09:30:51.571571+00:00"
+}
