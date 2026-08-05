@@ -1,19 +1,31 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-08-02T08:28:37.892296Z",
+  "fetchedAt": "2026-08-05T19:40:09.085683Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
     {
-      "id": 1851,
-      "title": "Pengumuman Mengenai JKT48 Vocal Project “REVOICE”",
-      "category": "Release",
-      "slug": "pengumuman-mengenai-jkt48-vocal-project-revoice",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-vocal-project-revoice",
+      "id": 1852,
+      "title": "Pengumuman Mengenai Birthday 2-Shot Online bulan Agustus dengan Chekicha",
+      "category": "Birthday",
+      "slug": "pengumuman-mengenai-birthday-2-shot-online-bulan-agustus-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-agustus-dengan-chekicha",
       "image": null,
-      "publishedAt": "2026-07-25T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Kami dengan senang hati mengumumkan bahwa JKT48 Vocal Project “REVOICE” akan segera hadir di Official YouTube Channel JKT48 . Proyek spesial ini menghadirkan para member JKT48…",
+      "publishedAt": "2026-08-03T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Abigail Rachel, Gabriela Abigail, Catherina Vallencia, dan Alya Amanda di bulan Agustus ini, Online Birthday 2-Shot akan kembali diadakan dengan…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1853,
+      "title": "Pengumuman Mengenai Graduation 2-Shot Online Cathleen Nixie dengan Chekicha",
+      "category": "Graduation 2-Shot",
+      "slug": "pengumuman-mengenai-graduation-2-shot-online-cathleen-nixie-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-cathleen-nixie-dengan-chekicha",
+      "image": null,
+      "publishedAt": "2026-08-03T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Cathleen Nixie yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -26,6 +38,18 @@
       "image": null,
       "publishedAt": "2026-07-25T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Cathy telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 19 April 2026, kami dengan ini…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1851,
+      "title": "Pengumuman Mengenai JKT48 Vocal Project “REVOICE”",
+      "category": "Release",
+      "slug": "pengumuman-mengenai-jkt48-vocal-project-revoice",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-vocal-project-revoice",
+      "image": null,
+      "publishedAt": "2026-07-25T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Kami dengan senang hati mengumumkan bahwa JKT48 Vocal Project “REVOICE” akan segera hadir di Official YouTube Channel JKT48 . Proyek spesial ini menghadirkan para member JKT48…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -138,18 +162,6 @@
       "matchedIn": null
     },
     {
-      "id": 1840,
-      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION” dengan bonus Video Call with JKT48",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-personal-meet-and-greet-festival-love-dr",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-personal-meet-and-greet-festival-love-dr",
-      "image": null,
-      "publishedAt": "2026-06-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Juni 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION ” dengan bonus Video Call…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1839,
       "title": "Pengumuman Mengenai Live Streaming Event JKT48 Request Hour 2026 Setlist Best 40",
       "category": "Streaming",
@@ -158,6 +170,18 @@
       "image": null,
       "publishedAt": "2026-06-06T17:00:00.000Z",
       "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1840,
+      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION” dengan bonus Video Call with JKT48",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-personal-meet-and-greet-festival-love-dr",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-personal-meet-and-greet-festival-love-dr",
+      "image": null,
+      "publishedAt": "2026-06-06T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Juni 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION ” dengan bonus Video Call…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -198,18 +222,6 @@
       "matchedIn": null
     },
     {
-      "id": 1834,
-      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "image": null,
-      "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1835,
       "title": "Pengumuman Mengenai Official Team Merchandise Vol. 1",
       "category": "Goods",
@@ -218,6 +230,18 @@
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1834,
+      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "image": null,
+      "publishedAt": "2026-05-19T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -414,18 +438,6 @@
       "matchedIn": null
     },
     {
-      "id": 1032,
-      "title": "Pengumuman Mengenai Maintenance Website JKT48",
-      "category": "Other",
-      "slug": "pengumuman-mengenai-maintenance-website-jkt48-2008",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 946,
       "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
       "category": "Event",
@@ -438,14 +450,14 @@
       "matchedIn": null
     },
     {
-      "id": 1523,
-      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "id": 1032,
+      "title": "Pengumuman Mengenai Maintenance Website JKT48",
+      "category": "Other",
+      "slug": "pengumuman-mengenai-maintenance-website-jkt48-2008",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
+      "publishedAt": "2026-03-12T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -458,6 +470,18 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1523,
+      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-10T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -578,30 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-02-15T17:00:00.000Z",
       "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Bulan Ramadan telah tiba! Di tahun 2026 ini, JKT48 akan kembali mengadakan berbagai macam pertunjukan teater spesial untuk menemani kalian di bulan suci ini. Berikut…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1189,
-      "title": "Pengumuman Mengenai Penjualan Digital Wallpaper Pack “A Day Full of Hearts” dengan bonus Video Call with JKT48 Virtual",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-penjualan-digital-wallpaper-pack-a-day-full-of-hearts-dengan-bonus-video-call-wi",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-penjualan-digital-wallpaper-pack-a-day-full-of-hearts-dengan-bonus-video-call-wi",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48virtual-2602.png",
-      "publishedAt": "2026-02-04T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 dan JKT48 Virtual. Pada tanggal 6 Februari 2026, JKT48 akan membuka penjualan Digital Wallpaper Pack “A Day Full of Hearts” dengan bonus Video Call with JKT48 Virtual. Berikut…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1375,
-      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 27th Single: Andai 'Ku Bukan Idola –  Idol Nanka Janakattara” dengan bonus Video Call with JKT48",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-27th-single-andai-ku-bukan-idola-idol-nan",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-jkt48-digital-photobook-jkt48-27th-single-andai-ku-bukan-idola-idol-nan",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/2602-8-10.jpg",
-      "publishedAt": "2026-02-02T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 5 Februari 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “JKT48 27th Single: Andai 'Ku Bukan Idola – Idol Nanka Janakattara ” dengan bonus…",
       "mentionsEli": false,
       "matchedIn": null
     }
