@@ -1,0 +1,10 @@
+{
+  "slug": "bebas-260805190633",
+  "title": "BEBAS",
+  "live_at": 1785931598,
+  "playback_url": "https://4b964ca68cf1.us-east-1.playback.live-video.net/api/video/v1/us-east-1.050891932989.channel.809zi18MGuB1.m3u8",
+  "image_url": "https://cdn.idn.app/livestream/2e1f9d481f5067c20a5fe1dbacb65cf4.webp",
+  "room_identifier": "f615a1f9-d53e-43e7-906e-25ee1ad5d2a1",
+  "chat_room_id": "arn:aws:ivschat:us-east-1:050891932989:room/C93cx9bobpGd",
+  "recorded_at": "2026-08-05T12:28:42.891630+00:00"
+}
