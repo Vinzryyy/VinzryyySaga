@@ -1,0 +1,10 @@
+{
+  "slug": "bebas-260810215135",
+  "title": "BEBAS",
+  "live_at": 1786373500,
+  "playback_url": "https://4b964ca68cf1.us-east-1.playback.live-video.net/api/video/v1/us-east-1.050891932989.channel.809zi18MGuB1.m3u8",
+  "image_url": "https://cdn.idn.app/livestream/a7792d7d1d04f088462328201b05f888.webp",
+  "room_identifier": "e43cf6b8-96eb-4cfe-a881-945833a2f737",
+  "chat_room_id": "arn:aws:ivschat:us-east-1:050891932989:room/C93cx9bobpGd",
+  "recorded_at": "2026-08-10T15:35:26.396027+00:00"
+}
