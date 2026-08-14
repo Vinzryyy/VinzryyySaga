@@ -1,10 +1,34 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-08-10T19:01:33.973071Z",
+  "fetchedAt": "2026-08-14T13:13:03.446132Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
+    {
+      "id": 1858,
+      "title": "Pengumuman Mengenai Pertunjukan Teater Kelulusan dan Prosesi Pelepasan Kabesha Alya Amanda",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-alya-amanda",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-alya-amanda",
+      "image": null,
+      "publishedAt": "2026-08-13T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Alya telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 17 Mei 2026, kami dengan ini…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1857,
+      "title": "Pengumuman Mengenai JKT48 OFC Event “Namanya Juga Vacation! #2” ",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-ofc-event-namanya-juga-vacation-2",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-ofc-event-namanya-juga-vacation-2",
+      "image": null,
+      "publishedAt": "2026-08-11T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48! Bulan Agustus merupakan bulan yang bersejarah bagi Indonesia. Dalam rangka menyemarakkan Hari Kemerdekaan Indonesia, JKT48 OFC Event ingin mengajak kalian untuk bervakansi…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1856,
       "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “Theater Sementara 2026” dengan bonus Video Call with JKT48",
@@ -138,18 +162,6 @@
       "matchedIn": null
     },
     {
-      "id": 1842,
-      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet & 2-Shot Event di Surabaya",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
-      "image": null,
-      "publishedAt": "2026-06-13T17:00:00.000Z",
-      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1843,
       "title": "Pengumuman Mengenai Detail Timetable Personal Meet and Greet, 2-Shot Event pada JKT48 Theater Surabaya & Yogyakarta",
       "category": "Event",
@@ -158,6 +170,18 @@
       "image": null,
       "publishedAt": "2026-06-13T17:00:00.000Z",
       "snippet": "T erima kasih atas dukungannya untuk JKT48. Seperti yang sudah diumumkan sebelumnya, JKT48 Fight! akan membawa semangat baru melalui JKT48 Theater Sementara 2026 yang akan hadir di Surabaya dan Yogyakarta pada…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1842,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet & 2-Shot Event di Surabaya",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
+      "image": null,
+      "publishedAt": "2026-06-13T17:00:00.000Z",
+      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -174,18 +198,6 @@
       "matchedIn": null
     },
     {
-      "id": 1839,
-      "title": "Pengumuman Mengenai Live Streaming Event JKT48 Request Hour 2026 Setlist Best 40",
-      "category": "Streaming",
-      "slug": "pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
-      "image": null,
-      "publishedAt": "2026-06-06T17:00:00.000Z",
-      "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1840,
       "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION” dengan bonus Video Call with JKT48",
       "category": "Theater",
@@ -194,6 +206,18 @@
       "image": null,
       "publishedAt": "2026-06-06T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Juni 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION ” dengan bonus Video Call…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1839,
+      "title": "Pengumuman Mengenai Live Streaming Event JKT48 Request Hour 2026 Setlist Best 40",
+      "category": "Streaming",
+      "slug": "pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
+      "image": null,
+      "publishedAt": "2026-06-06T17:00:00.000Z",
+      "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -234,18 +258,6 @@
       "matchedIn": null
     },
     {
-      "id": 1834,
-      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
-      "image": null,
-      "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1835,
       "title": "Pengumuman Mengenai Official Team Merchandise Vol. 1",
       "category": "Goods",
@@ -254,6 +266,18 @@
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1834,
+      "title": "Pengumuman Mengenai Barang Bawaan Terkait Prosedur Keamanan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
+      "image": null,
+      "publishedAt": "2026-05-19T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -474,18 +498,6 @@
       "matchedIn": null
     },
     {
-      "id": 873,
-      "title": "Pengumuman Mengenai Graduation 2-Shot Online Amanda Sukma dengan Chekicha",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-graduation-2shot-online-amanda-sukma-dengan-chekicha",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2shot-online-amanda-sukma-dengan-chekicha",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1523,
       "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
       "category": "Theater",
@@ -494,6 +506,18 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 873,
+      "title": "Pengumuman Mengenai Graduation 2-Shot Online Amanda Sukma dengan Chekicha",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-graduation-2shot-online-amanda-sukma-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2shot-online-amanda-sukma-dengan-chekicha",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-10T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -578,30 +602,6 @@
       "image": null,
       "publishedAt": "2026-02-19T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Sampai hari ini, bencana alam yang melanda Aceh masih terasa dampaknya dan masih banyak saudara-saudara kita di sana yang membutuhkan bantuan agar bisa segera pulih. JKT48…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 704,
-      "title": "Pengumuman Mengenai Aktivitas Gendis Mayrannisa di JKT48",
-      "category": "Other",
-      "slug": "pengumuman-mengenai-aktivitas-gendis-mayrannisa-di-jkt48",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-aktivitas-gendis-mayrannisa-di-jkt48",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-02-16T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Terkait foto yang beredar di sosial media beberapa hari lalu, Gendis telah menjelaskan kejadian tersebut dengan sejujur-jujurnya kepada manajemen. Kurangnya kesadaran diri yang…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1328,
-      "title": "Pengumuman Mengenai Pre-Order “Andai 'Ku Bukan Idola Box Set”",
-      "category": "Goods",
-      "slug": "pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-preorder-andai-ku-bukan-idola-box-set",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/akbi-bundle-4-5.jpg",
-      "publishedAt": "2026-02-15T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Merchandise istimewa dari single terbaru ke-27 JKT48, “Andai ’Ku Bukan Idola” , sudah bisa kamu miliki melalui sistem pre-order di Tokopedia . Berikut informasi dari “Andai ‘Ku…",
       "mentionsEli": false,
       "matchedIn": null
     }
