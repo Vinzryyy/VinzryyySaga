@@ -306,38 +306,56 @@ def normalize_exclusive(detail: dict, listing_date: str | None, slug: str) -> li
 
 def main():
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        # Use headed-like args to evade headless detection by Cloudflare
+        browser = p.chromium.launch(
+            headless=False,
+            args=[
+                "--headless=new",          # new headless mode (less detectable)
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+            ],
+        )
         context = browser.new_context(
             user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "Mozilla/5.0 (X11; Linux x86_64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
                 "Chrome/126.0.0.0 Safari/537.36"
             ),
+            viewport={"width": 1920, "height": 1080},
+            locale="id-ID",
         )
+        # Mask webdriver / automation flags
+        context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => false });
+            // Remove Playwright/Chrome-controlled markers
+            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
+            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
+            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
+        """)
         page = context.new_page()
-        print("[0/3] Solving Cloudflare challenge...")
-        page.goto("https://jkt48.com", wait_until="networkidle", timeout=60000)
-        page.wait_for_timeout(5000)
-        # Debug: dump cookies and try a test fetch
-        cookies = context.cookies()
-        cf_cookies = [c for c in cookies if "cf" in c["name"].lower() or "clearance" in c["name"].lower()]
-        print(f"      Cloudflare cookies: {[c['name'] for c in cf_cookies]}")
-        print(f"      All cookies: {[c['name'] for c in cookies]}")
-        print(f"      Page URL after challenge: {page.url}")
-        # Debug: capture ALL network responses and page HTML
-        all_responses = []
-        def on_response(response):
-            all_responses.append({"url": response.url, "status": response.status})
-        page.on("response", on_response)
-        page.goto("https://jkt48.com/schedule?lang=id", wait_until="domcontentloaded", timeout=60000)
-        page.wait_for_timeout(8000)
-        print(f"      Schedule page title: {page.title()}")
-        print(f"      Schedule page URL: {page.url}")
-        html_snippet = page.content()[:1000]
-        print(f"      Page HTML (first 1000): {html_snippet}")
-        print(f"      Total responses: {len(all_responses)}")
-        for r in all_responses[:30]:
-            print(f"        {r['status']} {r['url'][:120]}")
+        print("[0/3] Solving Cloudflare challenge on /schedule ...")
+        page.goto(
+            "https://jkt48.com/schedule?lang=id",
+            wait_until="domcontentloaded",
+            timeout=60000,
+        )
+        # Wait for Turnstile challenge to auto-solve (up to 15s)
+        for tick in range(30):
+            page.wait_for_timeout(500)
+            title = page.title()
+            if "just a moment" not in title.lower():
+                break
+        print(f"      Page title after challenge: {page.title()}")
+        print(f"      Page URL: {page.url}")
+        # Quick sanity: can we fetch API from within this page now?
+        test = page.evaluate("""async () => {
+            try {
+                const r = await fetch('/api/v1/members/112');
+                const t = await r.text();
+                return { status: r.status, body: t.substring(0, 200) };
+            } catch(e) { return { error: e.message }; }
+        }""")
+        print(f"      API test: {test}")
 
         sc = _Scraper(page)
         try:
