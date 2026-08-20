@@ -333,7 +333,7 @@ def main():
             delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
         """)
         page = context.new_page()
-        print("[0/3] Solving Cloudflare challenge on /schedule ...")
+        print("[0/3] Solving Cloudflare challenge ...")
         page.goto(
             "https://jkt48.com/schedule?lang=id",
             wait_until="domcontentloaded",
@@ -342,20 +342,9 @@ def main():
         # Wait for Turnstile challenge to auto-solve (up to 15s)
         for tick in range(30):
             page.wait_for_timeout(500)
-            title = page.title()
-            if "just a moment" not in title.lower():
+            if "just a moment" not in page.title().lower():
                 break
-        print(f"      Page title after challenge: {page.title()}")
-        print(f"      Page URL: {page.url}")
-        # Quick sanity: can we fetch API from within this page now?
-        test = page.evaluate("""async () => {
-            try {
-                const r = await fetch('/api/v1/members/112');
-                const t = await r.text();
-                return { status: r.status, body: t.substring(0, 200) };
-            } catch(e) { return { error: e.message }; }
-        }""")
-        print(f"      API test: {test}")
+        print(f"      Challenge cleared — {page.title()}")
 
         sc = _Scraper(page)
         try:
