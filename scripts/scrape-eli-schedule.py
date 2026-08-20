@@ -317,7 +317,21 @@ def main():
         page = context.new_page()
         print("[0/3] Solving Cloudflare challenge...")
         page.goto("https://jkt48.com", wait_until="networkidle", timeout=60000)
-        page.wait_for_timeout(3000)
+        page.wait_for_timeout(5000)
+        # Debug: dump cookies and try a test fetch
+        cookies = context.cookies()
+        cf_cookies = [c for c in cookies if "cf" in c["name"].lower() or "clearance" in c["name"].lower()]
+        print(f"      Cloudflare cookies: {[c['name'] for c in cf_cookies]}")
+        print(f"      All cookies: {[c['name'] for c in cookies]}")
+        print(f"      Page URL after challenge: {page.url}")
+        # Test: try fetching an API URL from within the page
+        test = page.evaluate("""async () => {
+            try {
+                const r = await fetch('/api/v1/members/112');
+                return { status: r.status, type: r.headers.get('content-type'), body: (await r.text()).substring(0, 200) };
+            } catch(e) { return { error: e.message }; }
+        }""")
+        print(f"      Test fetch /api/v1/members/112: {test}")
 
         sc = _Scraper(page)
         try:
