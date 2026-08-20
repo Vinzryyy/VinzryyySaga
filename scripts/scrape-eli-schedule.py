@@ -101,14 +101,14 @@ _WS_RE = re.compile(r"\s+")
 
 
 class _Response:
-    """Mimics requests.Response for Playwright API responses."""
-    def __init__(self, pw_resp):
-        self._r = pw_resp
-        self.status_code = pw_resp.status
-        self.url = pw_resp.url
+    """Mimics requests.Response for Playwright page navigation responses."""
+    def __init__(self, status, url, body):
+        self.status_code = status
+        self.url = url
+        self._body = body
 
     def json(self):
-        return self._r.json()
+        return json.loads(self._body)
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -121,13 +121,16 @@ class _Response:
 
 
 class _Scraper:
-    """Drop-in cloudscraper replacement backed by a Playwright browser context."""
-    def __init__(self, ctx):
-        self._ctx = ctx
+    """Drop-in cloudscraper replacement — navigates a real browser page
+    to each API URL so Cloudflare's JS challenge is solved inline."""
+    def __init__(self, page):
+        self._page = page
 
     def get(self, url, timeout=45):
-        r = self._ctx.request.get(url, timeout=timeout * 1000)
-        return _Response(r)
+        resp = self._page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
+        status = resp.status if resp else 0
+        body = self._page.inner_text("body") if status < 400 else ""
+        return _Response(status, url, body)
 
 
 # jkt48.com sometimes stalls past 20s under load — a single read timeout
@@ -296,9 +299,8 @@ def main():
         print("[0/3] Solving Cloudflare challenge...")
         page.goto("https://jkt48.com", wait_until="networkidle", timeout=60000)
         page.wait_for_timeout(3000)
-        page.close()
 
-        sc = _Scraper(context)
+        sc = _Scraper(page)
         try:
             _run(sc)
         finally:
