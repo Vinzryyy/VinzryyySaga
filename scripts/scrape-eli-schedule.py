@@ -324,28 +324,20 @@ def main():
         print(f"      Cloudflare cookies: {[c['name'] for c in cf_cookies]}")
         print(f"      All cookies: {[c['name'] for c in cookies]}")
         print(f"      Page URL after challenge: {page.url}")
-        # Debug: check what __NEXT_DATA__ contains on the schedule page
-        api_responses = []
+        # Debug: capture ALL network responses and page HTML
+        all_responses = []
         def on_response(response):
-            url = response.url
-            if "/api/" in url or "/_next/data/" in url or "schedules" in url:
-                try:
-                    body_preview = response.text()[:300] if response.status == 200 else ""
-                except Exception:
-                    body_preview = ""
-                api_responses.append({"url": url, "status": response.status, "preview": body_preview})
+            all_responses.append({"url": response.url, "status": response.status})
         page.on("response", on_response)
         page.goto("https://jkt48.com/schedule?lang=id", wait_until="domcontentloaded", timeout=60000)
-        page.wait_for_timeout(5000)
+        page.wait_for_timeout(8000)
+        print(f"      Schedule page title: {page.title()}")
         print(f"      Schedule page URL: {page.url}")
-        # Check for __NEXT_DATA__ (Next.js SSR embeds data as JSON)
-        next_data = page.evaluate("""() => {
-            const el = document.getElementById('__NEXT_DATA__');
-            if (el) return el.textContent.substring(0, 500);
-            return null;
-        }""")
-        print(f"      __NEXT_DATA__ (first 500): {next_data}")
-        print(f"      Intercepted responses: {json.dumps(api_responses, indent=2)[:1000]}")
+        html_snippet = page.content()[:1000]
+        print(f"      Page HTML (first 1000): {html_snippet}")
+        print(f"      Total responses: {len(all_responses)}")
+        for r in all_responses[:30]:
+            print(f"        {r['status']} {r['url'][:120]}")
 
         sc = _Scraper(page)
         try:
