@@ -324,14 +324,35 @@ def main():
         print(f"      Cloudflare cookies: {[c['name'] for c in cf_cookies]}")
         print(f"      All cookies: {[c['name'] for c in cookies]}")
         print(f"      Page URL after challenge: {page.url}")
-        # Test: try fetching an API URL from within the page
-        test = page.evaluate("""async () => {
+        # Test: try fetching API with various approaches
+        test1 = page.evaluate("""async () => {
             try {
-                const r = await fetch('/api/v1/members/112');
+                const r = await fetch('/api/v1/members/112', {
+                    headers: { 'Accept': 'application/json' }
+                });
                 return { status: r.status, type: r.headers.get('content-type'), body: (await r.text()).substring(0, 200) };
             } catch(e) { return { error: e.message }; }
         }""")
-        print(f"      Test fetch /api/v1/members/112: {test}")
+        print(f"      Test 1 (fetch with Accept:json): {test1}")
+        # Test: navigate to schedule page and intercept API calls
+        api_responses = []
+        def on_response(response):
+            if "/api/" in response.url:
+                api_responses.append({"url": response.url, "status": response.status})
+        page.on("response", on_response)
+        page.goto("https://jkt48.com/schedule", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(3000)
+        print(f"      API calls from /schedule page: {api_responses}")
+        # Check if there's an X-Requested-With or other header the site uses
+        test2 = page.evaluate("""async () => {
+            try {
+                const r = await fetch('/api/v1/members/112', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+                return { status: r.status, type: r.headers.get('content-type'), body: (await r.text()).substring(0, 200) };
+            } catch(e) { return { error: e.message }; }
+        }""")
+        print(f"      Test 2 (with X-Requested-With): {test2}")
 
         sc = _Scraper(page)
         try:
