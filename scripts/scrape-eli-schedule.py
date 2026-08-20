@@ -324,35 +324,28 @@ def main():
         print(f"      Cloudflare cookies: {[c['name'] for c in cf_cookies]}")
         print(f"      All cookies: {[c['name'] for c in cookies]}")
         print(f"      Page URL after challenge: {page.url}")
-        # Test: try fetching API with various approaches
-        test1 = page.evaluate("""async () => {
-            try {
-                const r = await fetch('/api/v1/members/112', {
-                    headers: { 'Accept': 'application/json' }
-                });
-                return { status: r.status, type: r.headers.get('content-type'), body: (await r.text()).substring(0, 200) };
-            } catch(e) { return { error: e.message }; }
-        }""")
-        print(f"      Test 1 (fetch with Accept:json): {test1}")
-        # Test: navigate to schedule page and intercept API calls
+        # Debug: check what __NEXT_DATA__ contains on the schedule page
         api_responses = []
         def on_response(response):
-            if "/api/" in response.url:
-                api_responses.append({"url": response.url, "status": response.status})
+            url = response.url
+            if "/api/" in url or "/_next/data/" in url or "schedules" in url:
+                try:
+                    body_preview = response.text()[:300] if response.status == 200 else ""
+                except Exception:
+                    body_preview = ""
+                api_responses.append({"url": url, "status": response.status, "preview": body_preview})
         page.on("response", on_response)
-        page.goto("https://jkt48.com/schedule", wait_until="networkidle", timeout=60000)
-        page.wait_for_timeout(3000)
-        print(f"      API calls from /schedule page: {api_responses}")
-        # Check if there's an X-Requested-With or other header the site uses
-        test2 = page.evaluate("""async () => {
-            try {
-                const r = await fetch('/api/v1/members/112', {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-                });
-                return { status: r.status, type: r.headers.get('content-type'), body: (await r.text()).substring(0, 200) };
-            } catch(e) { return { error: e.message }; }
+        page.goto("https://jkt48.com/schedule?lang=id", wait_until="domcontentloaded", timeout=60000)
+        page.wait_for_timeout(5000)
+        print(f"      Schedule page URL: {page.url}")
+        # Check for __NEXT_DATA__ (Next.js SSR embeds data as JSON)
+        next_data = page.evaluate("""() => {
+            const el = document.getElementById('__NEXT_DATA__');
+            if (el) return el.textContent.substring(0, 500);
+            return null;
         }""")
-        print(f"      Test 2 (with X-Requested-With): {test2}")
+        print(f"      __NEXT_DATA__ (first 500): {next_data}")
+        print(f"      Intercepted responses: {json.dumps(api_responses, indent=2)[:1000]}")
 
         sc = _Scraper(page)
         try:
