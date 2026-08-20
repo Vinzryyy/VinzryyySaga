@@ -28,3 +28,6 @@ image.png
 .aider*
 !.aider.conf.yml
 .claude/settings.local.json
+chekicha.md
+chekichaNote.md
+uber-apk-signer.jar

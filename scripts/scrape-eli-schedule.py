@@ -5,9 +5,10 @@ the frontend can serve as `/data/eli-schedule.json`.
 
 Why a Python scraper (not Node like the rest of the repo): jkt48.com
 sits behind Cloudflare's anti-bot challenge that pure-HTTP libraries
-(node-fetch, axios) can't solve out-of-the-box. `cloudscraper` is the
-lightest tool that does, and it's Python-only. The frontend is still
-React/Vite — we just consume the JSON output.
+(node-fetch, axios) can't solve out-of-the-box. Playwright launches a
+real Chromium browser to solve the challenge, then re-uses the session
+cookies for all subsequent API calls. The frontend is still React/Vite
+— we just consume the JSON output.
 
 The public `/api/v1/schedules` endpoints don't actually require auth —
 both listing and detail return full cast arrays unauthenticated. So no
@@ -39,8 +40,7 @@ from datetime import datetime
 from html import unescape
 from pathlib import Path
 
-import cloudscraper
-import requests
+from playwright.sync_api import sync_playwright
 
 ELI_MEMBER_ID = 112
 ELI_NAME = "Helisma Putri"
@@ -100,10 +100,34 @@ _HTML_TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
 
 
-def make_scraper() -> cloudscraper.CloudScraper:
-    return cloudscraper.create_scraper(
-        browser={"browser": "chrome", "platform": "windows", "desktop": True}
-    )
+class _Response:
+    """Mimics requests.Response for Playwright API responses."""
+    def __init__(self, pw_resp):
+        self._r = pw_resp
+        self.status_code = pw_resp.status
+        self.url = pw_resp.url
+
+    def json(self):
+        return self._r.json()
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            reason = {403: "Forbidden", 404: "Not Found", 500: "Server Error"}.get(
+                self.status_code, "Error"
+            )
+            raise Exception(
+                f"{self.status_code} Client Error: {reason} for url: {self.url}"
+            )
+
+
+class _Scraper:
+    """Drop-in cloudscraper replacement backed by a Playwright browser context."""
+    def __init__(self, ctx):
+        self._ctx = ctx
+
+    def get(self, url, timeout=45):
+        r = self._ctx.request.get(url, timeout=timeout * 1000)
+        return _Response(r)
 
 
 # jkt48.com sometimes stalls past 20s under load — a single read timeout
@@ -114,8 +138,7 @@ def _get_with_retry(sc, url, timeout=45, tries=3, label=None):
     for attempt in range(tries):
         try:
             return sc.get(url, timeout=timeout)
-        except (requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectionError) as e:
+        except Exception as e:
             last_exc = e
             if attempt < tries - 1:
                 wait = 2 * (attempt + 1)
@@ -260,8 +283,29 @@ def normalize_exclusive(detail: dict, listing_date: str | None, slug: str) -> li
 
 
 def main():
-    sc = make_scraper()
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/126.0.0.0 Safari/537.36"
+            ),
+        )
+        page = context.new_page()
+        print("[0/3] Solving Cloudflare challenge...")
+        page.goto("https://jkt48.com", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(3000)
+        page.close()
 
+        sc = _Scraper(context)
+        try:
+            _run(sc)
+        finally:
+            browser.close()
+
+
+def _run(sc):
     print(f"[1/3] Scanning {MONTHS_BEHIND} month behind + {MONTHS_AHEAD} months ahead...")
     today = datetime.now()
     eli_events = []

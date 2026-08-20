@@ -6,8 +6,8 @@ name: Refresh Eli Data
 # asset.
 #
 # The /api/v1/schedules, /members, /exclusives, and /news endpoints are
-# all public — no auth/cookie/token needed. cloudscraper handles
-# Cloudflare's bot challenge.
+# all public — no auth/cookie/token needed. Playwright launches a real
+# Chromium browser to solve Cloudflare's bot challenge.
 
 on:
   schedule:
@@ -37,7 +37,9 @@ jobs:
           cache-dependency-path: scripts/requirements.txt
 
       - name: Install scraper deps
-        run: pip install -r scripts/requirements.txt
+        run: |
+          pip install -r scripts/requirements.txt
+          playwright install chromium --with-deps
 
       - name: Scrape Eli schedule
         run: python scripts/scrape-eli-schedule.py
