@@ -101,14 +101,16 @@ _WS_RE = re.compile(r"\s+")
 
 
 class _Response:
-    """Mimics requests.Response for Playwright page navigation responses."""
+    """Mimics requests.Response for in-browser fetch() results."""
     def __init__(self, status, url, body):
         self.status_code = status
         self.url = url
         self._body = body
 
     def json(self):
-        return json.loads(self._body)
+        if isinstance(self._body, str):
+            return json.loads(self._body)
+        return self._body
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -121,15 +123,32 @@ class _Response:
 
 
 class _Scraper:
-    """Drop-in cloudscraper replacement — navigates a real browser page
-    to each API URL so Cloudflare's JS challenge is solved inline."""
+    """Drop-in cloudscraper replacement — runs fetch() inside the browser
+    page so Cloudflare cookies and JS context are used automatically."""
     def __init__(self, page):
         self._page = page
 
     def get(self, url, timeout=45):
-        resp = self._page.goto(url, wait_until="networkidle", timeout=timeout * 1000)
-        status = resp.status if resp else 0
-        body = self._page.inner_text("body") if status < 400 else ""
+        result = self._page.evaluate(
+            """async ([url, timeoutMs]) => {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+                try {
+                    const r = await fetch(url, { signal: ctrl.signal });
+                    const text = await r.text();
+                    return { status: r.status, body: text };
+                } catch (e) {
+                    return { status: 0, body: e.message };
+                } finally {
+                    clearTimeout(timer);
+                }
+            }""",
+            [url, timeout * 1000],
+        )
+        status = result.get("status", 0)
+        body = result.get("body", "")
+        if status == 0:
+            raise Exception(f"fetch failed for {url}: {body}")
         return _Response(status, url, body)
 
 
