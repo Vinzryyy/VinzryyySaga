@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-08-21T06:53:52.902902Z",
+  "fetchedAt": "2026-08-21T12:54:50.610150Z",
   "salesCount": 11,
   "sales": [
     {
@@ -110,15 +110,15 @@
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 21,
-          "remainingQuota": 24
+          "ticketsSold": 24,
+          "remainingQuota": 21
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 1,
-          "remainingQuota": 44
+          "ticketsSold": 6,
+          "remainingQuota": 39
         },
         {
           "sessionLabel": "Sesi 6",
