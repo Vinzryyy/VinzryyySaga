@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-08-21T12:54:37.323903Z",
+  "fetchedAt": "2026-08-21T18:41:01.554640Z",
   "eventCount": 28,
   "events": [
     {
@@ -1319,13 +1319,13 @@
         "Jalur 4"
       ],
       "tickets_sold_eli": [
-        24
+        25
       ],
       "eli_remaining": [
-        21
+        20
       ],
       "sold_out": false,
-      "remaining_total": 21,
+      "remaining_total": 20,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
@@ -1361,13 +1361,13 @@
         "Jalur 4"
       ],
       "tickets_sold_eli": [
-        6
+        8
       ],
       "eli_remaining": [
-        39
+        37
       ],
       "sold_out": false,
-      "remaining_total": 39,
+      "remaining_total": 37,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
@@ -1403,13 +1403,13 @@
         "Jalur 4"
       ],
       "tickets_sold_eli": [
-        35
+        37
       ],
       "eli_remaining": [
-        10
+        8
       ],
       "sold_out": false,
-      "remaining_total": 10,
+      "remaining_total": 8,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     }

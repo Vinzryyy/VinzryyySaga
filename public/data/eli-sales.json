@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-08-21T12:54:50.610150Z",
+  "fetchedAt": "2026-08-21T18:41:16.339212Z",
   "salesCount": 11,
   "sales": [
     {
@@ -110,22 +110,22 @@
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 24,
-          "remainingQuota": 21
+          "ticketsSold": 25,
+          "remainingQuota": 20
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 6,
-          "remainingQuota": 39
+          "ticketsSold": 8,
+          "remainingQuota": 37
         },
         {
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 35,
-          "remainingQuota": 10
+          "ticketsSold": 37,
+          "remainingQuota": 8
         }
       ],
       "url": "https://jkt48.com/schedule/ex273e-26082026"
