@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-08-22T06:45:03.898325Z",
+  "fetchedAt": "2026-08-22T12:45:03.386427Z",
   "salesCount": 11,
   "sales": [
     {
@@ -133,7 +133,7 @@
     {
       "exclusiveId": 962,
       "code": "EX7F6C",
-      "slug": "ex7f6c-26072026",
+      "slug": "ex7f6c-25072026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "JKT48 Request Hour 2026 Setlist Best 40",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-thumb-a2122e.jpg",
@@ -178,12 +178,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex7f6c-26072026"
+      "url": "https://jkt48.com/schedule/ex7f6c-25072026"
     },
     {
       "exclusiveId": 960,
       "code": "EXFB66",
-      "slug": "exfb66-05072026",
+      "slug": "exfb66-04072026",
       "category": "TWO_SHOT",
       "title": "Team Love & Team Dream, 2shot Yogyakarta",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-thumb-ba1e85.jpg",
@@ -221,7 +221,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/exfb66-05072026"
+      "url": "https://jkt48.com/schedule/exfb66-04072026"
     },
     {
       "exclusiveId": 959,
