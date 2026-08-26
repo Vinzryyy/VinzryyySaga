@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-08-26T01:29:09.246215Z",
+  "fetchedAt": "2026-08-26T06:55:57.568837Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
@@ -265,7 +265,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-stage-activity-dan-mini-live-performance-di-jkt48-personal-meet-and-greet-festiv",
       "image": null,
       "publishedAt": "2026-05-21T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 Sebagaimana yang telah diumumkan sebelumnya, JKT48 akan mengadakan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION pada tanggal 23 Mei 2026 di Hall 9 dan 10 ICE…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
