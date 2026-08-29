@@ -1,10 +1,22 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-08-29T06:19:32.764354Z",
+  "fetchedAt": "2026-08-29T16:30:15.250470Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
+    {
+      "id": 1862,
+      "title": "Pengumuman Mengenai Pengunduran Diri Aulia Riza dari JKT48",
+      "category": "Other",
+      "slug": "pengumuman-mengenai-pengunduran-diri-aulia-riza-dari-jkt48",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-aulia-riza-dari-jkt48",
+      "image": null,
+      "publishedAt": "2026-08-29T00:00:00.000Z",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Aulia Riza dari JKT48 Trainee telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima keputusan…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1861,
       "title": "Pengumuman Mengenai JKT48 Theater 14th Anniversary “TEAM ON!”",
@@ -61,7 +73,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-ofc-event-namanya-juga-vacation-2",
       "image": null,
       "publishedAt": "2026-08-11T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48! Bulan Agustus merupakan bulan yang bersejarah bagi Indonesia. Dalam rangka menyemarakkan Hari Kemerdekaan Indonesia, JKT48 OFC Event ingin mengajak kalian untuk bervakansi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -102,18 +114,6 @@
       "matchedIn": null
     },
     {
-      "id": 1850,
-      "title": "Pengumuman Mengenai Pertunjukan Teater Kelulusan dan Prosesi Pelepasan Kabesha Cathleen Nixie",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-cathleen-nixie",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-cathleen-nixie",
-      "image": null,
-      "publishedAt": "2026-07-25T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Cathy telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 19 April 2026, kami dengan ini…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1851,
       "title": "Pengumuman Mengenai JKT48 Vocal Project “REVOICE”",
       "category": "Release",
@@ -122,6 +122,18 @@
       "image": null,
       "publishedAt": "2026-07-25T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Kami dengan senang hati mengumumkan bahwa JKT48 Vocal Project “REVOICE” akan segera hadir di Official YouTube Channel JKT48 . Proyek spesial ini menghadirkan para member JKT48…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1850,
+      "title": "Pengumuman Mengenai Pertunjukan Teater Kelulusan dan Prosesi Pelepasan Kabesha Cathleen Nixie",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-cathleen-nixie",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-cathleen-nixie",
+      "image": null,
+      "publishedAt": "2026-07-25T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Cathy telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 19 April 2026, kami dengan ini…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -534,18 +546,6 @@
       "matchedIn": null
     },
     {
-      "id": 1523,
-      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 873,
       "title": "Pengumuman Mengenai Graduation 2-Shot Online Amanda Sukma dengan Chekicha",
       "category": "Theater",
@@ -554,6 +554,18 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
+      "id": 1523,
+      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-10T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -590,18 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-03T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Victoria Kimberly dan Indah Cahya di bulan Maret ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1278,
-      "title": "Pengumuman Mengenai Pertunjukan Teater Kelulusan dan Prosesi Pelepasan Kabesha Amanda Sukma",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-amanda-sukma",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-amanda-sukma",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-02-28T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Amanda telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 5 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 21 Oktober 2025, kami dengan ini…",
       "mentionsEli": false,
       "matchedIn": null
     }
