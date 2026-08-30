@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-08-30T16:20:02.215324Z",
-  "salesCount": 10,
+  "fetchedAt": "2026-08-30T20:46:52.326186Z",
+  "salesCount": 11,
   "sales": [
     {
       "exclusiveId": 936,
@@ -222,6 +222,49 @@
         }
       ],
       "url": "https://jkt48.com/schedule/exfb66-04072026"
+    },
+    {
+      "exclusiveId": 959,
+      "code": "EXA340",
+      "slug": "exa340-04072026",
+      "category": "PHOTOCARD",
+      "title": "Team Love & Team Dream, Meet and Greet Yogyakarta",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-thumb-bc4526.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-preview-c338ee.jpg",
+      "defaultPrice": 50000,
+      "totalQuota": 12320,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-22T12:00:00",
+          "end_date": "2026-07-05T09:00:00",
+          "is_ofc_only": true
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-23T12:00:00",
+          "end_date": "2026-07-05T09:00:00",
+          "is_ofc_only": false
+        }
+      ],
+      "soonestSessionDate": "2026-07-05",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1 (DREAM) · 05/07",
+          "sessionDate": "2026-07-05",
+          "jalur": "Jalur 6",
+          "ticketsSold": 45,
+          "remainingQuota": 175
+        },
+        {
+          "sessionLabel": "Sesi 2 (DREAM) · 05/07",
+          "sessionDate": "2026-07-05",
+          "jalur": "Jalur 6",
+          "ticketsSold": 180,
+          "remainingQuota": 40
+        }
+      ],
+      "url": "https://jkt48.com/schedule/exa340-04072026"
     },
     {
       "exclusiveId": 954,
