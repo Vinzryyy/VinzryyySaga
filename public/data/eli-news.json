@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-08-30T11:33:17.342364Z",
+  "fetchedAt": "2026-08-30T16:20:33.165492Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
@@ -25,7 +25,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-theater-14th-anniversary-team-on",
       "image": null,
       "publishedAt": "2026-08-27T17:00:00.000Z",
-      "snippet": "Pengumuman Mengenai JKT48 Theater 14th Anniversary “TEAM ON!” Terima kasih atas dukungannya untuk JKT48. Beberapa saat lagi, JKT48 Theater akan memasuki usia 14 tahun. Untuk merayakan momen ini, JKT48 akan mengadakan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -265,7 +265,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-live-streaming-event-jkt48-request-hour-2026-setlist-best-40",
       "image": null,
       "publishedAt": "2026-06-06T17:00:00.000Z",
-      "snippet": "Te rima kasih atas dukungannya untuk JKT48. JKT48 akan melaksanakan Event JKT48 Request Hour 2026 Setlist Best 40 pada tanggal 13 Juni mendatang. Bagi yang tidak dapat datang langsung, Anda tetap dapat menjadi saksi…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
