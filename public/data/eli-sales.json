@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-08-31T04:32:56.727711Z",
+  "fetchedAt": "2026-08-31T13:06:21.256031Z",
   "salesCount": 11,
   "sales": [
     {
@@ -62,7 +62,7 @@
     {
       "exclusiveId": 963,
       "code": "EX273E",
-      "slug": "ex273e-25082026",
+      "slug": "ex273e-26082026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Theater Sementara 2026",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-thumb-70c4c1.jpg",
@@ -128,12 +128,12 @@
           "remainingQuota": 8
         }
       ],
-      "url": "https://jkt48.com/schedule/ex273e-25082026"
+      "url": "https://jkt48.com/schedule/ex273e-26082026"
     },
     {
       "exclusiveId": 962,
       "code": "EX7F6C",
-      "slug": "ex7f6c-19072026",
+      "slug": "ex7f6c-26072026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "JKT48 Request Hour 2026 Setlist Best 40",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-thumb-a2122e.jpg",
@@ -178,12 +178,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex7f6c-19072026"
+      "url": "https://jkt48.com/schedule/ex7f6c-26072026"
     },
     {
       "exclusiveId": 960,
       "code": "EXFB66",
-      "slug": "exfb66-04072026",
+      "slug": "exfb66-05072026",
       "category": "TWO_SHOT",
       "title": "Team Love & Team Dream, 2shot Yogyakarta",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-thumb-ba1e85.jpg",
@@ -221,12 +221,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/exfb66-04072026"
+      "url": "https://jkt48.com/schedule/exfb66-05072026"
     },
     {
       "exclusiveId": 959,
       "code": "EXA340",
-      "slug": "exa340-04072026",
+      "slug": "exa340-05072026",
       "category": "PHOTOCARD",
       "title": "Team Love & Team Dream, Meet and Greet Yogyakarta",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-thumb-bc4526.jpg",
@@ -264,7 +264,7 @@
           "remainingQuota": 40
         }
       ],
-      "url": "https://jkt48.com/schedule/exa340-04072026"
+      "url": "https://jkt48.com/schedule/exa340-05072026"
     },
     {
       "exclusiveId": 954,
