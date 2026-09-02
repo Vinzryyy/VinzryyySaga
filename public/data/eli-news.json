@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-02T03:39:05.206599Z",
+  "fetchedAt": "2026-09-02T10:56:31.445867Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
