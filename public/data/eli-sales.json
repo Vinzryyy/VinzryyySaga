@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-09-03T10:56:04.826589Z",
-  "salesCount": 10,
+  "fetchedAt": "2026-09-03T16:04:40.218244Z",
+  "salesCount": 11,
   "sales": [
     {
       "exclusiveId": null,
@@ -433,6 +433,54 @@
         }
       ],
       "url": "https://jkt48.com/schedule/ex3725-08052026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EXBE10",
+      "slug": "exbe10-14042026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "Love Dream Passion - Music Video Behind the Scenes",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-preview-98404e.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-04-10T22:00:00",
+          "end_date": "2026-04-20T07:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-04-12T22:00:00",
+          "end_date": "2026-04-20T07:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-04-19",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-04-19",
+          "jalur": "Jalur 5",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 5",
+          "sessionDate": "2026-04-19",
+          "jalur": "Jalur 5",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 6",
+          "sessionDate": "2026-04-19",
+          "jalur": "Jalur 5",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/exbe10-14042026"
     },
     {
       "exclusiveId": null,
