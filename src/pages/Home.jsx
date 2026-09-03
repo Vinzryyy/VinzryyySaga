@@ -26,6 +26,7 @@ import AnnouncementPopup from '../components/home/AnnouncementPopup';
 import VideotronPopup from '../components/home/VideotronPopup';
 import StatsStrip from '../components/home/StatsStrip';
 import CareerTimeline from '../components/home/CareerTimeline';
+import ChalkIllustrations from '../components/home/ChalkIllustrations';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -1147,9 +1148,12 @@ const HomePage = () => {
 
       {/* PETIKAN — ArmePack teaser. Surfaces the daily card feature that sits
           behind the navbar and is otherwise invisible on the homepage. Dark card
-          intentionally contrasts the cream Gallery section above it. */}
+          intentionally contrasts the cream Gallery section above it.
+          ChalkIllustrations sit as a decorative background layer. */}
       <Section id="armepack-preview" padding="lg">
         <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-gold)]/20 bg-[color:var(--retro-brown-dark)]">
+          {/* Chalk illustrations — background decorative layer */}
+          <ChalkIllustrations />
           <div
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none"
@@ -1158,7 +1162,7 @@ const HomePage = () => {
                 'radial-gradient(circle at 80% 110%, rgba(201,169,97,0.20) 0%, transparent 55%), radial-gradient(circle at 0% 0%, rgba(122,46,46,0.22) 0%, transparent 50%)',
             }}
           />
-          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
+          <div className="relative z-10 px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
             <div className="flex-1">
               <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
