@@ -1146,14 +1146,14 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* PETIKAN — ArmePack teaser. Surfaces the daily card feature that sits
-          behind the navbar and is otherwise invisible on the homepage. Dark card
-          intentionally contrasts the cream Gallery section above it.
-          ChalkIllustrations sit as a decorative background layer. */}
+      {/* DARK ZONE — full-bleed dark background wrapping ArmePack +
+          Community. ChalkIllustrations scatter behind both sections as
+          wallpaper-style background decoration. */}
+      <div className="relative bg-[color:var(--retro-brown-dark)] overflow-hidden">
+        <ChalkIllustrations />
+
       <Section id="armepack-preview" padding="lg">
         <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-gold)]/20 bg-[color:var(--retro-brown-dark)]">
-          {/* Chalk illustrations — background decorative layer */}
-          <ChalkIllustrations />
           <div
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none"
@@ -1253,6 +1253,7 @@ const HomePage = () => {
           </div>
         </div>
       </Section>
+      </div>{/* end DARK ZONE */}
 
       {/* Pengumuman one-shot — Photo Frame Project. Auto-dismiss
           persisted di localStorage, kelar dengan satu klik. Mount
