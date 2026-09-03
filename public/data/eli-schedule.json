@@ -1,18 +1,18 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-09-02T20:45:34.130894Z",
+  "fetchedAt": "2026-09-03T03:37:05.474643Z",
   "eventCount": 13,
   "events": [
     {
       "kind": "SHOW",
-      "schedule_id": 3211,
+      "schedule_id": null,
       "code": "SH990D",
       "title": "Sambil Menggandeng Erat Tanganku",
       "date": "2026-08-05",
       "start_time": "19:00",
       "end_time": "21:00",
-      "set_list": "SL_12",
+      "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
       "members": [
@@ -84,13 +84,13 @@
     },
     {
       "kind": "SHOW",
-      "schedule_id": 3216,
+      "schedule_id": null,
       "code": "SHF05E",
       "title": "DREAM BAKUDAN",
       "date": "2026-08-14",
       "start_time": "19:00",
       "end_time": "21:00",
-      "set_list": "SL_26",
+      "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
       "members": [
@@ -162,7 +162,7 @@
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 963,
+      "schedule_id": null,
       "code": "EX273E",
       "title": "Theater Sementara 2026 (Sesi 1)",
       "date": "2026-08-20",
@@ -201,19 +201,19 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        12
+        null
       ],
       "eli_remaining": [
-        33
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 33,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 963,
+      "schedule_id": null,
       "code": "EX273E",
       "title": "Theater Sementara 2026 (Sesi 2)",
       "date": "2026-08-20",
@@ -252,19 +252,19 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        6
+        null
       ],
       "eli_remaining": [
-        39
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 39,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 963,
+      "schedule_id": null,
       "code": "EX273E",
       "title": "Theater Sementara 2026 (Sesi 3)",
       "date": "2026-08-20",
@@ -303,25 +303,25 @@
         "Jalur 6"
       ],
       "tickets_sold_eli": [
-        23
+        null
       ],
       "eli_remaining": [
-        22
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 22,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
     {
       "kind": "SHOW",
-      "schedule_id": 3221,
+      "schedule_id": null,
       "code": "SH19ED",
       "title": "DREAM BAKUDAN",
       "date": "2026-08-21",
       "start_time": "19:00",
       "end_time": "21:00",
-      "set_list": "SL_26",
+      "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
       "members": [
@@ -393,7 +393,7 @@
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 963,
+      "schedule_id": null,
       "code": "EX273E",
       "title": "Theater Sementara 2026 (Sesi 4)",
       "date": "2026-08-22",
@@ -423,19 +423,19 @@
         "Jalur 4"
       ],
       "tickets_sold_eli": [
-        25
+        null
       ],
       "eli_remaining": [
-        20
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 20,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 963,
+      "schedule_id": null,
       "code": "EX273E",
       "title": "Theater Sementara 2026 (Sesi 5)",
       "date": "2026-08-22",
@@ -465,19 +465,19 @@
         "Jalur 4"
       ],
       "tickets_sold_eli": [
-        11
+        null
       ],
       "eli_remaining": [
-        34
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 34,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
     {
       "kind": "EXCLUSIVE",
-      "schedule_id": 963,
+      "schedule_id": null,
       "code": "EX273E",
       "title": "Theater Sementara 2026 (Sesi 6)",
       "date": "2026-08-22",
@@ -507,25 +507,25 @@
         "Jalur 4"
       ],
       "tickets_sold_eli": [
-        37
+        null
       ],
       "eli_remaining": [
-        8
+        0
       ],
-      "sold_out": false,
-      "remaining_total": 8,
+      "sold_out": true,
+      "remaining_total": 0,
       "is_birthday_show": false,
       "url": "https://jkt48.com/schedule/ex273e-13082026"
     },
     {
       "kind": "SHOW",
-      "schedule_id": 3226,
+      "schedule_id": null,
       "code": "SH578A",
       "title": "Sambil Menggandeng Erat Tanganku",
       "date": "2026-08-29",
       "start_time": "14:00",
       "end_time": "16:00",
-      "set_list": "SL_12",
+      "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
       "members": [
@@ -597,13 +597,13 @@
     },
     {
       "kind": "SHOW",
-      "schedule_id": 3229,
+      "schedule_id": null,
       "code": "SH3FF5",
       "title": "Pertaruhan Cinta",
       "date": "2026-08-30",
       "start_time": "19:00",
       "end_time": "21:00",
-      "set_list": "SL_24",
+      "set_list": null,
       "team": "JKT48",
       "venue": "JKT48 Theater",
       "members": [
@@ -675,13 +675,13 @@
     },
     {
       "kind": "SHOW",
-      "schedule_id": 3231,
+      "schedule_id": null,
       "code": "SHA5E9",
       "title": "Sambil Menggandeng Erat Tanganku",
       "date": "2026-09-04",
       "start_time": "19:00",
       "end_time": "21:00",
-      "set_list": "SL_12",
+      "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
       "members": [
@@ -753,13 +753,13 @@
     },
     {
       "kind": "SHOW",
-      "schedule_id": 3233,
+      "schedule_id": null,
       "code": "SH4747",
       "title": "Cara Meminum Ramune",
       "date": "2026-09-05",
       "start_time": "19:00",
       "end_time": "21:00",
-      "set_list": "SL_20",
+      "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
       "members": [

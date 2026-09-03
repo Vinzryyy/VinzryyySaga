@@ -1,9 +1,9 @@
 {
-  "fetchedAt": "2026-09-02T20:45:53.200244Z",
+  "fetchedAt": "2026-09-03T03:37:22.543775Z",
   "salesCount": 11,
   "sales": [
     {
-      "exclusiveId": 936,
+      "exclusiveId": null,
       "code": "EXE588",
       "slug": "exe588-23052026",
       "category": "PHOTOCARD",
@@ -11,19 +11,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-preview-8a69c1.jpg",
       "defaultPrice": 50000,
-      "totalQuota": 51250,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-04-02T18:00:00",
-          "end_date": "2026-05-20T23:59:00",
-          "is_ofc_only": true
+          "end_date": "2026-05-20T23:59:00"
         },
         {
           "label": "General",
           "start_date": "2026-04-03T18:00:00",
-          "end_date": "2026-05-20T23:59:00",
-          "is_ofc_only": false
+          "end_date": "2026-05-20T23:59:00"
         }
       ],
       "soonestSessionDate": "2026-05-23",
@@ -32,35 +30,35 @@
           "sessionLabel": "Sesi 3",
           "sessionDate": "2026-05-23",
           "jalur": "Jalur 8",
-          "ticketsSold": 250,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-05-23",
           "jalur": "Jalur 8",
-          "ticketsSold": 250,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-05-23",
           "jalur": "Jalur 8",
-          "ticketsSold": 250,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-05-23",
           "jalur": "Jalur 8",
-          "ticketsSold": 250,
+          "ticketsSold": null,
           "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/exe588-23052026"
     },
     {
-      "exclusiveId": 963,
+      "exclusiveId": null,
       "code": "EX273E",
       "slug": "ex273e-26082026",
       "category": "DIGITAL_PHOTOBOOK",
@@ -68,19 +66,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-thumb-70c4c1.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-preview-f47357.jpg",
       "defaultPrice": 120000,
-      "totalQuota": 16065,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-08-11T20:00:00",
-          "end_date": "2026-08-26T07:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-08-26T07:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-08-12T20:00:00",
-          "end_date": "2026-08-26T07:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-08-26T07:00:00"
         }
       ],
       "soonestSessionDate": "2026-08-20",
@@ -89,49 +85,49 @@
           "sessionLabel": "Sesi 1",
           "sessionDate": "2026-08-20",
           "jalur": "Jalur 6",
-          "ticketsSold": 12,
-          "remainingQuota": 33
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 2",
           "sessionDate": "2026-08-20",
           "jalur": "Jalur 6",
-          "ticketsSold": 6,
-          "remainingQuota": 39
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 3",
           "sessionDate": "2026-08-20",
           "jalur": "Jalur 6",
-          "ticketsSold": 23,
-          "remainingQuota": 22
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 25,
-          "remainingQuota": 20
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 11,
-          "remainingQuota": 34
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-08-22",
           "jalur": "Jalur 4",
-          "ticketsSold": 37,
-          "remainingQuota": 8
+          "ticketsSold": null,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex273e-26082026"
     },
     {
-      "exclusiveId": 962,
+      "exclusiveId": null,
       "code": "EX7F6C",
       "slug": "ex7f6c-19072026",
       "category": "DIGITAL_PHOTOBOOK",
@@ -139,19 +135,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-thumb-a2122e.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-preview-872f71.jpg",
       "defaultPrice": 120000,
-      "totalQuota": 10800,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-07-16T20:00:00",
-          "end_date": "2026-07-26T07:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-07-26T07:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-07-17T20:00:00",
-          "end_date": "2026-07-26T07:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-07-26T07:00:00"
         }
       ],
       "soonestSessionDate": "2026-07-26",
@@ -160,28 +154,28 @@
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 44,
-          "remainingQuota": 1
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-07-26",
           "jalur": "Jalur 5",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex7f6c-19072026"
     },
     {
-      "exclusiveId": 960,
+      "exclusiveId": null,
       "code": "EXFB66",
       "slug": "exfb66-04072026",
       "category": "TWO_SHOT",
@@ -189,19 +183,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-thumb-ba1e85.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-preview-bb4a0e.jpg",
       "defaultPrice": 180000,
-      "totalQuota": 4480,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-06-22T12:00:00",
-          "end_date": "2026-07-05T09:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-07-05T09:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-06-23T12:00:00",
-          "end_date": "2026-07-05T09:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-07-05T09:00:00"
         }
       ],
       "soonestSessionDate": "2026-07-05",
@@ -210,21 +202,21 @@
           "sessionLabel": "Sesi 3 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 80,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 4 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 80,
+          "ticketsSold": null,
           "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/exfb66-04072026"
     },
     {
-      "exclusiveId": 959,
+      "exclusiveId": null,
       "code": "EXA340",
       "slug": "exa340-04072026",
       "category": "PHOTOCARD",
@@ -232,19 +224,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-thumb-bc4526.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-preview-c338ee.jpg",
       "defaultPrice": 50000,
-      "totalQuota": 12320,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-06-22T12:00:00",
-          "end_date": "2026-07-05T09:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-07-05T09:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-06-23T12:00:00",
-          "end_date": "2026-07-05T09:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-07-05T09:00:00"
         }
       ],
       "soonestSessionDate": "2026-07-05",
@@ -253,21 +243,21 @@
           "sessionLabel": "Sesi 1 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 45,
-          "remainingQuota": 175
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 05/07",
           "sessionDate": "2026-07-05",
           "jalur": "Jalur 6",
-          "ticketsSold": 180,
-          "remainingQuota": 40
+          "ticketsSold": null,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/exa340-04072026"
     },
     {
-      "exclusiveId": 954,
+      "exclusiveId": null,
       "code": "EX3773",
       "slug": "ex3773-02072026",
       "category": "TWO_SHOT",
@@ -275,19 +265,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex3773-thumb-f96b44.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex3773-preview-cbccce.jpg",
       "defaultPrice": 180000,
-      "totalQuota": 4320,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-06-15T12:00:00",
-          "end_date": "2026-07-02T09:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-07-02T09:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-06-16T12:00:00",
-          "end_date": "2026-07-02T09:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-07-02T09:00:00"
         }
       ],
       "soonestSessionDate": "2026-07-02",
@@ -296,21 +284,21 @@
           "sessionLabel": "Sesi 1 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 45,
-          "remainingQuota": 35
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 2 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 53,
-          "remainingQuota": 27
+          "ticketsSold": null,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex3773-02072026"
     },
     {
-      "exclusiveId": 953,
+      "exclusiveId": null,
       "code": "EX9A4A",
       "slug": "ex9a4a-02072026",
       "category": "PHOTOCARD",
@@ -318,19 +306,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-thumb-736b1c.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-preview-792fcc.jpg",
       "defaultPrice": 50000,
-      "totalQuota": 11880,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-06-15T12:00:00",
-          "end_date": "2026-07-02T09:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-07-02T09:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-06-16T12:00:00",
-          "end_date": "2026-07-02T09:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-07-02T09:00:00"
         }
       ],
       "soonestSessionDate": "2026-07-02",
@@ -339,21 +325,21 @@
           "sessionLabel": "Sesi 3 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 61,
-          "remainingQuota": 159
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 4 (DREAM) · 02/07",
           "sessionDate": "2026-07-02",
           "jalur": "Jalur 6",
-          "ticketsSold": 54,
-          "remainingQuota": 166
+          "ticketsSold": null,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex9a4a-02072026"
     },
     {
-      "exclusiveId": 947,
+      "exclusiveId": null,
       "code": "EX783D",
       "slug": "ex783d-15062026",
       "category": "DIGITAL_PHOTOBOOK",
@@ -361,19 +347,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-thumb-edd92f.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-preview-c1bec0.jpg",
       "defaultPrice": 120000,
-      "totalQuota": 50000,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-06-09T20:00:00",
-          "end_date": "2026-06-24T07:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-06-24T07:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-06-10T20:00:00",
-          "end_date": "2026-06-24T07:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-06-24T07:00:00"
         }
       ],
       "soonestSessionDate": "2026-06-16",
@@ -382,28 +366,28 @@
           "sessionLabel": "Sesi 1",
           "sessionDate": "2026-06-16",
           "jalur": "Jalur 8",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 2",
           "sessionDate": "2026-06-16",
           "jalur": "Jalur 8",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 3",
           "sessionDate": "2026-06-16",
           "jalur": "Jalur 8",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex783d-15062026"
     },
     {
-      "exclusiveId": 946,
+      "exclusiveId": null,
       "code": "EX3725",
       "slug": "ex3725-08052026",
       "category": "DIGITAL_PHOTOBOOK",
@@ -411,19 +395,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-thumb-f9f5e7.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/05/ex3725-preview-d270de.jpg",
       "defaultPrice": 120000,
-      "totalQuota": 9450,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-05-06T22:00:00",
-          "end_date": "2026-05-16T07:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-05-16T07:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-05-07T22:00:00",
-          "end_date": "2026-05-16T07:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-05-16T07:00:00"
         }
       ],
       "soonestSessionDate": "2026-05-09",
@@ -432,28 +414,28 @@
           "sessionLabel": "Sesi 1",
           "sessionDate": "2026-05-09",
           "jalur": "Jalur 1",
-          "ticketsSold": 35,
-          "remainingQuota": 10
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 2",
           "sessionDate": "2026-05-09",
           "jalur": "Jalur 1",
-          "ticketsSold": 20,
-          "remainingQuota": 25
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 3",
           "sessionDate": "2026-05-09",
           "jalur": "Jalur 1",
-          "ticketsSold": 41,
-          "remainingQuota": 4
+          "ticketsSold": null,
+          "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/ex3725-08052026"
     },
     {
-      "exclusiveId": 944,
+      "exclusiveId": null,
       "code": "EXBE10",
       "slug": "exbe10-14042026",
       "category": "DIGITAL_PHOTOBOOK",
@@ -461,19 +443,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-preview-98404e.jpg",
       "defaultPrice": 120000,
-      "totalQuota": 8100,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-04-10T22:00:00",
-          "end_date": "2026-04-20T07:00:00",
-          "is_ofc_only": true
+          "end_date": "2026-04-20T07:00:00"
         },
         {
           "label": "General",
           "start_date": "2026-04-12T22:00:00",
-          "end_date": "2026-04-20T07:00:00",
-          "is_ofc_only": false
+          "end_date": "2026-04-20T07:00:00"
         }
       ],
       "soonestSessionDate": "2026-04-19",
@@ -482,28 +462,28 @@
           "sessionLabel": "Sesi 4",
           "sessionDate": "2026-04-19",
           "jalur": "Jalur 5",
-          "ticketsSold": 44,
-          "remainingQuota": 1
+          "ticketsSold": null,
+          "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 5",
           "sessionDate": "2026-04-19",
           "jalur": "Jalur 5",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 6",
           "sessionDate": "2026-04-19",
           "jalur": "Jalur 5",
-          "ticketsSold": 45,
+          "ticketsSold": null,
           "remainingQuota": 0
         }
       ],
       "url": "https://jkt48.com/schedule/exbe10-14042026"
     },
     {
-      "exclusiveId": 933,
+      "exclusiveId": null,
       "code": "EX579E",
       "slug": "ex579e-23052026",
       "category": "TWO_SHOT",
@@ -511,19 +491,17 @@
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-thumb-c637b9.jpg",
       "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-preview-e420c5.jpg",
       "defaultPrice": 180000,
-      "totalQuota": 7500,
+      "totalQuota": null,
       "salesPeriod": [
         {
           "label": "OFC",
           "start_date": "2026-04-01T18:00:00",
-          "end_date": "2026-05-20T23:59:00",
-          "is_ofc_only": true
+          "end_date": "2026-05-20T23:59:00"
         },
         {
           "label": "General",
           "start_date": "2026-04-03T18:00:00",
-          "end_date": "2026-05-20T23:59:00",
-          "is_ofc_only": false
+          "end_date": "2026-05-20T23:59:00"
         }
       ],
       "soonestSessionDate": "2026-05-23",
@@ -532,14 +510,14 @@
           "sessionLabel": "Sesi 7",
           "sessionDate": "2026-05-23",
           "jalur": "Jalur 4",
-          "ticketsSold": 75,
+          "ticketsSold": null,
           "remainingQuota": 0
         },
         {
           "sessionLabel": "Sesi 8",
           "sessionDate": "2026-05-23",
           "jalur": "Jalur 4",
-          "ticketsSold": 75,
+          "ticketsSold": null,
           "remainingQuota": 0
         }
       ],
