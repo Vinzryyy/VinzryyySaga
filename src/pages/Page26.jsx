@@ -95,7 +95,7 @@ const Page26 = () => {
         <p className="font-header italic text-lg md:text-xl text-[color:var(--retro-text-primary)] leading-relaxed mb-4">
           Armeniaca berarti aprikot — pohon yang mekar pelan, lalu sekaligus.
         </p>
-        <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed">
+        <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed">
           Pohon di atas adalah modul pertama dari Harmoni Kebaikan untuk
           ulang tahun ke-26 Eli. Modul-modul lain kini sudah hadir — dan
           pohon ini tetap bisa disirami kapan saja.
@@ -119,7 +119,7 @@ const Page26 = () => {
             <i className="ri-arrow-right-up-line text-sm sm:text-base opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" aria-hidden="true" />
           </button>
         </div>
-        <p className="mt-4 text-[11px] text-[color:var(--color-text-secondary)]/70 italic">
+        <p className="mt-4 text-[11px] text-[color:var(--retro-text-secondary)]/70 italic">
           Sepuluh singgah dari Bibit menjadi Ekosistem
         </p>
       </div>

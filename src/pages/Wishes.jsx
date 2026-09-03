@@ -564,11 +564,11 @@ const WishesPage = () => {
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
                 Pilih Tampilan Kartu
               </p>
-              <p className="text-xs text-[color:var(--color-text-muted)]">
+              <p className="text-xs text-[color:var(--retro-text-muted)]">
                 Preview live — pesanmu akan tampil di wall dengan tampilan ini.
               </p>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5 flex-shrink-0">
               <i className="ri-arrow-left-line" />
               Geser
               <i className="ri-arrow-right-line" />
@@ -669,13 +669,13 @@ const WishesPage = () => {
       <section className="px-5 sm:px-6 md:px-12 lg:px-20 pb-16 md:pb-24 overflow-x-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
               Wall ·{' '}
               {wallCappedAt
                 ? `menampilkan ${wallCappedAt} dari ${totalWishCount} ucapan`
                 : `${seeds.length} ucapan`}
             </p>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:block">
               Tap kartu untuk kasih ❤
             </p>
           </div>
@@ -723,7 +723,7 @@ const WishesPage = () => {
               <p className="text-[color:var(--retro-text-primary)] font-bold">
                 Belum ada ucapan yang dimoderasi.
               </p>
-              <p className="text-sm text-[color:var(--color-text-muted)] mt-1">
+              <p className="text-sm text-[color:var(--retro-text-muted)] mt-1">
                 Jadilah yang pertama lewat form di atas.
               </p>
             </div>

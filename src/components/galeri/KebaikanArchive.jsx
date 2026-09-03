@@ -222,7 +222,7 @@ const KebaikanArchive = () => {
           <h2 className="font-header text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] max-w-3xl">
             Setiap aksi kebaikan, <span className="text-[color:var(--retro-burgundy)]">tercatat di sini.</span>
           </h2>
-          <p className="mt-4 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+          <p className="mt-4 text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-2xl">
             Armeniaca mendokumentasikan kebaikan-kebaikan yang dilakukan atas nama Ceu Eli sebagai
             bagian dari Harmoni Kebaikan. Yang ditampilkan di sini akan mirror display fisik di
             <span className="font-bold text-[color:var(--retro-text-primary)]"> CGV FX Sudirman F7</span> pada
@@ -241,7 +241,7 @@ const KebaikanArchive = () => {
             </p>
           </div>
           <div className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
               Total Dana
             </p>
             <p className="font-header text-2xl md:text-3xl font-black tabular-nums leading-none text-[color:var(--retro-text-primary)]">
@@ -249,7 +249,7 @@ const KebaikanArchive = () => {
             </p>
           </div>
           <div className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5 col-span-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-2">
               Sebaran per Kategori
             </p>
             <div className="flex flex-wrap gap-x-4 gap-y-1.5">
@@ -260,7 +260,7 @@ const KebaikanArchive = () => {
                 >
                   <i className={`${cat.icon} text-sm text-[color:var(--retro-burgundy)]/80`} />
                   <span className="font-bold tabular-nums">{cat.count}</span>
-                  <span className="text-[color:var(--color-text-muted)]">{cat.label}</span>
+                  <span className="text-[color:var(--retro-text-muted)]">{cat.label}</span>
                 </span>
               ))}
             </div>
@@ -317,7 +317,7 @@ const KebaikanArchive = () => {
               >
                 <i className={opt.icon} />
                 {opt.label}
-                <span className={`tabular-nums text-[10px] ${active ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--color-text-muted)]'}`}>
+                <span className={`tabular-nums text-[10px] ${active ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--retro-text-muted)]'}`}>
                   {count}
                 </span>
               </button>
@@ -332,7 +332,7 @@ const KebaikanArchive = () => {
             <p className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] tracking-tight mb-2">
               Arsip masih menunggu untuk diisi.
             </p>
-            <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] max-w-lg mx-auto leading-relaxed">
+            <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] max-w-lg mx-auto leading-relaxed">
               Kebaikan-kebaikan yang dikumpulkan untuk Galeri Kebaikan akan didokumentasikan di sini
               menjelang 15 Juni 2026. Dimulai dari satu langkah kecil — sama seperti pohon di atas.
             </p>
@@ -419,7 +419,7 @@ const KebaikanArchive = () => {
         )}
 
         {/* Footer note — sets expectation that this list grows over time */}
-        <p className="mt-8 text-[11px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] text-center">
+        <p className="mt-8 text-[11px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] text-center">
           Diperbarui oleh Armeniaca · Helismiley × Armeniaca
         </p>
       </div>

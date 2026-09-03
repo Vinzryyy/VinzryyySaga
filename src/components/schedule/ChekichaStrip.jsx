@@ -96,11 +96,11 @@ const ChekichaStrip = () => {
               }`}
             />
             Chekicha
-            <span className="text-[color:var(--color-text-muted)] tabular-nums">
+            <span className="text-[color:var(--retro-text-muted)] tabular-nums">
               · {upcoming.length > 0 ? `${upcoming.length} mendatang` : `${history.length} arsip`}
             </span>
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-flex items-center gap-1.5">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-flex items-center gap-1.5">
             <i className="ri-vidicon-line" />
             Video Meet &amp; Greet · App JP
           </p>
@@ -129,7 +129,7 @@ const ChekichaStrip = () => {
                     <p className="font-bold text-sm text-[color:var(--retro-text-primary)] leading-tight line-clamp-2">
                       {item.title || 'Chekicha Session'}
                     </p>
-                    <p className="text-xs text-[color:var(--color-text-muted)] mt-1 tabular-nums">
+                    <p className="text-xs text-[color:var(--retro-text-muted)] mt-1 tabular-nums">
                       <i className="ri-calendar-line mr-1 align-[-2px]" />
                       {formatHistoryDate(item.date)}
                       {item.time && (
@@ -172,12 +172,12 @@ const ChekichaStrip = () => {
                     ? `Eli di Chekicha sejak ${firstYear}`
                     : 'Eli di Chekicha'}
                 </p>
-                <p className="text-xs md:text-sm text-[color:var(--color-text-muted)] mt-1.5 leading-relaxed">
+                <p className="text-xs md:text-sm text-[color:var(--retro-text-muted)] mt-1.5 leading-relaxed">
                   {history.length} sesi tercatat
                   {birthdayCount > 0 && ` · ${birthdayCount}× Birthday Chekicha`}
                   {latest?.date && ` · terakhir ${formatHistoryDate(latest.date)}`}
                 </p>
-                <p className="text-[10px] text-[color:var(--color-text-muted)]/80 mt-2 leading-snug">
+                <p className="text-[10px] text-[color:var(--retro-text-muted)]/80 mt-2 leading-snug">
                   Belum ada sesi mendatang. Birthday Chekicha biasanya
                   diumumkan beberapa minggu sebelum 15 Juni.
                 </p>
@@ -187,7 +187,7 @@ const ChekichaStrip = () => {
                     Lihat arsip Chekicha
                     <i className="ri-external-link-line" />
                   </span>
-                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]/70 inline-flex items-center gap-1">
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]/70 inline-flex items-center gap-1">
                     <i className="ri-information-line" />
                     Butuh app JP
                   </span>

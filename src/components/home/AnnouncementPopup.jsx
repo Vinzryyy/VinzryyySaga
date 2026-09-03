@@ -124,7 +124,7 @@ const AnnouncementPopup = () => {
             <br />
             <span className="text-[color:var(--retro-burgundy)]">Happy Helisma Day.</span>
           </h2>
-          <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-5">
+          <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed mb-5">
             Cetak photobox di booth{' '}
             <span className="font-bold text-[color:var(--retro-text-primary)]">Palette.id</span>{' '}
             dengan bingkai khusus Helisma Day. Buat kenangan visual buat seitansai ke-26 Ceu Eli.
@@ -136,7 +136,7 @@ const AnnouncementPopup = () => {
               <i className="ri-calendar-event-line" />
             </span>
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5">
+              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
                 Periode
               </p>
               <p className="text-sm font-bold text-[color:var(--retro-text-primary)]">
@@ -146,7 +146,7 @@ const AnnouncementPopup = () => {
           </div>
 
           {/* Locations */}
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-2 inline-flex items-center gap-1.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-2 inline-flex items-center gap-1.5">
             <i className="ri-map-pin-2-line text-base" />
             Lokasi Booth Palette.id
           </p>
@@ -168,7 +168,7 @@ const AnnouncementPopup = () => {
             Tutup
           </button>
 
-          <p className="mt-4 text-center text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          <p className="mt-4 text-center text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             Armeniaca × Harmoni Kebaikan
           </p>
         </div>

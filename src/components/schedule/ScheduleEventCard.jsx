@@ -67,10 +67,10 @@ const ScheduleEventCard = ({ entry }) => {
           <p className="font-header text-3xl font-black text-[color:var(--retro-burgundy)] leading-none tabular-nums">
             {String(date.getDate()).padStart(2, '0')}
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
+          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mt-1">
             {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(date)}
           </p>
-          <p className="text-[9px] font-black tabular-nums text-[color:var(--color-text-muted)] mt-0.5">
+          <p className="text-[9px] font-black tabular-nums text-[color:var(--retro-text-muted)] mt-0.5">
             {date.getFullYear()}
           </p>
         </div>
@@ -113,7 +113,7 @@ const ScheduleEventCard = ({ entry }) => {
             {entry.title}
           </p>
           {(entry.start_time || entry.end_time) && (
-            <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1 tabular-nums">
+            <p className="text-xs text-[color:var(--retro-text-muted)] leading-snug mt-1 tabular-nums">
               <i className="ri-time-line mr-1 align-[-2px]" />
               {entry.start_time}
               {entry.end_time ? ` – ${entry.end_time}` : ''}
@@ -122,7 +122,7 @@ const ScheduleEventCard = ({ entry }) => {
           {/* Venue ditampilkan untuk M&G/off-site/event; theater show
               gak perlu (selalu JKT48 Theater, title udah cover setlist). */}
           {entry.venue && entry.kind !== 'SHOW' && (
-            <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
+            <p className="text-xs text-[color:var(--retro-text-muted)] leading-snug mt-1">
               <i className="ri-map-pin-line mr-1 align-[-2px]" />
               {entry.venue}
             </p>
@@ -134,13 +134,13 @@ const ScheduleEventCard = ({ entry }) => {
             </p>
           )}
           {!isMG && entry.members && entry.members.length > 0 && (
-            <p className="text-[10px] text-[color:var(--color-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+            <p className="text-[10px] text-[color:var(--retro-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
               + {entry.members.length} member · cek detail tiket
             </p>
           )}
           <div className="mt-3 pt-3 border-t border-[color:var(--retro-brown-dark)]/8">
             {isMG && entry.sold_out ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">
                 <i className="ri-lock-line" />
                 Tiket habis
               </span>

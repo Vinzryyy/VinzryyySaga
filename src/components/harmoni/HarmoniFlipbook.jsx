@@ -561,7 +561,7 @@ const HarmoniFlipbook = () => {
         </button>
       </div>
 
-      <p className="mt-3 text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)]">
+      <p className="mt-3 text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-text-muted)]">
         Geser atau ←→ untuk membalik halaman
       </p>
     </div>

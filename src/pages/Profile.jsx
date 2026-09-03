@@ -248,7 +248,7 @@ const ProfilePage = () => {
                   <dd className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight tabular-nums">
                     <AnimatedStat value={stat.value} start={statsVisible} />
                   </dd>
-                  <dt className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)] mt-1">
+                  <dt className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-text-muted)] mt-1">
                     {stat.label}
                   </dt>
                 </div>
@@ -328,7 +328,7 @@ const ProfilePage = () => {
         )}
         <div ref={tabScrollRef} className="max-w-7xl mx-auto px-4 md:px-12 lg:px-20 overflow-x-auto">
           <ul className="flex items-center gap-1 py-3 min-w-max">
-            <li className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] pr-3 hidden md:block">
+            <li className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] pr-3 hidden md:block">
               Table of Contents
             </li>
             {ELI_PROFILE_SECTIONS.map((section, idx) => {
@@ -347,7 +347,7 @@ const ProfilePage = () => {
                       ${
                         isActive
                           ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md'
-                          : 'text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/5'
+                          : 'text-[color:var(--retro-text-muted)] hover:text-[color:var(--retro-burgundy)] hover:bg-[color:var(--retro-burgundy)]/5'
                       }
                     `}
                   >
@@ -447,7 +447,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
         {kicker && (
           <span
             style={{ transitionDelay: '200ms' }}
-            className={`ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-block transition-all duration-700 ease-out ${
+            className={`ml-auto text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-block transition-all duration-700 ease-out ${
               isVisible ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -466,7 +466,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
       {lead && (
         <p
           style={{ transitionDelay: '200ms' }}
-          className={`mt-4 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
+          className={`mt-4 text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-2xl transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
           }`}
         >
@@ -505,7 +505,7 @@ const TimelineSection = () => {
                 <p className="font-header text-3xl md:text-5xl lg:text-6xl font-black text-[color:var(--retro-burgundy)] leading-none tracking-tighter">
                   {formatYear(event.date)}
                 </p>
-                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-2">
+                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-2">
                   {event.period}
                 </p>
               </div>
@@ -528,7 +528,7 @@ const TimelineSection = () => {
                 <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight mb-2">
                   {event.title}
                 </h3>
-                <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-xl">
+                <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-xl">
                   {event.body}
                 </p>
               </div>
@@ -589,7 +589,7 @@ const FightSection = () => {
 
       {/* Roster */}
       <div className="mb-10">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-4">
           Roster Team Dream
         </h3>
         <div ref={rosterRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
@@ -630,7 +630,7 @@ const FightSection = () => {
 
       {/* Rival teams */}
       <div>
-        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-4">
           Tim Rival
         </h3>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -645,7 +645,7 @@ const FightSection = () => {
               <p className="font-header text-2xl font-black text-[color:var(--retro-text-primary)] tracking-tight mb-1">
                 {rival.name}
               </p>
-              <p className="text-sm text-[color:var(--color-text-secondary)]">{rival.note}</p>
+              <p className="text-sm text-[color:var(--retro-text-secondary)]">{rival.note}</p>
             </div>
           ))}
         </div>
@@ -676,7 +676,7 @@ const DiscographySection = () => {
       {/* SINGLES */}
       <div ref={singlesRef} className="space-y-4 mb-12">
         <div className="flex items-baseline gap-3 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
             Singles
           </p>
           <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -703,7 +703,7 @@ const DiscographySection = () => {
               )}
               <div className="flex flex-col gap-3 md:grid md:grid-cols-[120px_1fr_auto] md:gap-6 md:items-center">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                     {entry.type}
                   </p>
                   <p className="font-header text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight">
@@ -721,13 +721,13 @@ const DiscographySection = () => {
                     </span>
                   )}
                   {entry.note && (
-                    <p className="mt-2 text-sm text-[color:var(--color-text-secondary)]">
+                    <p className="mt-2 text-sm text-[color:var(--retro-text-secondary)]">
                       {entry.note}
                     </p>
                   )}
                 </div>
                 <div className="md:text-right">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
                     Posisi
                   </p>
                   <span className="inline-flex items-center px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-xs font-bold uppercase tracking-widest">
@@ -746,7 +746,7 @@ const DiscographySection = () => {
                   >
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
                       {isOpen ? `Tutup ${entry.rosterLabel}` : `Lihat ${entry.rosterLabel}`}
-                      <span className="ml-2 text-[color:var(--color-text-muted)]">
+                      <span className="ml-2 text-[color:var(--retro-text-muted)]">
                         · {entry.members.length} member
                       </span>
                     </span>
@@ -780,7 +780,7 @@ const DiscographySection = () => {
                 <p className="font-bold text-[color:var(--retro-text-primary)] mb-1">
                   Single JKT48 lainnya yang melibatkan Eli akan ditambah secara bertahap.
                 </p>
-                <p className="text-sm text-[color:var(--color-text-secondary)]">
+                <p className="text-sm text-[color:var(--retro-text-secondary)]">
                   {placeholders.map((p) => p.year).join(' · ')} — entri akan dilengkapi setelah posisi per single terverifikasi.
                 </p>
               </div>
@@ -792,7 +792,7 @@ const DiscographySection = () => {
       {/* ALBUMS */}
       <div ref={albumsRef}>
         <div className="flex items-baseline gap-3 mb-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
             Album Participations
           </p>
           <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -821,7 +821,7 @@ const DiscographySection = () => {
               <h3 className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-text-primary)] leading-tight tracking-tight mb-1">
                 {album.title}
               </h3>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-4">
                 {album.tracks.length} track{album.tracks.length === 1 ? '' : 's'} dengan Eli
               </p>
               <ul className="space-y-2 mt-auto pt-4 border-t border-[color:var(--retro-brown-dark)]/10">
@@ -851,7 +851,7 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
   return (
     <div className="mt-5 pt-5 border-t border-[color:var(--retro-brown-dark)]/10">
       <div className="flex items-baseline justify-between gap-3 mb-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
           {label} ({members.length} member)
         </p>
         {eli && (
@@ -884,7 +884,7 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
                 {m.name}
               </p>
               <p className={`text-[9px] font-black uppercase tracking-[0.25em] mt-0.5 ${
-                m.isEli ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--color-text-muted)]'
+                m.isEli ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--retro-text-muted)]'
               }`}>
                 {m.group} · {fmt(m.votes)}
                 {m.position ? ` · ${m.position}` : ''}
@@ -898,7 +898,7 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
                     : 'bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]'
                   : m.isEli
                     ? 'bg-[color:var(--retro-cream)]/15 text-[color:var(--retro-cream)]'
-                    : 'bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--color-text-muted)]'
+                    : 'bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--retro-text-muted)]'
               }`}
             >
               {m.status}
@@ -931,7 +931,7 @@ const TriviaSection = () => {
       />
 
       <div className="space-y-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
           Identitas
         </p>
         <div ref={idRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr">
@@ -982,7 +982,7 @@ const TriviaSection = () => {
       {ELI_TAGLINES.length > 0 && (
         <div className="space-y-4 mt-10">
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
               Tagline per Tahun
             </p>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
@@ -996,7 +996,7 @@ const TriviaSection = () => {
                 style={staggerStyle(idx)}
                 className="px-5 py-3 rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-bg-primary)] hover:border-[color:var(--retro-burgundy)]/40 transition-colors"
               >
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5 tabular-nums">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5 tabular-nums">
                   {item.year}
                 </p>
                 <p className="font-header text-xl md:text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight leading-tight">
@@ -1009,7 +1009,7 @@ const TriviaSection = () => {
       )}
 
       <div className="space-y-4 mt-10">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
           Yang Disukai
         </p>
         <div ref={funRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1029,7 +1029,7 @@ const TriviaSection = () => {
           disukai supaya kerasa featured + chip layout. */}
       <div className="space-y-4 mt-10">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
             Makanan Favorit
           </p>
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
@@ -1073,7 +1073,7 @@ const TriviaCard = ({ fact, accent = false }) => (
         <i className={`${fact.icon} text-lg`} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mb-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mb-1">
           {fact.label}
         </p>
         <p className="text-sm font-bold text-[color:var(--retro-text-primary)] leading-snug">
@@ -1106,7 +1106,7 @@ const SectionPlaceholder = ({ section }) => (
     <h2 className="font-header text-3xl md:text-4xl font-black tracking-tighter text-[color:var(--retro-text-primary)]">
       {section.label}
     </h2>
-    <p className="mt-2 text-sm text-[color:var(--color-text-muted)]">
+    <p className="mt-2 text-sm text-[color:var(--retro-text-muted)]">
       Section dalam pembangunan.
     </p>
   </div>

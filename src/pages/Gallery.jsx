@@ -108,7 +108,7 @@ const GalleryPage = () => {
 
         {/* Footer micro-sig */}
         <div className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pb-12 md:pb-16">
-          <div className="flex items-center gap-3 text-[color:var(--color-text-muted)]">
+          <div className="flex items-center gap-3 text-[color:var(--retro-text-muted)]">
             <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">
               {SITE_CONFIG.branding.name} · Memoria · {SITE_CONFIG.branding.tagline}

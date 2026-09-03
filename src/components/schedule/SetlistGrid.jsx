@@ -105,7 +105,7 @@ const SetlistCard = ({ entry }) => {
         <div className="flex-1 min-w-0">
           <p
             className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1 ${
-              isActive ? 'text-[color:var(--retro-cream)]/50' : 'text-[color:var(--color-text-muted)]'
+              isActive ? 'text-[color:var(--retro-cream)]/50' : 'text-[color:var(--retro-text-muted)]'
             }`}
           >
             Stages Eli
@@ -132,7 +132,7 @@ const SetlistCard = ({ entry }) => {
                   {entry.centerCount}/{entry.count}
                   <span
                     className={`ml-1.5 ${
-                      isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--color-text-muted)]'
+                      isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]'
                     }`}
                   >
                     {Math.round((entry.centerCount / entry.count) * 100)}%
@@ -163,7 +163,7 @@ const SetlistCard = ({ entry }) => {
         {(entry.firstDate || entry.lastDate) && (
           <div
             className={`text-right text-[9px] font-black uppercase tracking-[0.25em] ${
-              isActive ? 'text-[color:var(--retro-cream)]/55' : 'text-[color:var(--color-text-muted)]'
+              isActive ? 'text-[color:var(--retro-cream)]/55' : 'text-[color:var(--retro-text-muted)]'
             }`}
           >
             {entry.firstDate && (
@@ -189,12 +189,12 @@ const SetlistCard = ({ entry }) => {
           className={`text-[9px] font-black uppercase tracking-[0.2em] flex flex-wrap gap-1.5 pt-2 border-t ${
             isActive
               ? 'border-[color:var(--retro-cream)]/10 text-[color:var(--retro-cream)]/70'
-              : 'border-[color:var(--retro-brown-dark)]/8 text-[color:var(--color-text-muted)]'
+              : 'border-[color:var(--retro-brown-dark)]/8 text-[color:var(--retro-text-muted)]'
           }`}
         >
           <span
             className={`${
-              isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--color-text-muted)]/60'
+              isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]/60'
             }`}
           >
             Unit:
@@ -214,7 +214,7 @@ const SetlistCard = ({ entry }) => {
           {entry.units.length > 3 && (
             <span
               className={`${
-                isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--color-text-muted)]/60'
+                isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]/60'
               }`}
             >
               + {entry.units.length - 3}
@@ -223,7 +223,7 @@ const SetlistCard = ({ entry }) => {
           {topUnit && totalUnitShows < entry.count && (
             <span
               className={`ml-auto ${
-                isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--color-text-muted)]/60'
+                isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]/60'
               }`}
             >
               {entry.count - totalUnitShows} tanpa unit
@@ -354,14 +354,14 @@ const SetlistGrid = () => {
               {ordered.length} setlist
               <span className="text-[color:var(--retro-burgundy)]"> · {totalStages} stage</span>
               {activeSetlists.length > 0 && (
-                <span className="text-[color:var(--color-text-muted)] text-base md:text-lg font-bold ml-3">
+                <span className="text-[color:var(--retro-text-muted)] text-base md:text-lg font-bold ml-3">
                   ({activeSetlists.length} aktif)
                 </span>
               )}
             </h2>
           </div>
           {data?.asOfDate && (
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5">
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
               <i className="ri-refresh-line" />
               Update {formatDate(data.asOfDate)}
             </span>
@@ -383,7 +383,7 @@ const SetlistGrid = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                 Aktif sekarang
               </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] tabular-nums">
                 {activeSetlists.length}
               </span>
             </div>
@@ -410,7 +410,7 @@ const SetlistGrid = () => {
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
                   Setlist arsip
                 </span>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] tabular-nums">
                   {retiredSetlists.length} · {retiredSetlists.reduce((s, e) => s + e.count, 0)} stage
                 </span>
               </span>

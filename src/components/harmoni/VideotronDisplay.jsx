@@ -123,7 +123,7 @@ const VideotronScreen = ({ src, label, sublabel }) => {
         <p className="text-xs sm:text-sm font-black tracking-tight text-[color:var(--retro-text-primary)]">
           {label}
         </p>
-        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mt-0.5">
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
           {sublabel}
         </p>
       </div>
@@ -146,7 +146,7 @@ const VideotronDisplay = () => (
     </div>
 
     {/* Location note */}
-    <p className="inline-flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)]">
+    <p className="inline-flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-text-muted)]">
       <i className="ri-map-pin-2-line" />
       Pillar MRT Blok M · 15 Juni 2026
     </p>

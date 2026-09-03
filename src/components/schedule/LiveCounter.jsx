@@ -68,12 +68,12 @@ const StatCard = ({ eyebrow, value, valueAccent, sub, footnote }) => (
       )}
     </p>
     {sub && (
-      <p className="mt-2 text-xs text-[color:var(--color-text-secondary)] leading-snug">
+      <p className="mt-2 text-xs text-[color:var(--retro-text-secondary)] leading-snug">
         {sub}
       </p>
     )}
     {footnote && (
-      <p className="mt-auto pt-2 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+      <p className="mt-auto pt-2 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
         {footnote}
       </p>
     )}
@@ -164,7 +164,7 @@ const LiveCounter = ({ events, careerStats }) => {
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-baseline justify-between gap-3 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] inline-flex items-center gap-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-2">
             <i className="ri-pulse-line text-base text-[color:var(--retro-burgundy)]" />
             Statistik · Live
           </p>

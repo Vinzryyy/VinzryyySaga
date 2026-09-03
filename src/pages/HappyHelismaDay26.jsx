@@ -73,7 +73,7 @@ const TimeUnit = ({ value, label, accent = false }) => (
     </div>
     <div
       className={`mt-2 sm:mt-3 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em] ${
-        accent ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--color-text-muted)]'
+        accent ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--retro-text-muted)]'
       }`}
     >
       {label}
@@ -119,7 +119,7 @@ const SectionHeader = ({ eyebrow, title, subtitle }) => (
       {title}
     </h2>
     {subtitle && (
-      <p className="mt-3 sm:mt-4 text-sm sm:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-2xl">
+      <p className="mt-3 sm:mt-4 text-sm sm:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-2xl">
         {subtitle}
       </p>
     )}
@@ -150,7 +150,7 @@ const WishPreviewCard = ({ wish, hearts, index = 0 }) => (
       <div>
         <p className="text-xs font-bold text-[color:var(--retro-text-primary)]">{wish.name}</p>
         {wish.handle && (
-          <p className="text-[10px] text-[color:var(--color-text-muted)]">{wish.handle}</p>
+          <p className="text-[10px] text-[color:var(--retro-text-muted)]">{wish.handle}</p>
         )}
       </div>
       {hearts > 0 && (
@@ -404,7 +404,7 @@ const CountdownPage = () => {
               </div>
               <p
                 ref={liveCaptionRef}
-                className="mt-5 sm:mt-6 text-center text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em] text-[color:var(--color-text-muted)]"
+                className="mt-5 sm:mt-6 text-center text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] sm:tracking-[0.4em] text-[color:var(--retro-text-muted)]"
               >
                 live · update tiap detik
               </p>
@@ -466,7 +466,7 @@ const CountdownPage = () => {
                 <p className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-burgundy)] tabular-nums">
                   {stat.value}
                 </p>
-                <p className="mt-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+                <p className="mt-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                   {stat.label}
                 </p>
               </div>
@@ -489,7 +489,7 @@ const CountdownPage = () => {
                 ? config.completedAboutTitle.replace('{age}', config.age)
                 : `15 Juni 2026, hari ke-${config.age}.`}
             </h2>
-            <p className="text-sm sm:text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-[color:var(--retro-text-secondary)] leading-relaxed">
               {isComplete ? (
                 config.completedAboutBody.replace(/\{age\}/g, config.age)
               ) : (
@@ -509,8 +509,8 @@ const CountdownPage = () => {
             <p className="font-header text-base sm:text-lg md:text-xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
               {SITE_CONFIG.eli.catchphrase}
             </p>
-            <footer className="mt-4 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
-              <span className="w-4 h-px bg-[color:var(--color-text-muted)]/40" />
+            <footer className="mt-4 flex items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <span className="w-4 h-px bg-[color:var(--retro-text-muted)]/40" />
               Catchphrase {SITE_CONFIG.eli.nickname}
             </footer>
           </blockquote>
@@ -540,7 +540,7 @@ const CountdownPage = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[color:var(--color-text-muted)] italic mb-8">
+                <p className="text-sm text-[color:var(--retro-text-muted)] italic mb-8">
                   Belum ada ucapan yang masuk.
                 </p>
               )}
@@ -571,7 +571,7 @@ const CountdownPage = () => {
               <div className="mb-6 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-[color:var(--retro-burgundy)]/6 border border-[color:var(--retro-burgundy)]/15">
                 <i className="ri-hand-heart-line text-xl text-[color:var(--retro-burgundy)]" />
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">Total Tersalurkan</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">Total Tersalurkan</p>
                   <p className="font-header text-xl sm:text-2xl font-black tracking-tight text-[color:var(--retro-burgundy)]">
                     {formatRupiah(kebaikanStats.totalAmount)}
                   </p>
@@ -592,7 +592,7 @@ const CountdownPage = () => {
                       <p className="text-xs sm:text-sm font-bold text-[color:var(--retro-text-primary)]">
                         {cat.label}
                       </p>
-                      <p className="text-[10px] text-[color:var(--color-text-muted)] mt-1">
+                      <p className="text-[10px] text-[color:var(--retro-text-muted)] mt-1">
                         {catStat?.count || 0} kebaikan
                       </p>
                     </div>
@@ -742,12 +742,12 @@ const CountdownPage = () => {
                 Terima kasih sudah<br />
                 <span className="text-[color:var(--retro-burgundy)]">merayakan bersama.</span>
               </h2>
-              <p className="text-sm sm:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-4">
+              <p className="text-sm sm:text-base text-[color:var(--retro-text-secondary)] leading-relaxed mb-4">
                 Halaman ini bukan sekadar arsip — ini adalah bukti bahwa setiap panggung yang Eli pijak,
                 ada yang menunggu di luar sana. Dari ucapan tulus di dinding wishes, pohon kebaikan yang
                 tumbuh dari dukungan nyata, hingga lagu yang tersegel sampai hari itu tiba.
               </p>
-              <p className="text-sm sm:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-8">
+              <p className="text-sm sm:text-base text-[color:var(--retro-text-secondary)] leading-relaxed mb-8">
                 Semua dimulai dari hal kecil — dan Armeniaca ada untuk memastikan
                 tidak ada yang terlupa.
               </p>
@@ -761,7 +761,7 @@ const CountdownPage = () => {
                   </p>
                   <span className="w-8 h-px bg-[color:var(--retro-gold)]/50" />
                 </div>
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                   15 · 06 · 2026
                 </p>
               </div>

@@ -32,6 +32,7 @@ import PageSkeleton from './components/ui/PageSkeleton';
 import Navbar from './components/Navbar';
 import Footer from './components/layout/Footer';
 import PageBlossomTransition from './components/layout/PageBlossomTransition';
+import PageEntrance from './components/layout/PageEntrance';
 import PetalBurst from './components/ui/PetalBurst';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
@@ -441,6 +442,7 @@ function AppShell() {
       <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
         <Navbar />
         <Suspense fallback={<PageSkeleton />}>
+          <PageEntrance>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
@@ -529,6 +531,7 @@ function AppShell() {
             />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          </PageEntrance>
         </Suspense>
         <Footer />
       </div>

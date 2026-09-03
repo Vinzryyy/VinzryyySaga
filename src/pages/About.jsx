@@ -27,7 +27,7 @@ const staggerClass = (visible) =>
 
 const SectionEyebrow = ({ eyebrow, kicker }) => (
   <div className="flex items-baseline justify-between gap-3 mb-6">
-    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
       {eyebrow}
     </p>
     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -107,7 +107,7 @@ const Hero = ({ hero }) => {
           {hero.scope && (
             <div className="mt-8 flex items-center gap-3 md:gap-4 flex-wrap">
               <div className="px-4 py-2.5 rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)]">
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-1">
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
                   {hero.scope.from.sub}
                 </p>
                 <p className="font-header text-base md:text-lg font-black text-[color:var(--retro-burgundy)] leading-tight tracking-tight">
@@ -138,7 +138,7 @@ const Hero = ({ hero }) => {
           <span className="absolute -top-3 -left-3 z-10 px-4 py-2 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl pointer-events-none">
             Armeniaca
           </span>
-          <p className="mt-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          <p className="mt-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             <i className="ri-drag-move-2-line mr-1.5 align-[-2px]" />
             Geser kartu
           </p>
@@ -160,7 +160,7 @@ const EtymologySection = ({ etymology }) => {
           <h2 className={`font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-6 ${staggerClass(isVisible)}`}>
             {etymology.title}
           </h2>
-          <div className="space-y-5 text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed">
+          <div className="space-y-5 text-base md:text-lg text-[color:var(--retro-text-secondary)] leading-relaxed">
             {etymology.paragraphs.map((p, idx) => (
               <p key={idx} style={staggerStyle(idx + 1, 100)} className={staggerClass(isVisible)}>
                 {p}
@@ -225,7 +225,7 @@ const EtymologySection = ({ etymology }) => {
                 <h4 className="font-header text-base md:text-lg font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-1">
                   {motif.name}
                 </h4>
-                <p className="text-xs md:text-sm text-[color:var(--color-text-secondary)] leading-snug">
+                <p className="text-xs md:text-sm text-[color:var(--retro-text-secondary)] leading-snug">
                   {motif.meaning}
                 </p>
               </li>
@@ -253,7 +253,7 @@ const EtymologySection = ({ etymology }) => {
                 <p className="font-bold text-[color:var(--retro-text-primary)] text-sm leading-tight">
                   {swatch.name}
                 </p>
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5 tabular-nums">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mt-0.5 tabular-nums">
                   {swatch.hex}
                 </p>
               </li>
@@ -281,7 +281,7 @@ const PhilosophyQuote = ({ philosophy }) => {
           {philosophy.quote}
         </blockquote>
         <cite
-          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] not-italic ${staggerClass(isVisible)}`}
+          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] not-italic ${staggerClass(isVisible)}`}
           style={staggerStyle(3)}
         >
           — {philosophy.author}

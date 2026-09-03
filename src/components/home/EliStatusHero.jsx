@@ -289,7 +289,7 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
               <i className="ri-calendar-event-line text-base" />
               {state === 'live' ? 'Show & M&G Mendatang' : 'Mendatang Lainnya'}
             </p>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
               {totalUpcomingCount} upcoming
             </p>
           </div>
@@ -317,7 +317,7 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
           schedule data udah loaded. */}
       {schedule && (
         <div className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-2 flex-wrap">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-2 flex-wrap">
             <i className="ri-refresh-line" />
             Auto-refresh tiap 6 jam · sumber{' '}
             <a
@@ -329,7 +329,7 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
               jkt48.com (official)
             </a>
             {schedule.fetchedAt && (
-              <span className="text-[color:var(--color-text-muted)]/70 normal-case tracking-normal font-bold ml-1">
+              <span className="text-[color:var(--retro-text-muted)]/70 normal-case tracking-normal font-bold ml-1">
                 · Update {formatRefreshed(schedule.fetchedAt)}
               </span>
             )}
@@ -649,7 +649,7 @@ const IdleSurface = () => (
             <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-primary)] truncate">
               {label}
             </p>
-            <p className="text-[10px] text-[color:var(--color-text-muted)] truncate mt-0.5">
+            <p className="text-[10px] text-[color:var(--retro-text-muted)] truncate mt-0.5">
               {sub}
             </p>
           </div>

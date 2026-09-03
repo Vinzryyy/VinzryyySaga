@@ -24,7 +24,7 @@ const Template2Polaroid = ({ wish }) => {
         </svg>
       </div>
 
-      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-2">
+      <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-2">
         Polaroid · Wish
       </p>
       <h3 className="font-header text-2xl font-black text-[color:var(--retro-burgundy)] tracking-tight leading-tight mb-3 pr-12">
@@ -35,7 +35,7 @@ const Template2Polaroid = ({ wish }) => {
       </p>
 
       {/* Polaroid tab — name + date in the bottom strip */}
-      <div className="absolute bottom-2 left-5 right-5 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+      <div className="absolute bottom-2 left-5 right-5 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)]">
         <span className="truncate">{wish.handle || '—'}</span>
         {date && <span className="tabular-nums">{date}</span>}
       </div>

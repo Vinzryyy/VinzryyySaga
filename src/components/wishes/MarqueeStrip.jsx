@@ -76,7 +76,7 @@ const MarqueeStrip = ({
                     {wish.name}
                   </p>
                   {wish.handle && (
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[color:var(--color-text-muted)] truncate">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)] truncate">
                       {wish.handle}
                     </p>
                   )}

@@ -204,7 +204,7 @@ const NewsListing = () => {
 
       {/* Footer sig */}
       <div className="max-w-4xl mx-auto px-5 sm:px-8 md:px-12 pb-12">
-        <div className="flex items-center gap-3 text-[color:var(--color-text-muted)]">
+        <div className="flex items-center gap-3 text-[color:var(--retro-text-muted)]">
           <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
           <span className="text-[10px] font-black uppercase tracking-[0.4em]">
             Armeniaca · News
@@ -398,7 +398,7 @@ const ArticleDetail = ({ article }) => {
               {article.details && article.details.length > 0 && (
                 <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
                   <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                       Detail
                     </h3>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -422,7 +422,7 @@ const ArticleDetail = ({ article }) => {
               {article.donations && article.donations.length > 0 && (
                 <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
                   <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                       Daftar Donasi
                     </h3>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -559,7 +559,7 @@ const ArticleDetail = ({ article }) => {
               {setlist.length > 0 && (
                 <div className="px-5 sm:px-8 py-5 sm:py-6">
                   <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                       Setlist
                     </h3>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -601,7 +601,7 @@ const ArticleDetail = ({ article }) => {
 
         {/* Footer sig */}
         <div className="max-w-4xl mx-auto px-5 sm:px-8 md:px-12 pb-12">
-          <div className="flex items-center gap-3 text-[color:var(--color-text-muted)]">
+          <div className="flex items-center gap-3 text-[color:var(--retro-text-muted)]">
             <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">
               Armeniaca · News

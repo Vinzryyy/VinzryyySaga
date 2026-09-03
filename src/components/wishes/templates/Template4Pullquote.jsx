@@ -34,7 +34,7 @@ const Template4Pullquote = ({ wish }) => {
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
             — {wish.name}
           </p>
-          <div className="mt-1 flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+          <div className="mt-1 flex items-center justify-between gap-3 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)]">
             <span className="truncate">{wish.handle || ''}</span>
             {date && <span className="tabular-nums flex-shrink-0">{date}</span>}
           </div>

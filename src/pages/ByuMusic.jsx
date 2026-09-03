@@ -91,7 +91,7 @@ const ByuMusic = () => (
         </Link>
 
         <div className="mt-10 pt-6 border-t border-[color:var(--retro-brown-dark)]/10">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
             A project by Armeniaca × BY-U Music
           </p>
         </div>

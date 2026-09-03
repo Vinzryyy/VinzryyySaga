@@ -117,7 +117,7 @@ const VideotronPopup = () => {
             <br />
             <span className="text-[color:var(--retro-burgundy)]">Happy Helisma Day.</span>
           </h2>
-          <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-5">
+          <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed mb-5">
             Double-sided videotron di{' '}
             <span className="font-bold text-[color:var(--retro-text-primary)]">Pillar MRT Blok M</span>
             {' '}— 3 pilar di depan Taman Literasi Blok M, total 6 layar.
@@ -130,7 +130,7 @@ const VideotronPopup = () => {
               <i className="ri-calendar-event-line" />
             </span>
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5">
+              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
                 Tanggal
               </p>
               <p className="text-sm font-bold text-[color:var(--retro-text-primary)]">
@@ -145,20 +145,20 @@ const VideotronPopup = () => {
               <i className="ri-time-line" />
             </span>
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-0.5">
+              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
                 Jam Tayang
               </p>
               <p className="text-sm font-bold text-[color:var(--retro-text-primary)]">
                 06.00 — 24.00 WIB
               </p>
-              <p className="text-xs text-[color:var(--color-text-muted)]">
+              <p className="text-xs text-[color:var(--retro-text-muted)]">
                 On loop setiap ±4 menit
               </p>
             </div>
           </div>
 
           {/* Location */}
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] mb-2 inline-flex items-center gap-1.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-2 inline-flex items-center gap-1.5">
             <i className="ri-map-pin-2-line text-base" />
             Lokasi
           </p>
@@ -186,7 +186,7 @@ const VideotronPopup = () => {
             Tutup
           </button>
 
-          <p className="mt-4 text-center text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          <p className="mt-4 text-center text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             Armeniaca × Harmoni Kebaikan
           </p>
         </div>

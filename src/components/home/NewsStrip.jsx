@@ -131,7 +131,7 @@ const NewsCard = ({ item }) => {
       <div className="p-4 flex flex-col gap-2">
         <p
           title={formatDateAbsolute(item.publishedAt)}
-          className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1"
+          className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1"
         >
           <i className="ri-time-line text-base" />
           {formatRelative(item.publishedAt)}
@@ -140,7 +140,7 @@ const NewsCard = ({ item }) => {
           {item.title}
         </p>
         {item.snippet && (
-          <p className="text-[11px] text-[color:var(--color-text-secondary)] leading-relaxed line-clamp-2 min-h-[2.6em]">
+          <p className="text-[11px] text-[color:var(--retro-text-secondary)] leading-relaxed line-clamp-2 min-h-[2.6em]">
             {item.snippet}
           </p>
         )}
@@ -193,7 +193,7 @@ const ViewAllCard = () => (
       <br />
       <span className="text-[color:var(--retro-burgundy)]">di jkt48.com</span>
     </p>
-    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] text-center">
+    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] text-center">
       Arsip resmi
     </p>
   </a>
@@ -256,23 +256,23 @@ const NewsStrip = () => {
               <span className="text-[color:var(--retro-burgundy)]"> terbaru.</span>
             </h2>
             {loading ? (
-              <p className="mt-2 text-xs text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5">
+              <p className="mt-2 text-xs text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
                 <i className="ri-loader-4-line animate-spin" />
                 Memuat rilis terbaru…
               </p>
             ) : eliCount > 0 ? (
-              <p className="mt-2 text-xs text-[color:var(--color-text-secondary)] inline-flex items-center gap-1.5">
+              <p className="mt-2 text-xs text-[color:var(--retro-text-secondary)] inline-flex items-center gap-1.5">
                 <i className="ri-sparkling-2-fill text-[color:var(--retro-gold)]" />
                 {eliCount} artikel menyebut Eli — ditandai di depan
               </p>
             ) : (
-              <p className="mt-2 text-xs text-[color:var(--color-text-muted)]">
+              <p className="mt-2 text-xs text-[color:var(--retro-text-muted)]">
                 Belum ada penyebutan langsung di rilis terbaru — kartu akan
                 ditandai saat namanya muncul.
               </p>
             )}
           </div>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
             <i className="ri-arrow-left-right-line text-base" />
             Geser
           </p>

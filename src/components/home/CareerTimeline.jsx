@@ -87,7 +87,7 @@ const CareerTimeline = () => {
       {/* ── Header ─────────────────────────────────────────────── */}
       <div ref={headerRef} className="flex items-end justify-between gap-4 mb-3 md:mb-4">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-2">
             Linimasa
           </p>
           <h2 className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
@@ -95,17 +95,17 @@ const CareerTimeline = () => {
           </h2>
         </div>
         <div className="text-right hidden sm:block flex-shrink-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             {entries.length} momen
           </p>
-          <p className="text-[9px] text-[color:var(--color-text-muted)] mt-0.5 uppercase tracking-widest">
+          <p className="text-[9px] text-[color:var(--retro-text-muted)] mt-0.5 uppercase tracking-widest">
             2018 — 2026
           </p>
         </div>
       </div>
 
       {/* Mobile scroll hint */}
-      <p className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--color-text-muted)] mb-8 sm:hidden">
+      <p className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-text-muted)] mb-8 sm:hidden">
         ← Geser untuk lihat →
       </p>
       <div className="hidden sm:block h-px bg-[color:var(--retro-brown-dark)]/10 mb-12" />
@@ -168,7 +168,7 @@ const CareerTimeline = () => {
                         <p className="font-header text-base sm:text-lg font-black text-[color:var(--retro-text-primary)] leading-snug mb-2 line-clamp-2">
                           {entry.title}
                         </p>
-                        <p className="text-[9px] text-[color:var(--color-text-muted)] uppercase tracking-[0.2em] mb-3 leading-relaxed">
+                        <p className="text-[9px] text-[color:var(--retro-text-muted)] uppercase tracking-[0.2em] mb-3 leading-relaxed">
                           {entry.period}
                         </p>
                         <span

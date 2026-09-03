@@ -189,7 +189,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
           {eyebrow}
         </p>
         <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
           {highlights.length} momen
         </p>
       </div>
@@ -238,7 +238,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
         {/* Title list — relative + z-10 so it sits above the floating
             frames and stays the click/hover target. */}
         <div className="relative z-10 flex flex-col items-center justify-center min-h-[560px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px] py-8 md:py-12">
-          <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-4 md:mb-6">
+          <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-4 md:mb-6">
             {title}
           </p>
           <ol className="flex flex-col items-center gap-0.5 md:gap-1">
@@ -277,7 +277,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
                       className={`mt-1.5 text-[10px] sm:text-xs md:text-xs font-black uppercase tracking-[0.3em] transition-colors duration-300 ${
                         isActive
                           ? 'text-[color:var(--retro-burgundy)]/70'
-                          : 'text-[color:var(--color-text-muted)]'
+                          : 'text-[color:var(--retro-text-muted)]'
                       }`}
                     >
                       {h.subtitle}
@@ -834,7 +834,7 @@ const HomePage = () => {
               />
             </div>
             {/* Issue plate — magazine credit */}
-            <div className="mt-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
+            <div className="mt-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
               <span>Plate 01</span>
               <span>{eli.stageName} — JKT48</span>
               <span>{new Date().getFullYear()}</span>
@@ -845,7 +845,7 @@ const HomePage = () => {
           <div className="lg:col-span-7">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">01</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                 /  {data.eyebrow}
               </span>
             </div>
@@ -860,7 +860,7 @@ const HomePage = () => {
                   style={staggerStyle(idx)}
                   className={`grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group ${staggerClassH(factsVisible)}`}
                 >
-                  <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] pt-1.5">
+                  <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] pt-1.5">
                     {fact.label}
                   </dt>
                   <dd className="font-header text-lg md:text-xl text-[color:var(--retro-text-primary)] group-hover:text-[color:var(--retro-burgundy)] transition-colors">
@@ -874,7 +874,7 @@ const HomePage = () => {
               <p className="font-header text-lg md:text-xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
                 "{eli.catchphrase}"
               </p>
-              <footer className="mt-3 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <footer className="mt-3 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                 Catchphrase — {eli.nickname}
               </footer>
             </blockquote>
@@ -911,7 +911,7 @@ const HomePage = () => {
             </div>
             {/* Plate credit — mirrors Data section's magazine signature.
                 mt-12 clears the Team pill which overlaps -bottom-6. */}
-            <div className="mt-12 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
+            <div className="mt-12 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
               <span>Plate 02</span>
               <span>{eli.stageName} — Profil</span>
               <span>{new Date().getFullYear()}</span>
@@ -922,7 +922,7 @@ const HomePage = () => {
           <div className="order-1 lg:order-2">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">02</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                 /  {about.eyebrow}
               </span>
               <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
@@ -933,7 +933,7 @@ const HomePage = () => {
             {about.paragraphs.map((p, i) => (
               <p
                 key={i}
-                className="text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed mb-5"
+                className="text-base md:text-lg text-[color:var(--retro-text-secondary)] leading-relaxed mb-5"
               >
                 {p}
               </p>
@@ -963,7 +963,7 @@ const HomePage = () => {
           <div>
             <div className="flex items-baseline gap-3">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">03</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                 /  {gallery.eyebrow}
               </span>
             </div>
@@ -979,7 +979,7 @@ const HomePage = () => {
                 </span>
               </div>
             )}
-            <p className="text-sm text-[color:var(--color-text-secondary)] leading-relaxed md:text-right">
+            <p className="text-sm text-[color:var(--retro-text-secondary)] leading-relaxed md:text-right">
               {gallery.subtitle}
             </p>
           </div>
@@ -1003,10 +1003,10 @@ const HomePage = () => {
         {marqueeCandidates.length > 0 && (
           <div className="mt-12 md:mt-16">
             <div className="flex items-baseline justify-between mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                 {marqueeYear ? `Arsip ${marqueeYear}` : 'Lebih banyak dari arsip'}
               </p>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:block">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:block">
                 {marqueeYear ? `${marqueeFrames.length} frame` : 'Hover untuk pause'}
               </p>
             </div>
@@ -1088,7 +1088,7 @@ const HomePage = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-[color:var(--color-text-muted)] italic py-8 text-center">
+              <p className="text-sm text-[color:var(--retro-text-muted)] italic py-8 text-center">
                 Belum ada frame untuk tahun ini.
               </p>
             )}
@@ -1129,7 +1129,7 @@ const HomePage = () => {
                 Foto Bareng
                 <span className="text-[color:var(--retro-burgundy)]"> Ceu Eli.</span>
               </h2>
-              <p className="mt-3 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-md">
+              <p className="mt-3 text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-md">
                 Buat strip foto kamu sendiri — pilih gaya, ambil momen, simpan kenangan.
               </p>
             </div>

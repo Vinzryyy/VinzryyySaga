@@ -40,7 +40,7 @@ const FilterBar = memo(function FilterBar() {
       <div className="max-w-5xl mx-auto py-3 flex flex-col md:flex-row md:items-center gap-3">
         {/* Search — full width on mobile, fixed width on desktop. */}
         <label className="relative flex-shrink-0 md:w-72">
-          <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-muted)]" />
+          <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--retro-text-muted)]" />
           <input
             type="search"
             value={eventInput}
@@ -52,7 +52,7 @@ const FilterBar = memo(function FilterBar() {
               bg-white border border-[color:var(--retro-brown-dark)]/15
               focus:border-[color:var(--retro-burgundy)]/50
               focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none
-              text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)]
+              text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--retro-text-muted)]
               transition-colors
             "
           />
@@ -61,7 +61,7 @@ const FilterBar = memo(function FilterBar() {
               type="button"
               onClick={() => { setEventInput(''); setEventQuery(''); }}
               aria-label="Bersihkan pencarian event"
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--color-text-muted)] text-sm transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--retro-text-muted)] text-sm transition-colors"
             >
               <i className="ri-close-line" />
             </button>
@@ -108,7 +108,7 @@ const FilterBar = memo(function FilterBar() {
 
         {/* Count + reset — flush right on desktop, separate row on mobile. */}
         <div className="flex items-center justify-between md:justify-end gap-3 flex-shrink-0">
-          <span className="text-[10px] font-black tracking-[0.2em] text-[color:var(--color-text-muted)] tabular-nums whitespace-nowrap">
+          <span className="text-[10px] font-black tracking-[0.2em] text-[color:var(--retro-text-muted)] tabular-nums whitespace-nowrap">
             <span className="text-[color:var(--retro-burgundy)]">{filteredCount.toLocaleString('id-ID')}</span>
             <span className="opacity-50"> / {totalImages.toLocaleString('id-ID')}</span>
           </span>

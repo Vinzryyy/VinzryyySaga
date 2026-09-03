@@ -121,7 +121,7 @@ const Footer = () => {
                 </span>
                 {archiveStats.span && (
                   <>
-                    <span className="text-[color:var(--color-text-muted)]">·</span>
+                    <span className="text-[color:var(--retro-text-muted)]">·</span>
                     <span className="tabular-nums">{archiveStats.span}</span>
                   </>
                 )}

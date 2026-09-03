@@ -142,7 +142,7 @@ const SaleCard = ({ sale, frameSrc }) => {
           {sale.title}
         </p>
         <div className="flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.2em]">
-          <span className="text-[color:var(--color-text-muted)] inline-flex items-center gap-1">
+          <span className="text-[color:var(--retro-text-muted)] inline-flex items-center gap-1">
             <i className="ri-calendar-event-line text-base" />
             {formatSessionDate(sale.soonestSessionDate)}
           </span>
@@ -208,7 +208,7 @@ const MerchCard = ({ product }) => {
           {product.name}
         </p>
         {product.store && (
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5 truncate">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5 truncate">
             <i className="ri-store-2-line text-base flex-shrink-0" />
             <span className="truncate">{product.store}</span>
           </p>
@@ -223,7 +223,7 @@ const MerchCard = ({ product }) => {
               <i className="ri-arrow-right-up-line text-base" />
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)]">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)]">
               <i className="ri-link-unlink-m" />
               {product.linkPendingLabel || 'Link Menyusul'}
             </span>
@@ -296,11 +296,11 @@ const OnSaleStrip = () => {
           <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Sedang Dijual
-            <span className="text-[color:var(--color-text-muted)] tabular-nums">
+            <span className="text-[color:var(--retro-text-muted)] tabular-nums">
               · {totalCount}
             </span>
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] hidden sm:inline-flex items-center gap-1.5">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-flex items-center gap-1.5">
             <i className="ri-shopping-bag-3-line" />
             Sesi M&G, Photobook &amp; Merchandise
           </p>

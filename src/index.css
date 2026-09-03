@@ -49,25 +49,6 @@
   --retro-shadow: rgba(61, 52, 43, 0.15);
   --retro-shadow-dark: rgba(61, 52, 43, 0.25);
   
-  /* Legacy Support (maps to new palette) */
-  --color-pastel-pink: var(--retro-burgundy-light);
-  --color-pastel-rose: var(--retro-burgundy);
-  --color-pastel-peach: var(--retro-sepia);
-  --color-pastel-tan: var(--retro-brown);
-  --color-pastel-cream: var(--retro-cream-dark);
-  --color-bg-primary: var(--retro-bg-primary);
-  --color-bg-secondary: var(--retro-bg-secondary);
-  --color-bg-tertiary: var(--retro-bg-tertiary);
-  --color-text-primary: var(--retro-text-primary);
-  --color-text-secondary: var(--retro-text-secondary);
-  --color-text-light: var(--retro-text-light);
-  --color-text-muted: var(--retro-text-muted);
-  --color-accent: var(--retro-burgundy);
-  --color-accent-hover: var(--retro-burgundy-light);
-  
-  /* Mapping for components that were using purple */
-  --retro-purple: var(--retro-burgundy);
-  --retro-deep-purple: var(--retro-brown-dark);
 }
 
 /* ==========================================================================
@@ -123,6 +104,32 @@ body {
 /* ==========================================================================
    Custom Animations
    ========================================================================== */
+
+/* Page Entrance — consistent reveal after route change. Synced with
+   PageBlossomTransition (~850ms total): 200ms delay lets the blossom
+   curtain fully lift before content starts fading in. */
+@keyframes pageEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-entrance {
+  animation: pageEntrance 0.4s cubic-bezier(0.25, 1, 0.5, 1) 0.2s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-entrance {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
 
 /* Fade Up Animation */
 @keyframes fadeUp {

@@ -2223,7 +2223,7 @@ const EliTree = () => {
                 <i className={`${stageMeta.icon} text-base`} />
                 {stageMeta.label} · Stage {stage}/{MAX_STAGE}
               </p>
-              <p className="mt-2 text-sm text-[color:var(--color-text-secondary)] max-w-xs mx-auto leading-snug">
+              <p className="mt-2 text-sm text-[color:var(--retro-text-secondary)] max-w-xs mx-auto leading-snug">
                 {stageMeta.detail}
               </p>
             </div>
@@ -2239,7 +2239,7 @@ const EliTree = () => {
               Pohon untuk
               <span className="text-[color:var(--retro-burgundy)]"> Eli.</span>
             </h2>
-            <p className="mt-4 text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-md">
+            <p className="mt-4 text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-md">
               Tekan tombol di bawah untuk memberi 1 dukungan. Setiap 100 dukungan, pohonnya
               tumbuh ke tahap berikutnya — sampai berbunga dan berbuah aprikot. Satu orang
               hanya bisa menyiram 1× per hari, jadi kembalilah besok untuk menyiram lagi.
@@ -2248,7 +2248,7 @@ const EliTree = () => {
             {/* Big counter */}
             <div className="mt-6 flex items-end gap-4 flex-wrap">
               <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-1">
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-1">
                   Dukungan Terkumpul
                 </p>
                 <p className="font-header text-6xl md:text-7xl font-black tabular-nums text-[color:var(--retro-burgundy)] leading-none">
@@ -2256,7 +2256,7 @@ const EliTree = () => {
                 </p>
               </div>
               {!isMaxStage && (
-                <p className="text-xs text-[color:var(--color-text-muted)] mb-2 font-bold">
+                <p className="text-xs text-[color:var(--retro-text-muted)] mb-2 font-bold">
                   +{supportsToNext} lagi menuju{' '}
                   <span className="text-[color:var(--retro-burgundy)] uppercase tracking-[0.2em] text-[10px] font-black">
                     {STAGES[stage + 1]?.label}
@@ -2285,7 +2285,7 @@ const EliTree = () => {
                   disabled={isFull || submitting}
                   className={`mt-6 inline-flex items-center gap-3 px-7 py-3.5 rounded-full font-bold text-sm uppercase tracking-widest transition-all shadow-lg ${
                     isFull
-                      ? 'bg-[color:var(--retro-brown-dark)]/15 text-[color:var(--color-text-muted)] cursor-default'
+                      ? 'bg-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-muted)] cursor-default'
                       : submitting
                         ? 'bg-[color:var(--retro-burgundy)]/70 text-[color:var(--retro-cream)] cursor-wait'
                         : 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:-translate-y-0.5 hover:shadow-xl active:scale-95'
@@ -2323,7 +2323,7 @@ const EliTree = () => {
               </p>
             )}
 
-            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-2">
+            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-2">
               <i className="ri-time-line text-base" />
               Reset tiap tengah malam · 1 device · 1 dukungan / hari
             </p>
@@ -2391,7 +2391,7 @@ const WishModal = ({ wish, onClose }) => {
             "{wish.message}"
           </blockquote>
           {formatted && (
-            <p className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] inline-flex items-center gap-1.5">
+            <p className="mt-5 pt-4 border-t border-[color:var(--retro-brown-dark)]/10 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
               <i className="ri-calendar-line text-base" />
               {formatted}
             </p>

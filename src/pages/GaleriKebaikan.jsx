@@ -153,7 +153,7 @@ const GaleriKebaikan = () => (
               <h3 className="font-header text-base font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-1">
                 {cat.label}
               </h3>
-              <p className="text-xs text-[color:var(--color-text-secondary)] leading-relaxed">
+              <p className="text-xs text-[color:var(--retro-text-secondary)] leading-relaxed">
                 {cat.description}
               </p>
             </li>
@@ -214,10 +214,10 @@ const GaleriKebaikan = () => (
 
         {/* Project credit footer */}
         <div className="mt-10 pt-6 border-t border-[color:var(--retro-brown-dark)]/10 text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
             A project by Helismiley × Armeniaca
           </p>
-          <p className="mt-2 text-xs text-[color:var(--color-text-muted)]">
+          <p className="mt-2 text-xs text-[color:var(--retro-text-muted)]">
             Diperbarui oleh Armeniaca · Diusulkan oleh Helismiley · Diteruskan bersama-sama.
           </p>
         </div>

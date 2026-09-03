@@ -129,14 +129,14 @@ const LiveStatsStrip = () => {
           <p className="font-header text-4xl sm:text-5xl md:text-6xl font-black leading-none tracking-tighter tabular-nums text-[color:var(--retro-burgundy)]">
             {isFirebaseConfigured ? count : '—'}
           </p>
-          <p className="mt-3 text-sm sm:text-base text-[color:var(--color-text-secondary)] leading-snug">
+          <p className="mt-3 text-sm sm:text-base text-[color:var(--retro-text-secondary)] leading-snug">
             {isFirebaseConfigured
               ? count === 0
                 ? 'Belum ada ucapan masuk. Jadilah yang pertama.'
                 : `${count.toLocaleString('id-ID')} ucapan untuk Ceu Eli`
               : 'Firebase belum dikonfigurasi.'}
           </p>
-          <p className="mt-1.5 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)]">
+          <p className="mt-1.5 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-burgundy)] animate-pulse" />
             Live · auto-update
           </p>

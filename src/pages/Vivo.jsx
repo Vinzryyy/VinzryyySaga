@@ -74,7 +74,7 @@ const TopPicksGrid = ({ videoIds }) => {
       <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/80 mb-3 inline-flex items-center gap-2">
         <i className="ri-star-fill text-[color:var(--retro-gold)]" />
         Top Picks
-        <span className="text-[color:var(--color-text-muted)] tabular-nums">· {unique.length}</span>
+        <span className="text-[color:var(--retro-text-muted)] tabular-nums">· {unique.length}</span>
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {unique.map((id) => (
@@ -120,7 +120,7 @@ const PlaylistEmbed = ({ playlistId, title }) => {
           className="absolute inset-0 w-full h-full"
         />
       ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-[color:var(--color-text-muted)]">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-[color:var(--retro-text-muted)]">
           <i className="ri-youtube-line text-5xl text-[color:var(--retro-burgundy)]/40 mb-3" />
           <span className="text-xs font-black uppercase tracking-[0.3em]">Memuat playlist…</span>
         </div>
@@ -181,7 +181,7 @@ const PlatformSection = ({ entry }) => (
     >
       {entry.title}
     </h2>
-    <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed mb-6 max-w-2xl">
+    <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed mb-6 max-w-2xl">
       {entry.description}
     </p>
 
@@ -194,7 +194,7 @@ const PlatformSection = ({ entry }) => (
 
     {/* Divider between top picks and the full playlist */}
     {entry.topPicks?.length > 0 && (
-      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)] mb-3 inline-flex items-center gap-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-3 inline-flex items-center gap-2">
         <i className="ri-play-list-line text-base" />
         Playlist Lengkap
       </p>
@@ -277,7 +277,7 @@ const VivoPage = () => {
         {/* Lead paragraph + quick-jump links */}
         <section className="px-5 sm:px-6 md:px-12 lg:px-20 pt-8 md:pt-12 pb-2">
           <div className="max-w-5xl mx-auto">
-            <p className="text-sm md:text-base text-[color:var(--color-text-secondary)] leading-relaxed max-w-3xl mb-5">
+            <p className="text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-3xl mb-5">
               {VIVO.lead}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -307,7 +307,7 @@ const VivoPage = () => {
         {/* Footer micro-sig — same pattern as Memoria's footer for
             visual continuity between sibling pages. */}
         <div className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pb-12 md:pb-16">
-          <div className="flex items-center gap-3 text-[color:var(--color-text-muted)]">
+          <div className="flex items-center gap-3 text-[color:var(--retro-text-muted)]">
             <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
             <span className="text-[10px] font-black uppercase tracking-[0.4em]">
               {SITE_CONFIG.branding.name} · Vivo · {SITE_CONFIG.branding.tagline}

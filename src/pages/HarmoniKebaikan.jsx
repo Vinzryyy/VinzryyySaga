@@ -45,7 +45,7 @@ const HarmoniKebaikan = () => {
       </div>
 
       <div className="pb-12 text-center">
-        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
           Armeniaca · Helismiley × Armeniaca · 2026
         </p>
       </div>

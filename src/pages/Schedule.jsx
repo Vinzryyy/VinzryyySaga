@@ -170,10 +170,10 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
           <p className="font-header text-3xl font-black text-[color:var(--retro-burgundy)] leading-none tabular-nums">
             {String(date.getDate()).padStart(2, '0')}
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-1">
+          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mt-1">
             {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(date)}
           </p>
-          <p className="text-[9px] font-black tabular-nums text-[color:var(--color-text-muted)] mt-0.5">
+          <p className="text-[9px] font-black tabular-nums text-[color:var(--retro-text-muted)] mt-0.5">
             {date.getFullYear()}
           </p>
         </div>
@@ -231,14 +231,14 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
             {entry.title}
           </p>
           {(entry.start_time || entry.end_time) && (
-            <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1 tabular-nums">
+            <p className="text-xs text-[color:var(--retro-text-muted)] leading-snug mt-1 tabular-nums">
               <i className="ri-time-line mr-1 align-[-2px]" />
               {entry.start_time}
               {entry.end_time ? ` – ${entry.end_time}` : ''}
             </p>
           )}
           {entry.venue && (
-            <p className="text-xs text-[color:var(--color-text-muted)] leading-snug mt-1">
+            <p className="text-xs text-[color:var(--retro-text-muted)] leading-snug mt-1">
               <i className="ri-map-pin-line mr-1 align-[-2px]" />
               {entry.venue}
             </p>
@@ -250,18 +250,18 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
             </p>
           )}
           {!isMG && entry.members && entry.members.length > 0 && (
-            <p className="text-[10px] text-[color:var(--color-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+            <p className="text-[10px] text-[color:var(--retro-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
               + {entry.members.length} member · cek detail tiket
             </p>
           )}
           <div className="mt-3 pt-3 border-t border-[color:var(--retro-brown-dark)]/8">
             {dimmed ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">
                 <i className="ri-archive-line" />
                 Sudah berlalu · arsip
               </span>
             ) : isMG && entry.sold_out ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">
                 <i className="ri-lock-line" />
                 Tiket habis
               </span>
@@ -456,13 +456,13 @@ const SchedulePage = () => {
         <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 py-3 md:py-4 flex flex-col md:flex-row md:items-center gap-3">
           {/* Search input — live filter on title + venue substring */}
           <label className="relative flex-shrink-0 md:w-72">
-            <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--color-text-muted)]" />
+            <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--retro-text-muted)]" />
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cari judul / venue…"
-              className="w-full pl-9 pr-9 py-2 rounded-full bg-white border border-[color:var(--retro-brown-dark)]/15 focus:border-[color:var(--retro-burgundy)]/50 focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--color-text-muted)] transition-colors"
+              className="w-full pl-9 pr-9 py-2 rounded-full bg-white border border-[color:var(--retro-brown-dark)]/15 focus:border-[color:var(--retro-burgundy)]/50 focus:ring-2 focus:ring-[color:var(--retro-burgundy)]/15 focus:outline-none text-sm text-[color:var(--retro-text-primary)] placeholder-[color:var(--retro-text-muted)] transition-colors"
               aria-label="Cari jadwal"
             />
             {query && (
@@ -470,7 +470,7 @@ const SchedulePage = () => {
                 type="button"
                 onClick={() => setQuery('')}
                 aria-label="Bersihkan pencarian"
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--color-text-muted)] text-sm transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[color:var(--retro-brown-dark)]/8 hover:bg-[color:var(--retro-burgundy)]/15 hover:text-[color:var(--retro-burgundy)] flex items-center justify-center text-[color:var(--retro-text-muted)] text-sm transition-colors"
               >
                 <i className="ri-close-line" />
               </button>
@@ -586,7 +586,7 @@ const SchedulePage = () => {
                   ? 'Belum ada show teater Eli yang dijadwalkan.'
                   : 'Belum ada show Eli yang dijadwalkan ke depan.'}
               </p>
-              <p className="text-sm text-[color:var(--color-text-muted)] mt-2 max-w-md mx-auto">
+              <p className="text-sm text-[color:var(--retro-text-muted)] mt-2 max-w-md mx-auto">
                 Auto-refresh tiap 6 jam. Jadwal teater biasanya diumumkan 2–4 minggu sebelumnya.
               </p>
             </div>
@@ -601,7 +601,7 @@ const SchedulePage = () => {
                       {group.label}
                     </span>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] tabular-nums">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] tabular-nums">
                       {group.events.length} {group.events.length === 1 ? 'event' : 'events'}
                     </span>
                   </div>
@@ -627,13 +627,13 @@ const SchedulePage = () => {
 
           {/* Refresh footer */}
           {calendar && (
-            <p className="mt-12 pt-6 border-t border-[color:var(--retro-brown-dark)]/10 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--color-text-muted)] flex items-center justify-between gap-2 flex-wrap">
+            <p className="mt-12 pt-6 border-t border-[color:var(--retro-brown-dark)]/10 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] flex items-center justify-between gap-2 flex-wrap">
               <span className="inline-flex items-center gap-2">
                 <i className="ri-refresh-line" />
                 Auto-refresh tiap 6 jam
               </span>
               {calendar.fetchedAt && (
-                <span className="text-[color:var(--color-text-muted)]/70 normal-case tracking-normal font-bold">
+                <span className="text-[color:var(--retro-text-muted)]/70 normal-case tracking-normal font-bold">
                   Update {formatRefreshed(calendar.fetchedAt)}
                 </span>
               )}

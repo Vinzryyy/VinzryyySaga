@@ -24,7 +24,7 @@ const Template5Postcard = ({ wish }) => {
             {wish.name}
           </h3>
           {wish.handle && (
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--color-text-muted)] mt-0.5 truncate">
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mt-0.5 truncate">
               {wish.handle}
             </p>
           )}

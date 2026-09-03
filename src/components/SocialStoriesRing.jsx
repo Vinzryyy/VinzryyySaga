@@ -93,7 +93,7 @@ const StoryAvatar = ({ social, avatar, isLive }) => {
           </span>
         )}
       </div>
-      <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[color:var(--color-text-muted)] group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+      <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[color:var(--retro-text-muted)] group-hover:text-[color:var(--retro-burgundy)] transition-colors">
         {social.platform}
       </span>
     </a>

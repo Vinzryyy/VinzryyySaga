@@ -36,7 +36,7 @@ const NotFoundPage = () => {
               Sepertinya frame ini <br />
               <span className="text-[color:var(--retro-burgundy)]">belum diarsipkan.</span>
             </h1>
-            <p className="text-base md:text-lg text-[color:var(--color-text-secondary)] leading-relaxed mb-10 max-w-xl">
+            <p className="text-base md:text-lg text-[color:var(--retro-text-secondary)] leading-relaxed mb-10 max-w-xl">
               Halaman yang kamu cari tidak ada di Armeniaca. Bisa jadi
               tautannya salah, sudah dipindah, atau memang belum dibuat. Dari
               sini kamu bisa balik ke beranda, jelajahi arsip lengkap, atau
@@ -63,14 +63,14 @@ const NotFoundPage = () => {
               <button
                 type="button"
                 onClick={() => goTo('/profile')}
-                className="group inline-flex items-center gap-3 px-5 py-3 rounded-full text-[color:var(--color-text-muted)] hover:text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest transition-colors"
+                className="group inline-flex items-center gap-3 px-5 py-3 rounded-full text-[color:var(--retro-text-muted)] hover:text-[color:var(--retro-burgundy)] font-bold text-xs uppercase tracking-widest transition-colors"
               >
                 Profil {eli.stageName}
                 <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
-            <div className="mt-12 flex items-center gap-3 text-[color:var(--color-text-muted)]">
+            <div className="mt-12 flex items-center gap-3 text-[color:var(--retro-text-muted)]">
               <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">
                 Armeniaca · {eli.nickname}

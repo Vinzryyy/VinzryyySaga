@@ -431,7 +431,7 @@ function Navbar() {
                                   {child.label}
                                 </p>
                                 {child.description && (
-                                  <p className="text-xs text-[color:var(--color-text-muted)] mt-0.5 leading-snug">
+                                  <p className="text-xs text-[color:var(--retro-text-muted)] mt-0.5 leading-snug">
                                     {child.description}
                                   </p>
                                 )}
@@ -474,15 +474,22 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Scroll progress bar */}
-        {scrolled && (
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-transparent">
-            <div
-              className="h-full bg-[color:var(--retro-burgundy)]/70 transition-[width] duration-150 ease-out"
-              style={{ width: `${progress * 100}%` }}
-            />
-          </div>
-        )}
+        {/* Scroll progress bar — scaleX instead of width for GPU-composited
+             animation; gradient burgundy→gold matches retro palette. Fades
+             in/out with the scrolled state instead of mount/unmount. */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+          style={{ opacity: scrolled ? 1 : 0 }}
+        >
+          <div
+            className="h-full w-full origin-left"
+            style={{
+              transform: `scaleX(${progress})`,
+              transition: 'transform 200ms cubic-bezier(0.25, 1, 0.5, 1)',
+              background: 'linear-gradient(90deg, var(--retro-burgundy), var(--retro-gold))',
+            }}
+          />
+        </div>
       </nav>
 
       {/* Mobile menu — only mounted when open, slides in from the right */}
@@ -598,12 +605,12 @@ function Navbar() {
                                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                                   child.hash === activeHash
                                     ? "bg-[color:var(--retro-burgundy)]/15 text-[color:var(--retro-burgundy)] font-bold"
-                                    : "text-[color:var(--color-text-secondary)] hover:bg-[color:var(--retro-burgundy)]/5 hover:text-[color:var(--retro-burgundy)]"
+                                    : "text-[color:var(--retro-text-secondary)] hover:bg-[color:var(--retro-burgundy)]/5 hover:text-[color:var(--retro-burgundy)]"
                                 }`}
                               >
                                 <p className="font-bold leading-tight">{child.label}</p>
                                 {child.description && (
-                                  <p className="text-xs text-[color:var(--color-text-muted)] mt-0.5">
+                                  <p className="text-xs text-[color:var(--retro-text-muted)] mt-0.5">
                                     {child.description}
                                   </p>
                                 )}
@@ -619,7 +626,7 @@ function Navbar() {
             </nav>
 
             <footer className="px-6 py-5 border-t border-[color:var(--retro-brown-dark)]/10">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--color-text-muted)]">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
                 {SITE_CONFIG.branding.name} · {SITE_CONFIG.branding.tagline}
               </p>
             </footer>

@@ -129,7 +129,7 @@ const MemberCard = () => {
               <p className="font-header text-base md:text-lg font-black text-[color:var(--retro-text-primary)] leading-tight">
                 {m.name}
                 {m.nickname && (
-                  <span className="text-[color:var(--color-text-muted)] font-bold text-sm md:text-base ml-1.5">
+                  <span className="text-[color:var(--retro-text-muted)] font-bold text-sm md:text-base ml-1.5">
                     · {m.nickname}
                   </span>
                 )}
@@ -138,7 +138,7 @@ const MemberCard = () => {
           </div>
 
           {/* Bio facts — only show fields the API returned */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-[color:var(--color-text-secondary)] md:flex-1">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-[color:var(--retro-text-secondary)] md:flex-1">
             {m.birthDate && (
               <span className="inline-flex items-center gap-1.5">
                 <i className="ri-cake-2-line text-base text-[color:var(--retro-burgundy)]/70" />

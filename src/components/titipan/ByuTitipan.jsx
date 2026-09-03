@@ -966,7 +966,7 @@ const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
               <i className="ri-heart-fill text-rose-500/85 text-base" aria-hidden="true" />
               Terima kasih, kau salah satu yang menjaga denyutnya.
             </div>
-            <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
+            <div className="text-[11px] tracking-wide text-[color:var(--retro-text-secondary)]">
               {formatNumber(supporters)} orang sedang menjaga denyutnya.
             </div>
             <a
@@ -994,7 +994,7 @@ const PreReleaseView = ({ supporters, stage = TOTAL_STAGES }) => {
                 {submitting ? 'Mencatat...' : 'Saya menunggu'}
               </span>
             </button>
-            <div className="text-[11px] tracking-wide text-[color:var(--color-text-secondary)]">
+            <div className="text-[11px] tracking-wide text-[color:var(--retro-text-secondary)]">
               {formatNumber(supporters)} orang sedang menjaga denyutnya.
             </div>
             <a
@@ -1129,7 +1129,7 @@ const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex justify-between text-[11px] tabular-nums mb-6 text-[color:var(--color-text-secondary)]">
+          <div className="flex justify-between text-[11px] tabular-nums mb-6 text-[color:var(--retro-text-secondary)]">
             <span>{fmt(currentTime)}</span>
             <span>{fmt(duration)}</span>
           </div>
@@ -1156,7 +1156,7 @@ const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
         </div>
       )}
 
-      <div className="text-center font-header italic text-sm text-[color:var(--color-text-secondary)]">
+      <div className="text-center font-header italic text-sm text-[color:var(--retro-text-secondary)]">
         Denyutnya dijaga oleh{' '}
         <span className="text-[color:var(--retro-burgundy)] not-italic font-bold">
           {formatNumber(supporters)} orang
@@ -1178,7 +1178,7 @@ const ReleasedView = ({ supporters, stage = TOTAL_STAGES }) => {
         </a>
       </div>
 
-      <div className="mt-4 text-center text-[10px] text-[color:var(--color-text-secondary)]/65 italic">
+      <div className="mt-4 text-center text-[10px] text-[color:var(--retro-text-secondary)]/65 italic">
         iPhone Safari lama mungkin tidak putar FLAC — gunakan Chrome/Firefox.
       </div>
     </>
@@ -1248,7 +1248,7 @@ const ByuTitipan = () => {
               </div>
             )}
             {!isReleased && (
-              <p className="mt-2 font-header italic text-[11px] text-[color:var(--color-text-secondary)]/85">
+              <p className="mt-2 font-header italic text-[11px] text-[color:var(--retro-text-secondary)]/85">
                 {stageInfo.hint}
               </p>
             )}

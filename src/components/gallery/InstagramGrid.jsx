@@ -212,10 +212,10 @@ const InstagramGrid = memo(function InstagramGrid() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-10">
         <i className="ri-image-2-line text-6xl text-[color:var(--retro-burgundy)]/30 mb-6" />
-        <h3 className="text-2xl font-bold text-[color:var(--color-text-primary)] mb-2">
+        <h3 className="text-2xl font-bold text-[color:var(--retro-text-primary)] mb-2">
           {SITE_CONFIG.gallery?.emptyMessage || 'Belum ada frame'}
         </h3>
-        <p className="text-[color:var(--color-text-secondary)] mb-8 max-w-xs">
+        <p className="text-[color:var(--retro-text-secondary)] mb-8 max-w-xs">
           {SITE_CONFIG.gallery?.emptyDescription || 'Coba ganti filter atau tunggu update arsip berikutnya.'}
         </p>
         {hasFilters && (
@@ -260,14 +260,14 @@ const InstagramGrid = memo(function InstagramGrid() {
                 isAppending ? 'animate-spin opacity-100' : 'opacity-0'
               } transition-opacity`}
             />
-            <span className="text-[10px] font-black tracking-[0.4em] text-[color:var(--color-text-muted)] uppercase">
+            <span className="text-[10px] font-black tracking-[0.4em] text-[color:var(--retro-text-muted)] uppercase">
               Memuat frame berikutnya…
             </span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
-            <span className="text-[10px] font-black tracking-[0.4em] text-[color:var(--color-text-muted)] uppercase">
+            <span className="text-[10px] font-black tracking-[0.4em] text-[color:var(--retro-text-muted)] uppercase">
               {filteredImages.length.toLocaleString('id-ID')} frame ditampilkan
             </span>
           </div>
