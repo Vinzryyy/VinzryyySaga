@@ -1,9 +1,9 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-04T20:30:58.837738Z",
+  "fetchedAt": "2026-09-05T03:38:56.932791Z",
   "scanned": 50,
-  "eliMentionCount": 1,
+  "eliMentionCount": 0,
   "items": [
     {
       "id": 1865,
@@ -121,7 +121,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-theater-sementara-2026-dengan-bonus-video-call",
       "image": null,
       "publishedAt": "2026-08-08T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 11 Agustus 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Theater Sementara 2026 ” dengan bonus Video Call bersama JKT48. JKT48…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -181,7 +181,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-gendis-mayrannisa-dari-jkt48",
       "image": null,
       "publishedAt": "2026-07-23T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Gendis Mayrannisa dari JKT48 Team Dream telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -193,7 +193,7 @@
       "url": "https://jkt48.com/news/pengumuman-berakhirnya-operasional-proyek-jkt48-virtual",
       "image": null,
       "publishedAt": "2026-07-20T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 dan JKT48 Virtual. PT Indonesia Musik Nusantara (IMN) selaku perusahaan yang menaungi JKT48 secara resmi telah memutuskan untuk mengakhiri kontrak lisensi dengan AKA Virtual…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -313,9 +313,9 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juni-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-06-02T17:00:00.000Z",
-      "snippet": "…ntuk JKT48. Untuk merayakan ulang tahun Helisma Putri, Nayla Suji, Gendis Mayrannisa, dan Gita Sekar di bulan Juni ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail ja…",
-      "mentionsEli": true,
-      "matchedIn": "body"
+      "snippet": "",
+      "mentionsEli": false,
+      "matchedIn": null
     },
     {
       "id": 1837,
@@ -325,7 +325,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jadwal-dan-detail-tiket-jkt48-theater-sementara-surabaya-yogyakarta-serta-person",
       "image": null,
       "publishedAt": "2026-05-25T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "T erima kasih atas dukungannya untuk JKT48. JKT48 Theater merupakan tempat di mana para member menghadirkan pertunjukan yang membekas di hati para penggemar. Bersama Team Love, Team Dream, dan Team Passion, JKT48 akan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -337,7 +337,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-stage-activity-dan-mini-live-performance-di-jkt48-personal-meet-and-greet-festiv",
       "image": null,
       "publishedAt": "2026-05-21T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 Sebagaimana yang telah diumumkan sebelumnya, JKT48 akan mengadakan JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION pada tanggal 23 Mei 2026 di Hall 9 dan 10 ICE…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -541,7 +541,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion",
       "image": "https://jkt48.com/api/v1/storages/media/news/2026/03/pengumuman-mengenai-timetable-jkt48-personal-meet-and-greet-festival-love-dream-passion-df75e1.png",
       "publishedAt": "2026-03-26T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Berikut kami sampaikan timetable Personal Meet & Greet dan 2-Shot untuk acara JKT48 Personal Meet & Greet Festival: LOVE DREAM PASSION yang akan diselenggarakan pada: Lokasi: ICE Indonesia, BSD City, Tangerang Tanggal:…",
       "mentionsEli": false,
       "matchedIn": null
     },

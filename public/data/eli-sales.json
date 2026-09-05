@@ -1,11 +1,11 @@
 {
-  "fetchedAt": "2026-09-04T20:30:29.023742Z",
+  "fetchedAt": "2026-09-05T03:38:27.059024Z",
   "salesCount": 11,
   "sales": [
     {
       "exclusiveId": null,
       "code": "EXE588",
-      "slug": null,
+      "slug": "exe588-23052026",
       "category": "PHOTOCARD",
       "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, Meet & Greet - 23 May",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
@@ -55,7 +55,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule"
+      "url": "https://jkt48.com/schedule/exe588-23052026"
     },
     {
       "exclusiveId": null,
