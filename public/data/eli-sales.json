@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-09-05T03:38:27.059024Z",
+  "fetchedAt": "2026-09-05T10:13:43.825620Z",
   "salesCount": 11,
   "sales": [
     {
@@ -60,7 +60,7 @@
     {
       "exclusiveId": null,
       "code": "EX273E",
-      "slug": "ex273e-26082026",
+      "slug": "ex273e-23082026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Theater Sementara 2026",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-thumb-70c4c1.jpg",
@@ -124,7 +124,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex273e-26082026"
+      "url": "https://jkt48.com/schedule/ex273e-23082026"
     },
     {
       "exclusiveId": null,

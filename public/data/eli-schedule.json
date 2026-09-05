@@ -1,87 +1,9 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Eli (Helisma Putri, member_id 112) appearances in JKT48 schedule for the next 3 months. Includes theater shows (SHOW) + Personal Meet & Greet sessions (EXCLUSIVE). Cast verified per event detail.",
-  "fetchedAt": "2026-09-05T03:38:10.853266Z",
-  "eventCount": 14,
+  "fetchedAt": "2026-09-05T10:13:24.873124Z",
+  "eventCount": 12,
   "events": [
-    {
-      "kind": "SHOW",
-      "schedule_id": null,
-      "code": "SH990D",
-      "title": "Sambil Menggandeng Erat Tanganku",
-      "date": "2026-08-05",
-      "start_time": "19:00",
-      "end_time": "21:00",
-      "set_list": null,
-      "team": "DREAM",
-      "venue": "JKT48 Theater",
-      "members": [
-        {
-          "name": "Adeline Wijaya",
-          "member_id": 2,
-          "type": "DREAM"
-        },
-        {
-          "name": "Febriola Sinambela",
-          "member_id": 88,
-          "type": "DREAM"
-        },
-        {
-          "name": "Freya Jayawardana",
-          "member_id": 94,
-          "type": "DREAM"
-        },
-        {
-          "name": "Gita Sekar Andarini",
-          "member_id": 104,
-          "type": "DREAM"
-        },
-        {
-          "name": "Greesella Adhalia",
-          "member_id": 107,
-          "type": "DREAM"
-        },
-        {
-          "name": "Jemima Evodie",
-          "member_id": 123,
-          "type": "TRAINEE"
-        },
-        {
-          "name": "Jesslyn Elly",
-          "member_id": 131,
-          "type": "DREAM"
-        },
-        {
-          "name": "Marsha Lenathea",
-          "member_id": 152,
-          "type": "DREAM"
-        },
-        {
-          "name": "Mikaela Kusjanto",
-          "member_id": 162,
-          "type": "TRAINEE"
-        },
-        {
-          "name": "Nina Tutachia",
-          "member_id": 178,
-          "type": "DREAM"
-        },
-        {
-          "name": "Oline Manuel",
-          "member_id": 185,
-          "type": "DREAM"
-        },
-        {
-          "name": "Shabilqis Naila",
-          "member_id": 221,
-          "type": "DREAM"
-        }
-      ],
-      "is_birthday_show": false,
-      "is_video_call": false,
-      "eli_inferred": true,
-      "url": "https://jkt48.com/schedule/sh990d-sambil-menggandeng-erat-tanganku"
-    },
     {
       "kind": "SHOW",
       "schedule_id": null,
@@ -209,7 +131,7 @@
       "sold_out": true,
       "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex273e-13082026"
+      "url": "https://jkt48.com/schedule/ex273e-14082026"
     },
     {
       "kind": "EXCLUSIVE",
@@ -260,7 +182,7 @@
       "sold_out": true,
       "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex273e-13082026"
+      "url": "https://jkt48.com/schedule/ex273e-14082026"
     },
     {
       "kind": "EXCLUSIVE",
@@ -311,7 +233,7 @@
       "sold_out": true,
       "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex273e-13082026"
+      "url": "https://jkt48.com/schedule/ex273e-14082026"
     },
     {
       "kind": "SHOW",
@@ -431,7 +353,7 @@
       "sold_out": true,
       "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex273e-13082026"
+      "url": "https://jkt48.com/schedule/ex273e-14082026"
     },
     {
       "kind": "EXCLUSIVE",
@@ -473,7 +395,7 @@
       "sold_out": true,
       "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex273e-13082026"
+      "url": "https://jkt48.com/schedule/ex273e-14082026"
     },
     {
       "kind": "EXCLUSIVE",
@@ -515,85 +437,7 @@
       "sold_out": true,
       "remaining_total": 0,
       "is_birthday_show": false,
-      "url": "https://jkt48.com/schedule/ex273e-13082026"
-    },
-    {
-      "kind": "SHOW",
-      "schedule_id": null,
-      "code": "SH578A",
-      "title": "Sambil Menggandeng Erat Tanganku",
-      "date": "2026-08-29",
-      "start_time": "14:00",
-      "end_time": "16:00",
-      "set_list": null,
-      "team": "DREAM",
-      "venue": "JKT48 Theater",
-      "members": [
-        {
-          "name": "Adeline Wijaya",
-          "member_id": 2,
-          "type": "DREAM"
-        },
-        {
-          "name": "Febriola Sinambela",
-          "member_id": 88,
-          "type": "DREAM"
-        },
-        {
-          "name": "Gabriela Abigail",
-          "member_id": 97,
-          "type": "DREAM"
-        },
-        {
-          "name": "Gita Sekar Andarini",
-          "member_id": 104,
-          "type": "DREAM"
-        },
-        {
-          "name": "Greesella Adhalia",
-          "member_id": 107,
-          "type": "DREAM"
-        },
-        {
-          "name": "Helisma Putri",
-          "member_id": 112,
-          "type": "DREAM"
-        },
-        {
-          "name": "Humaira Ramadhani",
-          "member_id": 115,
-          "type": "TRAINEE"
-        },
-        {
-          "name": "Jesslyn Elly",
-          "member_id": 131,
-          "type": "DREAM"
-        },
-        {
-          "name": "Mikaela Kusjanto",
-          "member_id": 162,
-          "type": "TRAINEE"
-        },
-        {
-          "name": "Nina Tutachia",
-          "member_id": 178,
-          "type": "DREAM"
-        },
-        {
-          "name": "Oline Manuel",
-          "member_id": 185,
-          "type": "DREAM"
-        },
-        {
-          "name": "Shabilqis Naila",
-          "member_id": 221,
-          "type": "DREAM"
-        }
-      ],
-      "is_birthday_show": false,
-      "is_video_call": false,
-      "eli_inferred": false,
-      "url": "https://jkt48.com/schedule/sh578a-sambil-menggandeng-erat-tanganku"
+      "url": "https://jkt48.com/schedule/ex273e-14082026"
     },
     {
       "kind": "SHOW",
@@ -840,10 +684,71 @@
       "set_list": null,
       "team": "DREAM",
       "venue": "JKT48 Theater",
-      "members": [],
-      "is_birthday_show": true,
+      "members": [
+        {
+          "name": "Adeline Wijaya",
+          "member_id": 2,
+          "type": "DREAM"
+        },
+        {
+          "name": "Febriola Sinambela",
+          "member_id": 88,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gabriela Abigail",
+          "member_id": 97,
+          "type": "DREAM"
+        },
+        {
+          "name": "Gita Sekar Andarini",
+          "member_id": 104,
+          "type": "DREAM"
+        },
+        {
+          "name": "Greesella Adhalia",
+          "member_id": 107,
+          "type": "DREAM"
+        },
+        {
+          "name": "Helisma Putri",
+          "member_id": 112,
+          "type": "DREAM"
+        },
+        {
+          "name": "Humaira Ramadhani",
+          "member_id": 115,
+          "type": "TRAINEE"
+        },
+        {
+          "name": "Jesslyn Elly",
+          "member_id": 131,
+          "type": "DREAM"
+        },
+        {
+          "name": "Mikaela Kusjanto",
+          "member_id": 162,
+          "type": "TRAINEE"
+        },
+        {
+          "name": "Nina Tutachia",
+          "member_id": 178,
+          "type": "DREAM"
+        },
+        {
+          "name": "Oline Manuel",
+          "member_id": 185,
+          "type": "DREAM"
+        },
+        {
+          "name": "Shabilqis Naila",
+          "member_id": 221,
+          "type": "DREAM"
+        }
+      ],
+      "is_birthday_show": false,
       "is_video_call": false,
-      "eli_inferred": true,
+      "eli_inferred": false,
       "url": "https://jkt48.com/schedule/shf0c0-sambil-menggandeng-erat-tanganku"
     }
   ]
