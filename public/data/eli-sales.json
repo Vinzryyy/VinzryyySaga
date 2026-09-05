@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-09-05T14:51:12.801666Z",
-  "salesCount": 10,
+  "fetchedAt": "2026-09-05T20:06:52.254025Z",
+  "salesCount": 11,
   "sales": [
     {
       "exclusiveId": null,
@@ -255,6 +255,47 @@
         }
       ],
       "url": "https://jkt48.com/schedule/exa340-04072026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EX3773",
+      "slug": "ex3773-02072026",
+      "category": "TWO_SHOT",
+      "title": "Team Love & Team Dream, 2shot Surabaya",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex3773-thumb-f96b44.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex3773-preview-cbccce.jpg",
+      "defaultPrice": 180000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-15T12:00:00",
+          "end_date": "2026-07-02T09:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-16T12:00:00",
+          "end_date": "2026-07-02T09:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-07-02",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1 (DREAM) · 02/07",
+          "sessionDate": "2026-07-02",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 2 (DREAM) · 02/07",
+          "sessionDate": "2026-07-02",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex3773-02072026"
     },
     {
       "exclusiveId": null,
