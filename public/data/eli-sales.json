@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-09-05T20:06:52.254025Z",
+  "fetchedAt": "2026-09-06T03:39:54.695270Z",
   "salesCount": 11,
   "sales": [
     {
@@ -60,7 +60,7 @@
     {
       "exclusiveId": null,
       "code": "EX273E",
-      "slug": "ex273e-26082026",
+      "slug": "ex273e-23082026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Theater Sementara 2026",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-thumb-70c4c1.jpg",
@@ -124,12 +124,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex273e-26082026"
+      "url": "https://jkt48.com/schedule/ex273e-23082026"
     },
     {
       "exclusiveId": null,
       "code": "EX7F6C",
-      "slug": "ex7f6c-19072026",
+      "slug": null,
       "category": "DIGITAL_PHOTOBOOK",
       "title": "JKT48 Request Hour 2026 Setlist Best 40",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-thumb-a2122e.jpg",
@@ -172,7 +172,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex7f6c-19072026"
+      "url": "https://jkt48.com/schedule"
     },
     {
       "exclusiveId": null,
@@ -437,7 +437,7 @@
     {
       "exclusiveId": null,
       "code": "EXBE10",
-      "slug": "exbe10-14042026",
+      "slug": null,
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Love Dream Passion - Music Video Behind the Scenes",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
@@ -480,7 +480,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/exbe10-14042026"
+      "url": "https://jkt48.com/schedule"
     },
     {
       "exclusiveId": null,

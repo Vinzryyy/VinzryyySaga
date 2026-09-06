@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-05T20:07:26.380038Z",
+  "fetchedAt": "2026-09-06T03:40:28.361861Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
@@ -205,7 +205,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-dengan-chekicha-pengganti-untuk-cornelia-vanisa-kathrina-",
       "image": null,
       "publishedAt": "2026-07-18T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Cornelia Vanisa, Kathrina Irene dan Fritzy Rosmerian yang tidak memungkinkan untuk mengikuti Birthday 2-Shot Online dengan Chekicha pada Minggu, 27…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -373,7 +373,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-showroom-idn-live-member-generasi-14-jkt48",
       "image": null,
       "publishedAt": "2026-05-17T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Setelah melakukan trial pada beberapa waktu lalu, kini para generasi 14 akan mendapatkan akun SHOWROOM dan IDN Live mereka masing - masing. Mulai sekarang kalian bisa…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -433,7 +433,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-media-sosial-member-jkt48",
       "image": null,
       "publishedAt": "2026-05-08T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Guna memberikan ruang digital yang lebih aman dan nyaman, aktivitas media sosial member JKT48 yang masih berusia di bawah 16 tahun akan diwadahi melalui satu akun bersama. Akun…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -517,7 +517,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-request-hour-2026-setlist-best-40",
       "image": null,
       "publishedAt": "2026-03-30T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 Request Hour akhirnya kembali! Melalui event ini, kalian dapat memilih lagu JKT48 favorit dengan cara melakukan voting. Lagu-lagu dengan jumlah voting terbanyak akan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -577,7 +577,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-maintenance-website-jkt48-2008",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka meningkatkan performa layanan dan keamanan website www.jkt48.com , kami akan melakukan pembaruan sistem secara menyeluruh dengan melakukan maintenance. Akses…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
