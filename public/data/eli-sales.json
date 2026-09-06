@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-09-06T15:10:31.039575Z",
+  "fetchedAt": "2026-09-06T20:11:16.260939Z",
   "salesCount": 11,
   "sales": [
     {
@@ -485,7 +485,7 @@
     {
       "exclusiveId": null,
       "code": "EX579E",
-      "slug": "ex579e-23052026",
+      "slug": null,
       "category": "TWO_SHOT",
       "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, 2Shot - 23 May",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/03/ex579e-thumb-c637b9.jpg",
@@ -521,7 +521,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex579e-23052026"
+      "url": "https://jkt48.com/schedule"
     }
   ]
 }

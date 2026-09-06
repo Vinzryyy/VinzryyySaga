@@ -1,9 +1,9 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-06T15:11:06.490667Z",
+  "fetchedAt": "2026-09-06T20:11:48.844380Z",
   "scanned": 50,
-  "eliMentionCount": 1,
+  "eliMentionCount": 0,
   "items": [
     {
       "id": 1865,
@@ -49,7 +49,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-aulia-riza-dari-jkt48",
       "image": null,
       "publishedAt": "2026-08-29T00:00:00.000Z",
-      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Aulia Riza dari JKT48 Trainee telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima keputusan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -85,7 +85,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-lulu-salsabila",
       "image": null,
       "publishedAt": "2026-08-17T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan kegiatan Lulu Salsabila yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “Theater Sementara 2026” pada Rabu, 19…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -205,7 +205,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-dengan-chekicha-pengganti-untuk-cornelia-vanisa-kathrina-",
       "image": null,
       "publishedAt": "2026-07-18T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Cornelia Vanisa, Kathrina Irene dan Fritzy Rosmerian yang tidak memungkinkan untuk mengikuti Birthday 2-Shot Online dengan Chekicha pada Minggu, 27…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -265,7 +265,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
       "image": null,
       "publishedAt": "2026-06-13T17:00:00.000Z",
-      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -289,7 +289,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-personal-meet-and-greet-festival-love-dr",
       "image": null,
       "publishedAt": "2026-06-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Juni 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION ” dengan bonus Video Call…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -313,9 +313,9 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juni-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-06-02T17:00:00.000Z",
-      "snippet": "…ntuk JKT48. Untuk merayakan ulang tahun Helisma Putri, Nayla Suji, Gendis Mayrannisa, dan Gita Sekar di bulan Juni ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail ja…",
-      "mentionsEli": true,
-      "matchedIn": "body"
+      "snippet": "",
+      "mentionsEli": false,
+      "matchedIn": null
     },
     {
       "id": 1837,
@@ -373,7 +373,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-showroom-idn-live-member-generasi-14-jkt48",
       "image": null,
       "publishedAt": "2026-05-17T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Setelah melakukan trial pada beberapa waktu lalu, kini para generasi 14 akan mendapatkan akun SHOWROOM dan IDN Live mereka masing - masing. Mulai sekarang kalian bisa…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
