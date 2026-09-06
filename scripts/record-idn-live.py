@@ -47,7 +47,7 @@ import websocket  # websocket-client
 
 # ── Config ────────────────────────────────────────────────────────────────────
 IDN_V4_URL   = "https://api.idn.app/api/v4"
-IDN_API_KEY  = "123f4c4e-6ce1-404d-8786-d17e46d65b5c"
+IDN_API_KEY  = os.environ.get("IDN_API_KEY", "")
 GRAPHQL_URL  = "https://api.idn.app/graphql"
 MOBILE_API   = "https://mobile-api.idn.app"
 CHAT_WS_URL  = "wss://chat.idn.app"

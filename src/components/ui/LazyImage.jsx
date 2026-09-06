@@ -1,11 +1,6 @@
 import { forwardRef } from "react";
 import { useIntersectionObserver } from "../hooks/useIntersectionObserver";
 
-/**
- * LazyImage Component
- * Performance-optimized image with lazy loading and fade-in effect
- * @param {Object} props - Component props
- */
 export const LazyImage = forwardRef(({
   src,
   alt = "",
@@ -43,10 +38,8 @@ export const LazyImage = forwardRef(({
       className={`relative overflow-hidden bg-[color:var(--retro-bg-tertiary)] ${className}`}
       style={{ backgroundColor: placeholderColor }}
     >
-      {/* Placeholder skeleton */}
       <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-[color:var(--retro-bg-tertiary)] via-[color:var(--retro-bg-secondary)] to-[color:var(--retro-bg-tertiary)]" />
 
-      {/* Actual image */}
       {isVisible && src && (
         <img
           src={src}
@@ -64,11 +57,6 @@ export const LazyImage = forwardRef(({
 
 LazyImage.displayName = "LazyImage";
 
-/**
- * OptimizedImage Component
- * Image with srcset for responsive loading
- * @param {Object} props - Component props
- */
 export const OptimizedImage = forwardRef(({
   src,
   alt = "",
@@ -99,10 +87,8 @@ export const OptimizedImage = forwardRef(({
       className={`relative overflow-hidden bg-[color:var(--retro-bg-tertiary)] ${className}`}
       style={{ backgroundColor: placeholderColor }}
     >
-      {/* Placeholder */}
       <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-[color:var(--retro-bg-tertiary)] via-[color:var(--retro-bg-secondary)] to-[color:var(--retro-bg-tertiary)]" />
 
-      {/* Actual image */}
       {isVisible && src && (
         <img
           ref={ref}

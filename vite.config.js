@@ -105,6 +105,7 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
     },
     build: {
+      sourcemap: false,
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
         output: {

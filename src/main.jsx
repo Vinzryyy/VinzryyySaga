@@ -12,9 +12,6 @@ import "@fontsource-variable/fraunces";
 import "@fontsource-variable/plus-jakarta-sans";
 import "./index.css";
 import "./remixicon.css";
-import { initMonitoring } from "./utils/monitoring";
-
-initMonitoring();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

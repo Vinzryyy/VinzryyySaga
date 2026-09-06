@@ -168,11 +168,16 @@ const loadHistory = () => {
   }
 };
 
+const MAX_STORED_MESSAGES = 100;
+
 const saveHistory = (messages) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages }));
+    const trimmed = messages.length > MAX_STORED_MESSAGES
+      ? messages.slice(-MAX_STORED_MESSAGES)
+      : messages;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ messages: trimmed }));
   } catch {
-    /* storage blocked */
+    /* storage blocked or quota exceeded */
   }
 };
 
