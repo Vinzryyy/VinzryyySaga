@@ -1,10 +1,22 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-07T11:58:15.209291Z",
+  "fetchedAt": "2026-09-07T17:40:36.038279Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
+    {
+      "id": 1866,
+      "title": "Pengumuman Mengenai Pre-Order JKT48 Digital Photobook “Cheerful Little Wishes” dengan bonus Video Call with JKT48",
+      "category": "Theater",
+      "slug": "pengumuman-mengenai-pre-order-jkt48-digital-photobook-cheerful-little-wishes-dengan-bonus-video-call",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-cheerful-little-wishes-dengan-bonus-video-call",
+      "image": null,
+      "publishedAt": "2026-09-06T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 September 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “Cheerful Little Wishes” dengan bonus Video Call bersama JKT48. Sebagai bagian…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
     {
       "id": 1865,
       "title": "Pengumuman Mengenai JKT48 Personal Meet & Greet Festival Oktober 2026",
@@ -14,18 +26,6 @@
       "image": null,
       "publishedAt": "2026-09-01T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 akan kembali hadir menyapa para penggemar dalam sebuah event spesial. Kali ini, kalian akan mendapatkan kesempatan untuk bertemu, berinteraksi, dan mengabadikan momen…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1864,
-      "title": "Pengumuman Mengenai Graduation 2-Shot Online Alya Amanda dengan Chekicha",
-      "category": "Graduation 2-Shot",
-      "slug": "pengumuman-mengenai-graduation-2-shot-online-alya-amanda-dengan-chekicha",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-alya-amanda-dengan-chekicha",
-      "image": null,
-      "publishedAt": "2026-08-30T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Alya Amanda yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -42,6 +42,18 @@
       "matchedIn": null
     },
     {
+      "id": 1864,
+      "title": "Pengumuman Mengenai Graduation 2-Shot Online Alya Amanda dengan Chekicha",
+      "category": "Graduation 2-Shot",
+      "slug": "pengumuman-mengenai-graduation-2-shot-online-alya-amanda-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-alya-amanda-dengan-chekicha",
+      "image": null,
+      "publishedAt": "2026-08-30T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Alya Amanda yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
       "id": 1862,
       "title": "Pengumuman Mengenai Pengunduran Diri Aulia Riza dari JKT48",
       "category": "Other",
@@ -49,7 +61,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-aulia-riza-dari-jkt48",
       "image": null,
       "publishedAt": "2026-08-29T00:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Aulia Riza dari JKT48 Trainee telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima keputusan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -73,7 +85,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-dengan-chekicha-pengganti-untuk-alya-amanda",
       "image": null,
       "publishedAt": "2026-08-25T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Alya Amanda yang tidak memungkinkan untuk mengikuti Birthday 2-Shot Online dengan Chekicha pada Kamis, 27 Agustus 2026 di Sesi 1–2, kami akan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -126,6 +138,18 @@
       "matchedIn": null
     },
     {
+      "id": 1853,
+      "title": "Pengumuman Mengenai Graduation 2-Shot Online Cathleen Nixie dengan Chekicha",
+      "category": "Graduation 2-Shot",
+      "slug": "pengumuman-mengenai-graduation-2-shot-online-cathleen-nixie-dengan-chekicha",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-cathleen-nixie-dengan-chekicha",
+      "image": null,
+      "publishedAt": "2026-08-03T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Cathleen Nixie yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
       "id": 1852,
       "title": "Pengumuman Mengenai Birthday 2-Shot Online bulan Agustus dengan Chekicha",
       "category": "Birthday",
@@ -134,18 +158,6 @@
       "image": null,
       "publishedAt": "2026-08-03T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Abigail Rachel, Gabriela Abigail, Catherina Vallencia, dan Alya Amanda di bulan Agustus ini, Online Birthday 2-Shot akan kembali diadakan dengan…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1853,
-      "title": "Pengumuman Mengenai Graduation 2-Shot Online Cathleen Nixie dengan Chekicha",
-      "category": "Graduation 2-Shot",
-      "slug": "pengumuman-mengenai-graduation-2-shot-online-cathleen-nixie-dengan-chekicha",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-cathleen-nixie-dengan-chekicha",
-      "image": null,
-      "publishedAt": "2026-08-03T17:00:00.000Z",
-      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -181,7 +193,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-gendis-mayrannisa-dari-jkt48",
       "image": null,
       "publishedAt": "2026-07-23T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Gendis Mayrannisa dari JKT48 Team Dream telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -205,7 +217,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-dengan-chekicha-pengganti-untuk-cornelia-vanisa-kathrina-",
       "image": null,
       "publishedAt": "2026-07-18T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Cornelia Vanisa, Kathrina Irene dan Fritzy Rosmerian yang tidak memungkinkan untuk mengikuti Birthday 2-Shot Online dengan Chekicha pada Minggu, 27…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -217,7 +229,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-request-hour-2026-setlist-best-40-dengan",
       "image": null,
       "publishedAt": "2026-07-13T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 16 Juli 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Request Hour 2026 Setlist Best 40 ” dengan bonus Video Call bersama JKT48.…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -229,7 +241,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juli-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-07-07T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Mutiara Azzahra, Cornelia Vanisa, Kathrina Irene, dan Fritzy Rosmerian di bulan Juli ini, Online Birthday 2-Shot akan kembali diadakan dengan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -241,7 +253,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-ofc-event-fun-on-board-3-fun-board-games-with-jkt48-trainee",
       "image": null,
       "publishedAt": "2026-06-22T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48! Menyambut masa libur sekolah yang akan segera tiba, JKT48 OFC Event akan segera hadir untuk menemani akhir pekan kalian di bulan Juli mendatang melalui kegiatan “FUN ON BOARD…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -277,7 +289,7 @@
       "url": "https://jkt48.com/news/informasi-mengenai-pre-order-jkt48-request-hour-2026-setlist-best-40-official-t-shirt",
       "image": null,
       "publishedAt": "2026-06-14T02:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas partisipasi dan antusiasme seluruh fans dalam Request Hour tahun ini! Sebanyak 40 lagu teratas yang terpilih melalui hasil voting telah diumumkan dan resmi menjadi setlist Request Hour 2026. Kini kamu…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -397,7 +409,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-chelsea-davina-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-05-15T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat-saat terakhir Chelsea Davina yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -409,7 +421,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-chelsea-davina",
       "image": null,
       "publishedAt": "2026-05-14T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Chelsea telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 1 April 2026, kami dengan ini…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -469,7 +481,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-we-are-love-dream-team-passion-on-fire-dengan-",
       "image": null,
       "publishedAt": "2026-05-03T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 6 Mei 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “We Are Love, Dream Team, Passion On Fire!” dengan bonus Video Call bersama JKT48.…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -558,18 +570,6 @@
       "matchedIn": null
     },
     {
-      "id": 946,
-      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
-      "category": "Event",
-      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-12T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka menghadirkan pengalaman yang lebih dekat antara member JKT48 dan para penggemar, JKT48 akan mengadakan sebuah event spesial bertajuk “ LOVE DREAM PASSION” yang…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
       "id": 1032,
       "title": "Pengumuman Mengenai Maintenance Website JKT48",
       "category": "Other",
@@ -582,6 +582,18 @@
       "matchedIn": null
     },
     {
+      "id": 946,
+      "title": "Pengumuman Mengenai JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "category": "Event",
+      "slug": "pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-festival-love-dream-passion",
+      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
+      "publishedAt": "2026-03-12T17:00:00.000Z",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Dalam rangka menghadirkan pengalaman yang lebih dekat antara member JKT48 dan para penggemar, JKT48 akan mengadakan sebuah event spesial bertajuk “ LOVE DREAM PASSION” yang…",
+      "mentionsEli": false,
+      "matchedIn": null
+    },
+    {
       "id": 873,
       "title": "Pengumuman Mengenai Graduation 2-Shot Online Amanda Sukma dengan Chekicha",
       "category": "Theater",
@@ -590,18 +602,6 @@
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
       "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
-      "mentionsEli": false,
-      "matchedIn": null
-    },
-    {
-      "id": 1523,
-      "title": "Pengumuman Mengenai Video Call Pengganti Raisha Syifa dan Aurhel Alana ",
-      "category": "Theater",
-      "slug": "pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
-      "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-raisha-syifa-dan-aurhel-alana-",
-      "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
-      "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Raisha Syifa dan Aurhel Alana yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian JKT48 digital photobook “Radiant Hues”. Raisha…",
       "mentionsEli": false,
       "matchedIn": null
     }
