@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-09-07T03:39:26.563795Z",
-  "salesCount": 11,
+  "fetchedAt": "2026-09-07T11:57:43.723756Z",
+  "salesCount": 10,
   "sales": [
     {
       "exclusiveId": null,
@@ -60,7 +60,7 @@
     {
       "exclusiveId": null,
       "code": "EX273E",
-      "slug": "ex273e-26082026",
+      "slug": "ex273e-24082026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "Theater Sementara 2026",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-thumb-70c4c1.jpg",
@@ -124,7 +124,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex273e-26082026"
+      "url": "https://jkt48.com/schedule/ex273e-24082026"
     },
     {
       "exclusiveId": null,
@@ -177,7 +177,7 @@
     {
       "exclusiveId": null,
       "code": "EXFB66",
-      "slug": "exfb66-04072026",
+      "slug": null,
       "category": "TWO_SHOT",
       "title": "Team Love & Team Dream, 2shot Yogyakarta",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-thumb-ba1e85.jpg",
@@ -213,12 +213,12 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/exfb66-04072026"
+      "url": "https://jkt48.com/schedule"
     },
     {
       "exclusiveId": null,
       "code": "EXA340",
-      "slug": "exa340-04072026",
+      "slug": null,
       "category": "PHOTOCARD",
       "title": "Team Love & Team Dream, Meet and Greet Yogyakarta",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-thumb-bc4526.jpg",
@@ -254,7 +254,7 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/exa340-04072026"
+      "url": "https://jkt48.com/schedule"
     },
     {
       "exclusiveId": null,
@@ -433,54 +433,6 @@
         }
       ],
       "url": "https://jkt48.com/schedule/ex3725-08052026"
-    },
-    {
-      "exclusiveId": null,
-      "code": "EXBE10",
-      "slug": "exbe10-14042026",
-      "category": "DIGITAL_PHOTOBOOK",
-      "title": "Love Dream Passion - Music Video Behind the Scenes",
-      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
-      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-preview-98404e.jpg",
-      "defaultPrice": 120000,
-      "totalQuota": null,
-      "salesPeriod": [
-        {
-          "label": "OFC",
-          "start_date": "2026-04-10T22:00:00",
-          "end_date": "2026-04-20T07:00:00"
-        },
-        {
-          "label": "General",
-          "start_date": "2026-04-12T22:00:00",
-          "end_date": "2026-04-20T07:00:00"
-        }
-      ],
-      "soonestSessionDate": "2026-04-19",
-      "eliSessions": [
-        {
-          "sessionLabel": "Sesi 4",
-          "sessionDate": "2026-04-19",
-          "jalur": "Jalur 5",
-          "ticketsSold": null,
-          "remainingQuota": 0
-        },
-        {
-          "sessionLabel": "Sesi 5",
-          "sessionDate": "2026-04-19",
-          "jalur": "Jalur 5",
-          "ticketsSold": null,
-          "remainingQuota": 0
-        },
-        {
-          "sessionLabel": "Sesi 6",
-          "sessionDate": "2026-04-19",
-          "jalur": "Jalur 5",
-          "ticketsSold": null,
-          "remainingQuota": 0
-        }
-      ],
-      "url": "https://jkt48.com/schedule/exbe10-14042026"
     },
     {
       "exclusiveId": null,
