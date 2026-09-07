@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-06T20:11:48.844380Z",
+  "fetchedAt": "2026-09-07T03:39:59.436238Z",
   "scanned": 50,
   "eliMentionCount": 0,
   "items": [
@@ -37,7 +37,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-september-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-08-30T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Shabilqis Naila, Adeline Wijaya, Jesslyn Elly, Aurhel Alana, dan Jessica Chandra di bulan September ini, Online Birthday 2-Shot akan kembali…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -49,7 +49,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-aulia-riza-dari-jkt48",
       "image": null,
       "publishedAt": "2026-08-29T00:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Aulia Riza dari JKT48 Trainee telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima keputusan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -85,7 +85,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-lulu-salsabila",
       "image": null,
       "publishedAt": "2026-08-17T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan kegiatan Lulu Salsabila yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “Theater Sementara 2026” pada Rabu, 19…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -97,7 +97,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-alya-amanda",
       "image": null,
       "publishedAt": "2026-08-13T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Alya telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 17 Mei 2026, kami dengan ini…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -265,7 +265,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
       "image": null,
       "publishedAt": "2026-06-13T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -373,7 +373,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-showroom-idn-live-member-generasi-14-jkt48",
       "image": null,
       "publishedAt": "2026-05-17T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Setelah melakukan trial pada beberapa waktu lalu, kini para generasi 14 akan mendapatkan akun SHOWROOM dan IDN Live mereka masing - masing. Mulai sekarang kalian bisa…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -409,7 +409,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-chelsea-davina",
       "image": null,
       "publishedAt": "2026-05-14T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Chelsea telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 1 April 2026, kami dengan ini…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -589,7 +589,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2shot-online-amanda-sukma-dengan-chekicha",
       "image": "https://jkt48.com/api/v1/storages/media/news/migrated/jkt48logo.jpg",
       "publishedAt": "2026-03-10T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Amanda Sukma yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
