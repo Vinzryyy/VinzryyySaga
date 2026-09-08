@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-08T16:18:52.646377Z",
+  "fetchedAt": "2026-09-08T20:55:19.324367Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
@@ -205,7 +205,7 @@
       "url": "https://jkt48.com/news/pengumuman-berakhirnya-operasional-proyek-jkt48-virtual",
       "image": null,
       "publishedAt": "2026-07-20T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48 dan JKT48 Virtual. PT Indonesia Musik Nusantara (IMN) selaku perusahaan yang menaungi JKT48 secara resmi telah memutuskan untuk mengakhiri kontrak lisensi dengan AKA Virtual…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -517,7 +517,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-april-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-04-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Celline Thefani dan Michelle Alexandra di bulan April ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha.…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
