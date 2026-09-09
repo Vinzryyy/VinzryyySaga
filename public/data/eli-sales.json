@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-09-09T10:58:52.078216Z",
-  "salesCount": 11,
+  "fetchedAt": "2026-09-09T16:12:45.314641Z",
+  "salesCount": 12,
   "sales": [
     {
       "exclusiveId": null,
@@ -56,6 +56,54 @@
         }
       ],
       "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EX5A08",
+      "slug": "ex5a08-28092026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "Cheerful Little Wishes",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/09/ex5a08-thumb-f91bf5.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/09/ex5a08-preview-e4a7ad.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-09-09T22:00:00",
+          "end_date": "2026-09-28T07:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-09-10T22:00:00",
+          "end_date": "2026-09-28T07:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-09-14",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-09-14",
+          "jalur": "Jalur 9",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-09-14",
+          "jalur": "Jalur 9",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-09-14",
+          "jalur": "Jalur 9",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex5a08-28092026"
     },
     {
       "exclusiveId": null,
