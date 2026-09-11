@@ -1,11 +1,11 @@
 {
-  "fetchedAt": "2026-09-10T20:36:59.458803Z",
-  "salesCount": 6,
+  "fetchedAt": "2026-09-11T10:53:12.337923Z",
+  "salesCount": 12,
   "sales": [
     {
       "exclusiveId": null,
       "code": "EXE588",
-      "slug": null,
+      "slug": "exe588-23052026",
       "category": "PHOTOCARD",
       "title": "Personal Meet and Greet Festival: LOVE DREAM PASSION, Meet & Greet - 23 May",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/ex7b6d-thumb-d71768.jpg",
@@ -55,12 +55,129 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule"
+      "url": "https://jkt48.com/schedule/exe588-23052026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EX5A08",
+      "slug": "ex5a08-28092026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "Cheerful Little Wishes",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/09/ex5a08-thumb-f91bf5.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/09/ex5a08-preview-e4a7ad.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-09-09T22:00:00",
+          "end_date": "2026-09-28T07:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-09-10T22:00:00",
+          "end_date": "2026-09-28T07:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-09-14",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-09-14",
+          "jalur": "Jalur 9",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-09-14",
+          "jalur": "Jalur 9",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-09-14",
+          "jalur": "Jalur 9",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex5a08-28092026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EX273E",
+      "slug": "ex273e-26082026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "Theater Sementara 2026",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-thumb-70c4c1.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/08/ex273e-preview-f47357.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-08-11T20:00:00",
+          "end_date": "2026-08-26T07:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-08-12T20:00:00",
+          "end_date": "2026-08-26T07:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-08-20",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-08-20",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-08-20",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-08-20",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-08-22",
+          "jalur": "Jalur 4",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 5",
+          "sessionDate": "2026-08-22",
+          "jalur": "Jalur 4",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 6",
+          "sessionDate": "2026-08-22",
+          "jalur": "Jalur 4",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex273e-26082026"
     },
     {
       "exclusiveId": null,
       "code": "EX7F6C",
-      "slug": null,
+      "slug": "ex7f6c-19072026",
       "category": "DIGITAL_PHOTOBOOK",
       "title": "JKT48 Request Hour 2026 Setlist Best 40",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/07/ex7f6c-thumb-a2122e.jpg",
@@ -103,12 +220,53 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule"
+      "url": "https://jkt48.com/schedule/ex7f6c-19072026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EXFB66",
+      "slug": "exfb66-04072026",
+      "category": "TWO_SHOT",
+      "title": "Team Love & Team Dream, 2shot Yogyakarta",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-thumb-ba1e85.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exfb66-preview-bb4a0e.jpg",
+      "defaultPrice": 180000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-22T12:00:00",
+          "end_date": "2026-07-05T09:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-23T12:00:00",
+          "end_date": "2026-07-05T09:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-07-05",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 3 (DREAM) · 05/07",
+          "sessionDate": "2026-07-05",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 4 (DREAM) · 05/07",
+          "sessionDate": "2026-07-05",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/exfb66-04072026"
     },
     {
       "exclusiveId": null,
       "code": "EXA340",
-      "slug": null,
+      "slug": "exa340-04072026",
       "category": "PHOTOCARD",
       "title": "Team Love & Team Dream, Meet and Greet Yogyakarta",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/exa340-thumb-bc4526.jpg",
@@ -144,12 +302,53 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule"
+      "url": "https://jkt48.com/schedule/exa340-04072026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EX3773",
+      "slug": "ex3773-02072026",
+      "category": "TWO_SHOT",
+      "title": "Team Love & Team Dream, 2shot Surabaya",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex3773-thumb-f96b44.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex3773-preview-cbccce.jpg",
+      "defaultPrice": 180000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-15T12:00:00",
+          "end_date": "2026-07-02T09:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-16T12:00:00",
+          "end_date": "2026-07-02T09:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-07-02",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1 (DREAM) · 02/07",
+          "sessionDate": "2026-07-02",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 2 (DREAM) · 02/07",
+          "sessionDate": "2026-07-02",
+          "jalur": "Jalur 6",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex3773-02072026"
     },
     {
       "exclusiveId": null,
       "code": "EX9A4A",
-      "slug": "ex9a4a-28062026",
+      "slug": "ex9a4a-02072026",
       "category": "PHOTOCARD",
       "title": "Team Love & Team Dream, Meet and Greet Surabaya",
       "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex9a4a-thumb-736b1c.jpg",
@@ -185,7 +384,55 @@
           "remainingQuota": 0
         }
       ],
-      "url": "https://jkt48.com/schedule/ex9a4a-28062026"
+      "url": "https://jkt48.com/schedule/ex9a4a-02072026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EX783D",
+      "slug": "ex783d-15062026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-thumb-edd92f.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/06/ex783d-preview-c1bec0.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-06-09T20:00:00",
+          "end_date": "2026-06-24T07:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-06-10T20:00:00",
+          "end_date": "2026-06-24T07:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-06-16",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 1",
+          "sessionDate": "2026-06-16",
+          "jalur": "Jalur 8",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-06-16",
+          "jalur": "Jalur 8",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 3",
+          "sessionDate": "2026-06-16",
+          "jalur": "Jalur 8",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/ex783d-15062026"
     },
     {
       "exclusiveId": null,
@@ -234,6 +481,54 @@
         }
       ],
       "url": "https://jkt48.com/schedule/ex3725-08052026"
+    },
+    {
+      "exclusiveId": null,
+      "code": "EXBE10",
+      "slug": "exbe10-14042026",
+      "category": "DIGITAL_PHOTOBOOK",
+      "title": "Love Dream Passion - Music Video Behind the Scenes",
+      "thumbnail": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-thumb-37400f.jpg",
+      "previewImage": "https://jkt48.com/api/v1/storages/media/exclusive/2026/04/exbe10-preview-98404e.jpg",
+      "defaultPrice": 120000,
+      "totalQuota": null,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-04-10T22:00:00",
+          "end_date": "2026-04-20T07:00:00"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-04-12T22:00:00",
+          "end_date": "2026-04-20T07:00:00"
+        }
+      ],
+      "soonestSessionDate": "2026-04-19",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-04-19",
+          "jalur": "Jalur 5",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 5",
+          "sessionDate": "2026-04-19",
+          "jalur": "Jalur 5",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        },
+        {
+          "sessionLabel": "Sesi 6",
+          "sessionDate": "2026-04-19",
+          "jalur": "Jalur 5",
+          "ticketsSold": null,
+          "remainingQuota": 0
+        }
+      ],
+      "url": "https://jkt48.com/schedule/exbe10-14042026"
     },
     {
       "exclusiveId": null,
