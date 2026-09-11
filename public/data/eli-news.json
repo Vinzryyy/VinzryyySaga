@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-11T10:53:44.051408Z",
+  "fetchedAt": "2026-09-11T16:08:22.604089Z",
   "scanned": 50,
   "eliMentionCount": 1,
   "items": [
@@ -13,7 +13,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-cheerful-little-wishes-dengan-bonus-video-call",
       "image": null,
       "publishedAt": "2026-09-06T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 September 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “Cheerful Little Wishes” dengan bonus Video Call bersama JKT48. Sebagai bagian…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -25,7 +25,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-greet-festival-oktober-2026",
       "image": null,
       "publishedAt": "2026-09-01T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 akan kembali hadir menyapa para penggemar dalam sebuah event spesial. Kali ini, kalian akan mendapatkan kesempatan untuk bertemu, berinteraksi, dan mengabadikan momen…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -97,7 +97,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-video-call-pengganti-lulu-salsabila",
       "image": null,
       "publishedAt": "2026-08-17T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan kegiatan Lulu Salsabila yang tidak memungkinkan untuk mengikuti video call dari bonus pembelian digital photobook “Theater Sementara 2026” pada Rabu, 19…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -337,7 +337,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jadwal-dan-detail-tiket-jkt48-theater-sementara-surabaya-yogyakarta-serta-person",
       "image": null,
       "publishedAt": "2026-05-25T17:00:00.000Z",
-      "snippet": "T erima kasih atas dukungannya untuk JKT48. JKT48 Theater merupakan tempat di mana para member menghadirkan pertunjukan yang membekas di hati para penggemar. Bersama Team Love, Team Dream, dan Team Passion, JKT48 akan…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -481,7 +481,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-we-are-love-dream-team-passion-on-fire-dengan-",
       "image": null,
       "publishedAt": "2026-05-03T17:00:00.000Z",
-      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 6 Mei 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “We Are Love, Dream Team, Passion On Fire!” dengan bonus Video Call bersama JKT48.…",
+      "snippet": "",
       "mentionsEli": false,
       "matchedIn": null
     },
