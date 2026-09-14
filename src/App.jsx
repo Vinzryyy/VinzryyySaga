@@ -441,6 +441,7 @@ function AppShell() {
       <TownMusic />
       <div className="min-h-screen bg-[color:var(--retro-bg-primary)] text-[color:var(--retro-text-primary)] antialiased">
         <Navbar />
+        <ErrorBoundary compact>
         <Suspense fallback={<PageSkeleton />}>
           <PageEntrance>
           <Routes>
@@ -533,6 +534,7 @@ function AppShell() {
           </Routes>
           </PageEntrance>
         </Suspense>
+        </ErrorBoundary>
         <Footer />
       </div>
       <Suspense fallback={null}>

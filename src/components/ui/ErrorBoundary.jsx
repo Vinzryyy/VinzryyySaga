@@ -37,8 +37,9 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      const compact = this.props.compact;
       return (
-        <div className="min-h-screen bg-[color:var(--retro-bg-dark)] flex items-center justify-center p-4">
+        <div className={`${compact ? 'py-24' : 'min-h-screen'} bg-[color:var(--retro-bg-dark)] flex items-center justify-center p-4`}>
           <div className="max-w-md w-full bg-[color:var(--retro-bg-primary)] rounded-2xl p-8 text-center shadow-retro-lg border border-[color:var(--retro-border)]">
             <div className="w-20 h-20 mx-auto mb-6 bg-red-500/10 rounded-full flex items-center justify-center">
               <i className="ri-error-warning-line text-4xl text-red-500" />
