@@ -32,6 +32,7 @@ const Seo = ({
       <meta property="og:url" content={url} />
       <meta property="og:image" content={image} />
       <meta property="og:type" content={type} />
+      <meta name="twitter:site" content="@armeniaca15" />
       <meta name="twitter:title" content={fullTitle} />
       {description && <meta name="twitter:description" content={description} />}
       <meta name="twitter:image" content={image} />
