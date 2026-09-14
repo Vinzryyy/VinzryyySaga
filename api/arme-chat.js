@@ -562,6 +562,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method not allowed' });
   }
 
+  const allowedOrigins = ['https://armeniaca.online', 'https://www.armeniaca.online'];
+  const origin = req.headers.origin;
+  if (process.env.NODE_ENV === 'production' && !allowedOrigins.includes(origin)) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
+
   const geminiKey = process.env.GOOGLE_AI_API_KEY;
   const groqKey = process.env.GROQ_API_KEY;
   const openrouterKey = process.env.OPENROUTER_API_KEY;
