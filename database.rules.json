@@ -56,7 +56,7 @@
     "presence": {
       ".read": true,
       "$sessionId": {
-        ".write": true,
+        ".write": "$sessionId.length >= 8 && $sessionId.length <= 64",
         ".validate": "!newData.exists() || (newData.hasChild('joinedAt') && newData.child('joinedAt').val() === now)",
         "joinedAt": {
           ".validate": "newData.val() === now"

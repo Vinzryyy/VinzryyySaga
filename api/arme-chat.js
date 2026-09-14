@@ -556,6 +556,29 @@ const callOpenRouter = async (apiKey, messages, systemPrompt) => {
   };
 };
 
+// ── Simple in-memory rate limiter (per warm instance) ────────────────
+const rateMap = new Map();
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT = 15; // max requests per IP per minute
+let lastCleanup = Date.now();
+
+const checkRate = (ip) => {
+  const now = Date.now();
+  if (now - lastCleanup > RATE_WINDOW_MS * 2) {
+    for (const [k, v] of rateMap) {
+      if (now - v.start > RATE_WINDOW_MS) rateMap.delete(k);
+    }
+    lastCleanup = now;
+  }
+  const entry = rateMap.get(ip);
+  if (!entry || now - entry.start > RATE_WINDOW_MS) {
+    rateMap.set(ip, { start: now, count: 1 });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= RATE_LIMIT;
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -563,9 +586,16 @@ export default async function handler(req, res) {
   }
 
   const allowedOrigins = ['https://armeniaca.online', 'https://www.armeniaca.online'];
-  const origin = req.headers.origin;
-  if (process.env.NODE_ENV === 'production' && !allowedOrigins.includes(origin)) {
+  const origin = (req.headers.origin || '').toLowerCase();
+  const isDev = process.env.NODE_ENV !== 'production';
+  const originAllowed = allowedOrigins.includes(origin) || (isDev && /^https?:\/\/localhost(:\d+)?$/.test(origin));
+  if (!originAllowed) {
     return res.status(403).json({ error: 'forbidden' });
+  }
+
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+  if (!checkRate(ip)) {
+    return res.status(429).json({ error: 'Arme lagi capek (terlalu banyak pesan). Tunggu sebentar ya.' });
   }
 
   const geminiKey = process.env.GOOGLE_AI_API_KEY;

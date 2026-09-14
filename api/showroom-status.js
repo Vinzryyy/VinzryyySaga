@@ -22,6 +22,9 @@ export default async function handler(req, res) {
   if (!room) {
     return res.status(400).json({ error: 'room query param required' });
   }
+  if (!/^[A-Za-z0-9_-]+$/.test(room)) {
+    return res.status(400).json({ error: 'invalid room' });
+  }
 
   try {
     const upstream = await fetch(
