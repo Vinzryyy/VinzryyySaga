@@ -94,7 +94,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       vercelApiDev(env),
-      visualizer({
+      process.env.ANALYZE && visualizer({
         filename: "dist/stats.html",
         gzipSize: true,
         brotliSize: true,
