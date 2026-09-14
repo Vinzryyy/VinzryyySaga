@@ -709,6 +709,8 @@ const ArmeChatWidget = () => {
             ref={scrollerRef}
             className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#fdf6ee]"
             style={{ scrollBehavior: 'smooth' }}
+            aria-live="polite"
+            aria-relevant="additions"
           >
             {/* Greeting bubble — intro + daily quote (same source as
                 home strip; quote flips at WIB midnight). */}
