@@ -46,6 +46,30 @@ export const Modal = forwardRef(({
     if (modal) {
       modal.focus();
     }
+
+    const handleTab = (e) => {
+      if (e.key !== "Tab" || !modal) return;
+      const focusable = modal.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleTab);
+    return () => window.removeEventListener("keydown", handleTab);
   }, [isOpen]);
 
   const handleOverlayClick = useCallback(
