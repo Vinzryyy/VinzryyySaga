@@ -105,6 +105,7 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
     },
     build: {
+      target: "esnext",
       sourcemap: false,
       chunkSizeWarningLimit: 800,
       rollupOptions: {
