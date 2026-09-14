@@ -1,10 +1,13 @@
 /**
- * ChalkIllustrations — scattered hand-drawn neon SVG background decoration.
+ * ChalkIllustrations — scattered hand-drawn SVG background decoration.
  *
  * Renders as an absolute full-coverage layer behind content.
- * Spawns ~8 randomly placed drawings (camera, apricot, microphone)
+ * Spawns randomly placed drawings (camera, apricot, microphone, etc.)
  * with random position, rotation, scale, and color picks.
  * Positions regenerate each mount for variety.
+ *
+ * Designed to work across both light (cream) and dark page sections
+ * using earthy, muted tones at low opacity.
  */
 
 import { useState } from 'react';
@@ -105,11 +108,11 @@ const NoteSvg = ({ color, glow }) => (
 const SHAPES = [CameraSvg, ApricotSvg, MicrophoneSvg, StarSvg, NoteSvg];
 
 const PALETTES = [
-  { color: 'var(--retro-burgundy-light)', glow: 'rgba(158, 62, 74, 0.4)' },
-  { color: 'var(--retro-gold)',           glow: 'rgba(200, 149, 42, 0.4)' },
-  { color: 'var(--retro-cream)',          glow: 'rgba(253, 246, 227, 0.25)' },
-  { color: 'var(--retro-sepia)',          glow: 'rgba(212, 165, 116, 0.35)' },
-  { color: 'var(--retro-gold-light)',     glow: 'rgba(223, 174, 66, 0.35)' },
+  { color: 'var(--retro-burgundy)',       glow: 'rgba(139, 64, 64, 0.25)' },
+  { color: 'var(--retro-burgundy-light)', glow: 'rgba(158, 62, 74, 0.25)' },
+  { color: 'var(--retro-gold)',           glow: 'rgba(200, 149, 42, 0.25)' },
+  { color: 'var(--retro-sepia)',          glow: 'rgba(212, 165, 116, 0.20)' },
+  { color: 'var(--retro-brown-dark)',     glow: 'rgba(61, 52, 43, 0.15)' },
 ];
 
 const MIN_COUNT = 200;
@@ -125,7 +128,7 @@ const useRandomItems = () => {
       const scale = 0.3 + Math.random() * 0.8;  // 0.3-1.1
       const shapeIdx = Math.floor(Math.random() * SHAPES.length);
       const paletteIdx = (i + Math.floor(Math.random() * 3)) % PALETTES.length;
-      const opacity = 0.08 + Math.random() * 0.35; // 0.08-0.43 (subtler per item since there are so many)
+      const opacity = 0.04 + Math.random() * 0.14; // 0.04-0.18 (very subtle for full-page coverage)
       return { x, y, rotate, scale, shapeIdx, paletteIdx, opacity };
     });
   });

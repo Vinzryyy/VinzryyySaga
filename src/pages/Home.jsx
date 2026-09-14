@@ -593,7 +593,8 @@ const HomePage = () => {
   const currentSlide = heroSlides[slideIndex];
 
   return (
-    <main>
+    <main className="relative overflow-hidden">
+      <ChalkIllustrations />
       <Seo
         path="/"
         description="Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026."
@@ -1147,10 +1148,8 @@ const HomePage = () => {
       </Section>
 
       {/* DARK ZONE — full-bleed dark background wrapping ArmePack +
-          Community. ChalkIllustrations scatter behind both sections as
-          wallpaper-style background decoration. */}
+          Community. */}
       <div className="relative bg-[color:var(--retro-brown-dark)] overflow-hidden">
-        <ChalkIllustrations />
 
       <Section id="armepack-preview" padding="lg">
         <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-gold)]/20 bg-[color:var(--retro-brown-dark)]">
