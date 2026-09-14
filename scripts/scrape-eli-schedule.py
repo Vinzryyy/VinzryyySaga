@@ -101,7 +101,7 @@ _WS_RE = re.compile(r"\s+")
 
 
 class _Response:
-    """Mimics requests.Response for in-browser fetch() results."""
+    """Mimics requests.Response for Playwright API request results."""
     def __init__(self, status, url, body):
         self.status_code = status
         self.url = url
@@ -123,33 +123,21 @@ class _Response:
 
 
 class _Scraper:
-    """Drop-in cloudscraper replacement — runs fetch() inside the browser
-    page so Cloudflare cookies and JS context are used automatically."""
-    def __init__(self, page):
-        self._page = page
+    """Uses Playwright's APIRequestContext (via browser context) to make
+    HTTP requests that carry the full cookie jar — including cf_clearance
+    set by Cloudflare Turnstile after the initial page navigation.
+
+    Previous approach used in-page fetch() which Cloudflare started
+    blocking with 403s even after the challenge page cleared."""
+    def __init__(self, context):
+        self._context = context
 
     def get(self, url, timeout=45):
-        result = self._page.evaluate(
-            """async ([url, timeoutMs]) => {
-                const ctrl = new AbortController();
-                const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-                try {
-                    const r = await fetch(url, { signal: ctrl.signal });
-                    const text = await r.text();
-                    return { status: r.status, body: text };
-                } catch (e) {
-                    return { status: 0, body: e.message };
-                } finally {
-                    clearTimeout(timer);
-                }
-            }""",
-            [url, timeout * 1000],
-        )
-        status = result.get("status", 0)
-        body = result.get("body", "")
-        if status == 0:
-            raise Exception(f"fetch failed for {url}: {body}")
-        return _Response(status, url, body)
+        try:
+            resp = self._context.request.get(url, timeout=timeout * 1000)
+            return _Response(resp.status, url, resp.text())
+        except Exception as e:
+            raise Exception(f"request failed for {url}: {e}")
 
 
 # jkt48.com sometimes stalls past 20s under load — a single read timeout
@@ -345,8 +333,11 @@ def main():
             if "just a moment" not in page.title().lower():
                 break
         print(f"      Challenge cleared — {page.title()}")
+        # Brief pause to let cf_clearance cookie propagate to the
+        # browser context before we start API calls.
+        page.wait_for_timeout(2000)
 
-        sc = _Scraper(page)
+        sc = _Scraper(context)
         try:
             _run(sc)
         finally:
