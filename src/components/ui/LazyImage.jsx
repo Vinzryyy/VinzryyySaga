@@ -3,7 +3,7 @@ import { useIntersectionObserver } from "../hooks/useIntersectionObserver";
 
 export const LazyImage = forwardRef(({
   src,
-  alt = "",
+  alt,
   className = "",
   placeholderColor = "#1a1a1a",
   onLoad,
@@ -59,7 +59,7 @@ LazyImage.displayName = "LazyImage";
 
 export const OptimizedImage = forwardRef(({
   src,
-  alt = "",
+  alt,
   className = "",
   sizes = "(max-width: 768px) 100vw, 50vw",
   srcSet,
