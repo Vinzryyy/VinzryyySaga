@@ -1,9 +1,9 @@
 {
   "source": "https://jkt48.com (official public API)",
   "sourceNote": "Latest 50 JKT48 news announcements. Articles that name Helisma Putri (Eli, member_id 112) in title or content_body carry mentionsEli=true — JKT48's news template rarely names individual members, so the strip surfaces general updates with Eli highlights badged when she does appear.",
-  "fetchedAt": "2026-09-15T04:03:41.195695Z",
+  "fetchedAt": "2026-09-15T16:34:46.598593Z",
   "scanned": 50,
-  "eliMentionCount": 0,
+  "eliMentionCount": 1,
   "items": [
     {
       "id": 1868,
@@ -13,7 +13,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jadwal-penjualan-timetable-jkt48-akb48-personal-meet-greet-festival-ayo-senyumla",
       "image": null,
       "publishedAt": "2026-09-11T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 akan segera mengadakan kembali Personal Meet & Greet Festival bersama AKB48 dengan tema “Ayo Senyumlah”, sebuah event spesial yang akan mempertemukan member JKT48 dan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -25,7 +25,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-peraturan-jkt48-akb48-personal-meet-and-greet-festival-ayo-senyumlah",
       "image": null,
       "publishedAt": "2026-09-12T01:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 akan mengadakan Personal Meet and Greet Festival kembali dengan tema \"Ayo Senyumlah\" , bersama AKB48 yang akan diselenggarakan pada 24 Oktober 2026 di ICE Indonesia, BSD…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -61,7 +61,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-september-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-08-30T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Shabilqis Naila, Adeline Wijaya, Jesslyn Elly, Aurhel Alana, dan Jessica Chandra di bulan September ini, Online Birthday 2-Shot akan kembali…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -73,7 +73,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-alya-amanda-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-08-30T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat - saat terakhir Alya Amanda yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -85,7 +85,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-aulia-riza-dari-jkt48",
       "image": null,
       "publishedAt": "2026-08-29T00:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Aulia Riza dari JKT48 Trainee telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima keputusan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -97,7 +97,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-theater-14th-anniversary-team-on",
       "image": null,
       "publishedAt": "2026-08-27T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Pengumuman Mengenai JKT48 Theater 14th Anniversary “TEAM ON!” Terima kasih atas dukungannya untuk JKT48. Beberapa saat lagi, JKT48 Theater akan memasuki usia 14 tahun. Untuk merayakan momen ini, JKT48 akan mengadakan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -109,7 +109,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-dengan-chekicha-pengganti-untuk-alya-amanda",
       "image": null,
       "publishedAt": "2026-08-25T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Sehubungan dengan keadaan Alya Amanda yang tidak memungkinkan untuk mengikuti Birthday 2-Shot Online dengan Chekicha pada Kamis, 27 Agustus 2026 di Sesi 1–2, kami akan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -157,7 +157,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-theater-sementara-2026-dengan-bonus-video-call",
       "image": null,
       "publishedAt": "2026-08-08T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 11 Agustus 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Theater Sementara 2026 ” dengan bonus Video Call bersama JKT48. JKT48…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -193,7 +193,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pertunjukan-teater-kelulusan-dan-prosesi-pelepasan-kabesha-cathleen-nixie",
       "image": null,
       "publishedAt": "2026-07-25T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Cathy telah menjadi bagian berharga dari keluarga JKT48 selama lebih dari 3 tahun. Setelah mengumumkan keputusan kelulusannya pada tanggal 19 April 2026, kami dengan ini…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -217,7 +217,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pengunduran-diri-gendis-mayrannisa-dari-jkt48",
       "image": null,
       "publishedAt": "2026-07-23T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih selalu atas dukungannya untuk JKT48. Gendis Mayrannisa dari JKT48 Team Dream telah mengajukan pengunduran dirinya dari JKT48. Setelah berdiskusi dengan pihak terkait, manajemen memutuskan untuk menerima…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -229,7 +229,7 @@
       "url": "https://jkt48.com/news/pengumuman-berakhirnya-operasional-proyek-jkt48-virtual",
       "image": null,
       "publishedAt": "2026-07-20T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48 dan JKT48 Virtual. PT Indonesia Musik Nusantara (IMN) selaku perusahaan yang menaungi JKT48 secara resmi telah memutuskan untuk mengakhiri kontrak lisensi dengan AKA Virtual…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -253,7 +253,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-request-hour-2026-setlist-best-40-dengan",
       "image": null,
       "publishedAt": "2026-07-13T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 16 Juli 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Request Hour 2026 Setlist Best 40 ” dengan bonus Video Call bersama JKT48.…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -265,7 +265,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juli-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-07-07T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Mutiara Azzahra, Cornelia Vanisa, Kathrina Irene, dan Fritzy Rosmerian di bulan Juli ini, Online Birthday 2-Shot akan kembali diadakan dengan…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -301,7 +301,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-jkt48-personal-meet-and-greet-2-shot-event-di-surabaya",
       "image": null,
       "publishedAt": "2026-06-13T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Kami ingin menginformasikan bahwa terdapat perubahan lokasi penyelenggaraan JKT48 Personal Meet and Greet & 2-Shot Event di kota Surabaya. Venue sebelumnya: Fairway Nine Mall Berubah menjadi: City of Tomorrow Mall…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -313,7 +313,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-detail-timetable-personal-meet-and-greet-2-shot-event-pada-jkt48-theater-surabay",
       "image": null,
       "publishedAt": "2026-06-13T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "T erima kasih atas dukungannya untuk JKT48. Seperti yang sudah diumumkan sebelumnya, JKT48 Fight! akan membawa semangat baru melalui JKT48 Theater Sementara 2026 yang akan hadir di Surabaya dan Yogyakarta pada…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -325,7 +325,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-jkt48-personal-meet-and-greet-festival-love-dr",
       "image": null,
       "publishedAt": "2026-06-06T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 9 Juni 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “ JKT48 Personal Meet and Greet Festival: LOVE DREAM PASSION ” dengan bonus Video Call…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -349,9 +349,9 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-juni-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-06-02T17:00:00.000Z",
-      "snippet": "",
-      "mentionsEli": false,
-      "matchedIn": null
+      "snippet": "…ntuk JKT48. Untuk merayakan ulang tahun Helisma Putri, Nayla Suji, Gendis Mayrannisa, dan Gita Sekar di bulan Juni ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail ja…",
+      "mentionsEli": true,
+      "matchedIn": "body"
     },
     {
       "id": 1837,
@@ -385,7 +385,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-barang-bawaan-terkait-prosedur-keamanan-jkt48-personal-meet-and-greet-festival-l",
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Menanggapi informasi terkait ancaman yang ditujukan kepada salah satu member kami, kami telah berkoordinasi dengan pihak berwajib untuk dapat segera menindaklanjuti informasi…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -397,7 +397,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-official-team-merchandise-vol-1",
       "image": null,
       "publishedAt": "2026-05-19T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. JKT48 FIGHT! akan hadir semakin meriah melalui koleksi merchandise resmi perdana dari Team Love, Team Dream, dan Team Passion yang dapat diperoleh secara eksklusif di event…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -433,7 +433,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-graduation-2-shot-online-chelsea-davina-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-05-15T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk memberikan kenangan yang berharga di saat-saat terakhir Chelsea Davina yang akan lulus dari JKT48, kami akan mengadakan Graduation 2-shot yang akan dilaksanakan secara…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -457,7 +457,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-mei-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-05-13T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Cathleen Nixie di bulan Mei ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha. Berikut detail jadwalnya:…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -469,7 +469,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-akun-media-sosial-member-jkt48",
       "image": null,
       "publishedAt": "2026-05-08T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Guna memberikan ruang digital yang lebih aman dan nyaman, aktivitas media sosial member JKT48 yang masih berusia di bawah 16 tahun akan diwadahi melalui satu akun bersama. Akun…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -481,7 +481,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-tiket-event-jkt48-request-hour-2026-setlist-best-40",
       "image": null,
       "publishedAt": "2026-05-07T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Voting untuk Request Hour 2026 masih terus berlangsung! Sudahkah kalian memilih lagu favorit kalian? Lagu pilihan kalian akan dibawakan dalam bentuk countdown spesial di dalam…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -517,7 +517,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-trial-video-call-bersama-member-jkt48-generasi-14",
       "image": null,
       "publishedAt": "2026-04-23T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Untuk memperkenalkan generasi baru JKT48, kami akan mengadakan Trial Video Call bersama member Generasi 14! Khusus bagi para anggota OFC, kalian akan mendapatkan benefit untuk melakukan Trial Video Call bersama para…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -529,7 +529,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-pre-order-jkt48-digital-photobook-love-dream-passion-music-video-behind-the-scen",
       "image": null,
       "publishedAt": "2026-04-08T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Pada tanggal 10 April 2026, JKT48 akan membuka Pre-Order untuk pembelian Digital Photobook “Love Dream Passion - Music Video Behind The Scenes” dengan bonus Video Call bersama…",
       "mentionsEli": false,
       "matchedIn": null
     },
@@ -541,7 +541,7 @@
       "url": "https://jkt48.com/news/pengumuman-mengenai-birthday-2-shot-online-bulan-april-dengan-chekicha",
       "image": null,
       "publishedAt": "2026-04-06T17:00:00.000Z",
-      "snippet": "",
+      "snippet": "Terima kasih atas dukungannya untuk JKT48. Untuk merayakan ulang tahun Celline Thefani dan Michelle Alexandra di bulan April ini, Online Birthday 2-Shot akan kembali diadakan dengan menggunakan aplikasi Chekicha.…",
       "mentionsEli": false,
       "matchedIn": null
     },
