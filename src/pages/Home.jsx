@@ -27,6 +27,7 @@ import VideotronPopup from '../components/home/VideotronPopup';
 import StatsStrip from '../components/home/StatsStrip';
 import CareerTimeline from '../components/home/CareerTimeline';
 import ChalkIllustrations from '../components/home/ChalkIllustrations';
+import QuickActions from '../components/home/QuickActions';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -759,6 +760,10 @@ const HomePage = () => {
           live (IDN/SHOWROOM) → imminent (≤24h) → upcoming (≤30d) → idle.
           Hooks polling tetep di sini biar gak duplikat dengan social pills. */}
       <EliStatusHero idnLive={idnLive} showroomLive={showroomLive} />
+
+      {/* TERKINI — 4 shortcut cards (Jadwal / Petikan / Town / Wishes).
+          Copy in SITE_CONFIG.home.quickActions. */}
+      <QuickActions />
 
       {/* KATA HARI INI — daily-rotating Eli/Armeniaca quote. Pool +
           rotation logic in src/lib/quoteOfTheDay.js, shared with the

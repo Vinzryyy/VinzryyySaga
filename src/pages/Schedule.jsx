@@ -12,12 +12,15 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import LiveCounter from '../components/schedule/LiveCounter';
 import SetlistGrid from '../components/schedule/SetlistGrid';
 import OnSaleStrip from '../components/schedule/OnSaleStrip';
 import ChekichaStrip from '../components/schedule/ChekichaStrip';
+import MonthCalendar from '../components/schedule/MonthCalendar';
+import { eventKindMatches } from '../utils/calendar';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 const TEAM_LABEL = {
@@ -102,16 +105,19 @@ const formatRefreshed = (iso) => {
   }).format(d);
 };
 
-const eventKindMatches = (entry, filter) => {
-  if (filter === 'all' || filter === 'past') return true;
-  const isExclusive = entry.kind === 'EXCLUSIVE';
-  const isPhotobookVC = isExclusive && entry.category === 'DIGITAL_PHOTOBOOK';
-  const isVC = entry.is_video_call === true || isPhotobookVC;
-  const isMG = isExclusive && !isPhotobookVC;
-  if (filter === 'vc') return isVC;
-  if (filter === 'mg') return isMG;
-  if (filter === 'show') return !isExclusive && !isVC;
-  return true;
+const VIEWS = [
+  { id: 'list', label: 'List', icon: 'ri-list-check' },
+  { id: 'calendar', label: 'Kalender', icon: 'ri-calendar-2-line' },
+];
+const VIEW_STORAGE_KEY = 'armeniaca_schedule_view';
+
+const readStoredView = () => {
+  try {
+    const v = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    return v === 'calendar' || v === 'list' ? v : null;
+  } catch {
+    return null;
+  }
 };
 
 const ScheduleEventCard = ({ entry, dimmed }) => {
@@ -284,6 +290,31 @@ const SchedulePage = () => {
   const [calendarError, setCalendarError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // View: ?view= in the URL wins (shareable link), then the viewer's
+  // last choice, then the list.
+  const urlView = searchParams.get('view');
+  const view =
+    urlView === 'calendar' || urlView === 'list' ? urlView : readStoredView() || 'list';
+
+  const setView = (next) => {
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, next);
+    } catch {
+      /* storage blocked — URL still carries the choice */
+    }
+    // "Riwayat" is a list-only filter; the calendar shows past days itself.
+    if (next === 'calendar' && filter === 'past') setFilter('all');
+    setSearchParams(
+      (prev) => {
+        const p = new URLSearchParams(prev);
+        p.set('view', next);
+        return p;
+      },
+      { replace: true },
+    );
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -335,6 +366,18 @@ const SchedulePage = () => {
       const db = new Date(b.date).getTime();
       return past ? db - da : da - db;
     });
+  }, [events, filter, query]);
+
+  // Calendar view: type chips + search apply, but past and upcoming stay
+  // together — the grid fades past days on its own.
+  const calendarEvents = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return events
+      .filter((e) => eventKindMatches(e, filter))
+      .filter((e) => {
+        if (!q) return true;
+        return `${e.title || ''} ${e.venue || ''}`.toLowerCase().includes(q);
+      });
   }, [events, filter, query]);
 
   // Group by month so the wall reads as a calendar (Mei 2026 / Juni 2026 / …).
@@ -477,13 +520,41 @@ const SchedulePage = () => {
             )}
           </label>
 
+          {/* View toggle — List / Kalender */}
+          <div
+            className="flex-shrink-0 inline-flex self-start md:self-auto p-1 rounded-full bg-white border border-[color:var(--retro-brown-dark)]/15"
+            role="radiogroup"
+            aria-label="Tampilan jadwal"
+          >
+            {VIEWS.map((v) => {
+              const active = v.id === view;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setView(v.id)}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.18em] transition-colors ${
+                    active
+                      ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
+                      : 'text-[color:var(--retro-text-secondary)] hover:text-[color:var(--retro-burgundy)]'
+                  }`}
+                >
+                  <i className={v.icon} />
+                  {v.label}
+                </button>
+              );
+            })}
+          </div>
+
           {/* Filter chips — same as before, now in a sticky toolbar */}
           <div
             className="flex-1 min-w-0 flex gap-2 overflow-x-auto pb-1 scrollbar-hide"
             role="tablist"
             aria-label="Filter jadwal"
           >
-            {FILTERS.map((opt) => {
+            {FILTERS.filter((opt) => view === 'list' || opt.id !== 'past').map((opt) => {
               const active = opt.id === filter;
               const count = counts[opt.id];
               return (
@@ -572,7 +643,16 @@ const SchedulePage = () => {
             </div>
           )}
 
-          {calendar && monthGroups.length === 0 && (
+          {calendar && view === 'calendar' && (
+            <MonthCalendar
+              events={calendarEvents}
+              renderEvent={(entry, { isPast }) => (
+                <ScheduleEventCard entry={entry} dimmed={isPast} />
+              )}
+            />
+          )}
+
+          {calendar && view === 'list' && monthGroups.length === 0 && (
             <div className="rounded-2xl border-2 border-dashed border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-burgundy)]/[0.02] p-10 md:p-14 text-center">
               <i className="ri-calendar-todo-line text-5xl text-[color:var(--retro-burgundy)]/30 mb-4 inline-block" />
               <p className="font-bold text-[color:var(--retro-text-primary)] text-base md:text-lg">
@@ -592,7 +672,7 @@ const SchedulePage = () => {
             </div>
           )}
 
-          {calendar && monthGroups.length > 0 && (
+          {calendar && view === 'list' && monthGroups.length > 0 && (
             <div className="space-y-12 md:space-y-16">
               {monthGroups.map((group, groupIdx) => (
                 <div key={group.key}>
