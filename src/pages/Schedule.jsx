@@ -21,6 +21,7 @@ import OnSaleStrip from '../components/schedule/OnSaleStrip';
 import ChekichaStrip from '../components/schedule/ChekichaStrip';
 import MonthCalendar from '../components/schedule/MonthCalendar';
 import { eventKindMatches } from '../utils/calendar';
+import { loadSchedule } from '../lib/scheduleSource';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 const TEAM_LABEL = {
@@ -318,8 +319,7 @@ const SchedulePage = () => {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/data/eli-schedule.json', { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+    loadSchedule()
       .then((data) => {
         if (!cancelled) setCalendar(data);
       })

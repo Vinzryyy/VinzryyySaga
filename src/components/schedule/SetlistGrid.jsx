@@ -14,6 +14,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { loadSchedule } from '../../lib/scheduleSource';
 
 const ACTIVE_WINDOW_DAYS = 60;
 
@@ -249,9 +250,7 @@ const SetlistGrid = () => {
       ),
       // Schedule JSON is optional — used only to bump counts for shows
       // aired since the manual baseline. Failure here is silent.
-      fetch('/data/eli-schedule.json', { cache: 'no-cache' })
-        .then((r) => (r.ok ? r.json() : null))
-        .catch(() => null),
+      loadSchedule().catch(() => null),
     ])
       .then(([log, sched]) => {
         if (cancelled) return;

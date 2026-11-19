@@ -1,5 +1,7 @@
 /**
- * useEliSchedule — shared loader for /data/eli-schedule.json.
+ * useEliSchedule — shared loader for Eli's schedule (scraped
+ * /data/eli-schedule.json merged with /data/eli-schedule.manual.json,
+ * see src/lib/scheduleSource.js).
  *
  * EliStatusHero (full status section) and Home hero (compact "berikutnya"
  * chip) both need the same data. Module-level promise cache dedupes the
@@ -10,26 +12,11 @@
  */
 
 import { useEffect, useState } from 'react';
-
-const SCHEDULE_URL = '/data/eli-schedule.json';
+import { loadSchedule } from '../lib/scheduleSource';
 
 export const IMMINENT_MS = 24 * 60 * 60 * 1000;
 export const UPCOMING_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 export const ONGOING_GRACE_MS = 2 * 60 * 60 * 1000;
-
-let cachedPromise = null;
-
-const loadSchedule = () => {
-  if (!cachedPromise) {
-    cachedPromise = fetch(SCHEDULE_URL, { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
-      .catch((err) => {
-        cachedPromise = null;
-        throw err;
-      });
-  }
-  return cachedPromise;
-};
 
 export const useEliSchedule = () => {
   const [schedule, setSchedule] = useState(null);

@@ -1,0 +1,5 @@
+{
+  "_readme": "Hand-written schedule entries, merged with the scraped eli-schedule.json. See docs/manual-schedule.md. Check with: npm run check-schedule",
+  "updatedAt": "2026-11-19",
+  "events": []
+}

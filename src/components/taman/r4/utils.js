@@ -26,6 +26,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ELI_TIMELINE } from '../../../data/eliProfile';
 import { SITE_CONFIG } from '../../../config/siteConfig';
+import { loadSchedule } from '../../../lib/scheduleSource';
 
 // Re-export centralized useIsMobile — kept here for backward compat
 // dengan files yang import dari `r4/utils`. Single source of truth di
@@ -130,9 +131,7 @@ export const useNearestSchedule = () => {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch('/data/eli-schedule.json', { cache: 'no-cache' });
-        if (!r.ok) return;
-        const data = await r.json();
+        const data = await loadSchedule();
         const events = data?.events || [];
         const now = Date.now();
         const cap = now + 30 * 24 * 60 * 60 * 1000;
