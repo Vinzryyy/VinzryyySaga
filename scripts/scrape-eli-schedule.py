@@ -35,6 +35,7 @@ Run locally:
 
 import json
 import re
+import sys
 import time
 from datetime import datetime
 from html import unescape
@@ -164,12 +165,17 @@ def fetch_month(sc, month: int, year: int):
         r = _get_with_retry(sc, url, label=f"month {year}-{month:02d}")
         r.raise_for_status()
     except Exception as e:
-        print(f"  [warn] month {year}-{month:02d} fetch failed after retries: {e}")
-        return []
-    body = r.json()
+        print(f"  [error] month {year}-{month:02d} fetch failed after retries: {e}")
+        return None
+    try:
+        body = r.json()
+    except ValueError:
+        print(f"  [error] month {year}-{month:02d} returned non-JSON (blocked?)")
+        return None
     if not body.get("status"):
-        print(f"  [warn] API returned status=false for {month}/{year}: {body.get('message')}")
-        return []
+        print(f"  [error] API returned status=false for {month}/{year}: {body.get('message')}")
+        return None
+    # None = fetch failed; [] = the month genuinely has no events.
     return body.get("data") or []
 
 
@@ -339,9 +345,15 @@ def main():
 
         sc = _Scraper(context)
         try:
-            _run(sc)
+            ok = _run(sc)
         finally:
             browser.close()
+    if not ok:
+        # Non-zero exit turns the GitHub Actions run red so a blocked
+        # scrape is visible instead of silently committing empty data.
+        print("::error::Schedule scrape failed — jkt48.com API calls were rejected. "
+              "eli-schedule.json was not updated.")
+        sys.exit(1)
 
 
 def _run(sc):
@@ -363,6 +375,10 @@ def _run(sc):
     # listing date — non-trivial to reconstruct, so we capture it
     # during the schedule walk where it's free.
     slug_by_code = {}
+    # Months whose listing couldn't be fetched (403 / timeout / bad body).
+    # Any failure means the result is incomplete, so we keep the previous
+    # eli-schedule.json instead of overwriting it with partial/empty data.
+    failed_months = []
 
     # Iterate from MONTHS_BEHIND in the past through MONTHS_AHEAD in the
     # future (inclusive). Negative offsets walk backward from today's
@@ -377,6 +393,9 @@ def _run(sc):
             m += 12
             y -= 1
         listing = fetch_month(sc, m, y)
+        if listing is None:
+            failed_months.append(f"{y}-{m:02d}")
+            continue
         candidates = [s for s in listing if s.get("type") in KEEP_TYPES]
         skipped = len(listing) - len(candidates)
         print(f"      {y}-{m:02d}: {len(listing)} entries, {len(candidates)} candidates ({skipped} skipped)")
@@ -442,11 +461,16 @@ def _run(sc):
         "events": eli_events,
     }
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    print(f"      wrote {OUTPUT_PATH}")
+    schedule_ok = not failed_months
+    if schedule_ok:
+        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        OUTPUT_PATH.write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        print(f"      wrote {OUTPUT_PATH}")
+    else:
+        print(f"  [error] {len(failed_months)} month(s) failed ({', '.join(failed_months)}) — "
+              f"keeping previous {OUTPUT_PATH.name} untouched")
 
     # === Member + Sales ===
     # Bonus pulls — once per scrape since these endpoints are cheap (1
@@ -456,6 +480,7 @@ def _run(sc):
     fetch_member(sc)
     fetch_active_sales(sc, slug_by_code)
     fetch_eli_news(sc)
+    return schedule_ok
 
 
 def fetch_member(sc):
