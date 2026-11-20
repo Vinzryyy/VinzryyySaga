@@ -12,6 +12,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { isStale } from '../../utils/freshness';
 
 const CATEGORY_TONE = {
   Event: 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]',
@@ -199,6 +200,11 @@ const ViewAllCard = () => (
   </a>
 );
 
+// Hide the strip when the scrape hasn't succeeded for this long — the
+// news scraper only bumps fetchedAt on success, so an old timestamp means
+// jkt48.com has been blocking it and the "latest" items are months old.
+const STALE_AFTER_DAYS = 30;
+
 const NewsStrip = () => {
   const [items, setItems] = useState([]);
   const [eliCount, setEliCount] = useState(0);
@@ -210,7 +216,7 @@ const NewsStrip = () => {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (cancelled) return;
-        if (d?.items) {
+        if (d?.items && !isStale(d.fetchedAt, STALE_AFTER_DAYS)) {
           // Pin Eli-mentioning articles to the front so they're visible
           // without scrolling. Within each bucket, preserve API order
           // (most-recent-first from jkt48.com).
