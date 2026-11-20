@@ -355,11 +355,14 @@ export const SITE_CONFIG = {
     //
     // Update protocol: bump `theater` + `asOfDate` saat TSV diperbarui.
     careerStats: {
-      asOfDate: '2026-07-17',
+      // Source: #JumlahShowJKT48 Week-46 recap (2026-11-15). The TSV
+      // per-show log still ends at #399 (2026-07-17); shows #400-#417
+      // need date/setlist rows before they appear in setlist counts.
+      asOfDate: '2026-11-15',
       // Lifetime theater shows (SHOW + in-theater EVENT). Includes
       // regular stages, Sousenkyo concerts, anniversary nights,
       // dedicated theater sessions. Excludes Video Calls, M&G, off-site.
-      theater: 399,
+      theater: 417,
     },
   },
 
