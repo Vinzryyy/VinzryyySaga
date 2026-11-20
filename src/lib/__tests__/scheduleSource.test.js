@@ -95,3 +95,29 @@ describe('loadSchedule', () => {
     expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 });
+
+describe('admin entries (RTDB /eli_schedule)', () => {
+  it('converts the REST payload and drops cancelled entries', async () => {
+    const { adminPayloadToManual } = await import('../scheduleSource');
+    expect(adminPayloadToManual(null)).toEqual({ events: [] });
+    expect(
+      adminPayloadToManual({
+        a: { title: 'Dream Bakudan', date: '2026-11-28', kind: 'SHOW' },
+        b: { title: 'x', date: '2026-11-29', kind: 'SHOW', status: 'cancelled' },
+      }).events.map((e) => e.id),
+    ).toEqual(['a']);
+  });
+
+  it('ranks scraped > admin > JSON file on duplicates', () => {
+    const scraped = { events: [{ kind: 'SHOW', title: 'scraped', date: '2026-11-28T19:00:00+07:00', start_time: '19:00' }] };
+    const admin = {
+      a1: { kind: 'SHOW', title: 'admin dup', date: '2026-11-28', start_time: '19:00', updatedAt: Date.UTC(2026, 10, 20) },
+      a2: { kind: 'SHOW', title: 'admin', date: '2026-11-29', start_time: '19:00', unit_song: 'Sahabat Atau Cinta' },
+    };
+    const manual = { events: [{ title: 'file dup', date: '2026-11-29', start_time: '19:00' }, { title: 'file', date: '2026-11-30' }] };
+    const merged = mergeSchedules(scraped, manual, admin);
+    expect(merged.events.map((e) => e.title)).toEqual(['scraped', 'admin', 'file']);
+    expect(merged.events[1]).toMatchObject({ source: 'admin', id: 'a2', unit_song: 'Sahabat Atau Cinta' });
+    expect(merged.fetchedAt).toBe('2026-11-20T00:00:00.000Z');
+  });
+});

@@ -2,13 +2,19 @@
  * scheduleSource — one loader for Eli's schedule, merging two files:
  *
  *   /data/eli-schedule.json         scraped from jkt48.com by GH Actions
+ *   RTDB /eli_schedule              entries saved from /admin/jadwal (docs/admin-jadwal.md)
  *   /data/eli-schedule.manual.json  hand-written entries (see docs/manual-schedule.md)
  *
  * Manual entries are normalized to the scraped event shape so every
  * consumer (status hero, /schedule list + calendar, setlist counts,
  * Town almanak) treats them the same. When the scraper later finds the
  * same event (same WIB day + start time + type), the scraped copy wins
- * because it carries cast lists, quotas and the exact jkt48.com URL.
+ * because it carries cast lists, quotas and the exact jkt48.com URL;
+ * after that, admin-page entries win over the JSON file.
+ *
+ * The admin entries are read through the RTDB REST endpoint (a plain
+ * fetch of /eli_schedule.json) so public pages don't pull in the
+ * Firebase SDK just to show the schedule.
  *
  * No browser-only APIs here — scripts/check-manual-schedule.js imports
  * this module in Node to validate the manual file.
@@ -18,6 +24,10 @@ import { dayKeyWIB, eventType } from '../utils/calendar.js';
 
 export const SCHEDULE_URL = '/data/eli-schedule.json';
 export const MANUAL_SCHEDULE_URL = '/data/eli-schedule.manual.json';
+export const ADMIN_SCHEDULE_PATH = 'eli_schedule';
+
+// import.meta.env is undefined when this module runs in Node (scripts/).
+const databaseUrl = () => import.meta.env?.VITE_FIREBASE_DATABASE_URL?.replace(/\/+$/, '') || null;
 
 const KINDS = new Set(['SHOW', 'EXCLUSIVE', 'EVENT', 'GENERAL']);
 const DATE_ONLY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -37,7 +47,7 @@ const defaultVenue = (kind, isVideoCall) => {
  * Minimal entry: { "title": "Aitakatta", "date": "2026-11-21", "start_time": "19:00" }
  * `date` may also be a full ISO timestamp with offset.
  */
-export const normalizeManualEvent = (raw) => {
+export const normalizeManualEvent = (raw, source = 'manual') => {
   if (!raw || typeof raw !== 'object') return { error: 'entry is not an object' };
   const title = typeof raw.title === 'string' ? raw.title.trim() : '';
   if (!title) return { error: 'missing "title"' };
@@ -78,24 +88,39 @@ export const normalizeManualEvent = (raw) => {
       is_birthday_show: raw.is_birthday_show === true,
       is_video_call: isVideoCall,
       url: raw.url || 'https://jkt48.com/schedule',
+      unit_song: raw.unit_song || undefined,
+      position: raw.position || undefined,
+      partner: raw.partner || undefined,
       note: raw.note || undefined,
-      source: 'manual',
+      source,
+      id: raw.id || undefined,
+      updatedAt: Number.isFinite(raw.updatedAt) ? new Date(raw.updatedAt).toISOString() : undefined,
     },
   };
 };
 
 /** Normalize the whole manual file. Returns { events, errors[] }. */
-export const normalizeManualFile = (data) => {
+export const normalizeManualFile = (data, source = 'manual') => {
   const list = Array.isArray(data?.events) ? data.events : [];
   const events = [];
   const errors = [];
   list.forEach((raw, i) => {
-    const { event, error } = normalizeManualEvent(raw);
+    const { event, error } = normalizeManualEvent(raw, source);
     if (event) events.push(event);
     else errors.push({ index: i, title: raw?.title, error });
   });
   return { events, errors };
 };
+
+/**
+ * RTDB REST payload ({ [pushId]: entry } or null) → { events } in the
+ * manual-file shape. Cancelled entries are dropped.
+ */
+export const adminPayloadToManual = (payload) => ({
+  events: Object.entries(payload && typeof payload === 'object' ? payload : {})
+    .filter(([, v]) => v && v.status !== 'cancelled')
+    .map(([id, v]) => ({ ...v, id })),
+});
 
 const dedupeKey = (e) => `${dayKeyWIB(e.date)}|${e.start_time || ''}|${eventType(e)}`;
 
@@ -108,11 +133,19 @@ const latestIso = (...values) =>
  * Merge scraped + manual payloads into the shape consumers already use:
  * { events, fetchedAt, ... }. Either side may be null.
  */
-export const mergeSchedules = (scraped, manual) => {
+export const mergeSchedules = (scraped, manual, admin = null) => {
   const scrapedEvents = Array.isArray(scraped?.events) ? scraped.events : [];
+  const { events: adminEvents } = normalizeManualFile(adminPayloadToManual(admin), 'admin');
   const { events: manualEvents } = normalizeManualFile(manual);
   const taken = new Set(scrapedEvents.map(dedupeKey));
-  const extra = manualEvents.filter((e) => !taken.has(dedupeKey(e)));
+  // Priority: scraped > admin page > JSON file.
+  const extra = [];
+  [...adminEvents, ...manualEvents].forEach((e) => {
+    const key = dedupeKey(e);
+    if (taken.has(key)) return;
+    taken.add(key);
+    extra.push(e);
+  });
   const events = [...scrapedEvents, ...extra].sort(
     (a, b) => new Date(a.date) - new Date(b.date),
   );
@@ -121,7 +154,11 @@ export const mergeSchedules = (scraped, manual) => {
     events,
     eventCount: events.length,
     manualCount: extra.length,
-    fetchedAt: latestIso(scraped?.fetchedAt, manual?.updatedAt),
+    fetchedAt: latestIso(
+      scraped?.fetchedAt,
+      manual?.updatedAt,
+      ...adminEvents.map((e) => e.updatedAt).filter(Boolean),
+    ),
   };
 };
 
@@ -138,15 +175,17 @@ let cachedPromise = null;
  */
 export const loadSchedule = () => {
   if (!cachedPromise) {
-    cachedPromise = Promise.allSettled([fetchJson(SCHEDULE_URL), fetchJson(MANUAL_SCHEDULE_URL)])
-      .then(([scraped, manual]) => {
-        if (scraped.status === 'rejected' && manual.status === 'rejected') {
+    const dbUrl = databaseUrl();
+    const adminFetch = dbUrl
+      ? fetchJson(`${dbUrl}/${ADMIN_SCHEDULE_PATH}.json`)
+      : Promise.reject(new Error('Firebase not configured'));
+    cachedPromise = Promise.allSettled([fetchJson(SCHEDULE_URL), fetchJson(MANUAL_SCHEDULE_URL), adminFetch])
+      .then(([scraped, manual, admin]) => {
+        if (scraped.status === 'rejected' && manual.status === 'rejected' && admin.status === 'rejected') {
           throw scraped.reason;
         }
-        return mergeSchedules(
-          scraped.status === 'fulfilled' ? scraped.value : null,
-          manual.status === 'fulfilled' ? manual.value : null,
-        );
+        const value = (r) => (r.status === 'fulfilled' ? r.value : null);
+        return mergeSchedules(value(scraped), value(manual), value(admin));
       })
       .catch((err) => {
         cachedPromise = null;

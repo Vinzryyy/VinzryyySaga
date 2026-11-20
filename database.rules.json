@@ -3,18 +3,15 @@
   "//1": "Cara apply: Firebase Console → Realtime Database → Rules tab → paste isi file ini → Publish.",
   "//2": "Atau via CLI: `firebase deploy --only database` (butuh firebase-tools + login).",
   "//3": "Default-deny di root — semua path yang gak di-declare di-tolak write & read.",
-
   "rules": {
     ".read": false,
     ".write": false,
-
     "tree_support": {
       ".read": true,
       "total": {
         ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
       }
     },
-
     "wishes": {
       ".read": true,
       "$wishId": {
@@ -40,19 +37,16 @@
         }
       }
     },
-
     "wish_hearts": {
       ".read": true,
       "$wishId": {
         ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
       }
     },
-
     "byu_support_count": {
       ".read": true,
       ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
     },
-
     "presence": {
       ".read": true,
       "$sessionId": {
@@ -60,6 +54,68 @@
         ".validate": "!newData.exists() || (newData.hasChild('joinedAt') && newData.child('joinedAt').val() === now)",
         "joinedAt": {
           ".validate": "newData.val() === now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "admins": {
+      "//": "Admin allowlist for /admin/jadwal. Add admins/{uid}: true by hand in the Firebase Console. Nobody can write here from the client.",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "eli_schedule": {
+      "//": "Eli schedule entries from /admin/jadwal. Public read (site reads via REST), admin-only write.",
+      ".read": true,
+      "$id": {
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+        ".validate": "newData.hasChildren(['kind', 'title', 'date', 'updatedAt'])",
+        "kind": {
+          ".validate": "newData.isString() && newData.val().matches(/^(SHOW|EXCLUSIVE|EVENT|GENERAL)$/)"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "date": {
+          ".validate": "newData.isString() && newData.val().matches(/^20[0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)"
+        },
+        "start_time": {
+          ".validate": "newData.isString() && newData.val().matches(/^([01][0-9]|2[0-3]):[0-5][0-9]$/)"
+        },
+        "end_time": {
+          ".validate": "newData.isString() && newData.val().matches(/^([01][0-9]|2[0-3]):[0-5][0-9]$/)"
+        },
+        "category": {
+          ".validate": "newData.isString() && newData.val().matches(/^(TWO_SHOT|MEET_GREET|PHOTOCARD|DIGITAL_PHOTOBOOK)$/)"
+        },
+        "venue": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "url": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 300 && newData.val().beginsWith('https://')"
+        },
+        "is_video_call": {
+          ".validate": "newData.isBoolean()"
+        },
+        "is_birthday_show": {
+          ".validate": "newData.isBoolean()"
+        },
+        "unit_song": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+        },
+        "position": {
+          ".validate": "newData.isString() && newData.val().matches(/^(Center|Solo|Duo)$/)"
+        },
+        "partner": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "note": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+        "updatedAt": {
+          ".validate": "newData.isNumber()"
         },
         "$other": {
           ".validate": false

@@ -42,6 +42,7 @@ import useIsBirthdayToday from './hooks/useIsBirthdayToday';
 import { SITE_CONFIG } from './config/siteConfig';
 
 const HomePage = lazy(() => import('./pages/Home'));
+const AdminJadwalPage = lazy(() => import('./pages/AdminJadwal'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
@@ -454,6 +455,7 @@ function AppShell() {
             <Route path="/happy-helisma-day-26" element={<HappyHelismaDay26Page />} />
             <Route path="/countdown" element={<Navigate to="/happy-helisma-day-26" replace />} />
             <Route path="/schedule" element={<SchedulePage />} />
+            <Route path="/admin/jadwal" element={<AdminJadwalPage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
             <Route path="/byu-music" element={<ByuMusicPage />} />

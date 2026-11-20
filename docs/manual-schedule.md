@@ -1,5 +1,7 @@
 # Manual schedule entries
 
+> **Easier:** use the admin page at `/admin/jadwal` (see [admin-jadwal.md](admin-jadwal.md)). It saves straight to the site with no commit. This JSON file still works as a backup.
+
 jkt48.com currently blocks the automated scraper (Cloudflare 403), so
 `public/data/eli-schedule.json` stops updating. Add Eli's appearances by
 hand in **`public/data/eli-schedule.manual.json`** instead. The site merges
