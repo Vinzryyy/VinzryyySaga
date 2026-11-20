@@ -5,40 +5,61 @@ saved to Firebase Realtime Database at `/eli_schedule` and appear on the site
 immediately (Home status hero, Jadwal card, `/schedule` list and calendar). No
 commit or redeploy needed.
 
-Only Google accounts listed under `/admins` in the database can save. The
-database rules enforce this; the page just hides the form from everyone else.
+## How the password works
 
-## One-time setup (Firebase Console)
+- One password per weekday (Monday–Saturday), based on the date in WIB
+  (Asia/Jakarta). On **Sunday any of the six** works. The day switches at
+  00:00 WIB; if you're still on the page, it locks and asks for the new one.
+- The password is checked by the serverless function `api/admin-schedule.js`,
+  never in the browser. That function is the only thing allowed to write
+  `/eli_schedule` (the database rules deny every client write).
+- Only **scrypt hashes** are stored, in the Vercel env var
+  `ADMIN_PASSWORD_HASHES`. The plain passwords are not in the repo or on Vercel.
+- 5 wrong tries from one IP lock it out for 15 minutes (best effort, per
+  server instance).
 
-1. **Turn on Google sign-in**
-   Firebase Console → Authentication → Get started → Sign-in method →
-   **Google** → Enable → Save.
-2. **Allow your domains**
-   Authentication → Settings → Authorized domains. Make sure
-   `armeniaca.online` and `localhost` are listed. Add your Vercel domain too
-   if you sign in on preview deployments.
+## One-time setup
+
+1. **Service account key (lets the server write)**
+   Firebase Console → ⚙ Project settings → Service accounts →
+   **Generate new private key** → download the JSON file.
+   Keep it private; don't commit it.
+2. **Vercel env vars**
+   Vercel → Project → Settings → Environment Variables (Production):
+   - `FIREBASE_SERVICE_ACCOUNT`: the whole contents of that JSON file.
+   - `ADMIN_PASSWORD_HASHES`: the value from your local `.env.local`
+     (the line starting `ADMIN_PASSWORD_HASHES=`, without that prefix).
+   - `VITE_FIREBASE_DATABASE_URL` is already set for Wishes and is reused.
+     (`FIREBASE_DATABASE_URL` overrides it if you ever need to.)
+   Then redeploy so the function picks them up.
 3. **Publish the database rules**
-   Realtime Database → Rules → paste the whole `database.rules.json` from the
-   repo → Publish. (Or `firebase deploy --only database`.)
-4. **Make yourself admin**
-   - Open `https://armeniaca.online/admin/jadwal` and sign in with Google.
-   - The page shows your UID ("Akun ini belum jadi admin").
-   - Realtime Database → Data → add a child `admins`, and under it a key with
-     your UID and the value `true` (boolean, not the text "true").
-   - Reload the page. The form appears.
+   Firebase Console → Realtime Database → Rules → paste the whole
+   `database.rules.json` from the repo → Publish.
 
-To add another admin later, repeat step 4 with their UID.
+## Changing the passwords
+
+Create a file with the new passwords, hash them, then delete the file:
+
+```bash
+echo '{"mon":"…","tue":"…","wed":"…","thu":"…","fri":"…","sat":"…"}' > /tmp/pw.json
+npm run -s hash-admin-passwords < /tmp/pw.json
+rm /tmp/pw.json
+```
+
+Paste the printed JSON into `ADMIN_PASSWORD_HASHES` on Vercel and redeploy.
 
 ## Adding a schedule
 
-1. Pick the type: Show Teater, 2Shot / M&G, Video Call, Event / Off-site.
-2. Set the date (WIB) and start time. Shows default to 19:00.
-3. For shows, type or tap the setlist (recent ones appear as quick buttons).
+1. Open `/admin/jadwal`, enter today's password, **Buka**.
+2. Pick the type: Show Teater, 2Shot / M&G, Video Call, Event / Off-site.
+3. Set the date (WIB) and start time. Shows default to 19:00.
+4. For shows, type or tap the setlist (recent ones appear as quick buttons).
    Unit song, position and partner are optional but feed the Rekap and show
    log.
-4. **Tambah.** It's on the site right away.
+5. **Tambah.** It's on the site right away.
 
 Edit with the pencil button, delete with the bin (asks once more inline).
+**Kunci** locks the page again.
 
 ## What happens after a show airs
 

@@ -18,6 +18,7 @@
     "generate-og": "node scripts/generate-og.js",
     "scrape-schedule": "python scripts/scrape-eli-schedule.py",
     "check-schedule": "node scripts/check-manual-schedule.js",
+    "hash-admin-passwords": "node scripts/hash-admin-passwords.js",
     "generate-petikan-pool": "node scripts/generate-petikan-pool.js"
   },
   "dependencies": {

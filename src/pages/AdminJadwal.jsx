@@ -1,18 +1,23 @@
 /**
  * /admin/jadwal — private page for adding Eli's schedule.
  *
- * Google sign-in; only accounts with RTDB /admins/{uid} === true can save
- * (enforced by database.rules.json, not just this UI). Entries go to
- * RTDB /eli_schedule and appear on the public site immediately via
- * scheduleSource.js. Setup steps: docs/admin-jadwal.md.
+ * Unlocked with the daily password (different each weekday, WIB; any of
+ * them on Sunday). The password is checked by /api/admin-schedule, which
+ * is the only thing allowed to write RTDB /eli_schedule — this page just
+ * keeps the password in memory and forwards it. Entries appear on the
+ * public site immediately via scheduleSource.js. Setup: docs/admin-jadwal.md.
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { isFirebaseConfigured } from '../lib/firebase';
-import { signInWithGoogle, signOutAdmin, subscribeToAuth } from '../lib/firebaseAuth';
-import { deleteEntry, isAdmin, saveEntry, subscribeToSchedule } from '../lib/scheduleAdminDb';
-import { normalizeManualEvent } from '../lib/scheduleSource';
+import {
+  checkPassword,
+  deleteEntry,
+  fetchEntries,
+  isDatabaseConfigured,
+  saveEntry,
+} from '../lib/scheduleAdminDb';
+import { validateEntry } from '../lib/scheduleEntry';
 import { dayKeyWIB } from '../utils/calendar';
 import { SITE_CONFIG } from '../config/siteConfig';
 
@@ -76,6 +81,7 @@ const fmtDate = (key) => {
   const [y, m, d] = key.split('-').map(Number);
   return dateFmt.format(new Date(Date.UTC(y, m - 1, d)));
 };
+const HARI_WIB = new Intl.DateTimeFormat('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
 /** TSV rows (scripts/eli-show-log.tsv format) for aired shows after the log ends. */
@@ -132,8 +138,9 @@ const Notice = ({ icon, title, children }) => (
 );
 
 const AdminJadwalPage = () => {
-  const [user, setUser] = useState(undefined); // undefined = loading
-  const [admin, setAdmin] = useState(null);
+  const [password, setPassword] = useState(null); // set once unlocked
+  const [pwInput, setPwInput] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
   const [entries, setEntries] = useState([]);
   const [showLog, setShowLog] = useState(null);
   const [form, setForm] = useState(() => emptyForm());
@@ -143,16 +150,39 @@ const AdminJadwalPage = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => subscribeToAuth((u) => {
-    setUser(u);
-    setAdmin(null);
-    if (u) isAdmin(u.uid).then(setAdmin);
-  }), []);
+  const refresh = () =>
+    fetchEntries()
+      .then(setEntries)
+      .catch((err) => setStatus({ tone: 'error', text: `Gagal memuat: ${err.message}` }));
 
   useEffect(() => {
-    if (!admin) return undefined;
-    return subscribeToSchedule(setEntries, (err) => setStatus({ tone: 'error', text: `Gagal memuat: ${err.message}` }));
-  }, [admin]);
+    if (password) refresh();
+  }, [password]);
+
+  // A 401 mid-session means the WIB day rolled over — lock again.
+  const handleApiError = (err, prefix) => {
+    if (err.status === 401) {
+      setPassword(null);
+      setStatus({ tone: 'error', text: 'Hari sudah berganti — masukkan password hari ini.' });
+      return;
+    }
+    setStatus({ tone: 'error', text: `${prefix}: ${err.message}` });
+  };
+
+  const unlock = async (e) => {
+    e.preventDefault();
+    setUnlocking(true);
+    setStatus(null);
+    try {
+      await checkPassword(pwInput);
+      setPassword(pwInput);
+      setPwInput('');
+    } catch (err) {
+      setStatus({ tone: 'error', text: err.message });
+    } finally {
+      setUnlocking(false);
+    }
+  };
 
   useEffect(() => {
     fetch('/data/eli-show-log.json', { cache: 'no-cache' })
@@ -186,20 +216,20 @@ const AdminJadwalPage = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const entry = formToEntry(form);
-    const { error } = normalizeManualEvent(entry);
+    const { entry, error } = validateEntry(formToEntry(form));
     if (error) {
       setStatus({ tone: 'error', text: `Belum valid: ${error}` });
       return;
     }
     setSaving(true);
     try {
-      await saveEntry(entry, editingId);
+      await saveEntry(password, entry, editingId || undefined);
+      await refresh();
       setStatus({ tone: 'ok', text: editingId ? 'Perubahan disimpan.' : 'Jadwal ditambahkan — langsung tampil di situs.' });
       setEditingId(null);
       setForm((f) => ({ ...emptyForm(f.type), date: f.date }));
     } catch (err) {
-      setStatus({ tone: 'error', text: `Gagal menyimpan: ${err.message}` });
+      handleApiError(err, 'Gagal menyimpan');
     } finally {
       setSaving(false);
     }
@@ -207,14 +237,15 @@ const AdminJadwalPage = () => {
 
   const onDelete = async (id) => {
     try {
-      await deleteEntry(id);
+      await deleteEntry(password, id);
+      await refresh();
       setStatus({ tone: 'ok', text: 'Jadwal dihapus.' });
       if (editingId === id) {
         setEditingId(null);
         setForm(emptyForm());
       }
     } catch (err) {
-      setStatus({ tone: 'error', text: `Gagal menghapus: ${err.message}` });
+      handleApiError(err, 'Gagal menghapus');
     } finally {
       setConfirmDelete(null);
     }
@@ -230,46 +261,31 @@ const AdminJadwalPage = () => {
     }
   };
 
-  if (!isFirebaseConfigured) {
+  if (!isDatabaseConfigured()) {
     return (
       <Shell>
-        <Notice icon="ri-plug-line" title="Firebase belum dikonfigurasi">
-          <p>Set <code>VITE_FIREBASE_*</code> env vars (lihat <code>.env.example</code>) lalu jalankan ulang.</p>
+        <Notice icon="ri-plug-line" title="Database belum dikonfigurasi">
+          <p>Set <code>VITE_FIREBASE_DATABASE_URL</code> (lihat <code>.env.example</code>) lalu jalankan ulang.</p>
         </Notice>
       </Shell>
     );
   }
 
-  if (user === undefined || (user && admin === null)) {
+  if (!password) {
     return (
       <Shell>
-        <p className="text-sm text-[color:var(--retro-text-muted)]">Memeriksa akun…</p>
-      </Shell>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Shell>
-        <Notice icon="ri-shield-user-line" title="Khusus admin">
-          <p>Masuk dengan akun Google yang terdaftar sebagai admin.</p>
-          <button type="button" className={btnPrimary} onClick={() => signInWithGoogle().catch((err) => setStatus({ tone: 'error', text: err.message }))}>
-            <i className="ri-google-fill" /> Masuk dengan Google
-          </button>
-          {status && <p className="text-red-700">{status.text}</p>}
-        </Notice>
-      </Shell>
-    );
-  }
-
-  if (!admin) {
-    return (
-      <Shell>
-        <Notice icon="ri-error-warning-line" title="Akun ini belum jadi admin">
-          <p>Masuk sebagai <strong>{user.email}</strong>. Untuk jadi admin, tambahkan UID ini di Firebase Console → Realtime Database → Data:</p>
-          <pre className="rounded-lg bg-[color:var(--retro-bg-primary)] p-3 text-xs overflow-x-auto select-all">admins / {user.uid} = true</pre>
-          <p>Lalu muat ulang halaman ini. Panduan lengkap: <code>docs/admin-jadwal.md</code>.</p>
-          <button type="button" className={btnGhost} onClick={signOutAdmin}>Keluar</button>
+        <Notice icon="ri-lock-password-line" title="Khusus admin">
+          <form onSubmit={unlock} className="space-y-3 max-w-sm">
+            <label className="block">
+              <span className={labelCls}>Password hari {HARI_WIB.format(new Date())}</span>
+              <input type="password" autoComplete="current-password" required value={pwInput}
+                onChange={(e) => setPwInput(e.target.value)} className={inputCls} />
+            </label>
+            <button type="submit" disabled={unlocking || !pwInput} className={btnPrimary}>
+              <i className="ri-lock-unlock-line" /> {unlocking ? 'Memeriksa…' : 'Buka'}
+            </button>
+            {status && <p className="text-red-700 text-sm">{status.text}</p>}
+          </form>
         </Notice>
       </Shell>
     );
@@ -310,10 +326,10 @@ const AdminJadwalPage = () => {
   return (
     <Shell>
       <div className="flex items-center justify-between gap-3 mb-6 text-xs text-[color:var(--retro-text-muted)]">
-        <span>Masuk sebagai {user.email}</span>
+        <span>Password hari {HARI_WIB.format(new Date())} · terbuka</span>
         <span className="inline-flex gap-2">
           <Link to="/schedule?view=calendar" className={btnGhost}><i className="ri-external-link-line" /> Lihat situs</Link>
-          <button type="button" className={btnGhost} onClick={signOutAdmin}>Keluar</button>
+          <button type="button" className={btnGhost} onClick={() => { setPassword(null); setEntries([]); setStatus(null); }}>Kunci</button>
         </span>
       </div>
 
