@@ -398,11 +398,6 @@ const HomePage = () => {
     [eli, showroomLive.isLive, idnLive.isLive, idnLive.liveStream]
   );
 
-  const featuredEight = useMemo(
-    () => (featuredImages || []).slice(0, 8),
-    [featuredImages]
-  );
-
   // Year-filter state for the marquee. null = "Semua" (random shuffle of
   // the full archive); a year value filters the marquee to that year only.
   // Filter chips render above the marquee; "Semua" preserves the original
@@ -443,18 +438,6 @@ const HomePage = () => {
     if (filtered.length === 0) return [];
     return shuffleArray(filtered).slice(0, Math.min(filtered.length, 14));
   }, [marqueeCandidates, marqueeYear]);
-
-  const featuredMeta = useMemo(() => {
-    if (featuredEight.length === 0) return null;
-    const years = featuredEight.map(imageYear).filter((y) => y != null);
-    if (years.length === 0) return null;
-    const minY = Math.min(...years);
-    const maxY = Math.max(...years);
-    return {
-      count: featuredEight.length,
-      span: minY === maxY ? `${minY}` : `${minY}–${maxY}`,
-    };
-  }, [featuredEight]);
 
   const { elementRef: heroRef, isVisible: heroVisible } = useScrollReveal({
     threshold: 0.1,
