@@ -101,8 +101,18 @@ const LiveCounter = ({ events, careerStats }) => {
     };
   }, []);
 
-  const baselineTheater = showLog?.totalShows ?? careerStats?.theater ?? 0;
-  const baselineAsOfDate = showLog?.asOfDate ?? careerStats?.asOfDate ?? null;
+  // Two baselines: the per-show TSV log (eli-show-log.json) and the
+  // weekly total in siteConfig.careerStats. Use whichever is newer — the
+  // weekly #JumlahShowJKT48 total often runs ahead of the per-show log.
+  const logIsNewer =
+    showLog?.asOfDate &&
+    (!careerStats?.asOfDate || showLog.asOfDate >= careerStats.asOfDate);
+  const baselineTheater = logIsNewer
+    ? showLog.totalShows
+    : careerStats?.theater ?? showLog?.totalShows ?? 0;
+  const baselineAsOfDate = logIsNewer
+    ? showLog.asOfDate
+    : careerStats?.asOfDate ?? showLog?.asOfDate ?? null;
   const asOfMs = baselineAsOfDate ? new Date(baselineAsOfDate).getTime() : null;
 
   const stats = useMemo(() => {
