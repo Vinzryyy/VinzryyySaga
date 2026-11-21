@@ -1,7 +1,7 @@
 {
   "source": "Manual show log",
-  "totalShows": 399,
-  "asOfDate": "2026-07-17",
+  "totalShows": 417,
+  "asOfDate": "2026-11-12",
   "totals": {
     "centers": 49,
     "solos": 9,
@@ -27,10 +27,10 @@
     },
     {
       "setlist": "Ramune no Nomikata",
-      "count": 77,
+      "count": 81,
       "centerCount": 13,
       "firstDate": "2020-11-15",
-      "lastDate": "2026-02-16",
+      "lastDate": "2026-10-04",
       "units": [
         {
           "name": "Usotsuki na Dachou",
@@ -141,10 +141,10 @@
     },
     {
       "setlist": "Dream Bakudan",
-      "count": 13,
+      "count": 16,
       "centerCount": 0,
       "firstDate": "2026-04-18",
-      "lastDate": "2026-07-17",
+      "lastDate": "2026-10-17",
       "units": [
         {
           "name": "Kinjirareta Futari",
@@ -154,10 +154,10 @@
     },
     {
       "setlist": "Pertaruhan Cinta",
-      "count": 9,
+      "count": 11,
       "centerCount": 0,
       "firstDate": "2025-10-12",
-      "lastDate": "2026-06-21",
+      "lastDate": "2026-09-26",
       "units": [
         {
           "name": "Sahabat Atau Cinta",
@@ -166,19 +166,19 @@
       ]
     },
     {
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "count": 11,
+      "centerCount": 0,
+      "firstDate": "2026-06-24",
+      "lastDate": "2026-11-12",
+      "units": []
+    },
+    {
       "setlist": "Theater no Megami",
       "count": 7,
       "centerCount": 0,
       "firstDate": "2018-12-16",
       "lastDate": "2019-01-27",
-      "units": []
-    },
-    {
-      "setlist": "Sambil Menggandeng Erat Tanganku",
-      "count": 2,
-      "centerCount": 0,
-      "firstDate": "2026-06-24",
-      "lastDate": "2026-07-11",
       "units": []
     },
     {
@@ -4579,6 +4579,204 @@
       "day": "Jumat",
       "date": "2026-07-17",
       "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 400,
+      "day": "Jumat",
+      "date": "2026-07-24",
+      "setlist": "Ramune no Nomikata",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 401,
+      "day": "Jumat",
+      "date": "2026-07-31",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 402,
+      "day": "Jumat",
+      "date": "2026-08-14",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 403,
+      "day": "Jumat",
+      "date": "2026-08-21",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 404,
+      "day": "Sabtu",
+      "date": "2026-08-29",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 405,
+      "day": "Minggu",
+      "date": "2026-08-30",
+      "setlist": "Pertaruhan Cinta",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 406,
+      "day": "Jumat",
+      "date": "2026-09-04",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 407,
+      "day": "Sabtu",
+      "date": "2026-09-05",
+      "setlist": "Ramune no Nomikata",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 408,
+      "day": "Minggu",
+      "date": "2026-09-13",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 409,
+      "day": "Kamis",
+      "date": "2026-09-17",
+      "setlist": "Ramune no Nomikata",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 410,
+      "day": "Kamis",
+      "date": "2026-09-24",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 411,
+      "day": "Sabtu",
+      "date": "2026-09-26",
+      "setlist": "Pertaruhan Cinta",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 412,
+      "day": "Minggu",
+      "date": "2026-10-04",
+      "setlist": "Ramune no Nomikata",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 413,
+      "day": "Sabtu",
+      "date": "2026-10-10",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 414,
+      "day": "Sabtu",
+      "date": "2026-10-17",
+      "setlist": "Dream Bakudan",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 415,
+      "day": "Minggu",
+      "date": "2026-10-25",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 416,
+      "day": "Rabu",
+      "date": "2026-11-04",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
+      "unitSong": null,
+      "position": null,
+      "partner": null,
+      "lineup": null,
+      "note": null
+    },
+    {
+      "no": 417,
+      "day": "Kamis",
+      "date": "2026-11-12",
+      "setlist": "Sambil Menggandeng Erat Tanganku",
       "unitSong": null,
       "position": null,
       "partner": null,
