@@ -43,6 +43,7 @@ import { SITE_CONFIG } from './config/siteConfig';
 
 const HomePage = lazy(() => import('./pages/Home'));
 const AdminJadwalPage = lazy(() => import('./pages/AdminJadwal'));
+const MiniGameMemoryPage = lazy(() => import('./pages/MiniGameMemory'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
@@ -417,6 +418,7 @@ function AppShell() {
         gsap.registerPlugin(ScrollTrigger);
         const lenis = new Lenis({ duration: 1.2, smoothTouch: false });
         lenisRef.current = lenis;
+        window.__armeLenis = lenis;
         lenis.on('scroll', ScrollTrigger.update);
         gsapTicker = (time) => lenis.raf(time * 1000);
         gsap.ticker.add(gsapTicker);
@@ -425,7 +427,7 @@ function AppShell() {
     })();
     return () => {
       cancelled = true;
-      if (lenisRef.current) { lenisRef.current.destroy(); lenisRef.current = null; }
+      if (lenisRef.current) { lenisRef.current.destroy(); lenisRef.current = null; window.__armeLenis = null; }
       if (gsapTicker) {
         import('gsap').then(({ gsap }) => gsap.ticker.remove(gsapTicker));
       }
@@ -456,6 +458,8 @@ function AppShell() {
             <Route path="/countdown" element={<Navigate to="/happy-helisma-day-26" replace />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/admin/jadwal" element={<AdminJadwalPage />} />
+            <Route path="/mini-games" element={<Navigate to="/mini-games/memory" replace />} />
+            <Route path="/mini-games/memory" element={<MiniGameMemoryPage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
             <Route path="/byu-music" element={<ByuMusicPage />} />

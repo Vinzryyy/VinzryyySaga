@@ -48,6 +48,7 @@ const KNOWN_ROUTES = new Set([
   '/26',
   '/byu-music',
   '/armepack',
+  '/mini-games/memory',
   '/galeri-kebaikan',
   '/denyut',
   '/armeniacaTown',
@@ -280,10 +281,12 @@ const ArmeChatWidget = () => {
     [navigate],
   );
 
-  // Hide on /peta (ArmeMascot owns that route) and on the standalone
-  // birthday page /26 (cake/gift takeover — don't clutter).
+  // Hide on /peta (ArmeMascot owns that route) and in mini games, where
+  // the floating button would cover the bottom-right card.
   const hidden =
-    pathname === '/armeniacaTown/peta' || pathname.startsWith('/armeniacaTown/peta/');
+    pathname === '/armeniacaTown/peta' ||
+    pathname.startsWith('/armeniacaTown/peta/') ||
+    pathname.startsWith('/mini-games');
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');

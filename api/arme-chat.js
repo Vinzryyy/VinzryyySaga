@@ -108,6 +108,7 @@ Milestone karier Eli (pakai info ini buat jawab pertanyaan timeline):
 - /galeri-kebaikan — arsip donasi nyata atas nama Eli (lingkungan, satwa, kesehatan, kemanusiaan, pendidikan).
 - /byu-music — page lagu By-U "Putri Helisma". Lagu titipan dari fans — bukan karya solo Eli. Auto-reveal player tanggal 15 Juni 2026.
 - /armepack — Petikan, sistem kartu harian. Batch #1: "The Life of Armeniaca" (51 kartu, 3 kartu per pluck). Tier: muda/matang/langka/legenda.
+- /mini-games/memory — Pasangkan Momen, mini game memory: cocokkan pasangan foto Eli dari arsip. Level Mudah/Sedang/Sulit, mode Bebas dan Harian (papan sama untuk semua orang tiap hari WIB).
 - /armeniacaTown — kota interaktif 3D (kebuka di 2000 dukungan).
 - /denyut — heartbeat website (visual presence pulse).
 
@@ -162,6 +163,7 @@ const ROUTE_DESCRIPTIONS = {
   '/26': 'Pengunjung sekarang di Pohon Kebaikan (#26) — bisa langsung ajak siram pohon.',
   '/byu-music': 'Pengunjung sekarang di ByU Music — page lagu titipan fans.',
   '/armepack': 'Pengunjung sekarang di ArmePack (Petikan) — sistem kartu harian.',
+  '/mini-games/memory': 'Pengunjung sekarang main Pasangkan Momen (mini game memory foto Eli).',
   '/galeri-kebaikan': 'Pengunjung sekarang di Galeri Kebaikan — arsip donasi.',
   '/denyut': 'Pengunjung sekarang di Denyut — heartbeat website.',
   '/armeniacaTown': 'Pengunjung sekarang di gerbang ArmeniacaTown.',

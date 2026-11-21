@@ -1,0 +1,131 @@
+/* Pasangkan Momen — card flip + board sizing. */
+
+.mm-board {
+  --cols: var(--c, 3);
+  --rows: var(--r, 4);
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: clamp(6px, 1.6vw, 12px);
+  width: 100%;
+  /* Fit the whole board on screen: card aspect 3:4, minus header/HUD space. */
+  max-width: min(100%, calc((100svh - 150px) * var(--cols) / var(--rows) * 0.75));
+  margin: 0 auto;
+}
+@media (min-width: 640px) {
+  .mm-board {
+    --cols: var(--cw, var(--c, 3));
+    --rows: var(--rw, var(--r, 4));
+  }
+}
+
+.mm-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  perspective: 900px;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+.mm-card:focus-visible {
+  outline: 3px solid var(--retro-gold);
+  outline-offset: 3px;
+}
+.mm-card[aria-disabled='true'] {
+  cursor: default;
+}
+
+.mm-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.42s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.mm-card.is-up .mm-inner {
+  transform: rotateY(180deg);
+}
+
+.mm-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Back: burgundy paper with a small gold mark. */
+.mm-back {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(223, 174, 66, 0.22) 0 22%, transparent 23%),
+    repeating-linear-gradient(45deg, var(--retro-burgundy) 0 7px, var(--retro-burgundy-light) 7px 14px);
+  border: 2px solid var(--retro-burgundy);
+  box-shadow: inset 0 0 0 3px rgba(253, 246, 227, 0.18);
+}
+.mm-back span {
+  font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(1rem, 4vw, 1.6rem);
+  color: var(--retro-gold-light);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.mm-front {
+  transform: rotateY(180deg);
+  background: var(--retro-cream-dark);
+  border: 2px solid var(--retro-cream-dark);
+}
+.mm-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mm-card.is-matched .mm-front {
+  border-color: var(--retro-gold);
+  box-shadow: 0 0 0 2px rgba(200, 149, 42, 0.35);
+}
+.mm-check {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--retro-gold);
+  color: #2b2017;
+  font-size: 13px;
+}
+.mm-card.is-just-matched .mm-front {
+  animation: mm-pop 0.45s ease-out;
+}
+@keyframes mm-pop {
+  0% { transform: rotateY(180deg) scale(1); }
+  45% { transform: rotateY(180deg) scale(1.07); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+.mm-combo {
+  animation: mm-rise 0.9s ease-out forwards;
+}
+@keyframes mm-rise {
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-inner { transition: none; transform: none !important; }
+  .mm-face { backface-visibility: visible; -webkit-backface-visibility: visible; transition: opacity 0.2s; }
+  .mm-front { transform: none; opacity: 0; }
+  .mm-card.is-up .mm-front { opacity: 1; }
+  .mm-card.is-up .mm-back { opacity: 0; }
+  .mm-card.is-just-matched .mm-front, .mm-combo { animation: none; }
+}

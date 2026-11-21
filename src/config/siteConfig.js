@@ -133,6 +133,12 @@ export const SITE_CONFIG = {
             description: 'Tiga kartu tiap hari — The Life of Armeniaca.',
             icon: 'ri-leaf-line',
           },
+          {
+            label: 'Pasangkan Momen',
+            hash: 'mini-games/memory',
+            description: 'Mini game memory dari foto arsip Eli.',
+            icon: 'ri-layout-grid-line',
+          },
         ],
       },
       { label: 'News', hash: 'news', icon: 'ri-newspaper-line' },

@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rencana Mini Games</title>
+<meta name="description" content="Rencana desain Mini Games Armeniaca: Memory Match, Kuis Harian, dan Ritme Tap.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FDF6E3;
+    --surface: #FFFBF1;
+    --surface-2: #F5E6C8;
+    --ink: #3B2F26;
+    --ink-soft: #6E5A47;
+    --line: #E4D3B2;
+    --accent: #7C2D34;
+    --accent-soft: #9E3E4A;
+    --gold: #C8952A;
+    --gold-soft: #F3E1B6;
+    --blue: #3b82f6;
+    --green: #4E7D4A;
+    --red: #B2453F;
+    --code-bg: #F3E8D2;
+    --shadow: 0 1px 0 rgba(92, 74, 58, .06), 0 8px 24px -16px rgba(92, 74, 58, .35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1C1714;
+      --surface: #241D19;
+      --surface-2: #2E2520;
+      --ink: #F2E7D4;
+      --ink-soft: #C2AE95;
+      --line: #3D322B;
+      --accent: #E07A84;
+      --accent-soft: #F09AA2;
+      --gold: #DFAE42;
+      --gold-soft: #3A2F1C;
+      --blue: #7FAEF8;
+      --green: #8CC084;
+      --red: #E5837C;
+      --code-bg: #2B231E;
+      --shadow: 0 8px 24px -16px rgba(0, 0, 0, .7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1C1714;
+    --surface: #241D19;
+    --surface-2: #2E2520;
+    --ink: #F2E7D4;
+    --ink-soft: #C2AE95;
+    --line: #3D322B;
+    --accent: #E07A84;
+    --accent-soft: #F09AA2;
+    --gold: #DFAE42;
+    --gold-soft: #3A2F1C;
+    --blue: #7FAEF8;
+    --green: #8CC084;
+    --red: #E5837C;
+    --code-bg: #2B231E;
+    --shadow: 0 8px 24px -16px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 "Plus Jakarta Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; line-height: 1.2; color: var(--ink); }
+  h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: .2em 0 .3em; letter-spacing: -.01em; }
+  h2 { font-size: 1.65rem; margin: 0 0 .6rem; }
+  h3 { font-size: 1.15rem; margin: 1.6rem 0 .5rem; }
+  p { margin: .5rem 0 .9rem; }
+  a { color: var(--accent); }
+  code {
+    font: .86em/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--code-bg);
+    padding: .1em .35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font: .84rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+    margin: .6rem 0 1rem;
+  }
+  pre code { background: none; padding: 0; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .layout { display: grid; grid-template-columns: 1fr; gap: 32px; }
+  @media (min-width: 980px) { .layout { grid-template-columns: 220px 1fr; } }
+
+  header.hero { padding: 48px 0 28px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+  .eyebrow {
+    font-size: .74rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .lede { font-size: 1.08rem; color: var(--ink-soft); max-width: 60ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .8rem; font-weight: 600;
+    background: var(--surface-2); color: var(--ink-soft);
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .chip b { color: var(--ink); }
+
+  nav.toc { position: sticky; top: 20px; align-self: start; display: none; }
+  @media (min-width: 980px) { nav.toc { display: block; } }
+  nav.toc ol { list-style: none; padding: 0; margin: 0; border-left: 2px solid var(--line); }
+  nav.toc a {
+    display: block; padding: 5px 0 5px 14px; margin-left: -2px;
+    border-left: 2px solid transparent;
+    color: var(--ink-soft); text-decoration: none; font-size: .9rem;
+  }
+  nav.toc a:hover, nav.toc a.active { color: var(--accent); border-left-color: var(--accent); }
+  nav.toc .toc-title { font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    scroll-margin-top: 16px;
+  }
+  @media (min-width: 640px) { section.card { padding: 30px 32px; } }
+  .sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .num {
+    flex: none; width: 36px; height: 36px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: var(--accent); color: var(--bg);
+    font: 700 1rem "Fraunces", serif;
+  }
+  .sub { color: var(--ink-soft); margin-top: 0; }
+
+  .table-wrap { overflow-x: auto; margin: .6rem 0 1rem; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--surface-2); font-weight: 700; font-size: .82rem; letter-spacing: .02em; }
+  tr:last-child td { border-bottom: none; }
+  td.nowrap, th.nowrap { white-space: nowrap; }
+
+  ul, ol { padding-left: 1.25rem; margin: .4rem 0 1rem; }
+  li { margin: .25rem 0; }
+
+  .grid-2 { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  .box {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+  }
+  .box h4 { margin: 0 0 6px; font-size: .95rem; }
+  .box p, .box ul { margin: 0; font-size: .92rem; }
+
+  .note {
+    border-left: 3px solid var(--gold);
+    background: var(--gold-soft);
+    padding: 10px 14px; border-radius: 0 10px 10px 0;
+    margin: .8rem 0 1rem; font-size: .93rem;
+  }
+  .warn { border-left-color: var(--accent); }
+
+  /* Memory mockup */
+  .figure { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; margin: 1rem 0; }
+  .figure figcaption { font-size: .85rem; color: var(--ink-soft); max-width: 34ch; }
+  .mem-grid { display: grid; grid-template-columns: repeat(4, 44px); gap: 6px; }
+  .mem {
+    height: 58px; border-radius: 7px;
+    background: repeating-linear-gradient(45deg, var(--accent) 0 6px, var(--accent-soft) 6px 12px);
+    border: 2px solid var(--accent);
+  }
+  .mem.open { background: var(--surface-2); border-color: var(--line); display: grid; place-items: center; font-size: 1.2rem; }
+  .mem.match { background: var(--gold-soft); border-color: var(--gold); display: grid; place-items: center; font-size: 1.2rem; }
+
+  /* Judgement bar */
+  .judge { margin: 1rem 0 .4rem; }
+  .judge-bar { display: flex; height: 30px; border-radius: 8px; overflow: hidden; font-size: .74rem; font-weight: 700; }
+  .judge-bar span { display: grid; place-items: center; color: #fff; }
+  .j-miss { background: #8a7f76; flex: 1.2; }
+  .j-good { background: var(--blue); flex: 1; }
+  .j-great { background: var(--green); flex: 1; }
+  .j-perfect { background: var(--gold); flex: 2; color: #2b2017 !important; }
+  .judge-axis { display: flex; justify-content: space-between; font-size: .72rem; color: var(--ink-soft); margin-top: 4px; font-family: ui-monospace, Menlo, monospace; }
+
+  /* Phases */
+  .phases { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .phases { grid-template-columns: repeat(4, 1fr); } }
+  .phase { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg); }
+  .phase .tag { font: 700 1.4rem "Fraunces", serif; color: var(--accent); }
+  .phase h4 { margin: 2px 0 6px; font-size: .95rem; }
+  .phase p { font-size: .86rem; margin: 0; color: var(--ink-soft); }
+
+  /* Decisions */
+  .decisions { counter-reset: d; list-style: none; padding: 0; }
+  .decisions li {
+    counter-increment: d; position: relative;
+    padding: 12px 14px 12px 52px; margin: 0 0 10px;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+  }
+  .decisions li::before {
+    content: counter(d); position: absolute; left: 14px; top: 12px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--gold); color: #2b2017; font-weight: 700; font-size: .85rem;
+    display: grid; place-items: center;
+  }
+  .rec { display: block; font-size: .85rem; color: var(--ink-soft); margin-top: 2px; }
+
+  .theme-toggle {
+    position: fixed; right: 16px; bottom: 16px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+    border-radius: 999px; padding: 8px 14px; font: 600 .8rem "Plus Jakarta Sans", sans-serif;
+    box-shadow: var(--shadow); cursor: pointer;
+  }
+  footer { color: var(--ink-soft); font-size: .85rem; padding: 12px 0 64px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Armeniaca · Rencana fitur</div>
+    <h1>Mini Games Eli</h1>
+    <p class="lede">Tiga game kecil khusus Helisma di dalam Armeniaca: <b>Memory Match</b>, <b>Kuis Harian</b>, dan <b>Ritme Tap</b>. Tampilannya mengikuti gaya arsip krem/sepia/burgundy, bukan kartu glossy.</p>
+    <div class="meta">
+      <span class="chip">Route <b>/mini-games</b></span>
+      <span class="chip">Tanpa library baru</span>
+      <span class="chip">Hari berganti <b>00:00 WIB</b></span>
+      <span class="chip">Status <b>Draf, belum dibangun</b></span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Daftar isi">
+      <div class="toc-title">Isi</div>
+      <ol>
+        <li><a href="#fondasi">0 · Fondasi bersama</a></li>
+        <li><a href="#memory">1 · Memory Match</a></li>
+        <li><a href="#kuis">2 · Kuis Harian</a></li>
+        <li><a href="#ritme">3 · Ritme Tap</a></li>
+        <li><a href="#hub">4 · Halaman hub</a></li>
+        <li><a href="#tahap">5 · Tahap pengerjaan</a></li>
+        <li><a href="#keputusan">Keputusan</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <!-- 0 -->
+      <section class="card" id="fondasi">
+        <div class="sec-head"><span class="num">0</span><h2>Fondasi bersama</h2></div>
+        <p class="sub">Bahan yang sudah ada di repo: 730 foto di <code>public/archive</code> (lengkap dengan dHash), 51 soal di <code>helismaQuiz.js</code>, 5 lagu di <code>public/byUmusic</code>, Buah (<code>addBuah</code>, maksimal 30), dan <code>townAudioBus</code>.</p>
+
+        <div class="table-wrap"><table>
+          <tr><th class="nowrap">Bagian</th><th>Isi</th></tr>
+          <tr><td class="nowrap">Route</td><td><code>/mini-games</code>, <code>/mini-games/memory</code>, <code>/mini-games/kuis</code>, <code>/mini-games/ritme</code>. Tiap game dimuat terpisah (lazy), jadi halaman lain tidak jadi lebih berat.</td></tr>
+          <tr><td class="nowrap">Library</td><td>Tidak ada yang baru: CSS 3D untuk balik kartu, Web Audio API untuk ritme, plus GSAP dan <code>html-to-image</code> yang sudah terpasang.</td></tr>
+          <tr><td class="nowrap"><code>GameShell</code></td><td>Kerangka yang sama untuk ketiga game: kembali, judul, pause, mute lewat <code>townAudioBus</code>. Timer ikut berhenti saat dijeda.</td></tr>
+          <tr><td class="nowrap"><code>ResultCard</code></td><td>Kartu hasil yang bisa diunduh sebagai gambar atau dibagikan sebagai teks, dengan gaya Armeniaca.</td></tr>
+          <tr><td class="nowrap">Penyimpanan</td><td><code>miniGamesStorage.js</code> menyimpan satu key <code>armeniaca_mg_v1</code> (semua akses dalam try/catch): rekor, status kuis, streak, dan hadiah hari ini. Ikut masuk ke backup Petikan.</td></tr>
+          <tr><td class="nowrap">Aksesibilitas</td><td>Bisa dimainkan dengan keyboard dan screen reader (<code>aria-label</code>). Kalau "reduce motion" aktif, animasi balik kartu dan denyut beat diganti fade.</td></tr>
+        </table></div>
+
+        <h3>Hadiah Buah (sekali per game per hari)</h3>
+        <div class="table-wrap"><table>
+          <tr><th>Game</th><th>Syarat</th><th class="nowrap">Buah</th></tr>
+          <tr><td>Memory</td><td>Selesai satu papan (Sulit: +2)</td><td>+1 / +2</td></tr>
+          <tr><td>Kuis</td><td>Benar ≥ 7/10 · benar 10/10</td><td>+2 / +3</td></tr>
+          <tr><td>Ritme</td><td>Grade B atau lebih</td><td>+2</td></tr>
+        </table></div>
+        <div class="note">Maksimal <b>+7 Buah per hari</b>. Dibuat kecil karena kuis Armepack sudah bisa memberi sampai 15 Buah per hari.</div>
+      </section>
+
+      <!-- 1 -->
+      <section class="card" id="memory">
+        <div class="sec-head"><span class="num">1</span><h2>Memory Match: "Pasangkan Momen"</h2></div>
+        <p class="sub">Cocokkan pasangan foto Eli dari arsip.</p>
+
+        <div class="figure">
+          <div class="mem-grid" aria-hidden="true">
+            <div class="mem match">✦</div><div class="mem"></div><div class="mem open">📷</div><div class="mem"></div>
+            <div class="mem"></div><div class="mem match">✦</div><div class="mem"></div><div class="mem"></div>
+            <div class="mem"></div><div class="mem"></div><div class="mem open">📷</div><div class="mem"></div>
+          </div>
+          <figcaption>Papan Mudah 3×4. Kartu emas sudah cocok, dua kartu krem baru dibuka, sisanya masih tertutup.</figcaption>
+        </div>
+
+        <div class="grid-2">
+          <div class="box"><h4>Mode Bebas</h4><p>Susunan kartu acak, bisa diulang sesukanya.</p></div>
+          <div class="box"><h4>Mode Harian</h4><p>Semua orang dapat susunan yang sama hari itu (diacak dari tanggal), jadi waktunya bisa dibandingkan lewat share.</p></div>
+        </div>
+
+        <h3>Level</h3>
+        <div class="table-wrap"><table>
+          <tr><th>Level</th><th>Grid (HP)</th><th>Pasangan</th><th>Intip di awal</th></tr>
+          <tr><td>Mudah</td><td>3×4</td><td>6</td><td>2 detik</td></tr>
+          <tr><td>Sedang</td><td>4×4</td><td>8</td><td>1 detik</td></tr>
+          <tr><td>Sulit</td><td>5×6</td><td>15</td><td>Tidak ada</td></tr>
+        </table></div>
+
+        <h3>Aturan main</h3>
+        <ul>
+          <li>Tap kartu pertama untuk membuka, lalu tap kartu kedua.</li>
+          <li><b>Cocok:</b> kedua kartu tetap terbuka dengan bingkai emas, dan muncul sedikit info foto (tanggal/acara).</li>
+          <li><b>Tidak cocok:</b> kedua kartu tertutup lagi setelah 700 ms. Kalau pemain sudah tap kartu ketiga sebelum itu, dua kartu tadi langsung ditutup supaya tidak terasa lambat.</li>
+          <li>Timer mulai saat kartu pertama dibuka, bukan saat halaman dibuka.</li>
+          <li><b>Combo</b> (cocok berturut-turut) memberi efek kecil, tapi tidak memengaruhi peringkat.</li>
+        </ul>
+
+        <h3>Penilaian</h3>
+        <ul>
+          <li>Peringkat dari <b>waktu</b>. Kalau waktunya sama, yang lebih sedikit langkahnya menang.</li>
+          <li>Bintang dari langkah: ★★★ kalau ≤ 1,5 × jumlah pasangan, ★★ kalau ≤ 2 ×, selain itu ★.</li>
+        </ul>
+
+        <h3>Pilihan foto</h3>
+        <div class="note">Foto yang hampir sama (misalnya dua jepretan beruntun) bisa terlihat seperti pasangan padahal bukan. Karena itu foto difilter dengan <b>dHash</b>: dua foto dengan jarak Hamming di bawah 20 dianggap kembar, dan hanya satu yang dipakai dalam satu papan.</div>
+        <ul>
+          <li>Pakai thumbnail avif kecil, dan semua gambar dimuat dulu sebelum mulai (loader "Menyiapkan kartu…").</li>
+          <li><b>Layar selesai:</b> menampilkan waktu, langkah, bintang dan rekor, plus galeri foto yang baru dicocokkan dengan link ke <code>/gallery/:year</code>.</li>
+        </ul>
+      </section>
+
+      <!-- 2 -->
+      <section class="card" id="kuis">
+        <div class="sec-head"><span class="num">2</span><h2>Kuis Harian: "Seberapa Kenal Eli?"</h2></div>
+        <p class="sub">10 soal per hari, sama untuk semua orang. Waktu 20 detik per soal, tidak bisa diulang di hari yang sama.</p>
+
+        <h3>Jenis soal</h3>
+        <div class="grid-2">
+          <div class="box"><h4>Pilihan ganda</h4><p>4 opsi, dari bank soal.</p></div>
+          <div class="box"><h4>Benar / Salah</h4><p>Cepat dan menambah variasi.</p></div>
+          <div class="box"><h4>Tebak tahun foto</h4><p>Pemain memilih tahun dari foto arsip. Dibuat otomatis dari data galeri, jadi soal baru terus bertambah.</p></div>
+          <div class="box"><h4>Soal dari data</h4><p>Misalnya "Setlist mana yang paling sering dibawakan Eli?". Dibuat dari <code>eli-setlists.json</code> saat build, dan selalu disertai "per tanggal X".</p></div>
+        </div>
+
+        <h3>Pemilihan soal tanpa sering berulang</h3>
+        <ul>
+          <li>Bank soal diacak sekali per <b>siklus</b>, lalu diambil 10 soal per hari secara berurutan. Tidak ada soal yang muncul dua kali sampai seluruh bank habis.</li>
+          <li>Setiap soal punya field <code>addedOn</code>. Soal baru baru ikut di siklus berikutnya, jadi menambah soal tidak mengacak ulang soal di hari-hari yang sedang berjalan.</li>
+          <li>Urutan opsi jawaban diacak per hari, supaya jawaban yang benar tidak selalu di posisi yang sama.</li>
+          <li>Soal yang sedang dipakai kuis Armepack hari itu tidak ikut.</li>
+          <li>Target bank soal: dari 51 menjadi sekitar <b>150</b> (kurang lebih 100 soal manual ditambah soal otomatis). Draf soal perlu dicek kebenarannya.</li>
+        </ul>
+
+        <h3>Skor dan anti-curang ringan</h3>
+        <ul>
+          <li>Setiap jawaban benar bernilai <b>100</b>, ditambah bonus kecepatan = sisa detik × 5. Maksimal <b>2.000</b>.</li>
+          <li>Waktu mulai setiap soal langsung disimpan. Kalau halaman di-refresh, timer <b>lanjut</b>, tidak mulai dari awal.</li>
+        </ul>
+        <div class="note warn">Batasannya: jawaban tetap ada di kode JavaScript, jadi orang yang paham teknis bisa mengintipnya. Untuk game fans, ini wajar.</div>
+
+        <h3>Setelah selesai</h3>
+        <ul>
+          <li>Pembahasan setiap soal beserta penjelasan dan link ke halaman terkait.</li>
+          <li><b>Streak</b> 🔥: jumlah hari berturut-turut bermain.</li>
+          <li>Teks share seperti Wordle:</li>
+        </ul>
+<pre><code>Kuis Eli #23 · 8/10 · 1.540 poin 🔥5
+🟩🟩🟥🟩🟩🟩🟥🟩🟩🟩
+armeniaca…/mini-games/kuis</code></pre>
+        <p><b>Versi 2 (opsional):</b> "Rata-rata pemain hari ini" lewat penghitung anonim di Firebase. Tanpa papan peringkat nama, karena itu gampang dicurangi.</p>
+      </section>
+
+      <!-- 3 -->
+      <section class="card" id="ritme">
+        <div class="sec-head"><span class="num">3</span><h2>Ritme Tap: "Denyut Panggung"</h2></div>
+        <p class="sub">3 jalur, tap atau tekan <b>D F J</b> (atau ← ↓ →) pas dengan beat. Ada not tahan di level Sulit. Kecepatan jatuh not bisa diatur 1–10.</p>
+
+        <h3>Lagu (yang sudah ada di site)</h3>
+        <div class="table-wrap"><table>
+          <tr><th>Lagu</th><th>Durasi</th><th>Dipakai untuk</th></tr>
+          <tr><td>EFFECT JAM 2</td><td>31 dtk</td><td>Tutorial</td></tr>
+          <tr><td>PERPUSTAKAAN…</td><td>83 dtk</td><td>Mudah / Normal</td></tr>
+          <tr><td>BREWEK</td><td>96 dtk</td><td>Normal / Sulit</td></tr>
+          <tr><td>scoring-music-1</td><td>100 dtk</td><td>Normal / Sulit</td></tr>
+          <tr><td>By-U (16 BIT)</td><td>4:26</td><td>Lagu "boss", Sulit</td></tr>
+        </table></div>
+
+        <h3>Penilaian ketepatan</h3>
+        <div class="judge" aria-hidden="true">
+          <div class="judge-bar">
+            <span class="j-miss">Miss</span><span class="j-good">Good</span><span class="j-great">Great</span><span class="j-perfect">Perfect</span><span class="j-great">Great</span><span class="j-good">Good</span><span class="j-miss">Miss</span>
+          </div>
+          <div class="judge-axis"><span>−135</span><span>−90</span><span>−45</span><span>0 ms</span><span>+45</span><span>+90</span><span>+135</span></div>
+        </div>
+        <div class="table-wrap"><table>
+          <tr><th>Nilai</th><th>Selisih dari beat</th><th>Bobot skor</th></tr>
+          <tr><td>Perfect</td><td>±45 ms</td><td>1,0</td></tr>
+          <tr><td>Great</td><td>±90 ms</td><td>0,7</td></tr>
+          <tr><td>Good</td><td>±135 ms</td><td>0,4</td></tr>
+          <tr><td>Miss</td><td>Lebih dari itu, atau not lewat</td><td>0</td></tr>
+        </table></div>
+        <ul>
+          <li><b>Not tahan:</b> kepalanya dinilai seperti not biasa, lalu harus ditahan sampai 100 ms sebelum ekornya.</li>
+          <li><b>Skor dibuat 1.000.000:</b> setiap not bernilai 1.000.000 ÷ jumlah not, dikali bobotnya.</li>
+          <li><b>Grade:</b> S ≥ 950rb · A ≥ 900rb · B ≥ 800rb · C ≥ 700rb · selain itu D. Badge Full Combo dan All Perfect.</li>
+          <li><b>Tidak ada "game over":</b> lagu selalu sampai habis, supaya ramah untuk fans yang jarang main game ritme.</li>
+        </ul>
+
+        <h3>Teknis yang menentukan rasa game</h3>
+        <div class="grid-2">
+          <div class="box"><h4>Jam dari audio</h4><p><code>audioCtx.currentTime</code> dikurangi waktu mulai dan latency, bukan timer browser. Not tetap sinkron meskipun HP sedang lag.</p></div>
+          <div class="box"><h4>Kalibrasi</h4><p>Pemain tap mengikuti metronom 8 kali, lalu offset-nya disimpan. Kalau pemain konsisten telat lebih dari 40 ms (misalnya karena earphone Bluetooth), game menyarankan kalibrasi ulang.</p></div>
+          <div class="box"><h4>Gambar</h4><p>Not digambar di Canvas 2D supaya ringan di Android murah. Skor dan combo pakai HTML biasa. Latar belakang foto Eli yang diredupkan dan berdenyut mengikuti beat.</p></div>
+          <div class="box"><h4>Pindah tab dan iPhone</h4><p>Pindah tab membuat game pause, lalu lanjut dengan hitungan 3-2-1. Di iPhone audio baru bisa dinyalakan setelah tap, jadi ada tombol Mulai. Musik latar site dikecilkan otomatis.</p></div>
+        </div>
+
+        <h3>Membuat chart (beatmap)</h3>
+        <ol>
+          <li>Halaman editor tersembunyi di <code>?editor=1</code> menganalisis lagu di browser untuk mendeteksi BPM dan onset (titik mulainya bunyi), lalu membuat draf chart otomatis.</li>
+          <li><b>Mode rekam:</b> lagu diputar, kamu tap mengikuti lagu, lalu hasilnya dirapikan ke grid beat.</li>
+          <li>Hasilnya disimpan sebagai JSON, misalnya <code>public/data/ritme/brewek.json</code>.</li>
+          <li>Script <code>check-ritme</code> mengecek chart: urutan waktu benar, jalur valid, dan jarak minimal 80 ms antar not di jalur yang sama.</li>
+        </ol>
+<pre><code>{ "bpm": 128, "offsetMs": 40,
+  "charts": { "mudah": [{ "t": 1875, "lane": 1 }], "normal": [...], "sulit": [...] } }</code></pre>
+      </section>
+
+      <!-- 4 -->
+      <section class="card" id="hub">
+        <div class="sec-head"><span class="num">4</span><h2>Halaman hub <code>/mini-games</code></h2></div>
+        <ul>
+          <li>Tiga kartu game, masing-masing dengan status hari ini, misalnya "✓ 8/10 hari ini", "Rekor 0:42", atau "BREWEK · A".</li>
+          <li>Jumlah Buah dan daftar hadiah hari ini (☐☐☐).</li>
+          <li>Masuk ke menu nav. Di Home, saran saya menambah kartu ke-5 di Quick Actions.</li>
+        </ul>
+      </section>
+
+      <!-- 5 -->
+      <section class="card" id="tahap">
+        <div class="sec-head"><span class="num">5</span><h2>Tahap pengerjaan</h2></div>
+        <div class="phases">
+          <div class="phase"><div class="tag">A</div><h4>Fondasi, hub, Memory</h4><p>Ketiga level jalan di HP dan desktop, mode harian sama di dua browser, rekor tersimpan.</p></div>
+          <div class="phase"><div class="tag">B</div><h4>Kuis dan bank soal</h4><p>Tidak berulang sampai satu siklus habis, refresh tidak mereset timer, teks share benar.</p></div>
+          <div class="phase"><div class="tag">C1</div><h4>Mesin ritme</h4><p>Kalibrasi dan lagu tutorial. Sinkron di HP dan desktop, penilaian lulus tes.</p></div>
+          <div class="phase"><div class="tag">C2</div><h4>Editor dan 4 lagu</h4><p>Semua chart lulus <code>check-ritme</code>.</p></div>
+        </div>
+        <p style="margin-top:16px">Bagian logika (pengacakan harian, rotasi soal, penilaian, skor, cek chart) dibuat sebagai fungsi terpisah supaya bisa diuji dengan Vitest. Setiap tahap dites, di-commit dan di-push ke main.</p>
+      </section>
+
+      <!-- Decisions -->
+      <section class="card" id="keputusan">
+        <div class="sec-head"><span class="num">?</span><h2>Yang perlu diputuskan</h2></div>
+        <ol class="decisions">
+          <li><b>Hadiah Buah:</b> pakai skema di atas (maksimal +7 per hari), atau tanpa Buah?<span class="rec">Saran: pakai, supaya terhubung ke Armepack.</span></li>
+          <li><b>Lagu By-U (16 BIT):</b> versi chiptune dari lagu yang dibawakan Eli. Nyaman dijadikan bahan game?<span class="rec">File ini sudah ada di site, jadi keputusannya di kamu.</span></li>
+          <li><b>Soal kuis:</b> draf sekitar 100 soal dibuat lalu kamu periksa, atau kamu sudah punya daftar soal sendiri?</li>
+          <li><b>Home:</b> tambah kartu ke-5 di Quick Actions, atau ganti salah satu dari empat kartu yang ada?</li>
+        </ol>
+      </section>
+
+      <footer>Rencana Mini Games Armeniaca · draf 21 November 2026</footer>
+    </main>
+  </div>
+</div>
+
+<button class="theme-toggle" type="button" id="themeToggle" aria-label="Ganti tema terang/gelap">◐ Tema</button>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    try {
+      var saved = localStorage.getItem('mg-plan-theme');
+      if (saved) root.setAttribute('data-theme', saved);
+    } catch (e) {}
+    btn.addEventListener('click', function () {
+      var cur = root.getAttribute('data-theme') ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      var next = cur === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('mg-plan-theme', next); } catch (e) {}
+    });
+
+    var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id);
+          });
+        });
+      }, { rootMargin: '-30% 0px -60% 0px' });
+      document.querySelectorAll('section.card').forEach(function (s) { io.observe(s); });
+    }
+  })();
+</script>
+</body>
+</html>
