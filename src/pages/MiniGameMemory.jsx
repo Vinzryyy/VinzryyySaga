@@ -13,11 +13,11 @@ import '../components/minigames/memory.css';
 import {
   LEVELS,
   LEVEL_IDS,
-  MEMORY_POOL_URL,
   MISMATCH_MS,
   compareResults,
   createBoard,
   dailySeed,
+  poolForDay,
   formatDuration,
   gameReducer,
   hashSeed,
@@ -26,56 +26,13 @@ import {
   starRating,
 } from '../lib/memoryGame';
 import { getMemoryRecord, saveMemoryResult } from '../lib/miniGamesStorage';
+import MemoryLeaderboard from '../components/minigames/MemoryLeaderboard';
+import ChallengeGame from '../components/minigames/ChallengeGame';
+import { Celebration, Chip, SITE_URL, SoundToggle, loadPool, prettyDate, preload, scrollToEl } from '../components/minigames/shared';
+import { sfx } from '../lib/gameSfx';
 import { dayKeyWIB } from '../utils/calendar';
 
 const WIDE = { mudah: [4, 3], sedang: [4, 4], sulit: [6, 5] };
-const SITE_URL = 'https://armeniaca.online';
-
-let poolPromise = null;
-const loadPool = () => {
-  if (!poolPromise) {
-    poolPromise = fetch(MEMORY_POOL_URL)
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((d) => d.items || [])
-      .catch((err) => {
-        poolPromise = null;
-        throw err;
-      });
-  }
-  return poolPromise;
-};
-
-const preload = (photos) =>
-  Promise.all(
-    photos.map(
-      (p) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = img.onerror = () => resolve();
-          img.src = p.webp;
-        }),
-    ),
-  );
-
-// Lenis (smooth scroll) owns the scroll position when active; ask it first.
-const scrollToEl = (el, offset = -96) => {
-  if (!el) return;
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const lenis = window.__armeLenis;
-  if (lenis) lenis.scrollTo(el, { offset, immediate: reduce });
-  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: reduce ? 'auto' : 'smooth' });
-};
-
-const prettyDate = (iso) => {
-  if (!iso) return null;
-  const d = new Date(`${iso}T00:00:00+07:00`);
-  return Number.isNaN(d.getTime())
-    ? null
-    : new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta' }).format(d);
-};
 
 const Stars = ({ n, className = '' }) => (
   <span className={`tracking-[0.15em] ${className}`} aria-label={`${n} dari 3 bintang`}>
@@ -84,25 +41,11 @@ const Stars = ({ n, className = '' }) => (
   </span>
 );
 
-const Chip = ({ active, onClick, children, disabled }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    aria-pressed={active}
-    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors disabled:opacity-50 ${
-      active
-        ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
-        : 'bg-white/70 text-[color:var(--retro-text-secondary)] border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40'
-    }`}
-  >
-    {children}
-  </button>
-);
-
 const MiniGameMemory = () => {
   const [params, setParams] = useSearchParams();
-  const mode = params.get('mode') === 'harian' ? 'harian' : 'bebas';
+  const modeParam = params.get('mode');
+  const mode = modeParam === 'harian' || modeParam === 'tantangan' ? modeParam : 'bebas';
+  const [challengeBusy, setChallengeBusy] = useState(false);
   const levelId = LEVEL_IDS.includes(params.get('level')) ? params.get('level') : 'mudah';
   const level = LEVELS[levelId];
   const [wideCols, wideRows] = WIDE[levelId];
@@ -116,6 +59,7 @@ const MiniGameMemory = () => {
   const [paused, setPaused] = useState(false);
   const pausedMsRef = useRef(0);
   const pauseStartRef = useRef(null);
+  const pausesRef = useRef([]); // [from, to] intervals, sent with leaderboard runs
   const [result, setResult] = useState(null);
   const [focusIdx, setFocusIdx] = useState(0);
   const [toast, setToast] = useState(null);
@@ -149,7 +93,7 @@ const MiniGameMemory = () => {
     if (!pool?.length) return;
     const run = ++runRef.current;
     const seed = mode === 'harian' ? dailySeed(today, levelId) : hashSeed(`${Date.now()}:${Math.random()}`);
-    const b = createBoard(pool, levelId, seed);
+    const b = createBoard(mode === 'harian' ? poolForDay(pool, today) : pool, levelId, seed);
     setPhase('loading');
     scrollToEl(hudRef.current, -88);
     setResult(null);
@@ -158,6 +102,7 @@ const MiniGameMemory = () => {
     setPaused(false);
     pausedMsRef.current = 0;
     pauseStartRef.current = null;
+    pausesRef.current = [];
     await preload(b.photos);
     if (run !== runRef.current) return;
     setBoard(b);
@@ -176,6 +121,7 @@ const MiniGameMemory = () => {
   // Mismatch: hide the pair after a short look.
   useEffect(() => {
     if (game.open.length !== 2) return undefined;
+    sfx('miss');
     const t = setTimeout(() => dispatch({ type: 'hide' }), MISMATCH_MS);
     return () => clearTimeout(t);
   }, [game.open]);
@@ -196,8 +142,10 @@ const MiniGameMemory = () => {
 
   const resume = useCallback(() => {
     if (!paused) return;
-    if (pauseStartRef.current != null && game.startedAt != null) {
-      pausedMsRef.current += Date.now() - pauseStartRef.current;
+    if (pauseStartRef.current != null) {
+      const end = Date.now();
+      pausesRef.current.push([pauseStartRef.current, end]);
+      if (game.startedAt != null) pausedMsRef.current += end - pauseStartRef.current;
     }
     pauseStartRef.current = null;
     setPaused(false);
@@ -217,6 +165,7 @@ const MiniGameMemory = () => {
   useEffect(() => {
     if (!game.lastMatch) return undefined;
     setToast({ id: game.lastMatch, combo: game.combo });
+    sfx('match', { combo: game.combo });
     const t = setTimeout(() => setToast(null), 1800);
     return () => clearTimeout(t);
   }, [game.lastMatch, game.combo]);
@@ -229,18 +178,23 @@ const MiniGameMemory = () => {
       const timeMs = Math.max(0, game.finishedAt - game.startedAt - pausedMsRef.current);
       const stars = starRating(game.moves, level.pairs);
       const saved = saveMemoryResult(mode, levelId, today, { timeMs, moves: game.moves, stars });
-      setResult({ timeMs, moves: game.moves, stars, maxCombo: game.maxCombo, ...saved });
+      setTimeout(() => sfx('win'), 250);
+      setResult({
+        timeMs, moves: game.moves, stars, maxCombo: game.maxCombo, ...saved,
+        run: { date: today, log: game.log, pauses: [...pausesRef.current], timeMs, moves: game.moves },
+      });
     }
     const t = setTimeout(() => {
       setPhase('done');
       requestAnimationFrame(() => scrollToEl(resultRef.current));
     }, 650);
     return () => clearTimeout(t);
-  }, [game.finishedAt, game.startedAt, game.moves, game.maxCombo, phase, level.pairs, mode, levelId, today]);
+  }, [game.finishedAt, game.startedAt, game.moves, game.maxCombo, game.log, phase, level.pairs, mode, levelId, today]);
 
   const flip = useCallback(
     (i) => {
       if (phase !== 'play' || paused) return;
+      sfx('flip');
       dispatch({ type: 'flip', index: i, now: Date.now() });
     },
     [phase, paused],
@@ -331,11 +285,15 @@ const MiniGameMemory = () => {
         {/* Options */}
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
           <div className="flex items-center gap-2" role="group" aria-label="Mode">
-            <Chip active={mode === 'bebas'} disabled={inGame} onClick={() => setOption('mode', 'bebas')}>Bebas</Chip>
-            <Chip active={mode === 'harian'} disabled={inGame} onClick={() => setOption('mode', 'harian')}>
+            <Chip active={mode === 'bebas'} disabled={inGame || challengeBusy} onClick={() => setOption('mode', 'bebas')}>Bebas</Chip>
+            <Chip active={mode === 'harian'} disabled={inGame || challengeBusy} onClick={() => setOption('mode', 'harian')}>
               <i className="ri-calendar-check-line mr-1" />Harian
             </Chip>
+            <Chip active={mode === 'tantangan'} disabled={inGame || challengeBusy} onClick={() => setOption('mode', 'tantangan')}>
+              <i className="ri-trophy-line mr-1" />Tantangan
+            </Chip>
           </div>
+          {mode !== 'tantangan' && (
           <div className="flex items-center gap-2" role="group" aria-label="Level">
             {LEVEL_IDS.map((id) => (
               <Chip key={id} active={levelId === id} disabled={inGame} onClick={() => setOption('level', id)}>
@@ -343,7 +301,15 @@ const MiniGameMemory = () => {
               </Chip>
             ))}
           </div>
+          )}
+          <div className="ml-auto">
+            <SoundToggle />
+          </div>
         </div>
+        {mode === 'tantangan' ? (
+          <ChallengeGame pool={pool} onBusyChange={setChallengeBusy} />
+        ) : (
+        <>
         <p className="mt-2 text-xs text-[color:var(--retro-text-light)]">
           {level.pairs} pasangan
           {level.peekMs ? ` · intip ${level.peekMs / 1000} detik di awal` : ' · tanpa intip'}
@@ -517,7 +483,8 @@ const MiniGameMemory = () => {
 
         {/* Result */}
         {phase === 'done' && result && (
-          <section ref={resultRef} className="mt-12 rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/12 shadow-sm p-5 sm:p-7" aria-labelledby="mm-result">
+          <section ref={resultRef} className="relative mt-12 rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/12 shadow-sm p-5 sm:p-7" aria-labelledby="mm-result">
+            {(result.isRecord || result.stars === 3) && <Celebration />}
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
@@ -586,6 +553,18 @@ const MiniGameMemory = () => {
               })}
             </ul>
           </section>
+        )}
+
+        </>
+        )}
+
+        {mode === 'harian' && (
+          <MemoryLeaderboard
+            level={levelId}
+            levelLabel={level.label}
+            dateLabel={prettyDate(today)}
+            submission={phase === 'done' && result ? result.run : null}
+          />
         )}
       </div>
     </main>

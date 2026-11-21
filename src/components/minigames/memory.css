@@ -8,7 +8,8 @@
   gap: clamp(6px, 1.6vw, 12px);
   width: 100%;
   /* Fit the whole board on screen: card aspect 3:4, minus header/HUD space. */
-  max-width: min(100%, calc((100svh - 150px) * var(--cols) / var(--rows) * 0.75));
+  /* 230px ≈ fixed navbar + HUD + gaps once the page scrolls to the HUD. */
+  max-width: min(100%, calc((100svh - 230px) * var(--cols) / var(--rows) * 0.75));
   margin: 0 auto;
 }
 @media (min-width: 640px) {
@@ -128,4 +129,117 @@
   .mm-card.is-up .mm-front { opacity: 1; }
   .mm-card.is-up .mm-back { opacity: 0; }
   .mm-card.is-just-matched .mm-front, .mm-combo { animation: none; }
+}
+
+/* ── Mode Tantangan: special cards + board effects ─────────────────── */
+.mm-special {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 2px;
+  font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.mm-special b { font-size: clamp(0.55rem, 1.6vw, 0.8rem); font-weight: 900; }
+.mm-special i { font-size: clamp(1.4rem, 5vw, 2.4rem); line-height: 1; }
+.mm-special-emoji { font-size: clamp(1.3rem, 4.6vw, 2.2rem); line-height: 1; }
+.mm-card.is-joker .mm-front {
+  background: radial-gradient(circle at 50% 40%, #fff6d6 0%, #f1d27a 55%, #c8952a 100%);
+  border-color: var(--retro-gold);
+  color: #5a3d0c;
+}
+.mm-card.is-bomb .mm-front {
+  background: radial-gradient(circle at 50% 40%, #4a3a33 0%, #2b2017 70%);
+  border-color: #2b2017;
+  color: #ffd9b0;
+}
+.mm-card.is-spent { cursor: default; }
+/* Fade the faces, not .mm-inner: opacity/filter there would flatten the 3D
+   flip and show the card back instead. */
+.mm-card.is-spent .mm-front { opacity: 0.4; filter: saturate(0.4); transition: opacity 0.5s ease 0.35s; }
+
+/* Bomb: the whole board shudders while face-down cards reshuffle. */
+.mm-board.fx-bomb .mm-card:not(.is-up) .mm-inner { animation: mm-shuffle 0.7s ease-in-out; }
+@keyframes mm-shuffle {
+  0% { transform: none; }
+  20% { transform: translate(-6%, 3%) rotate(-6deg) scale(0.92); }
+  45% { transform: translate(5%, -4%) rotate(5deg) scale(0.9); }
+  70% { transform: translate(-3%, 2%) rotate(-2deg) scale(0.96); }
+  100% { transform: none; }
+}
+.mm-board.fx-bomb { animation: mm-quake 0.45s ease-in-out; }
+@keyframes mm-quake {
+  0%, 100% { transform: none; }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+/* Papan gelisah: the two swapped cards glow. */
+.mm-card.is-swapped { animation: mm-swap 0.9s ease-out; border-radius: 10px; }
+@keyframes mm-swap {
+  0% { box-shadow: 0 0 0 0 rgba(200, 149, 42, 0.9); transform: scale(0.9); }
+  40% { box-shadow: 0 0 0 6px rgba(200, 149, 42, 0.55); transform: scale(1.05); }
+  100% { box-shadow: 0 0 0 0 rgba(200, 149, 42, 0); transform: none; }
+}
+
+/* Life lost: hearts shake. */
+.mm-heart-hit { animation: mm-quake 0.45s ease-in-out; color: var(--retro-burgundy); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-board.fx-bomb, .mm-board.fx-bomb .mm-card .mm-inner, .mm-card.is-swapped, .mm-heart-hit { animation: none; }
+  .mm-card.is-swapped { outline: 3px solid var(--retro-gold); }
+}
+
+/* ── Feedback polish ───────────────────────────────────────────────── */
+.mm-confetti { position: absolute; inset: 0; overflow: visible; pointer-events: none; z-index: 5; }
+.mm-confetti span {
+  position: absolute;
+  top: -12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: mm-confetti;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes mm-confetti {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--drift), 260px) rotate(var(--rot)); }
+}
+
+/* Life lost: the partner you forgot lights up where it was. */
+.mm-card.is-hint { animation: mm-hint 1.3s ease-out; border-radius: 10px; }
+@keyframes mm-hint {
+  0%, 70% { box-shadow: 0 0 0 4px rgba(124, 45, 52, 0.85); }
+  100% { box-shadow: 0 0 0 0 rgba(124, 45, 52, 0); }
+}
+
+/* Stage clear card pops in. */
+.mm-pop-in { animation: mm-pop-in 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.25); }
+@keyframes mm-pop-in {
+  0% { opacity: 0; transform: scale(0.85) translateY(8px); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Match: a quick gold flash on top of the existing pop. */
+.mm-card.is-just-matched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  animation: mm-flash 0.55s ease-out;
+}
+@keyframes mm-flash {
+  0% { box-shadow: 0 0 0 0 rgba(223, 174, 66, 0.9), inset 0 0 18px rgba(255, 236, 170, 0.8); }
+  100% { box-shadow: 0 0 0 10px rgba(223, 174, 66, 0), inset 0 0 0 rgba(255, 236, 170, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-confetti { display: none; }
+  .mm-card.is-hint { animation: none; outline: 3px solid var(--retro-burgundy); }
+  .mm-pop-in, .mm-card.is-just-matched::after { animation: none; }
 }

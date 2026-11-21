@@ -159,3 +159,61 @@ it('buildDeck uid is unique', () => {
   const deck = buildDeck(spread.slice(0, 8), makeRng(3));
   expect(new Set(deck.map((c) => c.uid)).size).toBe(16);
 });
+
+describe('leaderboard', () => {
+  it('masks names', async () => {
+    const { maskName } = await import('../memoryGame');
+    expect(maskName('Malvin')).toBe('M****n');
+    expect(maskName('  malvin   evano ')).toBe('m****n e***o');
+    expect(maskName('Al')).toBe('A*');
+    expect(maskName('X')).toBe('X');
+  });
+
+  // Plays the board the way the page does and returns the reducer log.
+  const play = (deck, { start = 10_000, gap = 400, mistakes = 2 } = {}) => {
+    let s = initialGame(deck);
+    let t = start;
+    const step = (i) => { s = gameReducer(s, { type: 'flip', index: i, now: (t += gap) }); };
+    const byPhoto = {};
+    deck.forEach((c, i) => (byPhoto[c.photoId] ||= []).push(i));
+    const pairs = Object.values(byPhoto);
+    for (let m = 0; m < mistakes; m++) {
+      step(pairs[m][0]); step(pairs[m + 1][0]);
+      t += 800; s = gameReducer(s, { type: 'hide' });
+    }
+    pairs.forEach(([a, b]) => { step(a); step(b); });
+    return s;
+  };
+
+  it('verifies a real run and recomputes time and moves', async () => {
+    const { verifyRun } = await import('../memoryGame');
+    const { deck } = createBoard(POOL, 'mudah', dailySeed('2026-11-21', 'mudah'));
+    const s = play(deck);
+    const r = verifyRun(deck, s.log, []);
+    expect(r).toMatchObject({ ok: true, moves: s.moves });
+    expect(r.timeMs).toBe(s.finishedAt - s.startedAt);
+  });
+
+  it('subtracts pauses and rejects tampering', async () => {
+    const { verifyRun } = await import('../memoryGame');
+    const { deck } = createBoard(POOL, 'mudah', dailySeed('2026-11-21', 'mudah'));
+    const s = play(deck, { mistakes: 0 });
+    const mid = s.log[5][1];
+    const withPause = verifyRun(deck, s.log.map(([i, t]) => [i, t > mid ? t + 5000 : t]), [[mid + 100, mid + 5100]]);
+    expect(withPause.timeMs).toBe(s.finishedAt - s.startedAt);
+    expect(verifyRun(deck, s.log.slice(0, -1)).ok).toBe(false);
+    const s2 = play(deck);
+    expect(verifyRun(deck, s2.log.slice(0, -1)).error).toBe('unfinished');
+    expect(verifyRun(deck, s.log.map(([i], k) => [i, 1000 + k * 10])).error).toBe('speed');
+    const other = createBoard(POOL, 'mudah', dailySeed('2026-11-22', 'mudah')).deck;
+    expect(verifyRun(other, s.log).ok).toBe(false);
+  });
+});
+
+it('poolForDay keeps photos imported today off today\'s daily board', async () => {
+  const { poolForDay } = await import('../memoryGame');
+  const pool = [...POOL.map((p) => ({ ...p, added: '2026-11-20' })), { id: 'new', h: '0000000000000000', added: '2026-11-21' }];
+  const board = (d) => createBoard(poolForDay(pool, d), 'sulit', dailySeed(d, 'sulit')).deck;
+  expect(board('2026-11-21')).toEqual(createBoard(poolForDay(pool.slice(0, -1), '2026-11-21'), 'sulit', dailySeed('2026-11-21', 'sulit')).deck);
+  expect(poolForDay(pool, '2026-11-22').some((p) => p.id === 'new')).toBe(true);
+});

@@ -100,6 +100,13 @@ export const buildDeck = (photos, rng) =>
   );
 
 /** Everything needed to start a board. */
+/**
+ * Photos the daily board may use on `wibDate`: only those added to the pool
+ * before that day, so an import mid-day doesn't change today's board for
+ * people who already played it (or for the leaderboard check).
+ */
+export const poolForDay = (pool, wibDate) => pool.filter((p) => !p.added || p.added < wibDate);
+
 export const createBoard = (pool, levelId, seed) => {
   const level = LEVELS[levelId];
   const rng = makeRng(seed);
@@ -119,6 +126,7 @@ export const initialGame = (deck) => ({
   lastMatch: null, // photoId of the most recent match (for the reveal toast)
   startedAt: null,
   finishedAt: null,
+  log: [], // [index, now] for every flip that changed the board (leaderboard proof)
 });
 
 /**
@@ -147,7 +155,8 @@ export const gameReducer = (state, action) => {
       if (open.includes(index)) return state;
 
       const startedAt = state.startedAt ?? now;
-      if (open.length === 0) return { ...state, open: [index], startedAt };
+      const log = [...state.log, [index, now]];
+      if (open.length === 0) return { ...state, open: [index], startedAt, log };
 
       const first = state.deck[open[0]];
       const moves = state.moves + 1;
@@ -165,10 +174,11 @@ export const gameReducer = (state, action) => {
           lastMatch: card.photoId,
           startedAt,
           finishedAt: done ? now : null,
+          log,
         };
       }
       open = [open[0], index];
-      return { ...state, open, moves, combo: 0, startedAt };
+      return { ...state, open, moves, combo: 0, startedAt, log };
     }
 
     default:
@@ -203,4 +213,68 @@ export const shareText = ({ mode, level, wibDate, timeMs, moves, stars, url }) =
     ? `Pasangkan Momen · Harian ${dd}/${mm} · ${LEVELS[level].label}`
     : `Pasangkan Momen · ${LEVELS[level].label}`;
   return `${head}\n⏱ ${formatDuration(timeMs)} · ${moves} langkah · ${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}\n${url}`;
+};
+
+// ── Leaderboard ───────────────────────────────────────────────────────
+
+export const NAME_MAX = 16;
+export const NAME_RE = /^[\p{L}\p{N} ._-]{2,16}$/u;
+/** Fastest believable gap between two flips, in active (unpaused) ms. */
+export const MIN_FLIP_GAP_MS = 120;
+
+/** "Malvin" → "M****n", "Malvin Evano" → "M****n E***o", "Al" → "A*". */
+export const maskName = (name) =>
+  String(name || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .split(' ')
+    .map((w) => {
+      const c = [...w];
+      if (c.length <= 1) return w;
+      if (c.length === 2) return `${c[0]}*`;
+      return c[0] + '*'.repeat(c.length - 2) + c[c.length - 1];
+    })
+    .join(' ');
+
+/**
+ * Re-play a finished daily game from its flip log so the server can trust
+ * the result instead of the numbers the browser sends.
+ *
+ *   log    [[index, now], …]  every flip that changed the board (state.log)
+ *   pauses [[from, to], …]    pause intervals, same clock as `now`
+ *
+ * Mismatched pairs auto-hide MISMATCH_MS after the second card, exactly
+ * like the page does. Returns { ok, moves, timeMs, stars } or { ok:false, error }.
+ */
+export const verifyRun = (deck, log, pauses = []) => {
+  if (!Array.isArray(log) || log.length < deck.length || log.length > 2000) return { ok: false, error: 'log' };
+  if (!Array.isArray(pauses) || pauses.length > 200) return { ok: false, error: 'pauses' };
+  const ps = [];
+  for (const p of pauses) {
+    if (!Array.isArray(p) || !Number.isFinite(p[0]) || !Number.isFinite(p[1]) || p[1] < p[0]) return { ok: false, error: 'pauses' };
+    ps.push([p[0], p[1]]);
+  }
+  ps.sort((a, b) => a[0] - b[0]);
+  const pausedBefore = (t) => ps.reduce((sum, [a, b]) => sum + Math.max(0, Math.min(b, t) - a), 0);
+
+  let state = initialGame(deck);
+  let secondAt = null; // real time the current mismatched pair was completed
+  let prevActive = null;
+  for (const entry of log) {
+    if (!Array.isArray(entry) || !Number.isInteger(entry[0]) || !Number.isFinite(entry[1])) return { ok: false, error: 'log' };
+    const [index, now] = entry;
+    if (index < 0 || index >= deck.length) return { ok: false, error: 'log' };
+    const active = now - pausedBefore(now);
+    if (prevActive != null && active - prevActive < MIN_FLIP_GAP_MS) return { ok: false, error: 'speed' };
+    prevActive = active;
+    if (state.open.length === 2 && secondAt != null && now - secondAt >= MISMATCH_MS) state = gameReducer(state, { type: 'hide' });
+    const next = gameReducer(state, { type: 'flip', index, now });
+    if (next === state) return { ok: false, error: 'replay' };
+    secondAt = next.open.length === 2 ? now : null;
+    state = next;
+  }
+  if (state.finishedAt == null) return { ok: false, error: 'unfinished' };
+  const timeMs = Math.round(state.finishedAt - state.startedAt - (pausedBefore(state.finishedAt) - pausedBefore(state.startedAt)));
+  const pairs = deck.length / 2;
+  return { ok: true, moves: state.moves, timeMs, stars: starRating(state.moves, pairs) };
 };

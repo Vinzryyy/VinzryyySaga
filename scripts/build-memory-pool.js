@@ -41,6 +41,8 @@ const dHash = async (file) => {
   return BigInt(`0b${bits}`).toString(16).padStart(16, '0');
 };
 
+const BASELINE_ADDED = '2026-11-20';
+
 const cleanEvent = (s) => {
   if (!s) return null;
   const one = s.split('\n')[0].replace(/\s+/g, ' ').trim();
@@ -51,6 +53,20 @@ const main = async () => {
   const enrich = JSON.parse(await readFile(path.join(PUBLIC, 'data', 'gallery-enrichments.json'), 'utf8'));
   const byKey = enrich.byMediaKey || {};
   const excluded = new Set(enrich.excludeMediaKeys || []);
+
+  // `added` = WIB date a photo entered the pool. The daily board only uses
+  // photos added before that day, so an import never reshuffles today's
+  // board (new photos join tomorrow). Photos already in the pool keep their
+  // date; first run stamps everything with BASELINE_ADDED.
+  let previous = {};
+  try {
+    const old = JSON.parse(await readFile(OUT, 'utf8'));
+    previous = Object.fromEntries(old.items.map((p) => [p.id, p.added || BASELINE_ADDED]));
+  } catch {
+    /* first build */
+  }
+  const firstBuild = Object.keys(previous).length === 0;
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date());
 
   const items = [];
   const seen = new Set();
@@ -73,6 +89,7 @@ const main = async () => {
       year: img.year || null,
       event: cleanEvent(e.eventName),
       h: await dHash(webpFile),
+      added: previous[key] || (firstBuild ? BASELINE_ADDED : today),
     });
   }
 

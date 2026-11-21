@@ -10,6 +10,7 @@
  */
 
 import { compareResults } from './memoryGame';
+import { compareRuns } from './memoryChallenge';
 
 export const STORAGE_KEY = 'armeniaca_mg_v1';
 
@@ -57,4 +58,18 @@ export const saveMemoryResult = (mode, levelId, wibDate, result) => {
     saveAll({ ...all, memory: mem });
   }
   return { record: isRecord ? entry : previous, isRecord, previous };
+};
+
+/** Best Mode Tantangan run: { stage, cleared, timeMs, moves, at } or null. */
+export const getChallengeRecord = () => loadAll().challenge?.best || null;
+
+/** Store a finished run (failed, stopped, or cleared). Returns { isRecord, previous }. */
+export const saveChallengeRun = (runResult) => {
+  const all = loadAll();
+  const previous = all.challenge?.best || null;
+  const isRecord = !previous || compareRuns(runResult, previous) < 0;
+  if (isRecord) {
+    saveAll({ ...all, challenge: { ...(all.challenge || {}), best: { ...runResult, at: new Date().toISOString() } } });
+  }
+  return { isRecord, previous };
 };
