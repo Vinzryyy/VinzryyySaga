@@ -14,6 +14,14 @@ The archive covers 350+ curated frames, real-time livestream detection, a birthd
 
 ---
 
+## Guiding principle — keep being human
+
+> "Kreativitas gak hanya tentang membuat sesuatu yang baru, tapi cara orang menginterpretasikan atau membawakan karya orang lain juga bagian dari kreativitas. … Keep connect and keep being human." — Indah
+
+Armeniaca doesn't create Eli; it curates and interprets her journey from a fan's point of view. Every feature is checked against that idea: human curation first (no AI-generated images of Eli, automation only assists), interpretation and performance count as craft, features should connect people rather than just be consumed, and sources are always credited. Full version (Indonesian): [docs/prinsip-armeniaca.md](docs/prinsip-armeniaca.md).
+
+---
+
 ## Tech stack
 
 | Layer | Choice | Why |
