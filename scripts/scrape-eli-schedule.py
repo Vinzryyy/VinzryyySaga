@@ -35,7 +35,6 @@ Run locally:
 
 import json
 import re
-import sys
 import time
 from datetime import datetime
 from html import unescape
@@ -349,11 +348,14 @@ def main():
         finally:
             browser.close()
     if not ok:
-        # Non-zero exit turns the GitHub Actions run red so a blocked
-        # scrape is visible instead of silently committing empty data.
-        print("::error::Schedule scrape failed — jkt48.com API calls were rejected. "
-              "eli-schedule.json was not updated.")
-        sys.exit(1)
+        # jkt48.com blocks this runner (Cloudflare 403) most of the time
+        # now. Report it as a yellow warning instead of failing the run:
+        # the previous eli-schedule.json is kept, and Eli's theater
+        # lineups are cross-checked from @moshi2jkt48 instead. Real
+        # crashes (exceptions) still exit non-zero and turn the run red.
+        print("::warning::jkt48.com rejected the API calls (likely Cloudflare 403). "
+              "eli-schedule.json was not updated; previous data kept.")
+        return
 
 
 def _run(sc):

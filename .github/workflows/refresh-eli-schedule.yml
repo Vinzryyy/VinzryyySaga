@@ -49,8 +49,8 @@ jobs:
         # events that don't appear in the jkt48.com schedule. Run after
         # the main scrape so the Eli refresh proceeds even if Chekicha
         # is down. Non-fatal: workflow continues either way.
-        # `!cancelled()` so this still runs when the jkt48.com scrape
-        # above fails (e.g. Cloudflare 403) — the run still ends red.
+        # `!cancelled()` so this still runs if the jkt48.com scrape
+        # above crashes. A Cloudflare 403 there is only a warning.
         if: ${{ !cancelled() }}
         run: python scripts/scrape-chekicha-eli.py
         continue-on-error: true
