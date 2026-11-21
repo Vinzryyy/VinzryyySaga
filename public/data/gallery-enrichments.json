@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-03T06:09:45.371Z",
-  "coveredMediaKeys": 356,
-  "totalMappingEntries": 364,
+  "generatedAt": "2026-11-21T14:28:04.452Z",
+  "coveredMediaKeys": 458,
+  "totalMappingEntries": 430,
   "manualOverrideFiles": 7,
-  "excludedMediaKeyCount": 9,
+  "excludedMediaKeyCount": 51,
   "notes": {
     "source": "Built from public/data/img-archive-mapping.json (caption + event metadata) joined to armeniaca-authentic-archive.json (mediaKey ↔ tweetId) by tweetId.",
     "schema": "byMediaKey[mediaKey] = full metadata; manualByFile[img-NNN.jpg] = manual overrides for files outside the X scrape; excludeMediaKeys = mediaKeys to hide from the gallery (consumer filters at load)."
@@ -6141,6 +6141,1576 @@
       "tweetUrl": "https://x.com/armeniaca15/status/2048602978983313513",
       "favoriteCount": 474,
       "source": "x"
+    },
+    "HXn19LibQAAu2lz": {
+      "eventName": "SCTV Awards 2026",
+      "eventDate": "2026-11-20",
+      "uploadDate": "2026-11-21",
+      "caption": "Good Morning @H_EliJKT48  , Have Fun Vc-nya Today!!!!\n\n201126 || SCTV Awards 2026 🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/jxn7P8Zz5v",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2123999141173076009",
+      "tweetUrl": "https://x.com/armeniaca15/status/2123999141173076009",
+      "favoriteCount": 91,
+      "source": "x"
+    },
+    "HXn19LbboAAvkrg": {
+      "eventName": "SCTV Awards 2026",
+      "eventDate": "2026-11-20",
+      "uploadDate": "2026-11-21",
+      "caption": "Good Morning @H_EliJKT48  , Have Fun Vc-nya Today!!!!\n\n201126 || SCTV Awards 2026 🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/jxn7P8Zz5v",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2123999141173076009",
+      "tweetUrl": "https://x.com/armeniaca15/status/2123999141173076009",
+      "favoriteCount": 91,
+      "source": "x"
+    },
+    "HXmyuRsbEAA8-vb": {
+      "eventName": "SCTV Awards 2026",
+      "eventDate": "2026-11-20",
+      "uploadDate": "2026-11-21",
+      "caption": "어제 정말 고생 많았어요!!🩵 tfy and see you lagi di vc nanti ya??😉 @h_elijkt48 \n\n201126 || SCTV Awards 2026 🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca #エリ #헬리스마 #BloomInSpring https://t.co/3prETe4uvt",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2123925215231226096",
+      "tweetUrl": "https://x.com/armeniaca15/status/2123925215231226096",
+      "favoriteCount": 127,
+      "source": "x"
+    },
+    "HXmyuRsaAAA4cbT": {
+      "eventName": "SCTV Awards 2026",
+      "eventDate": "2026-11-20",
+      "uploadDate": "2026-11-21",
+      "caption": "어제 정말 고생 많았어요!!🩵 tfy and see you lagi di vc nanti ya??😉 @h_elijkt48 \n\n201126 || SCTV Awards 2026 🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca #エリ #헬리스마 #BloomInSpring https://t.co/3prETe4uvt",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2123925215231226096",
+      "tweetUrl": "https://x.com/armeniaca15/status/2123925215231226096",
+      "favoriteCount": 127,
+      "source": "x"
+    },
+    "HXJ3GZtbAAERLN4": {
+      "eventName": "Soekarno–Hatta International Airport (CGK)",
+      "eventDate": "2026-11-15",
+      "uploadDate": "2026-11-15",
+      "caption": "Welcome Home to Jakarta !!!\n\n151126 || Soekarno–Hatta International Airport (CGK) 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #JKT48AirportFashion #BloomInSpring https://t.co/ajNodq8cfD",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "JKT48AirportFashion",
+        "BloomInSpring"
+      ],
+      "tweetId": "2121889334240621023",
+      "tweetUrl": "https://x.com/armeniaca15/status/2121889334240621023",
+      "favoriteCount": 140,
+      "source": "x"
+    },
+    "HXJ3GZxa8AAagwX": {
+      "eventName": "Soekarno–Hatta International Airport (CGK)",
+      "eventDate": "2026-11-15",
+      "uploadDate": "2026-11-15",
+      "caption": "Welcome Home to Jakarta !!!\n\n151126 || Soekarno–Hatta International Airport (CGK) 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #JKT48AirportFashion #BloomInSpring https://t.co/ajNodq8cfD",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "JKT48AirportFashion",
+        "BloomInSpring"
+      ],
+      "tweetId": "2121889334240621023",
+      "tweetUrl": "https://x.com/armeniaca15/status/2121889334240621023",
+      "favoriteCount": 140,
+      "source": "x"
+    },
+    "HXFvd9-a0AA3qTF": {
+      "eventName": "JKT48 Ayo Senyumlah Mini Tour Manado . Mega Mall Manado",
+      "eventDate": "2026-11-14",
+      "uploadDate": "2026-11-14",
+      "caption": "Tft Manado Today rest well!!! \n\n141126 || JKT48 Ayo Senyumlah Mini Tour Manado . Mega Mall Manado 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/q9ocbuyNeB",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2121599468785320073",
+      "tweetUrl": "https://x.com/armeniaca15/status/2121599468785320073",
+      "favoriteCount": 136,
+      "source": "x"
+    },
+    "HXEdIH7aQAA9B1w": {
+      "eventName": "JKT48 Ayo Senyumlah Mini Tour Manado . Mega Mall Manado",
+      "eventDate": "2026-11-14",
+      "uploadDate": "2026-11-14",
+      "caption": "HI Manado!!! \n\n141126 || JKT48 Ayo Senyumlah Mini Tour Manado . Mega Mall Manado 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/BHWnKTVKnA",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2121508955960799350",
+      "tweetUrl": "https://x.com/armeniaca15/status/2121508955960799350",
+      "favoriteCount": 196,
+      "source": "x"
+    },
+    "HXEdIB4bwAEUlOS": {
+      "eventName": "JKT48 Ayo Senyumlah Mini Tour Manado . Mega Mall Manado",
+      "eventDate": "2026-11-14",
+      "uploadDate": "2026-11-14",
+      "caption": "HI Manado!!! \n\n141126 || JKT48 Ayo Senyumlah Mini Tour Manado . Mega Mall Manado 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/BHWnKTVKnA",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2121508955960799350",
+      "tweetUrl": "https://x.com/armeniaca15/status/2121508955960799350",
+      "favoriteCount": 196,
+      "source": "x"
+    },
+    "HVhJ62DaUAAQ1R-": {
+      "eventName": "HUT KILAU RAYA MNCTV KE 35",
+      "eventDate": "2026-10-21",
+      "uploadDate": "2026-10-26",
+      "caption": "Hi ,It you!! @H_EliJKT48 \n\n211026 || HUT KILAU RAYA MNCTV KE 35 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/VCbDQOSyhP",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2114521314925191204",
+      "tweetUrl": "https://x.com/armeniaca15/status/2114521314925191204",
+      "favoriteCount": 113,
+      "source": "x"
+    },
+    "HVhJ62Aa4AAz3eJ": {
+      "eventName": "HUT KILAU RAYA MNCTV KE 35",
+      "eventDate": "2026-10-21",
+      "uploadDate": "2026-10-26",
+      "caption": "Hi ,It you!! @H_EliJKT48 \n\n211026 || HUT KILAU RAYA MNCTV KE 35 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/VCbDQOSyhP",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2114521314925191204",
+      "tweetUrl": "https://x.com/armeniaca15/status/2114521314925191204",
+      "favoriteCount": 113,
+      "source": "x"
+    },
+    "HVaXdm0bAAAL9KG": {
+      "eventName": "JKT48 & AKB48 Personal Meet and Greet Festival “Ayo Senyumlah”",
+      "eventDate": "2026-10-24",
+      "uploadDate": "2026-10-25",
+      "caption": "Helisma’s outfit @H_EliJKT48 \n\n241026 || JKT48 &amp; AKB48 Personal Meet and Greet Festival “Ayo Senyumlah” https://t.co/m62r9yAwA3",
+      "hashtags": [],
+      "tweetId": "2114043620638839003",
+      "tweetUrl": "https://x.com/armeniaca15/status/2114043620638839003",
+      "favoriteCount": 179,
+      "source": "x"
+    },
+    "HVaXdmtbcAAVa4N": {
+      "eventName": "JKT48 & AKB48 Personal Meet and Greet Festival “Ayo Senyumlah”",
+      "eventDate": "2026-10-24",
+      "uploadDate": "2026-10-25",
+      "caption": "Helisma’s outfit @H_EliJKT48 \n\n241026 || JKT48 &amp; AKB48 Personal Meet and Greet Festival “Ayo Senyumlah” https://t.co/m62r9yAwA3",
+      "hashtags": [],
+      "tweetId": "2114043620638839003",
+      "tweetUrl": "https://x.com/armeniaca15/status/2114043620638839003",
+      "favoriteCount": 179,
+      "source": "x"
+    },
+    "HVKCEMeboAEYVO6": {
+      "eventName": "HUT KILAU RAYA MNCTV KE 35",
+      "eventDate": "2026-10-21",
+      "uploadDate": "2026-10-21",
+      "caption": "😉✌️\n\n211026 || HUT KILAU RAYA MNCTV KE 35 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/Pk1s9Kgqdn",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2112894192225820756",
+      "tweetUrl": "https://x.com/armeniaca15/status/2112894192225820756",
+      "favoriteCount": 262,
+      "source": "x"
+    },
+    "HVKB2JMa0AA-SaX": {
+      "eventName": "HUT KILAU RAYA MNCTV KE 35",
+      "eventDate": "2026-10-21",
+      "uploadDate": "2026-10-21",
+      "caption": "Helisma Today !!\n\n211026 || HUT KILAU RAYA MNCTV KE 35 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/xZ2V3r9Gbx",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2112893952563311023",
+      "tweetUrl": "https://x.com/armeniaca15/status/2112893952563311023",
+      "favoriteCount": 248,
+      "source": "x"
+    },
+    "HVKB2JMaEAAefuW": {
+      "eventName": "HUT KILAU RAYA MNCTV KE 35",
+      "eventDate": "2026-10-21",
+      "uploadDate": "2026-10-21",
+      "caption": "Helisma Today !!\n\n211026 || HUT KILAU RAYA MNCTV KE 35 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 https://t.co/xZ2V3r9Gbx",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48"
+      ],
+      "tweetId": "2112893952563311023",
+      "tweetUrl": "https://x.com/armeniaca15/status/2112893952563311023",
+      "favoriteCount": 248,
+      "source": "x"
+    },
+    "HUNFydzbEAAzICS": {
+      "eventName": "HUT GTV Amazing 24",
+      "eventDate": "2026-10-09",
+      "uploadDate": "2026-10-10",
+      "caption": "091026 HUT GTV Amazing 24\n\n고생했엉~🩵🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca\n#エリ #헬리스마 #BloomInSpring https://t.co/NQauRr3FXb",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2108605791720923289",
+      "tweetUrl": "https://x.com/armeniaca15/status/2108605791720923289",
+      "favoriteCount": 86,
+      "source": "x"
+    },
+    "HUNFyd0aQAAcsC3": {
+      "eventName": "HUT GTV Amazing 24",
+      "eventDate": "2026-10-09",
+      "uploadDate": "2026-10-10",
+      "caption": "091026 HUT GTV Amazing 24\n\n고생했엉~🩵🧜🏻‍♀️\n\n#HelismaPutri #EliJKT48 #armeniaca\n#エリ #헬리스마 #BloomInSpring https://t.co/NQauRr3FXb",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2108605791720923289",
+      "tweetUrl": "https://x.com/armeniaca15/status/2108605791720923289",
+      "favoriteCount": 86,
+      "source": "x"
+    },
+    "HUMw_jVbYAAVt-u": {
+      "eventName": "HUT GTV Amazing 24",
+      "eventDate": "2026-10-09",
+      "uploadDate": "2026-10-09",
+      "caption": "091026 HUT GTV Amazing 24\n\nthere you are!! my cutie mermaid (˶˃ ᵕ ˂˶) @h_elijkt48\n\n#HelismaPutri #EliJKT48 #armeniaca\n#エリ #헬리스마 #BloomInSpring https://t.co/7909PQwc1W",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2108582949746827700",
+      "tweetUrl": "https://x.com/armeniaca15/status/2108582949746827700",
+      "favoriteCount": 144,
+      "source": "x"
+    },
+    "HUMw_jPbAAAJ_zx": {
+      "eventName": "HUT GTV Amazing 24",
+      "eventDate": "2026-10-09",
+      "uploadDate": "2026-10-09",
+      "caption": "091026 HUT GTV Amazing 24\n\nthere you are!! my cutie mermaid (˶˃ ᵕ ˂˶) @h_elijkt48\n\n#HelismaPutri #EliJKT48 #armeniaca\n#エリ #헬리스마 #BloomInSpring https://t.co/7909PQwc1W",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2108582949746827700",
+      "tweetUrl": "https://x.com/armeniaca15/status/2108582949746827700",
+      "favoriteCount": 144,
+      "source": "x"
+    },
+    "HUMU-3kbUAA5bN4": {
+      "eventName": "another milestone unlocked!! congratulations little bunny",
+      "eventDate": "2026-10-09",
+      "uploadDate": "2026-10-09",
+      "caption": "another milestone unlocked!!✨ congratulations little bunny @Gracie_JKT48❤️\n\nsemoga bisa cepet nyusul ka @H_EliJKT48 juga yaa!!🐰💘 \n\nprojectnya keren tok💘 @tokki_1810 keren mister🐰 @Julian066529157 \n\n#Meeting_My_Cupid_No200 https://t.co/UAvEDmVlvn",
+      "hashtags": [
+        "Meeting_My_Cupid_No200"
+      ],
+      "tweetId": "2108552250411090135",
+      "tweetUrl": "https://x.com/armeniaca15/status/2108552250411090135",
+      "favoriteCount": 33,
+      "source": "x"
+    },
+    "HUMU-3lbYAAgTPa": {
+      "eventName": "another milestone unlocked!! congratulations little bunny",
+      "eventDate": "2026-10-09",
+      "uploadDate": "2026-10-09",
+      "caption": "another milestone unlocked!!✨ congratulations little bunny @Gracie_JKT48❤️\n\nsemoga bisa cepet nyusul ka @H_EliJKT48 juga yaa!!🐰💘 \n\nprojectnya keren tok💘 @tokki_1810 keren mister🐰 @Julian066529157 \n\n#Meeting_My_Cupid_No200 https://t.co/UAvEDmVlvn",
+      "hashtags": [
+        "Meeting_My_Cupid_No200"
+      ],
+      "tweetId": "2108552250411090135",
+      "tweetUrl": "https://x.com/armeniaca15/status/2108552250411090135",
+      "favoriteCount": 33,
+      "source": "x"
+    },
+    "HTwncgJacAAuiDa": {
+      "eventName": "Vidio Sports Festival 2026",
+      "eventDate": "2026-09-26",
+      "uploadDate": "2026-10-04",
+      "caption": "260926 || Vidio Sports Festival 2026 🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #헬리스마\n#エリ #armeniaca #BloomInSpring\n#JKT48  #JKT48Dream https://t.co/nPEWR6S62d",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "헬리스마",
+        "エリ",
+        "armeniaca",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream"
+      ],
+      "tweetId": "2106602103779299772",
+      "tweetUrl": "https://x.com/armeniaca15/status/2106602103779299772",
+      "favoriteCount": 125,
+      "source": "x"
+    },
+    "HTwncgMaEAAVK6v": {
+      "eventName": "Vidio Sports Festival 2026",
+      "eventDate": "2026-09-26",
+      "uploadDate": "2026-10-04",
+      "caption": "260926 || Vidio Sports Festival 2026 🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #헬리스마\n#エリ #armeniaca #BloomInSpring\n#JKT48  #JKT48Dream https://t.co/nPEWR6S62d",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "헬리스마",
+        "エリ",
+        "armeniaca",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream"
+      ],
+      "tweetId": "2106602103779299772",
+      "tweetUrl": "https://x.com/armeniaca15/status/2106602103779299772",
+      "favoriteCount": 125,
+      "source": "x"
+    },
+    "HTXehuJaQAA-Dd4": {
+      "eventName": "vidio sports festival",
+      "eventDate": "2026-09-27",
+      "uploadDate": "2026-09-29",
+      "caption": "eight years later, still so grateful you chose this path💫 thank you for all the hard work you’ve poured into being here, we love you helisma🩵🧜🏻‍♀️\n\n270926 vidio sports festival\n\n#TheConstellationOfVII \n#EightYearsOfLight \n#8thYearsLuckySeven https://t.co/sUnewaFqUu",
+      "hashtags": [
+        "TheConstellationOfVII",
+        "EightYearsOfLight",
+        "8thYearsLuckySeven"
+      ],
+      "tweetId": "2104833082314682770",
+      "tweetUrl": "https://x.com/armeniaca15/status/2104833082314682770",
+      "favoriteCount": 159,
+      "source": "x"
+    },
+    "HTXehuJakAA1Hfk": {
+      "eventName": "vidio sports festival",
+      "eventDate": "2026-09-27",
+      "uploadDate": "2026-09-29",
+      "caption": "eight years later, still so grateful you chose this path💫 thank you for all the hard work you’ve poured into being here, we love you helisma🩵🧜🏻‍♀️\n\n270926 vidio sports festival\n\n#TheConstellationOfVII \n#EightYearsOfLight \n#8thYearsLuckySeven https://t.co/sUnewaFqUu",
+      "hashtags": [
+        "TheConstellationOfVII",
+        "EightYearsOfLight",
+        "8thYearsLuckySeven"
+      ],
+      "tweetId": "2104833082314682770",
+      "tweetUrl": "https://x.com/armeniaca15/status/2104833082314682770",
+      "favoriteCount": 159,
+      "source": "x"
+    },
+    "HQe58C4aoAEV63-": {
+      "eventName": "HUT RCTI 37th, Maha karya Cinta",
+      "eventDate": "2026-08-23",
+      "uploadDate": "2026-08-24",
+      "caption": "Tft @H_EliJKT48 \n\n230826 || HUT RCTI 37th, Maha karya Cinta 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream https://t.co/6LN6Sz2Gp6",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream"
+      ],
+      "tweetId": "2091845001831747989",
+      "tweetUrl": "https://x.com/armeniaca15/status/2091845001831747989",
+      "favoriteCount": 152,
+      "source": "x"
+    },
+    "HQe58C4bkAAvMSS": {
+      "eventName": "HUT RCTI 37th, Maha karya Cinta",
+      "eventDate": "2026-08-23",
+      "uploadDate": "2026-08-24",
+      "caption": "Tft @H_EliJKT48 \n\n230826 || HUT RCTI 37th, Maha karya Cinta 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream https://t.co/6LN6Sz2Gp6",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream"
+      ],
+      "tweetId": "2091845001831747989",
+      "tweetUrl": "https://x.com/armeniaca15/status/2091845001831747989",
+      "favoriteCount": 152,
+      "source": "x"
+    },
+    "HN-CjBQbUAAHIM9": {
+      "eventName": "Cie cie",
+      "eventDate": "2026-07-24",
+      "uploadDate": "2026-07-24",
+      "caption": "Cie cie https://t.co/H8pe2dv1Zf",
+      "hashtags": [],
+      "tweetId": "2080525098872885720",
+      "tweetUrl": "https://x.com/armeniaca15/status/2080525098872885720",
+      "favoriteCount": 24,
+      "source": "x"
+    },
+    "HMxoBeKbsAAZM8R": {
+      "eventName": "Soekarno–Hatta International Airport (CGK)",
+      "eventDate": "2026-07-09",
+      "uploadDate": "2026-07-09",
+      "caption": "Good bye see you again @H_EliJKT48 \n\n090726 || Soekarno–Hatta International Airport (CGK)  🧜🏻‍♀️ \n\n#HelismaPutri  #EliJKT48 #헬리스마\n#エリ #armeniaca #BloomInSpring\n#JKT48  #JKT48Dream #TreamDim https://t.co/uUdgDOqF8q",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "헬리스마",
+        "エリ",
+        "armeniaca",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "TreamDim"
+      ],
+      "tweetId": "2075148443715305573",
+      "tweetUrl": "https://x.com/armeniaca15/status/2075148443715305573",
+      "favoriteCount": 459,
+      "source": "x"
+    },
+    "HMxoBeNbQAAfIdk": {
+      "eventName": "Soekarno–Hatta International Airport (CGK)",
+      "eventDate": "2026-07-09",
+      "uploadDate": "2026-07-09",
+      "caption": "Good bye see you again @H_EliJKT48 \n\n090726 || Soekarno–Hatta International Airport (CGK)  🧜🏻‍♀️ \n\n#HelismaPutri  #EliJKT48 #헬리스마\n#エリ #armeniaca #BloomInSpring\n#JKT48  #JKT48Dream #TreamDim https://t.co/uUdgDOqF8q",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "헬리스마",
+        "エリ",
+        "armeniaca",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "TreamDim"
+      ],
+      "tweetId": "2075148443715305573",
+      "tweetUrl": "https://x.com/armeniaca15/status/2075148443715305573",
+      "favoriteCount": 459,
+      "source": "x"
+    },
+    "HMiSwxSbAAANmar": {
+      "eventName": "𝐏𝐑𝐎𝐉𝐄𝐂𝐓 𝐓𝐇𝐄𝐀𝐓𝐄𝐑 𝐘𝐎𝐆𝐘𝐀𝐊𝐀𝐑𝐓𝐀",
+      "eventDate": "2026-07-06",
+      "uploadDate": "2026-07-06",
+      "caption": "𝐏𝐑𝐎𝐉𝐄𝐂𝐓 𝐓𝐇𝐄𝐀𝐓𝐄𝐑 𝐘𝐎𝐆𝐘𝐀𝐊𝐀𝐑𝐓𝐀 ✨\n\nDay 1, Cimotz stage begins. 🤍\n\nDisplay project spesial untuk Helisma @H_EliJKT48 telah siap menyambut kalian di Taman Budaya Embung Giwangan, Yogyakarta. 🌸\n\nSemoga setiap langkah menuju teater menjadi awal dari cerita yang https://t.co/hEyOC5LiIu",
+      "hashtags": [],
+      "tweetId": "2074069002251633148",
+      "tweetUrl": "https://x.com/armeniaca15/status/2074069002251633148",
+      "favoriteCount": 138,
+      "source": "x"
+    },
+    "HMggjTAacAAFl7z": {
+      "eventName": "Ohayooo Ngak sabar Teater Sementara Hari ini !!!",
+      "eventDate": "2026-07-06",
+      "uploadDate": "2026-07-06",
+      "caption": "Ohayooo Ngak sabar Teater Sementara Hari ini !!!\n\nJKT48 Temporary Theater \"Dream\" Yogyakarta 🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri #EliJKT48 #armeniaca #エリ #헬리스마 #BloomInSpring #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaDIY https://t.co/t0qj8X4Fnw",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaDIY"
+      ],
+      "tweetId": "2073943549431967963",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073943549431967963",
+      "favoriteCount": 112,
+      "source": "x"
+    },
+    "HMddqvwbMAAgH2b": {
+      "eventName": "TFT",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "TFT \n\nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaDIY https://t.co/6ZLwkq2K98",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaDIY"
+      ],
+      "tweetId": "2073730241743442320",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073730241743442320",
+      "favoriteCount": 254,
+      "source": "x"
+    },
+    "HMdeijpasAAjadz": {
+      "eventName": "TFT",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "TFT \n\nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaDIY https://t.co/6ZLwkq2K98",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaDIY"
+      ],
+      "tweetId": "2073730241743442320",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073730241743442320",
+      "favoriteCount": 254,
+      "source": "x"
+    },
+    "HMdAmILa0AAmQcf": {
+      "eventName": "\"Personal Meet And Greet",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "Full body outfit today\n\n050726 || \"Personal Meet And Greet \nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaSBY https://t.co/LCh22Doh7s",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaSBY"
+      ],
+      "tweetId": "2073697186500784486",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073697186500784486",
+      "favoriteCount": 174,
+      "source": "x"
+    },
+    "HMcnHmLbUAAlCWg": {
+      "eventName": "siapa yang udah mng sama si geulis cimot?",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "siapa yang udah mng sama si geulis cimot?😝 @H_EliJKT48 \n\n#JKT48TheaterSementaraDIY https://t.co/rHFNvHuROj",
+      "hashtags": [
+        "JKT48TheaterSementaraDIY"
+      ],
+      "tweetId": "2073669174912835748",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073669174912835748",
+      "favoriteCount": 59,
+      "source": "x"
+    },
+    "HMcUEcJbsAA-Mzb": {
+      "eventName": "\"Personal Meet And Greet",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "Cimotkuuu 🫣\n\n050726 || \"Personal Meet And Greet \nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaSBY https://t.co/41aqASq8ey",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaSBY"
+      ],
+      "tweetId": "2073648229137498593",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073648229137498593",
+      "favoriteCount": 330,
+      "source": "x"
+    },
+    "HMcUEccaEAADJvt": {
+      "eventName": "\"Personal Meet And Greet",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "Cimotkuuu 🫣\n\n050726 || \"Personal Meet And Greet \nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaSBY https://t.co/41aqASq8ey",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaSBY"
+      ],
+      "tweetId": "2073648229137498593",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073648229137498593",
+      "favoriteCount": 330,
+      "source": "x"
+    },
+    "HMcPadGaAAEckdv": {
+      "eventName": "\"Personal Meet And Greet",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "Outfit check \n\n050726 || \"Personal Meet And Greet \nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaSBY https://t.co/JgWJi6dAly",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaSBY"
+      ],
+      "tweetId": "2073643209331478919",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073643209331478919",
+      "favoriteCount": 182,
+      "source": "x"
+    },
+    "HMcLwgyagAAwT9f": {
+      "eventName": "\"Personal Meet And Greet",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "Helisma today \n\n050726 || \"Personal Meet And Greet \nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaSBY https://t.co/hp3seSbfem",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaSBY"
+      ],
+      "tweetId": "2073639092177490400",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073639092177490400",
+      "favoriteCount": 303,
+      "source": "x"
+    },
+    "HMcLwg3a8AA211E": {
+      "eventName": "\"Personal Meet And Greet",
+      "eventDate": "2026-07-05",
+      "uploadDate": "2026-07-05",
+      "caption": "Helisma today \n\n050726 || \"Personal Meet And Greet \nJKT48 Theater Sementara \"Dream\" Yogyakarta\"  🧜🏻‍♀️ @H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream\n#JKT48TheaterYogyakartaSBY https://t.co/hp3seSbfem",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterYogyakartaSBY"
+      ],
+      "tweetId": "2073639092177490400",
+      "tweetUrl": "https://x.com/armeniaca15/status/2073639092177490400",
+      "favoriteCount": 303,
+      "source": "x"
+    },
+    "HMNoZQBboAALTdH": {
+      "eventName": "MnG Teater sementara Surabaya",
+      "eventDate": "2026-07-02",
+      "uploadDate": "2026-07-02",
+      "caption": "Helisma today \n\n020726 || MnG Teater sementara Surabaya 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream #JKT48TheaterSementaraSBY https://t.co/irMitlj1QK",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterSementaraSBY"
+      ],
+      "tweetId": "2072615056806953210",
+      "tweetUrl": "https://x.com/armeniaca15/status/2072615056806953210",
+      "favoriteCount": 572,
+      "source": "x"
+    },
+    "HMNoZQGbIAATFeG": {
+      "eventName": "MnG Teater sementara Surabaya",
+      "eventDate": "2026-07-02",
+      "uploadDate": "2026-07-02",
+      "caption": "Helisma today \n\n020726 || MnG Teater sementara Surabaya 🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring  #JKT48 #JKT48Dream #JKT48TheaterSementaraSBY https://t.co/irMitlj1QK",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring",
+        "JKT48",
+        "JKT48Dream",
+        "JKT48TheaterSementaraSBY"
+      ],
+      "tweetId": "2072615056806953210",
+      "tweetUrl": "https://x.com/armeniaca15/status/2072615056806953210",
+      "favoriteCount": 572,
+      "source": "x"
+    },
+    "HLssqfobIAAA0Xq": {
+      "eventName": "Jakarta Fair Music Concert 2026",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-26",
+      "caption": "Selamat pagi @H_EliJKT48 !! \n\nJangan lupa Sarapan foto oshi hari ini\n\n250626|| Jakarta Fair Music Concert 2026 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/hYcjm76yFJ",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2070297570740752833",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070297570740752833",
+      "favoriteCount": 207,
+      "source": "x"
+    },
+    "HLssqfsbkAAfh8W": {
+      "eventName": "Jakarta Fair Music Concert 2026",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-26",
+      "caption": "Selamat pagi @H_EliJKT48 !! \n\nJangan lupa Sarapan foto oshi hari ini\n\n250626|| Jakarta Fair Music Concert 2026 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/hYcjm76yFJ",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2070297570740752833",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070297570740752833",
+      "favoriteCount": 207,
+      "source": "x"
+    },
+    "HLq5ip6bkAAZw6s": {
+      "eventName": "Jakarta Fair Music Concert 2026",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-25",
+      "caption": "Cimotku @H_EliJKT48 \n250626|| Jakarta Fair Music Concert 2026 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/3ExBCQBLHQ",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2070171002710179890",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070171002710179890",
+      "favoriteCount": 294,
+      "source": "x"
+    },
+    "HLq5iplasAIXr-Z": {
+      "eventName": "Jakarta Fair Music Concert 2026",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-25",
+      "caption": "Cimotku @H_EliJKT48 \n250626|| Jakarta Fair Music Concert 2026 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/3ExBCQBLHQ",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2070171002710179890",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070171002710179890",
+      "favoriteCount": 294,
+      "source": "x"
+    },
+    "HLqzuo5aoAE_FeE": {
+      "eventName": "Jakarta Fair Music Concert 2026",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-25",
+      "caption": "Tft Cimot ( Cici Imouttt ) @H_EliJKT48 \n\n250626|| Jakarta Fair Music Concert 2026 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/NK2v5nqG1l",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2070164605712974334",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070164605712974334",
+      "favoriteCount": 429,
+      "source": "x"
+    },
+    "HLqzuonb0AAdGBg": {
+      "eventName": "Jakarta Fair Music Concert 2026",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-25",
+      "caption": "Tft Cimot ( Cici Imouttt ) @H_EliJKT48 \n\n250626|| Jakarta Fair Music Concert 2026 🧜🏻‍♀️\n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/NK2v5nqG1l",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2070164605712974334",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070164605712974334",
+      "favoriteCount": 429,
+      "source": "x"
+    },
+    "HLqF0RzboAAGOxE": {
+      "eventName": "PRJ",
+      "eventDate": "2026-06-25",
+      "uploadDate": "2026-06-25",
+      "caption": "PRJ https://t.co/jjYaH5ZVaR",
+      "hashtags": [],
+      "tweetId": "2070114119903232051",
+      "tweetUrl": "https://x.com/armeniaca15/status/2070114119903232051",
+      "favoriteCount": 23,
+      "source": "x"
+    },
+    "HLZLN_QasAAHcBo": {
+      "eventName": "see ya",
+      "eventDate": "2026-06-22",
+      "uploadDate": "2026-06-22",
+      "caption": "see ya https://t.co/TPilAU0F4i",
+      "hashtags": [],
+      "tweetId": "2068923792760660430",
+      "tweetUrl": "https://x.com/armeniaca15/status/2068923792760660430",
+      "favoriteCount": 68,
+      "source": "x"
+    },
+    "HLRGCaCbwAAEL7m": {
+      "eventName": "the prettiest person with the prettiest frame, thankyou cantik!! see you tomorrow",
+      "eventDate": "2026-06-20",
+      "uploadDate": "2026-06-20",
+      "caption": "the prettiest person with the prettiest frame, thankyou cantik!!🤍 see you tomorrow🌷 @H_EliJKT48 \n\nyuk pada ikutan foto juga and don’t forget to tag us🤗 https://t.co/agbKw3BBhX",
+      "hashtags": [],
+      "tweetId": "2068355143918333956",
+      "tweetUrl": "https://x.com/armeniaca15/status/2068355143918333956",
+      "favoriteCount": 60,
+      "source": "x"
+    },
+    "HLLtIuHbQAAeyog": {
+      "eventName": "Thank you untuk chekicha hari ini best",
+      "eventDate": "2026-06-19",
+      "uploadDate": "2026-06-19",
+      "caption": "Thank you untuk chekicha hari ini best @H_EliJKT48 https://t.co/TYdKusNCcg",
+      "hashtags": [],
+      "tweetId": "2067975985430155582",
+      "tweetUrl": "https://x.com/armeniaca15/status/2067975985430155582",
+      "favoriteCount": 80,
+      "source": "x"
+    },
+    "HK2hbmqaoAAKeqM": {
+      "eventName": "Glad you’re happy Happy birthday, love",
+      "eventDate": "2026-06-15",
+      "uploadDate": "2026-06-15",
+      "caption": "Glad you’re happy🥹 Happy birthday, love🫶🏼 @H_EliJKT48 \n\n#HarmoniKebaikan\n#HappyHelismaDay https://t.co/LMRsKqAKMV",
+      "hashtags": [
+        "HarmoniKebaikan",
+        "HappyHelismaDay"
+      ],
+      "tweetId": "2066485308313772372",
+      "tweetUrl": "https://x.com/armeniaca15/status/2066485308313772372",
+      "favoriteCount": 129,
+      "source": "x"
+    },
+    "HK2hbmqakAA3IUC": {
+      "eventName": "Glad you’re happy Happy birthday, love",
+      "eventDate": "2026-06-15",
+      "uploadDate": "2026-06-15",
+      "caption": "Glad you’re happy🥹 Happy birthday, love🫶🏼 @H_EliJKT48 \n\n#HarmoniKebaikan\n#HappyHelismaDay https://t.co/LMRsKqAKMV",
+      "hashtags": [
+        "HarmoniKebaikan",
+        "HappyHelismaDay"
+      ],
+      "tweetId": "2066485308313772372",
+      "tweetUrl": "https://x.com/armeniaca15/status/2066485308313772372",
+      "favoriteCount": 129,
+      "source": "x"
+    },
+    "HK2hbmsaAAAzFRH": {
+      "eventName": "Glad you’re happy Happy birthday, love",
+      "eventDate": "2026-06-15",
+      "uploadDate": "2026-06-15",
+      "caption": "Glad you’re happy🥹 Happy birthday, love🫶🏼 @H_EliJKT48 \n\n#HarmoniKebaikan\n#HappyHelismaDay https://t.co/LMRsKqAKMV",
+      "hashtags": [
+        "HarmoniKebaikan",
+        "HappyHelismaDay"
+      ],
+      "tweetId": "2066485308313772372",
+      "tweetUrl": "https://x.com/armeniaca15/status/2066485308313772372",
+      "favoriteCount": 129,
+      "source": "x"
+    },
+    "HKyN29zbIAADTxx": {
+      "eventName": "It’s amazing how one small act of kindness can leave a lasting mark on someone’s life",
+      "eventDate": "2026-06-15",
+      "uploadDate": "2026-06-15",
+      "caption": "It’s amazing how one small act of kindness can leave a lasting mark on someone’s life.\n\nOver the years, you may not have realized it, but every smile you shared, every encouraging word you spoke, and every moment of sincerity you gave became a source of comfort and happiness for https://t.co/xglSSpOPE8",
+      "hashtags": [],
+      "tweetId": "2066204018670436579",
+      "tweetUrl": "https://x.com/armeniaca15/status/2066204018670436579",
+      "favoriteCount": 159,
+      "source": "x"
+    },
+    "HKnh0gMbEAA_IA-": {
+      "eventName": "𝐕𝐈𝐃𝐄𝐎𝐓𝐑𝐎𝐍 𝐏𝐑𝐎𝐉𝐄𝐂𝐓",
+      "eventDate": "2026-06-12",
+      "uploadDate": "2026-06-12",
+      "caption": "𝐕𝐈𝐃𝐄𝐎𝐓𝐑𝐎𝐍 𝐏𝐑𝐎𝐉𝐄𝐂𝐓\n#HappyHelismaDay\nᅠ\nIn celebrating our dearest @H_EliJKT48’s 26th birthday, we prepared a ✨DOUBLE-SIDED✨ videotron to light up her special day🤍\nᅠ\n🗓️ Monday, June 15th 2026\n📍 Pillar MRT Blok M \n3 pillars in front of Taman Literasi Blok M (6 https://t.co/M6N6SW4Eyv",
+      "hashtags": [
+        "HappyHelismaDay"
+      ],
+      "tweetId": "2065430211727122566",
+      "tweetUrl": "https://x.com/armeniaca15/status/2065430211727122566",
+      "favoriteCount": 228,
+      "source": "x"
+    },
+    "HKiPak9aMAAYEvS": {
+      "eventName": "The chains have disappeared",
+      "eventDate": "2026-06-11",
+      "uploadDate": "2026-06-11",
+      "caption": "The chains have disappeared.\nNothing can hold the melody back anymore.\nEvery note carries a story, every harmony holds a feeling, and every lyric comes straight from the heart. What was once kept in silence is finally ready to be heard.\n\nThis is more than just a song—it's a https://t.co/6ooBcZMhEM",
+      "hashtags": [],
+      "tweetId": "2065060245190398424",
+      "tweetUrl": "https://x.com/armeniaca15/status/2065060245190398424",
+      "favoriteCount": 56,
+      "source": "x"
+    },
+    "HKiPbpzaAAAAJq9": {
+      "eventName": "The chains have disappeared",
+      "eventDate": "2026-06-11",
+      "uploadDate": "2026-06-11",
+      "caption": "The chains have disappeared.\nNothing can hold the melody back anymore.\nEvery note carries a story, every harmony holds a feeling, and every lyric comes straight from the heart. What was once kept in silence is finally ready to be heard.\n\nThis is more than just a song—it's a https://t.co/6ooBcZMhEM",
+      "hashtags": [],
+      "tweetId": "2065060245190398424",
+      "tweetUrl": "https://x.com/armeniaca15/status/2065060245190398424",
+      "favoriteCount": 56,
+      "source": "x"
+    },
+    "HKXm4bIbYAAmSXK": {
+      "eventName": "Less than a week until we celebrate our beloved mermaid,!",
+      "eventDate": "2026-06-09",
+      "uploadDate": "2026-06-09",
+      "caption": "🌊✨ Less than a week until we celebrate our beloved mermaid, @H_EliJKT48! 🧜‍♀️💙\n\nGet ready for our special birthday project and let's make it unforgettable! 🎂🎉\n#harmonikebaikan #bloominspring https://t.co/5yrz1F89Ju",
+      "hashtags": [
+        "harmonikebaikan",
+        "bloominspring"
+      ],
+      "tweetId": "2064309864596393999",
+      "tweetUrl": "https://x.com/armeniaca15/status/2064309864596393999",
+      "favoriteCount": 68,
+      "source": "x"
+    },
+    "HKXm4dPaQAARbKt": {
+      "eventName": "Less than a week until we celebrate our beloved mermaid,!",
+      "eventDate": "2026-06-09",
+      "uploadDate": "2026-06-09",
+      "caption": "🌊✨ Less than a week until we celebrate our beloved mermaid, @H_EliJKT48! 🧜‍♀️💙\n\nGet ready for our special birthday project and let's make it unforgettable! 🎂🎉\n#harmonikebaikan #bloominspring https://t.co/5yrz1F89Ju",
+      "hashtags": [
+        "harmonikebaikan",
+        "bloominspring"
+      ],
+      "tweetId": "2064309864596393999",
+      "tweetUrl": "https://x.com/armeniaca15/status/2064309864596393999",
+      "favoriteCount": 68,
+      "source": "x"
+    },
+    "HKXm4cbaEAEcXpj": {
+      "eventName": "Less than a week until we celebrate our beloved mermaid,!",
+      "eventDate": "2026-06-09",
+      "uploadDate": "2026-06-09",
+      "caption": "🌊✨ Less than a week until we celebrate our beloved mermaid, @H_EliJKT48! 🧜‍♀️💙\n\nGet ready for our special birthday project and let's make it unforgettable! 🎂🎉\n#harmonikebaikan #bloominspring https://t.co/5yrz1F89Ju",
+      "hashtags": [
+        "harmonikebaikan",
+        "bloominspring"
+      ],
+      "tweetId": "2064309864596393999",
+      "tweetUrl": "https://x.com/armeniaca15/status/2064309864596393999",
+      "favoriteCount": 68,
+      "source": "x"
+    },
+    "HKMwUH_bYAAo55d": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Cewek imut ini lagi!! \n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/7S2NpoQ9EI",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063546188079751295",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063546188079751295",
+      "favoriteCount": 107,
+      "source": "x"
+    },
+    "HKLt2iea8AA8c_M": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Geulis pisan euy \n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/rUtjnbQorU",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063473118329663501",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063473118329663501",
+      "favoriteCount": 186,
+      "source": "x"
+    },
+    "HKLt2igboAAKpjz": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Geulis pisan euy \n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/rUtjnbQorU",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063473118329663501",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063473118329663501",
+      "favoriteCount": 186,
+      "source": "x"
+    },
+    "HKLs5RibEAAAk6T": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Helisma’s Collective \n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/wUnwLteKun",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063472066238775743",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063472066238775743",
+      "favoriteCount": 171,
+      "source": "x"
+    },
+    "HKLs5Rab0AAaytp": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Helisma’s Collective \n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/wUnwLteKun",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063472066238775743",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063472066238775743",
+      "favoriteCount": 171,
+      "source": "x"
+    },
+    "HKLs5RlawAAyqUM": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Helisma’s Collective \n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/wUnwLteKun",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063472066238775743",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063472066238775743",
+      "favoriteCount": 171,
+      "source": "x"
+    },
+    "HKLSql-aUAAoby9": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Minggu pagi yang cerah.\nDan entah kenapa, dunia terasa sedikit lebih baik hari ini. ✨ \n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/HNu40izeHg",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063443217165815937",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063443217165815937",
+      "favoriteCount": 192,
+      "source": "x"
+    },
+    "HKLSql9bUAAfKeg": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Minggu pagi yang cerah.\nDan entah kenapa, dunia terasa sedikit lebih baik hari ini. ✨ \n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/HNu40izeHg",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063443217165815937",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063443217165815937",
+      "favoriteCount": 192,
+      "source": "x"
+    },
+    "HKLRellaoAAkRSN": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Selamat pagi kesayangan mimin ❤️❤️❤️ Semangat hari Minggu!!\n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/CYlEx6Yaz2",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063441911512453561",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063441911512453561",
+      "favoriteCount": 226,
+      "source": "x"
+    },
+    "HKLRelhaoAAAegJ": {
+      "eventName": "O’Live Milk CFD Takeover",
+      "eventDate": "2025-07-07",
+      "uploadDate": "2026-06-07",
+      "caption": "Selamat pagi kesayangan mimin ❤️❤️❤️ Semangat hari Minggu!!\n\n070725 || O’Live Milk CFD Takeover🧜🏻‍♀️@H_EliJKT48 \n\n#HelismaPutri  #EliJKT48 #armeniaca  #エリ #헬리스마 #BloomInSpring https://t.co/CYlEx6Yaz2",
+      "hashtags": [
+        "HelismaPutri",
+        "EliJKT48",
+        "armeniaca",
+        "エリ",
+        "헬리스마",
+        "BloomInSpring"
+      ],
+      "tweetId": "2063441911512453561",
+      "tweetUrl": "https://x.com/armeniaca15/status/2063441911512453561",
+      "favoriteCount": 226,
+      "source": "x"
+    },
+    "HJy_ZK5bIAEwBKY": {
+      "eventName": "Memasuki Bulan Kelahiran Helisma Mauludzunia Putri Kurnia, Armeniaca dengan bangga mempersembahkan",
+      "eventDate": "2026-06-02",
+      "uploadDate": "2026-06-02",
+      "caption": "Memasuki Bulan Kelahiran Helisma Mauludzunia Putri Kurnia, Armeniaca dengan bangga mempersembahkan: \n\n📸 Photo Frame Project — Happy Helisma Day\n\nAbadikan momen spesialmu dalam photobox eksklusif dengan bingkai khusus Helisma Day sebagai kenangan menuju Seitansai ke-26 Ceu Eli. https://t.co/MmzedBn2lH",
+      "hashtags": [],
+      "tweetId": "2061733177291375023",
+      "tweetUrl": "https://x.com/armeniaca15/status/2061733177291375023",
+      "favoriteCount": 87,
+      "source": "x"
+    },
+    "HJt72Rfa8AA-OvC": {
+      "eventName": "Arme-ChatBot is online",
+      "eventDate": "2026-06-01",
+      "uploadDate": "2026-06-01",
+      "caption": "Arme-ChatBot is online. \n\nPunya pertanyaan seputar web ini bisa ditanyakan ke Arme aja ya guys!!! https://t.co/zwEynuRWMS",
+      "hashtags": [],
+      "tweetId": "2061377606096986142",
+      "tweetUrl": "https://x.com/armeniaca15/status/2061377606096986142",
+      "favoriteCount": 28,
+      "source": "x"
+    },
+    "HJt72RgbsAAt0-Z": {
+      "eventName": "Arme-ChatBot is online",
+      "eventDate": "2026-06-01",
+      "uploadDate": "2026-06-01",
+      "caption": "Arme-ChatBot is online. \n\nPunya pertanyaan seputar web ini bisa ditanyakan ke Arme aja ya guys!!! https://t.co/zwEynuRWMS",
+      "hashtags": [],
+      "tweetId": "2061377606096986142",
+      "tweetUrl": "https://x.com/armeniaca15/status/2061377606096986142",
+      "favoriteCount": 28,
+      "source": "x"
+    },
+    "HJUdgYUa8AAUtEv": {
+      "eventName": "A new UPDATE has arrived in the world of Armeniaca",
+      "eventDate": "2026-05-27",
+      "uploadDate": "2026-05-27",
+      "caption": "✨ A new UPDATE has arrived in the world of Armeniaca ✨\n\n“The Life of Armeniaca” — a story about a fan who deeply admires one special member, @H_EliJKT48 . 🌸\n\nEnter the Armeniaca World and discover a collection of daily life moments, exclusive stories, and unique ARME Cards https://t.co/hHwJPj4LI7",
+      "hashtags": [],
+      "tweetId": "2059586894460240337",
+      "tweetUrl": "https://x.com/armeniaca15/status/2059586894460240337",
+      "favoriteCount": 65,
+      "source": "x"
+    },
+    "HI-xD-ZbYAEDctg": {
+      "eventName": "Cee u",
+      "eventDate": "2026-05-23",
+      "uploadDate": "2026-05-23",
+      "caption": "Cee u @H_EliJKT48 https://t.co/Ms0n1qCNfg",
+      "hashtags": [],
+      "tweetId": "2058058248243306630",
+      "tweetUrl": "https://x.com/armeniaca15/status/2058058248243306630",
+      "favoriteCount": 141,
+      "source": "x"
+    },
+    "HI7lehxbEAAqo43": {
+      "eventName": "ArmeniacaTown akhirnya kedatangan maskot baru",
+      "eventDate": "2026-05-22",
+      "uploadDate": "2026-05-22",
+      "caption": "ArmeniacaTown akhirnya kedatangan maskot baru 🌱\n\nKenalin, ini Arme —\nwarga terakhir yang masih menjaga harapan di kota ini.\n\nDia bakal nemenin perjalanan kalian buat menghidupkan ArmeniacaTown pelan-pelan ✨ https://t.co/119RDugZmL @H_EliJKT48 https://t.co/C7tSDKjl4W",
+      "hashtags": [],
+      "tweetId": "2057834400637993357",
+      "tweetUrl": "https://x.com/armeniaca15/status/2057834400637993357",
+      "favoriteCount": 76,
+      "source": "x"
+    },
+    "HI7lehuawAAXhnK": {
+      "eventName": "ArmeniacaTown akhirnya kedatangan maskot baru",
+      "eventDate": "2026-05-22",
+      "uploadDate": "2026-05-22",
+      "caption": "ArmeniacaTown akhirnya kedatangan maskot baru 🌱\n\nKenalin, ini Arme —\nwarga terakhir yang masih menjaga harapan di kota ini.\n\nDia bakal nemenin perjalanan kalian buat menghidupkan ArmeniacaTown pelan-pelan ✨ https://t.co/119RDugZmL @H_EliJKT48 https://t.co/C7tSDKjl4W",
+      "hashtags": [],
+      "tweetId": "2057834400637993357",
+      "tweetUrl": "https://x.com/armeniaca15/status/2057834400637993357",
+      "favoriteCount": 76,
+      "source": "x"
+    },
+    "HIrM8n2aAAAinGM": {
+      "eventName": "Unlock Menara Jam",
+      "eventDate": "2026-05-19",
+      "uploadDate": "2026-05-19",
+      "caption": "Unlock Menara Jam 🕰️\n\n3,000 Waters Achieved 🌱\n\nThe Clock Tower District is now open.\n\nBut the city is still far from being saved.\nThe air remains heavy, the streets remain silent, and time itself still feels frozen.\n\nHelp ArmeniacaTown purify this world at 8,000 waters. https://t.co/BaKCoAza33",
+      "hashtags": [],
+      "tweetId": "2056681528151974088",
+      "tweetUrl": "https://x.com/armeniaca15/status/2056681528151974088",
+      "favoriteCount": 29,
+      "source": "x"
+    },
+    "HIrLFu7asAAFFfa": {
+      "eventName": "Almost 3,000 Waters Reached",
+      "eventDate": "2026-05-19",
+      "uploadDate": "2026-05-19",
+      "caption": "Almost 3,000 Waters Reached 🌱\n\nThe gates will open soon.\n\nThe Main City Area of ArmeniacaTown will soon become accessible, revealing the ruins of a world once filled with life.\n\nExplore the abandoned streets, silent buildings, and the last remaining traces of hope hidden within https://t.co/ZjRGU9QLf8",
+      "hashtags": [],
+      "tweetId": "2056679486490648655",
+      "tweetUrl": "https://x.com/armeniaca15/status/2056679486490648655",
+      "favoriteCount": 33,
+      "source": "x"
+    },
+    "HIrLFu7bYAAIfyV": {
+      "eventName": "Almost 3,000 Waters Reached",
+      "eventDate": "2026-05-19",
+      "uploadDate": "2026-05-19",
+      "caption": "Almost 3,000 Waters Reached 🌱\n\nThe gates will open soon.\n\nThe Main City Area of ArmeniacaTown will soon become accessible, revealing the ruins of a world once filled with life.\n\nExplore the abandoned streets, silent buildings, and the last remaining traces of hope hidden within https://t.co/ZjRGU9QLf8",
+      "hashtags": [],
+      "tweetId": "2056679486490648655",
+      "tweetUrl": "https://x.com/armeniaca15/status/2056679486490648655",
+      "favoriteCount": 33,
+      "source": "x"
+    },
+    "HIrLFu6aIAAuXsT": {
+      "eventName": "Almost 3,000 Waters Reached",
+      "eventDate": "2026-05-19",
+      "uploadDate": "2026-05-19",
+      "caption": "Almost 3,000 Waters Reached 🌱\n\nThe gates will open soon.\n\nThe Main City Area of ArmeniacaTown will soon become accessible, revealing the ruins of a world once filled with life.\n\nExplore the abandoned streets, silent buildings, and the last remaining traces of hope hidden within https://t.co/ZjRGU9QLf8",
+      "hashtags": [],
+      "tweetId": "2056679486490648655",
+      "tweetUrl": "https://x.com/armeniaca15/status/2056679486490648655",
+      "favoriteCount": 33,
+      "source": "x"
+    },
+    "HIrKRV0bEAAUsnt": {
+      "eventName": "Siap Admin Pusat Jangan lupa nyiram guys",
+      "eventDate": "2026-05-19",
+      "uploadDate": "2026-05-19",
+      "caption": "Siap Admin Pusat @H_EliJKT48 Jangan lupa nyiram guys https://t.co/RlcPtSZr0W",
+      "hashtags": [],
+      "tweetId": "2056678585940009046",
+      "tweetUrl": "https://x.com/armeniaca15/status/2056678585940009046",
+      "favoriteCount": 43,
+      "source": "x"
+    },
+    "HHy2pEQa0AALl6q": {
+      "eventName": "Stage 10 — Pohon Megah",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌺🦋 Stage 10 — Pohon Megah  \nia bukan lagi sekadar pohon. ia adalah rumah. ekosistem. kehidupan lain tumbuh di sekitarnya—bunga, kupu-kupu, makhluk kecil yang menemukan tempat pulang.  \ndan di titik ini, ia memahami: tujuan bukanlah menjadi besar, tapi menjadi berarti bagi yang https://t.co/kQQNKrECqR",
+      "hashtags": [],
+      "tweetId": "2052716355284328890",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716355284328890",
+      "favoriteCount": 16,
+      "source": "x"
+    },
+    "HHy2n9iawAAHxnM": {
+      "eventName": "Stage 9 — Pohon Penuh",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌳 Stage 9 — Pohon Penuh  \nkanopi luas, buah melimpah. ia tidak lagi mengejar pertumbuhan—ia hanya memberi. dengan tenang, tanpa perlu pengakuan. https://t.co/wkQgTf4eys",
+      "hashtags": [],
+      "tweetId": "2052716335764058150",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716335764058150",
+      "favoriteCount": 8,
+      "source": "x"
+    },
+    "HHy2nMtaEAAP5kU": {
+      "eventName": "Stage 8 — Berbuah",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🍑 Stage 8 — Berbuah  \nbuah matang. hasil akhirnya hadir—bukan hanya untuk dirinya, tapi untuk semua yang pernah ikut merawat. karena tidak ada yang tumbuh sendirian. https://t.co/DW277WqV8x",
+      "hashtags": [],
+      "tweetId": "2052716322723877358",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716322723877358",
+      "favoriteCount": 12,
+      "source": "x"
+    },
+    "HHy2mfWagAA4LGe": {
+      "eventName": "Stage 7 — Berbunga",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌸 Stage 7 — Berbunga  \nbunga bermekaran. indah, tapi belum bisa dipetik. ini adalah janji—bahwa semua usaha tidak sia-sia. bahwa yang ditunggu sedang dalam perjalanan. https://t.co/iggECnd7zH",
+      "hashtags": [],
+      "tweetId": "2052716310312956338",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716310312956338",
+      "favoriteCount": 14,
+      "source": "x"
+    },
+    "HHy2luWagAAc_7d": {
+      "eventName": "Stage 6 — Pohon Kuat",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌲 Stage 6 — Pohon Kuat  \nakar menembus dalam. badai datang dan pergi, tapi ia tetap berdiri. bukan karena dunia jadi lebih mudah—tapi karena dirinya sudah lebih dalam dari segala yang mencoba menggoyahkan. https://t.co/3p4rbyZpcc",
+      "hashtags": [],
+      "tweetId": "2052716298195579039",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716298195579039",
+      "favoriteCount": 17,
+      "source": "x"
+    },
+    "HHy2k89b0AAyr0X": {
+      "eventName": "Stage 5 — Pohon Dewasa",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌳 Stage 5 — Pohon Dewasa  \ntak lagi butuh pot. ia berdiri langsung di tanah. bebas, tapi juga bertanggung jawab. ia tidak lagi bergantung—ia sudah menjadi tempat bergantung. https://t.co/6LmKCBi3iz",
+      "hashtags": [],
+      "tweetId": "2052716285096829373",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716285096829373",
+      "favoriteCount": 6,
+      "source": "x"
+    },
+    "HHy2kOBbMAAytaR": {
+      "eventName": "Stage 4 — Pohon Tumbuh",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌳 Stage 4 — Pohon Tumbuh  \nbatangnya menguat, bayangannya mulai terasa. ia tidak lagi tumbuh hanya untuk dirinya sendiri. ada yang datang, berteduh, bernafas di dekatnya.  \ndan saat itu, wadah lamanya mulai retak—karena ia sudah lebih besar dari tempat yang dulu menampungnya. https://t.co/qfWwXYielG",
+      "hashtags": [],
+      "tweetId": "2052716271352111367",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716271352111367",
+      "favoriteCount": 9,
+      "source": "x"
+    },
+    "HHy2jhrb0AAJMZ4": {
+      "eventName": "Stage 3 — Pohon Muda",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌳 Stage 3 — Pohon Muda  \ncabang pertama tumbuh. pilihan pertama diambil. dan dari sini ia belajar: hidup tidak pernah satu arah—selalu ada kemungkinan yang bercabang. https://t.co/Jdx77wnvLr",
+      "hashtags": [],
+      "tweetId": "2052716259171852687",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716259171852687",
+      "favoriteCount": 6,
+      "source": "x"
+    },
+    "HHy2i45akAAhzbM": {
+      "eventName": "Stage 2 — Setek",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🍃 Stage 2 — Setek  \nakar mulai mencengkeram, daun pertama terbuka. di sini, ia mulai mengenal dirinya. bukan lagi sekadar hidup—tapi mulai menjadi. https://t.co/hAOl8Bl1Le",
+      "hashtags": [],
+      "tweetId": "2052716247343939747",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716247343939747",
+      "favoriteCount": 6,
+      "source": "x"
+    },
+    "HHy2iO2bUAAx2a0": {
+      "eventName": "Stage 1 — Tunas",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌿 Stage 1 — Tunas  \nlalu ia merespon. sedikit cahaya, sedikit perhatian—cukup untuk membuatnya berani muncul. harapan tidak pernah butuh besar, ia hanya butuh arah. https://t.co/M2fpBnC3aj",
+      "hashtags": [],
+      "tweetId": "2052716236614893904",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716236614893904",
+      "favoriteCount": 20,
+      "source": "x"
+    },
+    "HHy2hhsaMAAw_Y3": {
+      "eventName": "Stage 0 — Bibit",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "🌱 Stage 0 — Bibit  \nsebuah niat kecil yang diam di dalam tanah. tidak ada tepuk tangan, tidak ada bukti. hanya keyakinan sunyi bahwa sesuatu layak untuk dimulai—meski belum tahu akan jadi apa. https://t.co/ePIOsoZIqB",
+      "hashtags": [],
+      "tweetId": "2052716224459743537",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716224459743537",
+      "favoriteCount": 16,
+      "source": "x"
+    },
+    "HHy2gLDbIAEFyn-": {
+      "eventName": "Filosofi Pohon Kebaikan Armeniaca !!",
+      "eventDate": "2026-05-08",
+      "uploadDate": "2026-05-08",
+      "caption": "Filosofi Pohon Kebaikan Armeniaca !!\n\ndari sesuatu yang tak terlihat, semuanya dimulai—\n\nbukan dari gemuruh, bukan dari sorotan.  \ntapi dari hal kecil yang diam, nyaris terlupakan.  \nsebuah niat yang belum punya bentuk,  \nsebuah harapan yang belum punya nama.\n\nia tidak meminta https://t.co/cGe80GOmOk",
+      "hashtags": [],
+      "tweetId": "2052716210954072393",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052716210954072393",
+      "favoriteCount": 76,
+      "source": "x"
+    },
+    "HHtxdLGa0AAhhjU": {
+      "eventName": "Hari ini pohonnya masih kecil",
+      "eventDate": "2026-05-07",
+      "uploadDate": "2026-05-07",
+      "caption": "Hari ini pohonnya masih kecil 🌱\ntapi kalau satu orang datang tiap hari buat nyiram, mungkin 15 juni nanti dia sudah berbuah aprikot.\n\nhttps://t.co/JfxgYyqDyo https://t.co/loM2e57aDK",
+      "hashtags": [],
+      "tweetId": "2052358810476699877",
+      "tweetUrl": "https://x.com/armeniaca15/status/2052358810476699877",
+      "favoriteCount": 98,
+      "source": "x"
+    },
+    "HHe8agibQAEL4g1": {
+      "eventName": "Helisma is online!! Sekarang di bisa memantau dan menonton secara live",
+      "eventDate": "2026-05-04",
+      "uploadDate": "2026-05-04",
+      "caption": "Helisma is online!! Sekarang di https://t.co/tTVw8DleVP bisa memantau dan menonton @H_EliJKT48 secara live https://t.co/dcJ7vkOq5k",
+      "hashtags": [],
+      "tweetId": "2051315326651117838",
+      "tweetUrl": "https://x.com/armeniaca15/status/2051315326651117838",
+      "favoriteCount": 22,
+      "source": "x"
+    },
+    "HHZGEX7aQAA-B6S": {
+      "eventName": "Updated Armeniaca Memoria",
+      "eventDate": "2026-05-03",
+      "uploadDate": "2026-05-03",
+      "caption": "Updated Armeniaca Memoria ✨  \ntempat di mana seluruh memori yang @H_EliJKT48 berikan, dirangkai menjadi satu cerita ♡\n\nhttps://t.co/IE6iS3hwHU https://t.co/8sNemZiQyC",
+      "hashtags": [],
+      "tweetId": "2050903737372492086",
+      "tweetUrl": "https://x.com/armeniaca15/status/2050903737372492086",
+      "favoriteCount": 96,
+      "source": "x"
+    },
+    "HHZGEX8bQAAIiEx": {
+      "eventName": "Updated Armeniaca Memoria",
+      "eventDate": "2026-05-03",
+      "uploadDate": "2026-05-03",
+      "caption": "Updated Armeniaca Memoria ✨  \ntempat di mana seluruh memori yang @H_EliJKT48 berikan, dirangkai menjadi satu cerita ♡\n\nhttps://t.co/IE6iS3hwHU https://t.co/8sNemZiQyC",
+      "hashtags": [],
+      "tweetId": "2050903737372492086",
+      "tweetUrl": "https://x.com/armeniaca15/status/2050903737372492086",
+      "favoriteCount": 96,
+      "source": "x"
     }
   },
   "manualByFile": {
@@ -6196,7 +7766,49 @@
     "HG-bwGSboAAaSHd",
     "HF1vmU6bQAAfr3e",
     "HCuU1v4aUAUNN4r",
-    "HBNosd4bEAAoYt7"
+    "HBNosd4bEAAoYt7",
+    "HHZGEX7aQAA-B6S",
+    "HHZGEX8bQAAIiEx",
+    "HHe8agibQAEL4g1",
+    "HHtxdLGa0AAhhjU",
+    "HHy2gLDbIAEFyn-",
+    "HHy2hhsaMAAw_Y3",
+    "HHy2iO2bUAAx2a0",
+    "HHy2i45akAAhzbM",
+    "HHy2jhrb0AAJMZ4",
+    "HHy2kOBbMAAytaR",
+    "HHy2k89b0AAyr0X",
+    "HHy2luWagAAc_7d",
+    "HHy2mfWagAA4LGe",
+    "HHy2nMtaEAAP5kU",
+    "HHy2n9iawAAHxnM",
+    "HHy2pEQa0AALl6q",
+    "HIrKRV0bEAAUsnt",
+    "HIrLFu7asAAFFfa",
+    "HIrLFu7bYAAIfyV",
+    "HIrLFu6aIAAuXsT",
+    "HIrM8n2aAAAinGM",
+    "HI7lehxbEAAqo43",
+    "HI7lehuawAAXhnK",
+    "HJUdgYUa8AAUtEv",
+    "HJt72Rfa8AA-OvC",
+    "HJt72RgbsAAt0-Z",
+    "HJy_ZK5bIAEwBKY",
+    "HKXm4bIbYAAmSXK",
+    "HKXm4dPaQAARbKt",
+    "HKXm4cbaEAEcXpj",
+    "HKiPak9aMAAYEvS",
+    "HKiPbpzaAAAAJq9",
+    "HKnh0gMbEAA_IA-",
+    "HKyN29zbIAADTxx",
+    "HK2hbmqakAA3IUC",
+    "HK2hbmsaAAAzFRH",
+    "HLZLN_QasAAHcBo",
+    "HLqF0RzboAAGOxE",
+    "HMiSwxSbAAANmar",
+    "HN-CjBQbUAAHIM9",
+    "HUMU-3kbUAA5bN4",
+    "HUMU-3lbYAAgTPa"
   ],
   "excludeDetails": [
     {
@@ -6243,6 +7855,216 @@
       "mediaKey": "HBNosd4bEAAoYt7",
       "reason": "Bahan promosi",
       "addedBy": "user 2026-05-03"
+    },
+    {
+      "mediaKey": "HHZGEX7aQAA-B6S",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHZGEX8bQAAIiEx",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHe8agibQAEL4g1",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHtxdLGa0AAhhjU",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2gLDbIAEFyn-",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2hhsaMAAw_Y3",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2iO2bUAAx2a0",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2i45akAAhzbM",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2jhrb0AAJMZ4",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2kOBbMAAytaR",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2k89b0AAyr0X",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2luWagAAc_7d",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2mfWagAA4LGe",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2nMtaEAAP5kU",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2n9iawAAHxnM",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HHy2pEQa0AALl6q",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HIrKRV0bEAAUsnt",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HIrLFu7asAAFFfa",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HIrLFu7bYAAIfyV",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HIrLFu6aIAAuXsT",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HIrM8n2aAAAinGM",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HI7lehxbEAAqo43",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HI7lehuawAAXhnK",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HJUdgYUa8AAUtEv",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HJt72Rfa8AA-OvC",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HJt72RgbsAAt0-Z",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HJy_ZK5bIAEwBKY",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKXm4bIbYAAmSXK",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKXm4dPaQAARbKt",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKXm4cbaEAEcXpj",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKiPak9aMAAYEvS",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKiPbpzaAAAAJq9",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKnh0gMbEAA_IA-",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HKyN29zbIAADTxx",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HK2hbmqakAA3IUC",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HK2hbmsaAAAzFRH",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HLZLN_QasAAHcBo",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HLqF0RzboAAGOxE",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HMiSwxSbAAANmar",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HN-CjBQbUAAHIM9",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HUMU-3kbUAA5bN4",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
+    },
+    {
+      "mediaKey": "HUMU-3lbYAAgTPa",
+      "reason": "Bahan promosi",
+      "addedBy": "import 2026-11-21"
     }
   ]
 }
