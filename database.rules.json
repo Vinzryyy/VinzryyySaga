@@ -9,7 +9,7 @@
     "tree_support": {
       ".read": true,
       "total": {
-        ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
+        ".write": "newData.isNumber() && (!data.exists() ? newData.val() === 1 : newData.val() === data.val() + 1)"
       }
     },
     "wishes": {
@@ -40,12 +40,12 @@
     "wish_hearts": {
       ".read": true,
       "$wishId": {
-        ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
+        ".write": "newData.isNumber() && (!data.exists() ? newData.val() === 1 : newData.val() === data.val() + 1)"
       }
     },
     "byu_support_count": {
       ".read": true,
-      ".write": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1)"
+      ".write": "newData.isNumber() && (!data.exists() ? newData.val() === 1 : newData.val() === data.val() + 1)"
     },
     "presence": {
       ".read": true,
@@ -59,6 +59,21 @@
           ".validate": false
         }
       }
+    },
+    "memory_lb": {
+      "//": "Pasangkan Momen daily leaderboard. Only /api/memory-leaderboard reads/writes it (service account, bypasses rules) after replaying the game.",
+      ".read": false,
+      ".write": false
+    },
+    "fan_stories": {
+      "//": "Approved Cerita Penggemar. Public read; written only by /api/fan-stories after an admin approves.",
+      ".read": true,
+      ".write": false
+    },
+    "fan_stories_pending": {
+      "//": "Submitted stories waiting for review. Never public; only /api/fan-stories touches it.",
+      ".read": false,
+      ".write": false
     },
     "eli_schedule": {
       "//": "Eli schedule entries from /admin/jadwal. Public read (the site reads via REST). No client writes: /api/admin-schedule checks the daily password and writes as the service account, which bypasses these rules.",

@@ -307,8 +307,10 @@ function Navbar() {
                     : "white",
                 }}
               />
+              {/* Tagline only on mid-size screens; on lg+ the six menu
+                  items need the room (it's already in the logo + footer). */}
               <span
-                className={`hidden md:inline-block text-[10px] font-black uppercase tracking-[0.3em] opacity-60 ${palette.text}`}
+                className={`hidden md:inline-block lg:hidden text-[10px] font-black uppercase tracking-[0.3em] opacity-60 ${palette.text}`}
               >
                 {SITE_CONFIG.branding.tagline}
               </span>

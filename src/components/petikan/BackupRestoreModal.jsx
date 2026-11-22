@@ -136,7 +136,7 @@ const BackupRestoreModal = ({ onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-5 border-b border-[color:var(--retro-brown-dark)]/10">
-          <p className="text-[9px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-1">
             Petikan
           </p>
           <h3
@@ -262,7 +262,7 @@ const BackupRestoreModal = ({ onClose }) => {
           {/* Status line */}
           {message && (
             <p
-              className={`text-[11px] leading-relaxed pt-1 ${
+              className={`text-xs leading-relaxed pt-1 ${
                 status === 'error'
                   ? 'text-[color:var(--retro-burgundy)]'
                   : status === 'success'

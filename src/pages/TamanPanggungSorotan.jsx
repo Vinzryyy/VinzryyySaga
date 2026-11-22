@@ -1046,7 +1046,7 @@ const Torii = ({ restored }) => {
             style={{ width: 80 }}
           >
             <div
-              className="text-[10px] leading-tight"
+              className="text-xs leading-tight"
               style={{
                 color: '#f4d8a0',
                 fontFamily: '"Fraunces Variable", serif',
@@ -2252,7 +2252,7 @@ const StageCurtainSwag = ({ restored }) => {
             style={{ width: 320 }}
           >
             <div
-              className="text-[10px] uppercase tracking-[0.4em] mb-1"
+              className="text-[10px] uppercase tracking-[0.3em] mb-1"
               style={{ color: '#d4a848' }}
             >
               ✦ ✦ ✦
@@ -2658,14 +2658,14 @@ const PosterFrame = ({ entry, index, restored, hovered, onClick, onHover, onUnho
           >
             {cat && (
               <div
-                className="text-[8px] uppercase tracking-[0.2em] mb-0.5"
+                className="text-[10px] uppercase tracking-[0.2em] mb-0.5"
                 style={{ color: restored ? '#7a4820' : '#a87848' }}
               >
                 {cat.label}
               </div>
             )}
             <div
-              className="text-[10px] leading-tight"
+              className="text-xs leading-tight"
               style={{
                 color: restored ? '#2a1810' : '#d4c8a0',
                 fontFamily: '"Fraunces Variable", serif',
@@ -2729,7 +2729,7 @@ const PlaceholderFrame = ({ slotIdx, restored }) => {
           style={{ width: 140 }}
         >
           <div
-            className="text-[8px] uppercase tracking-[0.3em] mb-1"
+            className="text-[10px] uppercase tracking-[0.3em] mb-1"
             style={{
               color: restored ? '#7a4820' : '#c8a878',
               opacity: 0.7,
@@ -2738,7 +2738,7 @@ const PlaceholderFrame = ({ slotIdx, restored }) => {
             Slot kosong
           </div>
           <div
-            className="text-[10px] leading-tight"
+            className="text-xs leading-tight"
             style={{
               color: restored ? '#3a2818' : '#e8d4a8',
               fontFamily: '"Fraunces Variable", serif',
@@ -3137,7 +3137,7 @@ const DonationOverlay = ({ entry, onClose, onOpenLightbox }) => {
         )}
         <div className="px-6 py-6 md:px-8 md:py-8">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] uppercase tracking-[0.18em] border ${status.tone}`}>
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] uppercase tracking-[0.18em] border ${status.tone}`}>
               <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-70" />
               {status.label}
             </span>
@@ -3234,7 +3234,7 @@ const Header = ({ restored }) => (
     </Link>
     <div className="text-right pointer-events-none">
       <div
-        className="text-[10px] uppercase tracking-[0.4em]"
+        className="text-[10px] uppercase tracking-[0.3em]"
         style={{ color: restored ? '#f4d8a0' : '#c8a060' }}
       >
         {restored ? 'Lampu nyala' : 'Hancur lebur'}

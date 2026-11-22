@@ -1572,7 +1572,7 @@ const LockedHint = ({ visible, count }) => {
         <div className="text-white/75 text-[10px] sm:text-sm tracking-[0.2em] sm:tracking-[0.3em] uppercase text-center">
           Gerbang masih terkunci
         </div>
-        <div className="text-white/55 text-[11px] sm:text-xs tracking-wider">
+        <div className="text-white/55 text-xs sm:text-xs tracking-wider">
           {count.toLocaleString('id-ID')} / {GATE_UNLOCK_THRESHOLD.toLocaleString('id-ID')} siraman
         </div>
         <div className="w-48 sm:w-56 h-px bg-white/15">
@@ -1584,14 +1584,14 @@ const LockedHint = ({ visible, count }) => {
         {/* Quote text di-hide di landscape mobile (ruang vertical tipis).
             Muncul lagi di sm: keatas (tablet+ + portrait HP). */}
         <p
-          className="hidden sm:block text-white/45 text-[10px] mt-1 tracking-wide italic max-w-xs text-center px-4"
+          className="hidden sm:block text-white/45 text-xs mt-1 tracking-wide italic max-w-xs text-center px-4"
           style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
           Setiap siraman di Pohon Kebaikan membuka pintu ini sedikit.
         </p>
         <Link
           to="/26"
-          className="pointer-events-auto mt-1 sm:mt-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/25 text-white/70 text-[10px] sm:text-[11px] tracking-wider hover:bg-white/10 transition"
+          className="pointer-events-auto mt-1 sm:mt-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-white/25 text-white/70 text-xs sm:text-[11px] tracking-wider hover:bg-white/10 transition"
         >
           Siram di /26 →
         </Link>
@@ -1651,7 +1651,7 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
       className="relative w-full max-w-xl max-h-full overflow-y-auto px-5 py-6 sm:px-6 sm:py-8 md:px-10 md:py-12 rounded-md border border-white/15 bg-[#1c1614]/90 shadow-2xl text-center"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-5">
+      <div className="text-white/55 text-[10px] uppercase tracking-[0.3em] mb-3 sm:mb-5">
         Selamat datang
       </div>
       <h2
@@ -1672,7 +1672,7 @@ const ArmeniacaIntroOverlay = ({ visible, onClose }) => (
         15 Juni 2026. Dunia ini tumbuh dari kepedulian — kota mati yang
         hanya bisa hidup kembali oleh ribuan tangan yang menyiram bersama.
       </p>
-      <p className="text-white/65 text-[11px] sm:text-xs md:text-sm leading-relaxed mb-3 sm:mb-4">
+      <p className="text-white/65 text-xs sm:text-xs md:text-sm leading-relaxed mb-3 sm:mb-4">
         Setiap dukungan di Pohon Kebaikan (
         <span className="text-amber-200/85">/26</span>) tersambung
         langsung ke dunia ini.

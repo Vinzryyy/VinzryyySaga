@@ -41,13 +41,13 @@ export const TimePill = ({ restored }) => {
           <span className="text-white/95 text-base sm:text-lg font-medium tracking-wide">
             {hh}:{mm}
           </span>
-          <span className="text-white/45 text-[10px]">:{ss}</span>
+          <span className="text-white/45 text-xs">:{ss}</span>
           <span className="text-amber-200/75 text-[10px] uppercase tracking-[0.2em] ml-1">
             WIB
           </span>
         </div>
         <p
-          className="text-white/55 text-[10px] sm:text-[11px] tracking-wide italic"
+          className="text-white/55 text-xs sm:text-[11px] tracking-wide italic"
           style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
           {subline}
@@ -84,24 +84,24 @@ export const AlmanakCard = () => {
             tiap tahun karena driven by today's MM-DD. */}
         {anniversaries.length > 0 && (
           <div className="mb-3 -mx-1 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/10 border border-amber-300/25">
-            <div className="text-amber-200/85 text-[9px] uppercase tracking-[0.3em] mb-0.5">
+            <div className="text-amber-200/85 text-[10px] uppercase tracking-[0.3em] mb-0.5">
               Hari ini · {anniversaries[0].period}
             </div>
             <div className="text-amber-50/90 text-[12px] sm:text-[13px] italic leading-snug">
               {anniversaries[0].title}
             </div>
             {anniversaries.length > 1 && (
-              <div className="text-amber-100/55 text-[10px] mt-1 italic">
+              <div className="text-amber-100/55 text-xs mt-1 italic">
                 +{anniversaries.length - 1} milestone lain hari ini
               </div>
             )}
           </div>
         )}
         <div className="flex items-center justify-between mb-2.5">
-          <div className="text-amber-200/75 text-[9px] uppercase tracking-[0.3em]">
+          <div className="text-amber-200/75 text-[10px] uppercase tracking-[0.3em]">
             Almanak Kota
           </div>
-          <div className="text-white/35 text-[9px] tabular-nums">
+          <div className="text-white/35 text-xs tabular-nums">
             {a.todayLong}
           </div>
         </div>
@@ -112,7 +112,7 @@ export const AlmanakCard = () => {
             <span className="text-amber-100/90 text-2xl sm:text-3xl font-medium tabular-nums">
               {a.daysSinceDebut.toLocaleString('id-ID')}
             </span>
-            <span className="text-white/55 text-[11px] sm:text-xs italic">
+            <span className="text-white/55 text-xs sm:text-xs italic">
               hari sejak Debut Theater
             </span>
           </div>
@@ -121,13 +121,13 @@ export const AlmanakCard = () => {
         {/* Last milestone */}
         {a.lastMilestone && (
           <div className="mb-2.5 pb-2.5 border-b border-white/8">
-            <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mb-1">
+            <div className="text-white/40 text-[10px] uppercase tracking-[0.2em] mb-1">
               Milestone terakhir{lastDays !== null && ` · ${lastDays} hari lalu`}
             </div>
             <div className="text-white/85 text-[13px] leading-snug italic">
               {a.lastMilestone.title}
             </div>
-            <div className="text-white/40 text-[10px] mt-0.5">
+            <div className="text-white/40 text-xs mt-0.5">
               {a.lastMilestone.period}
             </div>
           </div>
@@ -136,31 +136,31 @@ export const AlmanakCard = () => {
         {/* Next event (≤30 days) — if available, fallback nextMilestone */}
         {a.nearestEvent ? (
           <div>
-            <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mb-1">
+            <div className="text-white/40 text-[10px] uppercase tracking-[0.2em] mb-1">
               Eli tampil · {eventDays === 0 ? 'hari ini' : `${eventDays} hari lagi`}
             </div>
             <div className="text-white/85 text-[13px] leading-snug italic">
               {a.nearestEvent.title}
             </div>
-            <div className="text-white/40 text-[10px] mt-0.5">
+            <div className="text-white/40 text-xs mt-0.5">
               {eventDate}
               {a.nearestEvent.venue ? ` · ${a.nearestEvent.venue}` : ''}
             </div>
           </div>
         ) : a.nextMilestone ? (
           <div>
-            <div className="text-white/40 text-[9px] uppercase tracking-[0.2em] mb-1">
+            <div className="text-white/40 text-[10px] uppercase tracking-[0.2em] mb-1">
               {a.nextMilestone.date ? 'Milestone berikutnya' : 'Menuju'}
             </div>
             <div className="text-white/85 text-[13px] leading-snug italic">
               {a.nextMilestone.title}
             </div>
-            <div className="text-white/40 text-[10px] mt-0.5">
+            <div className="text-white/40 text-xs mt-0.5">
               {a.nextMilestone.period}
             </div>
           </div>
         ) : (
-          <div className="text-white/50 text-[11px] italic">
+          <div className="text-white/50 text-xs italic">
             Bandul nungguin event berikutnya.
           </div>
         )}
@@ -180,7 +180,7 @@ export const CountdownChip = () => {
     <div className="pointer-events-none absolute bottom-28 sm:bottom-24 left-1/2 -translate-x-1/2 z-10 max-w-[min(88vw,360px)]">
       <div className="px-4 py-1.5 rounded-full bg-black/45 backdrop-blur-sm border border-white/10 shadow-lg">
         <p
-          className="text-white/65 text-[10px] sm:text-[11px] italic text-center tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
+          className="text-white/65 text-xs sm:text-[11px] italic text-center tracking-wide whitespace-nowrap overflow-hidden text-ellipsis"
           style={{ fontFamily: '"Fraunces Variable", serif' }}
         >
           {copy}
@@ -265,7 +265,7 @@ export const Header = ({ restored }) => (
       </Link>
     </div>
     <div className="text-center min-w-0 flex-1">
-      <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
+      <div className="text-white/45 text-[10px] md:text-[10px] uppercase tracking-[0.35em] md:tracking-[0.3em] mb-0.5">
         ArmeniacaTown
       </div>
       <div

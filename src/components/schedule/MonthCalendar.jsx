@@ -218,7 +218,7 @@ const MonthCalendar = ({ events, renderEvent }) => {
               <div
                 key={d}
                 role="columnheader"
-                className="text-center text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)] py-2"
+                className="text-center text-[10px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)] py-2"
               >
                 {d}
               </div>
@@ -276,7 +276,7 @@ const MonthCalendar = ({ events, renderEvent }) => {
                             />
                           ))}
                           {list.length > MAX_DOTS && (
-                            <span className="hidden sm:inline text-[9px] font-black tabular-nums leading-none ml-0.5">
+                            <span className="hidden sm:inline text-xs font-black tabular-nums leading-none ml-0.5">
                               +{list.length - MAX_DOTS}
                             </span>
                           )}

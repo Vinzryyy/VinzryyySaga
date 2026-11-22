@@ -56,9 +56,9 @@ export const SITE_CONFIG = {
   // `hash` (when present alongside children) becomes the dropdown's primary
   // landing target and the parent label remains clickable.
   navigation: {
+    // Six top-level items so the desktop bar fits on one line.
     main: [
-      { label: 'Home', hash: 'home', icon: 'ri-home-4-line' },
-      { label: 'Harmoni Kebaikan', hash: 'happy-helisma-day-26', icon: 'ri-hand-heart-line' },
+      { label: 'Beranda', hash: 'home', icon: 'ri-home-4-line' },
       {
         label: 'Eli',
         hash: 'profile',
@@ -67,20 +67,26 @@ export const SITE_CONFIG = {
           {
             label: 'Profil Lengkap',
             hash: 'profile',
-            description: 'Timeline, diskografi, fight',
-            icon: 'ri-route-line',
-          },
-          {
-            label: 'Profil Singkat',
-            hash: 'data',
-            description: 'Biodata cepat di home',
+            description: 'Biodata, diskografi, fight',
             icon: 'ri-id-card-line',
           },
           {
-            label: 'About Eli',
-            hash: 'about-preview',
-            description: 'Cerita Sang Mermaid',
-            icon: 'ri-quill-pen-line',
+            label: 'Perjalanan',
+            hash: 'timeline',
+            description: 'Timeline sejak debut 2018',
+            icon: 'ri-route-line',
+          },
+          {
+            label: 'Rekap 2026',
+            hash: 'rekap-2026',
+            description: 'Setahun Eli dalam angka dan momen',
+            icon: 'ri-bar-chart-box-line',
+          },
+          {
+            label: 'Harmoni Kebaikan',
+            hash: 'happy-helisma-day-26',
+            description: 'Rekap seitansai ke-26',
+            icon: 'ri-hand-heart-line',
           },
         ],
       },
@@ -94,6 +100,12 @@ export const SITE_CONFIG = {
             hash: 'gallery',
             description: 'Lihat seluruh frame',
             icon: 'ri-image-2-line',
+          },
+          {
+            label: 'Album Momen',
+            hash: 'momen',
+            description: 'Foto per acara, lengkap dengan ceritanya',
+            icon: 'ri-book-open-line',
           },
           {
             label: 'Live · Vivo',
@@ -113,19 +125,25 @@ export const SITE_CONFIG = {
             description: 'Arsip live di SHOWROOM',
             icon: 'ri-vidicon-line',
           },
+          {
+            label: 'Photobox',
+            hash: 'photostrip',
+            description: 'Buat strip foto bareng Eli',
+            icon: 'ri-camera-3-line',
+          },
           // Era pills are appended dynamically from the gallery data
         ],
       },
       {
-        label: 'Arme Games',
-        hash: 'armeniacaTown',
+        label: 'Games',
+        hash: 'mini-games',
         icon: 'ri-gamepad-line',
         children: [
           {
-            label: 'ArmeniacaTown',
-            hash: 'armeniacaTown',
-            description: 'Kota yang tumbuh dari setiap siraman.',
-            icon: 'ri-map-pin-2-line',
+            label: 'Pasangkan Momen',
+            hash: 'mini-games/memory',
+            description: 'Cocokkan pasangan foto arsip Eli.',
+            icon: 'ri-layout-grid-line',
           },
           {
             label: 'ArmePack',
@@ -134,16 +152,24 @@ export const SITE_CONFIG = {
             icon: 'ri-leaf-line',
           },
           {
-            label: 'Pasangkan Momen',
-            hash: 'mini-games/memory',
-            description: 'Mini game memory dari foto arsip Eli.',
-            icon: 'ri-layout-grid-line',
+            label: 'ArmeniacaTown',
+            hash: 'armeniacaTown',
+            description: 'Kota yang tumbuh dari setiap siraman.',
+            icon: 'ri-map-pin-2-line',
           },
         ],
       },
-      { label: 'News', hash: 'news', icon: 'ri-newspaper-line' },
       { label: 'Jadwal', hash: 'schedule', icon: 'ri-calendar-event-line' },
-      { label: 'About', hash: 'about', icon: 'ri-information-line' },
+      {
+        label: 'Lainnya',
+        icon: 'ri-more-line',
+        children: [
+          { label: 'News', hash: 'news', description: 'Berita JKT48 terbaru', icon: 'ri-newspaper-line' },
+          { label: 'Wishes', hash: 'wishes', description: 'Titip pesan untuk Eli', icon: 'ri-chat-heart-line' },
+          { label: 'Cerita Penggemar', hash: 'cerita', description: 'Kisah kecil dari sesama fans', icon: 'ri-quill-pen-line' },
+          { label: 'About', hash: 'about', description: 'Tentang Armeniaca', icon: 'ri-information-line' },
+        ],
+      },
     ],
   },
 
@@ -397,11 +423,11 @@ export const SITE_CONFIG = {
           to: '/armepack',
         },
         {
-          id: 'town',
-          title: 'Armeniaca Town',
-          subtitle: 'Jelajahi kota kecil Eli',
-          icon: 'ri-map-2-line',
-          to: '/armeniacaTown',
+          id: 'games',
+          title: 'Mini Games',
+          subtitle: 'Pasangkan Momen, ArmePack, Town',
+          icon: 'ri-gamepad-line',
+          to: '/mini-games',
         },
         {
           id: 'wishes',

@@ -4840,7 +4840,7 @@ const SceneFallback = () => (
 
 const ArsipHeader = ({ restored }) => (
   <div className="pointer-events-none absolute top-5 left-5 z-20 text-white/85 max-w-[280px]">
-    <div className="text-[9px] uppercase tracking-[0.4em] text-amber-200/70 mb-1">
+    <div className="text-[10px] uppercase tracking-[0.3em] text-amber-200/70 mb-1">
       Petak R2 · Perpustakaan
     </div>
     <div
@@ -4862,7 +4862,7 @@ const ArsipFooter = ({ hoveredId, books, readIds, isMobile }) => {
   const readCount = books.filter((b) => readIds.has(b.id)).length;
   return (
     <div
-      className="pointer-events-none absolute z-20 text-white/70 text-[11px] sm:text-xs"
+      className="pointer-events-none absolute z-20 text-white/70 text-xs sm:text-xs"
       style={{
         left: isMobile ? '1rem' : '1.5rem',
         bottom: `max(1rem, env(safe-area-inset-bottom, 1rem))`,
@@ -4886,7 +4886,7 @@ const ArsipFooter = ({ hoveredId, books, readIds, isMobile }) => {
             membaca halamannya.
           </div>
           <div
-            className="text-white/45 text-[10px] sm:text-[11px]"
+            className="text-white/45 text-xs sm:text-[11px]"
             style={{
               fontFamily: '"Fraunces Variable", serif',
               fontStyle: 'italic',
@@ -4943,7 +4943,7 @@ const ArsipIntroTitle = () => {
       }`}
     >
       <div className="text-center max-w-md mx-4 sm:mx-6 max-h-full overflow-y-auto px-5 py-5 sm:px-8 sm:py-9 sm:-translate-y-10 rounded-md border border-white/12 bg-[#1c1614]/85 backdrop-blur-md shadow-2xl">
-        <div className="text-amber-200/55 text-[9px] uppercase tracking-[0.5em] mb-3 sm:mb-4">
+        <div className="text-amber-200/55 text-[10px] uppercase tracking-[0.3em] mb-3 sm:mb-4">
           Perpustakaan
         </div>
         <p
@@ -4958,7 +4958,7 @@ const ArsipIntroTitle = () => {
         </p>
         <div className="mx-auto mb-3 w-10 h-px bg-white/25" />
         <p
-          className="text-white/65 text-[11px] sm:text-[12px] md:text-[13px] leading-relaxed"
+          className="text-white/65 text-xs sm:text-[12px] md:text-[13px] leading-relaxed"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',

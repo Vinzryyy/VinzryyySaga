@@ -110,22 +110,24 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 800,
       rollupOptions: {
         output: {
-          manualChunks: {
-            "react-vendor": ["react", "react-dom", "react-router-dom"],
-            firebase: ["firebase/app", "firebase/database"],
-            helmet: ["react-helmet-async"],
-            // Three.js + R3F + drei dibundle eksplisit ke chunk vendor
-            // sendiri. Tanpa ini, auto-chunking nempelin lib 3D ke shared
-            // component pertama yang ke-pick (e.g. RotateRecommendation) →
-            // chunk ~977KB dengan nama menyesatkan. Eksplisit-ny vendor
-            // chunk juga bikin cache stabil: update app code gak invalidate
-            // vendor Three.js (jarang berubah).
-            "three-vendor": [
-              "three",
-              "@react-three/fiber",
-              "@react-three/drei",
-              "@react-three/postprocessing",
-            ],
+          // Function form: matching by path keeps shared runtime bits
+          // (react/jsx-runtime, scheduler, babel helpers) out of the 3D
+          // chunk. With the object form, jsx-runtime landed in
+          // three-vendor, so every page preloaded ~1.9 MB of Three.js.
+          manualChunks(id) {
+            // Vite's preload helper must live with React, or Rollup may
+            // park it in a lazy vendor chunk the entry then has to fetch.
+            if (id.includes("vite/preload-helper") || id.includes("commonjsHelpers")) return "react-vendor";
+            if (!id.includes("node_modules")) return undefined;
+            if (/[\\/]node_modules[\\/](three|three-stdlib|@react-three|postprocessing|maath|troika-[^\\/]+|camera-controls|meshline|stats-gl|detect-gpu)[\\/]/.test(id)) {
+              return "three-vendor";
+            }
+            if (/[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/.test(id)) {
+              return "react-vendor";
+            }
+            if (/[\\/]node_modules[\\/](firebase|@firebase)[\\/]/.test(id)) return "firebase";
+            if (/[\\/]node_modules[\\/]react-helmet-async[\\/]/.test(id)) return "helmet";
+            return undefined;
           },
         },
       },

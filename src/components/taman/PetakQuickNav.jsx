@@ -28,7 +28,7 @@ const PetakQuickNav = ({ currentId }) => {
     <div className="pointer-events-none fixed bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
       <Link
         to={prev.route}
-        className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] text-white/50 hover:text-white/85 hover:bg-black/60 hover:border-white/20 transition-all whitespace-nowrap"
+        className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-[10px] md:text-[10px] font-black uppercase tracking-[0.25em] text-white/50 hover:text-white/85 hover:bg-black/60 hover:border-white/20 transition-all whitespace-nowrap"
         aria-label={`Ke ${prev.label}`}
       >
         <i className="ri-arrow-left-s-line text-xs" />
@@ -39,7 +39,7 @@ const PetakQuickNav = ({ currentId }) => {
 
       <Link
         to={next.route}
-        className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] text-white/50 hover:text-white/85 hover:bg-black/60 hover:border-white/20 transition-all whitespace-nowrap"
+        className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-[10px] md:text-[10px] font-black uppercase tracking-[0.25em] text-white/50 hover:text-white/85 hover:bg-black/60 hover:border-white/20 transition-all whitespace-nowrap"
         aria-label={`Ke ${next.label}`}
       >
         {next.label}

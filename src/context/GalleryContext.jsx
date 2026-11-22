@@ -209,7 +209,9 @@ export const GalleryProvider = ({ children }) => {
         },
       });
       // Chain enrichments after gallery data is loaded
-      fetch('/data/gallery-enrichments.json', { cache: 'force-cache' })
+      // 'no-cache' revalidates via ETag: 'force-cache' kept serving a stale copy,
+      // so newly hidden promo photos still showed for returning visitors.
+      fetch('/data/gallery-enrichments.json', { cache: 'no-cache' })
         .then((r) => (r.ok ? r.json() : null))
         .then((doc) => {
           if (cancelled || !doc) return;

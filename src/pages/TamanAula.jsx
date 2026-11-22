@@ -783,7 +783,7 @@ const Header = () => (
       </Link>
     </div>
     <div className="text-center min-w-0 flex-1">
-      <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
+      <div className="text-white/45 text-[10px] md:text-[10px] uppercase tracking-[0.35em] md:tracking-[0.3em] mb-0.5">
         ArmeniacaTown
       </div>
       <div
@@ -805,7 +805,7 @@ const FooterHint = () => (
   <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[min(92vw,400px)]">
     <div className="px-4 py-2 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">
       <p
-        className="text-white/70 text-[10px] sm:text-[11px] italic text-center tracking-wide"
+        className="text-white/70 text-xs sm:text-[11px] italic text-center tracking-wide"
         style={{ fontFamily: '"Fraunces Variable", serif' }}
       >
         Replika venue offline · sticky notes hidup di event fisik

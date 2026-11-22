@@ -46,7 +46,7 @@ export const SceneFallback = () => (
       }
     `}</style>
     <div className="relative text-center -translate-y-2">
-      <div className="text-white/55 text-[9px] uppercase tracking-[0.55em] mb-3">
+      <div className="text-white/55 text-[10px] uppercase tracking-[0.55em] mb-3">
         R1 · Petak Pertama
       </div>
       <div
@@ -203,7 +203,7 @@ export const IntroTitle = ({ isMobile = false }) => {
       <div className="relative mx-6 px-8 py-9 sm:px-14 sm:py-12 -translate-y-6 rounded-md border border-white/15 bg-[#0a0d18]/85 backdrop-blur-md shadow-2xl">
         {/* Content */}
         <div className="relative text-center">
-          <div className="text-white/60 text-[9px] sm:text-[10px] uppercase tracking-[0.45em] sm:tracking-[0.55em] mb-5 sm:mb-6">
+          <div className="text-white/60 text-[10px] sm:text-[10px] uppercase tracking-[0.3em] sm:tracking-[0.55em] mb-5 sm:mb-6">
             R1 · Lorong Antara Waktu
           </div>
           <h1
@@ -234,7 +234,7 @@ export const IntroTitle = ({ isMobile = false }) => {
             <span className="text-white/50">{ELI_TIMELINE.length} jejak terajut jadi konstelasi di atasmu.</span>
           </div>
           {/* Inline tip — replace separate TutorialHint surface */}
-          <div className="text-white/35 text-[9px] uppercase tracking-[0.3em]">
+          <div className="text-white/35 text-[10px] uppercase tracking-[0.3em]">
             {isMobile
               ? 'Ketuk bintang · Tatap langit untuk jalan di taman'
               : 'Klik bintang · Drag untuk berputar · Tatap langit untuk jalan'}
@@ -357,7 +357,7 @@ export const MobileFPVControls = ({ joystickRef, lookRef }) => {
         />
       </div>
       {/* Hint */}
-      <div className="absolute bottom-32 left-8 text-white/40 text-[8px] uppercase tracking-[0.25em] pointer-events-none z-20 max-w-[140px]">
+      <div className="absolute bottom-32 left-8 text-white/40 text-[10px] uppercase tracking-[0.25em] pointer-events-none z-20 max-w-[140px]">
         Drag stick · Swipe kanan untuk menengadah
       </div>
     </>
@@ -427,11 +427,11 @@ export const EraGuide = ({
           className="flex items-center gap-2 px-3 py-2 w-full text-left hover:bg-white/5 transition"
           aria-label={collapsed ? 'Buka panduan era' : 'Tutup panduan era'}
         >
-          <span className="text-white/55 text-[8px] uppercase tracking-[0.3em]">
+          <span className="text-white/55 text-[10px] uppercase tracking-[0.3em]">
             Era
           </span>
           <span
-            className="text-white/40 text-[10px] ml-auto"
+            className="text-white/40 text-xs ml-auto"
             style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}
           >
             ▾
@@ -481,7 +481,7 @@ export const EraGuide = ({
                   >
                     {era.name}
                   </span>
-                  <span className="text-[9px] text-white/35 tabular-nums ml-1">
+                  <span className="text-xs text-white/35 tabular-nums ml-1">
                     {era.stars.length}
                   </span>
                 </button>
@@ -501,7 +501,7 @@ export const LorongFooter = ({ hoveredTreeId, isMobile }) => {
       ? `Ketuk salah satu bintang · ${ELI_TIMELINE.length} perjalanan di langit`
       : `Pilih bintang dari ${ELI_TIMELINE.length} perjalanan · drag untuk berputar langit`;
   return (
-    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-center px-4 max-w-[90vw]">
+    <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-[10px] sm:text-[10px] uppercase tracking-[0.2em] text-center px-4 max-w-[90vw]">
       {hint}
     </div>
   );
@@ -587,17 +587,17 @@ export const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
                 aria-hidden="true"
               />
               <span
-                className="text-[9px] uppercase tracking-[0.3em] font-medium"
+                className="text-[10px] uppercase tracking-[0.3em] font-medium"
                 style={{ color: eraColor }}
               >
                 {eraDef?.name ?? 'Era'}
               </span>
-              <span className="text-white/25 text-[10px]">·</span>
-              <span className="text-white/55 text-[9px] uppercase tracking-[0.25em]">
+              <span className="text-white/25 text-xs">·</span>
+              <span className="text-white/55 text-[10px] uppercase tracking-[0.25em]">
                 {tree.badge}
               </span>
             </div>
-            <span className="text-white/45 text-[10px] tabular-nums shrink-0 pt-0.5">
+            <span className="text-white/45 text-xs tabular-nums shrink-0 pt-0.5">
               {fullDate ?? tree.period}
             </span>
           </div>
@@ -628,7 +628,7 @@ export const MilestoneOverlay = ({ tree, trees, onClose, onPrev, onNext }) => {
 
           {/* Counter */}
           {idx >= 0 && (
-            <div className="text-center text-white/35 text-[9px] uppercase tracking-[0.3em] mb-4">
+            <div className="text-center text-white/35 text-[10px] uppercase tracking-[0.3em] mb-4">
               Bintang ke-{idx + 1} dari {total}
             </div>
           )}

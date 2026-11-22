@@ -521,7 +521,7 @@ const Petikan = () => {
           )}
 
           {/* Eyebrow — batch identifier */}
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-6">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-6">
             Batch I · {BATCH_ID}
           </p>
 
@@ -596,7 +596,7 @@ const Petikan = () => {
                       {freeAvailable > 0 && buah > 0 && ' · '}
                       {buah > 0 && (
                         <>
-                          <span className="text-[11px]">🍑</span> {buah} buah
+                          <span className="text-xs">🍑</span> {buah} buah
                         </>
                       )}
                     </p>
@@ -746,7 +746,7 @@ const Petikan = () => {
                       aria-hidden="true"
                     />
                   )}
-                  <span className="absolute bottom-0 left-0 right-0 bg-black/55 text-white text-[9px] uppercase tracking-wider py-0.5 text-center">
+                  <span className="absolute bottom-0 left-0 right-0 bg-black/55 text-white text-[10px] uppercase tracking-wider py-0.5 text-center">
                     {c.tier}
                   </span>
                 </button>
@@ -834,7 +834,7 @@ const Petikan = () => {
           <BukuPetikan state={state} onStateChange={setState} />
 
           {/* Footer credit */}
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/50 mt-16">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/50 mt-16">
             Armeniaca · arsip independen
           </p>
         </div>

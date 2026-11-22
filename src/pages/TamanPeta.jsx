@@ -379,7 +379,7 @@ const PetakPlot = ({
           }`}
         >
           <div
-            className={`text-[11px] font-medium tracking-wide transition-colors flex items-center justify-center gap-1 ${
+            className={`text-xs font-medium tracking-wide transition-colors flex items-center justify-center gap-1 ${
               hovered
                 ? 'text-white'
                 : previewed
@@ -388,12 +388,12 @@ const PetakPlot = ({
             }`}
           >
             {previewed && (
-              <span className="text-[9px] text-emerald-300/85">✓</span>
+              <span className="text-xs text-emerald-300/85">✓</span>
             )}
             {petak.name}
           </div>
           <div
-            className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+            className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
               hovered ? 'text-white/85' : 'text-white/55'
             }`}
           >
@@ -800,7 +800,7 @@ const CenterTree = ({
             <div className="text-white text-[12px] font-medium tracking-wide">
               Pohon Terakhir
             </div>
-            <div className="text-emerald-300/80 text-[9px] mt-0.5 uppercase tracking-[0.15em]">
+            <div className="text-emerald-300/80 text-[10px] mt-0.5 uppercase tracking-[0.15em]">
               Klik untuk siram →
             </div>
           </div>
@@ -985,14 +985,14 @@ const PetaGerbang = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 hovered ? 'text-white' : 'text-white/85'
               }`}
             >
               Gerbang
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 hovered ? 'text-amber-200/85' : 'text-white/55'
               }`}
             >
@@ -1105,14 +1105,14 @@ const PetaLorongMasuk = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 hovered ? 'text-white' : 'text-white/80'
               }`}
             >
               Konstelasi Perjalanan
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 hovered ? 'text-amber-200/85' : 'text-white/55'
               }`}
             >
@@ -1288,7 +1288,7 @@ const PetaTelaga = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 petakState === 'locked'
                   ? 'text-white/45'
                   : hovered
@@ -1299,7 +1299,7 @@ const PetaTelaga = ({
               Telaga Harapan
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 petakState === 'locked'
                   ? 'text-white/30'
                   : hovered
@@ -3901,7 +3901,7 @@ const PetaArsip = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 isLocked
                   ? 'text-white/45'
                   : hovered
@@ -3912,7 +3912,7 @@ const PetaArsip = ({
               Perpustakaan
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 isLocked
                   ? 'text-white/30'
                   : hovered
@@ -8765,14 +8765,14 @@ const AulaLandmark = () => {
           style={{ minWidth: '100px' }}
         >
           <div
-            className={`leading-snug transition-colors text-[10px] tracking-wide italic ${
+            className={`leading-snug transition-colors text-xs tracking-wide italic ${
               hovered ? 'text-white' : 'text-white/75'
             }`}
             style={{ fontFamily: '"Fraunces Variable", serif' }}
           >
             Aula
           </div>
-          <div className="text-white/45 text-[8px] mt-0.5 uppercase tracking-[0.2em]">
+          <div className="text-white/45 text-[10px] mt-0.5 uppercase tracking-[0.2em]">
             FX Sudirman · Virtual
           </div>
         </div>
@@ -9041,7 +9041,7 @@ const PrasastiQuote = ({ pos, text }) => (
     style={{ pointerEvents: 'none' }}
   >
     <div
-      className="text-white/40 text-[10px] sm:text-[11px] tracking-wide whitespace-nowrap select-none"
+      className="text-white/40 text-xs sm:text-[11px] tracking-wide whitespace-nowrap select-none"
       style={{
         fontFamily: '"Fraunces Variable", serif',
         fontStyle: 'italic',
@@ -13591,7 +13591,7 @@ const PetaMenara = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 isLocked
                   ? 'text-white/45'
                   : hovered
@@ -13602,7 +13602,7 @@ const PetaMenara = ({
               Menara Jam
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 isLocked
                   ? 'text-white/30'
                   : hovered
@@ -13983,7 +13983,7 @@ const PetaPanggung = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 isLocked
                   ? 'text-white/45'
                   : hovered
@@ -13994,7 +13994,7 @@ const PetaPanggung = ({
               Panggung Terbuka
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 isLocked
                   ? 'text-white/30'
                   : hovered
@@ -14927,14 +14927,14 @@ const PetaAirMancur = ({
             }`}
           >
             <div
-              className={`text-[11px] font-medium tracking-wide transition-colors ${
+              className={`text-xs font-medium tracking-wide transition-colors ${
                 hovered ? 'text-white' : 'text-white/80'
               }`}
             >
               Air Mancur Plaza
             </div>
             <div
-              className={`text-[9px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
+              className={`text-[10px] mt-0.5 uppercase tracking-[0.15em] transition-colors ${
                 hovered ? 'text-amber-200/85' : 'text-white/55'
               }`}
             >
@@ -16038,7 +16038,7 @@ const PetakPreviewModal = ({ petak, onClose, onConfirm }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className="text-[9px] uppercase tracking-[0.4em] mb-2"
+          className="text-[10px] uppercase tracking-[0.3em] mb-2"
           style={{ color: petak.accent + 'cc' }}
         >
           {petak.eyebrow}
@@ -16141,7 +16141,7 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
   return (
     <div className="pointer-events-none absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 max-w-[92vw]">
       <div className="flex flex-col items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-sm border border-white/15 shadow-lg">
-        <div className="flex items-center gap-2.5 sm:gap-3 text-[10px] sm:text-[11px] tracking-wider">
+        <div className="flex items-center gap-2.5 sm:gap-3 text-xs sm:text-[11px] tracking-wider">
           <svg
             width="13"
             height="13"
@@ -16161,7 +16161,7 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
               <span
                 ref={bumpRef}
                 key={bump.key}
-                className="pointer-events-none absolute -top-4 left-0 text-emerald-300/90 text-[9px] font-black whitespace-nowrap"
+                className="pointer-events-none absolute -top-4 left-0 text-emerald-300/90 text-xs font-black whitespace-nowrap"
                 aria-hidden="true"
               >
                 +{bump.delta.toLocaleString('id-ID')}
@@ -16231,7 +16231,7 @@ const PetaRestorationIndicator = ({ count, loaded, modalOpen = false }) => {
             );
           })}
         </div>
-        <p className="text-white/45 text-[10px] sm:text-[10px] tracking-wide italic">
+        <p className="text-white/45 text-xs sm:text-[10px] tracking-wide italic">
           {nextLabel}
         </p>
       </div>
@@ -16252,7 +16252,7 @@ const TamanHeader = ({ modalOpen = false }) => {
       </Link>
     </div>
     <div className="text-center">
-      <div className="text-white/45 text-[10px] md:text-[10px] uppercase tracking-[0.25em] md:tracking-[0.4em] mb-0.5">
+      <div className="text-white/45 text-[10px] md:text-[10px] uppercase tracking-[0.25em] md:tracking-[0.3em] mb-0.5">
         ArmeniacaTown
       </div>
       <div
@@ -16323,7 +16323,7 @@ const TamanPetaIntroTitle = () => {
       }`}
     >
       <div className="text-center max-w-md mx-4 sm:mx-6 max-h-full overflow-y-auto px-5 py-5 sm:px-8 sm:py-9 sm:-translate-y-10 rounded-md border border-white/12 bg-[#1c1f2a]/85 backdrop-blur-md shadow-2xl">
-        <div className="text-white/55 text-[10px] uppercase tracking-[0.35em] sm:tracking-[0.5em] mb-3 sm:mb-4">
+        <div className="text-white/55 text-[10px] uppercase tracking-[0.35em] sm:tracking-[0.3em] mb-3 sm:mb-4">
           ArmeniacaTown
         </div>
         <p
@@ -16338,7 +16338,7 @@ const TamanPetaIntroTitle = () => {
         </p>
         <div className="mx-auto mb-3 w-10 h-px bg-white/25" />
         <p
-          className="text-white/65 text-[11px] sm:text-[12px] md:text-[13px] leading-relaxed"
+          className="text-white/65 text-xs sm:text-[12px] md:text-[13px] leading-relaxed"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',
@@ -16429,7 +16429,7 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedS
                 title={`Bab ${petak.chapter} · ${petak.name}`}
               >
                 <span
-                  className={`text-[9px] font-black tabular-nums ${
+                  className={`text-xs font-black tabular-nums ${
                     visited ? 'text-emerald-300' : 'text-white/35'
                   }`}
                 >
@@ -16443,12 +16443,12 @@ const RestorationIndicator = ({ level, chaptersExplored, totalChapters, visitedS
           <span className="text-white/85 text-sm font-bold tabular-nums">
             {Math.round(animatedPct)}%
           </span>
-          <span className="text-white/45 text-[10px] tracking-wide tabular-nums">
+          <span className="text-white/45 text-xs tracking-wide tabular-nums">
             {chaptersExplored} / {totalChapters} bab
           </span>
         </div>
         <p
-          className="text-white/55 text-[11px] leading-relaxed"
+          className="text-white/55 text-xs leading-relaxed"
           style={{
             fontFamily: '"Fraunces Variable", serif',
             fontStyle: 'italic',
@@ -16474,7 +16474,7 @@ const TamanFooter = ({ hoveredPetakId, flyInActive, previewedCount, modalOpen = 
       <div className="text-white/40 text-[10px] uppercase tracking-[0.2em] transition-opacity">
         {hint}
       </div>
-      <div className="text-white/30 text-[10px] mt-1.5 tracking-wide">
+      <div className="text-white/30 text-xs mt-1.5 tracking-wide">
         {previewedCount} dari {PETAK.length} petak dijelajahi
       </div>
     </div>
@@ -16516,7 +16516,7 @@ const PetakDetailOverlay = ({ petak, onClose, onJumpToPetak }) => {
         {/* Chapter indicator + eyebrow */}
         <div className="mb-2 text-white/50 text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-1.5 flex-wrap">
           {petak.chapter && (
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/15 text-white/85 text-[9px] font-black tabular-nums">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/15 text-white/85 text-xs font-black tabular-nums">
               {petak.chapter}
             </span>
           )}
@@ -16564,7 +16564,7 @@ const PetakDetailOverlay = ({ petak, onClose, onJumpToPetak }) => {
             onClick={() => onJumpToPetak(nextPetak)}
             className="w-full mt-3 px-5 py-2.5 rounded-full border border-white/15 hover:border-white/35 bg-white/5 hover:bg-white/10 transition text-left flex items-center gap-3"
           >
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/45 shrink-0">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/45 shrink-0">
               Bab {nextPetak.chapter} →
             </span>
             <span
@@ -16582,7 +16582,7 @@ const PetakDetailOverlay = ({ petak, onClose, onJumpToPetak }) => {
         <button
           type="button"
           onClick={onClose}
-          className="w-full mt-3 px-5 py-2 rounded-full border border-white/20 text-white/55 text-[11px] hover:bg-white/10 transition"
+          className="w-full mt-3 px-5 py-2 rounded-full border border-white/20 text-white/55 text-xs hover:bg-white/10 transition"
         >
           Kembali ke peta taman
         </button>
@@ -17361,7 +17361,7 @@ const TamanPetaPage = () => {
             fly-in completes. Hidden when any modal is open. */}
         {isMobile && gestureHintVisible && !flyInActive && !petakPreview && (
           <div className="pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 z-10">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm ring-1 ring-white/15 text-white/65 text-[9px] uppercase tracking-[0.2em] whitespace-nowrap">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm ring-1 ring-white/15 text-white/65 text-[10px] uppercase tracking-[0.2em] whitespace-nowrap">
               <i className="ri-drag-move-fill text-xs opacity-60" />
               <span>Seret untuk putar</span>
               <span className="text-white/25">·</span>
@@ -17391,16 +17391,16 @@ const TamanPetaPage = () => {
               className="absolute inset-1"
               style={{ willChange: 'transform' }}
             >
-              <span className="absolute top-0 left-1/2 -translate-x-1/2 text-white/85 text-[9px] md:text-[10px] font-bold leading-none">
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 text-white/85 text-xs md:text-[10px] font-bold leading-none">
                 N
               </span>
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-white/45 text-[8px] md:text-[9px] leading-none">
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-white/45 text-xs md:text-[10px] leading-none">
                 S
               </span>
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-white/45 text-[8px] md:text-[9px] leading-none">
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 text-white/45 text-xs md:text-[10px] leading-none">
                 W
               </span>
-              <span className="absolute right-0 top-1/2 -translate-y-1/2 text-white/45 text-[8px] md:text-[9px] leading-none">
+              <span className="absolute right-0 top-1/2 -translate-y-1/2 text-white/45 text-xs md:text-[10px] leading-none">
                 E
               </span>
               <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white/50" />

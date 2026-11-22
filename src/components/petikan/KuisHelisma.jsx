@@ -114,7 +114,7 @@ const KuisHelisma = ({ onBuahChange }) => {
             <p className="text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/60 mt-0.5">
               {totalAnswered}/{QUIZ_QUESTIONS_PER_DAY} benar{' '}
               <span className="opacity-50">·</span> {earnedBuah}{' '}
-              <span className="text-[11px]">🍑</span> dari max{' '}
+              <span className="text-xs">🍑</span> dari max{' '}
               {QUIZ_MAX_BUAH_PER_DAY}
             </p>
           </div>
@@ -159,7 +159,7 @@ const KuisHelisma = ({ onBuahChange }) => {
                 </p>
                 {currentQuiz.category && CATEGORY_META[currentQuiz.category] && (
                   <span
-                    className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${CATEGORY_META[currentQuiz.category].color}`}
+                    className={`text-[10px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${CATEGORY_META[currentQuiz.category].color}`}
                   >
                     {CATEGORY_META[currentQuiz.category].label}
                   </span>
@@ -236,7 +236,7 @@ const KuisHelisma = ({ onBuahChange }) => {
                       : 'Salah · 0 buah untuk soal ini'}
                   </p>
                   {currentQuiz.explanation && (
-                    <p className="text-[11px] text-[color:var(--retro-brown-dark)]/55 italic mt-1 leading-relaxed">
+                    <p className="text-xs text-[color:var(--retro-brown-dark)]/55 italic mt-1 leading-relaxed">
                       {currentQuiz.explanation}
                     </p>
                   )}

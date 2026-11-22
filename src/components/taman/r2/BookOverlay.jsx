@@ -588,7 +588,7 @@ const TimelineSectionBody = ({ body }) => (
             {m.period}
           </div>
           {m.badge && (
-            <div className="text-[10px] text-[color:var(--retro-brown-dark)]/60 italic">
+            <div className="text-xs text-[color:var(--retro-brown-dark)]/60 italic">
               {m.badge}
             </div>
           )}
@@ -646,7 +646,7 @@ const EraFightBody = ({ body }) => {
               {fight.team.name}
             </h4>
           </div>
-          <div className="text-[10px] text-[color:var(--retro-brown-dark)]/70 italic text-right">
+          <div className="text-xs text-[color:var(--retro-brown-dark)]/70 italic text-right">
             efektif {fight.effective}
           </div>
         </div>
@@ -654,7 +654,7 @@ const EraFightBody = ({ body }) => {
           <span className="font-semibold">{fight.team.captainTitle}: </span>
           {fight.team.captain}
         </div>
-        <p className="text-[11px] text-[color:var(--retro-brown-dark)]/70 italic">
+        <p className="text-xs text-[color:var(--retro-brown-dark)]/70 italic">
           {fight.team.captainNote}
         </p>
         <div className="flex flex-wrap gap-1.5 pt-1">
@@ -663,7 +663,7 @@ const EraFightBody = ({ body }) => {
             return (
               <span
                 key={name}
-                className={`text-[11px] px-2 py-0.5 rounded-full ${
+                className={`text-xs px-2 py-0.5 rounded-full ${
                   isEli
                     ? 'bg-[color:var(--retro-burgundy)]/15 text-[color:var(--retro-burgundy)] font-semibold border border-[color:var(--retro-burgundy)]/30'
                     : 'bg-[color:var(--retro-brown-dark)]/10 text-[color:var(--retro-brown-dark)]/80'
@@ -763,15 +763,15 @@ const DiskografiBody = ({ body }) => {
                   >
                     {m.name}
                     {m.position && (
-                      <span className="text-[10px] text-[color:var(--retro-brown-dark)]/60 italic ml-2">
+                      <span className="text-xs text-[color:var(--retro-brown-dark)]/60 italic ml-2">
                         · {m.position}
                       </span>
                     )}
                   </span>
-                  <span className="text-[10px] text-[color:var(--retro-brown-dark)]/60">
+                  <span className="text-xs text-[color:var(--retro-brown-dark)]/60">
                     {m.group}
                   </span>
-                  <span className="text-[10px] text-[color:var(--retro-brown-dark)]/70 font-mono w-12 text-right">
+                  <span className="text-xs text-[color:var(--retro-brown-dark)]/70 font-mono w-12 text-right">
                     {m.votes ? m.votes.toLocaleString('id-ID') : ''}
                   </span>
                 </li>
@@ -801,7 +801,7 @@ const KebaikanBody = ({ body }) => (
           >
             {e.title}
           </h3>
-          <div className="text-[10px] text-[color:var(--retro-brown-dark)]/60 italic whitespace-nowrap">
+          <div className="text-xs text-[color:var(--retro-brown-dark)]/60 italic whitespace-nowrap">
             {e.status === 'executed' && e.executedAt ? `selesai ${e.executedAt}` : e.status}
           </div>
         </div>
@@ -814,11 +814,11 @@ const KebaikanBody = ({ body }) => (
         >
           {e.description}
         </p>
-        <div className="flex items-baseline gap-2 text-[11px] text-[color:var(--retro-brown-dark)]/70">
+        <div className="flex items-baseline gap-2 text-xs text-[color:var(--retro-brown-dark)]/70">
           <span className="font-semibold">Untuk:</span>
           <span>{e.recipient}</span>
         </div>
-        <div className="flex items-baseline gap-2 text-[11px] text-[color:var(--retro-brown-dark)]/70">
+        <div className="flex items-baseline gap-2 text-xs text-[color:var(--retro-brown-dark)]/70">
           <span className="font-semibold">Oleh:</span>
           <span>{e.contributorCredit}</span>
         </div>
@@ -902,7 +902,7 @@ const CrossLinkFooter = ({ book, onClose, onNavigate, restored }) => {
       {/* "Lanjut baca" — primary CTA narrative arc */}
       {nextStoryBook && (
         <div>
-          <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/70 mb-3">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 mb-3">
             Lanjut baca
           </div>
           <button
@@ -910,7 +910,7 @@ const CrossLinkFooter = ({ book, onClose, onNavigate, restored }) => {
             onClick={() => onNavigate?.(nextStoryBook.id)}
             className="w-full text-left block px-4 py-3 rounded-lg border-2 border-[color:var(--retro-burgundy)]/30 hover:border-[color:var(--retro-burgundy)]/60 hover:bg-[color:var(--retro-burgundy)]/5 transition group"
           >
-            <div className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/85 mb-1">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/85 mb-1">
               {nextStoryBook.eyebrow}
             </div>
             <div
@@ -935,7 +935,7 @@ const CrossLinkFooter = ({ book, onClose, onNavigate, restored }) => {
       {/* Cross-room links (Konstelasi, Pohon, About) — secondary */}
       {links.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-brown-dark)]/55 mb-3">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mb-3">
             Lihat juga
           </div>
           <div className="space-y-2">
@@ -946,7 +946,7 @@ const CrossLinkFooter = ({ book, onClose, onNavigate, restored }) => {
                 onClick={() => onClose?.()}
                 className="block px-4 py-3 rounded-lg border border-[color:var(--retro-brown-dark)]/15 hover:border-[color:var(--retro-burgundy)]/40 hover:bg-[color:var(--retro-cream)]/60 transition group"
               >
-                <div className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/75 mb-1">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/75 mb-1">
                   {l.eyebrow}
                 </div>
                 <div
@@ -1285,7 +1285,7 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
           style={{ paddingLeft: 'calc(1.5rem + 8px)' }}
         >
           <div className="mb-6 flex-shrink-0">
-            <div className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
               {book.eyebrow}
             </div>
             <h2
@@ -1342,7 +1342,7 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
 
         {/* Footer prev/next */}
         <footer
-          className="relative flex-shrink-0 px-6 sm:px-10 py-3 border-t border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)]/60 flex items-center justify-between gap-3 text-[11px]"
+          className="relative flex-shrink-0 px-6 sm:px-10 py-3 border-t border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-cream)]/60 flex items-center justify-between gap-3 text-xs"
           style={{ paddingLeft: 'calc(1.5rem + 8px)' }}
         >
           {siblings.prev ? (
@@ -1358,7 +1358,7 @@ const BookOverlay = ({ book, restored, onClose, onNavigate, onMarkRead }) => {
               buku pertama di rak ini
             </div>
           )}
-          <div className="text-[10px] text-[color:var(--retro-brown-dark)]/50 px-2 whitespace-nowrap">
+          <div className="text-xs text-[color:var(--retro-brown-dark)]/50 px-2 whitespace-nowrap">
             {siblings.idx + 1} / {siblings.total}
           </div>
           {siblings.next ? (

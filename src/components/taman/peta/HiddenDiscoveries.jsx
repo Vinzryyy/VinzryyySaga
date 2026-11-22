@@ -533,7 +533,7 @@ export const DiscoveryRevealCard = ({ def, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)]">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy-light)]">
             Rahasia ditemukan
           </span>
           <span className="flex-1 h-px bg-[color:var(--retro-burgundy-light)]/30" />
@@ -646,14 +646,14 @@ export const DiscoveryProgressBadge = ({ discovered, armeniacaCount = 0, modalOp
             className={`${isComplete ? 'ri-treasure-map-fill text-[color:var(--retro-gold-light)]' : 'ri-treasure-map-line text-white/70'} text-base`}
             aria-hidden="true"
           />
-          <span className="text-white/85 text-[11px] font-bold tracking-wider tabular-nums">
+          <span className="text-white/85 text-xs font-bold tracking-wider tabular-nums">
             {count}/{TOTAL}
           </span>
         </div>
         {floatKey > 0 && (
           <span
             key={`plus-${floatKey}`}
-            className="absolute left-1/2 -translate-x-1/2 -top-1 text-[11px] font-black tracking-wider text-[color:var(--retro-gold-light)] animate-discoveryPlusOne"
+            className="absolute left-1/2 -translate-x-1/2 -top-1 text-xs font-black tracking-wider text-[color:var(--retro-gold-light)] animate-discoveryPlusOne"
             aria-hidden="true"
           >
             +1
@@ -751,7 +751,7 @@ export const DiscoveryCompletionCard = ({ open, onClose }) => {
       >
         {/* Golden eyebrow header */}
         <div className="text-center mb-5">
-          <div className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]/90 mb-2">
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]/90 mb-2">
             8 / 8 Rahasia Terkuak
           </div>
           <div className="mx-auto w-14 h-px bg-[color:var(--retro-gold-light)]/55" />

@@ -137,7 +137,7 @@ const MilestoneRevealCard = ({ milestone, onClose }) => {
 
         {/* Close hint */}
         <p
-          className="text-center text-[9px] uppercase tracking-[0.3em] py-2"
+          className="text-center text-[10px] uppercase tracking-[0.3em] py-2"
           style={{ color: 'rgba(245,240,232,0.3)' }}
         >
           Ketuk di mana saja untuk tutup

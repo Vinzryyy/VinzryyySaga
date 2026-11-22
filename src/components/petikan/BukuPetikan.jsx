@@ -118,7 +118,7 @@ const BukuPetikanItem = ({
             }}
           >
             <p
-              className="text-[10px] text-white leading-tight truncate"
+              className="text-xs text-white leading-tight truncate"
               style={{ fontFamily: '"Fraunces Variable", serif' }}
             >
               {card.title}
@@ -134,7 +134,7 @@ const BukuPetikanItem = ({
               style={{ color: cfg.spineColor || 'var(--retro-burgundy)', opacity: 0.3 }}
             />
             <p
-              className="text-[8px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/40"
+              className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/40"
               style={{ marginLeft: cfg.spineWidth || '3px' }}
             >
               {cfg.label}
@@ -192,7 +192,7 @@ const BukuPetikanItem = ({
         layout aspect-ratio kartu di atas. */}
     {isPulled && count >= 2 && (
       <p
-        className="text-center text-[10px] font-bold mt-1 text-[color:var(--retro-burgundy)] tabular-nums"
+        className="text-center text-xs font-bold mt-1 text-[color:var(--retro-burgundy)] tabular-nums"
         style={{
           fontFamily: '"Fraunces Variable", serif',
           letterSpacing: '0.05em',
@@ -257,7 +257,7 @@ const MemoriHariIni = ({ recent, onSelectCard, expanded, onToggleExpand }) => {
         <span className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
       </div>
       <header className="text-center mb-6">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-2">
           Memori Hari Ini
         </p>
         <h3
@@ -293,7 +293,7 @@ const MemoriHariIni = ({ recent, onSelectCard, expanded, onToggleExpand }) => {
                 className="block w-full text-left group"
                 aria-label={`Buka detail ${card.title}`}
               >
-                <p className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mb-1">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/55 mb-1">
                   {formatLongDate(entry.at)}
                 </p>
                 <div className="flex items-start gap-3">
@@ -314,7 +314,7 @@ const MemoriHariIni = ({ recent, onSelectCard, expanded, onToggleExpand }) => {
                     </span>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/80 mb-0.5">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/80 mb-0.5">
                       {cfg.label}
                     </p>
                     <p
@@ -365,7 +365,7 @@ const RecentPullsRow = ({ recent, onSelectCard }) => {
   return (
     <div className="mb-6">
       <p className="text-[10px] uppercase tracking-[0.35em] text-[color:var(--retro-burgundy)]/70 mb-2 text-center">
-        <i className="ri-history-line mr-1 text-[11px]" />
+        <i className="ri-history-line mr-1 text-xs" />
         Pack Terakhir
       </p>
       <div className="flex justify-center gap-1.5 sm:gap-2 overflow-x-auto px-2 pb-1 -mx-2">
@@ -445,7 +445,7 @@ const RatesModal = ({ onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-5 border-b border-[color:var(--retro-brown-dark)]/10">
-          <p className="text-[9px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-1">
             The Life of Armeniaca
           </p>
           <h3
@@ -487,14 +487,14 @@ const RatesModal = ({ onClose }) => {
           </ul>
 
           <div className="pt-3 mt-2 border-t border-[color:var(--retro-brown-dark)]/10 space-y-2">
-            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+            <p className="text-xs text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
               Kartu tier S tidak duplikat — sekali dapat, tidak diulang.
               Kalau roll ke S tapi sudah lengkap, jatuh ke tier di bawah.
             </p>
-            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+            <p className="text-xs text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
@@ -502,7 +502,7 @@ const RatesModal = ({ onClose }) => {
               tanpa A+, dijamin dapat A di buka berikutnya.
               Setiap {PITY_THRESHOLD.legenda} buka tanpa S, dijamin dapat S.
             </p>
-            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+            <p className="text-xs text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
@@ -510,7 +510,7 @@ const RatesModal = ({ onClose }) => {
               kamu cari. Saat jaminan A/S aktif, drop condong 50/50 ke
               wishlist-mu yang belum dimiliki.
             </p>
-            <p className="text-[11px] text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
+            <p className="text-xs text-[color:var(--retro-brown-dark)]/65 leading-relaxed">
               <span className="font-semibold text-[color:var(--retro-burgundy)]">
                 ·
               </span>{' '}
@@ -651,7 +651,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
       </div>
 
       <header className="text-center mb-6">
-        <p className="text-[10px] uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-2">
           Buku ArmePack
         </p>
         <h2
@@ -704,7 +704,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
             {poolTotal > 0 ? Math.round((pulledTotal / poolTotal) * 100) : 0}% lengkap
             {wishlistSize > 0 && (
               <span className="ml-3 inline-flex items-center gap-1 text-[color:var(--retro-burgundy)]/75">
-                <i className="ri-heart-fill text-[10px]" />
+                <i className="ri-heart-fill text-xs" />
                 Wishbook {wishlistSize}/{WISHLIST_CAP}
               </span>
             )}
@@ -731,7 +731,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
           }
           return (
             <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-brown-dark)]/55">
-              <i className="ri-shield-star-line mr-1 text-[11px]" />
+              <i className="ri-shield-star-line mr-1 text-xs" />
               Jaminan: A {state.pity.langka}/{PITY_THRESHOLD.langka}
               {showLegendaPity && (
                 <>
@@ -883,7 +883,7 @@ const BukuPetikan = ({ state, onStateChange }) => {
       {/* Credit reference — mekanik gacha (pity, history, encrypted
           backup) di-inspirasi dari Tierlist-JKT48 oleh MrcellSbst,
           dengan izin owner. Kredit subtle, paper-archive feel. */}
-      <p className="mt-10 text-center text-[9px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/40">
+      <p className="mt-10 text-center text-[10px] uppercase tracking-[0.3em] text-[color:var(--retro-brown-dark)]/40">
         Mekanik gacha terinspirasi dari{' '}
         <a
           href="https://github.com/MrcellSbst/Tierlist-JKT48"

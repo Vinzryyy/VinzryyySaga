@@ -21,7 +21,6 @@ import {
   useLocation,
   useSearchParams,
 } from 'react-router-dom';
-import { subscribeToTreeSupports } from './lib/treeDb';
 import { HelmetProvider } from 'react-helmet-async';
 import { GalleryProvider } from './context';
 import { ThemeProvider } from './context';
@@ -44,6 +43,11 @@ import { SITE_CONFIG } from './config/siteConfig';
 const HomePage = lazy(() => import('./pages/Home'));
 const AdminJadwalPage = lazy(() => import('./pages/AdminJadwal'));
 const MiniGameMemoryPage = lazy(() => import('./pages/MiniGameMemory'));
+const MiniGamesPage = lazy(() => import('./pages/MiniGames'));
+const MomentsPage = lazy(() => import('./pages/Moments'));
+const Rekap2026Page = lazy(() => import('./pages/Rekap2026'));
+const FanStoriesPage = lazy(() => import('./pages/FanStories'));
+const AdminStoriesPage = lazy(() => import('./pages/AdminStories'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
@@ -208,10 +212,19 @@ const R5_RESTORATION_THRESHOLD = 6500;
 const useTreeSupportCount = () => {
   const [state, setState] = useState({ count: 0, loaded: false });
   useEffect(() => {
-    const unsubscribe = subscribeToTreeSupports((count) => {
-      setState({ count, loaded: true });
+    // Loaded on demand so Firebase isn't in the bundle every page downloads.
+    let unsubscribe = null;
+    let cancelled = false;
+    import('./lib/treeDb').then(({ subscribeToTreeSupports }) => {
+      if (cancelled) return;
+      unsubscribe = subscribeToTreeSupports((count) => {
+        setState({ count, loaded: true });
+      });
     });
-    return unsubscribe;
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
   return state;
 };
@@ -458,7 +471,12 @@ function AppShell() {
             <Route path="/countdown" element={<Navigate to="/happy-helisma-day-26" replace />} />
             <Route path="/schedule" element={<SchedulePage />} />
             <Route path="/admin/jadwal" element={<AdminJadwalPage />} />
-            <Route path="/mini-games" element={<Navigate to="/mini-games/memory" replace />} />
+            <Route path="/mini-games" element={<MiniGamesPage />} />
+            <Route path="/momen" element={<MomentsPage />} />
+            <Route path="/momen/:slug" element={<MomentsPage />} />
+            <Route path="/rekap-2026" element={<Rekap2026Page />} />
+            <Route path="/cerita" element={<FanStoriesPage />} />
+            <Route path="/admin/cerita" element={<AdminStoriesPage />} />
             <Route path="/mini-games/memory" element={<MiniGameMemoryPage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />

@@ -340,7 +340,7 @@ const ReplayDrawer = ({ heardMap, onClose, onReplay }) => {
                             {d.label}
                           </span>
                           {d.status === 'pre-crossed' && (
-                            <span className="block text-white/40 text-[10px] mt-0.5">
+                            <span className="block text-white/40 text-xs mt-0.5">
                               Kelewatan pas kamu pertama dateng — bisa dibaca sekarang.
                             </span>
                           )}
@@ -399,7 +399,7 @@ const ReplayDrawer = ({ heardMap, onClose, onReplay }) => {
                   <span className="block text-white/80 text-[13px] leading-snug">
                     Atur tanda tangan
                   </span>
-                  <span className="block text-white/40 text-[10px] mt-0.5">
+                  <span className="block text-white/40 text-xs mt-0.5">
                     Diukir di Monument Legacy pas kota sampai 10.000.
                   </span>
                 </span>
@@ -970,13 +970,13 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               } flex flex-col items-start gap-1`}
             >
               <span
-                className="rounded-full backdrop-blur-sm px-2.5 py-0.5 text-[10px] md:text-[11px] font-semibold tracking-wider text-white ring-1 bg-[#1c1f2a]/85 ring-[#d4a574]/35"
+                className="rounded-full backdrop-blur-sm px-2.5 py-0.5 text-xs md:text-[11px] font-semibold tracking-wider text-white ring-1 bg-[#1c1f2a]/85 ring-[#d4a574]/35"
               >
                 Arme · pemandu
               </span>
               {!activeDialog && (
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full backdrop-blur-sm px-2.5 py-1 text-[10px] md:text-[11px] font-medium text-white ring-1 shadow-[0_0_14px_rgba(244,200,150,0.4)] ${
+                  className={`inline-flex items-center gap-1 rounded-full backdrop-blur-sm px-2.5 py-1 text-xs md:text-[11px] font-medium text-white ring-1 shadow-[0_0_14px_rgba(244,200,150,0.4)] ${
                     isNewcomer
                       ? 'bg-[#c97a5e] ring-[#f4c896]/50'
                       : 'bg-[#9a5b4a]/90 ring-white/15'
@@ -1081,7 +1081,7 @@ const ArmeMascot = ({ armeniacaCount, armeniacaLoaded, flyInActive, modalOpen, i
               }}
             />
             {/* Name plate cinematic — di bawah, centered */}
-            <span className="absolute left-1/2 -translate-x-1/2 bottom-1 rounded-full bg-[#9a5b4a]/95 backdrop-blur-sm px-3 py-0.5 text-[11px] md:text-xs font-semibold tracking-wider text-white ring-1 ring-[#f4c896]/40 shadow-[0_0_14px_rgba(244,200,150,0.6)]">
+            <span className="absolute left-1/2 -translate-x-1/2 bottom-1 rounded-full bg-[#9a5b4a]/95 backdrop-blur-sm px-3 py-0.5 text-xs md:text-xs font-semibold tracking-wider text-white ring-1 ring-[#f4c896]/40 shadow-[0_0_14px_rgba(244,200,150,0.6)]">
               Arme
             </span>
           </button>

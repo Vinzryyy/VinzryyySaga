@@ -44,7 +44,6 @@ import {
   readVolume,
   readDuckFactor,
 } from '../../lib/townAudioBus';
-import { subscribeToTreeSupports } from '../../lib/treeDb';
 
 const SRC_DROUGHT = '/byUmusic/scoring-music-1.mp3';
 const SRC_PURIFIED = '/byUmusic/PERPUSTAKAAN%20%20ATAU%20KOTA%20YANG%20SUDAH%20PULIH.mp3';
@@ -236,22 +235,10 @@ const TownMusic = () => {
     // threshold mid-session, swap source. First snapshot juga handle
     // case dimana audio element udah dibuat dgn SRC_DROUGHT padahal
     // user real-count udah ≥ 7000.
-    const unsubCount = subscribeToTreeSupports((count) => {
-      const nextPurified = count >= PURIFIED_THRESHOLD;
-      if (nextPurified === purifiedRef.current) return;
-      purifiedRef.current = nextPurified;
-      if (audioRef.current) {
-        swapSource();
-      }
-      // Kalau audio belum di-create, currentSrcRef belum dipakai —
-      // ensure() berikutnya akan pilih src yg benar berdasarkan
-      // purifiedRef.
-    });
     return () => {
       unsubEnabled();
       unsubVolume();
       unsubDuck();
-      unsubCount();
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
       if (gestureCleanupRef.current) gestureCleanupRef.current();
@@ -277,6 +264,28 @@ const TownMusic = () => {
       ensure();
     }
     apply();
+  }, [inTown]);
+
+  // Tree count (Firebase) only matters inside the town; import it on
+  // demand so other pages never download Firebase for this.
+  useEffect(() => {
+    if (!inTown) return undefined;
+    let unsubTree = null;
+    let cancelled = false;
+    import('../../lib/treeDb').then(({ subscribeToTreeSupports }) => {
+      if (cancelled) return;
+      unsubTree = subscribeToTreeSupports((count) => {
+        const nextPurified = count >= PURIFIED_THRESHOLD;
+        if (nextPurified === purifiedRef.current) return;
+        purifiedRef.current = nextPurified;
+        if (audioRef.current) swapSource();
+      });
+    });
+    return () => {
+      cancelled = true;
+      unsubTree?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inTown]);
 
   return null;

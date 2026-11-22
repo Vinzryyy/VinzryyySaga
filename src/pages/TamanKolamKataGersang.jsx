@@ -283,19 +283,19 @@ const LilyWishPad = ({ pad, hovered, hideLabel, onPointerOver, onPointerOut, onC
             style={{ minWidth: pad.isCenter ? '180px' : '140px' }}
           >
             {pad.isCenter && (
-              <div className="text-pink-200/80 text-[8px] uppercase tracking-[0.25em] mb-1">
+              <div className="text-pink-200/80 text-[10px] uppercase tracking-[0.25em] mb-1">
                 Wish utama
               </div>
             )}
             <div
               className={`leading-snug transition-colors ${
-                pad.isCenter ? 'text-[11px] font-medium' : 'text-[10px]'
+                pad.isCenter ? 'text-xs font-medium' : 'text-xs'
               } ${hovered ? 'text-white' : 'text-white/75'}`}
             >
               — {pad.name}
             </div>
             <div
-              className={`text-[9px] mt-0.5 transition-colors leading-snug ${
+              className={`text-xs mt-0.5 transition-colors leading-snug ${
                 hovered ? 'text-white/80' : 'text-white/55'
               }`}
             >
@@ -1286,7 +1286,7 @@ const SignPost = () => (
           fontStyle: 'italic',
         }}
       >
-        <div className="text-[10px] text-[#3a2616] font-medium">
+        <div className="text-xs text-[#3a2616] font-medium">
           Telaga Harapan
         </div>
       </div>
@@ -6420,7 +6420,7 @@ const TelagaIntroTitle = ({ visible }) => (
     }`}
   >
     <div className="text-center max-w-md mx-6 px-8 py-9 -translate-y-12 rounded-md border border-white/10 bg-[#0a1320]/75 backdrop-blur-md shadow-2xl">
-      <div className="text-white/55 text-[9px] uppercase tracking-[0.5em] mb-4">
+      <div className="text-white/55 text-[10px] uppercase tracking-[0.3em] mb-4">
         R3 · Kenangan
       </div>
       <h1
@@ -6463,7 +6463,7 @@ const TelagaHeader = () => (
       </Link>
     </div>
     <div className="text-center">
-      <div className="text-white/45 text-[8px] md:text-[9px] uppercase tracking-[0.35em] md:tracking-[0.45em] mb-0.5">
+      <div className="text-white/45 text-[10px] md:text-[10px] uppercase tracking-[0.35em] md:tracking-[0.3em] mb-0.5">
         Kenangan
       </div>
       <div

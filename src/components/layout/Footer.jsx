@@ -37,13 +37,13 @@ const Footer = () => {
   // Derive footer page links from the same SITE_CONFIG source as the
   // navbar so adding/renaming a page only happens in one place. Pure-
   // dropdown parents (no own hash) fall back to their first child.
+  // "Lainnya"-style groups without their own page list their children.
   const navigateLinks = SITE_CONFIG.navigation.main
-    .map((item) => {
-      const hash = item.hash || item.children?.[0]?.hash;
-      if (!hash) return null;
-      return { name: item.label, to: hashToHref(hash) };
-    })
-    .filter(Boolean);
+    .flatMap((item) =>
+      item.hash ? [{ name: item.label, to: hashToHref(item.hash) }]
+        : (item.children || []).map((c) => ({ name: c.label, to: hashToHref(c.hash) })),
+    )
+    .filter((l, i, all) => all.findIndex((x) => x.to === l.to) === i);
 
   // Build {era → count} once so the Era Arsip column can show per-year
   // archive depth at a glance. Memo'd against the images array — gallery
