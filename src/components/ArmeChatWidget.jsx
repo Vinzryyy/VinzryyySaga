@@ -24,7 +24,7 @@ const MAX_HISTORY = 16;
 const MAX_INPUT_CHARS = 1200;
 
 const GREETING_INTRO =
-  'Halo. Aku Arme — pemandu situs ini, bukan Eli. Aku bantu kamu nemu halaman atau jawab info dasar soal Eli. Mau mulai dari mana?';
+  'Halo. Aku Arme — pemandu situs ini, bukan Eli. Aku bantu kamu nemu halaman, jawab info dasar soal Eli, atau sekadar nemenin ngobrol. Mau mulai dari mana?';
 const GREETING_QUOTE_PREFIX = 'Sebelum mulai, kata dari Arme —';
 
 const PROMPT_SUGGESTIONS = [
