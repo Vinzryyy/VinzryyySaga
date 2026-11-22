@@ -115,13 +115,13 @@ const NewsCard = ({ item }) => {
         />
         <div className="absolute inset-x-0 top-0 p-3 flex items-start justify-between gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full ${tone}`}
+            className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full ${tone}`}
           >
             <i className={icon} />
             {item.category || 'News'}
           </span>
           {isEli && (
-            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)] shadow-md">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)] shadow-md">
               <i className="ri-sparkling-2-fill" />
               Eli ditandai
             </span>
@@ -141,7 +141,7 @@ const NewsCard = ({ item }) => {
           {item.title}
         </p>
         {item.snippet && (
-          <p className="text-[11px] text-[color:var(--retro-text-secondary)] leading-relaxed line-clamp-2 min-h-[2.6em]">
+          <p className="text-xs text-[color:var(--retro-text-secondary)] leading-relaxed line-clamp-2 min-h-[2.6em]">
             {item.snippet}
           </p>
         )}
@@ -194,7 +194,7 @@ const ViewAllCard = () => (
       <br />
       <span className="text-[color:var(--retro-burgundy)]">di jkt48.com</span>
     </p>
-    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] text-center">
+    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] text-center">
       Arsip resmi
     </p>
   </a>
@@ -253,7 +253,7 @@ const NewsStrip = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between gap-3 mb-6 md:mb-8 flex-wrap">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               JKT48 Resmi
             </p>

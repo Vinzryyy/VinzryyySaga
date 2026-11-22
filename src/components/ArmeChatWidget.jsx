@@ -288,6 +288,27 @@ const ArmeChatWidget = () => {
     pathname.startsWith('/armeniacaTown/peta/') ||
     pathname.startsWith('/mini-games');
 
+  // Phones: tuck the floating button aside while the page scrolls so it
+  // doesn't sit on top of content; it slides back once scrolling stops.
+  const [tucked, setTucked] = useState(false);
+  useEffect(() => {
+    if (!isMobile || open) {
+      setTucked(false);
+      return undefined;
+    }
+    let timer = null;
+    const onScroll = () => {
+      setTucked(true);
+      clearTimeout(timer);
+      timer = setTimeout(() => setTucked(false), 700);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(timer);
+    };
+  }, [isMobile, open]);
+
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
     const handler = (e) => setIsMobile(e.matches);
@@ -570,16 +591,19 @@ const ArmeChatWidget = () => {
           style={{
             right: 'max(16px, env(safe-area-inset-right, 0px))',
             bottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
-            width: 56,
-            height: 56,
+            width: isMobile ? 48 : 56,
+            height: isMobile ? 48 : 56,
             animation: 'armeChatFabPulse 2.4s ease-in-out infinite',
+            translate: tucked ? '40px 0' : '0 0',
+            opacity: tucked ? 0.45 : 1,
+            transition: 'translate 250ms ease, opacity 250ms ease, background-color 150ms',
           }}
         >
           <img
             src={AVATAR_IDLE}
             alt="Arme"
             draggable={false}
-            className="w-12 h-12 rounded-full object-cover object-top"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover object-top"
           />
           <span className="sr-only">Chat dengan Arme</span>
         </button>

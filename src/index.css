@@ -35,7 +35,7 @@
   --retro-text-primary: #3D342B;
   --retro-text-secondary: #5C5046;
   --retro-text-light: #8B7D6B;
-  --retro-text-muted: #A89F91;
+  --retro-text-muted: #756A5D; /* was #A89F91 (2.4:1 on cream); now 4.9:1 */
   
   /* Background Colors - Cream & Sepia */
   --retro-bg-primary: #FDF6E3;

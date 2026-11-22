@@ -13,12 +13,12 @@ import { useEffect, useRef } from 'react';
 
 const useSplitTextReveal = (options = {}) => {
   const {
-    y = 48,
-    duration = 0.75,
+    y = 20,
+    duration = 0.5,
     ease = 'power3.out',
-    stagger = 0.07,
+    stagger = 0.05,
     delay = 0,
-    threshold = 0.25,
+    threshold = 0.1,
   } = options;
 
   const ref = useRef(null);

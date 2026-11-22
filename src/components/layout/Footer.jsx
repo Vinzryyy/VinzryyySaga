@@ -222,7 +222,7 @@ const Footer = () => {
                         {link.name}
                       </span>
                       {link.count > 0 && (
-                        <span className="text-[10px] font-mono text-[color:var(--retro-text-light)] tabular-nums">
+                        <span className="text-xs font-mono text-[color:var(--retro-text-light)] tabular-nums">
                           {link.count}
                         </span>
                       )}

@@ -177,10 +177,10 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
           <p className="font-header text-3xl font-black text-[color:var(--retro-burgundy)] leading-none tabular-nums">
             {String(date.getDate()).padStart(2, '0')}
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mt-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-muted)] mt-1">
             {new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(date)}
           </p>
-          <p className="text-[9px] font-black tabular-nums text-[color:var(--retro-text-muted)] mt-0.5">
+          <p className="text-xs font-black tabular-nums text-[color:var(--retro-text-muted)] mt-0.5">
             {date.getFullYear()}
           </p>
         </div>
@@ -188,7 +188,7 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
           <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
             {imminence && (
               <span
-                className={`text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
+                className={`text-[10px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
                   imminence.tone === 'today'
                     ? 'bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]'
                     : 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
@@ -202,7 +202,7 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
               </span>
             )}
             <span
-              className={`text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
+              className={`text-[10px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded inline-flex items-center gap-1 ${
                 isVC
                   ? 'bg-blue-100 text-blue-700'
                   : isMG
@@ -216,19 +216,19 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
               {primaryBadge}
             </span>
             {entry.is_birthday_show && (
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-[color:var(--retro-gold-light)]/30 text-[color:var(--retro-burgundy)]">
                 <i className="ri-cake-2-line mr-0.5" />
                 Birthday
               </span>
             )}
             {isMG && entry.sold_out && (
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-red-100 text-red-700 inline-flex items-center gap-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-red-100 text-red-700 inline-flex items-center gap-1">
                 <i className="ri-close-circle-line" />
                 Sold Out
               </span>
             )}
             {isMG && !entry.sold_out && entry.remaining_total > 0 && (
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 inline-flex items-center gap-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 inline-flex items-center gap-1">
                 <i className="ri-checkbox-circle-line" />
                 {entry.remaining_total} tersisa
               </span>
@@ -257,7 +257,7 @@ const ScheduleEventCard = ({ entry, dimmed }) => {
             </p>
           )}
           {!isMG && entry.members && entry.members.length > 0 && (
-            <p className="text-[10px] text-[color:var(--retro-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+            <p className="text-xs text-[color:var(--retro-text-muted)] leading-snug mt-2 line-clamp-1 group-hover:text-[color:var(--retro-burgundy)] transition-colors">
               + {entry.members.length} member · cek detail tiket
             </p>
           )}
@@ -446,7 +446,7 @@ const SchedulePage = () => {
         />
         <div className="relative max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-5 text-[color:var(--retro-burgundy-light)]">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] inline-flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] inline-flex items-center gap-2">
               <i className="ri-calendar-event-line text-base" />
               Schedule · Live
             </span>
@@ -574,7 +574,7 @@ const SchedulePage = () => {
                   {opt.label}
                   {count > 0 && (
                     <span
-                      className={`tabular-nums text-[9px] px-1.5 py-0.5 rounded-full ${
+                      className={`tabular-nums text-xs px-1.5 py-0.5 rounded-full ${
                         active
                           ? 'bg-[color:var(--retro-cream)]/20 text-[color:var(--retro-cream)]'
                           : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'

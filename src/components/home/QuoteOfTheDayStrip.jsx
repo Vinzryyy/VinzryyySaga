@@ -61,7 +61,7 @@ const QuoteOfTheDayStrip = () => {
         >
           “{quote}”
         </blockquote>
-        <div className="text-[10px] text-[#9a5b4a]/60 mt-2 tracking-wider">
+        <div className="text-xs text-[#9a5b4a]/60 mt-2 tracking-wider">
           — Armeniaca
         </div>
       </div>

@@ -25,6 +25,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useGallery } from '../../context';
 import Section from '../layout/Section';
 import IdnLiveStreamPlayer from '../IdnLiveStreamPlayer';
 import ScheduleEventCard from '../schedule/ScheduleEventCard';
@@ -249,7 +250,7 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
     <Section id="status-eli" padding="lg">
       <header className="flex items-center justify-center gap-3 mb-5">
         <span aria-hidden="true" className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
-        <p className="text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
           <i className={`text-base ${anyLive ? 'ri-broadcast-fill text-red-600' : 'ri-pulse-line'}`} />
           Status &amp; Jadwal Eli
         </p>
@@ -285,7 +286,7 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
       {upcomingOthers.length > 0 && (
         <div className="mt-8 pt-7 border-t border-[color:var(--retro-brown-dark)]/12">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
               <i className="ri-calendar-event-line text-base" />
               {state === 'live' ? 'Show & M&G Mendatang' : 'Mendatang Lainnya'}
             </p>
@@ -375,7 +376,7 @@ const LiveSurface = ({ idnLive, isShowroomLive }) => {
             </span>
             On Air
           </span>
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/70">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
             {hasIdnPlayback ? 'Eli sedang live di IDN App' : 'Eli sedang live di SHOWROOM'}
           </span>
           <span className="hidden sm:block flex-1 h-px bg-[color:var(--retro-cream)]/15 max-w-[200px]" />
@@ -524,7 +525,7 @@ const ImminentSurface = ({ event, countdown }) => {
             )}
           </div>
           <div className="md:col-span-5 text-right">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/80 mb-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/80 mb-2">
               Hitung Mundur
             </p>
             <p
@@ -556,7 +557,7 @@ const UpcomingSurface = ({ event, countdown }) => {
       <div className="relative px-6 sm:px-8 md:px-10 py-6 md:py-8">
         <div className="grid md:grid-cols-12 gap-5 md:gap-8 items-center">
           <div className="md:col-span-8">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/80 mb-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/80 mb-2">
               Show Berikutnya · {kindLabel}
               {teamLabel && ` · ${teamLabel}`}
             </p>
@@ -605,7 +606,7 @@ const IDLE_LINKS = [
     to: '/gallery',
     icon: 'ri-image-2-line',
     label: 'Galeri Arsip',
-    sub: 'Jelajahi 350+ frame visual Eli',
+    sub: 'Jelajahi {n} frame visual Eli',
   },
   {
     to: '/armepack',
@@ -627,13 +628,16 @@ const IDLE_LINKS = [
   },
 ];
 
-const IdleSurface = () => (
+const IdleSurface = () => {
+  const { images } = useGallery();
+  const frames = images?.length || 0;
+  return (
   <div className="relative rounded-3xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] px-6 sm:px-8 py-7">
-    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-1">
+    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-1">
       Saat Eli Offline
     </p>
     <p className="text-sm text-[color:var(--retro-brown-dark)]/65 italic mb-6">
-      Belum ada jadwal yang tercatat. Sementara itu, disini aj —
+      Belum ada jadwal yang tercatat. Sementara itu, mampir ke sini dulu:
     </p>
     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
       {IDLE_LINKS.map(({ to, icon, label, sub }) => (
@@ -649,15 +653,16 @@ const IdleSurface = () => (
             <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[color:var(--retro-text-primary)] truncate">
               {label}
             </p>
-            <p className="text-[10px] text-[color:var(--retro-text-muted)] truncate mt-0.5">
-              {sub}
+            <p className="text-xs text-[color:var(--retro-text-muted)] truncate mt-0.5">
+              {frames ? sub.replace('{n}', frames) : sub.replace('{n} ', '')}
             </p>
           </div>
         </Link>
       ))}
     </div>
   </div>
-);
+  );
+};
 
 const PlatformStrip = ({ isIdnLive, isShowroomLive, idnLiveUrl, nextShow }) => {
   return (

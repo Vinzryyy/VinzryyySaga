@@ -112,13 +112,13 @@ const PreviewCard = ({ article, index }) => {
               )}
               {eliSongCount > 0 && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-gold)]/20 text-[color:var(--retro-brown-dark)] font-bold">
-                  <i className="ri-star-fill text-[10px]" />
+                  <i className="ri-star-fill text-xs" />
                   Eli in {eliSongCount} lagu
                 </span>
               )}
               {donationCount > 0 && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] font-bold">
-                  <i className="ri-hand-heart-line text-[10px]" />
+                  <i className="ri-hand-heart-line text-xs" />
                   {donationCount} donasi
                 </span>
               )}
@@ -206,7 +206,7 @@ const NewsListing = () => {
       <div className="max-w-4xl mx-auto px-5 sm:px-8 md:px-12 pb-12">
         <div className="flex items-center gap-3 text-[color:var(--retro-text-muted)]">
           <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
-          <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em]">
             Armeniaca · News
           </span>
         </div>
@@ -398,7 +398,7 @@ const ArticleDetail = ({ article }) => {
               {article.details && article.details.length > 0 && (
                 <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
                   <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                       Detail
                     </h3>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -422,7 +422,7 @@ const ArticleDetail = ({ article }) => {
               {article.donations && article.donations.length > 0 && (
                 <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-[color:var(--retro-border)]/20">
                   <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                       Daftar Donasi
                     </h3>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -527,7 +527,7 @@ const ArticleDetail = ({ article }) => {
                             ) : (
                               <span className="text-xs text-[color:var(--retro-text-muted)] italic">Nominal tidak dipublikasi</span>
                             )}
-                            <div className="flex items-center gap-3 text-[10px] sm:text-xs text-[color:var(--retro-text-muted)]">
+                            <div className="flex items-center gap-3 text-xs sm:text-xs text-[color:var(--retro-text-muted)]">
                               <span className="inline-flex items-center gap-1">
                                 <i className={`${catIcon} text-xs`} />
                                 {d.category}
@@ -559,7 +559,7 @@ const ArticleDetail = ({ article }) => {
               {setlist.length > 0 && (
                 <div className="px-5 sm:px-8 py-5 sm:py-6">
                   <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                       Setlist
                     </h3>
                     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -603,7 +603,7 @@ const ArticleDetail = ({ article }) => {
         <div className="max-w-4xl mx-auto px-5 sm:px-8 md:px-12 pb-12">
           <div className="flex items-center gap-3 text-[color:var(--retro-text-muted)]">
             <div className="w-10 h-px bg-[color:var(--retro-gold)]/50" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
               Armeniaca · News
             </span>
           </div>

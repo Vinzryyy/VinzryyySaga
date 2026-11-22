@@ -43,7 +43,7 @@ const QuickActions = () => {
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-6 md:mb-8">
-          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)]" />
             {config.eyebrow}
           </span>
@@ -90,7 +90,7 @@ const QuickActions = () => {
                   </span>
                   <span className="relative mt-4 flex items-center justify-between gap-2">
                     {hint ? (
-                      <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-[color:var(--retro-burgundy)] truncate">
+                      <span className="text-[10px] sm:text-[10px] font-black uppercase tracking-[0.15em] text-[color:var(--retro-burgundy)] truncate">
                         {hint}
                       </span>
                     ) : (

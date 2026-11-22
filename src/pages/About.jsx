@@ -27,7 +27,7 @@ const staggerClass = (visible) =>
 
 const SectionEyebrow = ({ eyebrow, kicker }) => (
   <div className="flex items-baseline justify-between gap-3 mb-6">
-    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
       {eyebrow}
     </p>
     <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -93,7 +93,7 @@ const Hero = ({ hero }) => {
         className="relative max-w-7xl mx-auto grid lg:grid-cols-5 gap-10 lg:gap-16 items-center"
       >
         <div className={`lg:col-span-3 ${staggerClass(isVisible)}`}>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy-light)] mb-4">
             {hero.eyebrow}
           </p>
           <h1 className="font-header text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.95] drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)]">
@@ -107,7 +107,7 @@ const Hero = ({ hero }) => {
           {hero.scope && (
             <div className="mt-8 flex items-center gap-3 md:gap-4 flex-wrap">
               <div className="px-4 py-2.5 rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)]">
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
                   {hero.scope.from.sub}
                 </p>
                 <p className="font-header text-base md:text-lg font-black text-[color:var(--retro-burgundy)] leading-tight tracking-tight">
@@ -119,7 +119,7 @@ const Hero = ({ hero }) => {
                 className="ri-arrow-right-line text-2xl text-[color:var(--retro-burgundy)]/40"
               />
               <div className="px-4 py-2.5 rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-md shadow-[color:var(--retro-burgundy)]/25">
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70 mb-1">
                   {hero.scope.to.sub}
                 </p>
                 <p className="font-header text-base md:text-lg font-black leading-tight tracking-tight">
@@ -202,7 +202,7 @@ const EtymologySection = ({ etymology }) => {
         <div className="mb-12 md:mb-16">
           <p
             style={staggerStyle(4, 100)}
-            className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 ${staggerClass(isVisible)}`}
+            className={`text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3 ${staggerClass(isVisible)}`}
           >
             Legend
           </p>
@@ -219,7 +219,7 @@ const EtymologySection = ({ etymology }) => {
                 style={staggerStyle(idx + 6, 80)}
                 className={`group p-4 md:p-5 rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-[color:var(--retro-bg-primary)] hover:border-[color:var(--retro-burgundy)]/40 transition-colors ${staggerClass(isVisible)}`}
               >
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/70 mb-2 tabular-nums">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 mb-2 tabular-nums">
                   {String(idx + 1).padStart(2, '0')}
                 </p>
                 <h4 className="font-header text-base md:text-lg font-black tracking-tight text-[color:var(--retro-text-primary)] leading-tight mb-1">
@@ -235,7 +235,7 @@ const EtymologySection = ({ etymology }) => {
 
         {/* Palette */}
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
             {etymology.paletteTitle}
           </p>
           <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -270,7 +270,7 @@ const PhilosophyQuote = ({ philosophy }) => {
   return (
     <section className="px-6 md:px-12 lg:px-20 py-20 md:py-28">
       <div ref={elementRef} className="max-w-3xl mx-auto text-center">
-        <p className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-6 ${staggerClass(isVisible)}`}>
+        <p className={`text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-6 ${staggerClass(isVisible)}`}>
           {philosophy.eyebrow}
         </p>
         <i className={`ri-double-quotes-l text-5xl md:text-6xl text-[color:var(--retro-gold)]/60 mb-4 inline-block ${staggerClass(isVisible)}`} style={staggerStyle(1)} />
@@ -281,7 +281,7 @@ const PhilosophyQuote = ({ philosophy }) => {
           {philosophy.quote}
         </blockquote>
         <cite
-          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] not-italic ${staggerClass(isVisible)}`}
+          className={`text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] not-italic ${staggerClass(isVisible)}`}
           style={staggerStyle(3)}
         >
           — {philosophy.author}

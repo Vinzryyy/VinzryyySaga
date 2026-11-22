@@ -83,7 +83,7 @@ const SetlistCard = ({ entry }) => {
     >
       {isActive && (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-emerald-500 text-white">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-emerald-500 text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             Aktif sekarang
           </span>
@@ -105,8 +105,8 @@ const SetlistCard = ({ entry }) => {
       >
         <div className="flex-1 min-w-0">
           <p
-            className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1 ${
-              isActive ? 'text-[color:var(--retro-cream)]/50' : 'text-[color:var(--retro-text-muted)]'
+            className={`text-[10px] font-black uppercase tracking-[0.3em] mb-1 ${
+              isActive ? 'text-[color:var(--retro-cream)]/65' : 'text-[color:var(--retro-text-muted)]'
             }`}
           >
             Stages Eli
@@ -121,7 +121,7 @@ const SetlistCard = ({ entry }) => {
           {entry.centerCount > 0 && (
             <div className="mt-2">
               <div
-                className={`flex items-center justify-between gap-2 text-[9px] font-black uppercase tracking-[0.3em] mb-1 ${
+                className={`flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.3em] mb-1 ${
                   isActive ? 'text-[color:var(--retro-gold-light)]/90' : 'text-[color:var(--retro-burgundy)]/80'
                 }`}
               >
@@ -133,7 +133,7 @@ const SetlistCard = ({ entry }) => {
                   {entry.centerCount}/{entry.count}
                   <span
                     className={`ml-1.5 ${
-                      isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]'
+                      isActive ? 'text-[color:var(--retro-cream)]/65' : 'text-[color:var(--retro-text-muted)]'
                     }`}
                   >
                     {Math.round((entry.centerCount / entry.count) * 100)}%
@@ -163,7 +163,7 @@ const SetlistCard = ({ entry }) => {
         </div>
         {(entry.firstDate || entry.lastDate) && (
           <div
-            className={`text-right text-[9px] font-black uppercase tracking-[0.25em] ${
+            className={`text-right text-[10px] font-black uppercase tracking-[0.25em] ${
               isActive ? 'text-[color:var(--retro-cream)]/55' : 'text-[color:var(--retro-text-muted)]'
             }`}
           >
@@ -187,7 +187,7 @@ const SetlistCard = ({ entry }) => {
           there's no data (Theater no Megami era doesn't list units). */}
       {entry.units && entry.units.length > 0 && (
         <div
-          className={`text-[9px] font-black uppercase tracking-[0.2em] flex flex-wrap gap-1.5 pt-2 border-t ${
+          className={`text-[10px] font-black uppercase tracking-[0.2em] flex flex-wrap gap-1.5 pt-2 border-t ${
             isActive
               ? 'border-[color:var(--retro-cream)]/10 text-[color:var(--retro-cream)]/70'
               : 'border-[color:var(--retro-brown-dark)]/8 text-[color:var(--retro-text-muted)]'
@@ -195,7 +195,7 @@ const SetlistCard = ({ entry }) => {
         >
           <span
             className={`${
-              isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]/60'
+              isActive ? 'text-[color:var(--retro-cream)]/65' : 'text-[color:var(--retro-text-muted)]/60'
             }`}
           >
             Unit:
@@ -215,7 +215,7 @@ const SetlistCard = ({ entry }) => {
           {entry.units.length > 3 && (
             <span
               className={`${
-                isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]/60'
+                isActive ? 'text-[color:var(--retro-cream)]/65' : 'text-[color:var(--retro-text-muted)]/60'
               }`}
             >
               + {entry.units.length - 3}
@@ -224,7 +224,7 @@ const SetlistCard = ({ entry }) => {
           {topUnit && totalUnitShows < entry.count && (
             <span
               className={`ml-auto ${
-                isActive ? 'text-[color:var(--retro-cream)]/40' : 'text-[color:var(--retro-text-muted)]/60'
+                isActive ? 'text-[color:var(--retro-cream)]/65' : 'text-[color:var(--retro-text-muted)]/60'
               }`}
             >
               {entry.count - totalUnitShows} tanpa unit
@@ -345,7 +345,7 @@ const SetlistGrid = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-baseline justify-between gap-3 mb-5 flex-wrap">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2 mb-1">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2 mb-1">
               <i className="ri-music-2-line text-base" />
               Setlist Eli
             </p>
@@ -360,7 +360,7 @@ const SetlistGrid = () => {
             </h2>
           </div>
           {data?.asOfDate && (
-            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
               <i className="ri-refresh-line" />
               Update {formatDate(data.asOfDate)}
             </span>
@@ -378,7 +378,7 @@ const SetlistGrid = () => {
         {activeSetlists.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-emerald-500 text-white">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] px-2 py-0.5 rounded bg-emerald-500 text-white">
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                 Aktif sekarang
               </span>

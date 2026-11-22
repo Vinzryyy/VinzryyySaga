@@ -260,14 +260,14 @@ const InstagramGrid = memo(function InstagramGrid() {
                 isAppending ? 'animate-spin opacity-100' : 'opacity-0'
               } transition-opacity`}
             />
-            <span className="text-[10px] font-black tracking-[0.4em] text-[color:var(--retro-text-muted)] uppercase">
+            <span className="text-[10px] font-black tracking-[0.3em] text-[color:var(--retro-text-muted)] uppercase">
               Memuat frame berikutnya…
             </span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-px bg-[color:var(--retro-burgundy)]/30" />
-            <span className="text-[10px] font-black tracking-[0.4em] text-[color:var(--retro-text-muted)] uppercase">
+            <span className="text-[10px] font-black tracking-[0.3em] text-[color:var(--retro-text-muted)] uppercase">
               {filteredImages.length.toLocaleString('id-ID')} frame ditampilkan
             </span>
           </div>

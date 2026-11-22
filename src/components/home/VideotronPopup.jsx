@@ -105,7 +105,7 @@ const VideotronPopup = () => {
 
         {/* Content */}
         <div className="p-6 sm:p-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-2 inline-flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
             Pengumuman Armeniaca
           </p>
@@ -130,7 +130,7 @@ const VideotronPopup = () => {
               <i className="ri-calendar-event-line" />
             </span>
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
                 Tanggal
               </p>
               <p className="text-sm font-bold text-[color:var(--retro-text-primary)]">
@@ -145,7 +145,7 @@ const VideotronPopup = () => {
               <i className="ri-time-line" />
             </span>
             <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-0.5">
                 Jam Tayang
               </p>
               <p className="text-sm font-bold text-[color:var(--retro-text-primary)]">
@@ -186,7 +186,7 @@ const VideotronPopup = () => {
             Tutup
           </button>
 
-          <p className="mt-4 text-center text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
+          <p className="mt-4 text-center text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             Armeniaca × Harmoni Kebaikan
           </p>
         </div>

@@ -532,7 +532,7 @@ export const SITE_CONFIG = {
       eyebrow: 'About Eli',
       title: 'Sang Mermaid dari Bandung',
       paragraphs: [
-        'Helisma Putri Kurnia — atau Ceu Eli — debut sebagai member Generasi 7 JKT48 pada 29 September 2018. Lahir di Bandung 15 Juni 2000, ia membagi waktu antara panggung dan kuliah Sastra Korea.',
+        'Ceu Eli debut bersama Generasi 7 JKT48 pada 29 September 2018, dan sejak itu membagi waktu antara panggung dan kuliah Sastra Korea.',
         'Sejak debut, namanya melekat dengan vokal matang, presence panggung yang hangat, dan kepemimpinan yang muncul natural di tiap unit yang ia tempati.',
         'Tahun ini Eli tergabung di Team Dream untuk JKT48 Fight 2026 — babak baru dengan format kompetisi yang menempatkan setiap member di tim baru. Armeniaca merawat setiap momennya, dari perayaan ulang tahun ke-26 yang telah berlalu hingga panggung-panggung selanjutnya.',
       ],

@@ -108,7 +108,7 @@ const FilterBar = memo(function FilterBar() {
 
         {/* Count + reset — flush right on desktop, separate row on mobile. */}
         <div className="flex items-center justify-between md:justify-end gap-3 flex-shrink-0">
-          <span className="text-[10px] font-black tracking-[0.2em] text-[color:var(--retro-text-muted)] tabular-nums whitespace-nowrap">
+          <span className="text-xs font-black tracking-[0.2em] text-[color:var(--retro-text-muted)] tabular-nums whitespace-nowrap">
             <span className="text-[color:var(--retro-burgundy)]">{filteredCount.toLocaleString('id-ID')}</span>
             <span className="opacity-50"> / {totalImages.toLocaleString('id-ID')}</span>
           </span>

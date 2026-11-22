@@ -260,7 +260,7 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
               <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
                 {stats.frames.toLocaleString('id-ID')}
               </dd>
-              <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
+              <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
                 Frames
               </dt>
             </div>
@@ -268,7 +268,7 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
               <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
                 {stats.events.toLocaleString('id-ID')}
               </dd>
-              <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
+              <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
                 Events
               </dt>
             </div>
@@ -276,7 +276,7 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
               <dd className="font-header text-base sm:text-xl md:text-2xl font-black tabular-nums leading-tight">
                 {stats.yearRange}
               </dd>
-              <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
+              <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5">
                 Era
               </dt>
             </div>
@@ -286,8 +286,8 @@ const ArchiveProfileHeader = memo(function ArchiveProfileHeader() {
                   ? formatCompact(idnLive.profile.followerCount)
                   : '—'}
               </dd>
-              <dt className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5 inline-flex items-center gap-1">
-                <i className="ri-broadcast-line text-[10px]" />
+              <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-0.5 inline-flex items-center gap-1">
+                <i className="ri-broadcast-line text-xs" />
                 IDN
               </dt>
             </div>

@@ -87,7 +87,7 @@ const ChekichaStrip = () => {
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-baseline justify-between gap-3 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
                 upcoming.length > 0
@@ -100,7 +100,7 @@ const ChekichaStrip = () => {
               · {upcoming.length > 0 ? `${upcoming.length} mendatang` : `${history.length} arsip`}
             </span>
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-flex items-center gap-1.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-flex items-center gap-1.5">
             <i className="ri-vidicon-line" />
             Video Meet &amp; Greet · App JP
           </p>
@@ -177,7 +177,7 @@ const ChekichaStrip = () => {
                   {birthdayCount > 0 && ` · ${birthdayCount}× Birthday Chekicha`}
                   {latest?.date && ` · terakhir ${formatHistoryDate(latest.date)}`}
                 </p>
-                <p className="text-[10px] text-[color:var(--retro-text-muted)]/80 mt-2 leading-snug">
+                <p className="text-xs text-[color:var(--retro-text-muted)]/80 mt-2 leading-snug">
                   Belum ada sesi mendatang. Birthday Chekicha biasanya
                   diumumkan beberapa minggu sebelum 15 Juni.
                 </p>
@@ -187,7 +187,7 @@ const ChekichaStrip = () => {
                     Lihat arsip Chekicha
                     <i className="ri-external-link-line" />
                   </span>
-                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]/70 inline-flex items-center gap-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]/70 inline-flex items-center gap-1">
                     <i className="ri-information-line" />
                     Butuh app JP
                   </span>

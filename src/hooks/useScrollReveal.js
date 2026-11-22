@@ -8,16 +8,25 @@ import { useEffect, useRef, useState } from 'react';
 export const useScrollReveal = (options = {}) => {
   const {
     threshold = 0.05,
-    rootMargin = '100px',
+    // Start revealing a bit before the element reaches the viewport so
+    // fast scrollers don't land on blank space.
+    rootMargin = '0px 0px 160px 0px',
     triggerOnce = true,
   } = options;
 
-  const [isVisible, setIsVisible] = useState(false);
+  // Reduced motion (or no IntersectionObserver): show content right away
+  // instead of leaving it invisible until it scrolls into view.
+  const [isVisible, setIsVisible] = useState(
+    () =>
+      typeof window === 'undefined' ||
+      !('IntersectionObserver' in window) ||
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  );
   const elementRef = useRef(null);
 
   useEffect(() => {
     const element = elementRef.current;
-    if (!element) return;
+    if (!element || isVisible) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -33,7 +42,7 @@ export const useScrollReveal = (options = {}) => {
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [triggerOnce, threshold, rootMargin]);
+  }, [triggerOnce, threshold, rootMargin, isVisible]);
 
   return { elementRef, isVisible };
 };

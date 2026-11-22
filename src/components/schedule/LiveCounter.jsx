@@ -56,7 +56,7 @@ const isSpecialEvent = (entry) => entry.kind === 'GENERAL';
 
 const StatCard = ({ eyebrow, value, valueAccent, sub, footnote }) => (
   <div className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 md:p-5 hover:border-[color:var(--retro-burgundy)]/30 hover:-translate-y-0.5 transition-all shadow-sm flex flex-col">
-    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
       {eyebrow}
     </p>
     <p className="font-header text-4xl md:text-5xl font-black text-[color:var(--retro-text-primary)] tracking-tighter leading-none mt-2 tabular-nums">
@@ -73,7 +73,7 @@ const StatCard = ({ eyebrow, value, valueAccent, sub, footnote }) => (
       </p>
     )}
     {footnote && (
-      <p className="mt-auto pt-2 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
+      <p className="mt-auto pt-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
         {footnote}
       </p>
     )}
@@ -174,7 +174,7 @@ const LiveCounter = ({ events, careerStats }) => {
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-baseline justify-between gap-3 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-2">
             <i className="ri-pulse-line text-base text-[color:var(--retro-burgundy)]" />
             Statistik · Live
           </p>
@@ -204,7 +204,7 @@ const LiveCounter = ({ events, careerStats }) => {
               }}
             />
             <div className="relative flex flex-col h-full">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3 inline-flex items-center gap-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-3 inline-flex items-center gap-2">
                 <i className="ri-mic-line text-base" />
                 Theater Shows · Lifetime
               </p>
@@ -236,7 +236,7 @@ const LiveCounter = ({ events, careerStats }) => {
                     <p className="font-header text-2xl md:text-3xl font-black tabular-nums text-[color:var(--retro-gold-light)] leading-none">
                       {showLog.totals.centers}
                     </p>
-                    <p className="mt-1 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
                       Center
                     </p>
                   </div>
@@ -244,7 +244,7 @@ const LiveCounter = ({ events, careerStats }) => {
                     <p className="font-header text-2xl md:text-3xl font-black tabular-nums text-[color:var(--retro-cream)] leading-none">
                       {showLog.totals.solos}
                     </p>
-                    <p className="mt-1 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
                       Solo
                     </p>
                   </div>
@@ -252,14 +252,14 @@ const LiveCounter = ({ events, careerStats }) => {
                     <p className="font-header text-2xl md:text-3xl font-black tabular-nums text-[color:var(--retro-cream)] leading-none">
                       {showLog.totals.duos}
                     </p>
-                    <p className="mt-1 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
                       Duo
                     </p>
                   </div>
                 </div>
               )}
 
-              <p className="mt-auto pt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55">
+              <p className="mt-auto pt-5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/55">
                 Baseline {baselineAsOfDate ? formatAsOf(baselineAsOfDate) : 'manual'}
               </p>
             </div>

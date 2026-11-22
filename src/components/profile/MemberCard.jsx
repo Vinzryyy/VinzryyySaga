@@ -116,12 +116,12 @@ const MemberCard = () => {
             )}
             <div>
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-1.5">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Live JKT48
                 </span>
                 {teamLabel && (
-                  <span className="text-[9px] font-black uppercase tracking-[0.3em] px-1.5 py-0.5 rounded bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] px-1.5 py-0.5 rounded bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
                     {teamLabel}
                   </span>
                 )}

@@ -255,10 +255,10 @@ function Navbar() {
           type="button"
           onClick={toggleHidden}
           className="fixed top-0 left-1/2 -translate-x-1/2 z-[101] px-4 py-1 rounded-b-lg bg-black/60 backdrop-blur-sm border-x border-b border-white/15 text-white/65 hover:text-white hover:bg-black/80 text-[10px] tracking-[0.3em] uppercase transition"
-          aria-label="Tampilkan navbar"
-          title="Tampilkan navbar"
+          aria-label="Tampilkan menu"
+          title="Tampilkan menu"
         >
-          ▾ menu
+          <i className="ri-arrow-down-s-line align-middle" /> menu
         </button>
       )}
       <nav
@@ -308,7 +308,7 @@ function Navbar() {
                 }}
               />
               <span
-                className={`hidden md:inline-block text-[8px] font-black uppercase tracking-[0.4em] opacity-60 ${palette.text}`}
+                className={`hidden md:inline-block text-[10px] font-black uppercase tracking-[0.3em] opacity-60 ${palette.text}`}
               >
                 {SITE_CONFIG.branding.tagline}
               </span>
@@ -450,16 +450,17 @@ function Navbar() {
               </ul>
             </div>
 
-            {/* Hide navbar toggle — small button di kanan, sebelah
-                hamburger. Klik → navbar slide up, re-show via top tab. */}
+            {/* Hide navbar toggle — desktop only (on phones it sat in the
+                middle of the header and read as a glitch). Re-show via the
+                "▾ menu" tab. */}
             <button
               type="button"
               onClick={toggleHidden}
-              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${palette.text} ${palette.hoverBg} transition`}
-              aria-label="Sembunyikan navbar"
-              title="Sembunyikan navbar"
+              className={`hidden lg:flex flex-shrink-0 w-8 h-8 rounded-full items-center justify-center opacity-60 hover:opacity-100 ${palette.text} ${palette.hoverBg} transition`}
+              aria-label="Sembunyikan menu"
+              title="Sembunyikan menu"
             >
-              <span className="text-[14px] leading-none">▴</span>
+              <i className="ri-arrow-up-s-line text-lg leading-none" />
             </button>
             {/* Mobile hamburger */}
             <button
@@ -626,7 +627,7 @@ function Navbar() {
             </nav>
 
             <footer className="px-6 py-5 border-t border-[color:var(--retro-brown-dark)]/10">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 {SITE_CONFIG.branding.name} · {SITE_CONFIG.branding.tagline}
               </p>
             </footer>

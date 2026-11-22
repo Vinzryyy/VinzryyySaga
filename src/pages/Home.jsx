@@ -36,13 +36,13 @@ const staggerStyle = (index, baseDelay = 0) => ({
   transitionDelay: `${baseDelay + index * STAGGER_STEP_MS}ms`,
 });
 const staggerClass = (visible) =>
-  `transition-all duration-700 ease-out ${
-    visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+  `transition-all duration-500 ease-out ${
+    visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
   }`;
 // Horizontal variant — fact rows slide in from left instead of up.
 const staggerClassH = (visible) =>
-  `transition-all duration-700 ease-out ${
-    visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-5'
+  `transition-all duration-500 ease-out ${
+    visible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-3'
   }`;
 
 // Count-up animation — fires once when `trigger` turns true.
@@ -187,7 +187,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
       className="relative mb-12 md:mb-16"
     >
       <div className="flex items-baseline justify-between gap-3 mb-6 md:mb-8">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
           {eyebrow}
         </p>
         <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -240,7 +240,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
         {/* Title list — relative + z-10 so it sits above the floating
             frames and stays the click/hover target. */}
         <div className="relative z-10 flex flex-col items-center justify-center min-h-[560px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px] py-8 md:py-12">
-          <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-4 md:mb-6">
+          <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-4 md:mb-6">
             {title}
           </p>
           <ol className="flex flex-col items-center gap-0.5 md:gap-1">
@@ -293,7 +293,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
           {/* Tap hint — only on touch devices, only before the user has
               activated anything. Disappears after first activation. */}
           {!hasHover && active === null && (
-            <p className="mt-5 text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/60 animate-pulse">
+            <p className="mt-5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/60 animate-pulse">
               Tap untuk lihat momennya
             </p>
           )}
@@ -377,7 +377,7 @@ const HomePage = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       title={`${s.platform}: ${s.handle}${isLive ? ' · LIVE NOW' : ''}`}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-bold transition-colors ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-colors ${
                         isLive
                           ? 'bg-red-600 hover:bg-red-700 text-white border-red-600 shadow-md shadow-red-500/30'
                           : 'bg-[color:var(--retro-burgundy)]/8 hover:bg-[color:var(--retro-burgundy)] text-[color:var(--retro-burgundy)] hover:text-[color:var(--retro-cream)] border-[color:var(--retro-burgundy)]/15 hover:border-[color:var(--retro-burgundy)]'
@@ -386,7 +386,7 @@ const HomePage = () => {
                       {isLive && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
                       <i className={`${s.icon} text-base`} />
                       {s.handle}
-                      {isLive && <span className="text-[9px] tracking-[0.18em] uppercase ml-0.5">Live</span>}
+                      {isLive && <span className="text-[10px] tracking-[0.18em] uppercase ml-0.5">Live</span>}
                     </a>
                   );
                 })}
@@ -626,7 +626,7 @@ const HomePage = () => {
 
         {/* Vertical side caption */}
         <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 hidden lg:block">
-          <div className="rotate-90 origin-right text-[10px] font-black tracking-[0.5em] text-[color:var(--retro-cream)]/40 uppercase whitespace-nowrap">
+          <div className="rotate-90 origin-right text-[10px] font-black tracking-[0.3em] text-[color:var(--retro-cream)]/65 uppercase whitespace-nowrap">
             Armeniaca | Mermaid Archive | {new Date().getFullYear()}
           </div>
         </div>
@@ -642,7 +642,7 @@ const HomePage = () => {
           <div className="max-w-3xl">
             <span
               style={{ transitionDelay: '100ms' }}
-              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[9px] md:text-[10px] font-black uppercase tracking-[0.35em] mb-4 md:mb-6 border border-[color:var(--retro-cream)]/20 transition-all duration-700 ease-out ${
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[color:var(--retro-cream)]/10 backdrop-blur-md text-[color:var(--retro-cream)] text-[10px] md:text-[10px] font-black uppercase tracking-[0.35em] mb-4 md:mb-6 border border-[color:var(--retro-cream)]/20 transition-all duration-700 ease-out ${
                 heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
               }`}
             >
@@ -711,7 +711,7 @@ const HomePage = () => {
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/70">
                     Berikutnya
                   </span>
-                  <span className="text-[11px] font-bold text-[color:var(--retro-cream)] tracking-wide">
+                  <span className="text-xs font-bold text-[color:var(--retro-cream)] tracking-wide">
                     {upcomingChipDays}
                   </span>
                   <i className="ri-arrow-right-line text-[color:var(--retro-cream)]/55 text-xs group-hover:translate-x-0.5 transition-transform" />
@@ -729,9 +729,9 @@ const HomePage = () => {
           <a
             href="#data"
             aria-label="Lanjut ke Data Eli"
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-[color:var(--retro-cream)]/50 hover:text-[color:var(--retro-cream)]/80 transition-colors group"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-2 text-[color:var(--retro-cream)]/65 hover:text-[color:var(--retro-cream)]/80 transition-colors group"
           >
-            <span className="text-[9px] font-black uppercase tracking-[0.4em]">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em]">
               Lanjut ke Data Eli
             </span>
             <div className="w-px h-8 bg-gradient-to-b from-current to-transparent group-hover:h-10 transition-all" />
@@ -772,7 +772,7 @@ const HomePage = () => {
           />
           <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
+              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
                 Rekap Seitansai
               </span>
@@ -835,7 +835,7 @@ const HomePage = () => {
           <div className="lg:col-span-7">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">01</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 /  {data.eyebrow}
               </span>
             </div>
@@ -864,7 +864,7 @@ const HomePage = () => {
               <p className="font-header text-lg md:text-xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
                 "{eli.catchphrase}"
               </p>
-              <footer className="mt-3 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <footer className="mt-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 Catchphrase — {eli.nickname}
               </footer>
             </blockquote>
@@ -912,7 +912,7 @@ const HomePage = () => {
           <div className="order-1 lg:order-2">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">02</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 /  {about.eyebrow}
               </span>
               <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
@@ -953,7 +953,7 @@ const HomePage = () => {
           <div>
             <div className="flex items-baseline gap-3">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">03</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 /  {gallery.eyebrow}
               </span>
             </div>
@@ -993,7 +993,7 @@ const HomePage = () => {
         {marqueeCandidates.length > 0 && (
           <div className="mt-12 md:mt-16">
             <div className="flex items-baseline justify-between mb-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 {marqueeYear ? `Arsip ${marqueeYear}` : 'Lebih banyak dari arsip'}
               </p>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:block">
@@ -1111,7 +1111,7 @@ const HomePage = () => {
           />
           <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
-              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-4">
+              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-4">
                 <i className="ri-camera-3-line text-sm text-[color:var(--retro-gold)]" />
                 Photobox Armeniaca
               </span>
@@ -1151,7 +1151,7 @@ const HomePage = () => {
           />
           <div className="relative z-10 px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
             <div className="flex-1">
-              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-4">
+              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-4">
                 <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
                 Kartu Harian
               </span>
@@ -1162,7 +1162,7 @@ const HomePage = () => {
               <p className="mt-4 text-sm md:text-base text-[color:var(--retro-cream)]/70 leading-relaxed max-w-md">
                 Tiga kartu per hari — kepingan cerita Arme sebagai fan Helisma. Kumpulkan semuanya, temukan cerita di baliknya.
               </p>
-              <div className="mt-5 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/45">
+              <div className="mt-5 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65">
                 <span>Batch I — Seitansai 2026</span>
                 <span>·</span>
                 <span>51 Kartu</span>
@@ -1188,7 +1188,7 @@ const HomePage = () => {
             jarring. */}
         <div className="flex items-center justify-center gap-4 mb-10">
           <span className="flex-1 h-px bg-gradient-to-r from-transparent via-[color:var(--retro-brown-dark)]/20 to-[color:var(--retro-brown-dark)]/30" />
-          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-burgundy)]">
+          <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
             <i className="ri-flower-line text-base text-[color:var(--retro-gold)]" />
             Komunitas
           </span>
@@ -1202,7 +1202,7 @@ const HomePage = () => {
             <div className="lg:col-span-3">
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="font-header text-3xl font-black text-[color:var(--retro-gold-light)]">04</span>
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/60">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
                   /  {community.eyebrow}
                 </span>
               </div>
@@ -1215,7 +1215,7 @@ const HomePage = () => {
             </div>
 
             <div ref={communityRef} className="lg:col-span-2 flex flex-col gap-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-cream)]/50 mb-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65 mb-1">
                 Tautan Komunitas
               </p>
               {community.links.map((link, idx) => (
@@ -1233,7 +1233,7 @@ const HomePage = () => {
                     </div>
                     <span className="text-sm font-bold uppercase tracking-widest">{link.label}</span>
                   </div>
-                  <i className="ri-arrow-right-up-line text-lg text-[color:var(--retro-cream)]/40 group-hover:text-[color:var(--retro-gold-light)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                  <i className="ri-arrow-right-up-line text-lg text-[color:var(--retro-cream)]/65 group-hover:text-[color:var(--retro-gold-light)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                 </a>
               ))}
             </div>

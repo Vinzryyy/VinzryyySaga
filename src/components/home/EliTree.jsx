@@ -2204,7 +2204,7 @@ const EliTree = () => {
                   {/* Stage label — bigger + pulse */}
                   <div className="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-10">
                     <div className="px-5 py-2.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] shadow-[0_10px_40px_-8px_rgba(139,64,64,0.7)] eli-stage-badge">
-                      <span className="block text-[9px] font-black uppercase tracking-[0.32em] opacity-75 text-center">
+                      <span className="block text-[10px] font-black uppercase tracking-[0.32em] opacity-75 text-center">
                         Pohon naik level
                       </span>
                       <span className="flex items-center justify-center gap-2 mt-0.5">
@@ -2219,7 +2219,7 @@ const EliTree = () => {
               )}
             </div>
             <div className="mt-6 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
                 <i className={`${stageMeta.icon} text-base`} />
                 {stageMeta.label} · Stage {stage}/{MAX_STAGE}
               </p>
@@ -2231,7 +2231,7 @@ const EliTree = () => {
 
           {/* RIGHT — copy + counter + button */}
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3 inline-flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Pohon Kebaikan · Live
             </p>
@@ -2248,7 +2248,7 @@ const EliTree = () => {
             {/* Big counter */}
             <div className="mt-6 flex items-end gap-4 flex-wrap">
               <div>
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-1">
                   Dukungan Terkumpul
                 </p>
                 <p className="font-header text-6xl md:text-7xl font-black tabular-nums text-[color:var(--retro-burgundy)] leading-none">
@@ -2375,7 +2375,7 @@ const WishModal = ({ wish, onClose }) => {
           <i className="ri-close-line" />
         </button>
         <div className="p-6 sm:p-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2 mb-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2 mb-4">
             <i className="ri-mail-heart-line text-base" />
             Ucapan untuk Eli
           </p>

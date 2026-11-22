@@ -8,6 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Section from '../components/layout/Section';
+import { useGallery } from '../context';
 import Seo from '../components/Seo';
 import MotifBackdrop from '../components/about/MotifBackdrop';
 import MemberCard from '../components/profile/MemberCard';
@@ -173,6 +174,15 @@ const ProfilePage = () => {
   };
 
   const profile = SITE_CONFIG.profile;
+  const { images } = useGallery();
+  // "Frame Arsip" follows the real archive size instead of a hard-coded number.
+  const quickStats = useMemo(
+    () =>
+      profile.quickStats.map((stat) =>
+        stat.label === 'Frame Arsip' && images?.length ? { ...stat, value: `${images.length}+` } : stat,
+      ),
+    [profile.quickStats, images],
+  );
   const { elementRef: statsRef, isVisible: statsVisible } = useScrollReveal({
     threshold: 0.2,
     rootMargin: '0px',
@@ -225,7 +235,7 @@ const ProfilePage = () => {
       >
         <div className="relative max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-16 items-end">
           <div className="lg:col-span-7">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy-light)] mb-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy-light)] mb-3">
               {profile.edition}
             </p>
             <h1 className="font-header text-4xl sm:text-6xl md:text-7xl lg:text-[110px] font-black tracking-tighter text-[color:var(--retro-cream)] leading-[0.9]">
@@ -239,7 +249,7 @@ const ProfilePage = () => {
 
             {/* Stat strip — numeric values count up when the strip enters view */}
             <dl ref={statsRef} className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
-              {profile.quickStats.map((stat, idx) => (
+              {quickStats.map((stat, idx) => (
                 <div
                   key={stat.label}
                   style={staggerStyle(idx)}
@@ -248,7 +258,7 @@ const ProfilePage = () => {
                   <dd className="font-header text-2xl md:text-3xl font-black text-[color:var(--retro-text-primary)] leading-tight tabular-nums">
                     <AnimatedStat value={stat.value} start={statsVisible} />
                   </dd>
-                  <dt className="text-[9px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-text-muted)] mt-1">
+                  <dt className="text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-text-muted)] mt-1">
                     {stat.label}
                   </dt>
                 </div>
@@ -284,7 +294,7 @@ const ProfilePage = () => {
               </div>
             )}
             {/* Decorative tag */}
-            <div className="absolute bottom-2 left-4 z-30 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[9px] font-black uppercase tracking-[0.4em] shadow-lg">
+            <div className="absolute bottom-2 left-4 z-30 px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.3em] shadow-lg">
               Helisma · 2018 — 2026
             </div>
           </div>
@@ -328,7 +338,7 @@ const ProfilePage = () => {
         )}
         <div ref={tabScrollRef} className="max-w-7xl mx-auto px-4 md:px-12 lg:px-20 overflow-x-auto">
           <ul className="flex items-center gap-1 py-3 min-w-max">
-            <li className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] pr-3 hidden md:block">
+            <li className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] pr-3 hidden md:block">
               Table of Contents
             </li>
             {ELI_PROFILE_SECTIONS.map((section, idx) => {
@@ -352,7 +362,7 @@ const ProfilePage = () => {
                     `}
                   >
                     <span
-                      className={`text-[9px] font-black ${
+                      className={`text-xs font-black ${
                         isActive ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--retro-burgundy)]/60'
                       }`}
                     >
@@ -374,7 +384,7 @@ const ProfilePage = () => {
             aria-hidden="true"
             className="md:hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 z-40 pointer-events-none"
           >
-            <div className="px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/90 text-[color:var(--retro-cream)] text-[10px] font-medium tracking-wide shadow-lg backdrop-blur-sm animate-bounce whitespace-nowrap">
+            <div className="px-3 py-1.5 rounded-full bg-[color:var(--retro-burgundy)]/90 text-[color:var(--retro-cream)] text-xs font-medium tracking-wide shadow-lg backdrop-blur-sm animate-bounce whitespace-nowrap">
               ← geser untuk lihat semua tab →
             </div>
           </div>
@@ -438,7 +448,7 @@ const SectionOpener = ({ id, title, lead, kicker }) => {
     <header ref={elementRef} className="relative mb-10 md:mb-14">
       <div className="relative flex items-baseline gap-3 mb-4">
         <span
-          className={`text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)]/70 tabular-nums transition-all duration-700 ease-out ${
+          className={`text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]/70 tabular-nums transition-all duration-700 ease-out ${
             isVisible ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -505,7 +515,7 @@ const TimelineSection = () => {
                 <p className="font-header text-3xl md:text-5xl lg:text-6xl font-black text-[color:var(--retro-burgundy)] leading-none tracking-tighter">
                   {formatYear(event.date)}
                 </p>
-                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-2">
+                <p className="text-[10px] md:text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mt-2">
                   {event.period}
                 </p>
               </div>
@@ -521,7 +531,7 @@ const TimelineSection = () => {
               {/* Content card */}
               <div className="md:pl-8">
                 {event.badge && (
-                  <span className="inline-block px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em] mb-3">
+                  <span className="inline-block px-3 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[10px] font-black uppercase tracking-[0.3em] mb-3">
                     {event.badge}
                   </span>
                 )}
@@ -556,7 +566,7 @@ const FightSection = () => {
       <div className="relative overflow-hidden rounded-3xl bg-[color:var(--retro-brown-dark)] text-[color:var(--retro-cream)] p-8 md:p-12 mb-10">
         <div className="relative grid lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)] mb-3">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] mb-3">
               Format Tahun 2026
             </p>
             <h3 className="font-header text-4xl md:text-6xl font-black leading-[0.95] tracking-tighter mb-4">
@@ -589,7 +599,7 @@ const FightSection = () => {
 
       {/* Roster */}
       <div className="mb-10">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-4">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-4">
           Roster Team Dream
         </h3>
         <div ref={rosterRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
@@ -608,17 +618,17 @@ const FightSection = () => {
                     : 'bg-[color:var(--retro-bg-primary)] border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)]/40'
                 } ${staggerClass(rosterVisible)}`}
               >
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-1">
                   {String(idx + 1).padStart(2, '0')}
                 </p>
                 <p className="font-bold text-sm leading-tight">{member}</p>
                 {isCaptain && (
-                  <span className="mt-2 inline-block text-[8px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+                  <span className="mt-2 inline-block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
                     {team.captainTitle || 'Captain'}
                   </span>
                 )}
                 {isEli && (
-                  <span className="mt-2 inline-block text-[8px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/80">
+                  <span className="mt-2 inline-block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/80">
                     Eli — focus
                   </span>
                 )}
@@ -630,7 +640,7 @@ const FightSection = () => {
 
       {/* Rival teams */}
       <div>
-        <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)] mb-4">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-4">
           Tim Rival
         </h3>
         <div className="grid sm:grid-cols-2 gap-4">
@@ -676,7 +686,7 @@ const DiscographySection = () => {
       {/* SINGLES */}
       <div ref={singlesRef} className="space-y-4 mb-12">
         <div className="flex items-baseline gap-3 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             Singles
           </p>
           <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -697,7 +707,7 @@ const DiscographySection = () => {
               } ${staggerClass(singlesVisible)}`}
             >
               {entry.highlight && (
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] mb-3">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-3">
                   First Senbatsu
                 </p>
               )}
@@ -792,7 +802,7 @@ const DiscographySection = () => {
       {/* ALBUMS */}
       <div ref={albumsRef}>
         <div className="flex items-baseline gap-3 mb-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             Album Participations
           </p>
           <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
@@ -809,7 +819,7 @@ const DiscographySection = () => {
               className={`group relative rounded-2xl border border-[color:var(--retro-brown-dark)]/15 bg-[color:var(--retro-bg-primary)] p-6 hover:border-[color:var(--retro-burgundy)]/40 flex flex-col flex-shrink-0 w-[80%] sm:w-auto snap-center ${staggerClass(albumsVisible)}`}
             >
               <div className="flex items-start justify-between gap-3 mb-4">
-                <span className="px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[9px] font-black uppercase tracking-[0.3em]">
+                <span className="px-2.5 py-1 rounded-full bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] text-[10px] font-black uppercase tracking-[0.3em]">
                   Album Participation
                 </span>
                 {album.year && (
@@ -830,7 +840,7 @@ const DiscographySection = () => {
                     key={track.song}
                     className="flex items-baseline gap-3 text-sm font-bold text-[color:var(--retro-text-primary)] leading-snug"
                   >
-                    <span className="flex-shrink-0 text-[10px] font-black text-[color:var(--retro-burgundy)]/60 tracking-widest pt-0.5">
+                    <span className="flex-shrink-0 text-xs font-black text-[color:var(--retro-burgundy)]/60 tracking-widest pt-0.5">
                       {String(idx + 1).padStart(2, '0')}
                     </span>
                     <span>{track.song}</span>
@@ -871,7 +881,7 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
             }`}
           >
             <span
-              className={`flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-black tabular-nums ${
+              className={`flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center text-xs font-black tabular-nums ${
                 m.isEli
                   ? 'bg-[color:var(--retro-cream)]/20 text-[color:var(--retro-cream)]'
                   : 'bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)]'
@@ -883,7 +893,7 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
               <p className={`text-xs font-bold leading-tight truncate ${m.isEli ? '' : 'text-[color:var(--retro-text-primary)]'}`}>
                 {m.name}
               </p>
-              <p className={`text-[9px] font-black uppercase tracking-[0.25em] mt-0.5 ${
+              <p className={`text-[10px] font-black uppercase tracking-[0.25em] mt-0.5 ${
                 m.isEli ? 'text-[color:var(--retro-cream)]/70' : 'text-[color:var(--retro-text-muted)]'
               }`}>
                 {m.group} · {fmt(m.votes)}
@@ -891,7 +901,7 @@ const MemberRoster = ({ members, label = 'Roster' }) => {
               </p>
             </div>
             <span
-              className={`flex-shrink-0 text-[9px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded ${
+              className={`flex-shrink-0 text-[10px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded ${
                 m.status === 'NEW'
                   ? m.isEli
                     ? 'bg-[color:var(--retro-cream)]/15 text-[color:var(--retro-cream)]'
@@ -931,7 +941,7 @@ const TriviaSection = () => {
       />
 
       <div className="space-y-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
           Identitas
         </p>
         <div ref={idRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-fr">
@@ -962,7 +972,7 @@ const TriviaSection = () => {
               <p className="font-header text-base md:text-lg leading-snug font-medium">
                 “{eli.catchphrase}”
               </p>
-              <p className="mt-3 text-[9px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-gold-light)]/80">
+              <p className="mt-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]/80">
                 — {eli.nickname || eli.stageName}
               </p>
             </div>
@@ -982,7 +992,7 @@ const TriviaSection = () => {
       {ELI_TAGLINES.length > 0 && (
         <div className="space-y-4 mt-10">
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
               Tagline per Tahun
             </p>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
@@ -1009,7 +1019,7 @@ const TriviaSection = () => {
       )}
 
       <div className="space-y-4 mt-10">
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
           Yang Disukai
         </p>
         <div ref={funRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1029,7 +1039,7 @@ const TriviaSection = () => {
           disukai supaya kerasa featured + chip layout. */}
       <div className="space-y-4 mt-10">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-text-muted)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
             Makanan Favorit
           </p>
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
@@ -1086,7 +1096,7 @@ const TriviaCard = ({ fact, accent = false }) => (
             {fact.iconList.map((item, j) => (
               <span
                 key={`${fact.label}-icon-${j}`}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)] text-[10px] font-bold"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[color:var(--retro-burgundy)]/8 text-[color:var(--retro-burgundy)] text-xs font-bold"
                 title={item.name}
               >
                 <i className={`${item.icon} text-xs`} />

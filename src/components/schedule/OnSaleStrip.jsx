@@ -117,18 +117,18 @@ const SaleCard = ({ sale, frameSrc }) => {
         {/* Subtle bottom-fade so badges read on lighter photos */}
         <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
         <div className="absolute inset-x-0 top-0 p-3 flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]">
             <i className={icon} />
             {label}
           </span>
           {countdown && !allSoldOut && (
-            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-[color:var(--retro-gold)] text-[color:var(--retro-brown-dark)]">
               <i className="ri-time-line" />
               {countdown}
             </span>
           )}
           {allSoldOut && (
-            <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-red-600 text-white">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-[0.25em] px-2 py-1 rounded-full bg-red-600 text-white">
               <i className="ri-close-circle-line" />
               Sold Out
             </span>
@@ -293,14 +293,14 @@ const OnSaleStrip = () => {
     >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-baseline justify-between gap-3 mb-4">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] inline-flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Sedang Dijual
             <span className="text-[color:var(--retro-text-muted)] tabular-nums">
               · {totalCount}
             </span>
           </p>
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-flex items-center gap-1.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] hidden sm:inline-flex items-center gap-1.5">
             <i className="ri-shopping-bag-3-line" />
             Sesi M&G, Photobook &amp; Merchandise
           </p>

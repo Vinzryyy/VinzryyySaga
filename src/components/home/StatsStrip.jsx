@@ -11,13 +11,12 @@ import { useCountUp } from '../../hooks/useCountUp';
 const StatsStrip = ({ frameCount, theaterCount }) => {
   const stripRef = useRef(null);
   const cardRefs = useRef([]);
-  const stRef = useRef(null);
   const [triggered, setTriggered] = useState(false);
 
   const yearsActive = new Date().getFullYear() - 2018;
-  const frames  = useCountUp(frameCount   || 0, { duration: 1400, start: triggered });
-  const theater = useCountUp(theaterCount || 0, { duration: 1200, start: triggered });
-  const years   = useCountUp(yearsActive,        { duration: 900,  start: triggered });
+  const frames  = useCountUp(frameCount   || 0, { duration: 900, start: triggered });
+  const theater = useCountUp(theaterCount || 0, { duration: 800, start: triggered });
+  const years   = useCountUp(yearsActive,        { duration: 600,  start: triggered });
 
   useEffect(() => {
     const el = stripRef.current;
@@ -29,42 +28,47 @@ const StatsStrip = ({ frameCount, theaterCount }) => {
       return undefined;
     }
 
+    // IntersectionObserver instead of ScrollTrigger: with Lenis smooth
+    // scroll the ScrollTrigger sometimes never fired, leaving the strip
+    // invisible. IO works off real layout, so it always triggers.
     let cancelled = false;
+    let gsapRef = null;
+    let observer = null;
+    const reveal = () => {
+      setTriggered(true);
+      if (gsapRef) {
+        gsapRef.to(cards, { opacity: 1, y: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out' });
+      }
+    };
     (async () => {
       try {
-        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
-          import('gsap'),
-          import('gsap/ScrollTrigger'),
-        ]);
+        const { gsap } = await import('gsap');
         if (cancelled || !stripRef.current) return;
-        gsap.registerPlugin(ScrollTrigger);
-
-        gsap.set(cards, { opacity: 0, y: 38, scale: 0.96 });
-
-        stRef.current = ScrollTrigger.create({
-          trigger: el,
-          start: 'top 82%',
-          once: true,
-          onEnter: () => {
-            setTriggered(true);
-            gsap.to(cards, {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.65,
-              stagger: 0.13,
-              ease: 'power2.out',
-            });
-          },
-        });
+        gsapRef = gsap;
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) {
+          reveal();
+          return;
+        }
+        gsap.set(cards, { opacity: 0, y: 16 });
       } catch {
-        setTriggered(true);
+        /* no gsap: just count up */
       }
+      if (cancelled) return;
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          observer.disconnect();
+          reveal();
+        },
+        { rootMargin: '0px 0px -5% 0px' },
+      );
+      observer.observe(el);
     })();
 
     return () => {
       cancelled = true;
-      stRef.current?.kill();
+      observer?.disconnect();
     };
   }, []);
 
@@ -92,7 +96,7 @@ const StatsStrip = ({ frameCount, theaterCount }) => {
         aria-hidden="true"
       >
         <span className="flex-1 h-px bg-[color:var(--retro-cream)]/10" />
-        <span className="text-[9px] font-black uppercase tracking-[0.45em] text-[color:var(--retro-cream)]/28">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/65">
           Armeniaca × Eli JKT48
         </span>
         <span className="flex-1 h-px bg-[color:var(--retro-cream)]/10" />
@@ -115,11 +119,11 @@ const StatsStrip = ({ frameCount, theaterCount }) => {
 
               <div className="w-8 h-px bg-gradient-to-r from-transparent via-[color:var(--retro-gold)]/45 to-transparent mx-auto my-3" />
 
-              <div className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-cream)]/65">
+              <div className="text-[10px] sm:text-[10px] font-black uppercase tracking-[0.35em] text-[color:var(--retro-cream)]/65">
                 {label}
               </div>
 
-              <div className="mt-1 text-[8px] sm:text-[9px] uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/28 hidden sm:block">
+              <div className="mt-1 text-[10px] sm:text-[10px] uppercase tracking-[0.25em] text-[color:var(--retro-cream)]/65 hidden sm:block">
                 {sub}
               </div>
             </div>

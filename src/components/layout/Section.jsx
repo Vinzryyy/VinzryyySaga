@@ -14,7 +14,7 @@ const Section = ({
   padding = 'default',
 }) => {
   const { elementRef, isVisible } = useScrollReveal({
-    threshold: 0.08,
+    threshold: 0,
     triggerOnce: true,
   });
 
@@ -29,8 +29,8 @@ const Section = ({
     none: '',
     sm: 'py-8 md:py-12',
     default: 'py-16 md:py-24',
-    lg: 'py-24 md:py-32',
-    xl: 'py-32 md:py-48',
+    lg: 'py-14 md:py-20',
+    xl: 'py-16 md:py-24',
   };
 
   return (
@@ -46,8 +46,8 @@ const Section = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`
-            transform transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)]
-            ${isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-[0.99]'}
+            transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+            ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
           `}
         >
           {children}
