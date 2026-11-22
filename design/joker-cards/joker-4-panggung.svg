@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" role="img" aria-label="Kartu Joker: Panggung Teater">
+  <defs>
+    <linearGradient id="curtain" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4E141A"/>
+      <stop offset="0.25" stop-color="#8E2F38"/>
+      <stop offset="0.5" stop-color="#5E1A21"/>
+      <stop offset="0.75" stop-color="#9A3A43"/>
+      <stop offset="1" stop-color="#4E141A"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF6D6" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#FFF6D6" stop-opacity="0.05"/>
+    </linearGradient>
+    <radialGradient id="pool" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFF6D6" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFF6D6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE7A3"/>
+      <stop offset="1" stop-color="#C8952A"/>
+    </linearGradient>
+    <clipPath id="card"><rect width="300" height="400" rx="22"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <rect width="300" height="400" fill="#1E1611"/>
+    <!-- floor -->
+    <path d="M0 300 L300 300 L300 400 L0 400 Z" fill="#3A2A1F"/>
+    <g stroke="#2A1E16" stroke-width="2"><path d="M0 320 H300 M0 345 H300 M0 375 H300"/></g>
+    <!-- spotlight -->
+    <path d="M128 40 L172 40 L238 318 L62 318 Z" fill="url(#beam)"/>
+    <ellipse cx="150" cy="318" rx="92" ry="20" fill="url(#pool)"/>
+    <!-- curtains -->
+    <path d="M0 40 L64 40 C 60 140 70 230 40 330 L0 330 Z" fill="url(#curtain)"/>
+    <path d="M300 40 L236 40 C 240 140 230 230 260 330 L300 330 Z" fill="url(#curtain)"/>
+    <path d="M40 330 C 36 310 52 296 64 300" fill="none" stroke="#DFAE42" stroke-width="3"/>
+    <path d="M260 330 C 264 310 248 296 236 300" fill="none" stroke="#DFAE42" stroke-width="3"/>
+    <!-- valance -->
+    <path d="M0 0 H300 V40 q-18 22 -37.5 0 q-18 22 -37.5 0 q-18 22 -37.5 0 q-18 22 -37.5 0 q-18 22 -37.5 0 q-18 22 -37.5 0 q-18 22 -37.5 0 q-18 22 -37.5 0 Z" fill="#7C2D34"/>
+    <path d="M0 40 q18.75 22 37.5 0 q18.75 22 37.5 0 q18.75 22 37.5 0 q18.75 22 37.5 0 q18.75 22 37.5 0 q18.75 22 37.5 0 q18.75 22 37.5 0 q18.75 22 37.5 0" fill="none" stroke="#DFAE42" stroke-width="2.5"/>
+  </g>
+  <!-- microphone on stand, crowned by a star -->
+  <g>
+    <line x1="150" y1="214" x2="150" y2="306" stroke="#C8952A" stroke-width="5" stroke-linecap="round"/>
+    <path d="M128 310 H172" stroke="#C8952A" stroke-width="6" stroke-linecap="round"/>
+    <path d="M136 196 q14 22 28 0" fill="none" stroke="#C8952A" stroke-width="4" stroke-linecap="round"/>
+    <rect x="137" y="150" width="26" height="54" rx="13" fill="url(#gold)" stroke="#FFF2C4" stroke-width="2"/>
+    <g stroke="#8C5E12" stroke-opacity="0.5" stroke-width="1.2"><path d="M140 162 H160 M139 170 H161 M139 178 H161 M140 186 H160"/></g>
+    <path d="M150.0,95.0 L156.8,112.1 L175.1,113.2 L160.9,124.8 L165.4,142.6 L150.0,132.8 L134.6,142.6 L139.1,124.8 L124.9,113.2 L143.2,112.1 Z"
+          fill="#FFF2C4" stroke="#DFAE42" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+  <g fill="#FFF6D6">
+    <path d="M100 118 l2.4 7 7 2.4 -7 2.4 -2.4 7 -2.4-7 -7-2.4 7-2.4z"/>
+    <path d="M204 150 l2 6 6 2 -6 2 -2 6 -2-6 -6-2 6-2z"/>
+  </g>
+  <rect x="12" y="12" width="276" height="376" rx="14" fill="none" stroke="#DFAE42" stroke-opacity="0.65" stroke-width="2"/>
+  <text x="150" y="354" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="34" letter-spacing="6" fill="url(#gold)">JOKER</text>
+  <text x="150" y="374" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="11" fill="#E8D5B5">setiap lagu, cara membawakan yang berbeda</text>
+</svg>

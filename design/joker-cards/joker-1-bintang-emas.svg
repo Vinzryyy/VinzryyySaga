@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" role="img" aria-label="Kartu Joker: Bintang Emas">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0" stop-color="#FFF8DE"/>
+      <stop offset="0.55" stop-color="#F2D27C"/>
+      <stop offset="1" stop-color="#C8952A"/>
+    </radialGradient>
+    <linearGradient id="starFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9A3A43"/>
+      <stop offset="1" stop-color="#6B242B"/>
+    </linearGradient>
+    <pattern id="rays" width="300" height="400" patternUnits="userSpaceOnUse">
+      <g stroke="#FFF6D6" stroke-opacity="0.35" stroke-width="10">
+        <path d="M150 182 L150 -40 M150 182 L330 60 M150 182 L360 230 M150 182 L270 440 M150 182 L30 440 M150 182 L-60 230 M150 182 L-30 60"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect width="300" height="400" rx="22" fill="url(#bg)"/>
+  <rect width="300" height="400" rx="22" fill="url(#rays)"/>
+  <rect x="12" y="12" width="276" height="376" rx="14" fill="none" stroke="#7C2D34" stroke-opacity="0.55" stroke-width="2"/>
+  <rect x="18" y="18" width="264" height="364" rx="10" fill="none" stroke="#7C2D34" stroke-opacity="0.25" stroke-width="1"/>
+  <!-- corner indices -->
+  <g font-family="Fraunces, Georgia, serif" font-weight="900" fill="#7C2D34">
+    <text x="30" y="52" font-size="30">J</text>
+    <path d="M38 62 l3.2 8 8.6 .5 -6.7 5.5 2.2 8.4 -7.3-4.7 -7.3 4.7 2.2-8.4 -6.7-5.5 8.6-.5z" fill="#7C2D34"/>
+    <g transform="rotate(180 150 200)">
+      <text x="30" y="52" font-size="30">J</text>
+      <path d="M38 62 l3.2 8 8.6 .5 -6.7 5.5 2.2 8.4 -7.3-4.7 -7.3 4.7 2.2-8.4 -6.7-5.5 8.6-.5z" fill="#7C2D34"/>
+    </g>
+  </g>
+  <!-- star with a smile -->
+  <path d="M150.0,100.0 L171.2,152.9 L228.0,156.7 L184.2,193.1 L198.2,248.3 L150.0,218.0 L101.8,248.3 L115.8,193.1 L72.0,156.7 L128.8,152.9 Z"
+        fill="url(#starFill)" stroke="#FFF2C4" stroke-width="5" stroke-linejoin="round"/>
+  <g fill="none" stroke="#FFE7A3" stroke-width="5" stroke-linecap="round">
+    <path d="M131 176 q6 -7 12 0"/>
+    <path d="M157 176 q6 -7 12 0"/>
+    <path d="M136 192 q14 14 28 0"/>
+  </g>
+  <circle cx="126" cy="190" r="4.5" fill="#E8A0A6" opacity="0.8"/>
+  <circle cx="174" cy="190" r="4.5" fill="#E8A0A6" opacity="0.8"/>
+  <!-- sparkles -->
+  <g fill="#FFFBEA">
+    <path d="M232 104 l3 10 10 3 -10 3 -3 10 -3-10 -10-3 10-3z"/>
+    <path d="M70 230 l2.4 8 8 2.4 -8 2.4 -2.4 8 -2.4-8 -8-2.4 8-2.4z"/>
+    <path d="M222 252 l2 6 6 2 -6 2 -2 6 -2-6 -6-2 6-2z"/>
+  </g>
+  <text x="150" y="312" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="38" letter-spacing="6" fill="#5A3D0C">JOKER</text>
+  <text x="150" y="338" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="13" fill="#7C2D34">cocok dengan siapa saja</text>
+</svg>

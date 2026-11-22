@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400" role="img" aria-label="Kartu Joker: Putri Duyung">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F7D86"/>
+      <stop offset="1" stop-color="#173F4A"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE7A3"/>
+      <stop offset="0.5" stop-color="#DFAE42"/>
+      <stop offset="1" stop-color="#A9761C"/>
+    </linearGradient>
+    <pattern id="scales" width="14" height="10" patternUnits="userSpaceOnUse">
+      <rect width="14" height="10" fill="url(#gold)"/>
+      <path d="M0 10 a7 7 0 0 1 14 0" fill="none" stroke="#8C5E12" stroke-opacity="0.55" stroke-width="1.4"/>
+      <path d="M-7 5 a7 7 0 0 1 14 0 M7 5 a7 7 0 0 1 14 0" fill="none" stroke="#8C5E12" stroke-opacity="0.35" stroke-width="1.2"/>
+    </pattern>
+  </defs>
+  <rect width="300" height="400" rx="22" fill="url(#sea)"/>
+  <!-- light from above -->
+  <path d="M110 0 L190 0 L250 400 L50 400 Z" fill="#BFF3F0" opacity="0.08"/>
+  <!-- waves -->
+  <g fill="none" stroke="#BFF3F0" stroke-opacity="0.22" stroke-width="2">
+    <path d="M0 60 q25 -12 50 0 t50 0 t50 0 t50 0 t50 0 t50 0"/>
+    <path d="M0 78 q25 -12 50 0 t50 0 t50 0 t50 0 t50 0 t50 0" stroke-opacity="0.12"/>
+    <path d="M0 360 q25 -12 50 0 t50 0 t50 0 t50 0 t50 0 t50 0"/>
+  </g>
+  <!-- bubbles -->
+  <g fill="none" stroke="#DFF8F6" stroke-opacity="0.6" stroke-width="1.6">
+    <circle cx="218" cy="128" r="7"/><circle cx="232" cy="104" r="4"/><circle cx="224" cy="86" r="2.5"/>
+    <circle cx="74" cy="250" r="5"/><circle cx="62" cy="232" r="3"/>
+  </g>
+  <rect x="12" y="12" width="276" height="376" rx="14" fill="none" stroke="#DFAE42" stroke-opacity="0.7" stroke-width="2"/>
+  <!-- the tail draws a J -->
+  <path d="M158 112 L158 228 Q158 288 108 292" fill="none" stroke="#7A5310" stroke-width="34" stroke-linecap="round" opacity="0.35" transform="translate(3 4)"/>
+  <path d="M158 112 L158 228 Q158 288 108 292" fill="none" stroke="url(#scales)" stroke-width="30" stroke-linecap="round"/>
+  <!-- fin -->
+  <path d="M112 292 C 92 262 66 262 52 276 C 68 282 80 292 84 304 C 72 316 60 322 50 340 C 74 342 98 326 112 298 Z"
+        fill="url(#gold)" stroke="#FFE7A3" stroke-width="2" stroke-linejoin="round"/>
+  <g stroke="#8C5E12" stroke-opacity="0.45" stroke-width="1.4" fill="none">
+    <path d="M100 290 C 86 278 72 276 62 279"/><path d="M100 296 C 86 308 72 318 62 330"/>
+  </g>
+  <!-- crown star -->
+  <path d="M158,84 L163.7,98.2 L178.9,99.2 L167.2,108.9 L171,123.7 L158,115.5 L145,123.7 L148.8,108.9 L137.1,99.2 L152.3,98.2 Z"
+        fill="#FFF2C4" stroke="#DFAE42" stroke-width="2" stroke-linejoin="round"/>
+  <!-- shell -->
+  <g transform="translate(206 300)">
+    <path d="M0 22 C -18 22 -24 4 -14 -8 L0 -16 L14 -8 C 24 4 18 22 0 22 Z" fill="#F7D4C8" stroke="#FFF2EC" stroke-width="1.5"/>
+    <path d="M0 20 L0 -14 M0 20 L-9 -9 M0 20 L9 -9 M0 20 L-15 2 M0 20 L15 2" stroke="#D89A8A" stroke-width="1.2"/>
+  </g>
+  <text x="150" y="44" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="22" letter-spacing="8" fill="#FFE7A3">JOKER</text>
+  <text x="150" y="378" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="12.5" fill="#DFF8F6" opacity="0.9">our beloved mermaid</text>
+</svg>

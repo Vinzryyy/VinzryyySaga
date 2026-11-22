@@ -411,7 +411,7 @@ const ChallengeGame = ({ pool, onBusyChange }) => {
                   <p className="font-header text-xl font-black text-[color:var(--retro-text-primary)]">Mode Tantangan</p>
                   <ul className="mt-2 text-left text-xs text-[color:var(--retro-text-secondary)] space-y-1">
                     <li>• {STAGE_COUNT} tingkat, makin lama makin banyak kartu.</li>
-                    <li>• <b>★ Joker</b> cocok dengan kartu apa saja.</li>
+                    <li>• <b>🌸 Joker</b> (bunga aprikot) cocok dengan kartu apa saja.</li>
                     <li>• <b>💣 Bom</b> kelihatan di awal tingkat. Ingat letaknya: kalau terbuka, kartu tertutup diacak ulang.</li>
                     <li>• <b>Papan gelisah</b>: tiap 3 kali salah, dua kartu bertukar.</li>
                     <li>• <b>{MAX_LIVES} nyawa</b>, berkurang kalau salah padahal pasangannya sudah pernah terlihat (kartunya akan menyala). +1 tiap naik tingkat.</li>

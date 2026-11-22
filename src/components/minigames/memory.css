@@ -146,11 +146,12 @@
 .mm-special b { font-size: clamp(0.55rem, 1.6vw, 0.8rem); font-weight: 900; }
 .mm-special i { font-size: clamp(1.4rem, 5vw, 2.4rem); line-height: 1; }
 .mm-special-emoji { font-size: clamp(1.3rem, 4.6vw, 2.2rem); line-height: 1; }
+/* Joker face: "Aprikot Musim Semi" (design/joker-cards/joker-3-aprikot.svg). */
 .mm-card.is-joker .mm-front {
-  background: radial-gradient(circle at 50% 40%, #fff6d6 0%, #f1d27a 55%, #c8952a 100%);
+  background: #FDF6E3;
   border-color: var(--retro-gold);
-  color: #5a3d0c;
 }
+.mm-joker-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .mm-card.is-bomb .mm-front {
   background: radial-gradient(circle at 50% 40%, #4a3a33 0%, #2b2017 70%);
   border-color: #2b2017;

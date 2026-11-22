@@ -54,10 +54,7 @@ const MemoryCard = React.forwardRef(function MemoryCard(
         <span className="mm-face mm-front" aria-hidden="true">
           {kind === 'photo' && photo && <img src={photo.webp} alt="" draggable="false" decoding="async" />}
           {kind === 'joker' && (
-            <span className="mm-special">
-              <i className="ri-star-smile-fill" />
-              <b>Joker</b>
-            </span>
+            <img className="mm-joker-art" src="/minigames/joker-aprikot.svg" alt="" draggable="false" decoding="async" />
           )}
           {kind === 'bomb' && (
             <span className="mm-special">

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desain Kartu Joker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root { --cream:#FDF6E3; --ink:#3D342B; --muted:#7A6A58; --burgundy:#7C2D34; --gold:#C8952A; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--cream); color: var(--ink); font-family: system-ui, -apple-system, sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1 { font-family: Fraunces, Georgia, serif; font-weight: 900; font-size: clamp(28px, 5vw, 44px); margin: 0; }
+  .lead { color: var(--muted); max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-top: 28px; }
+  figure { margin: 0; background: #fff; border: 1px solid rgba(61,52,43,.12); border-radius: 18px; padding: 16px; }
+  figure img { width: 100%; height: auto; display: block; filter: drop-shadow(0 6px 14px rgba(61,52,43,.18)); }
+  figcaption b { display: block; font-family: Fraunces, Georgia, serif; font-size: 18px; margin-top: 12px; }
+  figcaption span { font-size: 13px; color: var(--muted); }
+  h2 { font-family: Fraunces, Georgia, serif; margin-top: 44px; }
+  .board { display: grid; grid-template-columns: repeat(6, 56px); gap: 6px; }
+  .back { width: 56px; aspect-ratio: 3/4; border-radius: 6px; border: 2px solid var(--burgundy);
+          background: repeating-linear-gradient(45deg, var(--burgundy) 0 5px, #9A3A43 5px 10px); }
+  .board img { width: 56px; border-radius: 6px; }
+  .rows { display: flex; flex-wrap: wrap; gap: 28px; }
+  .rows p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Desain Kartu Joker</h1>
+  <p class="lead">Empat konsep kartu Joker untuk Mode Tantangan Pasangkan Momen. Semuanya vektor buatan tangan (SVG) dengan palet Armeniaca, tanpa gambar Eli buatan AI.</p>
+
+  <div class="grid">
+    <figure><img src="joker-1-bintang-emas.svg" alt="Joker Bintang Emas"><figcaption><b>1 · Bintang Emas</b><span>Klasik dan paling mudah dikenali: bintang tersenyum di atas emas bersinar. Paling dekat dengan Joker yang sekarang.</span></figcaption></figure>
+    <figure><img src="joker-2-putri-duyung.svg" alt="Joker Putri Duyung"><figcaption><b>2 · Putri Duyung</b><span>Ekor bersisik emas membentuk huruf J, untuk "our beloved mermaid" 🧜🏻‍♀️ di caption Armeniaca.</span></figcaption></figure>
+    <figure><img src="joker-3-aprikot.svg" alt="Joker Aprikot"><figcaption><b>3 · Aprikot Musim Semi</b><span>Bunga aprikot dari bio @armeniaca15, "blooming like apricot in spring" · #BloomInSpring.</span></figcaption></figure>
+    <figure><img src="joker-4-panggung.svg" alt="Joker Panggung"><figcaption><b>4 · Panggung</b><span>Tirai teater dan lampu sorot di mikrofon: setiap lagu, cara membawakan yang berbeda (prinsip "tetap manusia").</span></figcaption></figure>
+  </div>
+
+  <h2>Di papan, ukuran HP (~56 px)</h2>
+  <div class="rows">
+    <div><div class="board"><div class="back"></div><img src="joker-1-bintang-emas.svg" alt=""><div class="back"></div><div class="back"></div><div class="back"></div><div class="back"></div></div><p>1 · Bintang Emas</p></div>
+    <div><div class="board"><div class="back"></div><div class="back"></div><img src="joker-2-putri-duyung.svg" alt=""><div class="back"></div><div class="back"></div><div class="back"></div></div><p>2 · Putri Duyung</p></div>
+    <div><div class="board"><div class="back"></div><div class="back"></div><div class="back"></div><img src="joker-3-aprikot.svg" alt=""><div class="back"></div><div class="back"></div></div><p>3 · Aprikot</p></div>
+    <div><div class="board"><div class="back"></div><div class="back"></div><div class="back"></div><div class="back"></div><img src="joker-4-panggung.svg" alt=""><div class="back"></div></div><p>4 · Panggung</p></div>
+  </div>
+</main>
+</body>
+</html>
