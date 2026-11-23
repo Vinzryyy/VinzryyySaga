@@ -158,6 +158,12 @@ export const SITE_CONFIG = {
             icon: 'ri-layout-grid-line',
           },
           {
+            label: 'Tebak Momen',
+            hash: 'mini-games/tebak-momen',
+            description: 'Eli bilang ini di live hari apa?',
+            icon: 'ri-chat-quote-line',
+          },
+          {
             label: 'ArmePack',
             hash: 'armepack',
             description: 'Tiga kartu tiap hari — The Life of Armeniaca.',
