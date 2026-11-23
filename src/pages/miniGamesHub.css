@@ -1,0 +1,177 @@
+/* Arcade Armeniaca (/mini-games): big type, thin-lined cards, warm palette. */
+
+.hub {
+  --ink: #2b211b;
+  --line: rgba(61, 52, 43, 0.14);
+  --paper: #fffaf0;
+  background: var(--retro-bg-primary);
+  color: var(--ink);
+}
+.hub-wrap { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
+@media (min-width: 640px) { .hub-wrap { padding: 0 1.5rem; } }
+
+.hub-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--retro-burgundy);
+}
+
+/* Hero: dark so the transparent navbar (white text) reads on top. */
+.hub-hero {
+  padding: 7rem 0 3rem;
+  color: #f4ece4;
+  background:
+    radial-gradient(60% 90% at 100% 0%, rgba(200, 149, 42, 0.22), transparent 60%),
+    radial-gradient(60% 90% at 0% 100%, rgba(124, 45, 52, 0.55), transparent 65%),
+    linear-gradient(160deg, #241a15 0%, #2e211b 55%, #3a1e22 100%);
+}
+.hub-hero .hub-eyebrow { color: var(--retro-gold-light); }
+.hub-hero__grid { display: grid; gap: 2rem; align-items: end; }
+@media (min-width: 900px) { .hub-hero__grid { grid-template-columns: 1fr 22rem; } }
+.hub-hero__title {
+  margin-top: 0.9rem;
+  font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+}
+.hub-hero__title span { color: var(--retro-gold); }
+.hub-hero__lead { margin-top: 1.2rem; max-width: 34rem; font-size: 1rem; line-height: 1.6; color: rgba(244, 236, 228, 0.72); }
+
+/* Hari ini */
+.hub-today {
+  color: var(--ink);
+  border-radius: 1.1rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.55);
+  padding: 1.1rem 1.1rem 0.9rem;
+}
+.hub-today__head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.7rem; border-bottom: 1px dashed var(--line); }
+.hub-today__count { font-family: 'Fraunces Variable', Georgia, serif; font-weight: 900; font-size: 1.35rem; }
+.hub-today ul { list-style: none; margin: 0; padding: 0; }
+.hub-today__row { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.25rem; border-bottom: 1px solid var(--line); text-decoration: none; color: inherit; border-radius: 0.5rem; }
+.hub-today li:last-child .hub-today__row { border-bottom: 0; }
+.hub-today__row:hover { background: rgba(124, 45, 52, 0.05); }
+.hub-check { flex: none; display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 0.4rem; border: 2px solid rgba(124, 45, 52, 0.45); color: #fff; font-size: 0.9rem; }
+.is-done .hub-check { background: #2f5d3f; border-color: #2f5d3f; }
+.hub-today__text { flex: 1; display: grid; line-height: 1.25; }
+.hub-today__text b { font-size: 0.9rem; }
+.hub-today__text span { font-size: 0.75rem; color: var(--retro-text-secondary); }
+.is-done .hub-today__text b { text-decoration: line-through; text-decoration-color: rgba(47, 93, 63, 0.6); color: var(--retro-text-secondary); }
+.hub-today__go { color: var(--retro-burgundy); }
+.hub-today__foot { margin-top: 0.4rem; font-size: 0.7rem; color: var(--retro-text-muted); }
+
+/* Shared type */
+.hub-title { margin-top: 0.35rem; font-family: 'Fraunces Variable', Georgia, serif; font-weight: 900; font-size: 1.6rem; line-height: 1.05; letter-spacing: -0.01em; }
+.hub-title--xl { font-size: clamp(2.2rem, 5vw, 3.4rem); text-transform: uppercase; }
+.hub-text { margin-top: 0.5rem; font-size: 0.92rem; line-height: 1.55; color: var(--retro-text-secondary); }
+.hub-arrow { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.2em; text-transform: uppercase; color: var(--retro-burgundy); white-space: nowrap; }
+.hub-arrow i { transition: transform 0.2s ease; }
+.group:hover .hub-arrow i { transform: translateX(4px); }
+
+/* Featured */
+.hub-featured {
+  margin-top: 2.5rem;
+  display: grid;
+  overflow: hidden;
+  border-radius: 1.4rem;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.hub-featured:hover { box-shadow: 0 24px 48px -28px rgba(61, 52, 43, 0.5); transform: translateY(-2px); }
+@media (min-width: 860px) { .hub-featured { grid-template-columns: 1fr 1.1fr; } }
+.hub-featured__art {
+  position: relative;
+  min-height: 15rem;
+  background:
+    radial-gradient(70% 70% at 50% 60%, rgba(227, 189, 106, 0.45), transparent 70%),
+    linear-gradient(135deg, #6e2a31, #4a1a20);
+}
+.hub-pack {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  width: 34%;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+  padding: 2%;
+  border-radius: 0.8rem;
+  background: var(--paper);
+  border: 3px solid #e3bd6a;
+  box-shadow: 0 14px 26px -12px rgba(0, 0, 0, 0.55);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hub-pack--0 { transform: translateX(-118%) rotate(-12deg); }
+.hub-pack--1 { transform: translateX(-50%) translateY(-10%); z-index: 1; }
+.hub-pack--2 { transform: translateX(18%) rotate(12deg); }
+.hub-featured:hover .hub-pack--0 { transform: translateX(-128%) rotate(-16deg); }
+.hub-featured:hover .hub-pack--1 { transform: translateX(-50%) translateY(-16%); }
+.hub-featured:hover .hub-pack--2 { transform: translateX(28%) rotate(16deg); }
+.hub-featured__body { padding: 1.6rem; display: flex; flex-direction: column; }
+@media (min-width: 640px) { .hub-featured__body { padding: 2.2rem; } }
+.hub-stats { margin-top: 1.2rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.hub-stats div { border: 1px solid var(--line); border-radius: 0.8rem; padding: 0.6rem 0.75rem; }
+.hub-stats b { display: block; font-family: 'Fraunces Variable', Georgia, serif; font-size: 1.45rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.hub-stats span { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--retro-text-muted); }
+.hub-bar { margin-top: 0.9rem; height: 6px; border-radius: 999px; background: rgba(140, 100, 60, 0.14); overflow: hidden; }
+.hub-bar span { display: block; height: 100%; border-radius: inherit; background: var(--retro-burgundy); }
+.hub-featured__foot { margin-top: auto; padding-top: 1.3rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); margin-top: 1.4rem; }
+.hub-chip { font-size: 0.75rem; font-weight: 800; color: var(--retro-text-secondary); }
+.hub-chip.is-ready { color: #2f5d3f; }
+.hub-btn { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.7rem 1.2rem; border-radius: 999px; background: var(--retro-burgundy); color: var(--retro-cream); font-size: 0.75rem; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; }
+.hub-featured:hover .hub-btn { background: var(--retro-burgundy-light); }
+
+/* Game cards */
+.hub-grid { margin-top: 1.25rem; display: grid; gap: 1.25rem; }
+@media (min-width: 720px) { .hub-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.hub-card { display: flex; flex-direction: column; overflow: hidden; border-radius: 1.2rem; border: 1px solid var(--line); background: var(--paper); text-decoration: none; color: inherit; transition: box-shadow 0.3s ease, transform 0.3s ease; }
+.hub-card:not(.is-locked):hover { box-shadow: 0 20px 40px -26px rgba(61, 52, 43, 0.5); transform: translateY(-3px); }
+.hub-card.is-locked { opacity: 0.92; }
+.hub-card__art { position: relative; height: 10.5rem; overflow: hidden; border-bottom: 1px solid var(--line); }
+.hub-card__body { flex: 1; display: flex; flex-direction: column; padding: 1.2rem 1.25rem 1rem; }
+.hub-card__foot { margin-top: auto; padding-top: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; border-top: 1px solid var(--line); margin-top: 1.1rem; }
+.hub-card__status { font-size: 0.75rem; color: var(--retro-text-secondary); }
+
+/* Art: memory tiles */
+.hub-tiles { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.9rem 1.2rem; background: linear-gradient(135deg, #efe2cb, #e6d3b3); }
+.hub-tile { display: grid; place-items: center; overflow: hidden; border-radius: 0.5rem; background: var(--retro-burgundy); color: rgba(255, 255, 255, 0.55); font-size: 1.3rem; box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.35); transition: transform 0.35s ease; }
+.hub-tile.is-open { background: var(--paper); border: 2px solid #e3bd6a; }
+.hub-tile img { width: 100%; height: 100%; object-fit: cover; }
+.hub-card:hover .hub-tile:nth-child(2) { transform: rotateY(25deg); }
+.hub-card:hover .hub-tile:nth-child(4) { transform: rotateY(-25deg); }
+
+/* Art: quote card (Tebak Momen) */
+.hub-quote { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 0.6rem; background: linear-gradient(135deg, #2b211b, #4a3a2e); }
+.hub-quote__text { position: relative; padding: 0.9rem 1.2rem; border-radius: 0.4rem; background: #fffaf0; font-family: 'Fraunces Variable', Georgia, serif; font-style: italic; font-weight: 700; font-size: 1.05rem; transform: rotate(-2deg); box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.6); }
+.hub-quote__tape { position: absolute; top: calc(50% - 3.1rem); width: 4.5rem; height: 1.1rem; background: rgba(200, 149, 42, 0.85); transform: rotate(-4deg); z-index: 1; }
+.hub-quote__opts { display: flex; gap: 0.35rem; }
+.hub-quote__opts span { padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.62rem; font-weight: 800; color: rgba(255, 250, 240, 0.75); border: 1px solid rgba(255, 250, 240, 0.25); }
+.hub-quote__opts .is-right { background: #2f5d3f; border-color: #2f5d3f; color: #fff; }
+
+/* Art: town */
+.hub-town { position: absolute; inset: 0; background: linear-gradient(180deg, #f6e3c1, #eccfa0); }
+.hub-town svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hub-town img { position: absolute; right: 8%; bottom: 4%; height: 62%; transition: transform 0.4s ease; }
+.hub-card:hover .hub-town img { transform: translateX(-10px) rotate(-3deg); }
+
+/* Coming soon */
+.hub-soon { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; padding-top: 1.2rem; border-top: 1px dashed var(--line); }
+.hub-soon__item { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; color: var(--retro-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-featured, .hub-card, .hub-pack, .hub-tile, .hub-town img { transition: none; }
+}
+
+.hub-hero .hub-today .hub-eyebrow { color: var(--retro-burgundy); }

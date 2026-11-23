@@ -1,145 +1,240 @@
 /**
- * /mini-games — one place for every Armeniaca game.
+ * /mini-games — the Armeniaca arcade.
  *
  * Games are a way to remember moments, not the goal (docs/prinsip-armeniaca.md),
- * so each card says what you'll remember, not just how to win.
+ * so the page leads with today's small routine ("Hari ini"), then one
+ * featured game, then the rest. Every card shows the game's own art and
+ * where this visitor stands (read from what the games keep in the browser;
+ * see lib/arcadeStatus.js). Layout borrows the "pick your experience"
+ * pattern (big type, thin-lined cards with a label, divider and an arrow
+ * row) in Armeniaca's own colours and type.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
-import { getChallengeRecord } from '../lib/miniGamesStorage';
-import { STAGE_COUNT } from '../lib/memoryChallenge';
+import { POHON_APRIKOT_POOL } from '../data/pohonAprikot';
+import { armepackStatus, memoryStatus, quizStatus, todayList } from '../lib/arcadeStatus';
 import { useEliNotes } from '../hooks/useEliNotes';
-import { quizPool } from '../lib/eliNotes';
+import { QUIZ_MIN_NOTES, quizPool } from '../lib/eliNotes';
+import './miniGamesHub.css';
 
-const TEBAK = {
-  to: '/mini-games/tebak-momen',
-  icon: 'ri-chat-quote-line',
-  title: 'Tebak Momen',
-  text: 'Eli bilang ini di live hari apa? Lima kutipan dari Eli Notes, lengkap dengan cerita di baliknya.',
-  tag: 'Baru',
-  cover: '/archive/img-310.webp',
+const EM = (f) => `/EmoteLabs/${encodeURI(f)}`;
+const PACK_ART = [
+  EM('Arme_Lightstick 2_2026-05-27-07-49-14.webp'),
+  EM('Arme_Sparkling_2026-05-27-07-52-00.webp'),
+  EM('Arme_Score (10 Point)_2026-05-27-07-50-54.webp'),
+];
+const MEMORY_TILES = ['/archive/img-036.webp', null, '/archive/img-142.webp', null, null, '/archive/img-211.webp'];
+const SOON = [
+  { icon: 'ri-question-answer-line', title: 'Kuis Harian' },
+  { icon: 'ri-music-2-line', title: 'Ritme' },
+];
+
+const useStatus = () => {
+  const read = () => {
+    const armepack = armepackStatus(POHON_APRIKOT_POOL);
+    const quiz = quizStatus();
+    const memory = memoryStatus();
+    return { armepack, quiz, memory, today: todayList({ armepack, quiz, memory }) };
+  };
+  const [status, setStatus] = useState(read);
+  useEffect(() => {
+    // Coming back from a game in another tab: refresh the routine.
+    const refresh = () => setStatus(read());
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, []);
+  return status;
 };
 
-const GAMES = [
-  {
-    to: '/mini-games/memory',
-    icon: 'ri-layout-grid-line',
-    title: 'Pasangkan Momen',
-    text: 'Cocokkan pasangan foto Eli dari arsip. Ada mode Harian dengan papan peringkat dan Mode Tantangan 7 tingkat.',
-    tag: 'Baru',
-    cover: '/archive/img-036.webp',
-  },
-  {
-    to: '/armepack',
-    icon: 'ri-leaf-line',
-    title: 'ArmePack',
-    text: 'Tiga kartu tiap hari dari The Life of Armeniaca. Kumpulkan, baca ceritanya.',
-    cover: '/archive/img-142.webp',
-  },
-  {
-    to: '/armeniacaTown',
-    icon: 'ri-map-pin-2-line',
-    title: 'ArmeniacaTown',
-    text: 'Kota kecil yang tumbuh dari setiap siraman penggemar. Jelajahi sudut-sudutnya.',
-    cover: '/archive/img-211.webp',
-  },
-];
+const Arrow = ({ children }) => (
+  <span className="hub-arrow">
+    {children} <i className="ri-arrow-right-line" />
+  </span>
+);
 
-const SOON = [
-  { icon: 'ri-question-answer-line', title: 'Kuis Harian', text: 'Satu pertanyaan tiap hari tentang perjalanan Eli.' },
-  { icon: 'ri-music-2-line', title: 'Ritme', text: 'Ikuti ketukan lagu-lagu yang dibawakan Eli.' },
-];
+// ── Pieces ───────────────────────────────────────────────────────────
+
+const Today = ({ items }) => {
+  const done = items.filter((x) => x.done).length;
+  return (
+    <aside className="hub-today" aria-label="Rutinitas hari ini">
+      <div className="hub-today__head">
+        <span className="hub-eyebrow">Hari ini</span>
+        <span className="hub-today__count">{done}/{items.length}</span>
+      </div>
+      <ul>
+        {items.map((x) => (
+          <li key={x.id}>
+            <Link to={x.to} className={`hub-today__row ${x.done ? 'is-done' : ''}`}>
+              <span className="hub-check" aria-hidden="true">{x.done ? <i className="ri-check-line" /> : null}</span>
+              <span className="hub-today__text">
+                <b>{x.label}</b>
+                <span>{x.detail}</span>
+              </span>
+              {!x.done && <i className="ri-arrow-right-line hub-today__go" aria-hidden="true" />}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className="hub-today__foot">{done === items.length ? 'Semua beres. Sampai besok!' : 'Reset setiap tengah malam WIB.'}</p>
+    </aside>
+  );
+};
+
+const Featured = ({ s }) => {
+  const pct = s.total ? Math.round((s.owned / s.total) * 100) : 0;
+  return (
+    <Link to="/armepack" className="hub-featured group">
+      <div className="hub-featured__art" aria-hidden="true">
+        {PACK_ART.map((src, i) => (
+          <img key={src} src={src} alt="" loading="lazy" className={`hub-pack hub-pack--${i}`} />
+        ))}
+      </div>
+      <div className="hub-featured__body">
+        <span className="hub-eyebrow">Unggulan · koleksi kartu harian</span>
+        <h2 className="hub-title hub-title--xl">ArmePack</h2>
+        <p className="hub-text">
+          Tiga kartu tiap hari dari <i>The Life of Armeniaca</i>. Kumpulkan ke dalam <b>Binder</b>, lengkapi set, tukar kartu dobel jadi buah.
+        </p>
+        <div className="hub-stats">
+          <div><b>{s.owned}/{s.total}</b><span>kartu</span></div>
+          <div><b>{s.setsComplete}/{s.setsTotal}</b><span>set lengkap</span></div>
+          <div><b>{s.buah}</b><span>buah</span></div>
+        </div>
+        <div className="hub-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Progres koleksi ArmePack">
+          <span style={{ width: `${pct}%` }} />
+        </div>
+        <div className="hub-featured__foot">
+          <span className={`hub-chip ${s.canPluck ? 'is-ready' : ''}`}>
+            {s.canPluck ? '● Petikan gratis siap' : 'Sudah dipetik hari ini'}
+            {s.rewardsWaiting > 0 ? ` · ${s.rewardsWaiting} hadiah set menunggu` : ''}
+          </span>
+          <span className="hub-btn">{s.canPluck ? 'Petik sekarang' : 'Buka binder'} <i className="ri-arrow-right-line" /></span>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+const GameCard = ({ to, label, title, text, art, status, cta = 'Main', locked = false }) => {
+  const Tag = locked ? 'div' : Link;
+  return (
+    <Tag {...(locked ? {} : { to })} className={`hub-card group ${locked ? 'is-locked' : ''}`}>
+      <div className="hub-card__art" aria-hidden="true">{art}</div>
+      <div className="hub-card__body">
+        <span className="hub-eyebrow">{label}</span>
+        <h3 className="hub-title">{title}</h3>
+        <p className="hub-text">{text}</p>
+        <div className="hub-card__foot">
+          <span className="hub-card__status">{status}</span>
+          {!locked && <Arrow>{cta}</Arrow>}
+        </div>
+      </div>
+    </Tag>
+  );
+};
+
+// ── Page ─────────────────────────────────────────────────────────────
 
 const MiniGames = () => {
-  const [record] = useState(() => getChallengeRecord());
+  const { armepack, memory, today } = useStatus();
   const { notes } = useEliNotes();
-  const tebakReady = quizPool(notes).ready;
-  const games = tebakReady ? [...GAMES, TEBAK] : GAMES;
-  const soon = tebakReady ? SOON : [{ icon: 'ri-chat-quote-line', title: 'Tebak Momen', text: 'Tebak kapan Eli mengucapkan kutipan dari live. Dibuka setelah Eli Notes cukup terisi.' }, ...SOON];
+  const tebak = useMemo(() => quizPool(notes), [notes]);
 
   return (
-    <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20">
+    <div className="hub min-h-screen pb-20">
       <Seo
         path="/mini-games"
         title="Mini Games"
-        description="Mini games Armeniaca: Pasangkan Momen, ArmePack, dan ArmeniacaTown. Cara santai mengingat momen-momen Eli JKT48."
+        description="Arcade Armeniaca: ArmePack, Pasangkan Momen, Tebak Momen, dan ArmeniacaTown. Main sebentar tiap hari sambil mengingat momen-momen Eli JKT48."
       />
 
-      <header className="relative overflow-hidden pt-24 sm:pt-28 pb-10 px-4 sm:px-6">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ backgroundImage: 'url(/archive/img-310.webp)', backgroundSize: 'cover', backgroundPosition: '50% 30%' }}
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'linear-gradient(180deg, rgba(61,52,43,0.9) 0%, rgba(92,74,58,0.75) 55%, rgba(124,45,52,0.6) 100%)' }}
-        />
-        <div className="relative max-w-5xl mx-auto">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] inline-flex items-center gap-2 text-[color:var(--retro-gold-light)]">
-            <i className="ri-gamepad-line text-base" /> Arme Games
-          </p>
-          <h1 className="mt-2 font-header text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-            Main sambil mengingat
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-[color:var(--retro-cream)]/85 max-w-xl">
-            Setiap game di sini dibuat dari arsip penggemar. Menang itu bonus; yang penting momennya teringat lagi.
-          </p>
+      <header className="hub-hero">
+        <div className="hub-wrap hub-hero__grid">
+          <div>
+            <span className="hub-eyebrow"><i className="ri-gamepad-line" /> Arcade Armeniaca</span>
+            <h1 className="hub-hero__title">
+              Main sambil<br /><span>mengingat.</span>
+            </h1>
+            <p className="hub-hero__lead">
+              Setiap game di sini dibuat dari arsip penggemar. Menang itu bonus; yang penting momennya teringat lagi.
+            </p>
+          </div>
+          <Today items={today} />
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {games.map((g) => (
-            <li key={g.to}>
-              <Link
-                to={g.to}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/12 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition"
-              >
-                <div className="relative aspect-[16/9] overflow-hidden bg-[color:var(--retro-cream-dark)]">
-                  <img src={g.cover} alt="" loading="lazy" className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-500" />
-                  {g.tag && (
-                    <span className="absolute top-3 left-3 rounded-full bg-[color:var(--retro-gold)] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-brown-dark)]">
-                      {g.tag}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <h2 className="font-header text-xl font-black text-[color:var(--retro-text-primary)] inline-flex items-center gap-2">
-                    <i className={`${g.icon} text-[color:var(--retro-burgundy)]`} /> {g.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-[color:var(--retro-text-secondary)] leading-relaxed flex-1">{g.text}</p>
-                  {g.to === '/mini-games/memory' && record && (
-                    <p className="mt-3 text-xs font-bold text-[color:var(--retro-burgundy)]">
-                      <i className="ri-trophy-line" /> Rekor Tantanganmu:{' '}
-                      {record.cleared ? `tamat ${STAGE_COUNT}/${STAGE_COUNT}` : `Tingkat ${record.stage}/${STAGE_COUNT}`}
-                    </p>
-                  )}
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)]">
-                    Main <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <main className="hub-wrap">
+        <Featured s={armepack} />
 
-        <h2 className="mt-12 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">Sedang disiapkan</h2>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-          {soon.map((g) => (
-            <li key={g.title} className="flex items-start gap-3 rounded-2xl border border-dashed border-[color:var(--retro-brown-dark)]/20 p-4">
-              <i className={`${g.icon} text-xl text-[color:var(--retro-text-muted)]`} />
-              <div>
-                <p className="font-bold text-sm text-[color:var(--retro-text-primary)]">{g.title}</p>
-                <p className="text-xs text-[color:var(--retro-text-secondary)] mt-0.5">{g.text}</p>
+        <div className="hub-grid">
+          <GameCard
+            to="/mini-games/memory"
+            label="Memori · harian & tantangan"
+            title="Pasangkan Momen"
+            text="Cocokkan pasangan foto Eli dari arsip. Papan harian dengan peringkat, plus Mode Tantangan 7 tingkat."
+            status={<>{memory.dailyDone}/{memory.dailyTotal} papan hari ini{memory.challenge ? <> · <i className="ri-trophy-line" /> {memory.challenge}</> : ''}</>}
+            art={
+              <div className="hub-tiles">
+                {MEMORY_TILES.map((src, i) => (
+                  <span key={i} className={`hub-tile ${src ? 'is-open' : ''}`}>{src ? <img src={src} alt="" loading="lazy" /> : <i className="ri-question-mark" />}</span>
+                ))}
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+            }
+          />
+          <GameCard
+            to="/mini-games/tebak-momen"
+            label="Tebakan · dari Eli Notes"
+            title="Tebak Momen"
+            text="Eli bilang ini di live hari apa? Lima kutipan, lengkap dengan cerita di baliknya."
+            locked={!tebak.ready}
+            status={tebak.ready
+              ? 'Siap dimainkan'
+              : <>Terbuka setelah {QUIZ_MIN_NOTES} kutipan · <b>{Math.min(tebak.quoted.length, QUIZ_MIN_NOTES)}/{QUIZ_MIN_NOTES}</b></>}
+            art={
+              <div className="hub-quote">
+                <span className="hub-quote__tape" />
+                <span className="hub-quote__text">“Kok kalian bisa sih?”</span>
+                <span className="hub-quote__opts"><span>Rabu</span><span className="is-right">Kamis</span><span>Sabtu</span></span>
+              </div>
+            }
+          />
+          <GameCard
+            to="/armeniacaTown"
+            label="Jelajah · tumbuh bersama"
+            title="ArmeniacaTown"
+            text="Kota kecil yang tumbuh dari setiap siraman penggemar. Jelajahi sudut-sudutnya."
+            status="Sudut baru terbuka seiring kota tumbuh"
+            cta="Jelajahi"
+            art={
+              <div className="hub-town">
+                <svg viewBox="0 0 240 120" role="presentation">
+                  <circle cx="200" cy="28" r="14" fill="#e3bd6a" opacity="0.9" />
+                  <path d="M0 96 Q60 80 120 92 T240 88 V120 H0Z" fill="#c8b39a" />
+                  <rect x="22" y="58" width="34" height="40" fill="#fffaf0" stroke="#5c4a3a" strokeWidth="2" />
+                  <path d="M18 60 L39 40 L60 60Z" fill="#7c2d34" />
+                  <rect x="34" y="78" width="10" height="20" fill="#5c4a3a" />
+                  <rect x="70" y="48" width="44" height="50" fill="#fffaf0" stroke="#5c4a3a" strokeWidth="2" />
+                  <path d="M66 50 L92 28 L118 50Z" fill="#c8952a" />
+                  <rect x="78" y="58" width="10" height="10" fill="#e3bd6a" /><rect x="96" y="58" width="10" height="10" fill="#e3bd6a" />
+                  <rect x="150" y="66" width="30" height="32" fill="#fffaf0" stroke="#5c4a3a" strokeWidth="2" />
+                  <path d="M146 68 L165 50 L184 68Z" fill="#7c2d34" />
+                  <rect x="196" y="70" width="6" height="28" fill="#5c4a3a" />
+                  <circle cx="199" cy="62" r="16" fill="#4f6b5a" /><circle cx="191" cy="56" r="4" fill="#e0a3a8" /><circle cx="206" cy="64" r="4" fill="#e0a3a8" />
+                </svg>
+                <img src={EM('Arme_Arrive_2026-05-27-07-48-05.webp')} alt="" loading="lazy" />
+              </div>
+            }
+          />
+        </div>
+
+        <p className="hub-soon">
+          <span className="hub-eyebrow">Segera hadir</span>
+          {SOON.map((g) => <span key={g.title} className="hub-soon__item"><i className={g.icon} /> {g.title}</span>)}
+        </p>
+      </main>
     </div>
   );
 };
