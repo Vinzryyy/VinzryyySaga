@@ -79,6 +79,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://armeniaca.online/rekap-live</loc>
+    <lastmod>2026-11-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://armeniaca.online/denyut</loc>
     <lastmod>2026-09-14</lastmod>
     <changefreq>weekly</changefreq>

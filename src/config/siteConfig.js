@@ -114,6 +114,12 @@ export const SITE_CONFIG = {
             icon: 'ri-quill-pen-line',
           },
           {
+            label: 'Rekap Live',
+            hash: 'rekap-live',
+            description: 'Ringkasan otomatis setiap live Eli',
+            icon: 'ri-pulse-line',
+          },
+          {
             label: 'Live · Vivo',
             hash: 'vivo',
             description: 'Playlist IDN & SHOWROOM Eli',

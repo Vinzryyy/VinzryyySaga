@@ -14,6 +14,7 @@ import { useGallery } from '../context';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { MOODS, PLATFORMS, embedOf, fmtMinute } from '../lib/eliNotes';
 import { buildMoments, showsOn } from '../lib/moments';
+import { NoteCard, Stamp } from '../components/EliNoteCard';
 
 const PAGE = 18;
 const COVER = '/archive/img-211.webp';
@@ -80,12 +81,13 @@ const NoteList = ({ notes, loading }) => {
     [notes, mood, year],
   );
 
-  const pill = (active) =>
-    `px-3.5 py-1.5 rounded-full text-xs font-black whitespace-nowrap transition-colors ${
-      active
-        ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
-        : 'bg-white border border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-secondary)] hover:border-[color:var(--retro-burgundy)]/40'
-    }`;
+  const moodCount = useMemo(() => {
+    const c = {};
+    for (const n of notes) c[n.mood] = (c[n.mood] || 0) + 1;
+    return c;
+  }, [notes]);
+  const showFeatured = mood === 'all' && year === 'all' && filtered.length > 2;
+  const rest = showFeatured ? filtered.slice(1) : filtered;
 
   return (
     <>
@@ -100,17 +102,19 @@ const NoteList = ({ notes, loading }) => {
         {notes.length > 0 && (
           <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <div className="flex gap-2 overflow-x-auto" role="group" aria-label="Suasana">
-              <button type="button" className={pill(mood === 'all')} onClick={() => { setMood('all'); setShown(PAGE); }}>Semua</button>
-              {Object.entries(MOODS).map(([key, m]) => (
-                <button key={key} type="button" className={pill(mood === key)} onClick={() => { setMood(key); setShown(PAGE); }}>
-                  <i className={m.icon} /> {m.label}
+              <button type="button" className="en-tab" aria-pressed={mood === 'all'} onClick={() => { setMood('all'); setShown(PAGE); }}>
+                Semua <span className="count">{notes.length}</span>
+              </button>
+              {Object.entries(MOODS).filter(([key]) => moodCount[key]).map(([key, m]) => (
+                <button key={key} type="button" className="en-tab" style={{ '--tab-tone': m.tone }} aria-pressed={mood === key} onClick={() => { setMood(key); setShown(PAGE); }}>
+                  <i className={m.icon} /> {m.label} <span className="count">{moodCount[key]}</span>
                 </button>
               ))}
             </div>
             {years.length > 1 && (
               <div className="flex gap-2 overflow-x-auto" role="group" aria-label="Tahun">
                 {['all', ...years].map((y) => (
-                  <button key={y} type="button" className={pill(year === y)} onClick={() => { setYear(y); setShown(PAGE); }}>
+                  <button key={y} type="button" className="en-tab" aria-pressed={year === y} onClick={() => { setYear(y); setShown(PAGE); }}>
                     {y === 'all' ? 'Semua tahun' : y}
                   </button>
                 ))}
@@ -133,41 +137,28 @@ const NoteList = ({ notes, loading }) => {
         ) : filtered.length === 0 ? (
           <p className="mt-10 text-sm text-[color:var(--retro-text-secondary)]">Belum ada catatan dengan suasana ini.</p>
         ) : (
-          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.slice(0, shown).map((n) => (
-              <li key={n.id}>
-                <Link
-                  to={`/eli-notes/${n.id}`}
-                  className="group flex h-full flex-col rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5 shadow-sm hover:shadow-md hover:border-[color:var(--retro-burgundy)]/30 transition"
-                  style={{ borderTop: `4px solid ${MOODS[n.mood].tone}` }}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <MoodChip mood={n.mood} />
-                    <span className="text-[11px] font-bold text-[color:var(--retro-text-muted)]">{fmtMinute(n.at)}</span>
-                  </div>
-                  {n.quote && (
-                    <blockquote className="mt-3 font-header text-lg italic leading-snug text-[color:var(--retro-text-primary)] line-clamp-3">
-                      “{n.quote}”
-                    </blockquote>
-                  )}
-                  <p className={`${n.quote ? 'mt-2' : 'mt-3'} text-sm leading-relaxed text-[color:var(--retro-text-secondary)] line-clamp-3`}>{n.story}</p>
-                  <p className="mt-auto pt-4 text-xs text-[color:var(--retro-text-muted)]">
-                    {prettyDate(n.date)} · {PLATFORMS[n.platform]}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <>
+            {showFeatured && (
+              <div className="mt-10 max-w-3xl">
+                <NoteCard note={filtered[0]} featured />
+              </div>
+            )}
+            <ul className={`en-board ${showFeatured ? 'mt-12' : 'mt-10'}`}>
+              {rest.slice(0, shown).map((n) => (
+                <li key={n.id}><NoteCard note={n} /></li>
+              ))}
+            </ul>
+          </>
         )}
 
-        {filtered.length > shown && (
+        {rest.length > shown && (
           <div className="mt-8 text-center">
             <button
               type="button"
               onClick={() => setShown((x) => x + PAGE)}
               className="px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-wider bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:bg-[color:var(--retro-burgundy-light)]"
             >
-              Lihat lagi ({filtered.length - shown})
+              Lihat lagi ({rest.length - shown})
             </button>
           </div>
         )}
@@ -252,18 +243,22 @@ const NoteDetail = ({ note, prev, next }) => {
         </Link>
 
         <div className="mt-5 grid gap-4 md:grid-cols-[1fr_280px]">
-          <article className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5 sm:p-7">
-            {note.quote && (
-              <figure>
-                <blockquote className="font-header text-2xl sm:text-3xl italic leading-snug text-[color:var(--retro-text-primary)]">
-                  “{note.quote}”
-                </blockquote>
-                <figcaption className="mt-2 text-xs text-[color:var(--retro-text-secondary)]">— Eli, {credit(note)}</figcaption>
-              </figure>
-            )}
-            <p className={`${note.quote ? 'mt-6' : ''} text-base leading-relaxed text-[color:var(--retro-text-primary)] whitespace-pre-line`}>{note.story}</p>
-            {note.link && <div className="mt-6"><LinkBlock link={note.link} /></div>}
-          </article>
+          <div>
+            <article className="en-card en-letter" style={{ '--tone': MOODS[note.mood].tone }}>
+              <span className="en-tape" aria-hidden="true" />
+              <Stamp platform={note.platform} />
+              <span className="en-mood"><i className={MOODS[note.mood].icon} /> {MOODS[note.mood].label} · menit {fmtMinute(note.at)}</span>
+              {note.quote && (
+                <figure className="m-0">
+                  <blockquote className="en-quote">{note.quote}</blockquote>
+                  <figcaption className="mt-2 text-xs text-[color:var(--retro-text-secondary)]">— Eli, {credit(note)}</figcaption>
+                </figure>
+              )}
+              <p className={`en-story ${note.quote ? 'mt-6' : 'no-quote'}`}>{note.story}</p>
+              <p className="en-sign">— dicatat oleh Armeniaca</p>
+            </article>
+            {note.link && <div className="mt-8"><LinkBlock link={note.link} /></div>}
+          </div>
 
           <div className="flex flex-col gap-4">
             {shows.length > 0 && (

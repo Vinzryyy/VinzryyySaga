@@ -10,6 +10,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { MOODS, notesRecap } from '../lib/eliNotes';
+import { NoteCard } from '../components/EliNoteCard';
+import { useLiveRecaps } from '../hooks/useLiveRecaps';
+import { fmtDuration, yearTotals } from '../lib/liveRecaps';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useGallery } from '../context';
@@ -176,6 +179,8 @@ export default function Rekap2026() {
   const photos = useMemo(() => buildPhotoRecap(images, YEAR), [images]);
   const { notes } = useEliNotes();
   const liveRecap = useMemo(() => notesRecap(notes, YEAR), [notes]);
+  const { recaps } = useLiveRecaps();
+  const liveYear = useMemo(() => yearTotals(recaps, YEAR), [recaps]);
   const shareText = useMemo(() => rekapShareText(shows, photos, PAGE_URL), [shows, photos]);
 
   const asOfLabel = shows?.asOfDate ? formatDateId(shows.asOfDate) : null;
@@ -473,13 +478,15 @@ export default function Rekap2026() {
             )}
 
             {/* From the lives (Eli Notes) */}
-            {liveRecap.count > 0 && (
+            {(liveRecap.count > 0 || liveYear.lives > 0) && (
               <Section
                 id="rekap-live"
-                icon="ri-quill-pen-line"
+                icon="ri-broadcast-line"
                 kicker="Dari live"
-                title={`${fmt(liveRecap.count)} catatan dari ${fmt(liveRecap.lives)} live`}
-                lead="Momen-momen kecil dari IDN Live dan SHOWROOM yang kami tulis di Eli Notes."
+                title={liveYear.lives > 0 ? `${fmt(liveYear.lives)} live, ${fmtDuration(liveYear.minutes * 60)} bareng Eli` : `${fmt(liveRecap.count)} catatan dari ${fmt(liveRecap.lives)} live`}
+                lead={liveYear.lives > 0
+                  ? `${fmt(liveYear.comments)} komentar di IDN Live dan SHOWROOM sepanjang ${YEAR}${liveRecap.count ? `, dan ${fmt(liveRecap.count)} momen yang kami tulis di Eli Notes` : ''}.`
+                  : 'Momen-momen kecil dari IDN Live dan SHOWROOM yang kami tulis di Eli Notes.'}
               >
                 <div className="flex flex-wrap gap-2">
                   {liveRecap.moods.map(([m, n]) => (
@@ -489,22 +496,16 @@ export default function Rekap2026() {
                   ))}
                 </div>
                 {liveRecap.picks.length > 0 && (
-                  <ul className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <ul className="en-board mt-10">
                     {liveRecap.picks.map((n) => (
-                      <li key={n.id}>
-                        <Link
-                          to={`/eli-notes/${n.id}`}
-                          className="block h-full rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 hover:border-[color:var(--retro-burgundy)]/40"
-                          style={{ borderTop: `4px solid ${MOODS[n.mood]?.tone}` }}
-                        >
-                          <span className="font-header text-lg italic leading-snug text-[color:var(--retro-text-primary)]">“{n.quote}”</span>
-                          <span className="mt-2 block text-xs text-[color:var(--retro-text-muted)]">{formatDateId(n.date)}</span>
-                        </Link>
-                      </li>
+                      <li key={n.id}><NoteCard note={n} /></li>
                     ))}
                   </ul>
                 )}
-                <Link to="/eli-notes" className="mt-5 inline-block text-sm font-bold underline text-[color:var(--retro-burgundy)]">Baca semua Eli Notes</Link>
+                <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+                  {liveYear.lives > 0 && <Link to="/rekap-live" className="text-sm font-bold underline text-[color:var(--retro-burgundy)]">Lihat Rekap Live</Link>}
+                  {liveRecap.count > 0 && <Link to="/eli-notes" className="text-sm font-bold underline text-[color:var(--retro-burgundy)]">Baca semua Eli Notes</Link>}
+                </div>
               </Section>
             )}
 
