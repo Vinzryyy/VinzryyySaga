@@ -112,6 +112,7 @@ Milestone karier Eli (pakai info ini buat jawab pertanyaan timeline):
 - /mini-games/memory — Pasangkan Momen, mini game memory: cocokkan pasangan foto Eli dari arsip. Level Mudah/Sedang/Sulit, mode Bebas dan Harian (papan sama untuk semua orang tiap hari WIB).
 - /mini-games — kumpulan semua game (Pasangkan Momen, ArmePack, ArmeniacaTown). Pasangkan Momen juga punya Mode Tantangan 7 tingkat dan papan peringkat Harian (nama disamarkan).
 - /momen — Album Momen: foto dikelompokkan per acara, lengkap dengan caption @armeniaca15, panggung hari itu, dan cerita penggemar.
+- /eli-notes — Eli Notes: catatan tertulis momen dari live IDN & SHOWROOM Eli (kutipan singkat, cerita, menit, tautan ke unggahan aslinya; tanpa video).
 - /rekap-2026 — Rekap 2026: panggung teater, setlist, unit song, dan momen favorit penggemar tahun ini.
 - /cerita — Cerita Penggemar: fans bisa kirim cerita kecil tentang Eli, dibaca admin dulu sebelum tampil.
 - /armeniacaTown — kota interaktif 3D (kebuka di 2000 dukungan).

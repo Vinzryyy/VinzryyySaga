@@ -108,6 +108,12 @@ export const SITE_CONFIG = {
             icon: 'ri-book-open-line',
           },
           {
+            label: 'Eli Notes',
+            hash: 'eli-notes',
+            description: 'Catatan momen dari live IDN & SHOWROOM',
+            icon: 'ri-quill-pen-line',
+          },
+          {
             label: 'Live · Vivo',
             hash: 'vivo',
             description: 'Playlist IDN & SHOWROOM Eli',

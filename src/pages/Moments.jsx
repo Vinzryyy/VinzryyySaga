@@ -13,6 +13,8 @@ import { useGallery } from '../context';
 import { useLightbox } from '../context/LightboxContext';
 import { buildMoments, cleanCaption, showsOn } from '../lib/moments';
 import MomentStories from '../components/stories/MomentStories';
+import { useEliNotes } from '../hooks/useEliNotes';
+import { MOODS, fmtMinute, notesOn } from '../lib/eliNotes';
 
 const PAGE = 24;
 const dateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -73,6 +75,9 @@ const MomentList = ({ moments, loading }) => {
           {moments.length ? `${moments.length} momen` : 'Momen-momen'} Eli dari arsip @armeniaca15, dikelompokkan per acara.
           Buka satu momen untuk melihat fotonya, panggung hari itu, dan cerita dari sesama penggemar.
         </p>
+        <Link to="/eli-notes" className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-black text-white hover:bg-white/25">
+          <i className="ri-quill-pen-line" /> Momen dari live ada di Eli Notes
+        </Link>
       </Band>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -162,6 +167,8 @@ const MomentDetail = ({ moment, prev, next }) => {
 
   const shows = showsOn(showLog, moment.date);
   const caption = cleanCaption(moment.caption);
+  const { notes } = useEliNotes();
+  const dayNotes = notesOn(notes, moment.date);
 
   return (
     <>
@@ -224,6 +231,28 @@ const MomentDetail = ({ moment, prev, next }) => {
           ))}
         </ul>
         <p className="mt-2 text-xs text-[color:var(--retro-text-muted)]">Foto: @armeniaca15. Watermark dan sumber dipertahankan.</p>
+
+        {dayNotes.length > 0 && (
+          <section className="mt-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">Eli Notes hari itu</p>
+            <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+              {dayNotes.map((n) => (
+                <li key={n.id}>
+                  <Link
+                    to={`/eli-notes/${n.id}`}
+                    className="block rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 hover:border-[color:var(--retro-burgundy)]/40"
+                    style={{ borderLeft: `4px solid ${MOODS[n.mood].tone}` }}
+                  >
+                    <span className="text-xs text-[color:var(--retro-text-muted)]">Live · menit {fmtMinute(n.at)}</span>
+                    <span className="mt-1 block font-header italic text-[color:var(--retro-text-primary)] line-clamp-2">
+                      {n.quote ? `“${n.quote}”` : n.story}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <MomentStories slug={moment.slug} label={`${moment.name} · ${prettyDate(moment.date)}`} />
 

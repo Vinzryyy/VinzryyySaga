@@ -45,6 +45,7 @@ const AdminJadwalPage = lazy(() => import('./pages/AdminJadwal'));
 const MiniGameMemoryPage = lazy(() => import('./pages/MiniGameMemory'));
 const MiniGamesPage = lazy(() => import('./pages/MiniGames'));
 const MomentsPage = lazy(() => import('./pages/Moments'));
+const EliNotesPage = lazy(() => import('./pages/EliNotes'));
 const Rekap2026Page = lazy(() => import('./pages/Rekap2026'));
 const FanStoriesPage = lazy(() => import('./pages/FanStories'));
 const AdminStoriesPage = lazy(() => import('./pages/AdminStories'));
@@ -474,6 +475,8 @@ function AppShell() {
             <Route path="/mini-games" element={<MiniGamesPage />} />
             <Route path="/momen" element={<MomentsPage />} />
             <Route path="/momen/:slug" element={<MomentsPage />} />
+            <Route path="/eli-notes" element={<EliNotesPage />} />
+            <Route path="/eli-notes/:slug" element={<EliNotesPage />} />
             <Route path="/rekap-2026" element={<Rekap2026Page />} />
             <Route path="/cerita" element={<FanStoriesPage />} />
             <Route path="/admin/cerita" element={<AdminStoriesPage />} />

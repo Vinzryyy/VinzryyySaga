@@ -1,0 +1,351 @@
+/**
+ * Eli Notes — /eli-notes (all notes) and /eli-notes/:slug (one note).
+ *
+ * Written notes about moments from Eli's IDN / SHOWROOM lives: a short
+ * quote, the story in our own words, the minute, and a link to where the
+ * moment was posted. Text only: no live video is hosted here (see
+ * src/lib/eliNotes.js). Embedded players load only after a click.
+ */
+
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import Seo from '../components/Seo';
+import { useGallery } from '../context';
+import { useEliNotes } from '../hooks/useEliNotes';
+import { MOODS, PLATFORMS, embedOf, fmtMinute } from '../lib/eliNotes';
+import { buildMoments, showsOn } from '../lib/moments';
+
+const PAGE = 18;
+const COVER = '/archive/img-211.webp';
+const dateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const prettyDate = (iso) => dateFmt.format(new Date(`${iso}T00:00:00Z`));
+
+let showLogPromise = null;
+const loadShowLog = () => {
+  if (!showLogPromise) {
+    showLogPromise = fetch('/data/eli-show-log.json')
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+  return showLogPromise;
+};
+
+const Band = ({ eyebrow, title, children }) => (
+  <header className="relative overflow-hidden pt-24 sm:pt-28 pb-10 px-4 sm:px-6">
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 pointer-events-none"
+      style={{ backgroundImage: `url(${COVER})`, backgroundSize: 'cover', backgroundPosition: '50% 30%' }}
+    />
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 pointer-events-none"
+      style={{ background: 'linear-gradient(180deg, rgba(61,52,43,0.92) 0%, rgba(92,74,58,0.82) 55%, rgba(124,45,52,0.7) 100%)' }}
+    />
+    <div className="relative max-w-5xl mx-auto">
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] inline-flex items-center gap-2 text-[color:var(--retro-gold-light)]">
+        <i className="ri-quill-pen-line text-base" /> {eyebrow}
+      </p>
+      <h1 className="mt-2 font-header text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">{title}</h1>
+      {children}
+    </div>
+  </header>
+);
+
+const MoodChip = ({ mood }) => {
+  const m = MOODS[mood];
+  if (!m) return null;
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-black text-white"
+      style={{ background: m.tone }}
+    >
+      <i className={m.icon} /> {m.label}
+    </span>
+  );
+};
+
+const credit = (n) => `${PLATFORMS[n.platform]} · ${prettyDate(n.date)} · menit ${fmtMinute(n.at)}`;
+
+// ── List ─────────────────────────────────────────────────────────────
+
+const NoteList = ({ notes, loading }) => {
+  const [mood, setMood] = useState('all');
+  const [year, setYear] = useState('all');
+  const [shown, setShown] = useState(PAGE);
+
+  const years = useMemo(() => [...new Set(notes.map((n) => n.year))].sort().reverse(), [notes]);
+  const filtered = useMemo(
+    () => notes.filter((n) => (mood === 'all' || n.mood === mood) && (year === 'all' || n.year === year)),
+    [notes, mood, year],
+  );
+
+  const pill = (active) =>
+    `px-3.5 py-1.5 rounded-full text-xs font-black whitespace-nowrap transition-colors ${
+      active
+        ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
+        : 'bg-white border border-[color:var(--retro-brown-dark)]/15 text-[color:var(--retro-text-secondary)] hover:border-[color:var(--retro-burgundy)]/40'
+    }`;
+
+  return (
+    <>
+      <Band eyebrow="Eli Notes" title="Catatan kecil dari live Eli">
+        <p className="mt-2 text-sm sm:text-base text-[color:var(--retro-cream)]/85 max-w-xl">
+          Momen-momen dari live IDN dan SHOWROOM yang sayang kalau terlewat, kami tulis ulang dengan kata-kata sendiri.
+          Ada kutipan singkat Eli, menit kejadiannya, dan tautan ke tempat momennya diunggah.
+        </p>
+      </Band>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        {notes.length > 0 && (
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <div className="flex gap-2 overflow-x-auto" role="group" aria-label="Suasana">
+              <button type="button" className={pill(mood === 'all')} onClick={() => { setMood('all'); setShown(PAGE); }}>Semua</button>
+              {Object.entries(MOODS).map(([key, m]) => (
+                <button key={key} type="button" className={pill(mood === key)} onClick={() => { setMood(key); setShown(PAGE); }}>
+                  <i className={m.icon} /> {m.label}
+                </button>
+              ))}
+            </div>
+            {years.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto" role="group" aria-label="Tahun">
+                {['all', ...years].map((y) => (
+                  <button key={y} type="button" className={pill(year === y)} onClick={() => { setYear(y); setShown(PAGE); }}>
+                    {y === 'all' ? 'Semua tahun' : y}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {loading ? (
+          <p className="mt-10 text-sm text-[color:var(--retro-text-secondary)]">Memuat catatan…</p>
+        ) : notes.length === 0 ? (
+          <div className="mt-8 rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-6 sm:p-8 max-w-xl">
+            <p className="font-header text-xl font-black text-[color:var(--retro-text-primary)]">Buku catatannya masih kosong.</p>
+            <p className="mt-2 text-sm leading-relaxed text-[color:var(--retro-text-secondary)]">
+              Catatan pertama akan muncul setelah live Eli berikutnya. Sambil menunggu, intip{' '}
+              <Link to="/vivo" className="font-bold underline text-[color:var(--retro-burgundy)]">arsip live di Vivo</Link> atau{' '}
+              <Link to="/momen" className="font-bold underline text-[color:var(--retro-burgundy)]">Album Momen</Link>.
+            </p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <p className="mt-10 text-sm text-[color:var(--retro-text-secondary)]">Belum ada catatan dengan suasana ini.</p>
+        ) : (
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.slice(0, shown).map((n) => (
+              <li key={n.id}>
+                <Link
+                  to={`/eli-notes/${n.id}`}
+                  className="group flex h-full flex-col rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5 shadow-sm hover:shadow-md hover:border-[color:var(--retro-burgundy)]/30 transition"
+                  style={{ borderTop: `4px solid ${MOODS[n.mood].tone}` }}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <MoodChip mood={n.mood} />
+                    <span className="text-[11px] font-bold text-[color:var(--retro-text-muted)]">{fmtMinute(n.at)}</span>
+                  </div>
+                  {n.quote && (
+                    <blockquote className="mt-3 font-header text-lg italic leading-snug text-[color:var(--retro-text-primary)] line-clamp-3">
+                      “{n.quote}”
+                    </blockquote>
+                  )}
+                  <p className={`${n.quote ? 'mt-2' : 'mt-3'} text-sm leading-relaxed text-[color:var(--retro-text-secondary)] line-clamp-3`}>{n.story}</p>
+                  <p className="mt-auto pt-4 text-xs text-[color:var(--retro-text-muted)]">
+                    {prettyDate(n.date)} · {PLATFORMS[n.platform]}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {filtered.length > shown && (
+          <div className="mt-8 text-center">
+            <button
+              type="button"
+              onClick={() => setShown((x) => x + PAGE)}
+              className="px-6 py-2.5 rounded-full text-sm font-black uppercase tracking-wider bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] hover:bg-[color:var(--retro-burgundy-light)]"
+            >
+              Lihat lagi ({filtered.length - shown})
+            </button>
+          </div>
+        )}
+
+        <p className="mt-10 max-w-2xl text-xs leading-relaxed text-[color:var(--retro-text-muted)]">
+          Eli Notes hanya berisi tulisan. Kami tidak mengunggah ulang video atau tangkapan layar live; tautan mengarah ke unggahan aslinya.
+          Nama dan komentar penonton live tidak dicantumkan.
+        </p>
+      </div>
+    </>
+  );
+};
+
+// ── Detail ───────────────────────────────────────────────────────────
+
+/** YouTube: thumbnail until clicked, then a youtube-nocookie player. Others: an "open" button. */
+const LinkBlock = ({ link }) => {
+  const [playing, setPlaying] = useState(false);
+  const e = embedOf(link);
+  if (!e) return null;
+  if (e.kind === 'youtube') {
+    return playing ? (
+      <div className="relative aspect-video rounded-2xl overflow-hidden bg-black">
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${e.id}?autoplay=1&rel=0${e.start ? `&start=${e.start}` : ''}`}
+          title="Video di YouTube"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 h-full w-full"
+        />
+      </div>
+    ) : (
+      <button
+        type="button"
+        onClick={() => setPlaying(true)}
+        className="group relative block w-full aspect-video rounded-2xl overflow-hidden bg-black"
+        aria-label="Putar video di YouTube"
+      >
+        <img src={`https://i.ytimg.com/vi/${e.id}/hqdefault.jpg`} alt="" loading="lazy" className="h-full w-full object-cover opacity-80 group-hover:opacity-100 transition" />
+        <span className="absolute inset-0 grid place-items-center">
+          <span className="rounded-full bg-[color:var(--retro-burgundy)] px-5 py-2.5 text-sm font-black text-white shadow-lg">
+            <i className="ri-play-fill" /> Putar di YouTube
+          </span>
+        </span>
+      </button>
+    );
+  }
+  return (
+    <a
+      href={e.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-full bg-[color:var(--retro-burgundy)] px-5 py-2.5 text-sm font-black text-[color:var(--retro-cream)] hover:bg-[color:var(--retro-burgundy-light)]"
+    >
+      <i className="ri-external-link-line" /> Lihat momennya di {e.name}
+    </a>
+  );
+};
+
+const NoteDetail = ({ note, prev, next }) => {
+  const { images } = useGallery();
+  const [showLog, setShowLog] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    loadShowLog().then((d) => alive && setShowLog(d));
+    return () => { alive = false; };
+  }, []);
+  const shows = showsOn(showLog, note.date);
+  const photoMoments = useMemo(() => buildMoments(images).filter((m) => m.date === note.date), [images, note.date]);
+
+  return (
+    <>
+      <Band eyebrow={`Eli Notes · ${prettyDate(note.date)}`} title={note.liveTitle || `Live ${PLATFORMS[note.platform]}`}>
+        <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-[color:var(--retro-cream)]/85">
+          <MoodChip mood={note.mood} /> {PLATFORMS[note.platform]} · menit {fmtMinute(note.at)}
+        </p>
+      </Band>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <Link to="/eli-notes" className="mt-5 inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)]">
+          <i className="ri-arrow-left-line" /> Semua catatan
+        </Link>
+
+        <div className="mt-5 grid gap-4 md:grid-cols-[1fr_280px]">
+          <article className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5 sm:p-7">
+            {note.quote && (
+              <figure>
+                <blockquote className="font-header text-2xl sm:text-3xl italic leading-snug text-[color:var(--retro-text-primary)]">
+                  “{note.quote}”
+                </blockquote>
+                <figcaption className="mt-2 text-xs text-[color:var(--retro-text-secondary)]">— Eli, {credit(note)}</figcaption>
+              </figure>
+            )}
+            <p className={`${note.quote ? 'mt-6' : ''} text-base leading-relaxed text-[color:var(--retro-text-primary)] whitespace-pre-line`}>{note.story}</p>
+            {note.link && <div className="mt-6"><LinkBlock link={note.link} /></div>}
+          </article>
+
+          <div className="flex flex-col gap-4">
+            {shows.length > 0 && (
+              <aside className="rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]">Panggung hari itu</p>
+                {shows.map((s) => (
+                  <div key={s.no} className="mt-3">
+                    <p className="font-header text-2xl font-black">Show #{s.no}</p>
+                    <p className="text-sm">{s.setlist}</p>
+                  </div>
+                ))}
+              </aside>
+            )}
+            {photoMoments.length > 0 && (
+              <aside className="rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-5">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">Foto hari itu</p>
+                {photoMoments.map((m) => (
+                  <Link key={m.slug} to={`/momen/${m.slug}`} className="mt-2 block text-sm font-bold text-[color:var(--retro-burgundy)] underline">
+                    {m.name}
+                  </Link>
+                ))}
+              </aside>
+            )}
+          </div>
+        </div>
+
+        <nav className="mt-10 grid grid-cols-2 gap-3" aria-label="Catatan lain">
+          {next ? (
+            <Link to={`/eli-notes/${next.id}`} className="rounded-2xl border border-[color:var(--retro-brown-dark)]/12 p-4 hover:border-[color:var(--retro-burgundy)]/40">
+              <span className="text-xs text-[color:var(--retro-text-muted)]"><i className="ri-arrow-left-line" /> Sebelumnya</span>
+              <span className="mt-1 block text-sm font-bold text-[color:var(--retro-text-primary)] line-clamp-2">{next.quote || next.liveTitle || prettyDate(next.date)}</span>
+            </Link>
+          ) : <span />}
+          {prev ? (
+            <Link to={`/eli-notes/${prev.id}`} className="rounded-2xl border border-[color:var(--retro-brown-dark)]/12 p-4 text-right hover:border-[color:var(--retro-burgundy)]/40">
+              <span className="text-xs text-[color:var(--retro-text-muted)]">Sesudahnya <i className="ri-arrow-right-line" /></span>
+              <span className="mt-1 block text-sm font-bold text-[color:var(--retro-text-primary)] line-clamp-2">{prev.quote || prev.liveTitle || prettyDate(prev.date)}</span>
+            </Link>
+          ) : <span />}
+        </nav>
+      </div>
+    </>
+  );
+};
+
+// ── Page ─────────────────────────────────────────────────────────────
+
+const EliNotes = () => {
+  const { slug } = useParams();
+  const { notes, loading } = useEliNotes();
+  const idx = slug ? notes.findIndex((n) => n.id === slug) : -1;
+  const note = idx >= 0 ? notes[idx] : null;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
+  return (
+    <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20">
+      <Seo
+        path={slug ? `/eli-notes/${slug}` : '/eli-notes'}
+        title={note ? `${note.quote ? `“${note.quote}”` : note.liveTitle || 'Catatan live'} · Eli Notes` : 'Eli Notes'}
+        description={
+          note
+            ? `${credit(note)}. ${note.story.slice(0, 140)}`
+            : 'Eli Notes: catatan momen dari live IDN dan SHOWROOM Eli JKT48, ditulis ulang oleh penggemar, lengkap dengan kutipan dan menitnya.'
+        }
+      />
+      {!slug ? (
+        <NoteList notes={notes} loading={loading} />
+      ) : note ? (
+        <NoteDetail note={note} prev={notes[idx - 1]} next={notes[idx + 1]} />
+      ) : (
+        <>
+          <Band eyebrow="Eli Notes" title={loading ? 'Memuat catatan…' : 'Catatan tidak ditemukan'} />
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-6">
+            <Link to="/eli-notes" className="text-sm font-bold underline text-[color:var(--retro-burgundy)]">Lihat semua catatan</Link>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default EliNotes;
