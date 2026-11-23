@@ -108,8 +108,9 @@ describe('petikanBackup encrypt/decrypt roundtrip', () => {
     expect(localStorage.getItem('aprikot_buah')).toBe('7');
   });
 
-  it('_BACKUP_KEYS exports 6 known keys', () => {
-    expect(_BACKUP_KEYS.length).toBe(6);
+  it('_BACKUP_KEYS exports 7 known keys', () => {
+    expect(_BACKUP_KEYS.length).toBe(7);
+    expect(_BACKUP_KEYS).toContain('aprikot_set_rewards');
     expect(_BACKUP_KEYS).toContain('aprikot_buku');
     expect(_BACKUP_KEYS).toContain('aprikot_pity');
     expect(_BACKUP_KEYS).toContain('aprikot_recent');

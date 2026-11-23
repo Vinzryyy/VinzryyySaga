@@ -33,6 +33,7 @@ const BACKUP_KEYS = [
   'aprikot_pity',
   'aprikot_recent',
   'aprikot_buah',
+  'aprikot_set_rewards',
 ];
 
 // ── base64 helpers (ArrayBuffer ↔ string) ─────────────────────────

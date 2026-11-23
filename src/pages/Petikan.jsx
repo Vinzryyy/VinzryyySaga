@@ -234,9 +234,12 @@ const Petikan = () => {
     const refresh = () => setBuah(getBuah());
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', refresh);
+    // Binder rewards / trading duplicates add buah without leaving the page.
+    window.addEventListener('aprikot:buah', refresh);
     return () => {
       window.removeEventListener('focus', refresh);
       document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('aprikot:buah', refresh);
     };
   }, []);
 

@@ -30,6 +30,7 @@ import {
 import KartuIngatan from './KartuIngatan';
 import BackupRestoreModal from './BackupRestoreModal';
 import FrozenWebp from './FrozenWebp';
+import BinderPetikan from './BinderPetikan';
 
 // Tier display labels match TIER_CONFIG.label (S/A/B/C). Filter values
 // tetep internal key (legenda/langka/matang/muda) untuk data query.
@@ -579,6 +580,14 @@ const DetailModal = ({ card, onClose }) => {
 };
 
 const BukuPetikan = ({ state, onStateChange }) => {
+  // 'binder' = sets in a photocard binder (default), 'grid' = every card with filters.
+  const [view, setView] = useState(() => {
+    try { return localStorage.getItem('aprikot_buku_view') === 'grid' ? 'grid' : 'binder'; } catch { return 'binder'; }
+  });
+  const changeView = (v) => {
+    setView(v);
+    try { localStorage.setItem('aprikot_buku_view', v); } catch { /* ignore */ }
+  };
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeEra, setActiveEra] = useState('all');
   const [selectedCardId, setSelectedCardId] = useState(null);
@@ -772,6 +781,29 @@ const BukuPetikan = ({ state, onStateChange }) => {
         onSelectCard={(id) => setSelectedCardId(id)}
       />
 
+      {/* View switch: binder (sets) or the full grid with filters. */}
+      <div className="flex justify-center mb-5">
+        <div className="inline-flex rounded-full p-1 bg-white/70 border border-[color:var(--retro-brown-dark)]/10" role="group" aria-label="Tampilan koleksi">
+          {[{ id: 'binder', label: 'Binder', icon: 'ri-book-open-line' }, { id: 'grid', label: 'Semua kartu', icon: 'ri-grid-line' }].map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              aria-pressed={view === v.id}
+              onClick={() => changeView(v.id)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] transition ${
+                view === v.id ? 'bg-[color:var(--retro-burgundy)] text-white shadow-sm' : 'text-[color:var(--retro-brown-dark)]/70 hover:text-[color:var(--retro-burgundy)]'
+              }`}
+            >
+              <i className={v.icon} /> {v.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {view === 'binder' ? (
+        <BinderPetikan state={state} onStateChange={onStateChange} onOpenCard={(id) => setSelectedCardId(id)} />
+      ) : (
+      <>
       {/* Era filter — group by story konteks (show / livestream / daily). */}
       <div className="flex flex-wrap justify-center gap-2 mb-3">
         {ERA_FILTERS.map((era) => {
@@ -862,6 +894,8 @@ const BukuPetikan = ({ state, onStateChange }) => {
         <p className="text-center text-sm text-[color:var(--retro-brown-dark)]/50 italic mt-6">
           Tidak ada kartu di tier ini.
         </p>
+      )}
+      </>
       )}
 
       {/* Detail modal */}
