@@ -119,3 +119,68 @@ export const publishedNotes = (data) =>
 
 /** Notes from a given day (for Album Momen's "Eli Notes hari itu"). */
 export const notesOn = (notes, date) => (notes || []).filter((n) => n.date === date);
+
+/**
+ * Rekap: notes of one year → { count, lives, moods: [[mood, n]], picks }.
+ * picks = up to 3 quoted notes, one per mood where possible, newest first.
+ */
+export const notesRecap = (notes, year) => {
+  const mine = (notes || []).filter((n) => n.date.startsWith(String(year)));
+  const moods = new Map();
+  for (const n of mine) moods.set(n.mood, (moods.get(n.mood) || 0) + 1);
+  const picks = [];
+  const usedMoods = new Set();
+  for (const n of mine) {
+    if (picks.length >= 3) break;
+    if (n.quote && !usedMoods.has(n.mood)) { picks.push(n); usedMoods.add(n.mood); }
+  }
+  for (const n of mine) {
+    if (picks.length >= 3) break;
+    if (n.quote && !picks.includes(n)) picks.push(n);
+  }
+  return {
+    count: mine.length,
+    lives: new Set(mine.map((n) => `${n.date}|${n.platform}`)).size,
+    moods: [...moods.entries()].sort((a, b) => b[1] - a[1]),
+    picks,
+  };
+};
+
+// ── Tebak Momen ──────────────────────────────────────────────────────
+// "Eli said this in a live on which day?" Built from published notes that
+// have a quote. Needs enough different live days for honest wrong answers.
+
+export const QUIZ_MIN_NOTES = 6;
+export const QUIZ_OPTIONS = 4;
+
+const shuffle = (arr, rng) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/** Notes usable as questions, and whether there are enough of them. */
+export const quizPool = (notes) => {
+  const quoted = (notes || []).filter((n) => n.quote);
+  const days = new Set(quoted.map((n) => n.date));
+  return { quoted, ready: quoted.length >= QUIZ_MIN_NOTES && days.size >= QUIZ_OPTIONS };
+};
+
+/**
+ * → [{ note, options: [date, …], answer: date }] with `rounds` questions,
+ * each with QUIZ_OPTIONS distinct dates (one correct). rng = () => [0, 1).
+ */
+export const buildQuiz = (notes, rounds = 5, rng = Math.random) => {
+  const { quoted, ready } = quizPool(notes);
+  if (!ready) return [];
+  const days = [...new Set(quoted.map((n) => n.date))];
+  return shuffle(quoted, rng)
+    .slice(0, rounds)
+    .map((note) => {
+      const wrong = shuffle(days.filter((d) => d !== note.date), rng).slice(0, QUIZ_OPTIONS - 1);
+      return { note, answer: note.date, options: shuffle([note.date, ...wrong], rng) };
+    });
+};

@@ -10,6 +10,17 @@ import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { getChallengeRecord } from '../lib/miniGamesStorage';
 import { STAGE_COUNT } from '../lib/memoryChallenge';
+import { useEliNotes } from '../hooks/useEliNotes';
+import { quizPool } from '../lib/eliNotes';
+
+const TEBAK = {
+  to: '/mini-games/tebak-momen',
+  icon: 'ri-chat-quote-line',
+  title: 'Tebak Momen',
+  text: 'Eli bilang ini di live hari apa? Lima kutipan dari Eli Notes, lengkap dengan cerita di baliknya.',
+  tag: 'Baru',
+  cover: '/archive/img-310.webp',
+};
 
 const GAMES = [
   {
@@ -43,6 +54,10 @@ const SOON = [
 
 const MiniGames = () => {
   const [record] = useState(() => getChallengeRecord());
+  const { notes } = useEliNotes();
+  const tebakReady = quizPool(notes).ready;
+  const games = tebakReady ? [...GAMES, TEBAK] : GAMES;
+  const soon = tebakReady ? SOON : [{ icon: 'ri-chat-quote-line', title: 'Tebak Momen', text: 'Tebak kapan Eli mengucapkan kutipan dari live. Dibuka setelah Eli Notes cukup terisi.' }, ...SOON];
 
   return (
     <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20">
@@ -78,7 +93,7 @@ const MiniGames = () => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {GAMES.map((g) => (
+          {games.map((g) => (
             <li key={g.to}>
               <Link
                 to={g.to}
@@ -114,7 +129,7 @@ const MiniGames = () => {
 
         <h2 className="mt-12 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">Sedang disiapkan</h2>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-          {SOON.map((g) => (
+          {soon.map((g) => (
             <li key={g.title} className="flex items-start gap-3 rounded-2xl border border-dashed border-[color:var(--retro-brown-dark)]/20 p-4">
               <i className={`${g.icon} text-xl text-[color:var(--retro-text-muted)]`} />
               <div>

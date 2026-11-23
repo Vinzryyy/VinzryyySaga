@@ -20,6 +20,10 @@
  * at MAX_MESSAGE_CHARS to keep requests cheap.
  */
 
+
+import eliNotesData from '../public/data/eli-notes.json' with { type: 'json' };
+import { MOODS, PLATFORMS, fmtMinute, publishedNotes } from '../src/lib/eliNotes.js';
+
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const OPENROUTER_MODELS = [
@@ -179,9 +183,11 @@ const ROUTE_DESCRIPTIONS = {
   '/byu-music': 'Pengunjung sekarang di ByU Music — page lagu titipan fans.',
   '/armepack': 'Pengunjung sekarang di ArmePack (Petikan) — sistem kartu harian.',
   '/mini-games/memory': 'Pengunjung sekarang main Pasangkan Momen (mini game memory foto Eli).',
+  '/mini-games/tebak-momen': 'Pengunjung sekarang main Tebak Momen (menebak tanggal live dari kutipan Eli Notes).',
   '/galeri-kebaikan': 'Pengunjung sekarang di Galeri Kebaikan — arsip donasi.',
   '/denyut': 'Pengunjung sekarang di Denyut — heartbeat website.',
   '/armeniacaTown': 'Pengunjung sekarang di gerbang ArmeniacaTown.',
+  '/eli-notes': 'Pengunjung sekarang di Eli Notes — catatan momen dari live IDN & SHOWROOM Eli.',
 };
 
 const describeRoute = (pathname) => {
@@ -215,8 +221,20 @@ const describeBirthday = () => {
   return null;
 };
 
+// Latest Eli Notes, so Arme can point to a real moment ("momen lucu di live?").
+// Only published notes; quotes are short and stories are the admin's own words.
+const NOTES = publishedNotes(eliNotesData);
+const describeNotes = () => {
+  if (!NOTES.length) return null;
+  const rows = NOTES.slice(0, 8).map((n) =>
+    `- ${n.date} · ${PLATFORMS[n.platform]} menit ${fmtMinute(n.at)} · ${MOODS[n.mood].label}${n.quote ? ` · "${n.quote}"` : ''} · /eli-notes/${n.id}`);
+  return `Eli Notes terbaru (catatan momen live; kalau ditanya momen dari live, boleh sebut satu dan arahkan ke tautannya, jangan mengarang momen lain):\n${rows.join('\n')}`;
+};
+
 const buildContextSuffix = (pathname) => {
   const lines = [];
+  const notes = describeNotes();
+  if (notes) lines.push(notes);
   const bday = describeBirthday();
   if (bday) lines.push(bday);
   const route = describeRoute(pathname);

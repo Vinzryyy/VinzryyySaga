@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { embedOf, fmtMinute, noteId, notesOn, publishedNotes, safeLink, validateNote } from '../eliNotes';
+import { QUIZ_OPTIONS, buildQuiz, embedOf, fmtMinute, noteId, notesOn, notesRecap, publishedNotes, quizPool, safeLink, validateNote } from '../eliNotes';
 
 const note = (extra = {}) => ({
   id: '2026-11-22-idn-692',
@@ -70,5 +70,49 @@ describe('publishedNotes', () => {
     expect(list[0].year).toBe('2026');
     expect(notesOn(list, '2026-11-22')).toHaveLength(2);
     expect(publishedNotes(null)).toEqual([]);
+  });
+});
+
+describe('notesRecap', () => {
+  it('counts a year and picks quotes across moods', () => {
+    const notes = publishedNotes({
+      notes: [
+        note({ id: '2026-11-22-idn-692' }),
+        note({ id: '2026-11-22-idn-800', at: 800, quote: 'Lagi dong', mood: 'lucu' }),
+        note({ id: '2026-10-01-showroom-5', date: '2026-10-01', platform: 'showroom', at: 5, quote: 'Terima kasih ya', mood: 'haru' }),
+        note({ id: '2026-09-01-idn-5', date: '2026-09-01', at: 5, quote: '', mood: 'nyanyi' }),
+        note({ id: '2025-12-01-idn-5', date: '2025-12-01', at: 5 }),
+      ],
+    });
+    const r = notesRecap(notes, 2026);
+    expect(r.count).toBe(4);
+    expect(r.lives).toBe(3);
+    expect(r.moods[0]).toEqual(['lucu', 2]);
+    expect(r.picks.map((n) => n.id)).toEqual(['2026-11-22-idn-800', '2026-10-01-showroom-5', '2026-11-22-idn-692']);
+  });
+});
+
+describe('Tebak Momen', () => {
+  const many = (k) =>
+    Array.from({ length: k }, (_, i) => note({ id: `2026-11-${String(i + 1).padStart(2, '0')}-idn-5`, date: `2026-11-${String(i + 1).padStart(2, '0')}`, at: 5, quote: `Kutipan ${i}` }));
+
+  it('needs enough quoted notes on enough days', () => {
+    expect(quizPool(many(5)).ready).toBe(false);
+    expect(buildQuiz(many(5))).toEqual([]);
+    expect(quizPool(many(6)).ready).toBe(true);
+  });
+
+  it('builds rounds with distinct options including the answer', () => {
+    let seed = 1;
+    const rng = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const quiz = buildQuiz(many(8), 5, rng);
+    expect(quiz).toHaveLength(5);
+    for (const q of quiz) {
+      expect(q.options).toHaveLength(QUIZ_OPTIONS);
+      expect(new Set(q.options).size).toBe(QUIZ_OPTIONS);
+      expect(q.options).toContain(q.answer);
+      expect(q.answer).toBe(q.note.date);
+    }
+    expect(new Set(quiz.map((q) => q.note.id)).size).toBe(5);
   });
 });

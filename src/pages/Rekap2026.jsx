@@ -8,6 +8,8 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEliNotes } from '../hooks/useEliNotes';
+import { MOODS, notesRecap } from '../lib/eliNotes';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useGallery } from '../context';
@@ -172,6 +174,8 @@ export default function Rekap2026() {
 
   const shows = useMemo(() => (showLog ? buildShowRecap(showLog, YEAR) : null), [showLog]);
   const photos = useMemo(() => buildPhotoRecap(images, YEAR), [images]);
+  const { notes } = useEliNotes();
+  const liveRecap = useMemo(() => notesRecap(notes, YEAR), [notes]);
   const shareText = useMemo(() => rekapShareText(shows, photos, PAGE_URL), [shows, photos]);
 
   const asOfLabel = shows?.asOfDate ? formatDateId(shows.asOfDate) : null;
@@ -465,6 +469,42 @@ export default function Rekap2026() {
                     </ol>
                   </div>
                 )}
+              </Section>
+            )}
+
+            {/* From the lives (Eli Notes) */}
+            {liveRecap.count > 0 && (
+              <Section
+                id="rekap-live"
+                icon="ri-quill-pen-line"
+                kicker="Dari live"
+                title={`${fmt(liveRecap.count)} catatan dari ${fmt(liveRecap.lives)} live`}
+                lead="Momen-momen kecil dari IDN Live dan SHOWROOM yang kami tulis di Eli Notes."
+              >
+                <div className="flex flex-wrap gap-2">
+                  {liveRecap.moods.map(([m, n]) => (
+                    <span key={m} className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black text-white" style={{ background: MOODS[m]?.tone }}>
+                      <i className={MOODS[m]?.icon} /> {MOODS[m]?.label} · {n}
+                    </span>
+                  ))}
+                </div>
+                {liveRecap.picks.length > 0 && (
+                  <ul className="mt-6 grid gap-3 sm:grid-cols-3">
+                    {liveRecap.picks.map((n) => (
+                      <li key={n.id}>
+                        <Link
+                          to={`/eli-notes/${n.id}`}
+                          className="block h-full rounded-2xl bg-white border border-[color:var(--retro-brown-dark)]/10 p-4 hover:border-[color:var(--retro-burgundy)]/40"
+                          style={{ borderTop: `4px solid ${MOODS[n.mood]?.tone}` }}
+                        >
+                          <span className="font-header text-lg italic leading-snug text-[color:var(--retro-text-primary)]">“{n.quote}”</span>
+                          <span className="mt-2 block text-xs text-[color:var(--retro-text-muted)]">{formatDateId(n.date)}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <Link to="/eli-notes" className="mt-5 inline-block text-sm font-bold underline text-[color:var(--retro-burgundy)]">Baca semua Eli Notes</Link>
               </Section>
             )}
 
