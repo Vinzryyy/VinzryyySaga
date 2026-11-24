@@ -1,3 +1,95 @@
 {
-  "notes": []
+  "notes": [
+    {
+      "id": "2026-11-24-idn-2995",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 2995,
+      "quote": "Yang suka Hunger Games harus nonton ini.",
+      "story": "Sambil memasang warna di mata (dan sempat salah ambil warna), Eli merekomendasikan film Hunger Games yang menceritakan awal mula Haymitch. Katanya akting pemainnya bagus, ceritanya bukan soal game-nya saja, dan ada pemain yang menurutnya mirip Jared Leto.",
+      "mood": "ngobrol",
+      "createdAt": "2026-11-24T11:30:00.000Z",
+      "updatedAt": "2026-11-24T11:24:11.688Z"
+    },
+    {
+      "id": "2026-11-24-idn-1725",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 1725,
+      "quote": "Harga menentukan kualitas nih guys.",
+      "story": "Eli mencoba softlens warna hijau, bahkan sempat dipakai dobel, tapi hasilnya tidak sesuai harapan. Warnanya terasa aneh di matanya yang agak cokelat. Akhirnya dia menyimpulkan harga memang menentukan kualitas, lalu balik pakai yang biasa.",
+      "mood": "seru",
+      "createdAt": "2026-11-24T11:16:17.539Z",
+      "updatedAt": "2026-11-24T11:24:11.680Z"
+    },
+    {
+      "id": "2026-11-24-idn-1319",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 1319,
+      "quote": "Kayaknya aku bisa deh jadi beauty influencer.",
+      "story": "Setelah cerita makeup-nya kemarin hasilnya cantik, Eli mulai berandai-andai jadi beauty influencer, bahkan makeup artist, dan kepikiran merias member lain. Lalu dia jujur soal kenapa jarang cari rekomendasi di TikTok: menurutnya isinya endorse semua dan jawabannya seragam, padahal dia mau review yang menyebut kurang dan lebihnya.",
+      "mood": "seru",
+      "createdAt": "2026-11-24T11:30:00.000Z",
+      "updatedAt": "2026-11-24T11:24:11.669Z"
+    },
+    {
+      "id": "2026-11-24-idn-1204",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 1204,
+      "quote": "Aku harus beli. Sunscreen.",
+      "story": "Eli berulang kali bilang kalau minggu ini dia harus beli sunscreen karena stoknya habis. Sampai-sampai dia minta penonton buat mengingatkan. Lucu lihat Eli yang lupa terus soal satu barang yang sama.",
+      "mood": "lucu",
+      "createdAt": "2026-11-24T11:16:17.539Z",
+      "updatedAt": "2026-11-24T11:24:11.661Z"
+    },
+    {
+      "id": "2026-11-24-idn-803",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 803,
+      "quote": "Masalahnya aku besok harus ngapalin ini.",
+      "story": "Eli cerita soal kesibukannya: besok ada ujian yang harus dihafalkan, sementara hari ini masih ada latihan jam 6. Dia sempat khawatir kecapekan karena jadwal kuliah dan kegiatannya padat. Jadi kelihatan banget Eli lagi membagi waktu antara kuliah dan JKT48.",
+      "mood": "ngobrol",
+      "createdAt": "2026-11-24T11:16:17.539Z",
+      "updatedAt": "2026-11-24T11:24:11.653Z"
+    },
+    {
+      "id": "2026-11-24-idn-540",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 540,
+      "quote": "Ini aku lagi nggak butuh saran kok, tenang. Hanya inner monolog yang bocor.",
+      "story": "Lagi bingung milih produk makeup, Eli ngomong sendiri panjang soal mana yang harus dipakai. Lalu dia buru-buru meluruskan: dia nggak lagi minta saran, itu cuma isi kepalanya yang kebetulan kedengaran. Get ready with me versi paling jujur.",
+      "mood": "lucu",
+      "createdAt": "2026-11-24T11:30:00.000Z",
+      "updatedAt": "2026-11-24T11:24:11.645Z"
+    },
+    {
+      "id": "2026-11-24-idn-229",
+      "status": "published",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "liveTitle": "Get ready with ECEU BUDHE",
+      "at": 229,
+      "quote": "Coba cek dulu di BMKG. Hujannya jam berapa di daerah Jakarta Selatan?",
+      "story": "Dari awal live Eli sudah dikejar waktu: ada latihan jam enam, langit mulai mendung, dan ojol katanya lagi mahal. Jadi sambil dandan dia buka BMKG, lalu di menit ke-42 bertanya ke penonton apakah Kuningan hujan. Chat langsung jadi laporan cuaca dari mana-mana, dan setelah itu jadi bagian paling ramai sepanjang live.",
+      "mood": "ngobrol",
+      "createdAt": "2026-11-24T11:30:00.000Z",
+      "updatedAt": "2026-11-24T11:24:11.637Z"
+    }
+  ]
 }
