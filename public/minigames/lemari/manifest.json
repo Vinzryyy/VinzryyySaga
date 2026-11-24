@@ -1,0 +1,48 @@
+{
+  "canvas": {
+    "width": 342,
+    "height": 730
+  },
+  "files": {
+    "acc-hand_gelang-mutiara": {
+      "width": 342,
+      "height": 730
+    },
+    "acc-head_bando-emas": {
+      "width": 342,
+      "height": 730
+    },
+    "acc-head_pita-burgundy": {
+      "width": 342,
+      "height": 730
+    },
+    "acc-neck_kalung-aprikot": {
+      "width": 342,
+      "height": 730
+    },
+    "base_body": {
+      "width": 342,
+      "height": 730
+    },
+    "base_hair-front": {
+      "width": 342,
+      "height": 730
+    },
+    "bg_studio": {
+      "width": 342,
+      "height": 730
+    },
+    "bg_teater": {
+      "width": 342,
+      "height": 730
+    },
+    "dress_ntmu-isshou": {
+      "width": 342,
+      "height": 730
+    },
+    "shoes_boots-hitam": {
+      "width": 342,
+      "height": 730
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="342" height="730" viewBox="0 0 342 730">
+  <!-- Across the wrist (skin x 241-254 at y 340), curving with the arm. -->
+  <g fill="#fbf4ea" stroke="#b9a68f" stroke-width="0.45">
+    <circle cx="241.8" cy="339.2" r="1.75"/><circle cx="244.9" cy="340.4" r="1.75"/><circle cx="248" cy="341" r="1.75"/>
+    <circle cx="251.1" cy="340.6" r="1.75"/><circle cx="254" cy="339.6" r="1.75"/>
+  </g>
+</svg>

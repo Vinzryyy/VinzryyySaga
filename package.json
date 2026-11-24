@@ -21,6 +21,7 @@
     "hash-admin-passwords": "node scripts/hash-admin-passwords.js",
     "generate-petikan-pool": "node scripts/generate-petikan-pool.js",
     "build-memory-pool": "node scripts/build-memory-pool.js",
+    "build-lemari": "node scripts/build-lemari-assets.mjs",
     "add-x-photos": "node scripts/add-x-photos.js"
   },
   "dependencies": {

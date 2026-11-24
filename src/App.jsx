@@ -46,6 +46,7 @@ const AdminJadwalPage = lazy(() => import('./pages/AdminJadwal'));
 const MiniGameMemoryPage = lazy(() => import('./pages/MiniGameMemory'));
 const MiniGamesPage = lazy(() => import('./pages/MiniGames'));
 const TebakMomenPage = lazy(() => import('./pages/TebakMomen'));
+const LemariPage = lazy(() => import('./pages/Lemari'));
 const MomentsPage = lazy(() => import('./pages/Moments'));
 const EliNotesPage = lazy(() => import('./pages/EliNotes'));
 const LiveRecapsPage = lazy(() => import('./pages/LiveRecaps'));
@@ -490,6 +491,7 @@ function AppShell() {
             <Route path="/admin/cerita" element={<AdminStoriesPage />} />
             <Route path="/mini-games/memory" element={<MiniGameMemoryPage />} />
             <Route path="/mini-games/tebak-momen" element={<TebakMomenPage />} />
+            <Route path="/mini-games/lemari" element={<LemariPage />} />
             <Route path="/wishes" element={<WishesPage />} />
             <Route path="/26" element={<Page26 />} />
             <Route path="/byu-music" element={<ByuMusicPage />} />

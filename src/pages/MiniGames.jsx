@@ -17,6 +17,8 @@ import { POHON_APRIKOT_POOL } from '../data/pohonAprikot';
 import { armepackStatus, memoryStatus, quizStatus, todayList } from '../lib/arcadeStatus';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { QUIZ_MIN_NOTES, quizPool } from '../lib/eliNotes';
+import { CANVAS_ASPECT, LEMARI_IN_HUB, LEMARI_ITEMS, LEMARI_SETS, fullSrc } from '../data/lemari';
+import { applySet, defaultOutfit, layersFor } from '../lib/lemari';
 import './miniGamesHub.css';
 
 const EM = (f) => `/EmoteLabs/${encodeURI(f)}`;
@@ -26,6 +28,7 @@ const PACK_ART = [
   EM('Arme_Score (10 Point)_2026-05-27-07-50-54.webp'),
 ];
 const MEMORY_TILES = ['/archive/img-036.webp', null, '/archive/img-142.webp', null, null, '/archive/img-211.webp'];
+const LEMARI_PREVIEW = LEMARI_SETS[0] ? layersFor(applySet(defaultOutfit(), LEMARI_SETS[0])) : [];
 const SOON = [
   { icon: 'ri-question-answer-line', title: 'Kuis Harian' },
   { icon: 'ri-music-2-line', title: 'Ritme' },
@@ -201,6 +204,23 @@ const MiniGames = () => {
               </div>
             }
           />
+          {LEMARI_IN_HUB && (
+            <GameCard
+              to="/mini-games/lemari"
+              label="Dandan · kostum panggung"
+              title="Lemari Eli"
+              text="Dandani Eli dengan kostum panggungnya, kenali cerita di baliknya, lalu simpan gayamu sebagai kartu."
+              status={`${LEMARI_SETS.length} set panggung · ${LEMARI_ITEMS.filter((i) => i.slot !== 'bg').length} item`}
+              cta="Dandani"
+              art={
+                <div className="relative mx-auto h-full" style={{ aspectRatio: CANVAS_ASPECT }}>
+                  {LEMARI_PREVIEW.map(({ file }) => (
+                    <img key={file} src={fullSrc(file)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-contain" />
+                  ))}
+                </div>
+              }
+            />
+          )}
           <GameCard
             to="/armeniacaTown"
             label="Jelajah · tumbuh bersama"

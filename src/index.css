@@ -980,3 +980,9 @@ html[data-motion="off"] .animate-hero-slide-in {
   0%, 100% { transform: translateY(0) rotate(-3deg); }
   50% { transform: translateY(-4px) rotate(3deg); }
 }
+
+/* Lemari Eli: a changed layer fades in (Lemari.jsx). */
+@keyframes lemari-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
