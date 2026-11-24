@@ -1,16 +1,18 @@
-name: Refresh Eli schedule (JKT48Connect)
+name: Refresh Eli schedule & M&G (JKT48Connect)
 
-# Eli's theater shows from the JKT48Connect API (fanbase plan) →
-# public/data/eli-schedule.jkt48connect.json. The site merges it with the
-# other schedule sources (src/lib/scheduleSource.js). The script only
-# rewrites the file when Eli's shows change, so most runs commit nothing.
+# Eli's theater shows, M&G / 2-Shot / Video Call sessions and sold-out
+# status from the JKT48Connect API (fanbase plan) →
+#   public/data/eli-schedule.jkt48connect.json (merged by src/lib/scheduleSource.js)
+#   public/data/eli-sales.jkt48connect.json    (read by OnSaleStrip)
+# The script only rewrites a file when its content changes, so most runs
+# commit nothing. ~20 requests per run, ~15k per month when hourly.
 #
 # Needs the repo secret JKT48CONNECT_API_KEY; without it the run is a no-op.
 
 on:
   schedule:
-    # Every 3 hours (UTC); lineups are usually announced a few days ahead.
-    - cron: '20 */3 * * *'
+    # Hourly, so a session selling out shows up within the hour.
+    - cron: '20 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -30,7 +32,7 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Fetch Eli shows
+      - name: Fetch Eli shows and M&G
         env:
           JKT48CONNECT_API_KEY: ${{ secrets.JKT48CONNECT_API_KEY }}
         run: node scripts/fetch-jkt48connect-schedule.mjs
@@ -39,11 +41,11 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/data/eli-schedule.jkt48connect.json
+          git add public/data/eli-schedule.jkt48connect.json public/data/eli-sales.jkt48connect.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "chore(data): refresh Eli shows from JKT48Connect"
+          git commit -m "chore(data): refresh Eli schedule and M&G from JKT48Connect"
           git pull --rebase origin main
           git push

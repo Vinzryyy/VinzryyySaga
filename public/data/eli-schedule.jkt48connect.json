@@ -1,8 +1,7 @@
 {
   "source": "https://jkt48connect.com (fanbase plan)",
-  "sourceNote": "Eli (Helisma Putri) theater shows from the last 30 days and upcoming, matched by member key.",
-  "fetchedAt": "2026-11-24T04:31:38.024Z",
-  "eventCount": 3,
+  "sourceNote": "Eli (Helisma Putri): theater shows and M&G / 2-Shot / Video Call sessions from the last 30 days and upcoming.",
+  "eventCount": 10,
   "events": [
     {
       "kind": "SHOW",
@@ -234,6 +233,189 @@
       "is_video_call": false,
       "url": "https://jkt48.com/theater/schedule",
       "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EXDB2E-2026-11-14-16:00",
+      "title": "2-Shot @ JKT48 Mini Tour “Ayo Senyumlah” - Manado (Sesi 3 (16:00 WITA))",
+      "date": "2026-11-14T16:00:00+08:00",
+      "start_time": "16:00",
+      "end_time": "17:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 2"
+      ],
+      "sold_out": true,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EXDB2E",
+      "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EXDB2E-2026-11-14-17:00",
+      "title": "2-Shot @ JKT48 Mini Tour “Ayo Senyumlah” - Manado (Sesi 4 (17:00 WITA))",
+      "date": "2026-11-14T17:00:00+08:00",
+      "start_time": "17:00",
+      "end_time": "18:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 2"
+      ],
+      "sold_out": false,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EXDB2E",
+      "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EX79CB-2026-11-21-11:45",
+      "title": "The Smile Collection (Sesi 1)",
+      "date": "2026-11-21T11:45:00+07:00",
+      "start_time": "11:45",
+      "end_time": "12:45",
+      "category": "DIGITAL_PHOTOBOOK",
+      "team": null,
+      "venue": "Video Call (online)",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 1"
+      ],
+      "sold_out": false,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EX79CB",
+      "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EX79CB-2026-11-21-13:15",
+      "title": "The Smile Collection (Sesi 2)",
+      "date": "2026-11-21T13:15:00+07:00",
+      "start_time": "13:15",
+      "end_time": "14:15",
+      "category": "DIGITAL_PHOTOBOOK",
+      "team": null,
+      "venue": "Video Call (online)",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 1"
+      ],
+      "sold_out": false,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EX79CB",
+      "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EX79CB-2026-11-21-14:45",
+      "title": "The Smile Collection (Sesi 3)",
+      "date": "2026-11-21T14:45:00+07:00",
+      "start_time": "14:45",
+      "end_time": "15:45",
+      "category": "DIGITAL_PHOTOBOOK",
+      "team": null,
+      "venue": "Video Call (online)",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 1"
+      ],
+      "sold_out": false,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EX79CB",
+      "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EX3B84-2026-12-20-13:30",
+      "title": "2-Shot - AYO SENYUMLAH | JKT48 15th Anniversary Personal Meet and Greet Event (Sesi 2)",
+      "date": "2026-12-20T13:30:00+07:00",
+      "start_time": "13:30",
+      "end_time": "15:00",
+      "category": "TWO_SHOT",
+      "team": null,
+      "venue": "JKT48 Personal M&G",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 11"
+      ],
+      "sold_out": true,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EX3B84",
+      "source": "jkt48connect"
+    },
+    {
+      "kind": "EXCLUSIVE",
+      "code": "EX49CD-2026-12-20-16:30",
+      "title": "Photocard - AYO SENYUMLAH | JKT48 15th Anniversary Personal Meet and Greet Event (Sesi 4)",
+      "date": "2026-12-20T16:30:00+07:00",
+      "start_time": "16:30",
+      "end_time": "18:00",
+      "category": "PHOTOCARD",
+      "team": null,
+      "venue": "JKT48 Personal M&G",
+      "members": [
+        {
+          "name": "Helisma Putri",
+          "member_id": "112",
+          "url_key": "helisma-putri"
+        }
+      ],
+      "eli_jalur": [
+        "Jalur 11"
+      ],
+      "sold_out": false,
+      "is_birthday_show": false,
+      "is_video_call": false,
+      "url": "https://jkt48.com/purchase/exclusive?code=EX49CD",
+      "source": "jkt48connect"
     }
-  ]
+  ],
+  "fetchedAt": "2026-11-24T04:50:15.749Z"
 }

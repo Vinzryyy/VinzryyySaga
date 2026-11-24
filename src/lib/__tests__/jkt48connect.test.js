@@ -60,3 +60,51 @@ describe('jkt48connect', () => {
     expect(mergeSchedules(scrapedSame, null, null, connect).events.map((e) => e.code)).toEqual(['SCRAPED']);
   });
 });
+
+describe('jkt48connect exclusives (M&G)', () => {
+  const detail = {
+    code: 'EX3B84',
+    title: '2-Shot - AYO SENYUMLAH',
+    category: 'TWO_SHOT',
+    purchase_url: 'https://jkt48.com/purchase/exclusive?code=EX3B84',
+    default_price: 100000,
+    sales_status: 'open',
+    last_changed_at: '2026-11-24T00:00:00Z',
+    sales_periods: [{ label: 'OFC', starts_at: '2026-11-23T20:00:00+07:00', ends_at: '2026-12-20T07:00:00+07:00', status: 'open' }],
+    sessions: [
+      { label: 'Sesi 1', date: '2026-11-21', start_time: '11:45:00', end_time: '12:45:00', lanes: [{ label: 'Jalur 1', member_name: 'Helisma Putri', status: 'available' }] },
+      { label: 'Sesi 2', date: '2026-12-20', start_time: '13:30:00', end_time: '14:30:00', lanes: [
+        { label: 'Jalur 3', member_name: 'Celline Thefani', status: 'available' },
+        { label: 'Jalur 11', member_name: 'Helisma Putri', status: 'sold_out' },
+      ] },
+      { label: 'Sesi 3 (16:00 WITA)', date: '2026-12-21', start_time: '16:00:00', lanes: [{ label: 'Jalur 2', member_name: 'Helisma Putri', status: 'available', remaining_quantity: 4 }] },
+    ],
+  };
+
+  it('finds only Eli lanes, with local time zones', async () => {
+    const { eliLanes, sessionZone } = await import('../jkt48connect');
+    const lanes = eliLanes(detail);
+    expect(lanes.map((l) => l.jalur)).toEqual(['Jalur 1', 'Jalur 11', 'Jalur 2']);
+    expect(lanes[1]).toMatchObject({ soldOut: true, iso: '2026-12-20T13:30:00+07:00' });
+    expect(lanes[2]).toMatchObject({ zone: 'WITA', iso: '2026-12-21T16:00:00+08:00', remainingQuota: 4 });
+    expect(sessionZone({ label: 'Sesi 1' })).toBe('WIB');
+  });
+
+  it('maps sessions to schedule events with sold-out status', async () => {
+    const { exclusiveEvents } = await import('../jkt48connect');
+    const evs = exclusiveEvents(detail, Date.parse('2026-12-01T00:00:00Z'));
+    expect(evs).toHaveLength(2);
+    expect(evs[0]).toMatchObject({ kind: 'EXCLUSIVE', category: 'TWO_SHOT', start_time: '13:30', eli_jalur: ['Jalur 11'], sold_out: true });
+    expect(evs[1].remaining_total).toBe(4);
+  });
+
+  it('lists a sale only while open and Eli has a session left', async () => {
+    const { exclusiveSale } = await import('../jkt48connect');
+    const sale = exclusiveSale(detail, '2026-11-24');
+    expect(sale.eliSessions.map((x) => x.sessionDate)).toEqual(['2026-12-20', '2026-12-21']);
+    expect(sale.eliSessions[0]).not.toHaveProperty('iso');
+    expect(sale).toMatchObject({ code: 'EX3B84', soonestSessionDate: '2026-12-20', defaultPrice: 100000 });
+    expect(exclusiveSale(detail, '2026-12-22')).toBeNull();
+    expect(exclusiveSale({ ...detail, sales_status: 'closed', sales_periods: [] }, '2026-11-24')).toBeNull();
+  });
+});

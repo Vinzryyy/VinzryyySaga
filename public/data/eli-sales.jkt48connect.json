@@ -1,0 +1,80 @@
+{
+  "source": "https://jkt48connect.com (fanbase plan)",
+  "sourceNote": "Exclusive products on sale where Eli still has a session; sold-out status per session.",
+  "salesCount": 2,
+  "sales": [
+    {
+      "code": "EX3B84",
+      "category": "TWO_SHOT",
+      "title": "2-Shot - AYO SENYUMLAH | JKT48 15th Anniversary Personal Meet and Greet Event",
+      "url": "https://jkt48.com/purchase/exclusive?code=EX3B84",
+      "defaultPrice": 200000,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-11-23T12:00:00+07:00",
+          "end_date": "2026-12-20T11:00:00+07:00",
+          "status": "open"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-11-23T18:00:00+07:00",
+          "end_date": "2026-12-20T11:00:00+07:00",
+          "status": "open"
+        }
+      ],
+      "soonestSessionDate": "2026-12-20",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 2",
+          "sessionDate": "2026-12-20",
+          "startTime": "13:30",
+          "endTime": "15:00",
+          "zone": "WIB",
+          "jalur": "Jalur 11",
+          "soldOut": true,
+          "status": "sold_out",
+          "remainingQuota": null
+        }
+      ],
+      "lastChangedAt": "2026-11-23T12:44:06.351Z"
+    },
+    {
+      "code": "EX49CD",
+      "category": "PHOTOCARD",
+      "title": "Photocard - AYO SENYUMLAH | JKT48 15th Anniversary Personal Meet and Greet Event",
+      "url": "https://jkt48.com/purchase/exclusive?code=EX49CD",
+      "defaultPrice": 60000,
+      "salesPeriod": [
+        {
+          "label": "OFC",
+          "start_date": "2026-11-23T12:00:00+07:00",
+          "end_date": "2026-12-20T11:00:00+07:00",
+          "status": "open"
+        },
+        {
+          "label": "General",
+          "start_date": "2026-11-23T18:00:00+07:00",
+          "end_date": "2026-12-20T11:00:00+07:00",
+          "status": "open"
+        }
+      ],
+      "soonestSessionDate": "2026-12-20",
+      "eliSessions": [
+        {
+          "sessionLabel": "Sesi 4",
+          "sessionDate": "2026-12-20",
+          "startTime": "16:30",
+          "endTime": "18:00",
+          "zone": "WIB",
+          "jalur": "Jalur 11",
+          "soldOut": false,
+          "status": "available",
+          "remainingQuota": null
+        }
+      ],
+      "lastChangedAt": "2026-11-23T14:00:33.017Z"
+    }
+  ],
+  "fetchedAt": "2026-11-24T04:50:15.750Z"
+}

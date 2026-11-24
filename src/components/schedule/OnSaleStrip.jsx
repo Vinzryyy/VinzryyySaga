@@ -1,11 +1,14 @@
 /**
  * OnSaleStrip — everything currently on sale for Eli, in one strip.
  *
- * Two sources, same row:
- * 1. /data/eli-sales.json — live M&G + Photobook products from the
- *    jkt48.com API (auto-refresh every 6h with the schedule scrape).
- *    Filters to entries where at least one salesPeriod end_date is
- *    still in the future, so expired sales auto-hide.
+ * Sources, same row:
+ * 1. /data/eli-sales.jkt48connect.json — M&G, 2-Shot and Video Call
+ *    products from the JKT48Connect API (scripts/fetch-jkt48connect-
+ *    schedule.mjs), with sold-out status per Eli session. Wins over:
+ *    /data/eli-sales.json — the older jkt48.com scrape (blocked since
+ *    Sep 2026, kept as a fallback). Same code → JKT48Connect copy.
+ *    Expired sales and sales whose Eli sessions have all passed hide
+ *    themselves.
  * 2. SITE_CONFIG.sedangDijual.products — manual merch list (t-shirts,
  *    physical items, anything not exposed by the API). Maintained by
  *    hand since Tokopedia/external stores don't publish a feed.
@@ -82,15 +85,28 @@ const formatCountdown = (endMs) => {
   return `${days} hari lagi`;
 };
 
-const SaleCard = ({ sale, frameSrc }) => {
+// JKT48Connect sessions carry `soldOut`; the old scrape only had
+// remainingQuota (0 = sold out).
+const sessionSoldOut = (e) => (typeof e.soldOut === 'boolean' ? e.soldOut : (e.remainingQuota || 0) === 0);
+
+const shortDay = new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const fmtDay = (ymd) => {
+  const d = new Date(`${ymd}T00:00:00Z`);
+  return Number.isNaN(d.getTime()) ? ymd : shortDay.format(d);
+};
+const fmtChecked = (iso) => {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return null;
+  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }).format(d);
+};
+
+const SaleCard = ({ sale, frameSrc, checkedAt }) => {
   const label = CATEGORY_LABEL[sale.category] || sale.category;
   const icon = CATEGORY_ICON[sale.category] || 'ri-shopping-bag-3-line';
   const price = formatPrice(sale.defaultPrice);
-  const remainingTotal = (sale.eliSessions || []).reduce(
-    (s, e) => s + (e.remainingQuota || 0),
-    0,
-  );
-  const allSoldOut = remainingTotal === 0 && (sale.eliSessions || []).length > 0;
+  const sessions = sale.eliSessions || [];
+  const allSoldOut = sessions.length > 0 && sessions.every(sessionSoldOut);
+  const checked = fmtChecked(checkedAt);
   const saleEndMs = latestSaleEnd(sale.salesPeriod);
   const countdown = formatCountdown(saleEndMs);
 
@@ -146,12 +162,36 @@ const SaleCard = ({ sale, frameSrc }) => {
             <i className="ri-calendar-event-line text-base" />
             {formatSessionDate(sale.soonestSessionDate)}
           </span>
-          {sale.eliSessions?.length > 0 && (
+          {sessions.length > 0 && (
             <span className="text-[color:var(--retro-burgundy)] tabular-nums">
-              {sale.eliSessions.length} sesi
+              {sessions.length} sesi
             </span>
           )}
         </div>
+        {/* Eli's sessions with their own status (JKT48Connect data has a
+            per-lane sold-out flag). */}
+        {sessions.some((e) => e.sessionLabel) && (
+          <ul className="flex flex-col gap-1">
+            {sessions.map((e) => {
+              const out = sessionSoldOut(e);
+              return (
+                <li key={`${e.sessionDate}-${e.sessionLabel}-${e.jalur}`} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="min-w-0 truncate text-[color:var(--retro-text-secondary)]">
+                    {fmtDay(e.sessionDate)} · {e.sessionLabel}{e.startTime && !/\d{2}:\d{2}/.test(e.sessionLabel) ? ` (${e.startTime}${e.zone && e.zone !== 'WIB' ? ` ${e.zone}` : ''})` : ''} · {e.jalur}
+                  </span>
+                  <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] ${out ? 'bg-red-600/10 text-red-700' : 'bg-emerald-600/10 text-emerald-700'}`}>
+                    {out ? 'Sold out' : 'Tersedia'}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {checked && (
+          <p className="text-[10px] text-[color:var(--retro-text-muted)]">
+            Status per {checked} WIB · cek ulang di jkt48.com sebelum membeli
+          </p>
+        )}
         {price && (
           <div className="pt-3 mt-1 border-t border-[color:var(--retro-brown-dark)]/8 flex items-center justify-between gap-2">
             <span className="font-header text-lg font-black text-[color:var(--retro-burgundy)] tabular-nums">
@@ -240,17 +280,23 @@ const OnSaleStrip = () => {
   // in render). Refilter every minute so newly-expired sales drop
   // off without requiring a page reload.
   const [activeSales, setActiveSales] = useState([]);
+  const [checkedAt, setCheckedAt] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     let refreshTimer = null;
 
+    const todayWIB = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
     const refilter = (sales) => {
       const now = Date.now();
+      const today = todayWIB();
       return [...sales]
         .filter((s) => {
           const end = latestSaleEnd(s.salesPeriod);
-          return end != null && end > now;
+          if (end == null || end <= now) return false;
+          // Hide once every Eli session has passed (nothing left to buy for her).
+          const days = (s.eliSessions || []).map((e) => e.sessionDate).filter(Boolean);
+          return !days.length || days.some((d) => d >= today);
         })
         .sort((a, b) => {
           const ae = latestSaleEnd(a.salesPeriod) || 0;
@@ -259,18 +305,26 @@ const OnSaleStrip = () => {
         });
     };
 
-    fetch('/data/eli-sales.json', { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (cancelled || !d?.sales) return;
-        setActiveSales(refilter(d.sales));
-        // Re-filter every minute — cheap, drops expired sales when
-        // their countdown crosses zero on a long-open page.
-        refreshTimer = setInterval(() => {
-          setActiveSales(refilter(d.sales));
-        }, 60000);
-      })
-      .catch(() => {});
+    const load = (url) =>
+      fetch(url, { cache: 'no-cache' })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+
+    Promise.all([load('/data/eli-sales.jkt48connect.json'), load('/data/eli-sales.json')]).then(([connect, scraped]) => {
+      if (cancelled) return;
+      const byCode = new Map();
+      (scraped?.sales || []).forEach((s) => byCode.set(s.code, s));
+      (connect?.sales || []).forEach((s) => byCode.set(s.code, s));
+      const sales = [...byCode.values()];
+      if (!sales.length) return;
+      setCheckedAt(connect?.fetchedAt || null);
+      setActiveSales(refilter(sales));
+      // Re-filter every minute — cheap, drops expired sales when
+      // their countdown crosses zero on a long-open page.
+      refreshTimer = setInterval(() => {
+        setActiveSales(refilter(sales));
+      }, 60000);
+    });
 
     return () => {
       cancelled = true;
@@ -317,6 +371,7 @@ const OnSaleStrip = () => {
               key={sale.code}
               sale={sale}
               frameSrc={SALE_FRAMES[idx % SALE_FRAMES.length]}
+              checkedAt={sale.lastChangedAt !== undefined ? checkedAt : null}
             />
           ))}
           {merchProducts.map((product, idx) => (
