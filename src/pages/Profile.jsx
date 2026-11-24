@@ -21,6 +21,7 @@ import {
   ELI_TIMELINE,
   ELI_DISCOGRAPHY,
   ELI_ALBUMS,
+  ELI_PROJECTS,
   ELI_FIGHT_2026,
   ELI_TRIVIA,
   ELI_FUN_FACTS,
@@ -679,8 +680,8 @@ const DiscographySection = () => {
       <SectionOpener
         id="discography"
         title="Single, Album, & Momen Senbatsu."
-        lead="Single JKT48 yang melibatkan Eli plus track-nya di album JKT48. Single masih dalam kurasi; album sudah lengkap berdasarkan participation list."
-        kicker={`${confirmed.length} single · ${ELI_ALBUMS.length} album · ${totalAlbumTracks} track`}
+        lead="Single JKT48 yang melibatkan Eli, proyek vokal REVOICE, dan track-nya di album JKT48. Single masih dalam kurasi; album sudah lengkap berdasarkan participation list."
+        kicker={`${confirmed.length} single · ${ELI_PROJECTS.length} proyek · ${ELI_ALBUMS.length} album · ${totalAlbumTracks} track`}
       />
 
       {/* SINGLES */}
@@ -799,6 +800,87 @@ const DiscographySection = () => {
         )}
       </div>
 
+      {/* PROJECTS — REVOICE vocal project */}
+      {ELI_PROJECTS.map((project) => (
+        <section key={project.id} id={`project-${project.id}`} aria-labelledby={`project-${project.id}-title`} className="mb-12 scroll-mt-40">
+          <div className="flex items-baseline gap-3 mb-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
+              Vocal Project
+            </p>
+            <span className="flex-1 h-px bg-[color:var(--retro-brown-dark)]/10" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+              Eli di {project.eliCount} dari {project.totalEpisodes} episode
+            </span>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+            <div className="rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-6 md:p-7 flex flex-col">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] inline-flex items-center gap-2">
+                <i className="ri-mic-2-line text-sm" aria-hidden="true" /> Tentang {project.title}
+              </p>
+              <h3 id={`project-${project.id}-title`} className="mt-2 font-header text-3xl md:text-4xl font-black tracking-tighter leading-none">
+                {project.title}
+              </h3>
+              <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-[color:var(--retro-cream)]/70">
+                {project.subtitle} · {project.year}
+              </p>
+              <div className="mt-4 space-y-3 text-sm leading-relaxed text-[color:var(--retro-cream)]/85">
+                {project.about.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}
+              </div>
+              <a
+                href={project.source}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-auto pt-5 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)] hover:underline"
+              >
+                Pengumuman resmi JKT48 ↗
+              </a>
+            </div>
+            <ol className="grid gap-3">
+              {project.episodes.map((ep, idx) => (
+                <li key={ep.url}>
+                  <a
+                    href={ep.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-4 rounded-2xl border border-[color:var(--retro-brown-dark)]/12 bg-[color:var(--retro-bg-primary)] p-4 md:p-5 hover:border-[color:var(--retro-burgundy)]/40 transition-colors"
+                  >
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[color:var(--retro-burgundy)]/10 text-[color:var(--retro-burgundy)] group-hover:bg-[color:var(--retro-burgundy)] group-hover:text-[color:var(--retro-cream)] transition-colors">
+                      <i className="ri-play-fill text-xl" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
+                        Episode Eli #{idx + 1} · {formatRevoiceDate(ep.date)}
+                      </span>
+                      <span className="mt-1 block font-header text-lg md:text-xl font-black leading-tight text-[color:var(--retro-text-primary)]">
+                        {ep.song}
+                      </span>
+                      <span className="mt-1.5 flex flex-wrap gap-1.5">
+                        {ep.members.map((m) => (
+                          <span
+                            key={m}
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                              m === 'Helisma Putri'
+                                ? 'bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]'
+                                : 'bg-[color:var(--retro-brown-dark)]/[0.06] text-[color:var(--retro-text-secondary)]'
+                            }`}
+                          >
+                            {m}
+                          </span>
+                        ))}
+                      </span>
+                    </span>
+                    <span className="sr-only">(tonton di YouTube, tab baru)</span>
+                  </a>
+                </li>
+              ))}
+              <li className="text-[10px] font-bold uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">
+                Data per {formatRevoiceDate(project.asOf)} · dari deskripsi video resmi JKT48
+              </li>
+            </ol>
+          </div>
+        </section>
+      ))}
+
       {/* ALBUMS */}
       <div ref={albumsRef}>
         <div className="flex items-baseline gap-3 mb-5">
@@ -854,6 +936,9 @@ const DiscographySection = () => {
     </>
   );
 };
+
+const revoiceDateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const formatRevoiceDate = (ymd) => revoiceDateFmt.format(new Date(`${ymd}T00:00:00Z`));
 
 const MemberRoster = ({ members, label = 'Roster' }) => {
   const eli = members.find((m) => m.isEli);

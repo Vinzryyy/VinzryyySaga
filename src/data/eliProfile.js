@@ -216,6 +216,17 @@ export const ELI_TIMELINE = [
     category: 'show-recap',
   },
   {
+    // Tanggal = episode REVOICE pertama dengan Eli (unggah YouTube resmi
+    // JKT48, 10 Agu 2026). Daftar episode lengkap: ELI_PROJECTS.
+    id: 'revoice',
+    date: '2026-08-10',
+    period: 'Agustus – Oktober 2026',
+    title: 'JKT48 Vocal Project "REVOICE"',
+    body:
+      'Eli terpilih menjadi salah satu penyanyi REVOICE, proyek vokal JKT48 yang membawakan ulang lagu-lagu JKT48 dengan aransemen baru. Ia tampil di tiga episode: "Refrain Penuh Harapan" (10 Agustus), "Bersama Kamu, Pelangi, dan Mentari" (14 September), dan "Seesaw Game Penuh Air Mata" (12 Oktober). Banyak penggemar menyoroti kematangan vokal Eli di proyek ini.',
+    badge: 'Vocal Project',
+  },
+  {
     // Tanggal = hari syuting MV (RRI, 20 Sep 2026); tanggal rilis resmi
     // belum terverifikasi, jadi period ditulis bulannya saja.
     id: 'ayo-senyumlah-mv',
@@ -360,6 +371,46 @@ export const ELI_ALBUMS = [
       { song: 'Yume wo Shinaseru Wake ni Ikanai' },
       { song: 'Jiwaru DAYS' },
     ],
+  },
+];
+
+// Proyek di luar single/album. REVOICE: JKT48 Vocal Project di kanal
+// YouTube resmi JKT48. Episode, tanggal (WIB) dan member diambil dari
+// deskripsi video resmi; dicek 24 Nov 2026 (8 episode, Eli di 3).
+export const ELI_PROJECTS = [
+  {
+    id: 'revoice',
+    title: 'REVOICE',
+    subtitle: 'JKT48 Vocal Project',
+    year: '2026',
+    about: [
+      'REVOICE adalah proyek vokal JKT48 yang diumumkan pada 26 Juli 2026. Para member membawakan ulang lagu-lagu JKT48 yang sudah pernah dirilis dengan aransemen musik yang dibuat khusus, sehingga setiap lagu terdengar dengan warna dan nuansa yang berbeda dari versi aslinya.',
+      'Episode tayang di kanal YouTube resmi JKT48, biasanya Senin malam setiap dua pekan, dimulai dengan "Jurus Rahasia Teleport" pada 27 Juli 2026. Aransemen musik digarap Billy Sibero, dengan Meltho Sinyal dan Billy Sibero sebagai vocal director.',
+    ],
+    eliCount: 3,
+    totalEpisodes: 8,
+    asOf: '2026-11-24',
+    episodes: [
+      {
+        song: 'Refrain Penuh Harapan',
+        date: '2026-08-10',
+        url: 'https://www.youtube.com/watch?v=RXKk4zeYqO0',
+        members: ['Greesella Adhalia', 'Helisma Putri', 'Jesslyn Elly', 'Lulu Salsabila'],
+      },
+      {
+        song: 'Bersama Kamu, Pelangi, dan Mentari',
+        date: '2026-09-14',
+        url: 'https://www.youtube.com/watch?v=mZVRckK7jd8',
+        members: ['Cynthia Yaputera', 'Helisma Putri', 'Nina Tutachia'],
+      },
+      {
+        song: 'Seesaw Game Penuh Air Mata',
+        date: '2026-10-12',
+        url: 'https://www.youtube.com/watch?v=Ga4I7zNLIGE',
+        members: ['Cornelia Vanisa', 'Freya Jayawardana', 'Helisma Putri', 'Lulu Salsabila'],
+      },
+    ],
+    source: 'https://jkt48.com/news/pengumuman-mengenai-jkt48-vocal-project-revoice',
   },
 ];
 

@@ -8,6 +8,13 @@
 export const SITE_UPDATES = [
   {
     date: '2026-11-24',
+    title: 'REVOICE di Diskografi',
+    text: 'Tiga episode JKT48 Vocal Project "REVOICE" bersama Eli, lengkap dengan penjelasan proyeknya.',
+    to: '/profile#project-revoice',
+    icon: 'ri-mic-2-line',
+  },
+  {
+    date: '2026-11-24',
     title: 'Menuju 500 Show',
     text: 'Ikuti Arme berjalan menuju show teater ke-500 Eli; maju sendiri setiap kali Eli tampil.',
     to: '/',

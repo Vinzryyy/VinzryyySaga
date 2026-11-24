@@ -15,6 +15,7 @@ const FEATURED_IDS = [
   'team-dream',
   'dream-bakudan-shonichi',
   'show-400',
+  'revoice',
   'ayo-senyumlah-mv',
 ];
 
