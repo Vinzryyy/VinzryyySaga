@@ -421,8 +421,9 @@ const ArmeChatWidget = () => {
             messages: next,
             stream: true,
             // Page Arme is on — backend uses this to inject "user
-            // sedang di /gallery" etc into the system prompt.
-            pathname,
+            // sedang di /gallery" etc into the system prompt. Admin paths
+            // carry a secret key, so only "/admin" ever leaves the browser.
+            pathname: pathname.startsWith('/admin') ? '/admin' : pathname,
           }),
           signal: controller.signal,
         });

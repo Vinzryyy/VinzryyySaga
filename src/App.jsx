@@ -53,6 +53,7 @@ const LiveRecapsPage = lazy(() => import('./pages/LiveRecaps'));
 const Rekap2026Page = lazy(() => import('./pages/Rekap2026'));
 const FanStoriesPage = lazy(() => import('./pages/FanStories'));
 const AdminStoriesPage = lazy(() => import('./pages/AdminStories'));
+const AdminHubPage = lazy(() => import('./pages/AdminHub'));
 const GalleryPage = lazy(() => import('./pages/Gallery'));
 const AboutPage = lazy(() => import('./pages/About'));
 const ProfilePage = lazy(() => import('./pages/Profile'));
@@ -489,6 +490,7 @@ function AppShell() {
             <Route path="/rekap-2026" element={<Rekap2026Page />} />
             <Route path="/cerita" element={<FanStoriesPage />} />
             <Route path="/admin/cerita" element={<AdminStoriesPage />} />
+            <Route path="/admin/:key" element={<AdminHubPage />} />
             <Route path="/mini-games/memory" element={<MiniGameMemoryPage />} />
             <Route path="/mini-games/tebak-momen" element={<TebakMomenPage />} />
             <Route path="/mini-games/lemari" element={<LemariPage />} />
