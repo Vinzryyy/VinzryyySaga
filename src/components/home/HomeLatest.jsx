@@ -22,6 +22,7 @@ import { MOODS, PLATFORMS } from '../../lib/eliNotes';
 import { getQuoteOfTheDay } from '../../lib/quoteOfTheDay';
 import { JAKARTA_TZ } from '../../utils/calendar';
 import SiteUpdates from './SiteUpdates';
+import RoadToShow from './RoadToShow';
 
 const dayFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 const shortFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short', timeZone: JAKARTA_TZ });
@@ -167,6 +168,8 @@ const HomeLatest = () => {
             </figure>
           )}
         </div>
+
+        <RoadToShow events={schedule?.events} />
 
         <nav aria-label="Jelajahi Armeniaca" className="mt-6 -mx-5 sm:mx-0 px-5 sm:px-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <ul className="flex sm:flex-wrap gap-2 w-max sm:w-auto">

@@ -974,3 +974,9 @@ html[data-motion="off"] .animate-hero-slide-in {
   transform: none !important;
   opacity: 1 !important;
 }
+
+/* Arme walking on the "Menuju 500 Show" bar (RoadToShow). */
+@keyframes arme-walk {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
+}

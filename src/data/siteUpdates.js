@@ -8,6 +8,20 @@
 export const SITE_UPDATES = [
   {
     date: '2026-11-24',
+    title: 'Menuju 500 Show',
+    text: 'Ikuti Arme berjalan menuju show teater ke-500 Eli; maju sendiri setiap kali Eli tampil.',
+    to: '/',
+    icon: 'ri-flag-2-line',
+  },
+  {
+    date: '2026-11-24',
+    title: 'Status M&G per sesi',
+    text: 'Jadwal kini menampilkan sesi M&G dan 2-Shot Eli lengkap dengan status sold out atau tersedia.',
+    to: '/schedule',
+    icon: 'ri-ticket-2-line',
+  },
+  {
+    date: '2026-11-24',
     title: 'Linimasa: 400 show theater',
     text: 'Eli mencapai show ke-400 pada 24 Juli 2026 di "Ramune no Nomikata".',
     to: '/profile#timeline',

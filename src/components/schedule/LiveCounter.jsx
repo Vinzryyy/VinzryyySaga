@@ -12,6 +12,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { isTheaterEntry, pickBaseline } from '../../lib/showMilestone';
 
 const startOfToday = () => {
   const d = new Date();
@@ -33,11 +34,7 @@ const formatAsOf = (iso) => {
 // Theater = SHOW + in-theater EVENT (NOT video call). Mirrors the
 // classification in count-eli-shows.py so live deltas line up with the
 // manual baseline.
-const isTheater = (entry) => {
-  if (entry.kind === 'SHOW') return true;
-  if (entry.kind === 'EVENT' && !entry.is_video_call) return true;
-  return false;
-};
+const isTheater = isTheaterEntry;
 
 // Video Calls Eli participates in are sold as Digital Photobook
 // "bonus VC" sessions. The schedule API tags them as kind=EXCLUSIVE
@@ -101,18 +98,8 @@ const LiveCounter = ({ events, careerStats }) => {
     };
   }, []);
 
-  // Two baselines: the per-show TSV log (eli-show-log.json) and the
-  // weekly total in siteConfig.careerStats. Use whichever is newer — the
-  // weekly #JumlahShowJKT48 total often runs ahead of the per-show log.
-  const logIsNewer =
-    showLog?.asOfDate &&
-    (!careerStats?.asOfDate || showLog.asOfDate >= careerStats.asOfDate);
-  const baselineTheater = logIsNewer
-    ? showLog.totalShows
-    : careerStats?.theater ?? showLog?.totalShows ?? 0;
-  const baselineAsOfDate = logIsNewer
-    ? showLog.asOfDate
-    : careerStats?.asOfDate ?? showLog?.asOfDate ?? null;
+  // Newer of the show log and siteConfig baseline (lib/showMilestone).
+  const { total: baselineTheater, asOfDate: baselineAsOfDate } = pickBaseline(careerStats, showLog);
   const asOfMs = baselineAsOfDate ? new Date(baselineAsOfDate).getTime() : null;
 
   const stats = useMemo(() => {
