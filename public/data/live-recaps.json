@@ -1,0 +1,53 @@
+{
+  "recaps": [
+    {
+      "id": "2026-11-24-idn",
+      "date": "2026-11-24",
+      "platform": "idn",
+      "title": "Get ready with ECEU BUDHE",
+      "startedAt": "2026-11-24T09:32:04.791Z",
+      "durationSec": 76,
+      "comments": 0,
+      "commenters": 0,
+      "peak": null,
+      "perMinute": [
+        0,
+        0
+      ],
+      "moments": [],
+      "chatWords": [],
+      "chatEmoji": [],
+      "talkWords": [
+        [
+          "jam",
+          5
+        ],
+        [
+          "baik",
+          2
+        ],
+        [
+          "cicak",
+          2
+        ],
+        [
+          "harusnya",
+          2
+        ],
+        [
+          "hujan",
+          2
+        ],
+        [
+          "kelas",
+          2
+        ],
+        [
+          "komodo",
+          2
+        ]
+      ],
+      "publishedAt": "2026-11-24T09:33:33.362Z"
+    }
+  ]
+}
