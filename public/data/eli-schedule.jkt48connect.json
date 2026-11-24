@@ -1,85 +1,8 @@
 {
   "source": "https://jkt48connect.com (fanbase plan)",
   "sourceNote": "Eli (Helisma Putri): theater shows and M&G / 2-Shot / Video Call sessions from the last 30 days and upcoming.",
-  "eventCount": 10,
+  "eventCount": 9,
   "events": [
-    {
-      "kind": "SHOW",
-      "code": "SH9B27",
-      "title": "Sambil Menggandeng Erat Tanganku",
-      "set_list": "Sambil Menggandeng Erat Tanganku",
-      "date": "2026-10-25T14:00:00+07:00",
-      "start_time": "14:00",
-      "end_time": "16:00",
-      "team": "DREAM",
-      "venue": "JKT48 Theater",
-      "members": [
-        {
-          "name": "Delynn",
-          "member_id": "2",
-          "url_key": "adeline-wijaya"
-        },
-        {
-          "name": "Olla",
-          "member_id": "88",
-          "url_key": "febriola-sinambela"
-        },
-        {
-          "name": "Ella",
-          "member_id": "97",
-          "url_key": "gabriela-abigail"
-        },
-        {
-          "name": "Gita",
-          "member_id": "104",
-          "url_key": "gita-sekar-andarini"
-        },
-        {
-          "name": "Greesel",
-          "member_id": "107",
-          "url_key": "greesella-adhalia"
-        },
-        {
-          "name": "Eli",
-          "member_id": "112",
-          "url_key": "helisma-putri"
-        },
-        {
-          "name": "Ekin",
-          "member_id": "120",
-          "url_key": "jacqueline-immanuela"
-        },
-        {
-          "name": "Marsha",
-          "member_id": "152",
-          "url_key": "marsha-lenathea"
-        },
-        {
-          "name": "Mikaela",
-          "member_id": "162",
-          "url_key": "mikaela-kusjanto"
-        },
-        {
-          "name": "Nachia",
-          "member_id": "178",
-          "url_key": "nina-tutachia"
-        },
-        {
-          "name": "Oline",
-          "member_id": "185",
-          "url_key": "oline-manuel"
-        },
-        {
-          "name": "Nala",
-          "member_id": "221",
-          "url_key": "shabilqis-naila"
-        }
-      ],
-      "is_birthday_show": false,
-      "is_video_call": false,
-      "url": "https://jkt48.com/theater/schedule",
-      "source": "jkt48connect"
-    },
     {
       "kind": "SHOW",
       "code": "SHF37D",
@@ -417,5 +340,5 @@
       "source": "jkt48connect"
     }
   ],
-  "fetchedAt": "2026-11-24T04:50:15.749Z"
+  "fetchedAt": "2026-11-24T17:49:54.755Z"
 }
