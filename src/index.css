@@ -953,3 +953,24 @@ img[loading="lazy"] {
   outline: 2px solid var(--retro-gold);
   outline-offset: 2px;
 }
+
+/* "Jeda animasi" (lib/motionPref.js): the visitor switched motion off.
+   Animations and transitions jump straight to their end state, looping
+   ones (marquee, hero zoom, ambient sway) stop. */
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+html[data-motion="off"] .marquee-track,
+html[data-motion="off"] .animate-ken-burns,
+html[data-motion="off"] .animate-hero-slide-in {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}

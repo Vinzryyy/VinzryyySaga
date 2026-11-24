@@ -20,8 +20,7 @@
 //   Kinshi Jourei"), & 300 (7 Jul 2024, "Ramune no Nomikata") diambil
 //   dari scripts/eli-show-log.tsv.
 // - Theater debut 16 Des 2018 ("Theater no Megami") = TSV row 1.
-// - Show 400 belum tercapai per 24 April 2026 (count = 385). Entry
-//   ditandai upcoming dengan date: null.
+// - Show 400 (24 Jul 2026, "Ramune no Nomikata") = TSV row 400.
 export const ELI_TIMELINE = [
   {
     id: 'audition',
@@ -208,14 +207,24 @@ export const ELI_TIMELINE = [
   },
   {
     id: 'show-400',
-    date: null,
-    period: 'Belum tercapai',
-    title: 'Menuju 400 Show Theater',
+    date: '2026-07-24',
+    period: '24 Juli 2026',
+    title: 'Mencapai 400 Show Theater',
     body:
-      'Per April 2026, Eli mencatat 385 pertunjukan theater JKT48. Angka 400 tinggal selangkah lagi — milestone karier yang lazim dirayakan komunitas teater JKT48 sebagai penanda longevitas di panggung. Entry ini akan diperbarui dengan tanggal pasti ketika tercapai.',
-    badge: 'Theater · Menuju 400',
+      'Eli menyentuh pertunjukan theater ke-400 pada 24 Juli 2026 di setlist "Ramune no Nomikata", setlist yang sama dengan saat ia mencapai show ke-300 dua tahun sebelumnya. Hampir delapan tahun setelah debut theater di "Theater no Megami", angka ini menjadi bukti konsistensi Eli di panggung JKT48. Per 15 November 2026, catatannya sudah mencapai 417 show.',
+    badge: 'Theater · 400 Show',
     category: 'show-recap',
-    upcoming: true,
+  },
+  {
+    // Tanggal = hari syuting MV (RRI, 20 Sep 2026); tanggal rilis resmi
+    // belum terverifikasi, jadi period ditulis bulannya saja.
+    id: 'ayo-senyumlah-mv',
+    date: '2026-09-20',
+    period: 'September 2026',
+    title: 'MV Single "Ayo Senyumlah"',
+    body:
+      'Eli tampil dalam music video "Ayo Senyumlah", single ke-28 JKT48 dengan center Jazzlyn Trisha. Syutingnya digelar saat Car Free Day di kawasan Gelora Bung Karno, Senayan, dengan kostum yang menonjolkan batik Indonesia. Lagu ini kemudian dibawa berkeliling lewat Ayo Senyumlah Mini Tour, salah satunya di Manado.',
+    badge: 'Single · MV',
   },
 ];
 

@@ -14,6 +14,8 @@ const FEATURED_IDS = [
   'undergirl-bibir-2024',
   'team-dream',
   'dream-bakudan-shonichi',
+  'show-400',
+  'ayo-senyumlah-mv',
 ];
 
 const CareerTimeline = () => {

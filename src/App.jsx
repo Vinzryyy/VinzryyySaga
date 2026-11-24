@@ -36,6 +36,7 @@ import PetalBurst from './components/ui/PetalBurst';
 import BirthdayCelebration from './components/countdown/BirthdayCelebration';
 import BirthdayMusic from './components/celebration/BirthdayMusic';
 import TownMusic from './components/taman/TownMusic';
+import MotionToggle, { useMotionOff } from './components/ui/MotionToggle';
 const ArmeChatWidget = lazy(() => import('./components/ArmeChatWidget'));
 import useIsBirthdayToday from './hooks/useIsBirthdayToday';
 import { SITE_CONFIG } from './config/siteConfig';
@@ -419,6 +420,9 @@ function AppShell() {
   // animations stay in sync. Disabled for prefers-reduced-motion.
   // smoothTouch: false keeps native iOS momentum on touch devices.
   const lenisRef = useRef(null);
+  // Re-run when the visitor flips "Jeda animasi" so smooth scroll stops
+  // (or comes back) right away.
+  const motionOff = useMotionOff();
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let gsapTicker;
@@ -448,7 +452,7 @@ function AppShell() {
         import('gsap').then(({ gsap }) => gsap.ticker.remove(gsapTicker));
       }
     };
-  }, []);
+  }, [motionOff]);
 
   return (
     <>
@@ -572,6 +576,7 @@ function AppShell() {
       <Suspense fallback={null}>
         <ArmeChatWidget />
       </Suspense>
+      <MotionToggle />
     </>
   );
 }

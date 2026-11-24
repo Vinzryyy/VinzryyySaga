@@ -21,6 +21,7 @@ import { fmtDuration } from '../../lib/liveRecaps';
 import { MOODS, PLATFORMS } from '../../lib/eliNotes';
 import { getQuoteOfTheDay } from '../../lib/quoteOfTheDay';
 import { JAKARTA_TZ } from '../../utils/calendar';
+import SiteUpdates from './SiteUpdates';
 
 const dayFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 const shortFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short', timeZone: JAKARTA_TZ });
@@ -185,6 +186,8 @@ const HomeLatest = () => {
             ))}
           </ul>
         </nav>
+
+        <SiteUpdates />
       </div>
     </section>
   );

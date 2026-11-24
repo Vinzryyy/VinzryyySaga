@@ -97,6 +97,7 @@ export const ERA_DEFS = [
       'team-dream',
       'dream-bakudan-shonichi',
       'show-400',
+      'ayo-senyumlah-mv',
     ],
   },
 ];

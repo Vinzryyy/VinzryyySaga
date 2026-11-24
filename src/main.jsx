@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import { installMotionPref } from "./lib/motionPref";
 // Self-hosted fonts via @fontsource. Variable variants give us the full
 // weight + axis range from a single woff2 each — smaller total bytes
 // than loading 5+ static weights of Poppins/Playfair did, plus richer
@@ -12,6 +13,10 @@ import "@fontsource-variable/fraunces";
 import "@fontsource-variable/plus-jakarta-sans";
 import "./index.css";
 import "./remixicon.css";
+
+// Visitor's own "Jeda animasi" choice must be in place before any
+// component asks matchMedia about reduced motion.
+installMotionPref();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
