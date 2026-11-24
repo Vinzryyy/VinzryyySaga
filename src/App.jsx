@@ -487,6 +487,8 @@ function AppShell() {
             <Route path="/eli-notes/:slug" element={<EliNotesPage />} />
             <Route path="/rekap-live" element={<LiveRecapsPage />} />
             <Route path="/rekap-live/:id" element={<LiveRecapsPage />} />
+            <Route path="/rekap-live/minggu" element={<LiveRecapsPage />} />
+            <Route path="/rekap-live/minggu/:week" element={<LiveRecapsPage />} />
             <Route path="/rekap-2026" element={<Rekap2026Page />} />
             <Route path="/cerita" element={<FanStoriesPage />} />
             <Route path="/admin/cerita" element={<AdminStoriesPage />} />

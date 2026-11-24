@@ -8,6 +8,13 @@
 export const SITE_UPDATES = [
   {
     date: '2026-11-24',
+    title: 'Ringkasan mingguan',
+    text: 'Seminggu live Eli dalam satu halaman: berapa kali live, menit terlama, kata favorit penonton, dan momen dari Eli Notes.',
+    to: '/rekap-live/minggu',
+    icon: 'ri-calendar-2-line',
+  },
+  {
+    date: '2026-11-24',
     title: 'Momen privat tidak dicatat',
     text: 'Kalau Eli bilang "kita-kita aja yang tau ya" atau "jangan diklip", bagian live itu dilewati di Eli Notes dan Rekap Live.',
     to: '/eli-notes',

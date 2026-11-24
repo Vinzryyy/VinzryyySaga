@@ -59,9 +59,27 @@ export const fmtDuration = (sec) => {
 /** Average comments per minute, one decimal. */
 export const perMinuteAvg = (r) => (r.durationSec ? Math.round((r.comments / (r.durationSec / 60)) * 10) / 10 : 0);
 
-/** Eli Notes written about this live (same day + platform). */
-export const notesForRecap = (notes, recap) =>
-  (notes || []).filter((n) => n.date === recap.date && n.platform === recap.platform);
+/**
+ * The recap a note belongs to. Notes from EliRecorder carry the recording's
+ * startedAt, which is the recap's own. Older notes fall back to: same day +
+ * platform, long enough to contain the minute, same title, then the longest
+ * (a day with a 1-minute test live and a real one picks the real one).
+ */
+export const recapForNote = (recaps, note) => {
+  if (!note) return null;
+  const list = recaps || [];
+  if (note.startedAt) {
+    const exact = list.find((r) => r.startedAt === note.startedAt);
+    if (exact) return exact;
+  }
+  const fits = list.filter((r) => r.date === note.date && r.platform === note.platform && r.durationSec >= note.at);
+  const score = (r) => (note.liveTitle && r.title === note.liveTitle ? 1e7 : 0) + r.durationSec;
+  return fits.reduce((best, r) => (best === null || score(r) > score(best) ? r : best), null);
+};
+
+/** Eli Notes written about this live. `recaps` = all recaps, to tell two lives on one day apart. */
+export const notesForRecap = (notes, recap, recaps = [recap]) =>
+  (notes || []).filter((n) => recapForNote(recaps, n)?.id === recap.id);
 
 /** The Eli Note (if any) within `window` seconds of a moment. */
 export const noteNear = (notes, t, window = 90) =>
@@ -209,4 +227,80 @@ export const monthlyTotals = (recaps) => {
 export const yearTotals = (recaps, year) => {
   const list = (recaps || []).filter((r) => r.date.startsWith(String(year)));
   return { lives: list.length, minutes: Math.round(list.reduce((a, r) => a + r.durationSec, 0) / 60), comments: list.reduce((a, r) => a + r.comments, 0) };
+};
+
+// ── Ringkasan mingguan: one week of lives and notes ───────────────────
+
+/** Monday (YYYY-MM-DD) of the week a date falls in. Dates are already WIB days. */
+export const weekOf = (date) => {
+  const ms = Date.parse(`${date}T00:00:00Z`);
+  return isoDay(ms - ((new Date(ms).getUTCDay() + 6) % 7) * DAY_MS);
+};
+
+const addDays = (date, n) => isoDay(Date.parse(`${date}T00:00:00Z`) + n * DAY_MS);
+export const WEEK_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Sums [[word, n]] lists and keeps the `limit` most common. */
+const mergePairs = (lists, limit) => {
+  const m = new Map();
+  for (const pairs of lists) for (const [w, n] of pairs || []) m.set(w, (m.get(w) || 0) + n);
+  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, limit);
+};
+
+/**
+ * One summary per week that had a live or a note, newest first:
+ * { week (Monday), end (Sunday), lives, minutes, comments, recaps (newest
+ *   first), busiest, longest, chatWords, talkWords, notes, moods: [[mood, n]],
+ *   picks (up to 3 quoted notes, different moods first) }.
+ * Numbers come from the recaps; the stories from Eli Notes.
+ */
+// A recording this short is a restart or a test, not a live of its own.
+export const MIN_WEEK_LIVE_SEC = 180;
+
+export const weeklySummaries = (recaps, notes = []) => {
+  const weeks = new Map();
+  const get = (week) => {
+    if (!weeks.has(week)) weeks.set(week, { week, end: addDays(week, 6), recaps: [], notes: [] });
+    return weeks.get(week);
+  };
+  for (const r of recaps || []) if (r.durationSec >= MIN_WEEK_LIVE_SEC) get(weekOf(r.date)).recaps.push(r);
+  for (const n of notes || []) get(weekOf(n.date)).notes.push(n);
+  const out = [...weeks.values()].map((w) => {
+    const rs = [...w.recaps].sort((a, b) => String(b.startedAt || b.date).localeCompare(String(a.startedAt || a.date)));
+    const ns = [...w.notes].sort((a, b) => b.date.localeCompare(a.date) || a.at - b.at);
+    const moods = new Map();
+    for (const n of ns) moods.set(n.mood, (moods.get(n.mood) || 0) + 1);
+    const picks = [];
+    const usedMoods = new Set();
+    for (const n of ns) if (picks.length < 3 && n.quote && !usedMoods.has(n.mood)) { picks.push(n); usedMoods.add(n.mood); }
+    for (const n of ns) if (picks.length < 3 && n.quote && !picks.includes(n)) picks.push(n);
+    return {
+      week: w.week,
+      end: w.end,
+      lives: rs.length,
+      minutes: Math.round(rs.reduce((a, r) => a + r.durationSec, 0) / 60),
+      comments: rs.reduce((a, r) => a + r.comments, 0),
+      recaps: rs,
+      busiest: rs.length > 1 ? maxBy(rs, (r) => r.comments) : rs[0] || null,
+      longest: rs.length > 1 ? maxBy(rs, (r) => r.durationSec) : rs[0] || null,
+      chatWords: mergePairs(rs.map((r) => r.chatWords), 10),
+      talkWords: mergePairs(rs.map((r) => r.talkWords), 10),
+      notes: ns,
+      moods: [...moods.entries()].sort((a, b) => b[1] - a[1]),
+      picks,
+    };
+  });
+  out.sort((a, b) => b.week.localeCompare(a.week));
+  return out;
+};
+
+/** "23–29 November 2026", "30 November – 6 Desember 2026". */
+export const weekLabel = (week) => {
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  const end = addDays(week, 6);
+  const [y1, m1, d1] = week.split('-').map(Number);
+  const [y2, m2, d2] = end.split('-').map(Number);
+  if (y1 !== y2) return `${d1} ${months[m1 - 1]} ${y1} – ${d2} ${months[m2 - 1]} ${y2}`;
+  if (m1 !== m2) return `${d1} ${months[m1 - 1]} – ${d2} ${months[m2 - 1]} ${y2}`;
+  return `${d1}–${d2} ${months[m1 - 1]} ${y1}`;
 };

@@ -12,6 +12,8 @@ import { Link, useParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { useGallery } from '../context';
 import { useEliNotes } from '../hooks/useEliNotes';
+import { useLiveRecaps } from '../hooks/useLiveRecaps';
+import { fmtDuration, recapForNote, weekOf } from '../lib/liveRecaps';
 import { MOODS, PLATFORMS, embedOf, fmtMinute } from '../lib/eliNotes';
 import { buildMoments, showsOn } from '../lib/moments';
 import { NoteCard, Stamp } from '../components/EliNoteCard';
@@ -222,6 +224,39 @@ const LinkBlock = ({ link }) => {
   );
 };
 
+/** The live this note came from, as a small dark card: its pulse with this minute marked, and a link to the full recap. */
+const RecapAside = ({ recap, at }) => {
+  const minute = Math.floor(at / 60);
+  const bars = recap.perMinute;
+  const max = Math.max(1, ...bars);
+  const here = bars[minute] ?? 0;
+  return (
+    <Link
+      to={`/rekap-live/${recap.id}`}
+      className="group block rounded-2xl bg-[#16110e] text-[#f4ece4] p-5 hover:ring-2 hover:ring-[color:var(--retro-gold)] transition"
+    >
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]">Rekap live ini</p>
+      <p className="mt-2 font-header text-2xl font-black leading-tight">{fmtDuration(recap.durationSec)}</p>
+      <p className="text-sm text-[#f4ece4]/65">{recap.comments.toLocaleString('id-ID')} komentar</p>
+      <div className="mt-4 flex items-end gap-px h-12" aria-hidden="true">
+        {bars.map((v, i) => (
+          <span
+            key={i}
+            className="flex-1 rounded-t-sm"
+            style={{ height: `${Math.max(8, (v / max) * 100)}%`, background: i === minute ? 'var(--retro-gold)' : 'rgba(244,236,228,0.22)' }}
+          />
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-[#f4ece4]/60">
+        Momen ini di menit {minute + 1}: {here.toLocaleString('id-ID')} komentar{recap.peak && recap.peak.minute === minute ? ', menit paling ramai' : ''}.
+      </p>
+      <p className="mt-4 pt-3 border-t border-[#f4ece4]/12 text-xs font-black uppercase tracking-[0.2em] flex items-center justify-between">
+        Lihat rekapnya <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
+      </p>
+    </Link>
+  );
+};
+
 const NoteDetail = ({ note, prev, next }) => {
   const { images } = useGallery();
   const [showLog, setShowLog] = useState(null);
@@ -232,6 +267,8 @@ const NoteDetail = ({ note, prev, next }) => {
   }, []);
   const shows = showsOn(showLog, note.date);
   const photoMoments = useMemo(() => buildMoments(images).filter((m) => m.date === note.date), [images, note.date]);
+  const { recaps } = useLiveRecaps();
+  const recap = useMemo(() => recapForNote(recaps, note), [recaps, note]);
 
   return (
     <>
@@ -244,6 +281,9 @@ const NoteDetail = ({ note, prev, next }) => {
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <Link to="/eli-notes" className="mt-5 inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)]">
           <i className="ri-arrow-left-line" /> Semua catatan
+        </Link>
+        <Link to={`/rekap-live/minggu/${weekOf(note.date)}`} className="mt-5 ml-5 inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)] hover:text-[color:var(--retro-burgundy)]">
+          <i className="ri-calendar-2-line" /> Minggu ini
         </Link>
 
         <div className="mt-5 grid gap-4 md:grid-cols-[1fr_280px]">
@@ -265,6 +305,7 @@ const NoteDetail = ({ note, prev, next }) => {
           </div>
 
           <div className="flex flex-col gap-4">
+            {recap && <RecapAside recap={recap} at={note.at} />}
             {shows.length > 0 && (
               <aside className="rounded-2xl bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] p-5">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-gold-light)]">Panggung hari itu</p>

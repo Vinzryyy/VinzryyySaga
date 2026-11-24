@@ -12,7 +12,10 @@
  * Data: public/data/eli-notes.json → { notes: [Note] }
  *   Note = { id, status: 'draft'|'published', date: 'YYYY-MM-DD',
  *            platform: 'idn'|'showroom', liveTitle, at (seconds into the live),
- *            quote, story, mood, link?, createdAt, updatedAt }
+ *            quote, story, mood, link?, startedAt?, createdAt, updatedAt }
+ *   startedAt = when the recording of that live started (same value as the
+ *   Rekap Live's startedAt), so a note finds its recap even on a day with
+ *   two lives.
  *
  * Pure functions so the page, EliRecorder and tests share the same rules.
  */
@@ -106,6 +109,7 @@ export const validateNote = (n) => {
   if (story.length > LIMITS.story) errors.push(`Cerita maksimal ${LIMITS.story} karakter.`);
   if (str(n.liveTitle).length > LIMITS.liveTitle) errors.push('Judul live terlalu panjang.');
   if (n.link && !safeLink(n.link)) errors.push('Tautan harus https dari YouTube, TikTok, X, Instagram, IDN, SHOWROOM atau jkt48.com.');
+  if (n.startedAt !== undefined && (typeof n.startedAt !== 'string' || Number.isNaN(Date.parse(n.startedAt)))) errors.push('Waktu mulai live tidak valid.');
   if (n.status && n.status !== 'draft' && n.status !== 'published') errors.push('Status tidak dikenal.');
   return errors;
 };

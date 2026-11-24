@@ -11,12 +11,13 @@
  */
 
 import React, { useEffect, useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import Seo from '../components/Seo';
 import { NoteCard } from '../components/EliNoteCard';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { fmtMinute } from '../lib/eliNotes';
-import { fmtDuration, liveCalendar, livePattern, monthlyTotals, noteNear, notesForRecap, perMinuteAvg, recapInsights, recapRecords } from '../lib/liveRecaps';
+import { MOODS } from '../lib/eliNotes';
+import { WEEK_RE, fmtDuration, liveCalendar, livePattern, monthlyTotals, noteNear, notesForRecap, perMinuteAvg, recapInsights, recapRecords, weekLabel, weekOf, weeklySummaries } from '../lib/liveRecaps';
 import { useLiveRecaps } from '../hooks/useLiveRecaps';
 import RecapShareCard from '../components/RecapShareCard';
 
@@ -114,7 +115,7 @@ const Words = ({ pairs, emoji = false }) => {
 const RecapDetail = ({ recap, prev, next, all }) => {
   const { notes } = useEliNotes();
   const insights = useMemo(() => recapInsights(all, recap), [all, recap]);
-  const liveNotes = useMemo(() => notesForRecap(notes, recap), [notes, recap]);
+  const liveNotes = useMemo(() => notesForRecap(notes, recap, all), [notes, recap, all]);
 
   return (
     <>
@@ -343,9 +344,144 @@ const Insights = ({ recaps }) => (
   </div>
 );
 
+// ── Ringkasan mingguan ───────────────────────────────────────────────
+
+const dayFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
+const dayName = (r) => dayFmt.format(new Date(r.startedAt || `${r.date}T12:00:00+07:00`));
+
+/** A few plain sentences from the week's numbers (no guessing). */
+const weekSentences = (w, prev) => {
+  const out = [];
+  if (w.lives === 0) out.push('Minggu ini tidak ada live yang terekam, tapi ada catatan dari live Eli.');
+  else {
+    out.push(`Eli live ${w.lives} kali, total ${fmtDuration(w.minutes * 60)}, dengan ${fmtN(w.comments)} komentar.`);
+    if (prev && prev.lives > 0) {
+      const diff = w.minutes - prev.minutes;
+      if (Math.abs(diff) >= 10) out.push(`Itu ${fmtDuration(Math.abs(diff) * 60)} ${diff > 0 ? 'lebih lama' : 'lebih singkat'} dari minggu sebelumnya.`);
+    }
+    if (w.lives > 1 && w.busiest) out.push(`Paling ramai live ${dayName(w.busiest)}${w.busiest.startedAt ? ` pukul ${timeFmt.format(new Date(w.busiest.startedAt))}` : ''}, ${fmtN(w.busiest.comments)} komentar.`);
+    if (w.chatWords[0]) out.push(`Kata yang paling sering diketik penonton: “${w.chatWords[0][0]}”.`);
+  }
+  if (w.notes.length) out.push(`${w.notes.length} momen kami tulis di Eli Notes.`);
+  return out;
+};
+
+/** The newest week, as a panel on /rekap-live. */
+const WeekTeaser = ({ weeks }) => {
+  const w = weeks[0];
+  if (!w) return null;
+  const current = w.week === weekOf(todayWib());
+  return (
+    <Panel
+      label={`Ringkasan mingguan · ${current ? 'minggu ini' : weekLabel(w.week)}`}
+      className="mb-6"
+      foot={<><Link to={`/rekap-live/minggu/${w.week}`} className="text-[color:var(--retro-gold-light)]">Baca ringkasannya</Link><i className="ri-arrow-right-line" /></>}
+    >
+      <p className="font-header text-2xl sm:text-3xl font-black leading-tight">{weekLabel(w.week)}</p>
+      <p className="mt-2 text-sm text-[#f4ece4]/70 max-w-2xl">{weekSentences(w, weeks[1]).join(' ')}</p>
+      {weeks.length > 1 && (
+        <p className="mt-4 flex flex-wrap gap-2 text-xs">
+          {weeks.slice(1, 7).map((x) => (
+            <Link key={x.week} to={`/rekap-live/minggu/${x.week}`} className="rounded-full border px-3 py-1 font-bold text-[#f4ece4]/70 hover:border-[color:var(--retro-gold)]" style={{ borderColor: LINE }}>
+              {weekLabel(x.week)}
+            </Link>
+          ))}
+        </p>
+      )}
+    </Panel>
+  );
+};
+
+const WeekDetail = ({ w, prev, next }) => {
+  const sentences = weekSentences(w, prev);
+  const others = w.notes.filter((n) => !w.picks.includes(n));
+  return (
+    <>
+      <header className="pt-24 sm:pt-28 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+          <Link to="/rekap-live" className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-gold-light)]">
+            <i className="ri-arrow-left-line" /> Semua rekap
+          </Link>
+          <div className="mt-5"><Eyebrow>Ringkasan mingguan</Eyebrow></div>
+          <h1 className="mt-4 font-header font-black uppercase leading-[0.92] tracking-tight text-4xl sm:text-6xl">{weekLabel(w.week)}</h1>
+          <p className="mt-5 text-base sm:text-lg text-[#f4ece4]/75 max-w-2xl">{sentences.join(' ')}</p>
+        </div>
+      </header>
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-8 grid gap-4">
+        {w.lives > 0 && (
+          <Panel>
+            <div className="grid grid-cols-3 gap-6">
+              <Stat value={fmtN(w.lives)} label="live" />
+              <Stat value={fmtN(w.minutes)} label="menit" />
+              <Stat value={fmtN(w.comments)} label="komentar" />
+            </div>
+          </Panel>
+        )}
+
+        {w.lives > 0 && (
+          <Panel label="Live minggu ini">
+            <ul className="divide-y" style={{ borderColor: LINE }}>
+              {[...w.recaps].reverse().map((r) => (
+                <li key={r.id} style={{ borderColor: LINE }}>
+                  <Link to={`/rekap-live/${r.id}`} className="group flex items-center justify-between gap-3 py-3">
+                    <span>
+                      <span className="block font-bold capitalize">{dayName(r)}{r.startedAt ? `, ${timeFmt.format(new Date(r.startedAt))} WIB` : ''}</span>
+                      <span className="block text-xs text-[#f4ece4]/55 line-clamp-1">{r.title ? `“${r.title}” · ` : ''}{PLATFORM[r.platform]}</span>
+                    </span>
+                    <span className="text-right text-xs font-black uppercase tracking-[0.15em] text-[#f4ece4]/70 shrink-0">
+                      {fmtDuration(r.durationSec)} · {fmtN(r.comments)} komentar
+                      {w.lives > 1 && r === w.busiest && <span className="block text-[color:var(--retro-gold)]">paling ramai</span>}
+                      {w.lives > 1 && r === w.longest && r !== w.busiest && <span className="block text-[color:var(--retro-gold)]">terlama</span>}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+        )}
+
+        {w.lives > 0 && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <Panel label="Yang paling sering diketik penonton"><Words pairs={w.chatWords} /></Panel>
+            <Panel label="Yang Eli bicarakan">
+              <Words pairs={w.talkWords} />
+              <p className="mt-4 text-xs text-[#f4ece4]/45">Dari subtitle otomatis, jadi bisa ada kata yang salah dengar.</p>
+            </Panel>
+          </div>
+        )}
+
+        {w.notes.length > 0 && (
+          <section className="mt-2">
+            <Eyebrow>Dari Eli Notes{w.moods.length ? ` · ${w.moods.map(([m, n]) => `${n} ${MOODS[m]?.label.toLowerCase() || m}`).join(', ')}` : ''}</Eyebrow>
+            <ul className="en-board mt-8">
+              {[...w.picks, ...others].map((n) => <li key={n.id}><NoteCard note={n} /></li>)}
+            </ul>
+          </section>
+        )}
+
+        <nav className="mt-4 grid grid-cols-2 gap-3" aria-label="Minggu lain">
+          {prev ? (
+            <Link to={`/rekap-live/minggu/${prev.week}`} className="rounded-2xl border p-4 hover:border-[color:var(--retro-gold)]" style={{ borderColor: LINE }}>
+              <span className="text-xs text-[#f4ece4]/50"><i className="ri-arrow-left-line" /> Minggu sebelumnya</span>
+              <span className="mt-1 block text-sm font-bold">{weekLabel(prev.week)}</span>
+            </Link>
+          ) : <span />}
+          {next ? (
+            <Link to={`/rekap-live/minggu/${next.week}`} className="rounded-2xl border p-4 text-right hover:border-[color:var(--retro-gold)]" style={{ borderColor: LINE }}>
+              <span className="text-xs text-[#f4ece4]/50">Minggu sesudahnya <i className="ri-arrow-right-line" /></span>
+              <span className="mt-1 block text-sm font-bold">{weekLabel(next.week)}</span>
+            </Link>
+          ) : <span />}
+        </nav>
+      </div>
+    </>
+  );
+};
+
 // ── List ─────────────────────────────────────────────────────────────
 
-const RecapList = ({ recaps, loading }) => {
+const RecapList = ({ recaps, loading, weeks }) => {
   const totals = useMemo(() => ({
     lives: recaps.length,
     minutes: Math.round(recaps.reduce((a, r) => a + r.durationSec, 0) / 60),
@@ -377,6 +513,8 @@ const RecapList = ({ recaps, loading }) => {
             </div>
           </Panel>
         )}
+
+        {weeks.length > 0 && <WeekTeaser weeks={weeks} />}
 
         {recaps.length > 0 && <Insights recaps={recaps} />}
 
@@ -425,14 +563,39 @@ const RecapList = ({ recaps, loading }) => {
 // ── Page ─────────────────────────────────────────────────────────────
 
 const LiveRecaps = () => {
-  const { id } = useParams();
+  const { id, week } = useParams();
+  const isWeek = useLocation().pathname.startsWith('/rekap-live/minggu');
   const { recaps, loading } = useLiveRecaps();
+  const { notes, loading: notesLoading } = useEliNotes();
+  const weeks = useMemo(() => weeklySummaries(recaps, notes), [recaps, notes]);
   const idx = id ? recaps.findIndex((r) => r.id === id) : -1;
   const recap = idx >= 0 ? recaps[idx] : null;
+  const wIdx = isWeek ? (week && WEEK_RE.test(week) ? weeks.findIndex((x) => x.week === weekOf(week)) : 0) : -1;
+  const w = wIdx >= 0 ? weeks[wIdx] : null;
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [id]);
+  }, [id, week]);
+
+  if (isWeek) {
+    return (
+      <Board>
+        <Seo
+          path={w ? `/rekap-live/minggu/${w.week}` : '/rekap-live/minggu'}
+          title={w ? `Ringkasan mingguan ${weekLabel(w.week)}` : 'Ringkasan mingguan'}
+          description={w ? `Seminggu live Eli JKT48 (${weekLabel(w.week)}): ${weekSentences(w, weeks[wIdx + 1]).join(' ')}` : 'Ringkasan mingguan live IDN dan SHOWROOM Eli JKT48.'}
+        />
+        {w ? (
+          <WeekDetail w={w} prev={weeks[wIdx + 1]} next={weeks[wIdx - 1]} />
+        ) : (
+          <div className="pt-28 px-4 sm:px-6 max-w-5xl mx-auto">
+            <h1 className="font-header text-4xl font-black uppercase">{loading || notesLoading ? 'Memuat…' : 'Belum ada ringkasan untuk minggu ini'}</h1>
+            <Link to="/rekap-live" className="mt-4 inline-block text-sm font-bold underline text-[color:var(--retro-gold-light)]">Lihat semua rekap</Link>
+          </div>
+        )}
+      </Board>
+    );
+  }
 
   return (
     <Board>
@@ -446,7 +609,7 @@ const LiveRecaps = () => {
         }
       />
       {!id ? (
-        <RecapList recaps={recaps} loading={loading} />
+        <RecapList recaps={recaps} loading={loading} weeks={weeks} />
       ) : recap ? (
         <RecapDetail recap={recap} prev={recaps[idx - 1]} next={recaps[idx + 1]} all={recaps} />
       ) : (

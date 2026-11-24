@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fmtDuration, liveCalendar, livePattern, monthlyTotals, noteNear, notesForRecap, perMinuteAvg, publicRecaps, recapId, recapInsights, recapProblems, recapRecords, scrubWords, yearTotals } from '../liveRecaps';
+import { fmtDuration, liveCalendar, livePattern, monthlyTotals, noteNear, notesForRecap, perMinuteAvg, publicRecaps, recapForNote, recapId, recapInsights, recapProblems, recapRecords, scrubWords, weekLabel, weekOf, weeklySummaries, yearTotals } from '../liveRecaps';
 
 const recap = (extra = {}) => ({
   id: '2026-11-22-idn',
@@ -117,5 +117,69 @@ describe('context: insights, records, calendar, pattern, totals', () => {
     expect(livePattern(list.slice(0, 3))).toBeNull();
     expect(monthlyTotals(list).map((m) => [m.month, m.lives])).toEqual([['2026-11', 4], ['2026-10', 1]]);
     expect(yearTotals(list, 2026)).toEqual({ lives: 5, minutes: 182, comments: 6700 });
+  });
+});
+
+describe('which live a note belongs to', () => {
+  const test = recap({ id: '2026-11-24-idn', date: '2026-11-24', startedAt: '2026-11-24T09:32:04Z', durationSec: 76, title: 'Get ready' });
+  const real = recap({ id: '2026-11-24-idn-2', date: '2026-11-24', startedAt: '2026-11-24T09:33:40Z', durationSec: 3510, title: 'Get ready' });
+  const evening = recap({ id: '2026-11-24-idn-3', date: '2026-11-24', startedAt: '2026-11-24T14:00:00Z', durationSec: 1800, title: 'Malam' });
+  const all = [test, real, evening];
+  const note = (at, extra = {}) => ({ id: `n${at}`, date: '2026-11-24', platform: 'idn', at, liveTitle: 'Get ready', ...extra });
+
+  it('uses startedAt when the note has it', () => {
+    expect(recapForNote(all, note(30, { startedAt: test.startedAt }))?.id).toBe(test.id);
+    expect(recapForNote(all, note(30, { startedAt: evening.startedAt, liveTitle: 'x' }))?.id).toBe(evening.id);
+  });
+
+  it('older notes: long enough, same title, then the longest', () => {
+    expect(recapForNote(all, note(30))?.id).toBe(real.id);
+    expect(recapForNote(all, note(1200, { liveTitle: 'Malam' }))?.id).toBe(evening.id);
+    expect(recapForNote(all, note(9999))).toBeNull();
+    expect(recapForNote(all, { ...note(30), date: '2026-11-23' })).toBeNull();
+  });
+
+  it('notesForRecap keeps each note with one live only', () => {
+    const notes = [note(30), note(229), note(1200, { liveTitle: 'Malam' })];
+    expect(notesForRecap(notes, test, all)).toEqual([]);
+    expect(notesForRecap(notes, real, all).map((n) => n.id)).toEqual(['n30', 'n229']);
+    expect(notesForRecap(notes, evening, all).map((n) => n.id)).toEqual(['n1200']);
+  });
+});
+
+describe('ringkasan mingguan', () => {
+  it('weeks start on Monday', () => {
+    expect(weekOf('2026-11-24')).toBe('2026-11-23'); // Tuesday
+    expect(weekOf('2026-11-23')).toBe('2026-11-23');
+    expect(weekOf('2026-11-29')).toBe('2026-11-23'); // Sunday
+    expect(weekOf('2026-11-30')).toBe('2026-11-30');
+    expect(weekLabel('2026-11-23')).toBe('23–29 November 2026');
+    expect(weekLabel('2026-11-30')).toBe('30 November – 6 Desember 2026');
+    expect(weekLabel('2026-12-28')).toBe('28 Desember 2026 – 3 Januari 2027');
+  });
+
+  it('adds up lives, merges words and picks quoted notes', () => {
+    const a = recap({ id: '2026-11-24-idn', date: '2026-11-24', startedAt: '2026-11-24T09:00:00Z', durationSec: 3600, comments: 200, chatWords: [['budhe', 18], ['hujan', 10]] });
+    const b = recap({ id: '2026-11-26-idn', date: '2026-11-26', startedAt: '2026-11-26T09:00:00Z', durationSec: 1800, comments: 500, chatWords: [['hujan', 12], ['wkwk', 3]] });
+    const old = recap({ id: '2026-11-17-idn', date: '2026-11-17', startedAt: '2026-11-17T09:00:00Z' });
+    const n = (date, at, mood, quote) => ({ id: `${date}-idn-${at}`, date, at, mood, quote, platform: 'idn' });
+    const notes = [n('2026-11-24', 900, 'lucu', 'A'), n('2026-11-24', 100, 'lucu', 'B'), n('2026-11-26', 50, 'haru', ''), n('2026-11-25', 10, 'seru', 'C')];
+    const restart = recap({ id: '2026-11-24-idn-2', date: '2026-11-24', durationSec: 76, comments: 0 });
+    const weeks = weeklySummaries([a, b, old, restart], notes);
+    expect(weeks.map((w) => w.week)).toEqual(['2026-11-23', '2026-11-16']);
+    const w = weeks[0];
+    expect([w.lives, w.minutes, w.comments]).toEqual([2, 90, 700]);
+    expect(w.busiest.id).toBe(b.id);
+    expect(w.longest.id).toBe(a.id);
+    expect(w.chatWords.slice(0, 2)).toEqual([['hujan', 22], ['budhe', 18]]);
+    expect(w.notes.map((x) => x.at)).toEqual([50, 10, 100, 900]); // newest day first, in order within a live
+    expect(w.picks.map((x) => x.quote)).toEqual(['C', 'B', 'A']); // one per mood first
+    expect(w.moods[0]).toEqual(['lucu', 2]);
+    expect(weeks[1].notes).toEqual([]);
+  });
+
+  it('a week with notes but no recap still shows up', () => {
+    const weeks = weeklySummaries([], [{ id: 'x', date: '2026-11-02', at: 1, mood: 'lucu', quote: 'hi' }]);
+    expect(weeks[0]).toMatchObject({ week: '2026-11-02', lives: 0, busiest: null });
   });
 });
