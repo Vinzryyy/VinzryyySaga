@@ -8,6 +8,13 @@
 export const SITE_UPDATES = [
   {
     date: '2026-11-24',
+    title: 'Momen privat tidak dicatat',
+    text: 'Kalau Eli bilang "kita-kita aja yang tau ya" atau "jangan diklip", bagian live itu dilewati di Eli Notes dan Rekap Live.',
+    to: '/eli-notes',
+    icon: 'ri-lock-line',
+  },
+  {
+    date: '2026-11-24',
     title: 'REVOICE di Diskografi',
     text: 'Tiga episode JKT48 Vocal Project "REVOICE" bersama Eli, lengkap dengan penjelasan proyeknya.',
     to: '/profile#project-revoice',

@@ -214,6 +214,10 @@ const RecapDetail = ({ recap, prev, next, all }) => {
             dan tanpa kutipan dari transkrip. Cerita momennya kami tulis sendiri di{' '}
             <Link to="/eli-notes" className="font-bold underline text-[color:var(--retro-gold-light)]">Eli Notes</Link>.
           </p>
+          <p className="mt-2 text-sm text-[#f4ece4]/65 leading-relaxed">
+            <i className="ri-lock-line" aria-hidden="true" /> Kalau Eli bilang “kita-kita aja yang tau ya” atau “jangan diklip”, bagian
+            live itu dilewati: tidak masuk kata-kata, momen, maupun catatan. Yang tersisa hanya jumlah komentarnya.
+          </p>
         </Panel>
 
         <nav className="mt-4 grid grid-cols-2 gap-3" aria-label="Rekap lain">

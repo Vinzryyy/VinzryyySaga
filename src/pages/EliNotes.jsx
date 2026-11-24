@@ -96,6 +96,10 @@ const NoteList = ({ notes, loading }) => {
           Momen-momen dari live IDN dan SHOWROOM yang sayang kalau terlewat, kami tulis ulang dengan kata-kata sendiri.
           Ada kutipan singkat Eli, menit kejadiannya, dan tautan ke tempat momennya diunggah.
         </p>
+        <p className="mt-3 text-xs sm:text-sm text-[color:var(--retro-cream)]/75 max-w-xl inline-flex gap-2">
+          <i className="ri-lock-line mt-0.5" aria-hidden="true" />
+          <span>Kalau Eli bilang “kita-kita aja yang tau ya” atau “jangan diklip”, bagian live itu tidak kami catat.</span>
+        </p>
       </Band>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
