@@ -11,7 +11,6 @@ import Section from '../components/layout/Section';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
-import { useElementParallax } from '../hooks/useElementParallax';
 import { useLightbox } from '../context/LightboxContext';
 import { hashToHref } from '../utils/routes';
 import useSplitTextReveal from '../hooks/useSplitTextReveal';
@@ -21,13 +20,12 @@ import { useIdnLive } from '../hooks/useIdnLive';
 import { useEliSchedule, deriveLiveState } from '../hooks/useEliSchedule';
 import EliStatusHero from '../components/home/EliStatusHero';
 import NewsStrip from '../components/home/NewsStrip';
-import QuoteOfTheDayStrip from '../components/home/QuoteOfTheDayStrip';
 import AnnouncementPopup from '../components/home/AnnouncementPopup';
 import VideotronPopup from '../components/home/VideotronPopup';
 import StatsStrip from '../components/home/StatsStrip';
 import CareerTimeline from '../components/home/CareerTimeline';
 import ChalkIllustrations from '../components/home/ChalkIllustrations';
-import QuickActions from '../components/home/QuickActions';
+import HomeLatest from '../components/home/HomeLatest';
 
 // Stagger reveal helpers — same pattern as Profile page so list/grid items
 // cascade in once their container hits the viewport.
@@ -241,7 +239,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
             frames and stays the click/hover target. */}
         <div className="relative z-10 flex flex-col items-center justify-center min-h-[560px] sm:min-h-[640px] md:min-h-[640px] lg:min-h-[680px] py-8 md:py-12">
           <p className="text-[10px] md:text-sm font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] mb-4 md:mb-6">
-            {title}
+            {hasHover ? title : 'Ketuk judulnya untuk lihat momennya.'}
           </p>
           <ol className="flex flex-col items-center gap-0.5 md:gap-1">
             {highlights.map((h, hIdx) => {
@@ -305,7 +303,7 @@ const HighlightReel = ({ highlights, eyebrow, title }) => {
 
 const HomePage = () => {
   const { featuredImages, images } = useGallery();
-  const { hero, data, about, gallery, community } = SITE_CONFIG.home;
+  const { hero, about, gallery, community } = SITE_CONFIG.home;
   const eli = SITE_CONFIG.eli;
   const { open: openLightbox } = useLightbox();
   const showroomLive = useShowroomLive('JKT48_Eli');
@@ -343,7 +341,6 @@ const HomePage = () => {
       { label: 'Generasi', value: eli.generation },
       { label: 'Team', value: eli.team },
       { label: 'Bergabung', value: eli.joined },
-      { label: 'Asal', value: eli.origin },
       // Social media row — inline icon pills, each links to Eli's
       // handle on that platform. SHOWROOM pill turns red + pulses
       // when she's actively streaming (status checked every 30s via
@@ -461,14 +458,12 @@ const HomePage = () => {
   // section's viewport position) — otherwise the cumulative scrollY would
   // shift the image off-frame before the user even sees it.
   const dataPortraitOffset = useParallax(-0.08);
-  const [aboutPortraitRef, aboutPortraitOffset] = useElementParallax(0.16, 40);
 
   // Section heading word-reveal refs (F) — each fires once when the heading
   // enters the viewport. Stagger 0.07s between words feels editorial without
   // being slow. Community heading uses a slightly longer delay so the dark
   // card has time to bloom in before the title animates.
   const dataTitleRef = useSplitTextReveal();
-  const aboutTitleRef = useSplitTextReveal();
   const galleryTitleRef = useSplitTextReveal();
   const communityTitleRef = useSplitTextReveal({ delay: 0.15 });
 
@@ -599,7 +594,7 @@ const HomePage = () => {
       {/* HERO — full-bleed Eli portrait with Ken Burns reveal */}
       <section
         id="home"
-        className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-[color:var(--retro-brown-dark)]"
+        className="relative h-[100svh] md:h-[88svh] min-h-[640px] w-full overflow-hidden bg-[color:var(--retro-brown-dark)]"
       >
         {/* Rotating Ken Burns Background — previous slide stays as a static
             underlay while the new slide fades in + zooms over the top */}
@@ -744,55 +739,14 @@ const HomePage = () => {
           Hooks polling tetep di sini biar gak duplikat dengan social pills. */}
       <EliStatusHero idnLive={idnLive} showroomLive={showroomLive} />
 
-      {/* TERKINI — 4 shortcut cards (Jadwal / Petikan / Town / Wishes).
-          Copy in SITE_CONFIG.home.quickActions. */}
-      <QuickActions />
-
-      {/* KATA HARI INI — daily-rotating Eli/Armeniaca quote. Pool +
-          rotation logic in src/lib/quoteOfTheDay.js, shared with the
-          Arme chat greeting so both surfaces show the same daily
-          quote (WIB-anchored midnight flip). */}
-      <QuoteOfTheDayStrip />
+      {/* TERBARU — latest Rekap Live, Eli Note, Kata Hari Ini and the one
+          row of shortcuts (HomeLatest). */}
+      <HomeLatest />
 
       {/* BERITA JKT48 — hybrid strip: latest /api/v1/news with Eli-mention
           rows pinned to the front + gold badge. Auto-hides if the scrape
           hasn't run yet. Data refreshed every 6h via GH Actions. */}
       <NewsStrip />
-
-      {/* HARMONI KEBAIKAN — single CTA banner to the recap page */}
-      <Section id="harmoni-kebaikan" padding="lg">
-        <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none opacity-70"
-            style={{
-              background:
-                'radial-gradient(circle at 20% 0%, rgba(122, 46, 46, 0.08) 0%, transparent 55%), radial-gradient(circle at 100% 100%, rgba(201, 169, 97, 0.12) 0%, transparent 60%)',
-            }}
-          />
-          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-[color:var(--retro-gold)] animate-pulse" />
-                Rekap Seitansai
-              </span>
-              <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
-                Harmoni Kebaikan
-                <span className="text-[color:var(--retro-burgundy)]"> untuk Ceu Eli.</span>
-              </h2>
-            </div>
-            <Link
-              to="/happy-helisma-day-26"
-              className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-opacity flex-shrink-0"
-            >
-              <i className="ri-hand-heart-line text-base" />
-              <span>Lihat Rekap</span>
-              <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-      </Section>
-
 
       {/* STATS STRIP — dark band with count-up numbers bridging the announcement
           zone above and the editorial profile sections below. */}
@@ -810,8 +764,8 @@ const HomePage = () => {
               top + drop the scale entirely so the face is never pushed
               out by parallax. Parallax intensity halved so the image
               barely shifts on scroll, keeping face locked in view. */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[2/3] rounded-sm overflow-hidden img-shine">
+          <div className="lg:col-span-5 relative w-full max-w-sm mx-auto lg:max-w-none">
+            <div className="relative aspect-[4/5] lg:aspect-[2/3] rounded-sm overflow-hidden img-shine">
               <img
                 src={eli.portrait}
                 alt={about.portraitAlt}
@@ -831,110 +785,59 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Editorial fact list */}
+          {/* Profile: story first, then the facts (Data Eli + About Eli
+              used to be two full-screen sections saying the same thing). */}
           <div className="lg:col-span-7">
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">01</span>
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
-                /  {data.eyebrow}
+                /  Profil Eli
               </span>
+              <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
             </div>
-            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-10">
-              {data.title}
+            <h2 ref={dataTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95] mb-6">
+              {about.title}
             </h2>
+            {about.paragraphs.slice(0, 2).map((p, i) => (
+              <p key={i} className="text-base md:text-lg text-[color:var(--retro-text-secondary)] leading-relaxed mb-4">
+                {p}
+              </p>
+            ))}
 
-            <dl ref={factsRef} className="divide-y divide-[color:var(--retro-brown-dark)]/15 border-y border-[color:var(--retro-brown-dark)]/15">
+            <dl ref={factsRef} className="mt-6 grid grid-cols-2 gap-x-6 border-t border-[color:var(--retro-brown-dark)]/15">
               {profileFacts.map((fact, idx) => (
                 <div
                   key={fact.label}
                   style={staggerStyle(idx)}
-                  className={`grid grid-cols-[140px_1fr] md:grid-cols-[180px_1fr] gap-6 py-4 group ${staggerClassH(factsVisible)}`}
+                  className={`py-3 border-b border-[color:var(--retro-brown-dark)]/15 ${typeof fact.value === 'string' ? '' : 'col-span-2'} ${staggerClassH(factsVisible)}`}
                 >
-                  <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] pt-1.5">
+                  <dt className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                     {fact.label}
                   </dt>
-                  <dd className="font-header text-lg md:text-xl text-[color:var(--retro-text-primary)] group-hover:text-[color:var(--retro-burgundy)] transition-colors">
+                  <dd className="mt-1 font-header text-base md:text-lg text-[color:var(--retro-text-primary)]">
                     {fact.value}
                   </dd>
                 </div>
               ))}
             </dl>
 
-            <blockquote className="mt-10 pl-6 border-l-2 border-[color:var(--retro-gold)]">
-              <p className="font-header text-lg md:text-xl italic text-[color:var(--retro-text-secondary)] leading-relaxed">
-                "{eli.catchphrase}"
-              </p>
-              <footer className="mt-3 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
-                Catchphrase — {eli.nickname}
-              </footer>
-            </blockquote>
-          </div>
-        </div>
-      </Section>
-
-      {/* ABOUT ELI — asymmetric inline header (eyebrow + title fold into the text column) */}
-      <Section id="about-preview" padding="xl">
-        <SectionOrnament />
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* Portrait — element-relative parallax centered on the section's
-              viewport position so the image doesn't drift off-frame before
-              user even sees it. Inner wrapper holds the transform; outer
-              ref measures the section position. Scale 1.15 gives the +/-40px
-              parallax range enough headroom without revealing empty edges. */}
-          <div ref={aboutPortraitRef} className="relative group order-2 lg:order-1">
-            <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl">
-              <div
-                style={{ transform: `translate3d(0, ${aboutPortraitOffset}px, 0) scale(1.15)` }}
-                className="absolute inset-0 will-change-transform img-shine"
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+              <blockquote className="pl-5 border-l-2 border-[color:var(--retro-gold)]">
+                <p className="font-header text-base md:text-lg italic text-[color:var(--retro-text-secondary)] leading-relaxed">
+                  "{eli.catchphrase}"
+                </p>
+                <footer className="mt-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
+                  Catchphrase — {eli.nickname}
+                </footer>
+              </blockquote>
+              <Link
+                to={hashToHref(about.ctaHash)}
+                className="group inline-flex items-center gap-3 self-start sm:self-auto flex-shrink-0 px-6 py-3 rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)] font-bold text-xs uppercase tracking-widest transition-colors btn-press"
               >
-                <img
-                  src={about.portrait}
-                  alt={about.portraitAlt}
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--retro-brown-dark)]/40 via-transparent to-transparent" />
+                {about.ctaLabel}
+                <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
-            <div className="absolute -bottom-6 -left-6 px-5 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] text-[10px] font-black uppercase tracking-[0.35em] shadow-xl">
-              JKT48 {eli.team}
-            </div>
-            {/* Plate credit — mirrors Data section's magazine signature.
-                mt-12 clears the Team pill which overlaps -bottom-6. */}
-            <div className="mt-12 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)] border-t border-[color:var(--retro-brown-dark)]/15 pt-3">
-              <span>Plate 02</span>
-              <span>{eli.stageName} — Profil</span>
-              <span>{new Date().getFullYear()}</span>
-            </div>
-          </div>
-
-          {/* Text + inline header */}
-          <div className="order-1 lg:order-2">
-            <div className="flex items-baseline gap-3 mb-4">
-              <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">02</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
-                /  {about.eyebrow}
-              </span>
-              <span className="flex-1 h-px bg-[color:var(--retro-burgundy)]/30" />
-            </div>
-            <h2 ref={aboutTitleRef} className="font-header text-4xl md:text-5xl lg:text-6xl font-black leading-[0.95] tracking-tighter text-[color:var(--retro-text-primary)] mb-8">
-              {about.title}
-            </h2>
-            {about.paragraphs.map((p, i) => (
-              <p
-                key={i}
-                className="text-base md:text-lg text-[color:var(--retro-text-secondary)] leading-relaxed mb-5"
-              >
-                {p}
-              </p>
-            ))}
-            <Link
-              to={hashToHref(about.ctaHash)}
-              className="group inline-flex items-center gap-3 mt-4 px-7 py-3.5 rounded-full bg-[color:var(--retro-sepia)] hover:bg-[color:var(--retro-brown)] text-[color:var(--retro-cream)] font-bold text-sm uppercase tracking-widest transition-colors btn-press"
-            >
-              {about.ctaLabel}
-              <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform" />
-            </Link>
           </div>
         </div>
       </Section>
@@ -952,7 +855,7 @@ const HomePage = () => {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 border-b border-[color:var(--retro-brown-dark)]/15 pb-6 mb-12">
           <div>
             <div className="flex items-baseline gap-3">
-              <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">03</span>
+              <span className="font-header text-3xl font-black text-[color:var(--retro-burgundy)]">02</span>
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-text-muted)]">
                 /  {gallery.eyebrow}
               </span>
@@ -1098,43 +1001,6 @@ const HomePage = () => {
         </div>
       </Section>
 
-      {/* PHOTOSTRIP — web photobox CTA. */}
-      <Section id="photostrip-cta" padding="lg">
-        <div className="relative rounded-3xl overflow-hidden border border-[color:var(--retro-burgundy)]/15 bg-[color:var(--retro-cream)]">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none opacity-70"
-            style={{
-              background:
-                'radial-gradient(circle at 80% 0%, rgba(201, 169, 97, 0.12) 0%, transparent 55%), radial-gradient(circle at 0% 100%, rgba(122, 46, 46, 0.08) 0%, transparent 60%)',
-            }}
-          />
-          <div className="relative px-6 sm:px-8 md:px-12 py-10 md:py-14 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-              <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)] mb-4">
-                <i className="ri-camera-3-line text-sm text-[color:var(--retro-gold)]" />
-                Photobox Armeniaca
-              </span>
-              <h2 className="font-header text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-[color:var(--retro-text-primary)] leading-[0.95]">
-                Foto Bareng
-                <span className="text-[color:var(--retro-burgundy)]"> Ceu Eli.</span>
-              </h2>
-              <p className="mt-3 text-sm md:text-base text-[color:var(--retro-text-secondary)] leading-relaxed max-w-md">
-                Buat strip foto kamu sendiri — pilih gaya, ambil momen, simpan kenangan.
-              </p>
-            </div>
-            <Link
-              to="/photostrip"
-              className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)] font-bold text-xs sm:text-sm uppercase tracking-[0.15em] hover:opacity-90 transition-opacity flex-shrink-0"
-            >
-              <i className="ri-camera-3-line text-base" />
-              <span>Buka Photostrip</span>
-              <i className="ri-arrow-right-line text-base transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-      </Section>
-
       {/* DARK ZONE — full-bleed dark background wrapping ArmePack +
           Community. */}
       <div className="relative bg-[color:var(--retro-brown-dark)] overflow-hidden">
@@ -1201,7 +1067,7 @@ const HomePage = () => {
           <div className="relative grid lg:grid-cols-5 gap-10 lg:gap-12 p-8 md:p-12 lg:p-16">
             <div className="lg:col-span-3">
               <div className="flex items-baseline gap-3 mb-4">
-                <span className="font-header text-3xl font-black text-[color:var(--retro-gold-light)]">04</span>
+                <span className="font-header text-3xl font-black text-[color:var(--retro-gold-light)]">03</span>
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-cream)]/60">
                   /  {community.eyebrow}
                 </span>

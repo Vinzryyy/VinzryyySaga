@@ -17,34 +17,36 @@
  * markdown — they render in plain text on both surfaces.
  */
 
-import { SITE_CONFIG } from '../config/siteConfig';
 import { POSITIVE_QUOTES_POOL } from './positiveQuotePool';
 
 // Curated quotes — short, on-brand, Eli/archive-themed. Append to grow
 // the cycle; insert order is preserved so rotation stays predictable.
 const CURATED_QUOTES = [
-  'Bagai lembayung senja — menghangatkan setiap panggung.',
-  'Senyum Eli adalah cahaya yang Armeniaca rawat.',
-  'Mekar di akhir musim dingin — itulah Armeniaca, itulah Eli.',
-  'Satu dekade lebih, dan masih terus tumbuh.',
-  'Setiap frame disimpan rapi — satu per satu, satu per Eli.',
-  'Dari Generasi 7 sampai Team Dream, perjalanan yang panjang.',
-  'Sang Mermaid dari Bandung yang tak pernah berhenti bersinar.',
-  'Helismiley selalu ada di setiap stage Eli.',
-  'We bloom in spring with you, Ceu Eli.',
-  'Hari-hari kecil ini adalah halaman yang Armeniaca jaga.',
-  'Arme menunggu, dan kota perlahan kembali ramai.',
-  'Setiap siraman adalah doa kecil untuk Ceu Eli.',
-  'Yang sederhana, kalau dirawat lama, jadi sejarah.',
-  'Kota ini sepi karena ramai — bukan karena ditinggal.',
-  'Aprikot mekar pertama-tama; harapan menyusul.',
-  'Eli bukan jauh — tinggal satu panggung, satu live, satu frame.',
+  'Seperti lembayung senja, Eli menghangatkan setiap panggung yang ia singgahi.',
+  'Senyum Eli adalah cahaya yang ingin terus kami rawat.',
+  'Aprikot mekar di ujung musim dingin, pertanda hari yang lebih hangat akan tiba.',
+  'Sejak 2018, setiap langkah Eli layak untuk dikenang.',
+  'Setiap foto kami simpan dengan rapi, satu per satu, untuk Eli.',
+  'Dari Generasi 7 hingga hari ini, perjalanan Eli adalah cerita yang panjang dan indah.',
+  'Sang mermaid dari Bandung yang tak pernah lelah bersinar.',
+  'Di setiap panggung Eli, selalu ada Helismiley yang menemani.',
+  'Kami ingin terus tumbuh dan mekar bersamamu, Ceu Eli.',
+  'Hari-hari sederhana pun layak dicatat, karena dari sanalah kenangan lahir.',
+  'Hal kecil yang dirawat dengan tulus lama-lama menjadi sejarah.',
+  'Setiap dukungan kecil adalah doa baik untuk Ceu Eli.',
+  'Setiap siraman membuat ArmeniacaTown tumbuh sedikit lebih ramai.',
+  'Eli tidak pernah terlalu jauh: ada di panggung, di siaran langsung, dan di setiap foto.',
+  'Kenangan tidak perlu megah; cukup dijaga agar tidak hilang.',
+  'Di antara banyak panggung, selalu ada satu senyum yang paling hangat.',
+  'Terima kasih sudah terus berkarya dengan sepenuh hati, Ceu Eli.',
+  'Arsip ini dibuat agar setiap momen Eli punya tempat untuk pulang.',
+  'Bersinar tidak harus selalu paling terang; cukup terus menyala.',
+  'Setiap pertunjukan teater adalah halaman baru dalam cerita Eli.',
+  'Sedikit demi sedikit, kenangan ini tumbuh menjadi taman.',
+  'Yang menghidupkan panggung bukan hanya lampunya, tetapi juga ketulusan orang di atasnya.',
+  'Semoga hari ini pun Eli bahagia, di mana pun ia berada.',
 ];
 
-// Fold in the seitansai gift quotes from siteConfig so this stays a
-// single source of truth — kalau quote di countdown.gifts ditambah,
-// QOTD pool ikut tumbuh tanpa harus duplicate edit di sini.
-const SEITANSAI_QUOTES = SITE_CONFIG?.countdown?.gifts?.quotes ?? [];
 
 // Dedupe (case-insensitive) and freeze. Insertion order preserved so
 // older quotes land on the same days they always did.
@@ -67,7 +69,9 @@ const dedupe = (...lists) => {
 // Daily-rotation pool — curated only. Stays on-brand for the home strip
 // (Eli/Armeniaca-specific). Don't add generic positive quotes here or
 // the home strip loses its signature.
-const QUOTE_POOL = dedupe(CURATED_QUOTES, SEITANSAI_QUOTES);
+// The seitansai gift lines (siteConfig countdown.gifts) are no longer
+// folded in: they belong to a past event and were rougher drafts of these.
+const QUOTE_POOL = dedupe(CURATED_QUOTES);
 
 // Random pool (chat greeting) — daily pool + 400 generic positive
 // quotes. Bigger pool means chat greetings feel fresh per panel-open

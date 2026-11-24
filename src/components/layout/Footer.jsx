@@ -43,6 +43,12 @@ const Footer = () => {
       item.hash ? [{ name: item.label, to: hashToHref(item.hash) }]
         : (item.children || []).map((c) => ({ name: c.label, to: hashToHref(c.hash) })),
     )
+    // Pages that change every week are worth a direct link even though
+    // they sit inside a navbar dropdown.
+    .concat([
+      { name: 'Eli Notes', to: '/eli-notes' },
+      { name: 'Rekap Live', to: '/rekap-live' },
+    ])
     .filter((l, i, all) => all.findIndex((x) => x.to === l.to) === i);
 
   // Build {era → count} once so the Era Arsip column can show per-year

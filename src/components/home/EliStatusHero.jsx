@@ -243,8 +243,35 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
     }).length;
   }, [schedule, nowMinute]);
 
-  // All states now render — mini schedule list is always visible so
-  // visitors immediately see Eli's upcoming events on the home page.
+  // Idle (no live, nothing scheduled): one slim status line instead of a
+  // full card. The shortcuts that used to fill this card live in
+  // HomeLatest right below, so the home page has one set, not two.
+  if (state === 'idle' && upcomingOthers.length === 0) {
+    return (
+      <section id="status-eli" aria-label="Status Eli" className="px-5 sm:px-6 md:px-12 lg:px-20 pt-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-[color:var(--retro-brown-dark)]/12 bg-[color:var(--retro-cream)]/70 px-5 py-3.5">
+          <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-[color:var(--retro-burgundy)]">
+            <i className="ri-pulse-line text-base" /> Eli sedang offline
+            <span className="hidden sm:inline normal-case tracking-normal font-bold text-[color:var(--retro-text-muted)]">· belum ada jadwal baru</span>
+          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <PlatformStrip
+              compact
+              isIdnLive={isIdnLive}
+              isShowroomLive={isShowroomLive}
+              idnLiveUrl={idnLive?.liveStream?.url}
+              nextShow={nextShow}
+            />
+            {schedule?.fetchedAt && (
+              <span className="text-[10px] font-bold text-[color:var(--retro-text-muted)]/80" title="Jadwal dari jkt48.com, diperbarui otomatis tiap 6 jam">
+                Update {formatRefreshed(schedule.fetchedAt)}
+              </span>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <Section id="status-eli" padding="lg">
@@ -664,9 +691,9 @@ const IdleSurface = () => {
   );
 };
 
-const PlatformStrip = ({ isIdnLive, isShowroomLive, idnLiveUrl, nextShow }) => {
+const PlatformStrip = ({ isIdnLive, isShowroomLive, idnLiveUrl, nextShow, compact = false }) => {
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-2">
+    <div className={compact ? 'flex flex-wrap items-center gap-x-5 gap-y-2' : 'mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-2'}>
       <PlatformDot
         live={isIdnLive}
         label="IDN Live"

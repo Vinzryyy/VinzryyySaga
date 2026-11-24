@@ -421,41 +421,6 @@ export const SITE_CONFIG = {
     // "Terkini" quick-action cards right under the status hero.
     // `hint: 'nextEvent'` swaps the subtitle for the next scheduled
     // event date (from eli-schedule.json) when there is one.
-    quickActions: {
-      eyebrow: 'Terkini',
-      title: 'Mau ke mana hari ini?',
-      items: [
-        {
-          id: 'jadwal',
-          title: 'Jadwal Eli',
-          subtitle: 'Kalender show, M&G, dan video call',
-          icon: 'ri-calendar-event-line',
-          to: '/schedule?view=calendar',
-          hint: 'nextEvent',
-        },
-        {
-          id: 'petikan',
-          title: 'Petikan',
-          subtitle: 'Tarik kartu harianmu',
-          icon: 'ri-stack-line',
-          to: '/armepack',
-        },
-        {
-          id: 'games',
-          title: 'Mini Games',
-          subtitle: 'Pasangkan Momen, ArmePack, Town',
-          icon: 'ri-gamepad-line',
-          to: '/mini-games',
-        },
-        {
-          id: 'wishes',
-          title: 'Wishes',
-          subtitle: 'Titip pesan untuk Eli',
-          icon: 'ri-chat-heart-line',
-          to: '/wishes',
-        },
-      ],
-    },
     hero: {
       eyebrow: 'Arsip Visual Independen',
       title: 'Selamat Datang di Armeniaca',
