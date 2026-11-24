@@ -1,7 +1,9 @@
 /**
- * scheduleSource — one loader for Eli's schedule, merging two files:
+ * scheduleSource — one loader for Eli's schedule, merging these sources:
  *
  *   /data/eli-schedule.json         scraped from jkt48.com by GH Actions
+ *   /data/eli-schedule.jkt48connect.json  Eli's shows from the JKT48Connect API
+ *                                   (scripts/fetch-jkt48connect-schedule.mjs)
  *   RTDB /eli_schedule              entries saved from /admin/jadwal (docs/admin-jadwal.md)
  *   /data/eli-schedule.manual.json  hand-written entries (see docs/manual-schedule.md)
  *
@@ -24,6 +26,7 @@ import { dayKeyWIB, eventType } from '../utils/calendar.js';
 
 export const SCHEDULE_URL = '/data/eli-schedule.json';
 export const MANUAL_SCHEDULE_URL = '/data/eli-schedule.manual.json';
+export const CONNECT_SCHEDULE_URL = '/data/eli-schedule.jkt48connect.json';
 export const ADMIN_SCHEDULE_PATH = 'eli_schedule';
 
 // import.meta.env is undefined when this module runs in Node (scripts/).
@@ -133,12 +136,22 @@ const latestIso = (...values) =>
  * Merge scraped + manual payloads into the shape consumers already use:
  * { events, fetchedAt, ... }. Either side may be null.
  */
-export const mergeSchedules = (scraped, manual, admin = null) => {
+export const mergeSchedules = (scraped, manual, admin = null, connect = null) => {
   const scrapedEvents = Array.isArray(scraped?.events) ? scraped.events : [];
+  const connectEvents = Array.isArray(connect?.events) ? connect.events : [];
   const { events: adminEvents } = normalizeManualFile(adminPayloadToManual(admin), 'admin');
   const { events: manualEvents } = normalizeManualFile(manual);
   const taken = new Set(scrapedEvents.map(dedupeKey));
-  // Priority: scraped > admin page > JSON file.
+  // JKT48Connect shows are already in the scraped shape (with cast lists),
+  // so they rank right after jkt48.com itself.
+  const fromConnect = [];
+  connectEvents.forEach((e) => {
+    const key = dedupeKey(e);
+    if (taken.has(key)) return;
+    taken.add(key);
+    fromConnect.push(e);
+  });
+  // Priority: scraped > JKT48Connect > admin page > JSON file.
   const extra = [];
   [...adminEvents, ...manualEvents].forEach((e) => {
     const key = dedupeKey(e);
@@ -146,16 +159,18 @@ export const mergeSchedules = (scraped, manual, admin = null) => {
     taken.add(key);
     extra.push(e);
   });
-  const events = [...scrapedEvents, ...extra].sort(
+  const events = [...scrapedEvents, ...fromConnect, ...extra].sort(
     (a, b) => new Date(a.date) - new Date(b.date),
   );
   return {
     ...(scraped || {}),
     events,
     eventCount: events.length,
+    connectCount: fromConnect.length,
     manualCount: extra.length,
     fetchedAt: latestIso(
       scraped?.fetchedAt,
+      connect?.fetchedAt,
       manual?.updatedAt,
       ...adminEvents.map((e) => e.updatedAt).filter(Boolean),
     ),
@@ -171,7 +186,7 @@ let cachedPromise = null;
 
 /**
  * Cached loader (one network round per page load). Rejects only when
- * BOTH files fail — either one alone is enough to render something.
+ * EVERY source fails — any one alone is enough to render something.
  */
 export const loadSchedule = () => {
   if (!cachedPromise) {
@@ -179,13 +194,18 @@ export const loadSchedule = () => {
     const adminFetch = dbUrl
       ? fetchJson(`${dbUrl}/${ADMIN_SCHEDULE_PATH}.json`)
       : Promise.reject(new Error('Firebase not configured'));
-    cachedPromise = Promise.allSettled([fetchJson(SCHEDULE_URL), fetchJson(MANUAL_SCHEDULE_URL), adminFetch])
-      .then(([scraped, manual, admin]) => {
-        if (scraped.status === 'rejected' && manual.status === 'rejected' && admin.status === 'rejected') {
+    cachedPromise = Promise.allSettled([
+      fetchJson(SCHEDULE_URL),
+      fetchJson(MANUAL_SCHEDULE_URL),
+      adminFetch,
+      fetchJson(CONNECT_SCHEDULE_URL),
+    ])
+      .then(([scraped, manual, admin, connect]) => {
+        if ([scraped, manual, admin, connect].every((r) => r.status === 'rejected')) {
           throw scraped.reason;
         }
         const value = (r) => (r.status === 'fulfilled' ? r.value : null);
-        return mergeSchedules(value(scraped), value(manual), value(admin));
+        return mergeSchedules(value(scraped), value(manual), value(admin), value(connect));
       })
       .catch((err) => {
         cachedPromise = null;

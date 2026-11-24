@@ -1,0 +1,49 @@
+name: Refresh Eli schedule (JKT48Connect)
+
+# Eli's theater shows from the JKT48Connect API (fanbase plan) →
+# public/data/eli-schedule.jkt48connect.json. The site merges it with the
+# other schedule sources (src/lib/scheduleSource.js). The script only
+# rewrites the file when Eli's shows change, so most runs commit nothing.
+#
+# Needs the repo secret JKT48CONNECT_API_KEY; without it the run is a no-op.
+
+on:
+  schedule:
+    # Every 3 hours (UTC); lineups are usually announced a few days ahead.
+    - cron: '20 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-jkt48connect
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Fetch Eli shows
+        env:
+          JKT48CONNECT_API_KEY: ${{ secrets.JKT48CONNECT_API_KEY }}
+        run: node scripts/fetch-jkt48connect-schedule.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data/eli-schedule.jkt48connect.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(data): refresh Eli shows from JKT48Connect"
+          git pull --rebase origin main
+          git push

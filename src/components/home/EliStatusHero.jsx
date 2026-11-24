@@ -263,7 +263,7 @@ const EliStatusHero = ({ idnLive, showroomLive }) => {
               nextShow={nextShow}
             />
             {schedule?.fetchedAt && (
-              <span className="text-[10px] font-bold text-[color:var(--retro-text-muted)]/80" title="Jadwal dari jkt48.com, diperbarui otomatis tiap 6 jam">
+              <span className="text-[10px] font-bold text-[color:var(--retro-text-muted)]/80" title="Jadwal dari jkt48.com dan JKT48Connect, diperbarui otomatis">
                 Update {formatRefreshed(schedule.fetchedAt)}
               </span>
             )}

@@ -87,12 +87,13 @@ describe('loadSchedule', () => {
     await expect(loadSchedule()).resolves.toMatchObject({ events: [] });
   });
 
-  it('rejects only when both files fail, and retries next time', async () => {
+  it('rejects only when every source fails, and retries next time', async () => {
     const fetchMock = vi.fn(() => notFound());
     vi.stubGlobal('fetch', fetchMock);
     await expect(loadSchedule()).rejects.toThrow('HTTP 404');
     await expect(loadSchedule()).rejects.toThrow();
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    // 3 files per load (scraped, manual, JKT48Connect); admin needs Firebase.
+    expect(fetchMock).toHaveBeenCalledTimes(6);
   });
 });
 
