@@ -1,10 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="342" height="730" viewBox="0 0 342 730">
-  <!-- Sits on the hair above the right temple (hair spans x 166-199 at y 44-50). -->
-  <g transform="translate(182 45) rotate(22) scale(0.68)">
-    <path d="M0 0 C -8 -12 -22 -12 -20 0 C -22 12 -8 12 0 0 Z" fill="#7c2d34" stroke="#4e191e" stroke-width="1"/>
-    <path d="M0 0 C 8 -12 22 -12 20 0 C 22 12 8 12 0 0 Z" fill="#7c2d34" stroke="#4e191e" stroke-width="1"/>
-    <path d="M-2 2 L -8 16 L -3 14 L 0 18 Z M2 2 L 8 16 L 3 14 L 0 18 Z" fill="#62222a"/>
-    <ellipse cx="0" cy="0" rx="3.6" ry="4.2" fill="#9a3a42" stroke="#4e191e" stroke-width="1"/>
-    <path d="M-15 -3 C -11 -6 -7 -5 -4 -2 M15 -3 C 11 -6 7 -5 4 -2" stroke="#c45a63" stroke-width="1.2" fill="none" opacity="0.8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn on the first 342x730 draft base; the transform puts it on the illustrated base, in its 2480x3507 units
+       (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). Coordinates below are the draft's. -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- Sits on the hair above the right temple (hair spans x 166-199 at y 44-50). -->
+    <g transform="translate(182 45) rotate(22) scale(0.68)">
+      <path d="M0 0 C -8 -12 -22 -12 -20 0 C -22 12 -8 12 0 0 Z" fill="#7c2d34" stroke="#4e191e" stroke-width="1"/>
+      <path d="M0 0 C 8 -12 22 -12 20 0 C 22 12 8 12 0 0 Z" fill="#7c2d34" stroke="#4e191e" stroke-width="1"/>
+      <path d="M-2 2 L -8 16 L -3 14 L 0 18 Z M2 2 L 8 16 L 3 14 L 0 18 Z" fill="#62222a"/>
+      <ellipse cx="0" cy="0" rx="3.6" ry="4.2" fill="#9a3a42" stroke="#4e191e" stroke-width="1"/>
+      <path d="M-15 -3 C -11 -6 -7 -5 -4 -2 M15 -3 C 11 -6 7 -5 4 -2" stroke="#c45a63" stroke-width="1.2" fill="none" opacity="0.8"/>
+    </g>
   </g>
 </svg>

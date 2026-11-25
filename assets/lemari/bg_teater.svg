@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="342" height="730" viewBox="0 0 342 730">
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
   <defs>
     <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#2a1416"/>
@@ -15,14 +15,15 @@
       <stop offset="0" stop-color="#6b3b26"/><stop offset="1" stop-color="#3d2015"/>
     </linearGradient>
   </defs>
-  <rect width="342" height="730" fill="url(#wall)"/>
-  <polygon points="171,0 70,690 272,690" fill="url(#spot)"/>
+  <rect width="2480" height="3507" fill="url(#wall)"/>
+  <!-- Spotlight on the figure. Units are the illustrator's 2480x3507 canvas: figure centred on x 1166, feet end at y 3296. -->
+  <polygon points="1166,0 434,3260 1898,3260" fill="url(#spot)"/>
   <g fill="url(#cur)">
-    <path d="M0 0 H70 C60 200 80 420 55 690 H0 Z"/>
-    <path d="M342 0 H272 C282 200 262 420 287 690 H342 Z"/>
+    <path d="M0 0 H508 C435 945 580 1985 399 3260 H0 Z"/>
+    <path d="M2480 0 H1972 C2045 945 1900 1985 2081 3260 H2480 Z"/>
   </g>
-  <rect y="0" width="342" height="34" fill="#7a2228"/>
-  <path d="M0 34 Q 43 60 86 34 T 171 34 T 256 34 T 342 34 V 34 Z" fill="#7a2228"/>
-  <rect y="672" width="342" height="58" fill="url(#floor)"/>
-  <ellipse cx="171" cy="704" rx="120" ry="16" fill="#ffe9b8" opacity="0.25"/>
+  <rect y="0" width="2480" height="163" fill="#7a2228"/>
+  <path d="M0 163 Q 312 288 624 163 T 1240 163 T 1856 163 T 2480 163 Z" fill="#7a2228"/>
+  <rect y="3170" width="2480" height="337" fill="url(#floor)"/>
+  <ellipse cx="1166" cy="3300" rx="545" ry="77" fill="#ffe9b8" opacity="0.25"/>
 </svg>

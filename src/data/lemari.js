@@ -20,19 +20,19 @@
  */
 
 /**
- * Show the game card on /mini-games. Off while the art is draft; the page
- * itself is always reachable at /mini-games/lemari for testing.
+ * Show the game card on /mini-games. Turn it off while the wardrobe is only
+ * draft art; the page itself is always reachable at /mini-games/lemari.
  */
-export const LEMARI_IN_HUB = false;
+export const LEMARI_IN_HUB = true;
 
 export const ASSET_BASE = '/minigames/lemari';
 export const fullSrc = (file) => `${ASSET_BASE}/full/${file}.webp`;
 export const thumbSrc = (file) => `${ASSET_BASE}/thumb/${file}.webp`;
 
-/** Width / height of the shared canvas (base_body). */
-export const CANVAS_ASPECT = 342 / 730;
+/** Width / height of the shared canvas (manifest.json `canvas`; a test checks they agree). */
+export const CANVAS_ASPECT = 1240 / 1754;
 
-export const BASE_LAYERS = { body: 'base_body', hairFront: 'base_hair-front' };
+export const BASE_LAYERS = { body: 'base_body' };
 
 /** Wardrobe tabs, in display order. */
 export const SLOTS = [
@@ -48,10 +48,12 @@ export const SLOTS = [
 ];
 
 /**
- * Bottom → top. 'body' and 'hairFront' are the base layers; the hair in
- * front of the shoulders sits above clothes so long hair isn't covered.
+ * Bottom → top. 'body' is the base layer; the illustrated base keeps all of
+ * the hair behind the shoulders, so clothes never cover it. A bracelet sits
+ * on the skin, under sleeves, gloves and the skirts drawn in front of the
+ * hands.
  */
-export const LAYER_ORDER = ['bg', 'body', 'bottom', 'top', 'dress', 'outer', 'shoes', 'hairFront', 'accHead', 'accNeck', 'accHand'];
+export const LAYER_ORDER = ['bg', 'body', 'accHand', 'bottom', 'top', 'dress', 'outer', 'shoes', 'accHead', 'accNeck'];
 
 /**
  * Colour variants for tintable items, done with CSS filters on the layer
@@ -69,34 +71,43 @@ export const TINTS = [
 
 export const DEFAULT_BG = 'bg-studio';
 
-const DRAFT_CREDIT = 'Ilustrasi: kontributor Armeniaca (draft)';
+/** The commissioned illustrations: base, stage costumes and tee. */
+const ILLUSTRATION = 'Ilustrasi: komisi Armeniaca';
+
+/** The base drawing is always on screen, so its credit is always printed. */
+export const BASE_CREDIT = ILLUSTRATION;
+
+const stage = { credit: ILLUSTRATION, tags: ['panggung'], unlock: null, draft: false };
 
 export const LEMARI_ITEMS = [
   { id: 'bg-studio', slot: 'bg', name: 'Studio Krem', file: 'bg_studio', credit: 'Armeniaca', tags: ['santai'], unlock: null, draft: false },
   { id: 'bg-teater', slot: 'bg', name: 'Panggung Teater', file: 'bg_teater', credit: 'Armeniaca', tags: ['panggung'], unlock: null, draft: false },
-  {
-    id: 'dress-ntmu-isshou',
-    slot: 'dress',
-    name: 'Dress Zebra NTMU',
-    file: 'dress_ntmu-isshou',
-    setId: 'ntmu-isshou',
-    credit: DRAFT_CREDIT,
-    tags: ['panggung', 'formal'],
-    unlock: null,
-    draft: true,
-    tintable: true,
-  },
-  {
-    id: 'shoes-boots-hitam',
-    slot: 'shoes',
-    name: 'Boots Hitam',
-    file: 'shoes_boots-hitam',
-    setId: 'ntmu-isshou',
-    credit: DRAFT_CREDIT,
-    tags: ['panggung', 'hujan'],
-    unlock: null,
-    draft: true,
-  },
+
+  // Stage costumes. The illustrator drew each look as one file; it was split
+  // into its dress and its shoes (scripts/split-lemari-look.mjs).
+  { ...stage, id: 'dress-ntmu-isshou', slot: 'dress', name: 'Dress Zebra NTMU', file: 'dress_ntmu-isshou', setId: 'ntmu-isshou', tags: ['panggung', 'formal'], tintable: true },
+  { ...stage, id: 'dress-ame-no-pianist', slot: 'dress', name: 'Dress Ame no Pianist', file: 'dress_ame-no-pianist', setId: 'ame-no-pianist' },
+  { ...stage, id: 'dress-kinjirareta', slot: 'dress', name: 'Dress Kinjirareta', file: 'dress_kinjirareta', setId: 'kinjirareta', tintable: true },
+  { ...stage, id: 'dress-manatsu', slot: 'dress', name: 'Dress Manatsu', file: 'dress_manatsu', setId: 'manatsu' },
+  { ...stage, id: 'dress-manazashi-sayonara', slot: 'dress', name: 'Dress Manazashi Sayonara', file: 'dress_manazashi-sayonara', setId: 'manazashi-sayonara' },
+  { ...stage, id: 'dress-rkj', slot: 'dress', name: 'Dress RKJ', file: 'dress_rkj', setId: 'rkj' },
+  { ...stage, id: 'dress-sahabat-atau-cinta', slot: 'dress', name: 'Dress Sahabat atau Cinta', file: 'dress_sahabat-atau-cinta', setId: 'sahabat-atau-cinta' },
+  { ...stage, id: 'dress-usotsuki-na-dachou', slot: 'dress', name: 'Dress Usotsuki na Dachou', file: 'dress_usotsuki-na-dachou', setId: 'usotsuki-na-dachou' },
+  { ...stage, id: 'dress-wimbledon', slot: 'dress', name: 'Dress Wimbledon', file: 'dress_wimbledon', setId: 'wimbledon' },
+
+  { ...stage, id: 'top-kaos-hitam', slot: 'top', name: 'Kaos Hitam', file: 'top_kaos-hitam', tags: ['santai'] },
+
+  { ...stage, id: 'shoes-boots-hitam', slot: 'shoes', name: 'Ankle Boots Hitam', file: 'shoes_boots-hitam', setId: 'ntmu-isshou', tags: ['panggung', 'hujan'] },
+  { ...stage, id: 'shoes-boots-tali-hitam', slot: 'shoes', name: 'Boots Tali Hitam', file: 'shoes_boots-tali-hitam', setId: 'ame-no-pianist' },
+  // One pair, drawn for both Manatsu and RKJ.
+  { ...stage, id: 'shoes-boots-tali-hitam-lancip', slot: 'shoes', name: 'Boots Tali Hitam Lancip', file: 'shoes_boots-tali-hitam-lancip' },
+  { ...stage, id: 'shoes-boots-tali-putih', slot: 'shoes', name: 'Boots Tali Putih', file: 'shoes_boots-tali-putih', setId: 'wimbledon' },
+  { ...stage, id: 'shoes-flat-putih', slot: 'shoes', name: 'Flat Shoes Putih', file: 'shoes_flat-putih', setId: 'kinjirareta' },
+  { ...stage, id: 'shoes-sandal-hak-hitam', slot: 'shoes', name: 'Sandal Hak Hitam', file: 'shoes_sandal-hak-hitam', setId: 'manazashi-sayonara' },
+  { ...stage, id: 'shoes-sandal-t-strap', slot: 'shoes', name: 'Sandal T-Strap Hitam', file: 'shoes_sandal-t-strap', setId: 'sahabat-atau-cinta' },
+  { ...stage, id: 'shoes-ankle-boots-putih', slot: 'shoes', name: 'Ankle Boots Putih', file: 'shoes_ankle-boots-putih', setId: 'usotsuki-na-dachou' },
+
+  // Simple vector accessories by Armeniaca.
   { id: 'acc-pita-burgundy', slot: 'accHead', name: 'Pita Burgundy', file: 'acc-head_pita-burgundy', credit: 'Armeniaca', tags: ['manis', 'seitansai'], unlock: null, draft: false },
   { id: 'acc-bando-emas', slot: 'accHead', name: 'Bando Emas', file: 'acc-head_bando-emas', credit: 'Armeniaca', tags: ['formal'], unlock: null, draft: false },
   { id: 'acc-kalung-aprikot', slot: 'accNeck', name: 'Kalung Bunga Aprikot', file: 'acc-neck_kalung-aprikot', credit: 'Armeniaca', tags: ['manis', 'formal'], unlock: null, draft: false },
@@ -108,11 +119,13 @@ export const LEMARI_ITEMS = [
  * wore it (null until verified; the game then says the story is coming).
  */
 export const LEMARI_SETS = [
-  {
-    id: 'ntmu-isshou',
-    name: 'NTMU Isshou',
-    items: ['dress-ntmu-isshou', 'shoes-boots-hitam'],
-    bg: 'bg-teater',
-    moment: null,
-  },
+  { id: 'ntmu-isshou', name: 'NTMU Isshou', items: ['dress-ntmu-isshou', 'shoes-boots-hitam'], bg: 'bg-teater', moment: null },
+  { id: 'ame-no-pianist', name: 'Ame no Pianist', items: ['dress-ame-no-pianist', 'shoes-boots-tali-hitam'], bg: 'bg-teater', moment: null },
+  { id: 'kinjirareta', name: 'Kinjirareta', items: ['dress-kinjirareta', 'shoes-flat-putih'], bg: 'bg-teater', moment: null },
+  { id: 'manatsu', name: 'Manatsu', items: ['dress-manatsu', 'shoes-boots-tali-hitam-lancip'], bg: 'bg-teater', moment: null },
+  { id: 'manazashi-sayonara', name: 'Manazashi Sayonara', items: ['dress-manazashi-sayonara', 'shoes-sandal-hak-hitam'], bg: 'bg-teater', moment: null },
+  { id: 'rkj', name: 'RKJ', items: ['dress-rkj', 'shoes-boots-tali-hitam-lancip'], bg: 'bg-teater', moment: null },
+  { id: 'sahabat-atau-cinta', name: 'Sahabat atau Cinta', items: ['dress-sahabat-atau-cinta', 'shoes-sandal-t-strap'], bg: 'bg-teater', moment: null },
+  { id: 'usotsuki-na-dachou', name: 'Usotsuki na Dachou', items: ['dress-usotsuki-na-dachou', 'shoes-ankle-boots-putih'], bg: 'bg-teater', moment: null },
+  { id: 'wimbledon', name: 'Wimbledon', items: ['dress-wimbledon', 'shoes-boots-tali-putih'], bg: 'bg-teater', moment: null },
 ];

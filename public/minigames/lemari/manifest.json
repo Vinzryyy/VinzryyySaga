@@ -1,48 +1,108 @@
 {
   "canvas": {
-    "width": 342,
-    "height": 730
+    "width": 1240,
+    "height": 1754
   },
   "files": {
     "acc-hand_gelang-mutiara": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
     },
     "acc-head_bando-emas": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
     },
     "acc-head_pita-burgundy": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
     },
     "acc-neck_kalung-aprikot": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
     },
     "base_body": {
-      "width": 342,
-      "height": 730
-    },
-    "base_hair-front": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
     },
     "bg_studio": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
     },
     "bg_teater": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_ame-no-pianist": {
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_kinjirareta": {
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_manatsu": {
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_manazashi-sayonara": {
+      "width": 1240,
+      "height": 1754
     },
     "dress_ntmu-isshou": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_rkj": {
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_sahabat-atau-cinta": {
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_usotsuki-na-dachou": {
+      "width": 1240,
+      "height": 1754
+    },
+    "dress_wimbledon": {
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_ankle-boots-putih": {
+      "width": 1240,
+      "height": 1754
     },
     "shoes_boots-hitam": {
-      "width": 342,
-      "height": 730
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_boots-tali-hitam-lancip": {
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_boots-tali-hitam": {
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_boots-tali-putih": {
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_flat-putih": {
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_sandal-hak-hitam": {
+      "width": 1240,
+      "height": 1754
+    },
+    "shoes_sandal-t-strap": {
+      "width": 1240,
+      "height": 1754
+    },
+    "top_kaos-hitam": {
+      "width": 1240,
+      "height": 1754
     }
   }
 }

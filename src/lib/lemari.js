@@ -2,7 +2,7 @@
  * Lemari Eli — pure outfit rules, shared by the page and tests.
  *
  * An outfit is { [slot]: itemId, tints?: { [slot]: tintId } }. An empty
- * slot means Eli wears what the base layer shows (training tee and
+ * slot means Eli wears what the base layer shows (black tube top and
  * shorts), so a look is never "bare". Rules:
  *   - a dress replaces top and bottom; wearing a top or bottom takes the
  *     dress off;
@@ -11,7 +11,7 @@
  *     item drops it, and only tintable items take one.
  */
 
-import { BASE_LAYERS, DEFAULT_BG, LAYER_ORDER, LEMARI_ITEMS, LEMARI_SETS, TINTS } from '../data/lemari';
+import { BASE_CREDIT, BASE_LAYERS, DEFAULT_BG, LAYER_ORDER, LEMARI_ITEMS, LEMARI_SETS, TINTS } from '../data/lemari';
 
 export const NAME_MAX = 24;
 
@@ -157,7 +157,6 @@ export const layersFor = (outfit, items = LEMARI_ITEMS) => {
   const map = byId(items);
   return LAYER_ORDER.map((slot) => {
     if (slot === 'body') return { file: BASE_LAYERS.body, filter: null };
-    if (slot === 'hairFront') return { file: BASE_LAYERS.hairFront, filter: null };
     const item = map.get(outfit[slot]);
     return item ? { file: item.file, filter: tintOf(outfit, slot).filter } : null;
   }).filter(Boolean);
@@ -183,10 +182,10 @@ export const describeOutfit = (outfit, items = LEMARI_ITEMS) => {
   return `Eli memakai ${wear}${bg ? `, latar ${bg}` : ''}`;
 };
 
-/** Distinct credits of the items worn (for the card and the page). */
+/** Distinct credits of the base and the items worn (for the card and the page). */
 export const creditsFor = (outfit, items = LEMARI_ITEMS) => {
   const map = byId(items);
-  return [...new Set(wornEntries(outfit).map(([, id]) => map.get(id)?.credit).filter(Boolean))];
+  return [...new Set([BASE_CREDIT, ...wornEntries(outfit).map(([, id]) => map.get(id)?.credit)].filter(Boolean))];
 };
 
 /** The "Didandani oleh" name: plain text, one line, at most NAME_MAX characters. */

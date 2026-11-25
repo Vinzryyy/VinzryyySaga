@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 import { describe, expect, it } from 'vitest';
-import { BASE_LAYERS, DEFAULT_BG, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
+import { BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
 import {
   applySet,
   cleanName,
@@ -91,9 +91,9 @@ describe('share link', () => {
 });
 
 describe('layers, text, credits', () => {
-  it('stacks bottom to top with hair in front of clothes', () => {
+  it('stacks bottom to top', () => {
     expect(layersFor({ bg: 'bg-a', dress: 'dress-a', shoes: 'shoes-a' }, items).map((l) => l.file)).toEqual([
-      'bg_a', BASE_LAYERS.body, 'dress_a', 'shoes_a', BASE_LAYERS.hairFront,
+      'bg_a', BASE_LAYERS.body, 'dress_a', 'shoes_a',
     ]);
   });
 
@@ -102,8 +102,9 @@ describe('layers, text, credits', () => {
     expect(describeOutfit({ bg: 'bg-a', dress: 'dress-a', shoes: 'shoes-a' }, items)).toBe('Eli memakai Dress A dan Sepatu A, latar Latar A');
   });
 
-  it('lists each credit once', () => {
-    expect(creditsFor({ bg: 'bg-a', dress: 'dress-a', shoes: 'shoes-a' }, items)).toEqual(['X', 'Ilus 1']);
+  it('lists each credit once, starting with the base drawing', () => {
+    expect(creditsFor({ bg: 'bg-a', dress: 'dress-a', shoes: 'shoes-a' }, items)).toEqual([BASE_CREDIT, 'X', 'Ilus 1']);
+    expect(creditsFor({ bg: 'bg-a' }, [{ ...find('bg-a'), credit: BASE_CREDIT }])).toEqual([BASE_CREDIT]);
   });
 
   it('cleans the name', () => {
@@ -169,8 +170,11 @@ describe('real wardrobe data', () => {
       expect(item.credit, item.id).toBeTruthy();
     }
     expect(manifest.files[BASE_LAYERS.body]).toBeTruthy();
-    expect(manifest.files[BASE_LAYERS.hairFront]).toBeTruthy();
     expect(ids.has(DEFAULT_BG)).toBe(true);
+  });
+
+  it('the page and the built art use the same canvas', () => {
+    expect(CANVAS_ASPECT).toBeCloseTo(manifest.canvas.width / manifest.canvas.height, 4);
   });
 
   it('every set points at existing items', () => {

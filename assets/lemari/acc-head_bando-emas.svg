@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="342" height="730" viewBox="0 0 342 730">
-  <!-- Follows the head outline 4-10px inside it (outline: y20 126-184, y30 118-191, y40 114-196, y60 108-200). -->
-  <path id="b" d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64"
-        fill="none" stroke="#9c711c" stroke-width="4.6" stroke-linecap="round"/>
-  <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64"
-        fill="none" stroke="#e3bd6a" stroke-width="2.4" stroke-linecap="round"/>
-  <path d="M124 33 C 132 23 144 18 155 18" fill="none" stroke="#fff3cf" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn on the first 342x730 draft base; the transform puts it on the illustrated base, in its 2480x3507 units
+       (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). Coordinates below are the draft's. -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- Follows the head outline 4-10px inside it (outline: y20 126-184, y30 118-191, y40 114-196, y60 108-200). -->
+    <path id="b" d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64"
+          fill="none" stroke="#9c711c" stroke-width="4.6" stroke-linecap="round"/>
+    <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64"
+          fill="none" stroke="#e3bd6a" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M124 33 C 132 23 144 18 155 18" fill="none" stroke="#fff3cf" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>
+  </g>
 </svg>

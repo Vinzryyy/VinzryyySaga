@@ -1,11 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="342" height="730" viewBox="0 0 342 730">
-  <!-- Starts at the sides of the neck (skin x 142-167 at y 125-130), centred on x 154.5. -->
-  <path d="M143.5 127 C 144.5 140 149 149 154.5 150 C 160 149 164.5 140 165.5 127" fill="none" stroke="#b8862a" stroke-width="0.9"/>
-  <g transform="translate(154.5 154)">
-    <g fill="#f2a65a" stroke="#c46a2a" stroke-width="0.45">
-      <circle cx="0" cy="-2.6" r="2.1"/><circle cx="2.5" cy="-0.8" r="2.1"/><circle cx="1.55" cy="2.1" r="2.1"/>
-      <circle cx="-1.55" cy="2.1" r="2.1"/><circle cx="-2.5" cy="-0.8" r="2.1"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn on the first 342x730 draft base; the transform puts it on the illustrated base, in its 2480x3507 units
+       (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). Coordinates below are the draft's. -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- Starts at the sides of the neck (skin x 142-167 at y 125-130), centred on x 154.5. -->
+    <path d="M143.5 127 C 144.5 140 149 149 154.5 150 C 160 149 164.5 140 165.5 127" fill="none" stroke="#b8862a" stroke-width="0.9"/>
+    <g transform="translate(154.5 154)">
+      <g fill="#f2a65a" stroke="#c46a2a" stroke-width="0.45">
+        <circle cx="0" cy="-2.6" r="2.1"/><circle cx="2.5" cy="-0.8" r="2.1"/><circle cx="1.55" cy="2.1" r="2.1"/>
+        <circle cx="-1.55" cy="2.1" r="2.1"/><circle cx="-2.5" cy="-0.8" r="2.1"/>
+      </g>
+      <circle r="1.2" fill="#e3bd6a"/>
     </g>
-    <circle r="1.2" fill="#e3bd6a"/>
   </g>
 </svg>
