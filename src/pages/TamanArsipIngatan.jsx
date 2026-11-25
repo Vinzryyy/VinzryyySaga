@@ -40,6 +40,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import TownPageFade from '../components/taman/TownPageFade';
@@ -5046,11 +5047,7 @@ const TamanArsipIngatanPage = ({ restored = true }) => {
 
   return (
     <>
-      <Seo
-        title="Perpustakaan"
-        description="Perpustakaan kota yang setengah runtuh — rak yang masih berdiri menyimpan halaman-halaman tentang perjalanan Eli dan Armeniaca."
-        path="/armeniacaTown/r2"
-      />
+      <Seo {...PAGES.townR2} />
       <div className="relative w-full h-[100dvh] bg-[#1a0e08] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas

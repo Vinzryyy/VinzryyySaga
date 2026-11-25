@@ -19,6 +19,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import { subscribeToWishCount, subscribeToWishes, subscribeToHearts } from '../lib/wishesDb';
 import { subscribeToByuSupportCount } from '../lib/byuSupportDb';
@@ -301,11 +302,7 @@ const CountdownPage = () => {
       )}
 
       <FloatingPetals />
-      <Seo
-        title="Rekap Seitansai ke-26 Ceu Eli"
-        description="Kilas balik momen ulang tahun ke-26 Helisma Putri (Eli JKT48) — 15 Juni 2026. Ucapan, kebaikan, lagu, dan kenangan."
-        path="/happy-helisma-day-26"
-      />
+      <Seo {...PAGES.happyHelismaDay26} />
 
       {/* ============================================================ */}
       {/*  HERO                                                         */}

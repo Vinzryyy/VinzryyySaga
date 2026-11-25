@@ -8,6 +8,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import MemoryCard from '../components/minigames/MemoryCard';
 import '../components/minigames/memory.css';
 import {
@@ -242,11 +243,7 @@ const MiniGameMemory = () => {
 
   return (
     <main className="relative min-h-screen bg-[color:var(--retro-bg-primary)] pb-16">
-      <Seo
-        path="/mini-games/memory"
-        title="Pasangkan Momen"
-        description="Mini game memory: cocokkan pasangan foto Eli JKT48 dari arsip Armeniaca. Ada mode harian yang sama untuk semua orang."
-      />
+      <Seo {...PAGES.memory} />
 
       {/* Header — dark photo band so the (light-on-dark) navbar stays legible. */}
       <header className="relative overflow-hidden pt-24 sm:pt-28 pb-8 sm:pb-10 px-4 sm:px-6">

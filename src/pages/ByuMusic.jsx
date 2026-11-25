@@ -16,16 +16,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import ByuTitipan from '../components/titipan/ByuTitipan';
 
 const ByuMusic = () => (
   <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-    <Seo
-      path="/byu-music"
-      title="By-U Music"
-      description="Lagu By-U untuk Putri Helisma — dirilis 15 Juni 2026 sebagai bagian dari Harmoni Kebaikan. Dengarkan sekarang."
-    />
+    <Seo {...PAGES.byuMusic} />
 
     <FloatingPetals />
 

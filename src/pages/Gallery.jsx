@@ -18,6 +18,7 @@ import InstagramGrid from '../components/gallery/InstagramGrid';
 import FilterBar from '../components/gallery/FilterBar';
 import { SITE_CONFIG } from '../config/siteConfig';
 import Seo from '../components/Seo';
+import { PAGES, galleryYearMeta } from '../lib/pageMeta';
 
 const GalleryPage = () => {
   const { eras, setEraFilter } = useGallery();
@@ -54,15 +55,9 @@ const GalleryPage = () => {
     }
   }, [year, eras, setEraFilter]);
 
-  const seoTitle = year ? `Memoria ${year}` : 'Memoria';
-  const seoDescription = year
-    ? `Frame-frame Eli JKT48 dari Memoria tahun ${year}. Kenangan visual Helisma Putri di sepanjang tahun ${year}.`
-    : 'Memoria — kenangan visual Eli JKT48, frame demi frame dari Generasi 7 hingga era Team Dream. Filter berdasarkan tahun untuk menjelajah era spesifik.';
-  const seoPath = year ? `/gallery/${year}` : '/gallery';
-
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-      <Seo title={seoTitle} description={seoDescription} path={seoPath} />
+      <Seo {...(year ? galleryYearMeta(year) : PAGES.gallery)} />
 
       {/* Decorative background — soft, large icon scatter behind all
           content. Matches the cover banner's icon vocabulary (flowers,

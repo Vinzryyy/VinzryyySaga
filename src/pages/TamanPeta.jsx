@@ -39,6 +39,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
@@ -17189,11 +17190,7 @@ const TamanPetaPage = () => {
 
   return (
     <>
-      <Seo
-        title="ArmeniacaTown — Peta Kota"
-        description="Peta ArmeniacaTown — kota yang tumbuh dari siraman komunitas Helismiley."
-        path="/armeniacaTown/peta"
-      />
+      <Seo {...PAGES.townPeta} />
       <div className="relative w-full h-[100dvh] bg-[#2a1f30] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas

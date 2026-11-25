@@ -39,6 +39,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { KEBAIKAN_ENTRIES } from '../data/galeriKebaikan';
@@ -828,11 +829,7 @@ const TamanAulaPage = () => {
   const isMobile = useIsMobile();
   return (
     <>
-      <Seo
-        title="ArmeniacaTown — Aula (Virtual Companion FX Sudirman)"
-        description="Replika virtual venue offline event seitansai Eli di FX Sudirman — pavilion sticky notes 'Kebaikan apa yang sudah kamu lakukan?' + arsip sertifikat donasi Harmoni Kebaikan."
-        path="/armeniacaTown/r6"
-      />
+      <Seo {...PAGES.townR6} />
       <RotateRecommendation />
       <div className="relative w-full h-[100dvh] bg-[#1f1a18] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>

@@ -13,6 +13,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import StoryCard from '../components/stories/StoryCard';
 import {
   LABEL_MAX,
@@ -189,11 +190,7 @@ const FanStories = () => {
 
   return (
     <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20">
-      <Seo
-        path="/cerita"
-        title="Cerita Penggemar"
-        description="Cerita-cerita kecil penggemar tentang Eli JKT48 (Helisma Putri): momen yang diingat, dibagikan, dan dibaca bersama di Armeniaca."
-      />
+      <Seo {...PAGES.cerita} />
 
       {/* Dark photo band so the light navbar stays readable. */}
       <header className="relative overflow-hidden pt-24 sm:pt-28 pb-10 px-4 sm:px-6">

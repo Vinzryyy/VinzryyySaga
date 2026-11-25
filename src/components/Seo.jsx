@@ -3,24 +3,25 @@
  * link, OG/Twitter tags, and optional JSON-LD structured data via
  * react-helmet-async. Defaults bubble up from index.html for any page
  * that doesn't override.
+ *
+ * Pages pass their entry from src/lib/pageMeta.js, which the build also
+ * uses to write each page's HTML with the same tags (link previews).
  */
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-
-const SITE_URL = 'https://armeniaca.online';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-card.png`;
+import { DEFAULT_IMAGE, fullTitle as withSiteName, pageUrl } from '../lib/pageMeta';
 
 const Seo = ({
   title,
   description,
   path = '/',
-  image = DEFAULT_OG_IMAGE,
+  image = DEFAULT_IMAGE,
   type = 'website',
   jsonLd,
 }) => {
-  const fullTitle = title ? `${title} · Armeniaca` : 'Armeniaca — Arsip Visual Eli JKT48';
-  const url = `${SITE_URL}${path === '/' ? '' : path}`;
+  const fullTitle = withSiteName(title);
+  const url = pageUrl(path);
 
   return (
     <Helmet>

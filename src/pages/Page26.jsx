@@ -12,6 +12,7 @@
 
 import React, { useState } from 'react';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import EliTree from '../components/home/EliTree';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import FilosofiModal from '../components/page26/FilosofiModal';
@@ -21,11 +22,7 @@ const Page26 = () => {
 
   return (
   <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-    <Seo
-      path="/26"
-      title="#26 — Pohon Kebaikan"
-      description="Project ulang tahun ke-26 Eli JKT48. Tekan tombol untuk memberi 1 dukungan; setiap 100 dukungan, pohon untuk Eli tumbuh ke tahap berikutnya."
-    />
+    <Seo {...PAGES.page26} />
 
     {/* Soft drift petals — reuse the same component as Wishes/Countdown
         so the gimmick reads as a celebration page. Honors

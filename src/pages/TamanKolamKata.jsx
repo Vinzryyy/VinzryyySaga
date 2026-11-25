@@ -55,6 +55,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import TownPageFade from '../components/taman/TownPageFade';
 import PetakQuickNav from '../components/taman/PetakQuickNav';
@@ -5741,11 +5742,7 @@ const TamanKolamKataPage = () => {
 
   return (
     <>
-      <Seo
-        title="Telaga Harapan"
-        description="Telaga teratai dengan harapan-harapan dari fans untuk Eli — wish wall dalam bentuk taman 3D."
-        path="/armeniacaTown/r3"
-      />
+      <Seo {...PAGES.townR3} />
       <div className="relative w-full h-[100dvh] bg-[#0a1320] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas

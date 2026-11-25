@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Section from '../components/layout/Section';
 import { useGallery } from '../context';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import MotifBackdrop from '../components/about/MotifBackdrop';
 import MemberCard from '../components/profile/MemberCard';
 import { SITE_CONFIG } from '../config/siteConfig';
@@ -197,9 +198,7 @@ const ProfilePage = () => {
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)]">
       <Seo
-        title="Profil Eli"
-        description="Profil lengkap Helisma Putri (Eli JKT48) — timeline karier, JKT48 Fight 2026 di Team Dream, diskografi termasuk Sousenkyo Rapsodi, plus trivia dan fun facts."
-        path="/profile"
+        {...PAGES.profile}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Person',

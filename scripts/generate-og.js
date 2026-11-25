@@ -3,7 +3,8 @@
  *
  * Composites 1200x630 social-sharing cards from a portrait + SVG text overlay.
  * Output:
- *   /public/og-card.png      — homepage default
+ *   /public/og-card.jpg      — default share image (JPEG: WhatsApp drops images over ~600 KB)
+ *   /public/og-card.png      — same card, lossless (logo in the homepage's JSON-LD)
  *   /public/og-petikan.png   — /petikan route (Pohon Aprikot seitansai)
  *
  * Run: npm run generate-og
@@ -17,8 +18,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
-const SOURCE = path.join(PUBLIC_DIR, 'archive', 'img-070.jpg');
+const SOURCE = path.join(PUBLIC_DIR, 'archive', 'img-070.webp');
 const OUT = path.join(PUBLIC_DIR, 'og-card.png');
+const OUT_JPG = path.join(PUBLIC_DIR, 'og-card.jpg');
 const APRIKOT_SVG = path.join(PUBLIC_DIR, 'petikan', 'aprikot-mei.svg');
 const PETIKAN_OUT = path.join(PUBLIC_DIR, 'og-petikan.png');
 
@@ -73,7 +75,7 @@ async function generateHomeCard() {
     .resize({ width: portraitWidth, height: H, fit: 'cover', position: 'top' })
     .toBuffer();
 
-  await sharp({
+  const card = await sharp({
     create: {
       width: W,
       height: H,
@@ -85,10 +87,13 @@ async function generateHomeCard() {
       { input: portraitBuffer, top: 0, left: W - portraitWidth },
       { input: Buffer.from(svg), top: 0, left: 0 },
     ])
-    .png({ compressionLevel: 9 })
-    .toFile(OUT);
+    .png()
+    .toBuffer();
 
-  console.log('✔ Wrote', OUT);
+  await sharp(card).png({ compressionLevel: 9 }).toFile(OUT);
+  await sharp(card).jpeg({ quality: 84, mozjpeg: true }).toFile(OUT_JPG);
+
+  console.log('✔ Wrote', OUT, 'and', OUT_JPG);
 }
 
 // Petikan OG — aprikot-mei.svg illustration sebagai right-side panel,

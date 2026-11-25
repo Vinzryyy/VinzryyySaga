@@ -14,6 +14,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { SITE_CONFIG } from '../config/siteConfig';
 
 const VIVO = SITE_CONFIG.vivo;
@@ -207,11 +208,7 @@ const PlatformSection = ({ entry }) => (
 const VivoPage = () => {
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-      <Seo
-        title="Vivo — Live Streaming Eli"
-        description="Arsip live streaming Helisma Putri di IDN Live dan SHOWROOM. Playlist YouTube tertanam, auto-update kalau ada video baru."
-        path="/vivo"
-      />
+      <Seo {...PAGES.vivo} />
 
       {/* Decorative icon scatter — same vocabulary as Memoria so the
           pages feel like a set; positioned for this page's flow.

@@ -15,6 +15,7 @@ import { useLightbox } from '../context/LightboxContext';
 import { hashToHref } from '../utils/routes';
 import useSplitTextReveal from '../hooks/useSplitTextReveal';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { useShowroomLive } from '../hooks/useShowroomLive';
 import { useIdnLive } from '../hooks/useIdnLive';
 import { useEliSchedule, deriveLiveState } from '../hooks/useEliSchedule';
@@ -575,8 +576,7 @@ const HomePage = () => {
     <main className="relative overflow-hidden">
       <ChalkIllustrations />
       <Seo
-        path="/"
-        description="Arsip visual independen untuk Helisma Putri (Eli JKT48). Mendokumentasikan panggung, event, dan momen Ceu Eli dari Generasi 7 hingga era Team Dream JKT48 Fight 2026."
+        {...PAGES.home}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',

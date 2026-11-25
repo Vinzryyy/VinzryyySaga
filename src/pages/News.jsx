@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import Seo from '../components/Seo';
+import { PAGES, articleMeta } from '../lib/pageMeta';
 import NEWS_ARTICLES from '../data/newsArticles';
 
 /* ------------------------------------------------------------------ */
@@ -140,11 +141,7 @@ const NewsListing = () => {
 
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-      <Seo
-        title="News"
-        description="Kabar terbaru seputar Eli JKT48 — rekap event, pengumuman, dan highlight."
-        path="/news"
-      />
+      <Seo {...PAGES.news} />
 
       {/* ── Hero banner with background image ── */}
       <header className="relative overflow-hidden">
@@ -285,11 +282,7 @@ const ArticleDetail = ({ article }) => {
 
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-      <Seo
-        title={article.title}
-        description={article.subtitle || article.title}
-        path={`/news/${article.slug}`}
-      />
+      <Seo {...articleMeta(article)} />
 
       {/* Subtle bg texture */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">

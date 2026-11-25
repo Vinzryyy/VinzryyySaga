@@ -23,6 +23,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import {
   joinPresence,
   subscribeToPresenceCount,
@@ -208,11 +209,7 @@ const Denyut = () => {
           'radial-gradient(ellipse at center, #2a1418 0%, #150a0d 55%, #0a0507 100%)',
       }}
     >
-      <Seo
-        path="/denyut"
-        title="Denyut — Heartbeat Website"
-        description="Project ini hidup karena banyak hati. Tiap orang yang membuka halaman ini menambah satu detak ke ritme website."
-      />
+      <Seo {...PAGES.denyut} />
 
       {/* Subtle full-screen pulse — background throb lebih lambat
           (period * 2) supaya gak overpowering. Opacity layer di atas

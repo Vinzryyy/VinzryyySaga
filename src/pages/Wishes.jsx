@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import MarqueeStrip from '../components/wishes/MarqueeStrip';
 import MotifBackdrop from '../components/about/MotifBackdrop';
 import FloatingPetals from '../components/countdown/FloatingPetals';
@@ -278,11 +279,7 @@ const WishesPage = () => {
 
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-      <Seo
-        title="Wishes untuk Eli"
-        description="Ucapan dan harapan dari fans untuk Helisma Putri (Eli JKT48). Wishes wall perayaan ulang tahun ke-26 pada 15 Juni 2026."
-        path="/wishes"
-      />
+      <Seo {...PAGES.wishes} />
       {/* Ambient motif backdrop — same brand symbology used on Profile,
           but with a wishes-specific seed so the layout differs and won't
           look identical when both pages open in adjacent tabs. */}

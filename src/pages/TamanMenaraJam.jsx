@@ -47,6 +47,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import TownPageFade from '../components/taman/TownPageFade';
 import PetakQuickNav from '../components/taman/PetakQuickNav';
@@ -100,9 +101,8 @@ const TamanMenaraJamPage = ({ restored = false }) => {
   return (
     <>
       <Seo
-        title={`ArmeniacaTown — Menara Jam${restored ? ' (Pulih)' : ''}`}
-        description="Menara Jam ArmeniacaTown — twin yagura (Japanese castle watchtower) + Honden shrine hall. Countdown Seitansai Eli + kalender hari-hari penting di shoji dial."
-        path="/armeniacaTown/r4"
+        {...PAGES.townR4}
+        title={`${PAGES.townR4.title}${restored ? ' (Pulih)' : ''}`}
       />
       <RotateRecommendation />
       <TownPageFade />

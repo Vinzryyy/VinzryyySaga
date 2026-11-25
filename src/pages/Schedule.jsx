@@ -14,6 +14,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import LiveCounter from '../components/schedule/LiveCounter';
 import SetlistGrid from '../components/schedule/SetlistGrid';
@@ -410,11 +411,7 @@ const SchedulePage = () => {
 
   return (
     <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen">
-      <Seo
-        path="/schedule"
-        title="Jadwal Eli"
-        description="Daftar lengkap show teater dan Personal Meet & Greet Eli JKT48 (Helisma Putri). Auto-refresh setiap 6 jam."
-      />
+      <Seo {...PAGES.schedule} />
 
       {/* Editorial header — stage photo full-bleed background with
           burgundy gradient overlay so the eyebrow / h1 / lead stay

@@ -304,3 +304,36 @@ export const weekLabel = (week) => {
   if (m1 !== m2) return `${d1} ${months[m1 - 1]} – ${d2} ${months[m2 - 1]} ${y2}`;
   return `${d1}–${d2} ${months[m1 - 1]} ${y1}`;
 };
+
+// ── Wording shared by the page and its link previews (src/lib/pageMeta.js) ──
+
+const WIB_DATE = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+const WIB_DAY = new Intl.DateTimeFormat('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
+const WIB_TIME = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+const startOf = (r) => new Date(r.startedAt || `${r.date}T12:00:00+07:00`);
+
+/** "Senin, 24 November 2026" (WIB). */
+export const prettyDay = (r) => WIB_DATE.format(startOf(r));
+
+/** "Senin" (WIB). */
+export const dayName = (r) => WIB_DAY.format(startOf(r));
+
+/** 12345 → "12.345". */
+export const fmtN = (n) => Number(n || 0).toLocaleString('id-ID');
+
+/** A few plain sentences from the week's numbers (no guessing). */
+export const weekSentences = (w, prev) => {
+  const out = [];
+  if (w.lives === 0) out.push('Minggu ini tidak ada live yang terekam, tapi ada catatan dari live Eli.');
+  else {
+    out.push(`Eli live ${w.lives} kali, total ${fmtDuration(w.minutes * 60)}, dengan ${fmtN(w.comments)} komentar.`);
+    if (prev && prev.lives > 0) {
+      const diff = w.minutes - prev.minutes;
+      if (Math.abs(diff) >= 10) out.push(`Itu ${fmtDuration(Math.abs(diff) * 60)} ${diff > 0 ? 'lebih lama' : 'lebih singkat'} dari minggu sebelumnya.`);
+    }
+    if (w.lives > 1 && w.busiest) out.push(`Paling ramai live ${dayName(w.busiest)}${w.busiest.startedAt ? ` pukul ${WIB_TIME.format(new Date(w.busiest.startedAt))}` : ''}, ${fmtN(w.busiest.comments)} komentar.`);
+    if (w.chatWords[0]) out.push(`Kata yang paling sering diketik penonton: “${w.chatWords[0][0]}”.`);
+  }
+  if (w.notes.length) out.push(`${w.notes.length} momen kami tulis di Eli Notes.`);
+  return out;
+};

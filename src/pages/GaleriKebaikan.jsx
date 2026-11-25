@@ -9,6 +9,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import KebaikanArchive from '../components/galeri/KebaikanArchive';
 import FloatingPetals from '../components/countdown/FloatingPetals';
 import MotifBackdrop from '../components/about/MotifBackdrop';
@@ -16,11 +17,7 @@ import { KEBAIKAN_CATEGORIES } from '../data/galeriKebaikan';
 
 const GaleriKebaikan = () => (
   <main className="relative bg-[color:var(--retro-bg-primary)] min-h-screen overflow-x-hidden">
-    <Seo
-      path="/galeri-kebaikan"
-      title="Galeri Kebaikan — Harmoni Kebaikan"
-      description="Arsip aksi kebaikan yang dilakukan atas nama Helisma Putri (Eli JKT48) untuk seitansai ke-26 pada 15 Juni 2026. Project Helismiley × Armeniaca."
-    />
+    <Seo {...PAGES.galeriKebaikan} />
 
     <MotifBackdrop count={40} seed="galeri-kebaikan-2026" />
     <FloatingPetals />

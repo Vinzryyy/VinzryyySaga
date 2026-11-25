@@ -17,15 +17,13 @@ import { NoteCard } from '../components/EliNoteCard';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { fmtMinute } from '../lib/eliNotes';
 import { MOODS } from '../lib/eliNotes';
-import { WEEK_RE, fmtDuration, liveCalendar, livePattern, monthlyTotals, noteNear, notesForRecap, perMinuteAvg, recapInsights, recapRecords, weekLabel, weekOf, weeklySummaries } from '../lib/liveRecaps';
+import { WEEK_RE, dayName, fmtDuration, fmtN, liveCalendar, livePattern, monthlyTotals, noteNear, notesForRecap, perMinuteAvg, prettyDay, recapInsights, recapRecords, weekLabel, weekOf, weekSentences, weeklySummaries } from '../lib/liveRecaps';
+import { PAGES, recapMeta, weekMeta } from '../lib/pageMeta';
 import { useLiveRecaps } from '../hooks/useLiveRecaps';
 import RecapShareCard from '../components/RecapShareCard';
 
 const PLATFORM = { idn: 'IDN Live', showroom: 'SHOWROOM' };
-const dateFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
 const timeFmt = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
-const prettyDay = (r) => dateFmt.format(new Date(r.startedAt || `${r.date}T12:00:00+07:00`));
-const fmtN = (n) => Number(n || 0).toLocaleString('id-ID');
 
 // Colours of the board (dark, warm; Armeniaca gold + burgundy as accents).
 const INK = '#16110e';
@@ -346,26 +344,6 @@ const Insights = ({ recaps }) => (
 
 // ── Ringkasan mingguan ───────────────────────────────────────────────
 
-const dayFmt = new Intl.DateTimeFormat('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
-const dayName = (r) => dayFmt.format(new Date(r.startedAt || `${r.date}T12:00:00+07:00`));
-
-/** A few plain sentences from the week's numbers (no guessing). */
-const weekSentences = (w, prev) => {
-  const out = [];
-  if (w.lives === 0) out.push('Minggu ini tidak ada live yang terekam, tapi ada catatan dari live Eli.');
-  else {
-    out.push(`Eli live ${w.lives} kali, total ${fmtDuration(w.minutes * 60)}, dengan ${fmtN(w.comments)} komentar.`);
-    if (prev && prev.lives > 0) {
-      const diff = w.minutes - prev.minutes;
-      if (Math.abs(diff) >= 10) out.push(`Itu ${fmtDuration(Math.abs(diff) * 60)} ${diff > 0 ? 'lebih lama' : 'lebih singkat'} dari minggu sebelumnya.`);
-    }
-    if (w.lives > 1 && w.busiest) out.push(`Paling ramai live ${dayName(w.busiest)}${w.busiest.startedAt ? ` pukul ${timeFmt.format(new Date(w.busiest.startedAt))}` : ''}, ${fmtN(w.busiest.comments)} komentar.`);
-    if (w.chatWords[0]) out.push(`Kata yang paling sering diketik penonton: “${w.chatWords[0][0]}”.`);
-  }
-  if (w.notes.length) out.push(`${w.notes.length} momen kami tulis di Eli Notes.`);
-  return out;
-};
-
 /** The newest week, as a panel on /rekap-live. */
 const WeekTeaser = ({ weeks }) => {
   const w = weeks[0];
@@ -580,11 +558,7 @@ const LiveRecaps = () => {
   if (isWeek) {
     return (
       <Board>
-        <Seo
-          path={w ? `/rekap-live/minggu/${w.week}` : '/rekap-live/minggu'}
-          title={w ? `Ringkasan mingguan ${weekLabel(w.week)}` : 'Ringkasan mingguan'}
-          description={w ? `Seminggu live Eli JKT48 (${weekLabel(w.week)}): ${weekSentences(w, weeks[wIdx + 1]).join(' ')}` : 'Ringkasan mingguan live IDN dan SHOWROOM Eli JKT48.'}
-        />
+        <Seo {...(w ? weekMeta(w, weeks[wIdx + 1]) : PAGES.rekapLiveWeekly)} />
         {w ? (
           <WeekDetail w={w} prev={weeks[wIdx + 1]} next={weeks[wIdx - 1]} />
         ) : (
@@ -599,15 +573,7 @@ const LiveRecaps = () => {
 
   return (
     <Board>
-      <Seo
-        path={id ? `/rekap-live/${id}` : '/rekap-live'}
-        title={recap ? `Rekap live ${prettyDay(recap)}` : 'Rekap Live'}
-        description={
-          recap
-            ? `Live ${PLATFORM[recap.platform]} Eli JKT48, ${prettyDay(recap)}: ${fmtDuration(recap.durationSec)}, ${fmtN(recap.comments)} komentar, momen paling ramai dan topik obrolannya.`
-            : 'Rekap Live: ringkasan otomatis setiap live IDN dan SHOWROOM Eli JKT48. Durasi, keramaian chat, momen paling heboh, dan topik obrolan.'
-        }
-      />
+      <Seo {...(recap ? recapMeta(recap) : { ...PAGES.rekapLive, path: id ? `/rekap-live/${id}` : PAGES.rekapLive.path })} />
       {!id ? (
         <RecapList recaps={recaps} loading={loading} weeks={weeks} />
       ) : recap ? (

@@ -10,6 +10,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES, noteMeta } from '../lib/pageMeta';
 import { useGallery } from '../context';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { useLiveRecaps } from '../hooks/useLiveRecaps';
@@ -363,15 +364,7 @@ const EliNotes = () => {
 
   return (
     <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20">
-      <Seo
-        path={slug ? `/eli-notes/${slug}` : '/eli-notes'}
-        title={note ? `${note.quote ? `“${note.quote}”` : note.liveTitle || 'Catatan live'} · Eli Notes` : 'Eli Notes'}
-        description={
-          note
-            ? `${credit(note)}. ${note.story.slice(0, 140)}`
-            : 'Eli Notes: catatan momen dari live IDN dan SHOWROOM Eli JKT48, ditulis ulang oleh penggemar, lengkap dengan kutipan dan menitnya.'
-        }
-      />
+      <Seo {...(note ? noteMeta(note) : { ...PAGES.eliNotes, path: slug ? `/eli-notes/${slug}` : PAGES.eliNotes.path })} />
       {!slug ? (
         <NoteList notes={notes} loading={loading} />
       ) : note ? (

@@ -32,6 +32,7 @@ import {
 import { ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import TownPageFade from '../components/taman/TownPageFade';
@@ -3325,9 +3326,8 @@ const TamanPanggungSorotan = ({ restored = false }) => {
   return (
     <>
       <Seo
+        {...PAGES.townR5}
         title={`Panggung Terbuka${restored ? ' (Pulih)' : ''} · ArmeniacaTown`}
-        description="Pameran sederhana Panggung Terbuka — sorotan kebaikan dilakukan atas nama Helisma Putri (Eli JKT48). Arsip donasi & aksi nyata Helismiley × Armeniaca."
-        path="/armeniacaTown/r5"
       />
       <RotateRecommendation />
       <div

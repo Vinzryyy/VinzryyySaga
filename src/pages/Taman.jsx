@@ -52,6 +52,7 @@ import {
   Vignette,
 } from '@react-three/postprocessing';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import RotateRecommendation from '../components/ui/RotateRecommendation';
 import { subscribeToTreeSupports } from '../lib/treeDb';
@@ -2019,11 +2020,7 @@ const MuseumPage = () => {
 
   return (
     <>
-      <Seo
-        title="Gerbang"
-        description="Gerbang ke Kota — pintu masuk wilayah kebaikan, kenangan, dan harapan yang tumbuh."
-        path="/armeniacaTown"
-      />
+      <Seo {...PAGES.town} />
       <div
         className={`relative w-full h-[100dvh] overflow-hidden select-none ${
           unlocked ? 'cursor-pointer' : 'cursor-default'

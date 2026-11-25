@@ -38,6 +38,7 @@ import {
 } from '@react-three/postprocessing';
 import { ToneMappingMode } from 'postprocessing';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import AmbientAudio from '../components/taman/AmbientAudio';
 import TownPageFade from '../components/taman/TownPageFade';
 import PetakQuickNav from '../components/taman/PetakQuickNav';
@@ -518,11 +519,7 @@ const TamanLorongPohonPage = () => {
 
   return (
     <>
-      <Seo
-        title="Konstelasi Perjalanan"
-        description="Perjalanan karier Eli dari Generasi 7 ke Team Dream — milestone-milestone yang dirajut menjadi konstelasi di langit taman senja."
-        path="/armeniacaTown/r1"
-      />
+      <Seo {...PAGES.townR1} />
       <div className="relative w-full h-[100dvh] bg-[#1c1f2a] overflow-hidden select-none">
         <Suspense fallback={<SceneFallback />}>
           <Canvas

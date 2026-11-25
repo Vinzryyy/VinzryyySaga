@@ -10,6 +10,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { useEliNotes } from '../hooks/useEliNotes';
 import { MOODS, PLATFORMS, QUIZ_MIN_NOTES, buildQuiz, fmtMinute, quizPool } from '../lib/eliNotes';
 
@@ -19,11 +20,7 @@ const prettyDate = (iso) => dateFmt.format(new Date(`${iso}T00:00:00Z`));
 
 const Shell = ({ children }) => (
   <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20 pt-24 sm:pt-28 px-4 sm:px-6">
-    <Seo
-      path="/mini-games/tebak-momen"
-      title="Tebak Momen · Mini Games"
-      description="Tebak Momen: Eli bilang ini di live tanggal berapa? Mini game dari Eli Notes, catatan momen live Eli JKT48."
-    />
+    <Seo {...PAGES.tebakMomen} />
     <div className="max-w-2xl mx-auto">
       <Link to="/mini-games" className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)]">
         <i className="ri-arrow-left-line" /> Mini games

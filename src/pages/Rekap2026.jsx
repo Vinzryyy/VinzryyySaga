@@ -15,6 +15,7 @@ import { useLiveRecaps } from '../hooks/useLiveRecaps';
 import { fmtDuration, yearTotals } from '../lib/liveRecaps';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { useGallery } from '../context';
 import {
   MONTHS_ID,
@@ -209,11 +210,7 @@ export default function Rekap2026() {
 
   return (
     <main className="relative min-h-screen bg-[color:var(--retro-bg-primary)] pb-16">
-      <Seo
-        path="/rekap-2026"
-        title="Rekap 2026"
-        description="Rekap 2026 Eli JKT48 dari arsip Armeniaca: panggung teater, setlist, unit song, momen favorit penggemar, dan foto sepanjang tahun."
-      />
+      <Seo {...PAGES.rekap2026} />
 
       {/* Hero — dark photo band so the (light-on-dark) navbar stays legible. */}
       <header className="relative overflow-hidden pt-24 sm:pt-28 pb-10 sm:pb-14 px-4 sm:px-6">

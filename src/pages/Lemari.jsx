@@ -11,6 +11,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { CANVAS_ASPECT, LEMARI_ITEMS, LEMARI_SETS, SLOTS, TINTS, fullSrc, thumbSrc } from '../data/lemari';
 import {
   NAME_MAX,
@@ -281,11 +282,7 @@ const Lemari = () => {
 
   return (
     <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20 pt-24 sm:pt-28 px-4 sm:px-6">
-      <Seo
-        path={PATH}
-        title="Lemari Eli · Mini Games"
-        description="Lemari Eli: dandani Eli dengan kostum panggungnya, kenali cerita di balik tiap kostum, lalu simpan gayamu sebagai kartu."
-      />
+      <Seo {...PAGES.lemari} />
       <div className="max-w-6xl mx-auto">
         <Link to="/mini-games" className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)]">
           <i className="ri-arrow-left-line" /> Mini games

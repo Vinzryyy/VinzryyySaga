@@ -13,6 +13,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import { POHON_APRIKOT_POOL } from '../data/pohonAprikot';
 import { armepackStatus, memoryStatus, quizStatus, todayList } from '../lib/arcadeStatus';
 import { useEliNotes } from '../hooks/useEliNotes';
@@ -148,11 +149,7 @@ const MiniGames = () => {
 
   return (
     <div className="hub min-h-screen pb-20">
-      <Seo
-        path="/mini-games"
-        title="Mini Games"
-        description="Arcade Armeniaca: ArmePack, Pasangkan Momen, Tebak Momen, dan ArmeniacaTown. Main sebentar tiap hari sambil mengingat momen-momen Eli JKT48."
-      />
+      <Seo {...PAGES.miniGames} />
 
       <header className="hub-hero">
         <div className="hub-wrap hub-hero__grid">

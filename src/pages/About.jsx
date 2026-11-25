@@ -14,6 +14,7 @@ import { SITE_CONFIG } from '../config/siteConfig';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
 import Seo from '../components/Seo';
+import { PAGES } from '../lib/pageMeta';
 import PortraitCardStack from '../components/about/PortraitCardStack';
 
 const STAGGER_STEP_MS = 60;
@@ -295,11 +296,7 @@ const AboutPage = () => {
   const { about } = SITE_CONFIG;
   return (
     <main className="bg-[color:var(--retro-bg-primary)]">
-      <Seo
-        title="About"
-        description="Tentang Armeniaca — arsip visual independen untuk Helisma Putri (Eli JKT48). Cerita di balik nama, simbol-simbol di logo, dan filosofi proyek."
-        path="/about"
-      />
+      <Seo {...PAGES.about} />
       <Hero hero={about.hero} />
       <EtymologySection etymology={about.etymology} />
       <PhilosophyQuote philosophy={about.philosophy} />

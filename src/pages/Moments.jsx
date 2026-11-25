@@ -9,6 +9,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Seo from '../components/Seo';
+import { PAGES, momentMeta } from '../lib/pageMeta';
 import { useGallery } from '../context';
 import { useLightbox } from '../context/LightboxContext';
 import { buildMoments, cleanCaption, showsOn } from '../lib/moments';
@@ -280,15 +281,7 @@ const Moments = () => {
 
   return (
     <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20">
-      <Seo
-        path={slug ? `/momen/${slug}` : '/momen'}
-        title={moment ? `${moment.name} · Album Momen` : 'Album Momen'}
-        description={
-          moment
-            ? `${moment.name} (${prettyDate(moment.date)}): ${moment.photos.length} foto Eli JKT48 dari arsip @armeniaca15.`
-            : 'Album Momen: foto-foto Eli JKT48 dari arsip Armeniaca, dikelompokkan per acara, lengkap dengan cerita penggemar.'
-        }
-      />
+      <Seo {...(moment ? momentMeta(moment) : { ...PAGES.momen, path: slug ? `/momen/${slug}` : PAGES.momen.path })} />
       {!slug ? (
         <MomentList moments={moments} loading={!enrichmentsLoaded} />
       ) : moment ? (
