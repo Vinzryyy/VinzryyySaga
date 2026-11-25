@@ -26,6 +26,8 @@ export const MOODS = {
   nyanyi: { label: 'Nyanyi', icon: 'ri-music-2-line', tone: '#4f6b5a' },
   ngobrol: { label: 'Ngobrol', icon: 'ri-chat-smile-2-line', tone: '#5c4a3a' },
   seru: { label: 'Seru', icon: 'ri-fire-line', tone: '#b4532a' },
+  // What Eli does on a live (eating, getting ready, resting), not something she said.
+  lifestyle: { label: 'Lifestyle', icon: 'ri-cup-line', tone: '#4f6384' },
 };
 
 export const PLATFORMS = { idn: 'IDN Live', showroom: 'SHOWROOM' };
