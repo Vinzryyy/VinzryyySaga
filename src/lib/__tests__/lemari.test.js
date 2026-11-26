@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 import { describe, expect, it } from 'vitest';
-import { BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
+import { ABOUT_MAX, BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
 import {
   applySet,
   cleanName,
@@ -181,6 +181,22 @@ describe('real wardrobe data', () => {
     const ids = new Set(LEMARI_ITEMS.map((i) => i.id));
     for (const set of LEMARI_SETS) {
       for (const id of [...set.items, set.bg].filter(Boolean)) expect(ids.has(id), `${set.id}: ${id}`).toBe(true);
+    }
+  });
+
+  it("a set's story is text, with an optional link inside the site", () => {
+    for (const set of LEMARI_SETS) {
+      if (set.moment === null) continue;
+      expect(set.moment.text?.trim().length, set.id).toBeGreaterThan(0);
+      if (set.moment.to !== undefined) expect(set.moment.to, set.id).toMatch(/^\/[a-z]/);
+    }
+  });
+
+  it("a song's one-line story is short enough for the card", () => {
+    for (const set of LEMARI_SETS) {
+      if (set.about === undefined) continue;
+      expect(set.about.trim().length, set.id).toBeGreaterThan(0);
+      expect(set.about.length, set.id).toBeLessThanOrEqual(ABOUT_MAX);
     }
   });
 });

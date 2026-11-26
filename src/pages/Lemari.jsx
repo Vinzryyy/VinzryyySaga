@@ -18,7 +18,6 @@ import {
   applySet,
   cleanName,
   clearSlot,
-  creditsFor,
   decodeOutfit,
   defaultOutfit,
   describeOutfit,
@@ -40,6 +39,8 @@ const PATH = '/mini-games/lemari';
 const SITE = 'armeniaca.online';
 const SERIF = "'Fraunces Variable', 'Fraunces', Georgia, serif";
 const SANS = "'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif";
+/** The song's one-line story on the card: italic, two lines at most. */
+const ABOUT_STYLE = { marginTop: 5, fontStyle: 'italic', lineHeight: 1.3, opacity: 0.85, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' };
 const dayFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
 const itemById = new Map(LEMARI_ITEMS.map((i) => [i.id, i]));
 
@@ -90,18 +91,18 @@ const CardStage = ({ outfit, radius = 22, border = '1px solid rgba(124,45,52,0.1
 };
 
 /** Off-screen 540×675 board, captured at 2× (1080×1350, IG portrait). */
-const CardBoard = ({ template, outfit, setLabel, name, credits }) => {
+const CardBoard = ({ template, outfit, setLabel, about, name }) => {
   const title = setLabel || 'Gaya pilihanku';
   const today = dayFmt.format(new Date());
-  const creditLine = credits.join(' · ');
 
   if (template === 'polaroid') {
     return (
       <div style={{ width: 540, height: 675, background: '#e9dcc8', fontFamily: SANS, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 440, height: 600, background: '#fffdf8', padding: '22px 22px 0', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', boxShadow: '0 18px 40px rgba(58,40,24,0.25)', transform: 'rotate(-2deg)' }}>
           <CardStage outfit={outfit} radius={2} border="none" />
-          <div style={{ height: 118, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#3a2818' }}>
+          <div style={{ minHeight: 118, padding: '8px 0', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', color: '#3a2818' }}>
             <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontWeight: 600, fontSize: 30, lineHeight: 1.05 }}>{title}</div>
+            {about && <div style={{ ...ABOUT_STYLE, maxWidth: 370, fontSize: 11.5 }}>{about}</div>}
             <div style={{ marginTop: 6, fontSize: 12, opacity: 0.7 }}>{name ? `oleh ${name} · ` : ''}{today}</div>
             <div style={{ marginTop: 6, fontSize: 9, fontWeight: 800, letterSpacing: '0.25em', color: '#7c2d34' }}>LEMARI ELI · {SITE.toUpperCase()}</div>
           </div>
@@ -125,6 +126,7 @@ const CardBoard = ({ template, outfit, setLabel, name, credits }) => {
             <div>
               <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.3em', color: '#e3bd6a' }}>PERTUNJUKAN</div>
               <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 28, lineHeight: 1.05 }}>{title}</div>
+              {about && <div style={{ ...ABOUT_STYLE, fontSize: 11.5 }}>{about}</div>}
               <div style={{ marginTop: 6, fontSize: 12, opacity: 0.8 }}>Bintang tamu: Eli{name ? ` · Penata gaya: ${name}` : ''}</div>
             </div>
             <div style={{ textAlign: 'right', fontSize: 11, opacity: 0.85 }}>
@@ -132,9 +134,7 @@ const CardBoard = ({ template, outfit, setLabel, name, credits }) => {
               {today}
             </div>
           </div>
-          <div style={{ padding: '8px 22px', background: 'rgba(0,0,0,0.18)', fontSize: 9, opacity: 0.75, display: 'flex', justifyContent: 'space-between' }}>
-            <span>{creditLine}</span><span>{SITE}/mini-games/lemari</span>
-          </div>
+          <div style={{ padding: '8px 22px', background: 'rgba(0,0,0,0.18)', fontSize: 9, opacity: 0.75, textAlign: 'right' }}>{SITE}/mini-games/lemari</div>
         </div>
       </div>
     );
@@ -149,16 +149,14 @@ const CardBoard = ({ template, outfit, setLabel, name, credits }) => {
       <div style={{ marginTop: 14, flex: 1, minHeight: 0, display: 'flex' }}>
         <CardStage outfit={outfit} />
       </div>
-      <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16 }}>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 26, lineHeight: 1.05, letterSpacing: '-0.02em' }}>{title}</div>
-          <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
-            {name ? <>Didandani oleh <b>{name}</b> · </> : null}{today}
-          </div>
+      <div style={{ marginTop: 14 }}>
+        <div style={{ fontFamily: SERIF, fontWeight: 900, fontSize: 26, lineHeight: 1.05, letterSpacing: '-0.02em' }}>{title}</div>
+        {about && <div style={{ ...ABOUT_STYLE, fontSize: 12 }}>{about}</div>}
+        <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
+          {name ? <>Didandani oleh <b>{name}</b> · </> : null}{today}
         </div>
-        <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.6, textAlign: 'right', whiteSpace: 'nowrap' }}>{SITE}/mini-games/lemari</div>
       </div>
-      <div style={{ marginTop: 8, fontSize: 9, opacity: 0.55 }}>{creditLine}</div>
+      <div style={{ marginTop: 8, fontSize: 10, fontWeight: 700, opacity: 0.6, textAlign: 'right' }}>{SITE}/mini-games/lemari</div>
     </div>
   );
 };
@@ -176,7 +174,6 @@ const Lemari = () => {
   const tabRefs = useRef([]);
 
   const match = useMemo(() => matchSet(outfit), [outfit]);
-  const credits = useMemo(() => creditsFor(outfit), [outfit]);
   const alt = useMemo(() => describeOutfit(outfit), [outfit]);
   const wornDraft = wornEntries(outfit).some(([, id]) => itemById.get(id)?.draft);
   const setLabel = match ? `${match.set.name}${match.modified ? ' (modifikasi)' : ''}` : null;
@@ -452,6 +449,15 @@ const Lemari = () => {
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#9a5b4a] inline-flex items-center gap-1.5">
                   <i className="ri-history-line text-sm" aria-hidden="true" /> Cerita kostum · {match.set.name}
                 </p>
+                {match.set.about && (
+                  <p className="mt-2 flex gap-1.5 text-sm italic leading-relaxed text-[#6b4a35]">
+                    <i className="ri-music-2-line mt-0.5 not-italic" aria-hidden="true" />
+                    <span>
+                      <span className="sr-only">Tentang lagunya: </span>
+                      {match.set.about}
+                    </span>
+                  </p>
+                )}
                 {match.set.moment ? (
                   <p className="mt-2 text-sm leading-relaxed text-[#3a2818]">
                     {match.set.moment.text}{' '}
@@ -519,8 +525,6 @@ const Lemari = () => {
               </div>
               <p className="mt-2 text-[11px] text-[color:var(--retro-text-muted)]">Kartu 1080×1350, siap dibagikan ke X atau Instagram.</p>
             </div>
-
-            <p className="mt-4 text-[11px] text-[color:var(--retro-text-muted)]">{credits.join(' · ')}</p>
           </div>
         </div>
       </div>
@@ -528,7 +532,7 @@ const Lemari = () => {
       {/* Off-screen card for "Simpan kartu" (capture the inner board, not the moved holder). */}
       <div aria-hidden="true" style={{ position: 'fixed', left: -10000, top: 0, pointerEvents: 'none' }}>
         <div ref={cardRef}>
-          <CardBoard template={template} outfit={outfit} setLabel={setLabel} name={cleanName(name)} credits={credits} />
+          <CardBoard template={template} outfit={outfit} setLabel={setLabel} about={match?.set.about} name={cleanName(name)} />
         </div>
       </div>
     </div>

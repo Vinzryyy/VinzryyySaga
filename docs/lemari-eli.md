@@ -59,7 +59,8 @@ where Eli wore it, so the game leads back to real moments.
 - **Name files** `<slot>_<id>.png`: `dress_ntmu-isshou.png`,
   `shoes_boots-hitam.png`, `acc-head_pita-merah.png`, `bg_teater.png`.
 - Same pose as the base for every item. No logos of official brands.
-- Tell us the name to print as credit (e.g. "Ilustrasi: @nama").
+- Tell us the name to credit (e.g. "Ilustrasi: @nama"). It is kept in the data;
+  the game prints no credit line for now.
 
 The build script refuses a file whose aspect ratio differs from `base_body`, so
 a layer on the wrong canvas can't slip in.
@@ -75,19 +76,25 @@ a layer on the wrong canvas can't slip in.
    credit; `setId` if it belongs to a set). Never rename an existing id: share
    links use it.
 3. For a full look, add a `LEMARI_SETS` entry with its `moment`
-   (`{ text, date, to }`, e.g. a link to `/profile#timeline`).
+   (`{ text, to? }`; `to` is e.g. `/profile#timeline`) and, once verified,
+   `about`: one line on what the song tells, in our own words (never a lyric
+   line), at most `ABOUT_MAX` characters so it fits the card.
 4. `npm run test:run`: the data test checks every file exists in the manifest.
 
 ## Current art
 
 - **Commissioned illustrations** (`credit: 'Ilustrasi: komisi Armeniaca'`, also
-  `BASE_CREDIT`, printed on every card because the base is always on screen):
-  the base, nine stage looks (Ame no Pianist, Kinjirareta, Manatsu, Manazashi
-  Sayonara, NTMU Isshou, RKJ, Sahabat atau Cinta, Usotsuki na Dachou,
-  Wimbledon) and a black tee. Each look became a dress, a pair of shoes and a
-  Set Panggung. Manatsu and RKJ share one pair of boots (the files are
-  identical). The originals came as `comms @Vinzryyy (armeniaca)`; the
-  SVGs below are drawn in their 2480 × 3507 units.
+  `BASE_CREDIT`; kept in the data, not printed on the card or the page):
+  the base, nine stage looks and a black tee. Each look is the costume of a
+  unit song Eli performed in theater: Ame no Pianist, Kinjirareta Futari,
+  Manatsu no Christmas Rose, Manazashi Sayonara, Nice To Meet You (file
+  `ntmy`, first drafted as "NTMU Isshou"; isshou = costume), Renai Kinshi
+  Jourei, Sahabat atau Cinta, Usotsuki na Dachou and Wimbledon e Tsureteitte.
+  Each look became a dress, a pair of shoes and a Set Panggung, whose
+  "Cerita kostum" (`moment`) comes from Eli's show record. Manatsu and RKJ
+  share one pair of boots (the files are identical). The originals came as
+  `comms @Vinzryyy (armeniaca)`; the SVGs below are drawn in their
+  2480 × 3507 units.
 - **Simple vector drawings by Armeniaca** in `assets/lemari/*.svg`: the four
   accessories (pita, bando, kalung bunga aprikot, gelang mutiara), first drawn
   on the 342 × 730 draft base and moved onto the illustrated base with one

@@ -12,7 +12,7 @@
  *   name     shown in the wardrobe and alt text
  *   file     layer file name without extension
  *   setId?   the Set Panggung it belongs to
- *   credit   illustration credit (printed on the share card)
+ *   credit   who drew it (kept for the record; the game prints no credits)
  *   tags     theme tags, for Tema Hari Ini (phase 2, unused for now)
  *   unlock   null = open; reserved for Koleksi (phase 2)
  *   draft    true = placeholder art, shown with a "draft" label
@@ -74,7 +74,7 @@ export const DEFAULT_BG = 'bg-studio';
 /** The commissioned illustrations: base, stage costumes and tee. */
 const ILLUSTRATION = 'Ilustrasi: komisi Armeniaca';
 
-/** The base drawing is always on screen, so its credit is always printed. */
+/** The base drawing is always on screen, so creditsFor() always lists it. */
 export const BASE_CREDIT = ILLUSTRATION;
 
 const stage = { credit: ILLUSTRATION, tags: ['panggung'], unlock: null, draft: false };
@@ -85,7 +85,7 @@ export const LEMARI_ITEMS = [
 
   // Stage costumes. The illustrator drew each look as one file; it was split
   // into its dress and its shoes (scripts/split-lemari-look.mjs).
-  { ...stage, id: 'dress-ntmu-isshou', slot: 'dress', name: 'Dress Zebra NTMU', file: 'dress_ntmu-isshou', setId: 'ntmu-isshou', tags: ['panggung', 'formal'], tintable: true },
+  { ...stage, id: 'dress-ntmu-isshou', slot: 'dress', name: 'Dress Nice To Meet You', file: 'dress_ntmu-isshou', setId: 'ntmu-isshou', tags: ['panggung', 'formal'], tintable: true },
   { ...stage, id: 'dress-ame-no-pianist', slot: 'dress', name: 'Dress Ame no Pianist', file: 'dress_ame-no-pianist', setId: 'ame-no-pianist' },
   { ...stage, id: 'dress-kinjirareta', slot: 'dress', name: 'Dress Kinjirareta', file: 'dress_kinjirareta', setId: 'kinjirareta', tintable: true },
   { ...stage, id: 'dress-manatsu', slot: 'dress', name: 'Dress Manatsu', file: 'dress_manatsu', setId: 'manatsu' },
@@ -115,17 +115,122 @@ export const LEMARI_ITEMS = [
 ];
 
 /**
- * Set Panggung: a full stage look in one tap. `moment` tells where Eli
- * wore it (null until verified; the game then says the story is coming).
+ * Set Panggung: a full stage look in one tap. Each costume is from a unit
+ * song Eli performed in theater. `moment` tells that story, from her show
+ * record (400 shows, up to 24 July 2026); `moment.to` links to the
+ * milestone on her timeline when the story has one. null = not verified
+ * yet (the game then says the story is coming).
+ *
+ * `about` says in one line what the song tells, in our own words (never a
+ * lyric line). It is shown with the story and printed on the share card,
+ * so it stays under ABOUT_MAX characters. Leave it out until verified.
+ * The current lines were written from the lyrics: the Japanese originals
+ * (j-lyric.net, utaten.com) and JKT48's Indonesian versions, which tell
+ * the same stories.
+ *
+ * 'ntmu-isshou' keeps the first draft's file name: "isshou" (衣装) means
+ * costume, and NTMU was a typo for NTMY, Nice To Meet You.
  */
+const TIMELINE = '/profile#timeline';
+
+/** Longest `about` line that fits the share card in two lines. */
+export const ABOUT_MAX = 100;
+
 export const LEMARI_SETS = [
-  { id: 'ntmu-isshou', name: 'NTMU Isshou', items: ['dress-ntmu-isshou', 'shoes-boots-hitam'], bg: 'bg-teater', moment: null },
-  { id: 'ame-no-pianist', name: 'Ame no Pianist', items: ['dress-ame-no-pianist', 'shoes-boots-tali-hitam'], bg: 'bg-teater', moment: null },
-  { id: 'kinjirareta', name: 'Kinjirareta', items: ['dress-kinjirareta', 'shoes-flat-putih'], bg: 'bg-teater', moment: null },
-  { id: 'manatsu', name: 'Manatsu', items: ['dress-manatsu', 'shoes-boots-tali-hitam-lancip'], bg: 'bg-teater', moment: null },
-  { id: 'manazashi-sayonara', name: 'Manazashi Sayonara', items: ['dress-manazashi-sayonara', 'shoes-sandal-hak-hitam'], bg: 'bg-teater', moment: null },
-  { id: 'rkj', name: 'RKJ', items: ['dress-rkj', 'shoes-boots-tali-hitam-lancip'], bg: 'bg-teater', moment: null },
-  { id: 'sahabat-atau-cinta', name: 'Sahabat atau Cinta', items: ['dress-sahabat-atau-cinta', 'shoes-sandal-t-strap'], bg: 'bg-teater', moment: null },
-  { id: 'usotsuki-na-dachou', name: 'Usotsuki na Dachou', items: ['dress-usotsuki-na-dachou', 'shoes-ankle-boots-putih'], bg: 'bg-teater', moment: null },
-  { id: 'wimbledon', name: 'Wimbledon', items: ['dress-wimbledon', 'shoes-boots-tali-putih'], bg: 'bg-teater', moment: null },
+  {
+    id: 'ntmu-isshou',
+    name: 'Nice To Meet You',
+    items: ['dress-ntmu-isshou', 'shoes-boots-hitam'],
+    bg: 'bg-teater',
+    about: 'Rasa syukur bertemu sahabat terbaik, teman seperjalanan yang menguatkan di saat sulit.',
+    moment: {
+      text: 'Unit song di setlist Ramune no Nomikata. Eli mulai membawakannya di show #RamuneRefilled pada 15 Januari 2023, paling sering bersama Muthe, Lia, Adel, dan Indira, lalu menjadi center-nya pada 1 Juni 2024.',
+    },
+  },
+  {
+    id: 'ame-no-pianist',
+    name: 'Ame no Pianist',
+    items: ['dress-ame-no-pianist', 'shoes-boots-tali-hitam'],
+    bg: 'bg-teater',
+    about: 'Patah hati pertama: diputus halus oleh pacar yang lebih dewasa, ditemani rintik hujan.',
+    moment: {
+      text: 'Unit song di setlist Te wo Tsunaginagara. Eli mulai membawakannya pada 1 Februari 2025, paling sering bersama Marsha dan Raisha, dan membawakannya lagi di show pertamanya sebagai member Team Dream, 10 April 2026.',
+    },
+  },
+  {
+    id: 'kinjirareta',
+    name: 'Kinjirareta Futari',
+    items: ['dress-kinjirareta', 'shoes-flat-putih'],
+    bg: 'bg-teater',
+    about: 'Cinta terlarang yang tak direstui dunia; berdua mereka pergi ke danau yang sunyi.',
+    moment: {
+      text: 'Kinjirareta Futari, atau Dua Orang yang Terlarang, adalah duet Eli dan Greesel di Dream Bakudan, setlist pertama Team Dream. Mereka membawakannya sejak shonichi setlist itu pada 18 April 2026, sampai ke Teater Sementara Surabaya dan Yogyakarta.',
+      to: TIMELINE,
+    },
+  },
+  {
+    id: 'manatsu',
+    name: 'Manatsu no Christmas Rose',
+    items: ['dress-manatsu', 'shoes-boots-tali-hitam-lancip'],
+    bg: 'bg-teater',
+    about: 'Mawar Natal di musim panas membuatnya teringat ciuman pertama dan cinta yang kandas.',
+    moment: {
+      text: 'Unit song di setlist Renai Kinshi Jourei. Eli membawakannya selama lebih dari empat tahun, sejak 20 Maret 2021, dan menjadi center-nya mulai 4 September 2022.',
+    },
+  },
+  {
+    id: 'manazashi-sayonara',
+    name: 'Manazashi Sayonara',
+    items: ['dress-manazashi-sayonara', 'shoes-sandal-hak-hitam'],
+    bg: 'bg-teater',
+    about: 'Putus di tengah hujan: ia memilih melepas kekasihnya supaya tak makin melukainya.',
+    moment: {
+      text: 'Duet di setlist Ramune no Nomikata. Eli pertama membawakannya bersama Adel pada 2 Oktober 2024, lalu bersama Lulu, Indah, dan Oline. Show ke-400 Eli, 24 Juli 2026, juga dengan lagu ini.',
+      to: TIMELINE,
+    },
+  },
+  {
+    id: 'rkj',
+    name: 'Renai Kinshi Jourei',
+    items: ['dress-rkj', 'shoes-boots-tali-hitam-lancip'],
+    bg: 'bg-teater',
+    about: 'Diam-diam pacaran di geng yang melarang cinta, dan larangan itu justru menyulut asmara.',
+    moment: {
+      text: 'Lagu yang menjadi judul setlist Renai Kinshi Jourei, dibawakan sebagai unit. Eli mulai membawakannya pada 9 Oktober 2021, mencapai show ke-200 dengan lagu ini pada 20 November 2021, dan menjadi center-nya mulai 12 September 2024.',
+      to: TIMELINE,
+    },
+  },
+  {
+    id: 'sahabat-atau-cinta',
+    name: 'Sahabat atau Cinta',
+    items: ['dress-sahabat-atau-cinta', 'shoes-sandal-t-strap'],
+    bg: 'bg-teater',
+    about: 'Dua sahabat jatuh hati pada orang yang sama, lalu harus memilih: persahabatan atau cinta.',
+    moment: {
+      text: 'Duet dari Pertaruhan Cinta, setlist original JKT48. Eli membawakannya sejak shonichi pada 12 Oktober 2025 bersama Kathrina, lalu bersama Christy, termasuk di show ulang tahunnya sendiri pada 21 Juni 2026.',
+      to: TIMELINE,
+    },
+  },
+  {
+    id: 'usotsuki-na-dachou',
+    name: 'Usotsuki na Dachou',
+    items: ['dress-usotsuki-na-dachou', 'shoes-ankle-boots-putih'],
+    bg: 'bg-teater',
+    about: 'Ia tahu cowok yang ditaksirnya cuma pura-pura polos dan ramah ke semua, demi lari dari cinta.',
+    moment: {
+      text: 'Unit song di setlist Ramune no Nomikata yang paling lama menemani Eli: lebih dari lima tahun, sejak 15 November 2020. Show ke-300-nya pada 7 Juli 2024 di Teater Sementara Surabaya juga dengan lagu ini, dan sejak Juni 2024 ia beberapa kali menjadi center-nya.',
+      to: TIMELINE,
+    },
+  },
+  {
+    id: 'wimbledon',
+    name: 'Wimbledon e Tsureteitte',
+    items: ['dress-wimbledon', 'shoes-boots-tali-putih'],
+    bg: 'bg-teater',
+    about: 'Diam-diam naksir cowok petenis di kereta ke sekolah, ia bermimpi diajak ke Wimbledon.',
+    moment: {
+      text: 'Unit song kedua Eli, sesudah Romance Kakurenbo di setlist debutnya. Ia membawakannya di setlist Te wo Tsunaginagara dari 23 Februari sampai Juli 2019, sekitar dua bulan setelah debut theater.',
+      to: TIMELINE,
+    },
+  },
 ];

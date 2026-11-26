@@ -162,7 +162,7 @@ export const layersFor = (outfit, items = LEMARI_ITEMS) => {
   }).filter(Boolean);
 };
 
-/** Alt text, e.g. "Eli memakai Dress Zebra NTMU (Burgundy) dan Boots Hitam, latar Panggung Teater". */
+/** Alt text, e.g. "Eli memakai Dress Nice To Meet You (Burgundy) dan Ankle Boots Hitam, latar Panggung Teater". */
 export const describeOutfit = (outfit, items = LEMARI_ITEMS) => {
   const map = byId(items);
   const clothes = wornEntries(outfit)
@@ -182,7 +182,11 @@ export const describeOutfit = (outfit, items = LEMARI_ITEMS) => {
   return `Eli memakai ${wear}${bg ? `, latar ${bg}` : ''}`;
 };
 
-/** Distinct credits of the base and the items worn (for the card and the page). */
+/**
+ * Distinct credits of the base and the items worn. The game prints none for
+ * now (the site owner took the credit line off the card and the page);
+ * this stays so a credit line can come back in one place.
+ */
 export const creditsFor = (outfit, items = LEMARI_ITEMS) => {
   const map = byId(items);
   return [...new Set([BASE_CREDIT, ...wornEntries(outfit).map(([, id]) => map.get(id)?.credit)].filter(Boolean))];
