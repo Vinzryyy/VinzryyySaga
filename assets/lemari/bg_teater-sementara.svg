@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Teater Sementara: the temporary theaters in Surabaya and Yogyakarta. Black drape, aluminium truss with par cans, a black stage deck. Units: the illustrator's canvas, figure centred on x 1166, feet end at y 3296. -->
+  <defs>
+    <linearGradient id="fold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#121219" stop-opacity="1"/><stop offset="0.5" stop-color="#252532" stop-opacity="1"/><stop offset="1" stop-color="#121219" stop-opacity="1"/></linearGradient>
+    <linearGradient id="haze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f3656" stop-opacity="0.95"/><stop offset="1" stop-color="#2f3656" stop-opacity="0"/></linearGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a8" stop-opacity="0.42"/><stop offset="1" stop-color="#ffe2a8" stop-opacity="0"/></linearGradient>
+    <linearGradient id="rose" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa3b6" stop-opacity="0.32"/><stop offset="1" stop-color="#ffa3b6" stop-opacity="0"/></linearGradient>
+    <linearGradient id="ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b4cdff" stop-opacity="0.3"/><stop offset="1" stop-color="#b4cdff" stop-opacity="0"/></linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff1c9" stop-opacity="0.85"/><stop offset="1" stop-color="#ffcf73" stop-opacity="0"/></radialGradient>
+    <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c2b33" stop-opacity="1"/><stop offset="1" stop-color="#101014" stop-opacity="1"/></linearGradient>
+  </defs>
+  <rect width="2480" height="3507" fill="#121218"/>
+  <g><rect x="0" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="160" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="320" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="480" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="640" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="800" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="960" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="1120" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="1280" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="1440" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="1600" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="1760" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="1920" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="2080" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="2240" y="370" width="160" height="2800" fill="url(#fold)"/><rect x="2400" y="370" width="160" height="2800" fill="url(#fold)"/></g>
+  <rect width="2480" height="1000" fill="url(#haze)"/>
+  <polygon points="356,470 404,470 1072,3170 552,3170" fill="url(#warm)"/>
+  <polygon points="666,470 714,470 1212,3170 692,3170" fill="url(#rose)"/>
+  <polygon points="966,470 1014,470 1347,3170 827,3170" fill="url(#warm)"/>
+  <polygon points="1316,470 1364,470 1504,3170 984,3170" fill="url(#warm)"/>
+  <polygon points="1626,470 1674,470 1644,3170 1124,3170" fill="url(#ice)"/>
+  <polygon points="1936,470 1984,470 1783,3170 1263,3170" fill="url(#warm)"/>
+  <g fill="#b3bbc9"><rect x="0" y="240" width="2480" height="14"/><rect x="0" y="360" width="2480" height="14"/></g>
+  <path d="M0 254 L60 360 L120 254 M120 254 L180 360 L240 254 M240 254 L300 360 L360 254 M360 254 L420 360 L480 254 M480 254 L540 360 L600 254 M600 254 L660 360 L720 254 M720 254 L780 360 L840 254 M840 254 L900 360 L960 254 M960 254 L1020 360 L1080 254 M1080 254 L1140 360 L1200 254 M1200 254 L1260 360 L1320 254 M1320 254 L1380 360 L1440 254 M1440 254 L1500 360 L1560 254 M1560 254 L1620 360 L1680 254 M1680 254 L1740 360 L1800 254 M1800 254 L1860 360 L1920 254 M1920 254 L1980 360 L2040 254 M2040 254 L2100 360 L2160 254 M2160 254 L2220 360 L2280 254 M2280 254 L2340 360 L2400 254 M2400 254 L2460 360 L2520 254 " fill="none" stroke="#b3bbc9" stroke-width="9" opacity="0.85"/>
+  <g fill="#b3bbc9"><rect x="140" y="374" width="14" height="2796"/><rect x="256" y="374" width="14" height="2796"/></g>
+  <path d="M154 374 L256 434 L154 494 M154 494 L256 554 L154 614 M154 614 L256 674 L154 734 M154 734 L256 794 L154 854 M154 854 L256 914 L154 974 M154 974 L256 1034 L154 1094 M154 1094 L256 1154 L154 1214 M154 1214 L256 1274 L154 1334 M154 1334 L256 1394 L154 1454 M154 1454 L256 1514 L154 1574 M154 1574 L256 1634 L154 1694 M154 1694 L256 1754 L154 1814 M154 1814 L256 1874 L154 1934 M154 1934 L256 1994 L154 2054 M154 2054 L256 2114 L154 2174 M154 2174 L256 2234 L154 2294 M154 2294 L256 2354 L154 2414 M154 2414 L256 2474 L154 2534 M154 2534 L256 2594 L154 2654 M154 2654 L256 2714 L154 2774 M154 2774 L256 2834 L154 2894 M154 2894 L256 2954 L154 3014 M154 3014 L256 3074 L154 3134 M154 3134 L256 3194 L154 3254 " fill="none" stroke="#b3bbc9" stroke-width="9" opacity="0.85"/>
+  <g fill="#b3bbc9"><rect x="2212" y="374" width="14" height="2796"/><rect x="2328" y="374" width="14" height="2796"/></g>
+  <path d="M2226 374 L2328 434 L2226 494 M2226 494 L2328 554 L2226 614 M2226 614 L2328 674 L2226 734 M2226 734 L2328 794 L2226 854 M2226 854 L2328 914 L2226 974 M2226 974 L2328 1034 L2226 1094 M2226 1094 L2328 1154 L2226 1214 M2226 1214 L2328 1274 L2226 1334 M2226 1334 L2328 1394 L2226 1454 M2226 1454 L2328 1514 L2226 1574 M2226 1574 L2328 1634 L2226 1694 M2226 1694 L2328 1754 L2226 1814 M2226 1814 L2328 1874 L2226 1934 M2226 1934 L2328 1994 L2226 2054 M2226 2054 L2328 2114 L2226 2174 M2226 2174 L2328 2234 L2226 2294 M2226 2294 L2328 2354 L2226 2414 M2226 2414 L2328 2474 L2226 2534 M2226 2534 L2328 2594 L2226 2654 M2226 2654 L2328 2714 L2226 2774 M2226 2774 L2328 2834 L2226 2894 M2226 2894 L2328 2954 L2226 3014 M2226 3014 L2328 3074 L2226 3134 M2226 3134 L2328 3194 L2226 3254 " fill="none" stroke="#b3bbc9" stroke-width="9" opacity="0.85"/>
+  <rect x="371" y="374" width="18" height="30" fill="#2b2b35"/>
+  <circle cx="380" cy="466" r="150" fill="url(#glow)"/>
+  <rect x="340" y="400" width="80" height="72" rx="16" fill="#1b1b22" stroke="#3d3d4c" stroke-width="5"/>
+  <circle cx="380" cy="470" r="27" fill="#ffe6a6"/>
+  <rect x="681" y="374" width="18" height="30" fill="#2b2b35"/>
+  <circle cx="690" cy="466" r="150" fill="url(#glow)"/>
+  <rect x="650" y="400" width="80" height="72" rx="16" fill="#1b1b22" stroke="#3d3d4c" stroke-width="5"/>
+  <circle cx="690" cy="470" r="27" fill="#ffc2cf"/>
+  <rect x="981" y="374" width="18" height="30" fill="#2b2b35"/>
+  <circle cx="990" cy="466" r="150" fill="url(#glow)"/>
+  <rect x="950" y="400" width="80" height="72" rx="16" fill="#1b1b22" stroke="#3d3d4c" stroke-width="5"/>
+  <circle cx="990" cy="470" r="27" fill="#ffe6a6"/>
+  <rect x="1331" y="374" width="18" height="30" fill="#2b2b35"/>
+  <circle cx="1340" cy="466" r="150" fill="url(#glow)"/>
+  <rect x="1300" y="400" width="80" height="72" rx="16" fill="#1b1b22" stroke="#3d3d4c" stroke-width="5"/>
+  <circle cx="1340" cy="470" r="27" fill="#ffe6a6"/>
+  <rect x="1641" y="374" width="18" height="30" fill="#2b2b35"/>
+  <circle cx="1650" cy="466" r="150" fill="url(#glow)"/>
+  <rect x="1610" y="400" width="80" height="72" rx="16" fill="#1b1b22" stroke="#3d3d4c" stroke-width="5"/>
+  <circle cx="1650" cy="470" r="27" fill="#d6e4ff"/>
+  <rect x="1951" y="374" width="18" height="30" fill="#2b2b35"/>
+  <circle cx="1960" cy="466" r="150" fill="url(#glow)"/>
+  <rect x="1920" y="400" width="80" height="72" rx="16" fill="#1b1b22" stroke="#3d3d4c" stroke-width="5"/>
+  <circle cx="1960" cy="470" r="27" fill="#ffe6a6"/>
+  <rect y="3170" width="2480" height="337" fill="url(#deck)"/>
+  <rect y="3170" width="2480" height="10" fill="#45444f"/>
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="4"><line x1="0" y1="3250" x2="2480" y2="3250"/><line x1="0" y1="3330" x2="2480" y2="3330"/><line x1="0" y1="3420" x2="2480" y2="3420"/></g>
+  <g fill="#e9d36b" opacity="0.55"><rect x="560" y="3236" width="70" height="12" transform="rotate(45 595 3242)"/><rect x="560" y="3236" width="70" height="12" transform="rotate(-45 595 3242)"/><rect x="1700" y="3236" width="70" height="12" transform="rotate(45 1735 3242)"/><rect x="1700" y="3236" width="70" height="12" transform="rotate(-45 1735 3242)"/></g>
+  <ellipse cx="1166" cy="3300" rx="560" ry="80" fill="#ffe2a8" opacity="0.22"/>
+</svg>

@@ -4,7 +4,35 @@
     "height": 1754
   },
   "files": {
+    "acc-hand_gelang-bunga-aprikot": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-hand_gelang-festival": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-hand_gelang-lembayung": {
+      "width": 1240,
+      "height": 1754
+    },
     "acc-hand_gelang-mutiara": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-hand_gelang-persahabatan": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-hand_gelang-pita": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-hand_jam-tangan": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-hand_scrunchie-aprikot": {
       "width": 1240,
       "height": 1754
     },
@@ -12,7 +40,71 @@
       "width": 1240,
       "height": 1754
     },
+    "acc-head_bando-polkadot": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_baret": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_jepit-bintang-laut": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_jepit-kerang": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_jepit-kucing": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_jepit-mutiara": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_mahkota-bunga-aprikot": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_mahkota-seitansai": {
+      "width": 1240,
+      "height": 1754
+    },
     "acc-head_pita-burgundy": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_pita-kembar": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_pita-lembayung": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_pita-polkadot": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_telinga-kelinci": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_telinga-kucing": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-head_topi-pesta": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-neck_choker-pita": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-neck_dasi-seragam": {
       "width": 1240,
       "height": 1754
     },
@@ -20,11 +112,51 @@
       "width": 1240,
       "height": 1754
     },
+    "acc-neck_kalung-huruf-e": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-neck_kalung-lembayung": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-neck_kalung-mutiara": {
+      "width": 1240,
+      "height": 1754
+    },
+    "acc-neck_syal-handuk": {
+      "width": 1240,
+      "height": 1754
+    },
     "base_body": {
       "width": 1240,
       "height": 1754
     },
+    "bg_festival-prambanan": {
+      "width": 1240,
+      "height": 1754
+    },
+    "bg_kamar-live": {
+      "width": 1240,
+      "height": 1754
+    },
+    "bg_konser": {
+      "width": 1240,
+      "height": 1754
+    },
+    "bg_meet-greet": {
+      "width": 1240,
+      "height": 1754
+    },
+    "bg_seitansai": {
+      "width": 1240,
+      "height": 1754
+    },
     "bg_studio": {
+      "width": 1240,
+      "height": 1754
+    },
+    "bg_teater-sementara": {
       "width": 1240,
       "height": 1754
     },

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <defs><linearGradient id="case" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc8e"/><stop offset="1" stop-color="#b8902f"/></linearGradient></defs>
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A watch with a burgundy leather strap across the wrist (skin x 241-254 at y 340); its hands show 15.06, Eli's birthday (15 June). -->
+    <path d="M240.9 338.2 C 244 339.6 251.5 340 254.9 338.6 L 254.6 342.2 C 251.2 343.6 243.9 343.2 241.2 341.9 Z" fill="#6e1f27" stroke="#3e1015" stroke-width="0.35"/>
+    <path d="M241.2 339.1 C 244 340.4 251.4 340.8 254.7 339.5 M241.3 341 C 244 342.3 251.3 342.7 254.5 341.4" fill="none" stroke="#c98a7a" stroke-width="0.25" stroke-dasharray="0.6 0.5" opacity="0.8"/>
+    <rect x="251.3" y="340.1" width="1.1" height="1.2" rx="0.3" fill="#c9a646" stroke="#9c711c" stroke-width="0.2"/>
+    <circle cx="248" cy="340.7" r="3.6" fill="url(#case)" stroke="#9c711c" stroke-width="0.35"/>
+    <circle cx="248" cy="340.7" r="2.9" fill="#fffaf0" stroke="#d8b04a" stroke-width="0.2"/>
+    <circle cx="248" cy="338.35" r="0.28" fill="#7a5a3a"/><circle cx="250.35" cy="340.7" r="0.28" fill="#7a5a3a"/><circle cx="248" cy="343.05" r="0.28" fill="#7a5a3a"/><circle cx="245.65" cy="340.7" r="0.28" fill="#7a5a3a"/>
+    <line x1="248" y1="340.7" x2="249.55" y2="340.78" stroke="#3a2818" stroke-width="0.42" stroke-linecap="round"/>
+    <line x1="248" y1="340.7" x2="249.35" y2="338.84" stroke="#3a2818" stroke-width="0.3" stroke-linecap="round"/>
+    <circle cx="248" cy="340.7" r="0.35" fill="#8a2a33"/>
+    <path d="M245.8 339.1 A 2.7 2.7 0 0 1 248.4 338" fill="none" stroke="#ffffff" stroke-width="0.45" opacity="0.8"/>
+  </g>
+</svg>

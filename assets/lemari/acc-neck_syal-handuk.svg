@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <defs>
+    <linearGradient id="towelL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e58c4c"/><stop offset="0.55" stop-color="#f7b27c"/><stop offset="1" stop-color="#ea9555"/></linearGradient>
+    <linearGradient id="towelR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ea9555"/><stop offset="0.45" stop-color="#f7b27c"/><stop offset="1" stop-color="#e58c4c"/></linearGradient>
+    <linearGradient id="fold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4a86e"/><stop offset="1" stop-color="#d9793c"/></linearGradient>
+  </defs>
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A towel muffler (like the oshi towels fans bring to concerts): it goes behind the neck
+         (neck edges x ~142-168), lies on both shoulders, and its two ends hang down the front. -->
+    <g stroke="#a5582c" stroke-width="0.45" stroke-linejoin="round">
+      <!-- the two ends hanging down the front, drawn first so the shoulder part lies over them -->
+      <path d="M131.4 138 L 145.6 136.6 L 144.4 211 L 130.2 211.6 Z" fill="url(#towelL)"/>
+      <path d="M178.6 138 L 164.4 136.6 L 165.6 211 L 179.8 211.6 Z" fill="url(#towelR)"/>
+      <!-- the part lying on each shoulder: from the side of the neck, over the shoulder, behind the neck -->
+      <path d="M142.4 125.8 C 135.6 127.4 128 131.4 122.6 137.2 C 124 141.4 127.6 144.2 131.6 145 C 135.4 141.2 140.2 139 145.2 138.4 Z" fill="url(#fold)"/>
+      <path d="M167.6 125.8 C 174.4 127.4 182 131.4 187.4 137.2 C 186 141.4 182.4 144.2 178.4 145 C 174.6 141.2 169.8 139 164.8 138.4 Z" fill="url(#fold)"/>
+    </g>
+    <g fill="none" stroke="#ffd2a8" stroke-width="0.5" opacity="0.7" stroke-linecap="round">
+      <path d="M140.6 127.6 C 135 129.2 129 132.6 125.2 137"/><path d="M169.4 127.6 C 175 129.2 181 132.6 184.8 137"/>
+    </g>
+    <!-- shade under the fold, terry texture, stripes near the ends -->
+    <path d="M131.4 145.2 C 135.4 141.8 140.2 139.6 145.3 139.2 L 145.2 142.6 C 140.6 143.2 136 144.8 132.2 147.6 Z" fill="#c96a32" opacity="0.4"/>
+    <path d="M178.6 145.2 C 174.6 141.8 169.8 139.6 164.7 139.2 L 164.8 142.6 C 169.4 143.2 174 144.8 177.8 147.6 Z" fill="#c96a32" opacity="0.4"/>
+    <g stroke="#d9874a" stroke-width="0.32" opacity="0.6">
+      <line x1="134.4" y1="147" x2="133.6" y2="193"/><line x1="138" y1="145.6" x2="137.4" y2="193"/><line x1="141.6" y1="144.4" x2="141.2" y2="193"/>
+      <line x1="168.4" y1="144.4" x2="168.8" y2="193"/><line x1="172" y1="145.6" x2="172.6" y2="193"/><line x1="175.6" y1="147" x2="176.4" y2="193"/>
+    </g>
+    <g fill="#8a2a33"><path d="M129.6 195 L 143.7 194.6 L 143.6 199 L 129.6 199.4 Z"/><path d="M166.3 194.6 L 180.4 195 L 180.4 199.4 L 166.4 199 Z"/>
+      <path d="M129.5 202.8 L 143.6 202.4 L 143.6 204.6 L 129.5 205 Z"/><path d="M166.4 202.4 L 180.5 202.8 L 180.5 205 L 166.4 204.6 Z"/></g>
+    <g fill="#fff1df"><path d="M129.6 199.9 L 143.6 199.5 L 143.6 200.9 L 129.6 201.3 Z"/><path d="M166.4 199.5 L 180.4 199.9 L 180.4 201.3 L 166.4 200.9 Z"/></g>
+    <g stroke="#b5622f" stroke-width="0.6" stroke-linecap="round">
+      <line x1="130.3" y1="211.4" x2="130.1" y2="215.6"/><line x1="132.2" y1="211.3" x2="132.1" y2="215.8"/><line x1="134.1" y1="211.3" x2="134" y2="215.6"/><line x1="136" y1="211.2" x2="136" y2="215.8"/><line x1="137.9" y1="211.2" x2="137.9" y2="215.6"/><line x1="139.8" y1="211.1" x2="139.9" y2="215.8"/><line x1="141.7" y1="211.1" x2="141.8" y2="215.6"/><line x1="143.1" y1="211" x2="143.3" y2="215.2"/>
+      <line x1="166.9" y1="211" x2="166.7" y2="215.2"/><line x1="168.3" y1="211.1" x2="168.2" y2="215.6"/><line x1="170.2" y1="211.1" x2="170.1" y2="215.8"/><line x1="172.1" y1="211.2" x2="172.1" y2="215.6"/><line x1="174" y1="211.2" x2="174" y2="215.8"/><line x1="175.9" y1="211.3" x2="176" y2="215.6"/><line x1="177.8" y1="211.3" x2="177.9" y2="215.8"/><line x1="179.7" y1="211.4" x2="179.9" y2="215.6"/>
+    </g>
+  </g>
+</svg>

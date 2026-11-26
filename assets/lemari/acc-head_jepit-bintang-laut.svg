@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A coral starfish clip on the hair above the right temple (where the pita sits). -->
+    <g transform="translate(182 44.5) rotate(14)">
+      <path d="M0 -8.2 Q 1.96 -2.7 4.9 -2.64 Q 7.64 -2.48 5.52 -0.74 Q 3.17 1.03 4.03 3.84 Q 4.72 6.5 2.41 5.02 Q 0 3.33 -2.41 5.02 Q -4.72 6.5 -4.03 3.84 Q -3.17 1.03 -5.52 -0.74 Q -7.64 -2.48 -4.9 -2.64 Q -1.96 -2.7 -1 -5.48 Z" fill="#f2967a" stroke="#b9583e" stroke-width="0.55" stroke-linejoin="round"/>
+      <g fill="#ffd8c7"><circle cx="0" cy="-2.6" r="0.55"/><circle cx="0" cy="-4.8" r="0.55"/><circle cx="2.47" cy="-0.8" r="0.55"/><circle cx="4.57" cy="-1.48" r="0.55"/><circle cx="1.53" cy="2.1" r="0.55"/><circle cx="2.82" cy="3.88" r="0.55"/><circle cx="-1.53" cy="2.1" r="0.55"/><circle cx="-2.82" cy="3.88" r="0.55"/><circle cx="-2.47" cy="-0.8" r="0.55"/><circle cx="-4.57" cy="-1.48" r="0.55"/><circle r="1"/></g>
+    </g>
+  </g>
+</svg>

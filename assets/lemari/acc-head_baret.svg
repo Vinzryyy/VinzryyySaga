@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <defs><linearGradient id="beret" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#a8404a"/><stop offset="1" stop-color="#7a2228"/></linearGradient></defs>
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A burgundy beret, tilted to the right and pulled down over the top of the head (outline y20 x126-184, y30 x118-191). -->
+    <g transform="translate(0 5.5)">
+    <path d="M117.4 31 C 109.6 19 126 1.6 157 -0.4 C 187 -2.2 215 6.4 212.6 18.6 C 211.6 24.4 204.4 27.8 197.2 24.6 Q 157.6 37.4 117.4 31 Z" fill="url(#beret)" stroke="#4e191e" stroke-width="0.7" stroke-linejoin="round"/>
+    <path d="M117.4 31 Q 157.6 37.4 197.2 24.6 L 197.8 28.6 Q 157.8 41.8 117.9 35 Z" fill="#6e1f27" stroke="#4e191e" stroke-width="0.6"/>
+    <path d="M128 12 C 140 4.6 158 2 176 3.6" fill="none" stroke="#c45a63" stroke-width="1.6" opacity="0.6" stroke-linecap="round"/>
+    <path d="M158.6 -0.4 C 158 -3.6 160 -5.4 162.2 -4.8 C 163.6 -4.2 163.4 -1.6 162 -0.2 Z" fill="#7a2228" stroke="#4e191e" stroke-width="0.5"/>
+    </g>
+  </g>
+</svg>

@@ -1,8 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 import { describe, expect, it } from 'vitest';
-import { ABOUT_MAX, BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
+import { ABOUT_MAX, BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, DEFAULT_SET, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
 import {
   applySet,
   cleanName,
@@ -17,6 +17,7 @@ import {
   pushHistory,
   randomOutfit,
   setTint,
+  startingOutfit,
   toggleItem,
   wearItem,
 } from '../lemari';
@@ -190,6 +191,32 @@ describe('real wardrobe data', () => {
       expect(set.moment.text?.trim().length, set.id).toBeGreaterThan(0);
       if (set.moment.to !== undefined) expect(set.moment.to, set.id).toMatch(/^\/[a-z]/);
     }
+  });
+
+  it('a first visit and Reset wear the default set, and share links still start bare', () => {
+    const set = LEMARI_SETS.find((s) => s.id === DEFAULT_SET);
+    expect(set, DEFAULT_SET).toBeTruthy();
+    expect(matchSet(startingOutfit())).toEqual({ set, modified: false });
+    expect(startingOutfit().bg).toBe(set.bg);
+    expect(decodeOutfit('bg-studio')).toEqual({ bg: 'bg-studio' });
+  });
+
+  it("a song preview is Apple's official file with a link to the song, and no song file is in the repo", () => {
+    for (const set of LEMARI_SETS) {
+      if (!set.listen) continue;
+      expect(set.listen.title?.length, set.id).toBeGreaterThan(0);
+      if (set.listen.youtube) {
+        // A fan upload on YouTube: an 11-character video id and who uploaded it.
+        expect(set.listen.youtube, set.id).toMatch(/^[A-Za-z0-9_-]{11}$/);
+        expect(set.listen.channel?.length, set.id).toBeGreaterThan(0);
+        continue;
+      }
+      expect(set.listen.preview, set.id).toMatch(/^https:\/\/audio-ssl\.itunes\.apple\.com\/.+\.m4a$/);
+      expect(set.listen.link, set.id).toMatch(/^https:\/\/music\.apple\.com\//);
+    }
+    const audioFiles = (dir) => readdirSync(resolve(cwd(), dir), { recursive: true }).filter((f) => /\.(mp3|m4a|aac|ogg|opus|wav|flac)$/i.test(String(f)));
+    expect(audioFiles('public/minigames/lemari')).toEqual([]);
+    expect(audioFiles('assets/lemari')).toEqual([]);
   });
 
   it("a song's one-line story is short enough for the card", () => {

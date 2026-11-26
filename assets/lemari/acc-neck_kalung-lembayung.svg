@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d4a9c"/><stop offset="0.5" stop-color="#e0849a"/><stop offset="1" stop-color="#f2a65a"/></linearGradient></defs>
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A fine chain from the sides of the neck (skin x 142-167 at y 125-130) to a dusk-coloured drop. -->
+    <path d="M143.5 127 C 144.5 140 149 148.6 154.5 149.6" fill="none" stroke="#b8862a" stroke-width="0.8"/>
+    <path d="M165.5 127 C 164.5 140 160 148.6 154.5 149.6" fill="none" stroke="#b8862a" stroke-width="0.8"/>
+    <circle cx="154.5" cy="150.6" r="1" fill="none" stroke="#b8862a" stroke-width="0.6"/>
+    <path d="M154.5 151.8 C 157.4 154.8 157.8 158.2 154.5 160.2 C 151.2 158.2 151.6 154.8 154.5 151.8 Z" fill="url(#dusk)" stroke="#b8862a" stroke-width="0.5"/>
+    <ellipse cx="153.4" cy="155.2" rx="0.7" ry="1.3" fill="#ffffff" opacity="0.75" transform="rotate(20 153.4 155.2)"/>
+  </g>
+</svg>

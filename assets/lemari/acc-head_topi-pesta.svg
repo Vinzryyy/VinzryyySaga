@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <defs><linearGradient id="cone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6b07a"/><stop offset="1" stop-color="#e58c4c"/></linearGradient></defs>
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A party cone hat for a seitansai, on top of the head a little to the left (head top ~y 11-16; the pompom stays inside the canvas). -->
+    <path d="M131.6 17.6 L 142.4 -18.6 L 163.4 13.6 Z" fill="url(#cone)" stroke="#a5582c" stroke-width="0.6" stroke-linejoin="round"/>
+    <g fill="#fff6e8"><circle cx="144.6" cy="5" r="1.3"/><circle cx="150.6" cy="-1.6" r="1.1"/><circle cx="141.2" cy="-5.6" r="1"/><circle cx="153.4" cy="8.6" r="1.2"/><circle cx="146" cy="-10.4" r="0.9"/><circle cx="139.4" cy="10.6" r="1.2"/></g>
+    <path d="M130.4 17.6 Q 133.6 14.4 136.8 17 Q 140 13.8 143.4 16.4 Q 146.8 13 150.2 15.6 Q 153.6 12.2 157 14.6 Q 160.4 11.4 164.2 13.6 L 164 16.4 Q 147 20.6 130.6 20.2 Z" fill="#8a2a33" stroke="#4e191e" stroke-width="0.45"/>
+    <circle cx="142.4" cy="-20.4" r="3.8" fill="#e8c770" stroke="#9c711c" stroke-width="0.5"/>
+    <path d="M140.9 -22 a 1.6 1.6 0 0 1 2 -0.6" stroke="#fff3cf" stroke-width="0.6" fill="none"/>
+  </g>
+</svg>

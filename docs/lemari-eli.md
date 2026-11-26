@@ -36,8 +36,25 @@ where Eli wore it, so the game leads back to real moments.
   `dress-ntmu-isshou~burgundy`. A colour belongs to the item: changing or
   removing the item drops it. Draw tintable items in neutral or black-and-white
   tones so the colours come out clean.
-- **Bentuk kartu:** Klasik, Polaroid, Tiket Teater (`TEMPLATES` in the page).
+- **Bentuk kartu:** Klasik, Polaroid, Tiket Teater (`TEMPLATES` in the page),
+  with a live preview beside the choice. On phones the card section comes
+  after the wardrobe, so the sticky stage never covers it.
 - **Urungkan:** button or Ctrl/Cmd+Z, last 30 changes (`pushHistory`).
+- **First visit and Reset** show `DEFAULT_SET` (`startingOutfit()`), never the
+  bare base. Share links still decode on top of the bare `defaultOutfit()`.
+- **Cerita kostum** sits under the stage: always shown on wide screens, behind
+  a "Cerita kostum" button on phones (the stage stays short there, and the
+  tabs stick right under it).
+- **Cuplikan lagu** (`listen` on a set): a play button for the 30-second
+  preview of the song's official JKT48 release, which is Apple's own file
+  (iTunes Search API `previewUrl`), loaded only on tap, with a link to the song
+  on Apple Music. Never add song files to this repo: it is public and the
+  recordings belong to JKT48 (a test checks no audio file is here). The Ramune
+  setlist has no official JKT48 release: at the site owner's request, Usotsuki
+  na Dachou and Manazashi Sayonara play a fan upload of the JKT48 version on
+  YouTube (`youtube`, youtube-nocookie player on tap; it breaks if the upload
+  is removed, and SKE48's originals on Apple Music are the fallback), and Nice
+  To Meet You plays SKE48's original.
 
 ## Brief for the illustrator
 
@@ -59,6 +76,12 @@ where Eli wore it, so the game leads back to real moments.
 - **Name files** `<slot>_<id>.png`: `dress_ntmu-isshou.png`,
   `shoes_boots-hitam.png`, `acc-head_pita-merah.png`, `bg_teater.png`.
 - Same pose as the base for every item. No logos of official brands.
+- **Backgrounds** (`bg_<id>.png`, not transparent): keep the middle clear for
+  the figure (centred on x 1166, feet at y 3296, floor from y 3170) and put
+  detail at the sides, top and floor. No logos or text. The current eight are
+  Armeniaca's vector stand-ins: a commissioned one with the same file name
+  replaces it (share links keep working), and new places are added as new
+  files.
 - Tell us the name to credit (e.g. "Ilustrasi: @nama"). It is kept in the data;
   the game prints no credit line for now.
 
@@ -95,10 +118,24 @@ a layer on the wrong canvas can't slip in.
   share one pair of boots (the files are identical). The originals came as
   `comms @Vinzryyy (armeniaca)`; the SVGs below are drawn in their
   2480 × 3507 units.
-- **Simple vector drawings by Armeniaca** in `assets/lemari/*.svg`: the four
-  accessories (pita, bando, kalung bunga aprikot, gelang mutiara), first drawn
-  on the 342 × 730 draft base and moved onto the illustrated base with one
-  transform (both bases have the same proportions), and the two backgrounds.
+- **Simple vector drawings by Armeniaca** in `assets/lemari/*.svg`: thirty-one
+  accessories, drawn in the 342 × 730 draft base's units and moved onto the
+  illustrated base with one transform (both bases have the same proportions).
+  Besides the first four (pita, bando, kalung bunga aprikot, gelang mutiara)
+  they follow Eli and her fans: kerang, mutiara and a starfish for "our beloved
+  mermaid", a seitansai tiara, a cat clip and cat ears for TanTan, lembayung
+  senja colours (her catchphrase), apricot blossoms for Armeniaca and
+  #BloomInSpring, a festival wristband, a black stage choker, an oshi-style
+  towel, an E for Eli, a school ribbon for Tunas di Balik Seragam (her solo
+  Kareha no Station) and a friendship bracelet for Sahabat atau Cinta. Cute
+  pieces asked for by the site owner sit with them: a beret, a party hat, a
+  padded polka-dot headband, bunny ears, a pink polka-dot bow, twin apricot
+  bows, and a watch whose hands show 15.06 (Eli's birthday). Most carry a
+  `note`, shown when worn. Then eight backgrounds:
+  Studio Krem, Panggung Teater, Teater Sementara, Panggung Konser, Festival
+  Prambanan, Seitansai, Meet & Greet and Kamar Live. Each is after a place in
+  Eli's archive, and its `note` (shown when picked in Latar) says which. No
+  logos or text are drawn in them.
 - The first draft (`public/FashionTime/`: `Base.png`, `NTMU ISSHOU.png`) is
   no longer used by the game.
 

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A little cat-face clip on the hair above the right temple (where the pita sits). -->
+    <g transform="translate(181 44) rotate(16)">
+      <rect x="-8.5" y="4.4" width="17" height="1.7" rx="0.85" fill="#c9a646" stroke="#9c711c" stroke-width="0.3"/>
+      <g fill="#fff7ef" stroke="#a9805f" stroke-width="0.5" stroke-linejoin="round">
+        <path d="M-7.6 -3.4 L-6.8 -11.4 L-1.8 -6.4 Z"/><path d="M7.6 -3.4 L6.8 -11.4 L1.8 -6.4 Z"/>
+        <ellipse cx="0" cy="-1" rx="8.4" ry="6.6"/>
+      </g>
+      <g fill="#f4b8c6"><path d="M-6.4 -5 L-6 -9.4 L-3.4 -6.6 Z"/><path d="M6.4 -5 L6 -9.4 L3.4 -6.6 Z"/></g>
+      <g fill="none" stroke="#3a2818" stroke-width="0.55" stroke-linecap="round">
+        <path d="M-4.4 -1.6 Q -3.2 -2.9 -2 -1.6"/><path d="M2 -1.6 Q 3.2 -2.9 4.4 -1.6"/>
+        <path d="M-1.1 1.2 Q 0 2.2 0 1.2 Q 0 2.2 1.1 1.2"/>
+      </g>
+      <path d="M-0.8 0.1 L0.8 0.1 L0 1 Z" fill="#e98a9a"/>
+      <g fill="#f4a5b5" opacity="0.6"><ellipse cx="-5.2" cy="1.2" rx="1.4" ry="0.9"/><ellipse cx="5.2" cy="1.2" rx="1.4" ry="0.9"/></g>
+    </g>
+  </g>
+</svg>

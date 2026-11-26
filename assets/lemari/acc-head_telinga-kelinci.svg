@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A white headband on the bando's path with two long bunny ears, one bent. -->
+    <g transform="translate(140.97 18.8) rotate(-14)">
+      <path d="M4.2 0 C 4.6 -18 3 -27 0 -27.4 C -3 -27 -4.6 -18 -4.2 0 Z" fill="#fffaf5" stroke="#b9a68f" stroke-width="0.55" stroke-linejoin="round"/>
+      <path d="M-1.8 -1 C -2 -10 -1.4 -20 0 -23 C 1.4 -20 2 -10 1.8 -1 Z" fill="#f4b8c6"/>
+    </g><g transform="translate(169.03 18.8) rotate(18)">
+      <path d="M4.2 0 C 5 -14 7 -22 11 -25 C 8.6 -26.4 2.6 -24 -0.4 -16 C -2.6 -10 -4.2 -5 -4.2 0 Z" fill="#fffaf5" stroke="#b9a68f" stroke-width="0.55" stroke-linejoin="round"/>
+      <path d="M-1.8 -1 C -1.6 -8 0.2 -15 2.2 -18.4 C 4.2 -20.6 6.6 -22.2 8.2 -23 C 5 -20 2.4 -12 1.8 -1 Z" fill="#f4b8c6"/>
+    </g>
+    <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64" fill="none" stroke="#c9b8a6" stroke-width="4" stroke-linecap="round"/>
+    <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64" fill="none" stroke="#fffaf5" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+</svg>

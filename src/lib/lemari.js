@@ -11,7 +11,7 @@
  *     item drops it, and only tintable items take one.
  */
 
-import { BASE_CREDIT, BASE_LAYERS, DEFAULT_BG, LAYER_ORDER, LEMARI_ITEMS, LEMARI_SETS, TINTS } from '../data/lemari';
+import { BASE_CREDIT, BASE_LAYERS, DEFAULT_BG, DEFAULT_SET, LAYER_ORDER, LEMARI_ITEMS, LEMARI_SETS, TINTS } from '../data/lemari';
 
 export const NAME_MAX = 24;
 
@@ -82,6 +82,15 @@ export const applySet = (outfit, set, items = LEMARI_ITEMS) => {
   let next = { bg: set.bg || outfit.bg || DEFAULT_BG };
   for (const id of set.items) next = wearItem(next, map.get(id));
   return next;
+};
+
+/**
+ * What a first visit, and Reset, show: Eli in DEFAULT_SET. (defaultOutfit
+ * stays bare: share links are decoded on top of it.)
+ */
+export const startingOutfit = (items = LEMARI_ITEMS, sets = LEMARI_SETS) => {
+  const set = sets.find((s) => s.id === DEFAULT_SET);
+  return set ? applySet(defaultOutfit(), set, items) : defaultOutfit();
 };
 
 /**

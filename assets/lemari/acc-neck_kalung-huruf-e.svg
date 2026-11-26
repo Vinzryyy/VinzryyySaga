@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A fine chain from the sides of the neck (skin x 142-167 at y 125-130) to a gold letter E, for Eli. -->
+    <path d="M143.5 127 C 144.5 140 149 148.4 154.5 149.4" fill="none" stroke="#b8862a" stroke-width="0.8"/>
+    <path d="M165.5 127 C 164.5 140 160 148.4 154.5 149.4" fill="none" stroke="#b8862a" stroke-width="0.8"/>
+    <circle cx="154.5" cy="150.4" r="0.9" fill="none" stroke="#b8862a" stroke-width="0.55"/>
+    <g fill="#e8c770" stroke="#9c711c" stroke-width="0.35" stroke-linejoin="round">
+      <path d="M152.6 151.4 H 157 V 152.7 H 154 V 154.6 H 156.4 V 155.8 H 154 V 157.8 H 157.1 V 159.1 H 152.6 Z"/>
+    </g>
+    <path d="M153.1 152 V 158.6" stroke="#fff3cf" stroke-width="0.35" opacity="0.8"/>
+  </g>
+</svg>

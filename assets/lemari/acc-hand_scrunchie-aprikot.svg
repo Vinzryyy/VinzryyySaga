@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <defs><radialGradient id="puff" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="#fbc792"/><stop offset="1" stop-color="#e2894a"/></radialGradient></defs>
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A puffy apricot scrunchie around the wrist (skin x 241-254 at y 340). -->
+    <g fill="url(#puff)" stroke="#b9663a" stroke-width="0.35">
+      <ellipse cx="240.6" cy="338.9" rx="2.3" ry="3.4" transform="rotate(14 240.6 338.9)"/>
+      <ellipse cx="243.4" cy="340.2" rx="2.5" ry="3.5"/>
+      <ellipse cx="246.4" cy="340.9" rx="2.5" ry="3.6"/>
+      <ellipse cx="249.6" cy="340.9" rx="2.5" ry="3.6"/>
+      <ellipse cx="252.6" cy="340.3" rx="2.5" ry="3.5"/>
+      <ellipse cx="255.3" cy="339.2" rx="2.3" ry="3.4" transform="rotate(-14 255.3 339.2)"/>
+    </g>
+    <g fill="none" stroke="#c46e3c" stroke-width="0.35" opacity="0.7"><path d="M243.4 338 v 4"/><path d="M246.4 338.6 v 4.4"/><path d="M249.6 338.6 v 4.4"/><path d="M252.6 338.1 v 4"/></g>
+  </g>
+</svg>

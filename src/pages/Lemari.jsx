@@ -19,7 +19,6 @@ import {
   cleanName,
   clearSlot,
   decodeOutfit,
-  defaultOutfit,
   describeOutfit,
   encodeOutfit,
   layersFor,
@@ -28,6 +27,7 @@ import {
   randomOutfit,
   readSaved,
   setTint,
+  startingOutfit,
   tintOf,
   toggleItem,
   wornEntries,
@@ -53,8 +53,11 @@ const COMING = SLOTS.filter((s) => !LEMARI_ITEMS.some((i) => i.slot === s.key)).
 
 const initialOutfit = (params) => {
   if (params.get('o')) return decodeOutfit(params.get('o'));
-  return readSaved()?.outfit || defaultOutfit();
+  return readSaved()?.outfit || startingOutfit();
 };
+
+/** The stage sticks this far from the top on phones (Tailwind top-16). */
+const PHONE_STAGE_TOP = 64;
 
 /** The stacked figure. `animate` fades a layer in when it changes. */
 const Stage = ({ outfit, className = '', animate = true }) => (
@@ -161,6 +164,169 @@ const CardBoard = ({ template, outfit, setLabel, about, name }) => {
   );
 };
 
+/** A small live copy of the card, so its shape is seen before saving. */
+const PREVIEW_SCALE = 0.3;
+const CardPreview = (props) => (
+  <div aria-hidden="true" className="relative flex-shrink-0 overflow-hidden rounded-lg shadow-md ring-1 ring-black/5" style={{ width: 540 * PREVIEW_SCALE, height: 675 * PREVIEW_SCALE }}>
+    <div style={{ width: 540, height: 675, transform: `scale(${PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+      <CardBoard {...props} />
+    </div>
+  </div>
+);
+
+/** The preview playing now, so starting another one stops it. */
+let playingPreview = null;
+
+/**
+ * A 30-second preview of the song's official release: Apple's own file,
+ * loaded only when tapped, with a link to the song on Apple Music.
+ */
+const SongPreview = ({ listen }) => {
+  const audioRef = useRef(null);
+  const [state, setState] = useState('idle'); // idle | loading | playing | paused | error
+  const [progress, setProgress] = useState(0);
+
+  // Stop when the costume changes or the story closes.
+  useEffect(() => {
+    const audio = audioRef.current;
+    return () => audio?.pause();
+  }, []);
+
+  const toggle = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!audio.paused) {
+      audio.pause();
+      return;
+    }
+    if (playingPreview && playingPreview !== audio) playingPreview.pause();
+    playingPreview = audio;
+    setState('loading');
+    try {
+      await audio.play();
+    } catch {
+      setState('error');
+    }
+  };
+
+  const playing = state === 'playing';
+  return (
+    <div className="mt-3 flex items-center gap-3 rounded-xl border border-[#d4a574]/40 bg-white/70 p-2 pr-3">
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={playing ? 'Jeda cuplikan' : `Putar cuplikan ${listen.title}`}
+        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[color:var(--retro-burgundy)] text-lg text-[color:var(--retro-cream)] transition-transform active:scale-95"
+      >
+        <i className={playing ? 'ri-pause-fill' : state === 'loading' ? 'ri-loader-4-line animate-spin' : 'ri-play-fill'} aria-hidden="true" />
+      </button>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-xs font-bold text-[#3a2818]">{listen.title}</p>
+        <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#d4a574]/30" aria-hidden="true">
+          <div className="h-full rounded-full bg-[color:var(--retro-burgundy)] transition-[width] duration-200" style={{ width: `${Math.round(progress * 100)}%` }} />
+        </div>
+        <p className="mt-1 text-[10px] leading-snug text-[#3a2818]/65">
+          {state === 'error' ? 'Cuplikan tidak bisa diputar. ' : `Cuplikan 30 detik · ${listen.by || 'rekaman resmi JKT48'} (${listen.album}, ${listen.year}) · `}
+          <a href={listen.link} target="_blank" rel="noopener noreferrer" className="font-bold underline decoration-dotted underline-offset-2 hover:text-[color:var(--retro-burgundy)]">
+            Apple Music
+          </a>
+        </p>
+      </div>
+      <audio
+        ref={audioRef}
+        src={listen.preview}
+        preload="none"
+        onPlaying={() => setState('playing')}
+        onPause={() => setState((s) => (s === 'error' ? s : 'paused'))}
+        onEnded={() => {
+          setState('idle');
+          setProgress(0);
+        }}
+        onTimeUpdate={(e) => setProgress(e.currentTarget.currentTime / (e.currentTarget.duration || 30))}
+        onError={() => setState('error')}
+      />
+    </div>
+  );
+};
+
+/**
+ * A fan upload of the song on YouTube (songs with no official release):
+ * the youtube-nocookie player opens on tap, from the start to `end`.
+ */
+const VideoClip = ({ listen }) => {
+  const [open, setOpen] = useState(false);
+  const watch = `https://www.youtube.com/watch?v=${listen.youtube}`;
+  const src = `https://www.youtube-nocookie.com/embed/${listen.youtube}?autoplay=1&rel=0&modestbranding=1&playsinline=1&start=${listen.start || 0}${listen.end ? `&end=${listen.end}` : ''}`;
+  return (
+    <div className="mt-3 rounded-xl border border-[#d4a574]/40 bg-white/70 p-2">
+      <div className="flex items-center gap-3 pr-1">
+        <button
+          type="button"
+          onClick={() => {
+            playingPreview?.pause();
+            setOpen((o) => !o);
+          }}
+          aria-expanded={open}
+          aria-label={open ? 'Tutup cuplikan' : `Putar cuplikan ${listen.title}`}
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[color:var(--retro-burgundy)] text-lg text-[color:var(--retro-cream)] transition-transform active:scale-95"
+        >
+          <i className={open ? 'ri-close-line' : 'ri-play-fill'} aria-hidden="true" />
+        </button>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-bold text-[#3a2818]">{listen.title}</p>
+          <p className="mt-1 text-[10px] leading-snug text-[#3a2818]/65">
+            Cuplikan versi JKT48 · unggahan penggemar ({listen.channel}) ·{' '}
+            <a href={watch} target="_blank" rel="noopener noreferrer" className="font-bold underline decoration-dotted underline-offset-2 hover:text-[color:var(--retro-burgundy)]">
+              YouTube
+            </a>
+          </p>
+        </div>
+      </div>
+      {open && (
+        <div className="mt-2 aspect-video overflow-hidden rounded-lg bg-black">
+          <iframe
+            src={src}
+            title={`${listen.title} (YouTube)`}
+            className="h-full w-full"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** "Cerita kostum": what the song tells, and when Eli wore the costume. */
+const CostumeStory = ({ set, id, className = '' }) => (
+  <aside id={id} className={`rounded-2xl border border-[#d4a574]/30 bg-[#fdf6ee] p-4 ${className}`}>
+    <p className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.3em] text-[#9a5b4a]">
+      <i className="ri-history-line text-sm" aria-hidden="true" /> Cerita kostum · {set.name}
+    </p>
+    {set.about && (
+      <p className="mt-2 flex gap-1.5 text-sm italic leading-relaxed text-[#6b4a35]">
+        <i className="ri-music-2-line mt-0.5 not-italic" aria-hidden="true" />
+        <span>
+          <span className="sr-only">Tentang lagunya: </span>
+          {set.about}
+        </span>
+      </p>
+    )}
+    {set.listen && (set.listen.youtube ? <VideoClip key={set.id} listen={set.listen} /> : <SongPreview key={set.id} listen={set.listen} />)}
+    {set.moment ? (
+      <p className="mt-3 text-sm leading-relaxed text-[#3a2818]">
+        {set.moment.text}{' '}
+        {set.moment.to && (
+          <Link to={set.moment.to} className="font-bold text-[color:var(--retro-burgundy)] hover:underline">Lihat momennya →</Link>
+        )}
+      </p>
+    ) : (
+      <p className="mt-2 text-sm leading-relaxed text-[#3a2818]/80">Cerita kapan Eli memakai kostum ini sedang kami kumpulkan.</p>
+    )}
+  </aside>
+);
+
 const Lemari = () => {
   const [params, setParams] = useSearchParams();
   const [outfit, setOutfit] = useState(() => initialOutfit(params));
@@ -170,8 +336,20 @@ const Lemari = () => {
   const [tab, setTab] = useState(TABS[0]?.key);
   const [status, setStatus] = useState('idle'); // card: idle | capturing | done | error
   const [copied, setCopied] = useState(false);
+  const [storyOpen, setStoryOpen] = useState(false); // phones: the story opens under the stage
   const cardRef = useRef(null);
   const tabRefs = useRef([]);
+  const stageRef = useRef(null);
+  const [stageH, setStageH] = useState(0);
+
+  // Phones: the tabs stick right under the stage, whatever its height.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(() => setStageH(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const match = useMemo(() => matchSet(outfit), [outfit]);
   const alt = useMemo(() => describeOutfit(outfit), [outfit]);
@@ -277,8 +455,53 @@ const Lemari = () => {
   const slotItems = (slot) => LEMARI_ITEMS.filter((i) => i.slot === slot && !i.unlock);
   const cardLabel = { idle: 'Simpan kartu', capturing: 'Menyiapkan…', done: 'Tersimpan ✓', error: 'Gagal, coba lagi' }[status];
 
+  // The card: live preview, shape, "Didandani oleh" and save. Beside the
+  // stage on wide screens, after the wardrobe on phones.
+  const cardSection = (
+    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+      <CardPreview template={template} outfit={outfit} setLabel={setLabel} about={match?.set.about} name={cleanName(name)} />
+      <div className="w-full min-w-0 flex-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">Bentuk kartu</p>
+        <div role="radiogroup" aria-label="Bentuk kartu" className="mt-1.5 flex flex-wrap gap-2">
+          {TEMPLATES.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="radio"
+              aria-checked={template === t.id}
+              onClick={() => setTemplate(t.id)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors ${
+                template === t.id ? 'border-[color:var(--retro-burgundy)] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]' : 'border-[color:var(--retro-brown-dark)]/12 bg-white/70 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)]/40'
+              }`}
+            >
+              <i className={`${t.icon} text-sm`} aria-hidden="true" /> {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-end gap-2">
+          <label className="flex-1 min-w-[180px] text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">
+            Didandani oleh (opsional)
+            <input
+              type="text"
+              value={name}
+              maxLength={NAME_MAX}
+              onChange={(e) => setName(e.target.value.slice(0, NAME_MAX))}
+              onBlur={() => setName((n) => cleanName(n))}
+              placeholder="Nama atau akun X"
+              className="mt-1 block w-full rounded-xl border border-[color:var(--retro-brown-dark)]/15 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[color:var(--retro-text-primary)] focus:border-[color:var(--retro-burgundy)] focus:outline-none"
+            />
+          </label>
+          <button type="button" className={btnPrimary} onClick={saveCard} disabled={status === 'capturing'}>
+            <i className={status === 'capturing' ? 'ri-loader-4-line animate-spin' : 'ri-image-add-line'} aria-hidden="true" /> {cardLabel}
+          </button>
+        </div>
+        <p className="mt-2 text-[11px] text-[color:var(--retro-text-muted)]">Kartu 1080×1350, siap dibagikan ke X atau Instagram.</p>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-20 pt-24 sm:pt-28 px-4 sm:px-6">
+    <div className="min-h-screen bg-[color:var(--retro-bg-primary)] pb-28 lg:pb-20 pt-24 sm:pt-28 px-4 sm:px-6">
       <Seo {...PAGES.lemari} />
       <div className="max-w-6xl mx-auto">
         <Link to="/mini-games" className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-[0.2em] text-[color:var(--retro-burgundy)]">
@@ -293,32 +516,59 @@ const Lemari = () => {
         </p>
 
         <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
-          {/* STAGE — sticky on phones so the look stays in view while choosing. */}
-          <div className="sticky top-16 z-10 -mx-4 bg-[color:var(--retro-bg-primary)]/95 px-4 pb-3 pt-2 backdrop-blur sm:mx-0 sm:px-0 lg:top-28 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+          {/* STAGE — sticky so the look stays in view while choosing; the
+              costume's story sits right under it (on phones, behind a button
+              so the stage stays short). */}
+          <div
+            ref={stageRef}
+            className="sticky top-16 z-10 -mx-4 bg-[color:var(--retro-bg-primary)]/95 px-4 pb-2 pt-2 backdrop-blur sm:mx-0 sm:px-0 lg:top-28 lg:max-h-[calc(100svh-8rem)] lg:overflow-y-auto lg:bg-transparent lg:p-0 lg:backdrop-blur-none [scrollbar-width:thin]"
+          >
             <figure className="relative rounded-3xl border border-[color:var(--retro-burgundy)]/15 bg-[#efe2cf] overflow-hidden flex justify-center">
               {/* The background, blurred, fills the space beside the figure. */}
               {bgFile && (
                 <img src={fullSrc(bgFile)} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-80 blur-xl" />
               )}
-              <div role="img" aria-label={alt} className="relative h-[44svh] sm:h-[56svh] lg:h-[62svh] max-h-[680px]">
+              <div role="img" aria-label={alt} className="relative h-[34svh] sm:h-[44svh] lg:h-[46svh] max-h-[680px]">
                 <Stage outfit={outfit} className="h-full" />
               </div>
             </figure>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span className="font-bold text-[color:var(--retro-text-primary)]">
+            <div className="mt-2 flex min-h-6 items-center justify-between gap-2 text-xs">
+              <span className="min-w-0 truncate font-bold text-[color:var(--retro-text-primary)]">
                 {setLabel ? <><i className="ri-sparkling-2-line text-[color:var(--retro-burgundy)]" /> {setLabel}</> : 'Gaya pilihanmu'}
               </span>
-              {wornDraft && (
-                <span className="rounded-full bg-[color:var(--retro-brown-dark)]/[0.07] px-2 py-0.5 text-[10px] font-bold text-[color:var(--retro-text-muted)]" title="Gambar sementara, versi rapi dari ilustrator menyusul">
-                  Gambar draft
-                </span>
-              )}
+              <span className="flex flex-shrink-0 items-center gap-2">
+                {wornDraft && (
+                  <span className="rounded-full bg-[color:var(--retro-brown-dark)]/[0.07] px-2 py-0.5 text-[10px] font-bold text-[color:var(--retro-text-muted)]" title="Gambar sementara, versi rapi dari ilustrator menyusul">
+                    Gambar draft
+                  </span>
+                )}
+                {match && (
+                  <button
+                    type="button"
+                    onClick={() => setStoryOpen((o) => !o)}
+                    aria-expanded={storyOpen}
+                    aria-controls="lemari-story-phone"
+                    className="inline-flex items-center gap-1 rounded-full border border-[#d4a574]/60 bg-[#fdf6ee] px-2.5 py-1 text-[11px] font-bold text-[#9a5b4a] lg:hidden"
+                  >
+                    <i className={storyOpen ? 'ri-close-line' : 'ri-history-line'} aria-hidden="true" /> {storyOpen ? 'Tutup cerita' : 'Cerita kostum'}
+                  </button>
+                )}
+              </span>
             </div>
+            {match && storyOpen && <CostumeStory id="lemari-story-phone" set={match.set} className="mt-2 max-h-[38svh] overflow-y-auto lg:hidden" />}
+            {/* What's left of the screen under the stage (46svh) and its fixed
+                parts (~11rem); a long story scrolls inside, the stage stays whole. */}
+            {match && <CostumeStory set={match.set} className="mt-3 hidden lg:block lg:max-h-[calc(54svh-11rem)] lg:overflow-y-auto" />}
           </div>
 
           {/* WARDROBE */}
           <div className="min-w-0">
-            <div role="tablist" aria-label="Lemari" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div
+              role="tablist"
+              aria-label="Lemari"
+              style={{ top: PHONE_STAGE_TOP + stageH }}
+              className="sticky z-[9] -mx-4 flex gap-2 overflow-x-auto bg-[color:var(--retro-bg-primary)]/95 px-4 py-2 backdrop-blur sm:mx-0 sm:flex-wrap sm:px-0 lg:static lg:bg-transparent lg:py-0 lg:pb-1 lg:backdrop-blur-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {TABS.map((t, idx) => (
                 <button
                   key={t.key}
@@ -344,7 +594,7 @@ const Lemari = () => {
 
             <div id="lemari-panel" role="tabpanel" aria-labelledby={`lemari-tab-${tab}`} className="mt-4">
               {tab === 'sets' ? (
-                <ul className="grid gap-3 sm:grid-cols-2">
+                <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                   {LEMARI_SETS.map((set) => {
                     const active = match?.set.id === set.id && !match.modified;
                     return (
@@ -353,17 +603,17 @@ const Lemari = () => {
                           type="button"
                           aria-pressed={active}
                           onClick={() => change((o) => applySet(o, set))}
-                          className={`w-full rounded-2xl border p-4 text-left transition-colors ${
+                          className={`h-full w-full rounded-2xl border p-3 text-left transition-colors ${
                             active ? 'border-[color:var(--retro-burgundy)] bg-[color:var(--retro-burgundy)]/[0.06]' : 'border-[color:var(--retro-brown-dark)]/12 bg-white/70 hover:border-[color:var(--retro-burgundy)]/40'
                           }`}
                         >
-                          <span className="flex gap-2">
+                          <span className="flex gap-1.5">
                             {set.items.map((id) => (
-                              <img key={id} src={thumbSrc(itemById.get(id)?.file)} alt="" loading="lazy" className="h-16 w-16 rounded-xl bg-[#efe2cf] object-contain p-1" />
+                              <img key={id} src={thumbSrc(itemById.get(id)?.file)} alt="" loading="lazy" className="h-12 w-12 rounded-lg bg-[#efe2cf] object-contain p-0.5" />
                             ))}
                           </span>
-                          <span className="mt-3 block font-header text-lg font-black text-[color:var(--retro-text-primary)]">{set.name}</span>
-                          <span className="mt-1 block text-xs text-[color:var(--retro-text-muted)]">
+                          <span className="mt-2 block font-header text-sm font-black leading-tight text-[color:var(--retro-text-primary)]">{set.name}</span>
+                          <span className="mt-1 hidden text-[11px] leading-snug text-[color:var(--retro-text-muted)] sm:line-clamp-2">
                             {set.items.map((id) => itemById.get(id)?.name).join(' · ')}
                           </span>
                         </button>
@@ -409,6 +659,15 @@ const Lemari = () => {
                   })}
                 </ul>
               )}
+              {/* Where the background or accessory worn in this tab comes from. */}
+              {tab !== 'sets' && itemById.get(outfit[tab])?.note && (
+                <p className="mt-3 flex gap-1.5 text-xs leading-relaxed text-[color:var(--retro-text-secondary)]">
+                  <i className={`${tab === 'bg' ? 'ri-map-pin-2-line' : 'ri-sparkling-line'} mt-0.5 text-[color:var(--retro-burgundy)]`} aria-hidden="true" />
+                  <span>
+                    <b className="text-[color:var(--retro-text-primary)]">{itemById.get(outfit[tab]).name}.</b> {itemById.get(outfit[tab]).note}
+                  </span>
+                </p>
+              )}
               {tab !== 'sets' && itemById.get(outfit[tab])?.tintable && (
                 <div className="mt-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)] inline-flex items-center gap-1.5">
@@ -443,34 +702,6 @@ const Lemari = () => {
               )}
             </div>
 
-            {/* The story behind the set being worn. */}
-            {match && (
-              <aside className="mt-5 rounded-2xl border border-[#d4a574]/30 bg-[#fdf6ee] p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#9a5b4a] inline-flex items-center gap-1.5">
-                  <i className="ri-history-line text-sm" aria-hidden="true" /> Cerita kostum · {match.set.name}
-                </p>
-                {match.set.about && (
-                  <p className="mt-2 flex gap-1.5 text-sm italic leading-relaxed text-[#6b4a35]">
-                    <i className="ri-music-2-line mt-0.5 not-italic" aria-hidden="true" />
-                    <span>
-                      <span className="sr-only">Tentang lagunya: </span>
-                      {match.set.about}
-                    </span>
-                  </p>
-                )}
-                {match.set.moment ? (
-                  <p className="mt-2 text-sm leading-relaxed text-[#3a2818]">
-                    {match.set.moment.text}{' '}
-                    {match.set.moment.to && (
-                      <Link to={match.set.moment.to} className="font-bold text-[color:var(--retro-burgundy)] hover:underline">Lihat momennya →</Link>
-                    )}
-                  </p>
-                ) : (
-                  <p className="mt-2 text-sm leading-relaxed text-[#3a2818]/80">Cerita kapan Eli memakai kostum ini sedang kami kumpulkan.</p>
-                )}
-              </aside>
-            )}
-
             {/* ACTIONS */}
             <div className="mt-5 rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-white/60 p-4">
               <div className="flex flex-wrap gap-2">
@@ -480,53 +711,22 @@ const Lemari = () => {
                 <button type="button" className={btnGhost} onClick={undo} disabled={!history.length} aria-keyshortcuts="Control+Z Meta+Z">
                   <i className="ri-arrow-go-back-line" aria-hidden="true" /> Urungkan
                 </button>
-                <button type="button" className={btnGhost} onClick={() => change(() => defaultOutfit())}>
+                <button type="button" className={btnGhost} onClick={() => change(() => startingOutfit())}>
                   <i className="ri-refresh-line" aria-hidden="true" /> Reset
                 </button>
                 <button type="button" className={btnGhost} onClick={copyLink}>
                   <i className={copied ? 'ri-check-line' : 'ri-link'} aria-hidden="true" /> {copied ? 'Link tersalin' : 'Salin link'}
                 </button>
               </div>
-              <div className="mt-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">Bentuk kartu</p>
-                <div role="radiogroup" aria-label="Bentuk kartu" className="mt-1.5 flex flex-wrap gap-2">
-                  {TEMPLATES.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={template === t.id}
-                      onClick={() => setTemplate(t.id)}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors ${
-                        template === t.id ? 'border-[color:var(--retro-burgundy)] bg-[color:var(--retro-burgundy)] text-[color:var(--retro-cream)]' : 'border-[color:var(--retro-brown-dark)]/12 bg-white/70 text-[color:var(--retro-text-primary)] hover:border-[color:var(--retro-burgundy)]/40'
-                      }`}
-                    >
-                      <i className={`${t.icon} text-sm`} aria-hidden="true" /> {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-4 flex flex-wrap items-end gap-2">
-                <label className="flex-1 min-w-[180px] text-[10px] font-black uppercase tracking-[0.2em] text-[color:var(--retro-text-muted)]">
-                  Didandani oleh (opsional)
-                  <input
-                    type="text"
-                    value={name}
-                    maxLength={NAME_MAX}
-                    onChange={(e) => setName(e.target.value.slice(0, NAME_MAX))}
-                    onBlur={() => setName((n) => cleanName(n))}
-                    placeholder="Nama atau akun X"
-                    className="mt-1 block w-full rounded-xl border border-[color:var(--retro-brown-dark)]/15 bg-white px-3 py-2 text-sm font-normal normal-case tracking-normal text-[color:var(--retro-text-primary)] focus:border-[color:var(--retro-burgundy)] focus:outline-none"
-                  />
-                </label>
-                <button type="button" className={btnPrimary} onClick={saveCard} disabled={status === 'capturing'}>
-                  <i className={status === 'capturing' ? 'ri-loader-4-line animate-spin' : 'ri-image-add-line'} aria-hidden="true" /> {cardLabel}
-                </button>
-              </div>
-              <p className="mt-2 text-[11px] text-[color:var(--retro-text-muted)]">Kartu 1080×1350, siap dibagikan ke X atau Instagram.</p>
+              {/* Wide screens: the card sits here, beside the stage. */}
+              <div className="mt-4 hidden lg:block">{cardSection}</div>
             </div>
           </div>
         </div>
+
+        {/* Phones: the card comes after the wardrobe, once the stage has
+            scrolled away, so the sticky stage never covers it. */}
+        <div className="mt-5 rounded-2xl border border-[color:var(--retro-brown-dark)]/10 bg-white/60 p-4 lg:hidden">{cardSection}</div>
       </div>
 
       {/* Off-screen card for "Simpan kartu" (capture the inner board, not the moved holder). */}

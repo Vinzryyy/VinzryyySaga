@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A black velvet choker on the neck (edges x ~142-168 at y 126-131), with a small bow. -->
+    <path d="M141.7 126.4 Q 155 129.2 168.3 126.4 L 168.1 130.2 Q 155 133 141.9 130.2 Z" fill="#1d1518" stroke="#0e0a0b" stroke-width="0.35"/>
+    <path d="M142.6 127.4 Q 155 130 167.4 127.4" fill="none" stroke="#5a4a50" stroke-width="0.45" opacity="0.8"/>
+    <g transform="translate(155 131.4)">
+      <path d="M0 0 C -2.6 -2.6 -6.2 -2.4 -6 0 C -6.2 2.4 -2.6 2.6 0 0 Z" fill="#241a1e" stroke="#0e0a0b" stroke-width="0.35"/>
+      <path d="M0 0 C 2.6 -2.6 6.2 -2.4 6 0 C 6.2 2.4 2.6 2.6 0 0 Z" fill="#241a1e" stroke="#0e0a0b" stroke-width="0.35"/>
+      <path d="M-0.8 0.6 L -2.6 5.4 L -1 4.8 L 0 6 Z M0.8 0.6 L 2.6 5.4 L 1 4.8 L 0 6 Z" fill="#1d1518"/>
+      <circle r="1.25" fill="#fbf6ee" stroke="#b9a68f" stroke-width="0.3"/>
+    </g>
+  </g>
+</svg>

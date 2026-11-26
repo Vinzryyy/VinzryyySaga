@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A burgundy school-uniform ribbon at the base of the neck (collarbones around y 141-146). -->
+    <g transform="translate(155 141.6)">
+      <path d="M-1.6 1.6 L -6.4 15 L -3.2 13.6 L -1.8 16.6 Z" fill="#7a2228" stroke="#4e191e" stroke-width="0.4" stroke-linejoin="round"/>
+      <path d="M1.6 1.6 L 6.4 15 L 3.2 13.6 L 1.8 16.6 Z" fill="#7a2228" stroke="#4e191e" stroke-width="0.4" stroke-linejoin="round"/>
+      <path d="M0 0 C -4 -5.4 -11.4 -6 -11.4 0 C -11.4 6 -4 5.4 0 0 Z" fill="#8a2a33" stroke="#4e191e" stroke-width="0.5"/>
+      <path d="M0 0 C 4 -5.4 11.4 -6 11.4 0 C 11.4 6 4 5.4 0 0 Z" fill="#8a2a33" stroke="#4e191e" stroke-width="0.5"/>
+      <path d="M-10.2 -1 C -7.4 -3.6 -4 -3.2 -1.6 -0.8 M10.2 -1 C 7.4 -3.6 4 -3.2 1.6 -0.8" fill="none" stroke="#fff1df" stroke-width="0.5" opacity="0.7"/>
+      <rect x="-2.2" y="-2.6" width="4.4" height="5.2" rx="1.2" fill="#a23a44" stroke="#4e191e" stroke-width="0.45"/>
+    </g>
+  </g>
+</svg>

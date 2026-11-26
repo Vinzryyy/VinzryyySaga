@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A wide padded headband on the bando's path, burgundy with cream dots. -->
+    <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64" fill="none" stroke="#4e191e" stroke-width="8.2" stroke-linecap="round"/>
+    <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64" fill="none" stroke="#8a2a33" stroke-width="7" stroke-linecap="round"/>
+    <path d="M115 64 C 115 46 120 34 130 25 C 138 18 147 15.5 155 15.5 C 163 15.5 172 18 180 25 C 190 34 195 46 195 64" fill="none" stroke="#a8404a" stroke-width="3" stroke-linecap="round" transform="translate(0 -1.4)" opacity="0.6"/>
+    <g fill="#fff1df"><circle cx="115.86" cy="51.84" r="1.05"/><circle cx="118.38" cy="41.9" r="1.05"/><circle cx="122.55" cy="33.48" r="1.05"/><circle cx="128.37" cy="26.34" r="1.05"/><circle cx="134.37" cy="21.47" r="1.05"/><circle cx="140.29" cy="18.29" r="1.05"/><circle cx="146.27" cy="16.32" r="1.05"/><circle cx="152.15" cy="15.41" r="1.05"/><circle cx="157.85" cy="15.41" r="1.05"/><circle cx="163.73" cy="16.32" r="1.05"/><circle cx="169.71" cy="18.29" r="1.05"/><circle cx="175.63" cy="21.47" r="1.05"/><circle cx="181.63" cy="26.34" r="1.05"/><circle cx="187.45" cy="33.48" r="1.05"/><circle cx="191.62" cy="41.9" r="1.05"/><circle cx="194.14" cy="51.84" r="1.05"/></g>
+  </g>
+</svg>

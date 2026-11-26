@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- Three pearl hairpins on the hair above the left temple. -->
+    <g transform="translate(122.5 37) rotate(-32)">
+      <rect x="-1" y="-0.55" width="9" height="1.1" rx="0.55" fill="#d8b04a" stroke="#9c711c" stroke-width="0.25"/>
+      <circle cx="-1.4" cy="0" r="2.1" fill="#fbf6ee" stroke="#b9a68f" stroke-width="0.35"/>
+      <circle cx="-2" cy="-0.6" r="0.6" fill="#ffffff" opacity="0.9"/>
+    </g>
+    <g transform="translate(125.5 44) rotate(-32)">
+      <rect x="-1" y="-0.55" width="9" height="1.1" rx="0.55" fill="#d8b04a" stroke="#9c711c" stroke-width="0.25"/>
+      <circle cx="-1.4" cy="0" r="2.1" fill="#fbf6ee" stroke="#b9a68f" stroke-width="0.35"/>
+      <circle cx="-2" cy="-0.6" r="0.6" fill="#ffffff" opacity="0.9"/>
+    </g>
+    <g transform="translate(128.5 51) rotate(-32)">
+      <rect x="-1" y="-0.55" width="9" height="1.1" rx="0.55" fill="#d8b04a" stroke="#9c711c" stroke-width="0.25"/>
+      <circle cx="-1.4" cy="0" r="2.1" fill="#fbf6ee" stroke="#b9a68f" stroke-width="0.35"/>
+      <circle cx="-2" cy="-0.6" r="0.6" fill="#ffffff" opacity="0.9"/>
+    </g>
+  </g>
+</svg>

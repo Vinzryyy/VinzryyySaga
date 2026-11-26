@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A woven friendship bracelet with chevrons across the wrist (skin x 241-254 at y 340). -->
+    <clipPath id="band"><path d="M240.9 337.6 C 244 338.9 251.5 339.3 254.9 337.9 L 254.6 341.4 C 251.2 342.8 243.9 342.4 241.2 341.1 Z"/></clipPath>
+    <path d="M240.9 337.6 C 244 338.9 251.5 339.3 254.9 337.9 L 254.6 341.4 C 251.2 342.8 243.9 342.4 241.2 341.1 Z" fill="#8a2a33"/>
+    <g clip-path="url(#band)"><path d="M238 336 L 240.2 339.6 L 238 343.4 L 239.6 343.4 L 241.8 339.6 L 239.6 336 Z" fill="#8a2a33"/><path d="M239.6 336 L 241.8 339.6 L 239.6 343.4 L 241.2 343.4 L 243.4 339.6 L 241.2 336 Z" fill="#f0a060"/><path d="M241.2 336 L 243.4 339.6 L 241.2 343.4 L 242.8 343.4 L 245 339.6 L 242.8 336 Z" fill="#fff1df"/><path d="M242.8 336 L 245 339.6 L 242.8 343.4 L 244.4 343.4 L 246.6 339.6 L 244.4 336 Z" fill="#6fb0c8"/><path d="M244.4 336 L 246.6 339.6 L 244.4 343.4 L 246 343.4 L 248.2 339.6 L 246 336 Z" fill="#e98a9a"/><path d="M246 336 L 248.2 339.6 L 246 343.4 L 247.6 343.4 L 249.8 339.6 L 247.6 336 Z" fill="#d8b04a"/><path d="M247.6 336 L 249.8 339.6 L 247.6 343.4 L 249.2 343.4 L 251.4 339.6 L 249.2 336 Z" fill="#8a2a33"/><path d="M249.2 336 L 251.4 339.6 L 249.2 343.4 L 250.8 343.4 L 253 339.6 L 250.8 336 Z" fill="#f0a060"/><path d="M250.8 336 L 253 339.6 L 250.8 343.4 L 252.4 343.4 L 254.6 339.6 L 252.4 336 Z" fill="#fff1df"/><path d="M252.4 336 L 254.6 339.6 L 252.4 343.4 L 254 343.4 L 256.2 339.6 L 254 336 Z" fill="#6fb0c8"/><path d="M254 336 L 256.2 339.6 L 254 343.4 L 255.6 343.4 L 257.8 339.6 L 255.6 336 Z" fill="#e98a9a"/><path d="M255.6 336 L 257.8 339.6 L 255.6 343.4 L 257.2 343.4 L 259.4 339.6 L 257.2 336 Z" fill="#d8b04a"/></g>
+    <path d="M240.9 337.6 C 244 338.9 251.5 339.3 254.9 337.9 L 254.6 341.4 C 251.2 342.8 243.9 342.4 241.2 341.1 Z" fill="none" stroke="#5e1a20" stroke-width="0.35"/>
+    <path d="M252.2 341.8 L 252.8 345.2 M253.4 341.6 L 254.4 344.8" stroke="#f0a060" stroke-width="0.6" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2480" height="3507" viewBox="0 0 2480 3507">
+  <!-- Drawn in the first 342x730 draft base's units, like the older accessories; the transform puts it
+       on the illustrated base (figure top 11 -> 171, feet 699 -> 3296, centre x 155 -> 1165.5). -->
+  <g transform="translate(461.47 121.04) scale(4.5422)">
+    <!-- A fine gold chain with three apricot blossoms across the wrist (skin x 241-254 at y 340). -->
+    <path d="M241.2 339.4 C 244.5 341.8 251 342 254.6 339.6" fill="none" stroke="#b8862a" stroke-width="0.55"/>
+    <g fill="#f6b07a" stroke="#c46a2a" stroke-width="0.3"><circle cx="243.78" cy="339.71" r="0.9"/><circle cx="244.68" cy="340.37" r="0.9"/><circle cx="244.34" cy="341.43" r="0.9"/><circle cx="243.22" cy="341.43" r="0.9"/><circle cx="242.87" cy="340.37" r="0.9"/></g><circle cx="243.78" cy="340.66" r="0.52" fill="#e3bd6a"/><g fill="#f6b07a" stroke="#c46a2a" stroke-width="0.3"><circle cx="247.79" cy="340.35" r="0.9"/><circle cx="248.69" cy="341.01" r="0.9"/><circle cx="248.35" cy="342.07" r="0.9"/><circle cx="247.23" cy="342.07" r="0.9"/><circle cx="246.88" cy="341.01" r="0.9"/></g><circle cx="247.79" cy="341.3" r="0.52" fill="#e3bd6a"/><g fill="#f6b07a" stroke="#c46a2a" stroke-width="0.3"><circle cx="251.87" cy="339.86" r="0.9"/><circle cx="252.77" cy="340.52" r="0.9"/><circle cx="252.43" cy="341.58" r="0.9"/><circle cx="251.31" cy="341.58" r="0.9"/><circle cx="250.96" cy="340.52" r="0.9"/></g><circle cx="251.87" cy="340.81" r="0.52" fill="#e3bd6a"/>
+  </g>
+</svg>
