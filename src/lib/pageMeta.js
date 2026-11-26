@@ -21,6 +21,8 @@ export const DEFAULT_TITLE = 'Armeniaca — Arsip Visual Eli JKT48';
 // A JPEG under 300 KB: WhatsApp shows no image for share images over
 // ~600 KB, and og-card.png is 730 KB.
 export const DEFAULT_IMAGE = `${SITE_URL}/og-card.jpg`;
+/** robots content for a page with `noindex: true`: reachable by link, never listed by search engines. */
+export const NOINDEX = 'noindex, nofollow';
 
 /** 'Jadwal Eli' → 'Jadwal Eli · Armeniaca'; no title → the site's own name. */
 export const fullTitle = (title) => (title ? `${title} · Armeniaca` : DEFAULT_TITLE);
@@ -152,6 +154,9 @@ export const PAGES = {
     path: '/mini-games/lemari',
     title: 'Lemari Eli · Mini Games',
     description: 'Lemari Eli: dandani Eli dengan kostum panggungnya, kenali cerita di balik tiap kostum, lalu simpan gayamu sebagai kartu.',
+    // Link-only for now (LEMARI_IN_HUB): kept out of search engines, but shared
+    // links still get this preview.
+    noindex: true,
   },
   armepack: {
     path: '/armepack',

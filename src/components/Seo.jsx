@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { DEFAULT_IMAGE, fullTitle as withSiteName, pageUrl } from '../lib/pageMeta';
+import { DEFAULT_IMAGE, NOINDEX, fullTitle as withSiteName, pageUrl } from '../lib/pageMeta';
 
 const Seo = ({
   title,
@@ -19,6 +19,7 @@ const Seo = ({
   image = DEFAULT_IMAGE,
   type = 'website',
   jsonLd,
+  noindex = false,
 }) => {
   const fullTitle = withSiteName(title);
   const url = pageUrl(path);
@@ -28,6 +29,7 @@ const Seo = ({
       <title>{fullTitle}</title>
       {description && <meta name="description" content={description} />}
       <link rel="canonical" href={url} />
+      {noindex && <meta name="robots" content={NOINDEX} />}
       <meta property="og:title" content={fullTitle} />
       {description && <meta property="og:description" content={description} />}
       <meta property="og:url" content={url} />

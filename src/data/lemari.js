@@ -20,10 +20,12 @@
  */
 
 /**
- * Show the game card on /mini-games. Turn it off while the wardrobe is only
- * draft art; the page itself is always reachable at /mini-games/lemari.
+ * Show the game card on /mini-games. Off for now: the game is link-only, so
+ * only people given the link find it (PAGES.lemari also keeps it out of
+ * search engines). The page itself is always reachable at /mini-games/lemari.
+ * To list it again, turn this on and drop `noindex` from PAGES.lemari.
  */
-export const LEMARI_IN_HUB = true;
+export const LEMARI_IN_HUB = false;
 
 export const ASSET_BASE = '/minigames/lemari';
 export const fullSrc = (file) => `${ASSET_BASE}/full/${file}.webp`;

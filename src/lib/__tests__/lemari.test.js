@@ -2,7 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { cwd } from 'node:process';
 import { describe, expect, it } from 'vitest';
-import { ABOUT_MAX, BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, DEFAULT_SET, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
+import { ABOUT_MAX, BASE_CREDIT, BASE_LAYERS, CANVAS_ASPECT, DEFAULT_BG, DEFAULT_SET, LEMARI_IN_HUB, LEMARI_ITEMS, LEMARI_SETS, SLOTS } from '../../data/lemari';
+import { PAGES } from '../pageMeta';
 import {
   applySet,
   cleanName,
@@ -14,6 +15,7 @@ import {
   encodeOutfit,
   layersFor,
   matchSet,
+  openingOutfit,
   pushHistory,
   randomOutfit,
   setTint,
@@ -201,6 +203,16 @@ describe('real wardrobe data', () => {
     expect(decodeOutfit('bg-studio')).toEqual({ bg: 'bg-studio' });
   });
 
+  it('a visit opens on the saved look, but a saved bare base counts as nothing saved', () => {
+    expect(openingOutfit(null)).toEqual(startingOutfit());
+    // The game used to save the bare base on every first visit.
+    expect(openingOutfit(decodeOutfit('bg-studio'))).toEqual(startingOutfit());
+    const chosen = decodeOutfit('bg-konser.dress-ntmu-isshou');
+    expect(openingOutfit(chosen)).toBe(chosen);
+    const otherPlace = decodeOutfit('bg-konser');
+    expect(openingOutfit(otherPlace)).toBe(otherPlace);
+  });
+
   it("a song preview is Apple's official file with a link to the song, and no song file is in the repo", () => {
     for (const set of LEMARI_SETS) {
       if (!set.listen) continue;
@@ -217,6 +229,13 @@ describe('real wardrobe data', () => {
     const audioFiles = (dir) => readdirSync(resolve(cwd(), dir), { recursive: true }).filter((f) => /\.(mp3|m4a|aac|ogg|opus|wav|flac)$/i.test(String(f)));
     expect(audioFiles('public/minigames/lemari')).toEqual([]);
     expect(audioFiles('assets/lemari')).toEqual([]);
+  });
+
+  it('the hub card, search engines and the sitemap agree on whether the game is listed', () => {
+    // Link-only means: no hub card, noindex, not in the sitemap. Listed means the opposite.
+    expect(Boolean(PAGES.lemari.noindex), 'PAGES.lemari.noindex').toBe(!LEMARI_IN_HUB);
+    const inSitemap = readFileSync(resolve(cwd(), 'public/sitemap.xml'), 'utf8').includes('/mini-games/lemari');
+    if (!LEMARI_IN_HUB) expect(inSitemap, 'public/sitemap.xml').toBe(false);
   });
 
   it("a song's one-line story is short enough for the card", () => {

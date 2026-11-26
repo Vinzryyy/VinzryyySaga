@@ -51,6 +51,16 @@ describe('injectMeta', () => {
     expect(tag(html, 'name', 'twitter:image:alt')).toBe('ArmePack — The Life of Armeniaca · Armeniaca');
   });
 
+  it('a link-only page keeps its preview and gets a robots tag, other pages get none', () => {
+    const html = injectMeta(TEMPLATE, { ...PAGES.schedule, noindex: true });
+    expect(tag(html, 'name', 'robots')).toBe('noindex, nofollow');
+    expect(html.match(/<meta\s[^>]*name="robots"/g)).toHaveLength(1);
+    expect(titleOf(html)).toBe('Jadwal Eli · Armeniaca');
+    expect(afterHead(html)).toBe(afterHead(TEMPLATE));
+    expect(tag(injectMeta(TEMPLATE, PAGES.schedule), 'name', 'robots')).toBeUndefined();
+    expect(tag(injectMeta(TEMPLATE, PAGES.lemari), 'name', 'robots')).toBe('noindex, nofollow');
+  });
+
   it('keeps the default description when a page has none', () => {
     const html = injectMeta(TEMPLATE, { path: '/x', title: 'X' });
     expect(tag(html, 'name', 'description')).toBe(tag(TEMPLATE, 'name', 'description'));

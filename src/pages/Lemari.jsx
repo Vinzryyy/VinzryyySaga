@@ -23,6 +23,7 @@ import {
   encodeOutfit,
   layersFor,
   matchSet,
+  openingOutfit,
   pushHistory,
   randomOutfit,
   readSaved,
@@ -53,7 +54,7 @@ const COMING = SLOTS.filter((s) => !LEMARI_ITEMS.some((i) => i.slot === s.key)).
 
 const initialOutfit = (params) => {
   if (params.get('o')) return decodeOutfit(params.get('o'));
-  return readSaved()?.outfit || startingOutfit();
+  return openingOutfit(readSaved()?.outfit);
 };
 
 /** The stage sticks this far from the top on phones (Tailwind top-16). */

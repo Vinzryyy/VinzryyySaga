@@ -5,7 +5,7 @@
  * is pure so tests can run it on the real index.html.
  */
 
-import { DEFAULT_IMAGE, PAGES, articleMeta, fullTitle, galleryYearMeta, momentMeta, noteMeta, pageUrl, recapMeta, weekMeta } from './pageMeta.js';
+import { DEFAULT_IMAGE, NOINDEX, PAGES, articleMeta, fullTitle, galleryYearMeta, momentMeta, noteMeta, pageUrl, recapMeta, weekMeta } from './pageMeta.js';
 import { weeklySummaries } from './liveRecaps.js';
 import { buildMoments } from './moments.js';
 
@@ -33,8 +33,10 @@ const setAttr = (html, label, re, attr, value) => {
 
 /**
  * index.html with the head tags of one page: meta = { path, title?,
- * description?, image?, type? }, the same shape <Seo> takes. A missing
- * description or image keeps the site's default.
+ * description?, image?, type?, noindex? }, the same shape <Seo> takes. A
+ * missing description or image keeps the site's default. `noindex` adds a
+ * robots tag, so a link-only page keeps its preview but stays out of search
+ * engines (crawlers that run no JavaScript never see <Seo>'s copy).
  */
 export const injectMeta = (html, meta) => {
   const title = fullTitle(meta.title);
@@ -62,6 +64,12 @@ export const injectMeta = (html, meta) => {
   if (image !== DEFAULT_IMAGE) tags.push(['property', 'og:image:alt', title], ['name', 'twitter:image:alt', title]);
   for (const [key, name, value] of tags) {
     if (value) out = setAttr(out, `<meta ${key}="${name}">`, metaRe(key, name), 'content', value);
+  }
+  if (meta.noindex) {
+    const heads = out.match(/<\/head>/g) || [];
+    if (heads.length !== 1) throw new Error(`index.html should have exactly one </head>, found ${heads.length}`);
+    if (metaRe('name', 'robots').test(out)) throw new Error('index.html already has a <meta name="robots">');
+    out = out.replace('</head>', () => `  <meta name="robots" content="${NOINDEX}" />\n  </head>`);
   }
   return out;
 };

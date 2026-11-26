@@ -94,6 +94,15 @@ export const startingOutfit = (items = LEMARI_ITEMS, sets = LEMARI_SETS) => {
 };
 
 /**
+ * The look a visit opens with when the link has none: the one saved in this
+ * browser, unless it is only the bare base. Before DEFAULT_SET existed, the
+ * game saved the bare base on every first visit, so a saved bare base means
+ * "nothing chosen yet".
+ */
+export const openingOutfit = (saved, items = LEMARI_ITEMS, sets = LEMARI_SETS) =>
+  saved && encodeOutfit(saved) !== encodeOutfit(defaultOutfit()) ? saved : startingOutfit(items, sets);
+
+/**
  * Which set the outfit shows, if any:
  *   { set, modified: false } when exactly the set's clothes are worn,
  *   uncoloured; { set, modified: true } when some of a set's clothes are

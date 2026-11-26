@@ -14,7 +14,15 @@ where Eli wore it, so the game leads back to real moments.
 | Built art | `public/minigames/lemari/{full,thumb}/*.webp`, `manifest.json` |
 | Build script | `npm run build-lemari` (`scripts/build-lemari-assets.mjs`) |
 | Look splitter | `scripts/split-lemari-look.mjs` (one full look → dress + shoes) |
-| Hub card | `LEMARI_IN_HUB` in `src/data/lemari.js` (on; turn it off while the wardrobe is only draft art) |
+| Hub card | `LEMARI_IN_HUB` in `src/data/lemari.js`: off, the game is link-only for now (see below) |
+
+**Link-only for now.** At the site owner's request the game is hidden from the
+public: no card on `/mini-games`, `noindex` on the page (`PAGES.lemari` in
+`src/lib/pageMeta.js`, written into the built HTML too) and no entry in
+`public/sitemap.xml`. Anyone with the link can still play, and shared links
+keep their preview. To list it, turn `LEMARI_IN_HUB` on, drop `noindex` and
+add the URL to the sitemap. A test checks that the hub card and `noindex`
+agree, and that a hidden game stays out of the sitemap.
 
 ## Layers (bottom → top)
 
@@ -42,6 +50,9 @@ where Eli wore it, so the game leads back to real moments.
 - **Urungkan:** button or Ctrl/Cmd+Z, last 30 changes (`pushHistory`).
 - **First visit and Reset** show `DEFAULT_SET` (`startingOutfit()`), never the
   bare base. Share links still decode on top of the bare `defaultOutfit()`.
+  The next visit reopens the look saved in the browser (`openingOutfit()`),
+  except a saved bare base: older versions saved it on every first visit, so
+  it counts as nothing chosen.
 - **Cerita kostum** sits under the stage: always shown on wide screens, behind
   a "Cerita kostum" button on phones (the stage stays short there, and the
   tabs stick right under it).
