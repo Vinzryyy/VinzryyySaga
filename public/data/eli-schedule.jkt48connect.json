@@ -1,7 +1,7 @@
 {
   "source": "https://jkt48connect.com (fanbase plan)",
   "sourceNote": "Eli (Helisma Putri): theater shows and M&G / 2-Shot / Video Call sessions from the last 30 days and upcoming.",
-  "eventCount": 9,
+  "eventCount": 6,
   "events": [
     {
       "kind": "SHOW",
@@ -211,84 +211,6 @@
     },
     {
       "kind": "EXCLUSIVE",
-      "code": "EX79CB-2026-11-21-11:45",
-      "title": "The Smile Collection (Sesi 1)",
-      "date": "2026-11-21T11:45:00+07:00",
-      "start_time": "11:45",
-      "end_time": "12:45",
-      "category": "DIGITAL_PHOTOBOOK",
-      "team": null,
-      "venue": "Video Call (online)",
-      "members": [
-        {
-          "name": "Helisma Putri",
-          "member_id": "112",
-          "url_key": "helisma-putri"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 1"
-      ],
-      "sold_out": false,
-      "is_birthday_show": false,
-      "is_video_call": false,
-      "url": "https://jkt48.com/purchase/exclusive?code=EX79CB",
-      "source": "jkt48connect"
-    },
-    {
-      "kind": "EXCLUSIVE",
-      "code": "EX79CB-2026-11-21-13:15",
-      "title": "The Smile Collection (Sesi 2)",
-      "date": "2026-11-21T13:15:00+07:00",
-      "start_time": "13:15",
-      "end_time": "14:15",
-      "category": "DIGITAL_PHOTOBOOK",
-      "team": null,
-      "venue": "Video Call (online)",
-      "members": [
-        {
-          "name": "Helisma Putri",
-          "member_id": "112",
-          "url_key": "helisma-putri"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 1"
-      ],
-      "sold_out": false,
-      "is_birthday_show": false,
-      "is_video_call": false,
-      "url": "https://jkt48.com/purchase/exclusive?code=EX79CB",
-      "source": "jkt48connect"
-    },
-    {
-      "kind": "EXCLUSIVE",
-      "code": "EX79CB-2026-11-21-14:45",
-      "title": "The Smile Collection (Sesi 3)",
-      "date": "2026-11-21T14:45:00+07:00",
-      "start_time": "14:45",
-      "end_time": "15:45",
-      "category": "DIGITAL_PHOTOBOOK",
-      "team": null,
-      "venue": "Video Call (online)",
-      "members": [
-        {
-          "name": "Helisma Putri",
-          "member_id": "112",
-          "url_key": "helisma-putri"
-        }
-      ],
-      "eli_jalur": [
-        "Jalur 1"
-      ],
-      "sold_out": false,
-      "is_birthday_show": false,
-      "is_video_call": false,
-      "url": "https://jkt48.com/purchase/exclusive?code=EX79CB",
-      "source": "jkt48connect"
-    },
-    {
-      "kind": "EXCLUSIVE",
       "code": "EX3B84-2026-12-20-13:30",
       "title": "2-Shot - AYO SENYUMLAH | JKT48 15th Anniversary Personal Meet and Greet Event (Sesi 2)",
       "date": "2026-12-20T13:30:00+07:00",
@@ -340,5 +262,5 @@
       "source": "jkt48connect"
     }
   ],
-  "fetchedAt": "2026-11-24T17:49:54.755Z"
+  "fetchedAt": "2026-11-28T02:44:13.609Z"
 }
